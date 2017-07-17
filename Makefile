@@ -42,6 +42,6 @@ stamp-preproc: stamp-config
 
 # check into git repository
 stamp-commit: stamp-preproc
-	git add source/${KK}
+	git add 'source/${KK}/*.i'
 	git commit -m 'source update at ${DATE}'
 	date -u >$@
