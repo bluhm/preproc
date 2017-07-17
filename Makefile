@@ -13,7 +13,7 @@ clean:
 
 stamp-current:
 	date -u >$@
-	touch -d ${DATE}T00:00:00Z $@
+	touch -d '${DATE}T00:00:00Z' $@
 
 # checkout daily OpenBSD kernel sources
 stamp-checkout: stamp-current
@@ -36,4 +36,7 @@ stamp-preproc: stamp-checkout
 	date -u >$@
 
 # check into git repository
-# TODO
+stamp-commit: stamp-preproc
+	git add stamp-current source/${KK}
+	git commit -m 'source update'
+	date -u >$@
