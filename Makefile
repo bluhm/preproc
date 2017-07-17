@@ -25,6 +25,7 @@ stamp-checkout: stamp-current
 
 stamp-config: stamp-checkout
 	rm -f $@
+	rm -rf openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj
 	make -C openbsd/src/sys/arch/${MACHINE}/compile/${KK} obj
 	make -C openbsd/src/sys/arch/${MACHINE}/compile/${KK} config
 	date -u >$@
