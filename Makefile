@@ -1,7 +1,12 @@
 KK =		GENERIC.MP
 DATE !!=	date -u +%F
 
+.PHONY: all clean
+
 all: stamp-preproc
+
+clean:
+	rm -f stamp-*
 
 stamp-current:
 	date -u >$@
