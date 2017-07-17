@@ -1,0 +1,5 @@
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ffs/ffs_softdep_stub.c"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ffs/ffs_softdep_stub.c"

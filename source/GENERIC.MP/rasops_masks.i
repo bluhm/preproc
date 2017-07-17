@@ -1,0 +1,677 @@
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.c"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.c"
+# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.c"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
+# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef struct label_t {
+ long val[2];
+} label_t;
+# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef signed char __int8_t;
+typedef unsigned char __uint8_t;
+typedef short __int16_t;
+typedef unsigned short __uint16_t;
+typedef int __int32_t;
+typedef unsigned int __uint32_t;
+typedef long long __int64_t;
+typedef unsigned long long __uint64_t;
+
+
+typedef __int8_t __int_least8_t;
+typedef __uint8_t __uint_least8_t;
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
+typedef __int32_t __int_least32_t;
+typedef __uint32_t __uint_least32_t;
+typedef __int64_t __int_least64_t;
+typedef __uint64_t __uint_least64_t;
+
+
+typedef __int32_t __int_fast8_t;
+typedef __uint32_t __uint_fast8_t;
+typedef __int32_t __int_fast16_t;
+typedef __uint32_t __uint_fast16_t;
+typedef __int32_t __int_fast32_t;
+typedef __uint32_t __uint_fast32_t;
+typedef __int64_t __int_fast64_t;
+typedef __uint64_t __uint_fast64_t;
+# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef long __intptr_t;
+typedef unsigned long __uintptr_t;
+
+
+typedef __int64_t __intmax_t;
+typedef __uint64_t __uintmax_t;
+
+
+typedef long __register_t;
+
+
+typedef unsigned long __vaddr_t;
+typedef unsigned long __paddr_t;
+typedef unsigned long __vsize_t;
+typedef unsigned long __psize_t;
+
+
+typedef double __double_t;
+typedef float __float_t;
+typedef long __ptrdiff_t;
+typedef unsigned long __size_t;
+typedef long __ssize_t;
+
+typedef __builtin_va_list __va_list;
+
+
+
+
+
+
+typedef int __wchar_t;
+
+typedef int __wint_t;
+typedef int __rune_t;
+typedef void * __wctrans_t;
+typedef void * __wctype_t;
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
+
+typedef __int64_t __blkcnt_t;
+typedef __int32_t __blksize_t;
+typedef __int64_t __clock_t;
+typedef __int32_t __clockid_t;
+typedef unsigned long __cpuid_t;
+typedef __int32_t __dev_t;
+typedef __uint32_t __fixpt_t;
+typedef __uint64_t __fsblkcnt_t;
+typedef __uint64_t __fsfilcnt_t;
+typedef __uint32_t __gid_t;
+typedef __uint32_t __id_t;
+typedef __uint32_t __in_addr_t;
+typedef __uint16_t __in_port_t;
+typedef __uint64_t __ino_t;
+typedef long __key_t;
+typedef __uint32_t __mode_t;
+typedef __uint32_t __nlink_t;
+typedef __int64_t __off_t;
+typedef __int32_t __pid_t;
+typedef __uint64_t __rlim_t;
+typedef __uint8_t __sa_family_t;
+typedef __int32_t __segsz_t;
+typedef __uint32_t __socklen_t;
+typedef long __suseconds_t;
+typedef __int32_t __swblk_t;
+typedef __int64_t __time_t;
+typedef __int32_t __timer_t;
+typedef __uint32_t __uid_t;
+typedef __uint32_t __useconds_t;
+
+
+
+
+
+typedef union {
+ char __mbstate8[128];
+ __int64_t __mbstateL;
+} __mbstate_t;
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
+# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
+static inline __uint16_t
+__mswap16(volatile const __uint16_t *m)
+{
+ __uint16_t v;
+
+ __asm("lduha [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline __uint32_t
+__mswap32(volatile const __uint32_t *m)
+{
+ __uint32_t v;
+
+ __asm("lduwa [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline __uint64_t
+__mswap64(volatile const __uint64_t *m)
+{
+ __uint64_t v;
+
+ __asm("ldxa [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline void
+__swapm16(volatile __uint16_t *m, __uint16_t v)
+{
+ __asm("stha %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+
+static inline void
+__swapm32(volatile __uint32_t *m, __uint32_t v)
+{
+ __asm("stwa %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+
+static inline void
+__swapm64(volatile __uint64_t *m, __uint64_t v)
+{
+ __asm("stxa %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
+# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
+
+
+
+
+
+typedef unsigned char u_char;
+typedef unsigned short u_short;
+typedef unsigned int u_int;
+typedef unsigned long u_long;
+
+typedef unsigned char unchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+
+typedef __cpuid_t cpuid_t;
+typedef __register_t register_t;
+# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+typedef __int8_t int8_t;
+
+
+
+
+typedef __uint8_t uint8_t;
+
+
+
+
+typedef __int16_t int16_t;
+
+
+
+
+typedef __uint16_t uint16_t;
+
+
+
+
+typedef __int32_t int32_t;
+
+
+
+
+typedef __uint32_t uint32_t;
+
+
+
+
+typedef __int64_t int64_t;
+
+
+
+
+typedef __uint64_t uint64_t;
+
+
+
+typedef __uint8_t u_int8_t;
+typedef __uint16_t u_int16_t;
+typedef __uint32_t u_int32_t;
+typedef __uint64_t u_int64_t;
+
+
+typedef __int64_t quad_t;
+typedef __uint64_t u_quad_t;
+
+
+
+typedef __vaddr_t vaddr_t;
+typedef __paddr_t paddr_t;
+typedef __vsize_t vsize_t;
+typedef __psize_t psize_t;
+
+
+
+typedef __blkcnt_t blkcnt_t;
+typedef __blksize_t blksize_t;
+typedef char * caddr_t;
+typedef __int32_t daddr32_t;
+typedef __int64_t daddr_t;
+typedef __dev_t dev_t;
+typedef __fixpt_t fixpt_t;
+typedef __gid_t gid_t;
+typedef __id_t id_t;
+typedef __ino_t ino_t;
+typedef __key_t key_t;
+typedef __mode_t mode_t;
+typedef __nlink_t nlink_t;
+typedef __rlim_t rlim_t;
+typedef __segsz_t segsz_t;
+typedef __swblk_t swblk_t;
+typedef __uid_t uid_t;
+typedef __useconds_t useconds_t;
+typedef __suseconds_t suseconds_t;
+typedef __fsblkcnt_t fsblkcnt_t;
+typedef __fsfilcnt_t fsfilcnt_t;
+
+
+
+
+
+
+typedef __clock_t clock_t;
+
+
+
+
+typedef __clockid_t clockid_t;
+
+
+
+
+typedef __pid_t pid_t;
+
+
+
+
+typedef __size_t size_t;
+
+
+
+
+typedef __ssize_t ssize_t;
+
+
+
+
+typedef __time_t time_t;
+
+
+
+
+typedef __timer_t timer_t;
+
+
+
+
+typedef __off_t off_t;
+# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+struct proc;
+struct pgrp;
+struct ucred;
+struct rusage;
+struct file;
+struct buf;
+struct tty;
+struct uio;
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.h" 2
+# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.h"
+extern const int32_t rasops_lmask[32+1];
+extern const int32_t rasops_rmask[32+1];
+extern const int32_t rasops_pmask[32][32];
+# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rasops/rasops_masks.c" 2
+
+
+
+const
+
+int32_t rasops_lmask[32+1] = {
+ 0x00000000, 0x7fffffff, 0x3fffffff, 0x1fffffff,
+ 0x0fffffff, 0x07ffffff, 0x03ffffff, 0x01ffffff,
+ 0x00ffffff, 0x007fffff, 0x003fffff, 0x001fffff,
+ 0x000fffff, 0x0007ffff, 0x0003ffff, 0x0001ffff,
+ 0x0000ffff, 0x00007fff, 0x00003fff, 0x00001fff,
+ 0x00000fff, 0x000007ff, 0x000003ff, 0x000001ff,
+ 0x000000ff, 0x0000007f, 0x0000003f, 0x0000001f,
+ 0x0000000f, 0x00000007, 0x00000003, 0x00000001,
+ 0x00000000
+};
+
+
+const
+
+int32_t rasops_rmask[32+1] = {
+ 0x00000000, 0x80000000, 0xc0000000, 0xe0000000,
+ 0xf0000000, 0xf8000000, 0xfc000000, 0xfe000000,
+ 0xff000000, 0xff800000, 0xffc00000, 0xffe00000,
+ 0xfff00000, 0xfff80000, 0xfffc0000, 0xfffe0000,
+ 0xffff0000, 0xffff8000, 0xffffc000, 0xffffe000,
+ 0xfffff000, 0xfffff800, 0xfffffc00, 0xfffffe00,
+ 0xffffff00, 0xffffff80, 0xffffffc0, 0xffffffe0,
+ 0xfffffff0, 0xfffffff8, 0xfffffffc, 0xfffffffe,
+ 0xffffffff
+};
+
+
+
+const
+
+int32_t rasops_pmask[32][32] = {
+      { 0xffffffff, 0x80000000, 0xc0000000, 0xe0000000,
+ 0xf0000000, 0xf8000000, 0xfc000000, 0xfe000000,
+ 0xff000000, 0xff800000, 0xffc00000, 0xffe00000,
+ 0xfff00000, 0xfff80000, 0xfffc0000, 0xfffe0000,
+ 0xffff0000, 0xffff8000, 0xffffc000, 0xffffe000,
+ 0xfffff000, 0xfffff800, 0xfffffc00, 0xfffffe00,
+ 0xffffff00, 0xffffff80, 0xffffffc0, 0xffffffe0,
+ 0xfffffff0, 0xfffffff8, 0xfffffffc, 0xfffffffe },
+
+      { 0x00000000, 0x40000000, 0x60000000, 0x70000000,
+ 0x78000000, 0x7c000000, 0x7e000000, 0x7f000000,
+ 0x7f800000, 0x7fc00000, 0x7fe00000, 0x7ff00000,
+ 0x7ff80000, 0x7ffc0000, 0x7ffe0000, 0x7fff0000,
+ 0x7fff8000, 0x7fffc000, 0x7fffe000, 0x7ffff000,
+ 0x7ffff800, 0x7ffffc00, 0x7ffffe00, 0x7fffff00,
+ 0x7fffff80, 0x7fffffc0, 0x7fffffe0, 0x7ffffff0,
+ 0x7ffffff8, 0x7ffffffc, 0x7ffffffe, 0x7fffffff },
+
+      { 0x00000000, 0x20000000, 0x30000000, 0x38000000,
+ 0x3c000000, 0x3e000000, 0x3f000000, 0x3f800000,
+ 0x3fc00000, 0x3fe00000, 0x3ff00000, 0x3ff80000,
+ 0x3ffc0000, 0x3ffe0000, 0x3fff0000, 0x3fff8000,
+ 0x3fffc000, 0x3fffe000, 0x3ffff000, 0x3ffff800,
+ 0x3ffffc00, 0x3ffffe00, 0x3fffff00, 0x3fffff80,
+ 0x3fffffc0, 0x3fffffe0, 0x3ffffff0, 0x3ffffff8,
+ 0x3ffffffc, 0x3ffffffe, 0x3fffffff, 0x00000000 },
+
+      { 0x00000000, 0x10000000, 0x18000000, 0x1c000000,
+ 0x1e000000, 0x1f000000, 0x1f800000, 0x1fc00000,
+ 0x1fe00000, 0x1ff00000, 0x1ff80000, 0x1ffc0000,
+ 0x1ffe0000, 0x1fff0000, 0x1fff8000, 0x1fffc000,
+ 0x1fffe000, 0x1ffff000, 0x1ffff800, 0x1ffffc00,
+ 0x1ffffe00, 0x1fffff00, 0x1fffff80, 0x1fffffc0,
+ 0x1fffffe0, 0x1ffffff0, 0x1ffffff8, 0x1ffffffc,
+ 0x1ffffffe, 0x1fffffff, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x08000000, 0x0c000000, 0x0e000000,
+ 0x0f000000, 0x0f800000, 0x0fc00000, 0x0fe00000,
+ 0x0ff00000, 0x0ff80000, 0x0ffc0000, 0x0ffe0000,
+ 0x0fff0000, 0x0fff8000, 0x0fffc000, 0x0fffe000,
+ 0x0ffff000, 0x0ffff800, 0x0ffffc00, 0x0ffffe00,
+ 0x0fffff00, 0x0fffff80, 0x0fffffc0, 0x0fffffe0,
+ 0x0ffffff0, 0x0ffffff8, 0x0ffffffc, 0x0ffffffe,
+ 0x0fffffff, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x04000000, 0x06000000, 0x07000000,
+ 0x07800000, 0x07c00000, 0x07e00000, 0x07f00000,
+ 0x07f80000, 0x07fc0000, 0x07fe0000, 0x07ff0000,
+ 0x07ff8000, 0x07ffc000, 0x07ffe000, 0x07fff000,
+ 0x07fff800, 0x07fffc00, 0x07fffe00, 0x07ffff00,
+ 0x07ffff80, 0x07ffffc0, 0x07ffffe0, 0x07fffff0,
+ 0x07fffff8, 0x07fffffc, 0x07fffffe, 0x07ffffff,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x02000000, 0x03000000, 0x03800000,
+ 0x03c00000, 0x03e00000, 0x03f00000, 0x03f80000,
+ 0x03fc0000, 0x03fe0000, 0x03ff0000, 0x03ff8000,
+ 0x03ffc000, 0x03ffe000, 0x03fff000, 0x03fff800,
+ 0x03fffc00, 0x03fffe00, 0x03ffff00, 0x03ffff80,
+ 0x03ffffc0, 0x03ffffe0, 0x03fffff0, 0x03fffff8,
+ 0x03fffffc, 0x03fffffe, 0x03ffffff, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x01000000, 0x01800000, 0x01c00000,
+ 0x01e00000, 0x01f00000, 0x01f80000, 0x01fc0000,
+ 0x01fe0000, 0x01ff0000, 0x01ff8000, 0x01ffc000,
+ 0x01ffe000, 0x01fff000, 0x01fff800, 0x01fffc00,
+ 0x01fffe00, 0x01ffff00, 0x01ffff80, 0x01ffffc0,
+ 0x01ffffe0, 0x01fffff0, 0x01fffff8, 0x01fffffc,
+ 0x01fffffe, 0x01ffffff, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00800000, 0x00c00000, 0x00e00000,
+ 0x00f00000, 0x00f80000, 0x00fc0000, 0x00fe0000,
+ 0x00ff0000, 0x00ff8000, 0x00ffc000, 0x00ffe000,
+ 0x00fff000, 0x00fff800, 0x00fffc00, 0x00fffe00,
+ 0x00ffff00, 0x00ffff80, 0x00ffffc0, 0x00ffffe0,
+ 0x00fffff0, 0x00fffff8, 0x00fffffc, 0x00fffffe,
+ 0x00ffffff, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00400000, 0x00600000, 0x00700000,
+ 0x00780000, 0x007c0000, 0x007e0000, 0x007f0000,
+ 0x007f8000, 0x007fc000, 0x007fe000, 0x007ff000,
+ 0x007ff800, 0x007ffc00, 0x007ffe00, 0x007fff00,
+ 0x007fff80, 0x007fffc0, 0x007fffe0, 0x007ffff0,
+ 0x007ffff8, 0x007ffffc, 0x007ffffe, 0x007fffff,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00200000, 0x00300000, 0x00380000,
+ 0x003c0000, 0x003e0000, 0x003f0000, 0x003f8000,
+ 0x003fc000, 0x003fe000, 0x003ff000, 0x003ff800,
+ 0x003ffc00, 0x003ffe00, 0x003fff00, 0x003fff80,
+ 0x003fffc0, 0x003fffe0, 0x003ffff0, 0x003ffff8,
+ 0x003ffffc, 0x003ffffe, 0x003fffff, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00100000, 0x00180000, 0x001c0000,
+ 0x001e0000, 0x001f0000, 0x001f8000, 0x001fc000,
+ 0x001fe000, 0x001ff000, 0x001ff800, 0x001ffc00,
+ 0x001ffe00, 0x001fff00, 0x001fff80, 0x001fffc0,
+ 0x001fffe0, 0x001ffff0, 0x001ffff8, 0x001ffffc,
+ 0x001ffffe, 0x001fffff, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00080000, 0x000c0000, 0x000e0000,
+ 0x000f0000, 0x000f8000, 0x000fc000, 0x000fe000,
+ 0x000ff000, 0x000ff800, 0x000ffc00, 0x000ffe00,
+ 0x000fff00, 0x000fff80, 0x000fffc0, 0x000fffe0,
+ 0x000ffff0, 0x000ffff8, 0x000ffffc, 0x000ffffe,
+ 0x000fffff, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00040000, 0x00060000, 0x00070000,
+ 0x00078000, 0x0007c000, 0x0007e000, 0x0007f000,
+ 0x0007f800, 0x0007fc00, 0x0007fe00, 0x0007ff00,
+ 0x0007ff80, 0x0007ffc0, 0x0007ffe0, 0x0007fff0,
+ 0x0007fff8, 0x0007fffc, 0x0007fffe, 0x0007ffff,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00020000, 0x00030000, 0x00038000,
+ 0x0003c000, 0x0003e000, 0x0003f000, 0x0003f800,
+ 0x0003fc00, 0x0003fe00, 0x0003ff00, 0x0003ff80,
+ 0x0003ffc0, 0x0003ffe0, 0x0003fff0, 0x0003fff8,
+ 0x0003fffc, 0x0003fffe, 0x0003ffff, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00010000, 0x00018000, 0x0001c000,
+ 0x0001e000, 0x0001f000, 0x0001f800, 0x0001fc00,
+ 0x0001fe00, 0x0001ff00, 0x0001ff80, 0x0001ffc0,
+ 0x0001ffe0, 0x0001fff0, 0x0001fff8, 0x0001fffc,
+ 0x0001fffe, 0x0001ffff, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00008000, 0x0000c000, 0x0000e000,
+ 0x0000f000, 0x0000f800, 0x0000fc00, 0x0000fe00,
+ 0x0000ff00, 0x0000ff80, 0x0000ffc0, 0x0000ffe0,
+ 0x0000fff0, 0x0000fff8, 0x0000fffc, 0x0000fffe,
+ 0x0000ffff, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00004000, 0x00006000, 0x00007000,
+ 0x00007800, 0x00007c00, 0x00007e00, 0x00007f00,
+ 0x00007f80, 0x00007fc0, 0x00007fe0, 0x00007ff0,
+ 0x00007ff8, 0x00007ffc, 0x00007ffe, 0x00007fff,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00002000, 0x00003000, 0x00003800,
+ 0x00003c00, 0x00003e00, 0x00003f00, 0x00003f80,
+ 0x00003fc0, 0x00003fe0, 0x00003ff0, 0x00003ff8,
+ 0x00003ffc, 0x00003ffe, 0x00003fff, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00001000, 0x00001800, 0x00001c00,
+ 0x00001e00, 0x00001f00, 0x00001f80, 0x00001fc0,
+ 0x00001fe0, 0x00001ff0, 0x00001ff8, 0x00001ffc,
+ 0x00001ffe, 0x00001fff, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000800, 0x00000c00, 0x00000e00,
+ 0x00000f00, 0x00000f80, 0x00000fc0, 0x00000fe0,
+ 0x00000ff0, 0x00000ff8, 0x00000ffc, 0x00000ffe,
+ 0x00000fff, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000400, 0x00000600, 0x00000700,
+ 0x00000780, 0x000007c0, 0x000007e0, 0x000007f0,
+ 0x000007f8, 0x000007fc, 0x000007fe, 0x000007ff,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000200, 0x00000300, 0x00000380,
+ 0x000003c0, 0x000003e0, 0x000003f0, 0x000003f8,
+ 0x000003fc, 0x000003fe, 0x000003ff, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000100, 0x00000180, 0x000001c0,
+ 0x000001e0, 0x000001f0, 0x000001f8, 0x000001fc,
+ 0x000001fe, 0x000001ff, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000080, 0x000000c0, 0x000000e0,
+ 0x000000f0, 0x000000f8, 0x000000fc, 0x000000fe,
+ 0x000000ff, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+     { 0x00000000, 0x00000040, 0x00000060, 0x00000070,
+ 0x00000078, 0x0000007c, 0x0000007e, 0x0000007f,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000020, 0x00000030, 0x00000038,
+ 0x0000003c, 0x0000003e, 0x0000003f, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000010, 0x00000018, 0x0000001c,
+ 0x0000001e, 0x0000001f, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000008, 0x0000000c, 0x0000000e,
+ 0x0000000f, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000004, 0x00000006, 0x00000007,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000002, 0x00000003, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 },
+
+      { 0x00000000, 0x00000001, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+ 0x00000000, 0x00000000, 0x00000000, 0x00000000 }
+};

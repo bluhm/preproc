@@ -1,0 +1,5975 @@
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c"
+# 18 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 1
+# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
+# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
+# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef struct label_t {
+ long val[2];
+} label_t;
+# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef signed char __int8_t;
+typedef unsigned char __uint8_t;
+typedef short __int16_t;
+typedef unsigned short __uint16_t;
+typedef int __int32_t;
+typedef unsigned int __uint32_t;
+typedef long long __int64_t;
+typedef unsigned long long __uint64_t;
+
+
+typedef __int8_t __int_least8_t;
+typedef __uint8_t __uint_least8_t;
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
+typedef __int32_t __int_least32_t;
+typedef __uint32_t __uint_least32_t;
+typedef __int64_t __int_least64_t;
+typedef __uint64_t __uint_least64_t;
+
+
+typedef __int32_t __int_fast8_t;
+typedef __uint32_t __uint_fast8_t;
+typedef __int32_t __int_fast16_t;
+typedef __uint32_t __uint_fast16_t;
+typedef __int32_t __int_fast32_t;
+typedef __uint32_t __uint_fast32_t;
+typedef __int64_t __int_fast64_t;
+typedef __uint64_t __uint_fast64_t;
+# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
+typedef long __intptr_t;
+typedef unsigned long __uintptr_t;
+
+
+typedef __int64_t __intmax_t;
+typedef __uint64_t __uintmax_t;
+
+
+typedef long __register_t;
+
+
+typedef unsigned long __vaddr_t;
+typedef unsigned long __paddr_t;
+typedef unsigned long __vsize_t;
+typedef unsigned long __psize_t;
+
+
+typedef double __double_t;
+typedef float __float_t;
+typedef long __ptrdiff_t;
+typedef unsigned long __size_t;
+typedef long __ssize_t;
+
+typedef __builtin_va_list __va_list;
+
+
+
+
+
+
+typedef int __wchar_t;
+
+typedef int __wint_t;
+typedef int __rune_t;
+typedef void * __wctrans_t;
+typedef void * __wctype_t;
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
+
+typedef __int64_t __blkcnt_t;
+typedef __int32_t __blksize_t;
+typedef __int64_t __clock_t;
+typedef __int32_t __clockid_t;
+typedef unsigned long __cpuid_t;
+typedef __int32_t __dev_t;
+typedef __uint32_t __fixpt_t;
+typedef __uint64_t __fsblkcnt_t;
+typedef __uint64_t __fsfilcnt_t;
+typedef __uint32_t __gid_t;
+typedef __uint32_t __id_t;
+typedef __uint32_t __in_addr_t;
+typedef __uint16_t __in_port_t;
+typedef __uint64_t __ino_t;
+typedef long __key_t;
+typedef __uint32_t __mode_t;
+typedef __uint32_t __nlink_t;
+typedef __int64_t __off_t;
+typedef __int32_t __pid_t;
+typedef __uint64_t __rlim_t;
+typedef __uint8_t __sa_family_t;
+typedef __int32_t __segsz_t;
+typedef __uint32_t __socklen_t;
+typedef long __suseconds_t;
+typedef __int32_t __swblk_t;
+typedef __int64_t __time_t;
+typedef __int32_t __timer_t;
+typedef __uint32_t __uid_t;
+typedef __uint32_t __useconds_t;
+
+
+
+
+
+typedef union {
+ char __mbstate8[128];
+ __int64_t __mbstateL;
+} __mbstate_t;
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
+# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
+static inline __uint16_t
+__mswap16(volatile const __uint16_t *m)
+{
+ __uint16_t v;
+
+ __asm("lduha [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline __uint32_t
+__mswap32(volatile const __uint32_t *m)
+{
+ __uint32_t v;
+
+ __asm("lduwa [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline __uint64_t
+__mswap64(volatile const __uint64_t *m)
+{
+ __uint64_t v;
+
+ __asm("ldxa [%1] %2, %0 ! %3"
+     : "=r" (v)
+     : "r" (m), "n" (0x88), "m" (*m));
+
+ return (v);
+}
+
+static inline void
+__swapm16(volatile __uint16_t *m, __uint16_t v)
+{
+ __asm("stha %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+
+static inline void
+__swapm32(volatile __uint32_t *m, __uint32_t v)
+{
+ __asm("stwa %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+
+static inline void
+__swapm64(volatile __uint64_t *m, __uint64_t v)
+{
+ __asm("stxa %1, [%2] %3 ! %0"
+     : "=m" (*m)
+     : "r" (v), "r" (m), "n" (0x88));
+}
+# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
+# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
+
+
+
+
+
+typedef unsigned char u_char;
+typedef unsigned short u_short;
+typedef unsigned int u_int;
+typedef unsigned long u_long;
+
+typedef unsigned char unchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+
+typedef __cpuid_t cpuid_t;
+typedef __register_t register_t;
+# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+typedef __int8_t int8_t;
+
+
+
+
+typedef __uint8_t uint8_t;
+
+
+
+
+typedef __int16_t int16_t;
+
+
+
+
+typedef __uint16_t uint16_t;
+
+
+
+
+typedef __int32_t int32_t;
+
+
+
+
+typedef __uint32_t uint32_t;
+
+
+
+
+typedef __int64_t int64_t;
+
+
+
+
+typedef __uint64_t uint64_t;
+
+
+
+typedef __uint8_t u_int8_t;
+typedef __uint16_t u_int16_t;
+typedef __uint32_t u_int32_t;
+typedef __uint64_t u_int64_t;
+
+
+typedef __int64_t quad_t;
+typedef __uint64_t u_quad_t;
+
+
+
+typedef __vaddr_t vaddr_t;
+typedef __paddr_t paddr_t;
+typedef __vsize_t vsize_t;
+typedef __psize_t psize_t;
+
+
+
+typedef __blkcnt_t blkcnt_t;
+typedef __blksize_t blksize_t;
+typedef char * caddr_t;
+typedef __int32_t daddr32_t;
+typedef __int64_t daddr_t;
+typedef __dev_t dev_t;
+typedef __fixpt_t fixpt_t;
+typedef __gid_t gid_t;
+typedef __id_t id_t;
+typedef __ino_t ino_t;
+typedef __key_t key_t;
+typedef __mode_t mode_t;
+typedef __nlink_t nlink_t;
+typedef __rlim_t rlim_t;
+typedef __segsz_t segsz_t;
+typedef __swblk_t swblk_t;
+typedef __uid_t uid_t;
+typedef __useconds_t useconds_t;
+typedef __suseconds_t suseconds_t;
+typedef __fsblkcnt_t fsblkcnt_t;
+typedef __fsfilcnt_t fsfilcnt_t;
+
+
+
+
+
+
+typedef __clock_t clock_t;
+
+
+
+
+typedef __clockid_t clockid_t;
+
+
+
+
+typedef __pid_t pid_t;
+
+
+
+
+typedef __size_t size_t;
+
+
+
+
+typedef __ssize_t ssize_t;
+
+
+
+
+typedef __time_t time_t;
+
+
+
+
+typedef __timer_t timer_t;
+
+
+
+
+typedef __off_t off_t;
+# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
+struct proc;
+struct pgrp;
+struct ucred;
+struct rusage;
+struct file;
+struct buf;
+struct tty;
+struct uio;
+# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
+# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/errno.h" 1
+# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 1
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
+struct timeval {
+ time_t tv_sec;
+ suseconds_t tv_usec;
+};
+
+
+
+
+struct timespec {
+ time_t tv_sec;
+ long tv_nsec;
+};
+# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
+typedef uint32_t __fd_mask;
+
+
+
+typedef struct fd_set {
+ __fd_mask fds_bits[(((1024) + ((((unsigned)(sizeof(__fd_mask) * 8))) - 1)) / (((unsigned)(sizeof(__fd_mask) * 8))))];
+} fd_set;
+
+static __inline void
+__fd_set(int fd, fd_set *p)
+{
+ p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] |= (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
+}
+
+
+static __inline void
+__fd_clr(int fd, fd_set *p)
+{
+ p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] &= ~(1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
+}
+
+
+static __inline int
+__fd_isset(int fd, const fd_set *p)
+{
+ return (p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] & (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8)))));
+}
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
+# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
+struct timezone {
+ int tz_minuteswest;
+ int tz_dsttime;
+};
+# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
+struct itimerval {
+ struct timeval it_interval;
+ struct timeval it_value;
+};
+
+
+
+
+
+struct clockinfo {
+ int hz;
+ int tick;
+ int tickadj;
+ int stathz;
+ int profhz;
+};
+
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h" 1
+# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h"
+struct itimerspec {
+ struct timespec it_interval;
+ struct timespec it_value;
+};
+# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
+
+
+struct bintime {
+ time_t sec;
+ uint64_t frac;
+};
+
+static __inline void
+bintime_addx(struct bintime *bt, uint64_t x)
+{
+ uint64_t u;
+
+ u = bt->frac;
+ bt->frac += x;
+ if (u > bt->frac)
+  bt->sec++;
+}
+
+static __inline void
+bintime_add(struct bintime *bt, struct bintime *bt2)
+{
+ uint64_t u;
+
+ u = bt->frac;
+ bt->frac += bt2->frac;
+ if (u > bt->frac)
+  bt->sec++;
+ bt->sec += bt2->sec;
+}
+
+static __inline void
+bintime_sub(struct bintime *bt, struct bintime *bt2)
+{
+ uint64_t u;
+
+ u = bt->frac;
+ bt->frac -= bt2->frac;
+ if (u < bt->frac)
+  bt->sec--;
+ bt->sec -= bt2->sec;
+}
+# 220 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
+static __inline void
+bintime2timespec(struct bintime *bt, struct timespec *ts)
+{
+
+ ts->tv_sec = bt->sec;
+ ts->tv_nsec = (long)(((uint64_t)1000000000 * (uint32_t)(bt->frac >> 32)) >> 32);
+}
+
+static __inline void
+timespec2bintime(struct timespec *ts, struct bintime *bt)
+{
+
+ bt->sec = ts->tv_sec;
+
+ bt->frac = (uint64_t)ts->tv_nsec * (uint64_t)18446744073ULL;
+}
+
+static __inline void
+bintime2timeval(struct bintime *bt, struct timeval *tv)
+{
+
+ tv->tv_sec = bt->sec;
+ tv->tv_usec = (long)(((uint64_t)1000000 * (uint32_t)(bt->frac >> 32)) >> 32);
+}
+
+static __inline void
+timeval2bintime(struct timeval *tv, struct bintime *bt)
+{
+
+ bt->sec = (time_t)tv->tv_sec;
+
+ bt->frac = (uint64_t)tv->tv_usec * (uint64_t)18446744073709ULL;
+}
+
+extern volatile time_t time_second;
+extern volatile time_t time_uptime;
+# 278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
+void bintime(struct bintime *);
+void nanotime(struct timespec *);
+void microtime(struct timeval *);
+
+void getnanotime(struct timespec *);
+void getmicrotime(struct timeval *);
+
+void binuptime(struct bintime *);
+void nanouptime(struct timespec *);
+void microuptime(struct timeval *);
+
+void getnanouptime(struct timespec *);
+void getmicrouptime(struct timeval *);
+
+struct proc;
+int clock_gettime(struct proc *, clockid_t, struct timespec *);
+
+int timespecfix(struct timespec *);
+int itimerfix(struct timeval *);
+int itimerdecr(struct itimerval *itp, int usec);
+void itimerround(struct timeval *);
+int settime(struct timespec *);
+int ratecheck(struct timeval *, const struct timeval *);
+int ppsratecheck(struct timeval *, int *, int);
+
+
+
+
+struct clock_ymdhms {
+        u_short dt_year;
+        u_char dt_mon;
+        u_char dt_day;
+        u_char dt_wday;
+        u_char dt_hour;
+        u_char dt_min;
+        u_char dt_sec;
+};
+
+time_t clock_ymdhms_to_secs(struct clock_ymdhms *);
+void clock_secs_to_ymdhms(time_t, struct clock_ymdhms *);
+# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h" 1
+# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
+struct rusage {
+ struct timeval ru_utime;
+ struct timeval ru_stime;
+ long ru_maxrss;
+
+ long ru_ixrss;
+ long ru_idrss;
+ long ru_isrss;
+ long ru_minflt;
+ long ru_majflt;
+ long ru_nswap;
+ long ru_inblock;
+ long ru_oublock;
+ long ru_msgsnd;
+ long ru_msgrcv;
+ long ru_nsignals;
+ long ru_nvcsw;
+ long ru_nivcsw;
+
+};
+# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
+struct rlimit {
+ rlim_t rlim_cur;
+ rlim_t rlim_max;
+};
+
+
+
+struct loadavg {
+ fixpt_t ldavg[3];
+ long fscale;
+};
+
+
+
+extern struct loadavg averunnable;
+struct process;
+int dosetrlimit(struct proc *, u_int, struct rlimit *);
+int donice(struct proc *, struct process *, int);
+int dogetrusage(struct proc *, int, struct rusage *);
+# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 1
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 2
+
+
+
+
+struct ucred {
+ u_int cr_ref;
+
+
+
+ uid_t cr_uid;
+ uid_t cr_ruid;
+ uid_t cr_svuid;
+ gid_t cr_gid;
+ gid_t cr_rgid;
+ gid_t cr_svgid;
+ short cr_ngroups;
+ gid_t cr_groups[16];
+};
+
+
+
+
+
+
+struct xucred {
+ uid_t cr_uid;
+ gid_t cr_gid;
+ short cr_ngroups;
+ gid_t cr_groups[16];
+};
+
+
+
+
+
+
+int crfromxucred(struct ucred *, const struct xucred *);
+void crset(struct ucred *, const struct ucred *);
+struct ucred *crcopy(struct ucred *cr);
+struct ucred *crdup(struct ucred *cr);
+void crfree(struct ucred *cr);
+struct ucred *crget(void);
+int suser(struct proc *p, u_int flags);
+int suser_ucred(struct ucred *cred);
+# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h" 1
+# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
+struct iovec {
+ void *iov_base;
+ size_t iov_len;
+};
+
+
+enum uio_rw { UIO_READ, UIO_WRITE };
+
+
+enum uio_seg {
+ UIO_USERSPACE,
+ UIO_SYSSPACE
+};
+
+
+
+struct uio {
+ struct iovec *uio_iov;
+ int uio_iovcnt;
+ off_t uio_offset;
+ size_t uio_resid;
+ enum uio_seg uio_segflg;
+ enum uio_rw uio_rw;
+ struct proc *uio_procp;
+};
+# 97 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
+int ureadc(int c, struct uio *);
+
+struct file;
+int dofilereadv(struct proc *, int, struct file *,
+     const struct iovec *, int, int, off_t *, register_t *);
+int dofilewritev(struct proc *, int, struct file *,
+     const struct iovec *, int, int, off_t *, register_t *);
+# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 1
+# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h" 1
+# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h"
+struct refcnt {
+ unsigned int refs;
+};
+
+
+
+
+
+void refcnt_init(struct refcnt *);
+void refcnt_take(struct refcnt *);
+int refcnt_rele(struct refcnt *);
+void refcnt_rele_wake(struct refcnt *);
+void refcnt_finalize(struct refcnt *, const char *);
+# 23 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 2
+# 32 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
+struct srp {
+ void *ref;
+};
+
+
+
+struct srp_hazard {
+ struct srp *sh_p;
+ void *sh_v;
+};
+
+struct srp_ref {
+ struct srp_hazard *hz;
+} ;
+
+
+
+struct srp_gc {
+ void (*srp_gc_dtor)(void *, void *);
+ void *srp_gc_cookie;
+ struct refcnt srp_gc_refcnt;
+};
+
+
+
+
+
+
+
+struct srpl_rc {
+ void (*srpl_ref)(void *, void *);
+ struct srp_gc srpl_gc;
+};
+
+
+
+
+struct srpl {
+ struct srp sl_head;
+};
+
+
+
+void srp_startup(void);
+void srp_gc_init(struct srp_gc *, void (*)(void *, void *), void *);
+void *srp_swap_locked(struct srp *, void *);
+void srp_update_locked(struct srp_gc *, struct srp *, void *);
+void *srp_get_locked(struct srp *);
+void srp_gc_finalize(struct srp_gc *);
+
+void srp_init(struct srp *);
+
+
+void *srp_swap(struct srp *, void *);
+void srp_update(struct srp_gc *, struct srp *, void *);
+void srp_finalize(void *, const char *);
+void *srp_enter(struct srp_ref *, struct srp *);
+void *srp_follow(struct srp_ref *, struct srp *);
+void srp_leave(struct srp_ref *);
+# 101 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
+void srpl_rc_init(struct srpl_rc *, void (*)(void *, void *),
+      void (*)(void *, void *), void *);
+# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 1
+# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h" 1
+# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
+typedef int sig_atomic_t;
+# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
+struct sigcontext {
+ long sc_cookie;
+
+ long sc_sp;
+ long sc_pc;
+ long sc_npc;
+ long sc_tstate;
+ long sc_g1;
+ long sc_o0;
+ int sc_mask;
+};
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
+# 104 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
+typedef unsigned int sigset_t;
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h" 1
+# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
+union sigval {
+ int sival_int;
+ void *sival_ptr;
+};
+# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
+typedef struct {
+ int si_signo;
+ int si_code;
+ int si_errno;
+ union {
+  int _pad[((128 / sizeof (int)) - 3)];
+  struct {
+   pid_t _pid;
+   union {
+    struct {
+     uid_t _uid;
+     union sigval _value;
+    } _kill;
+    struct {
+     clock_t _utime;
+     clock_t _stime;
+     int _status;
+    } _cld;
+   } _pdata;
+  } _proc;
+  struct {
+   void *_addr;
+   int _trapno;
+  } _fault;
+# 172 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
+ } _data;
+} siginfo_t;
+# 196 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
+void initsiginfo(siginfo_t *, int, u_long, int, union sigval);
+# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
+
+
+
+
+struct sigaction {
+ union {
+  void (*__sa_handler)(int);
+  void (*__sa_sigaction)(int, siginfo_t *, void *);
+ } __sigaction_u;
+ sigset_t sa_mask;
+ int sa_flags;
+};
+# 146 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
+typedef void (*sig_t)(int);
+
+
+
+
+
+struct sigvec {
+ void (*sv_handler)(int);
+ int sv_mask;
+ int sv_flags;
+};
+# 176 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
+typedef struct sigaltstack {
+ void *ss_sp;
+ size_t ss_size;
+ int ss_flags;
+} stack_t;
+
+
+
+
+
+typedef struct sigcontext ucontext_t;
+# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 1
+# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/limits.h" 1
+# 35 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 2
+# 88 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 1
+# 152 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
+extern void delay(unsigned int);
+
+
+extern int cputyp;
+# 184 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 1
+# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h" 1
+# 553 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
+extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rd_sys_tick(void); extern __inline u_int64_t sparc_rd_sys_tick() { u_int64_t r; __asm volatile("rd %%" "sys_tick" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rd_sys_tick_cmpr(void); extern __inline u_int64_t sparc_rd_sys_tick_cmpr() { u_int64_t r; __asm volatile("rd %%" "sys_tick_cmpr" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_tick(void); extern __inline u_int64_t sparc_rdpr_tick() { u_int64_t r; __asm volatile("rdpr %%" "tick" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_tba(void); extern __inline u_int64_t sparc_rdpr_tba() { u_int64_t r; __asm volatile("rdpr %%" "tba" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_pstate(void); extern __inline u_int64_t sparc_rdpr_pstate() { u_int64_t r; __asm volatile("rdpr %%" "pstate" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_pil(void); extern __inline u_int64_t sparc_rdpr_pil() { u_int64_t r; __asm volatile("rdpr %%" "pil" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_cwp(void); extern __inline u_int64_t sparc_rdpr_cwp() { u_int64_t r; __asm volatile("rdpr %%" "cwp" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_cansave(void); extern __inline u_int64_t sparc_rdpr_cansave() { u_int64_t r; __asm volatile("rdpr %%" "cansave" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_canrestore(void); extern __inline u_int64_t sparc_rdpr_canrestore() { u_int64_t r; __asm volatile("rdpr %%" "canrestore" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_cleanwin(void); extern __inline u_int64_t sparc_rdpr_cleanwin() { u_int64_t r; __asm volatile("rdpr %%" "cleanwin" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_otherwin(void); extern __inline u_int64_t sparc_rdpr_otherwin() { u_int64_t r; __asm volatile("rdpr %%" "otherwin" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_wstate(void); extern __inline u_int64_t sparc_rdpr_wstate() { u_int64_t r; __asm volatile("rdpr %%" "wstate" ", %0" : "=r" (r) : : "%g0"); return (r); };
+extern __inline u_int64_t sparc_rdpr_ver(void); extern __inline u_int64_t sparc_rdpr_ver() { u_int64_t r; __asm volatile("rdpr %%" "ver" ", %0" : "=r" (r) : : "%g0"); return (r); };
+# 596 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
+extern __inline u_char lduba_asi(paddr_t); extern __inline u_char lduba_asi(paddr_t va) { u_char r; __asm volatile( "lduba" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_char *)va) : "%g0"); return (r); } extern __inline u_char lduba_nc(paddr_t, int); extern __inline u_char lduba_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduba_asi(va)); };
+extern __inline u_short lduha_asi(paddr_t); extern __inline u_short lduha_asi(paddr_t va) { u_short r; __asm volatile( "lduha" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_short *)va) : "%g0"); return (r); } extern __inline u_short lduha_nc(paddr_t, int); extern __inline u_short lduha_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduha_asi(va)); };
+extern __inline u_int lduwa_asi(paddr_t); extern __inline u_int lduwa_asi(paddr_t va) { u_int r; __asm volatile( "lduwa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int *)va) : "%g0"); return (r); } extern __inline u_int lduwa_nc(paddr_t, int); extern __inline u_int lduwa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduwa_asi(va)); };
+extern __inline u_int64_t ldxa_asi(paddr_t); extern __inline u_int64_t ldxa_asi(paddr_t va) { u_int64_t r; __asm volatile( "ldxa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int64_t *)va) : "%g0"); return (r); } extern __inline u_int64_t ldxa_nc(paddr_t, int); extern __inline u_int64_t ldxa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (ldxa_asi(va)); };
+
+extern __inline int lda_asi(paddr_t); extern __inline int lda_asi(paddr_t va) { int r; __asm volatile( "lda" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile int *)va) : "%g0"); return (r); } extern __inline int lda_nc(paddr_t, int); extern __inline int lda_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lda_asi(va)); };
+# 647 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
+extern __inline void stba_asi(paddr_t, u_int8_t); extern __inline void stba_asi(paddr_t va, u_int8_t val) { __asm volatile( "stba" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int8_t *)va) : "memory"); } extern __inline void stba_nc(paddr_t, int, u_int8_t); extern __inline void stba_nc(paddr_t va, int asi, u_int8_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stba_asi(va, val); };
+extern __inline void stha_asi(paddr_t, u_int16_t); extern __inline void stha_asi(paddr_t va, u_int16_t val) { __asm volatile( "stha" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int16_t *)va) : "memory"); } extern __inline void stha_nc(paddr_t, int, u_int16_t); extern __inline void stha_nc(paddr_t va, int asi, u_int16_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stha_asi(va, val); };
+extern __inline void stwa_asi(paddr_t, u_int32_t); extern __inline void stwa_asi(paddr_t va, u_int32_t val) { __asm volatile( "stwa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int32_t *)va) : "memory"); } extern __inline void stwa_nc(paddr_t, int, u_int32_t); extern __inline void stwa_nc(paddr_t va, int asi, u_int32_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stwa_asi(va, val); };
+extern __inline void stxa_asi(paddr_t, u_int64_t); extern __inline void stxa_asi(paddr_t va, u_int64_t val) { __asm volatile( "stxa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int64_t *)va) : "memory"); } extern __inline void stxa_nc(paddr_t, int, u_int64_t); extern __inline void stxa_nc(paddr_t va, int asi, u_int64_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stxa_asi(va, val); };
+
+extern __inline void sta_asi(paddr_t, u_int); extern __inline void sta_asi(paddr_t va, u_int val) { __asm volatile( "sta" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int *)va) : "memory"); } extern __inline void sta_nc(paddr_t, int, u_int); extern __inline void sta_nc(paddr_t va, int asi, u_int val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); sta_asi(va, val); };
+# 678 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
+extern __inline void asi_set(int);
+extern __inline
+void asi_set(int asi)
+{
+ do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0);
+}
+
+extern __inline u_int8_t asi_get(void);
+extern __inline
+u_int8_t asi_get(void)
+{
+ return sparc_rd_asi();
+}
+
+
+extern __inline void flush(void *);
+extern __inline
+void flush(void *p)
+{
+ __asm volatile("flush %0"
+     : : "r" (p)
+     : "memory");
+}
+
+
+
+
+extern u_int64_t stick(void);
+
+extern void tick_enable(void);
+
+extern void tickcmpr_set(u_int64_t);
+extern void sys_tickcmpr_set(u_int64_t);
+extern void stickcmpr_set(u_int64_t);
+# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h" 1
+# 231 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
+extern u_int64_t ver;
+
+extern __inline void splx(int);
+
+
+
+
+
+
+
+void splassert_fail(int, int, const char *);
+extern int splassert_ctl;
+void splassert_check(int, const char *);
+# 258 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
+extern __inline u_int64_t getpstate(void);
+extern __inline
+u_int64_t getpstate(void)
+{
+ return (sparc_rdpr_pstate());
+}
+
+extern __inline void setpstate(u_int64_t);
+extern __inline void setpstate(u_int64_t newpstate)
+{
+ do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((newpstate) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (newpstate), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+}
+
+extern __inline int getcwp(void);
+extern __inline
+int getcwp(void)
+{
+ return (sparc_rdpr_cwp());
+}
+
+extern __inline void setcwp(u_int64_t);
+extern __inline void
+setcwp(u_int64_t newcwp)
+{
+ do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "cwp" : : "rI" ((newcwp) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "cwp" : : "r" (newcwp), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+}
+
+extern __inline u_int64_t getver(void);
+extern __inline
+u_int64_t getver(void)
+{
+ return (sparc_rdpr_ver());
+}
+
+extern __inline u_int64_t intr_disable(void);
+extern __inline u_int64_t
+intr_disable(void)
+{
+ u_int64_t s;
+
+ s = sparc_rdpr_pstate();
+ do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s & ~0x002) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s & ~0x002), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+ return (s);
+}
+
+extern __inline void intr_restore(u_int64_t);
+extern __inline void
+intr_restore(u_int64_t s)
+{
+ do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+}
+
+extern __inline void stxa_sync(u_int64_t, u_int64_t, u_int64_t);
+extern __inline void
+stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
+{
+ u_int64_t s = intr_disable();
+ stxa_nc(va, asi, val);
+ __asm volatile("membar #Sync" : : : "memory");
+ intr_restore(s);
+}
+
+static inline int
+_spl(int newipl)
+{
+ int oldpil;
+
+ __asm volatile( "    rdpr %%pil, %0		\n"
+   "    wrpr %%g0, %1, %%pil	\n"
+     : "=&r" (oldpil)
+     : "I" (newipl)
+     : "%g0");
+ __asm volatile("" : : : "memory");
+
+ return (oldpil);
+}
+
+
+static inline int
+_splraise(int newpil)
+{
+ int oldpil;
+
+ oldpil = sparc_rdpr_pil();
+ if (newpil > oldpil)
+  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+        return (oldpil);
+}
+
+static inline void
+_splx(int newpil)
+{
+ do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
+}
+# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 1
+# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
+struct trapframe32 {
+ int tf_psr;
+ int tf_pc;
+ int tf_npc;
+ int tf_y;
+ int tf_global[8];
+ int tf_out[8];
+};
+# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
+struct trapframe64 {
+ int64_t tf_tstate;
+ int64_t tf_pc;
+ int64_t tf_npc;
+ int64_t tf_fault;
+ int64_t tf_kstack;
+ int tf_y;
+ short tf_tt;
+ char tf_pil;
+ char tf_oldpil;
+ int64_t tf_global[8];
+ int64_t tf_out[8];
+ int64_t tf_local[8];
+ int64_t tf_in[8];
+};
+# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
+struct rwindow32 {
+ int rw_local[8];
+ int rw_in[8];
+};
+
+
+struct rwindow64 {
+ int64_t rw_local[8];
+ int64_t rw_in[8];
+};
+
+
+
+
+
+struct reg32 {
+ int r_psr;
+ int r_pc;
+ int r_npc;
+ int r_y;
+ int r_global[8];
+ int r_out[8];
+};
+
+struct reg64 {
+ int64_t r_tstate;
+ int64_t r_pc;
+ int64_t r_npc;
+ int r_y;
+ int64_t r_global[8];
+ int64_t r_out[8];
+ int64_t r_local[8];
+ int64_t r_in[8];
+};
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/fsr.h" 1
+# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 2
+# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
+struct fp_qentry {
+ int *fq_addr;
+ int fq_instr;
+};
+
+struct fpstate64 {
+ u_int fs_regs[64];
+ int64_t fs_fsr;
+ int fs_gsr;
+ int fs_qsize;
+ struct fp_qentry fs_queue[16];
+};
+
+
+
+
+struct fpstate32 {
+ u_int fs_regs[32];
+ int fs_fsr;
+ int fs_qsize;
+ struct fp_qentry fs_queue[16];
+};
+
+
+
+
+
+
+struct fpreg64 {
+ u_int fr_regs[64];
+ int64_t fr_fsr;
+ int fr_gsr;
+};
+
+
+
+
+struct fpreg32 {
+ u_int fr_regs[32];
+ int fr_fsr;
+};
+# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h" 1
+# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h"
+struct intrhand;
+void send_softint(int cpu, int level, struct intrhand *ih);
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 1
+# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
+# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 2
+
+struct evcount {
+ u_int64_t ec_count;
+ int ec_id;
+ const char *ec_name;
+ void *ec_data;
+
+ struct { struct evcount *tqe_next; struct evcount **tqe_prev; } next;
+};
+
+void evcount_attach(struct evcount *, const char *, void *);
+void evcount_detach(struct evcount *);
+int evcount_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
+
+
+
+
+
+
+
+struct intrhand {
+ int (*ih_fun)(void *);
+ void *ih_arg;
+ short ih_number;
+
+ char ih_pil;
+ char ih_mpsafe;
+ struct intrhand *ih_next;
+ struct intrhand *ih_pending;
+ volatile u_int64_t *ih_map;
+ volatile u_int64_t *ih_clr;
+ void (*ih_ack)(struct intrhand *);
+ struct evcount ih_count;
+ const void *ih_bus;
+ struct cpu_info *ih_cpu;
+ char ih_name[32];
+};
+
+extern struct intrhand *intrlev[(1<<11)];
+
+void intr_establish(int, struct intrhand *);
+# 107 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
+int splraise(int);
+void intr_barrier(void *);
+
+void *softintr_establish(int, void (*)(void *), void *);
+void softintr_disestablish(void *);
+void softintr_schedule(void *);
+# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 1
+# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
+struct schedstate_percpu {
+ struct timespec spc_runtime;
+ volatile int spc_schedflags;
+ u_int spc_schedticks;
+ u_int64_t spc_cp_time[5];
+ u_char spc_curpriority;
+ int spc_rrticks;
+ int spc_pscnt;
+ int spc_psdiv;
+ struct proc *spc_idleproc;
+
+ u_int spc_nrun;
+ fixpt_t spc_ldavg;
+
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ volatile uint32_t spc_whichqs;
+
+
+
+
+ struct { struct proc *lh_first; } spc_deadproc;
+
+ volatile int spc_barrier;
+};
+# 134 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
+extern int schedhz;
+extern int rrticks_init;
+
+struct proc;
+void schedclock(struct proc *);
+struct cpu_info;
+void roundrobin(struct cpu_info *);
+void scheduler_start(void);
+void userret(struct proc *p);
+
+void sched_init_cpu(struct cpu_info *);
+void sched_idle(void *);
+void sched_exit(struct proc *);
+void mi_switch(void);
+void cpu_switchto(struct proc *, struct proc *);
+struct proc *sched_chooseproc(void);
+struct cpu_info *sched_choosecpu(struct proc *);
+struct cpu_info *sched_choosecpu_fork(struct proc *parent, int);
+void cpu_idle_enter(void);
+void cpu_idle_cycle(void);
+void cpu_idle_leave(void);
+void sched_peg_curproc(struct cpu_info *ci);
+void sched_barrier(struct cpu_info *ci);
+
+int sysctl_hwsetperf(void *, size_t *, void *, size_t);
+int sysctl_hwperfpolicy(void *, size_t *, void *, size_t);
+
+
+void sched_start_secondary_cpus(void);
+void sched_stop_secondary_cpus(void);
+
+
+
+
+void sched_init_runqueues(void);
+void setrunqueue(struct proc *);
+void remrunqueue(struct proc *);
+# 189 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 1
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
+# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
+# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
+enum lock_class_index {
+ LO_CLASS_KERNEL_LOCK,
+ LO_CLASS_SCHED_LOCK,
+ LO_CLASS_MUTEX,
+ LO_CLASS_RWLOCK,
+ LO_CLASS_RRWLOCK
+};
+
+struct lock_object {
+ struct lock_type *lo_type;
+ const char *lo_name;
+ struct witness *lo_witness;
+ uint32_t lo_flags;
+};
+
+struct lock_type {
+ const char *lt_name;
+};
+# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
+
+struct proc;
+
+struct rwlock {
+ volatile unsigned long rwl_owner;
+ const char *rwl_name;
+
+
+
+};
+# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
+struct rrwlock {
+ struct rwlock rrwl_lock;
+ uint32_t rrwl_wcnt;
+};
+
+
+
+void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
+# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
+void _rw_enter_read(struct rwlock * );
+void _rw_enter_write(struct rwlock * );
+void _rw_exit_read(struct rwlock * );
+void _rw_exit_write(struct rwlock * );
+
+
+
+
+
+
+
+void rw_assert_wrlock(struct rwlock *);
+void rw_assert_rdlock(struct rwlock *);
+void rw_assert_unlocked(struct rwlock *);
+
+
+
+
+
+
+int _rw_enter(struct rwlock *, int );
+void _rw_exit(struct rwlock * );
+int rw_status(struct rwlock *);
+
+
+
+
+void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
+int _rrw_enter(struct rrwlock *, int );
+void _rrw_exit(struct rrwlock * );
+int rrw_status(struct rrwlock *);
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 2
+# 190 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 2
+
+
+
+
+
+
+
+extern struct __mp_lock sched_lock;
+# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+struct cpu_info {
+# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+ struct cpu_info * volatile ci_self;
+
+
+ struct proc *ci_curproc;
+ struct pcb *ci_cpcb;
+ struct cpu_info *ci_next;
+
+ struct proc *ci_fpproc;
+ int ci_number;
+ int ci_flags;
+ int ci_upaid;
+
+ int ci_itid;
+ struct srp_hazard ci_srp_hazards[16];
+
+ int ci_node;
+ u_int32_t ci_randseed;
+ struct schedstate_percpu ci_schedstate;
+
+ int ci_want_resched;
+ int ci_handled_intr_level;
+ void *ci_intrpending[16][8];
+ u_int64_t ci_tick;
+ struct intrhand ci_tickintr;
+
+ volatile int ci_ddb_paused;
+
+
+
+
+
+
+
+ void (*ci_spinup)(void);
+ void *ci_initstack;
+ paddr_t ci_paddr;
+
+
+ struct rwindow64 ci_rw;
+ u_int64_t ci_rwsp;
+
+ paddr_t ci_mmfsa;
+ paddr_t ci_cpumq;
+ paddr_t ci_devmq;
+
+ paddr_t ci_cpuset;
+ paddr_t ci_mondo;
+
+
+ int ci_pci_probe;
+ int ci_pci_fault;
+
+
+ int ci_mutex_level;
+
+
+
+
+};
+
+
+
+extern struct cpu_info *cpus;
+
+
+
+register struct cpu_info *__curcpu asm ("g7");
+# 186 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+void cpu_boot_secondary_processors(void);
+
+void sparc64_send_ipi(int, void (*)(void), u_int64_t, u_int64_t);
+void sparc64_broadcast_ipi(void (*)(void), u_int64_t, u_int64_t);
+
+void cpu_unidle(struct cpu_info *);
+# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+struct clockframe {
+ struct trapframe64 t;
+ int saved_intr_level;
+};
+
+
+
+
+
+extern void (*cpu_start_clock)(void);
+
+
+
+
+
+
+
+extern void need_resched(struct cpu_info *);
+# 292 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+void signotify(struct proc *);
+
+
+int cpu_myid(void);
+
+int ldcontrolb(caddr_t);
+void dumpconf(void);
+caddr_t reserve_dumppages(caddr_t);
+
+struct timeval;
+int clockintr(void *);
+int statintr(void *);
+
+struct fpstate64;
+void savefpstate(struct fpstate64 *);
+void loadfpstate(struct fpstate64 *);
+void clearfpstate(void);
+u_int64_t probeget(paddr_t, int, int);
+
+void write_user_windows(void);
+void proc_trampoline(void);
+struct pcb;
+void snapshot(struct pcb *);
+struct frame *getfp(void);
+int xldcontrolb(caddr_t, struct pcb *);
+void copywords(const void *, void *, size_t);
+void qcopy(const void *, void *, size_t);
+void qzero(void *, size_t);
+void switchtoctx(int);
+
+void pmap_unuse_final(struct proc *);
+int rwindow_save(struct proc *);
+
+void fpusave_cpu(struct cpu_info *, int);
+void fpusave_proc(struct proc *, int);
+
+int cnrom(void);
+
+void zsconsole(struct tty *, int, int, void (**)(struct tty *, int));
+
+void fb_unblank(void);
+
+void tda_full_blast(void);
+
+int emulinstr(vaddr_t, struct trapframe64 *);
+int emul_qf(int32_t, struct proc *, union sigval, struct trapframe64 *);
+int emul_popc(int32_t, struct proc *, union sigval, struct trapframe64 *);
+# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
+struct trapvec {
+ int tv_instr[8];
+};
+extern struct trapvec trapbase[];
+
+extern void wzero(void *, u_int);
+extern void wcopy(const void *, void *, u_int);
+
+struct blink_led {
+ void (*bl_func)(void *, int);
+ void *bl_arg;
+ struct { struct blink_led *sle_next; } bl_next;
+};
+
+extern void blink_led_register(struct blink_led *);
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 1
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h" 1
+# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h"
+struct __mp_lock_cpu {
+ volatile u_int mplc_ticket;
+ volatile u_int mplc_depth;
+};
+
+struct __mp_lock {
+ struct __mp_lock_cpu mpl_cpus[256];
+ volatile u_int mpl_ticket;
+ volatile u_int mpl_users;
+};
+
+
+
+void __mp_lock_init(struct __mp_lock *);
+void __mp_lock(struct __mp_lock *);
+void __mp_unlock(struct __mp_lock *);
+int __mp_release_all(struct __mp_lock *);
+int __mp_release_all_but_one(struct __mp_lock *);
+void __mp_acquire_count(struct __mp_lock *, int);
+int __mp_lock_held(struct __mp_lock *);
+# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 2
+
+extern struct __mp_lock kernel_lock;
+# 372 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
+# 185 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 2
+# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
+# 19 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h" 1
+# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
+enum devclass {
+ DV_DULL,
+ DV_CPU,
+ DV_DISK,
+ DV_IFNET,
+ DV_TAPE,
+ DV_TTY
+};
+# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
+struct device {
+ enum devclass dv_class;
+ struct { struct device *tqe_next; struct device **tqe_prev; } dv_list;
+ struct cfdata *dv_cfdata;
+ int dv_unit;
+ char dv_xname[16];
+ struct device *dv_parent;
+ int dv_flags;
+ int dv_ref;
+};
+
+
+
+
+struct devicelist { struct device *tqh_first; struct device **tqh_last; };
+
+
+
+
+struct cfdata {
+ struct cfattach *cf_attach;
+ struct cfdriver *cf_driver;
+ short cf_unit;
+ short cf_fstate;
+ long *cf_loc;
+ int cf_flags;
+ short *cf_parents;
+ int cf_locnames;
+ short cf_starunit1;
+};
+extern struct cfdata cfdata[];
+
+
+
+
+
+
+typedef int (*cfmatch_t)(struct device *, void *, void *);
+typedef void (*cfscan_t)(struct device *, void *);
+# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
+struct cfattach {
+ size_t ca_devsize;
+ cfmatch_t ca_match;
+ void (*ca_attach)(struct device *, struct device *, void *);
+ int (*ca_detach)(struct device *, int);
+ int (*ca_activate)(struct device *, int);
+};
+
+
+
+
+
+struct cfdriver {
+ void **cd_devs;
+ char *cd_name;
+ enum devclass cd_class;
+ int cd_indirect;
+ int cd_ndevs;
+};
+
+
+
+
+
+
+
+typedef int (*cfprint_t)(void *, const char *);
+
+
+
+
+
+
+
+struct pdevinit {
+ void (*pdev_attach)(int);
+ int pdev_count;
+};
+
+
+extern struct devicelist alldevs;
+
+extern int autoconf_verbose;
+extern volatile int config_pending;
+
+void config_init(void);
+void *config_search(cfmatch_t, struct device *, void *);
+struct device *config_found_sm(struct device *, void *, cfprint_t,
+    cfmatch_t);
+struct device *config_rootfound(char *, void *);
+void config_scan(cfscan_t, struct device *);
+struct device *config_attach(struct device *, void *, void *, cfprint_t);
+int config_detach(struct device *, int);
+int config_detach_children(struct device *, int);
+int config_deactivate(struct device *);
+int config_suspend(struct device *, int);
+int config_suspend_all(int);
+int config_activate_children(struct device *, int);
+struct device *config_make_softc(struct device *parent,
+    struct cfdata *cf);
+void config_defer(struct device *, void (*)(struct device *));
+void config_pending_incr(void);
+void config_pending_decr(void);
+void config_mountroot(struct device *, void (*)(struct device *));
+void config_process_deferred_mountroot(void);
+
+struct device *device_mainbus(void);
+struct device *device_mpath(void);
+struct device *device_lookup(struct cfdriver *, int unit);
+void device_ref(struct device *);
+void device_unref(struct device *);
+
+struct nam2blk {
+ char *name;
+ int maj;
+};
+
+int findblkmajor(struct device *dv);
+char *findblkname(int);
+void setroot(struct device *, int, int);
+struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
+struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
+void device_register(struct device *, void *);
+
+int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
+# 20 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h" 1
+# 319 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+
+
+
+
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+
+
+
+struct kmem_freelist;
+
+
+
+
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+# 388 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
+# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
+# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
+typedef __builtin_va_list __gnuc_va_list;
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
+typedef __gnuc_va_list va_list;
+# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
+# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+extern int securelevel;
+extern const char *panicstr;
+extern const char version[];
+extern const char copyright[];
+extern const char ostype[];
+extern const char osversion[];
+extern const char osrelease[];
+extern int cold;
+
+extern int ncpus;
+extern int ncpusfound;
+extern int nblkdev;
+extern int nchrdev;
+
+extern int selwait;
+extern int maxmem;
+extern int physmem;
+
+extern dev_t dumpdev;
+extern long dumplo;
+
+extern dev_t rootdev;
+extern u_char bootduid[8];
+extern u_char rootduid[8];
+extern struct vnode *rootvp;
+
+extern dev_t swapdev;
+extern struct vnode *swapdev_vp;
+
+struct proc;
+struct process;
+
+
+typedef int sy_call_t(struct proc *, void *, register_t *);
+
+extern struct sysent {
+ short sy_narg;
+ short sy_argsize;
+ int sy_flags;
+ sy_call_t *sy_call;
+} sysent[];
+# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+extern int boothowto;
+
+extern void (*v_putc)(int);
+
+
+
+
+int nullop(void *);
+int enodev(void);
+int enosys(void);
+int enoioctl(void);
+int enxio(void);
+int eopnotsupp(void *);
+
+struct vnodeopv_desc;
+void vfs_opv_init_explicit(struct vnodeopv_desc *);
+void vfs_opv_init_default(struct vnodeopv_desc *);
+void vfs_op_init(void);
+
+int seltrue(dev_t dev, int which, struct proc *);
+int selfalse(dev_t dev, int which, struct proc *);
+void *hashinit(int, int, int, u_long *);
+void hashfree(void *, int, int);
+int sys_nosys(struct proc *, void *, register_t *);
+
+void panic(const char *, ...)
+    __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
+void __assert(const char *, const char *, int, const char *)
+    __attribute__((__noreturn__));
+int printf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+void uprintf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+int vprintf(const char *, va_list)
+    __attribute__((__format__(__kprintf__,1,0)));
+int vsnprintf(char *, size_t, const char *, va_list)
+    __attribute__((__format__(__kprintf__,3,0)));
+int snprintf(char *buf, size_t, const char *, ...)
+    __attribute__((__format__(__kprintf__,3,4)));
+struct tty;
+void ttyprintf(struct tty *, const char *, ...)
+    __attribute__((__format__(__kprintf__,2,3)));
+
+void splassert_fail(int, int, const char *);
+extern int splassert_ctl;
+
+void assertwaitok(void);
+
+void tablefull(const char *);
+
+int kcopy(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+
+void bcopy(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void bzero(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+void explicit_bzero(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+int bcmp(const void *, const void *, size_t);
+void *memcpy(void *, const void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void *memmove(void *, const void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void *memset(void *, int, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)));
+
+int copystr(const void *, void *, size_t, size_t *)
+  __attribute__ ((__bounded__(__string__,2,3)));
+int copyinstr(const void *, void *, size_t, size_t *)
+  __attribute__ ((__bounded__(__string__,2,3)));
+int copyoutstr(const void *, void *, size_t, size_t *);
+int copyin(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+int copyout(const void *, void *, size_t);
+int copyin32(const uint32_t *, uint32_t *);
+
+void arc4random_buf(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+u_int32_t arc4random(void);
+u_int32_t arc4random_uniform(u_int32_t);
+
+struct timeval;
+struct timespec;
+int tvtohz(const struct timeval *);
+int tstohz(const struct timespec *);
+void realitexpire(void *);
+
+struct clockframe;
+void hardclock(struct clockframe *);
+void softclock(void *);
+void statclock(struct clockframe *);
+
+void initclocks(void);
+void inittodr(time_t);
+void resettodr(void);
+void cpu_initclocks(void);
+
+void startprofclock(struct process *);
+void stopprofclock(struct process *);
+void setstatclockrate(int);
+
+void start_periodic_resettodr(void);
+void stop_periodic_resettodr(void);
+
+struct sleep_state;
+void sleep_setup(struct sleep_state *, const volatile void *, int,
+     const char *);
+void sleep_setup_timeout(struct sleep_state *, int);
+void sleep_setup_signal(struct sleep_state *, int);
+void sleep_finish(struct sleep_state *, int);
+int sleep_finish_timeout(struct sleep_state *);
+int sleep_finish_signal(struct sleep_state *);
+void sleep_queue_init(void);
+
+struct mutex;
+struct rwlock;
+void wakeup_n(const volatile void *, int);
+void wakeup(const volatile void *);
+
+int tsleep(const volatile void *, int, const char *, int);
+int msleep(const volatile void *, struct mutex *, int, const char*, int);
+int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
+void yield(void);
+
+void wdog_register(int (*)(void *, int), void *);
+void wdog_shutdown(void *);
+
+
+
+
+
+
+struct hook_desc {
+ struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
+ void (*hd_fn)(void *);
+ void *hd_arg;
+};
+struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
+
+extern struct hook_desc_head startuphook_list;
+
+void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
+void hook_disestablish(struct hook_desc_head *, void *);
+void dohooks(struct hook_desc_head *, int);
+# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+struct uio;
+int uiomove(void *, size_t, struct uio *);
+
+
+
+
+
+extern struct rwlock netlock;
+# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+__attribute__((returns_twice)) int setjmp(label_t *);
+__attribute__((__noreturn__)) void longjmp(label_t *);
+
+
+void consinit(void);
+
+void cpu_startup(void);
+void cpu_configure(void);
+void diskconf(void);
+
+int nfs_mountroot(void);
+int dk_mountroot(void);
+extern int (*mountroot)(void);
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
+# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
+static __inline int imax(int, int);
+static __inline int imin(int, int);
+static __inline u_int max(u_int, u_int);
+static __inline u_int min(u_int, u_int);
+static __inline long lmax(long, long);
+static __inline long lmin(long, long);
+static __inline u_long ulmax(u_long, u_long);
+static __inline u_long ulmin(u_long, u_long);
+static __inline int abs(int);
+
+
+static __inline int
+imax(int a, int b)
+{
+ return (a > b ? a : b);
+}
+static __inline int
+imin(int a, int b)
+{
+ return (a < b ? a : b);
+}
+static __inline long
+lmax(long a, long b)
+{
+ return (a > b ? a : b);
+}
+static __inline long
+lmin(long a, long b)
+{
+ return (a < b ? a : b);
+}
+static __inline u_int
+max(u_int a, u_int b)
+{
+ return (a > b ? a : b);
+}
+static __inline u_int
+min(u_int a, u_int b)
+{
+ return (a < b ? a : b);
+}
+static __inline u_long
+ulmax(u_long a, u_long b)
+{
+ return (a > b ? a : b);
+}
+static __inline u_long
+ulmin(u_long a, u_long b)
+{
+ return (a < b ? a : b);
+}
+
+static __inline int
+abs(int j)
+{
+ return(j < 0 ? -j : j);
+}
+# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
+void __assert(const char *, const char *, int, const char *)
+     __attribute__ ((__noreturn__));
+int bcmp(const void *, const void *, size_t);
+void bzero(void *, size_t);
+void explicit_bzero(void *, size_t);
+int ffs(int);
+int fls(int);
+int flsl(long);
+void *memchr(const void *, int, size_t);
+int memcmp(const void *, const void *, size_t);
+void *memset(void *, int c, size_t len);
+u_int32_t random(void);
+int scanc(u_int, const u_char *, const u_char [], int);
+int skpc(int, size_t, u_char *);
+size_t strlen(const char *);
+char *strncpy(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+size_t strnlen(const char *, size_t);
+size_t strlcpy(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+size_t strlcat(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+int strcmp(const char *, const char *);
+int strncmp(const char *, const char *, size_t);
+int strncasecmp(const char *, const char *, size_t);
+int getsn(char *, int);
+char *strchr(const char *, int);
+char *strrchr(const char *, int);
+int timingsafe_bcmp(const void *, const void *, size_t);
+# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
+# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
+void db_enter(void);
+
+
+
+void user_config(void);
+
+
+
+void _kernel_lock_init(void);
+void _kernel_lock(const char *, int);
+void _kernel_unlock(void);
+int _kernel_lock_held(void);
+# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 1
+# 69 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 1
+# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h" 1
+# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
+{
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+
+ return (n);
+}
+
+
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+
+ return (n);
+}
+
+
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+
+ return (n);
+}
+# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+
+
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+
+ return (r);
+}
+# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+# 129 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
+# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 2
+# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 2
+# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+extern int bus_space_debug;
+# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+enum bus_type {
+ UPA_BUS_SPACE,
+ SBUS_BUS_SPACE,
+ PCI_CONFIG_BUS_SPACE,
+ PCI_IO_BUS_SPACE,
+ PCI_MEMORY_BUS_SPACE,
+ LAST_BUS_SPACE
+};
+
+
+
+
+
+
+typedef const struct sparc_bus_space_tag *bus_space_tag_t;
+typedef u_long bus_addr_t;
+typedef u_long bus_size_t;
+
+
+typedef struct _bus_space_handle {
+        paddr_t bh_ptr;
+
+
+
+
+
+} bus_space_handle_t;
+# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+struct sparc_bus_space_tag {
+ void *cookie;
+ bus_space_tag_t parent;
+ enum bus_type default_type;
+        u_int8_t asi;
+        u_int8_t sasi;
+ char name[32];
+
+ int (*sparc_bus_alloc)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_addr_t, bus_addr_t,
+  bus_size_t, bus_size_t, bus_size_t,
+  int, bus_addr_t *, bus_space_handle_t *);
+
+ void (*sparc_bus_free)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_space_handle_t, bus_size_t);
+
+ int (*sparc_bus_map)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_addr_t, bus_size_t,
+  int, bus_space_handle_t *);
+
+ int (*sparc_bus_protect)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_space_handle_t, bus_size_t, int);
+
+ int (*sparc_bus_unmap)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_space_handle_t, bus_size_t);
+
+ int (*sparc_bus_subregion)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_space_handle_t, bus_size_t,
+  bus_size_t, bus_space_handle_t *);
+
+ paddr_t (*sparc_bus_mmap)(bus_space_tag_t,
+  bus_space_tag_t,
+  bus_addr_t, off_t, int, int);
+
+ void *(*sparc_intr_establish)(bus_space_tag_t,
+  bus_space_tag_t,
+  int, int, int,
+  int (*)(void *), void *,
+  const char *);
+
+ bus_addr_t (*sparc_bus_addr)(bus_space_tag_t,
+  bus_space_tag_t, bus_space_handle_t);
+};
+
+
+
+
+int bus_space_alloc(
+    bus_space_tag_t,
+    bus_addr_t,
+    bus_addr_t,
+    bus_size_t,
+    bus_size_t,
+    bus_size_t,
+    int,
+    bus_addr_t *,
+    bus_space_handle_t *);
+void bus_space_free(
+    bus_space_tag_t,
+    bus_space_handle_t,
+    bus_size_t);
+int bus_space_map(
+    bus_space_tag_t,
+    bus_addr_t,
+    bus_size_t,
+    int,
+    bus_space_handle_t *);
+int bus_space_protect(
+    bus_space_tag_t,
+    bus_space_handle_t,
+    bus_size_t,
+    int);
+int bus_space_unmap(
+    bus_space_tag_t,
+    bus_space_handle_t,
+    bus_size_t);
+int bus_space_subregion(
+    bus_space_tag_t,
+    bus_space_handle_t,
+    bus_size_t,
+    bus_size_t,
+    bus_space_handle_t *);
+static void bus_space_barrier(
+    bus_space_tag_t,
+    bus_space_handle_t,
+    bus_size_t,
+    bus_size_t,
+    int);
+paddr_t bus_space_mmap(
+    bus_space_tag_t,
+    bus_addr_t,
+    off_t,
+    int,
+    int);
+void *bus_intr_establish(
+    bus_space_tag_t,
+    int,
+    int,
+
+    int,
+    int (*)(void *),
+    void *,
+    const char *);
+void *bus_intr_allocate(
+    bus_space_tag_t,
+    int (*)(void *),
+    void *,
+    int,
+    int,
+    volatile u_int64_t *,
+    volatile u_int64_t *,
+    const char *);
+void bus_intr_free(void *);
+void bus_space_render_tag(
+    bus_space_tag_t,
+    char *,
+    size_t);
+void *bus_space_vaddr(
+    bus_space_tag_t,
+    bus_space_handle_t);
+# 311 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+static inline void
+bus_space_barrier(t, h, o, s, f)
+ bus_space_tag_t t;
+ bus_space_handle_t h;
+ bus_size_t o;
+ bus_size_t s;
+ int f;
+{
+# 334 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+ __asm volatile("membar " "#Sync" ::: "memory");
+
+}
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h" 1
+# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h"
+static inline u_int16_t bus_space_read_2(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_2(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int16_t);
+void bus_space_read_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int16_t *, bus_size_t);
+void bus_space_write_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int16_t *, bus_size_t);
+void bus_space_set_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int16_t,
+    bus_size_t);
+void bus_space_read_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int16_t *, bus_size_t);
+void bus_space_write_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int16_t *, bus_size_t);
+void bus_space_set_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int16_t,
+    bus_size_t);
+void bus_space_copy_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, bus_space_handle_t, bus_size_t,
+    bus_size_t);
+
+static inline
+u_int16_t bus_space_read_2(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int16_t r;
+
+ ;
+ r = (__builtin_constant_p(t->asi) ? ({ u_int16_t __rlduhu_int16_t; if(t->asi == 0x80 || (sizeof(u_int16_t) == 1 && t->asi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->asi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->asi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_2(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int16_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->asi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->asi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int32_t bus_space_read_4(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_4(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int32_t);
+void bus_space_read_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int32_t *, bus_size_t);
+void bus_space_write_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int32_t *, bus_size_t);
+void bus_space_set_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int32_t,
+    bus_size_t);
+void bus_space_read_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int32_t *, bus_size_t);
+void bus_space_write_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int32_t *, bus_size_t);
+void bus_space_set_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int32_t,
+    bus_size_t);
+void bus_space_copy_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, bus_space_handle_t, bus_size_t,
+    bus_size_t);
+
+static inline
+u_int32_t bus_space_read_4(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int32_t r;
+
+ ;
+ r = (__builtin_constant_p(t->asi) ? ({ u_int32_t __rlduwu_int32_t; if(t->asi == 0x80 || (sizeof(u_int32_t) == 1 && t->asi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->asi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->asi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_4(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int32_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->asi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->asi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int64_t bus_space_read_8(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_8(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int64_t);
+void bus_space_read_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int64_t *, bus_size_t);
+void bus_space_write_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int64_t *, bus_size_t);
+void bus_space_set_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int64_t,
+    bus_size_t);
+void bus_space_read_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int64_t *, bus_size_t);
+void bus_space_write_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int64_t *, bus_size_t);
+void bus_space_set_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int64_t,
+    bus_size_t);
+void bus_space_copy_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, bus_space_handle_t, bus_size_t,
+    bus_size_t);
+
+static inline
+u_int64_t bus_space_read_8(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int64_t r;
+
+ ;
+ r = (__builtin_constant_p(t->asi) ? ({ u_int64_t __rldxu_int64_t; if(t->asi == 0x80 || (sizeof(u_int64_t) == 1 && t->asi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->asi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->asi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_8(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int64_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->asi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->asi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int8_t bus_space_read_1(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_1(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int8_t);
+void bus_space_read_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int8_t *, bus_size_t);
+void bus_space_write_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int8_t *, bus_size_t);
+void bus_space_set_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int8_t,
+    bus_size_t);
+void bus_space_read_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    u_int8_t *, bus_size_t);
+void bus_space_write_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const u_int8_t *, bus_size_t);
+void bus_space_set_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int8_t,
+    bus_size_t);
+void bus_space_copy_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, bus_space_handle_t, bus_size_t,
+    bus_size_t);
+
+static inline
+u_int8_t bus_space_read_1(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int8_t r;
+
+ ;
+ r = (__builtin_constant_p(t->asi) ? ({ u_int8_t __rldubu_int8_t; if(t->asi == 0x80 || (sizeof(u_int8_t) == 1 && t->asi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->asi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->asi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_1(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int8_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->asi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->asi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int16_t bus_space_read_raw_2(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_raw_2(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int16_t);
+void bus_space_read_raw_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_multi_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int16_t,
+    size_t);
+void bus_space_read_raw_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_region_2(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int16_t,
+    size_t);
+
+static inline
+u_int16_t bus_space_read_raw_2(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int16_t r;
+
+ ;
+ r = (__builtin_constant_p(t->sasi) ? ({ u_int16_t __rlduhu_int16_t; if(t->sasi == 0x80 || (sizeof(u_int16_t) == 1 && t->sasi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->sasi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->sasi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_raw_2(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int16_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->sasi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int32_t bus_space_read_raw_4(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_raw_4(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int32_t);
+void bus_space_read_raw_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_multi_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int32_t,
+    size_t);
+void bus_space_read_raw_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_region_4(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int32_t,
+    size_t);
+
+static inline
+u_int32_t bus_space_read_raw_4(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int32_t r;
+
+ ;
+ r = (__builtin_constant_p(t->sasi) ? ({ u_int32_t __rlduwu_int32_t; if(t->sasi == 0x80 || (sizeof(u_int32_t) == 1 && t->sasi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->sasi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->sasi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_raw_4(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int32_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->sasi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int64_t bus_space_read_raw_8(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_raw_8(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int64_t);
+void bus_space_read_raw_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_multi_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int64_t,
+    size_t);
+void bus_space_read_raw_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_region_8(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int64_t,
+    size_t);
+
+static inline
+u_int64_t bus_space_read_raw_8(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int64_t r;
+
+ ;
+ r = (__builtin_constant_p(t->sasi) ? ({ u_int64_t __rldxu_int64_t; if(t->sasi == 0x80 || (sizeof(u_int64_t) == 1 && t->sasi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->sasi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->sasi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_raw_8(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int64_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->sasi, (v)));
+}
+
+
+
+
+
+
+
+static inline u_int8_t bus_space_read_raw_1(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t);
+static inline void bus_space_write_raw_1(bus_space_tag_t,
+    bus_space_handle_t, bus_size_t, u_int8_t);
+void bus_space_read_raw_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_multi_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int8_t,
+    size_t);
+void bus_space_read_raw_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    void *, size_t);
+void bus_space_write_raw_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t,
+    const void *, size_t);
+void bus_space_set_raw_region_1(bus_space_tag_t, bus_space_handle_t,
+    bus_size_t, u_int8_t,
+    size_t);
+
+static inline
+u_int8_t bus_space_read_raw_1(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o)
+{
+ u_int8_t r;
+
+ ;
+ r = (__builtin_constant_p(t->sasi) ? ({ u_int8_t __rldubu_int8_t; if(t->sasi == 0x80 || (sizeof(u_int8_t) == 1 && t->sasi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->sasi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->sasi));
+ ;
+
+
+
+
+
+ return (r);
+}
+
+static inline
+void bus_space_write_raw_1(bus_space_tag_t t, bus_space_handle_t h,
+    bus_size_t o, u_int8_t v)
+{
+ ;
+ ;
+
+
+
+
+
+ (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->sasi, (v)));
+}
+# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 2
+# 382 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+struct mbuf;
+struct uio;
+# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+typedef struct sparc_bus_dma_tag *bus_dma_tag_t;
+typedef struct sparc_bus_dmamap *bus_dmamap_t;
+
+
+
+
+
+
+
+struct sparc_bus_dma_segment {
+ bus_addr_t ds_addr;
+ bus_size_t ds_len;
+
+
+
+
+
+
+
+ bus_size_t _ds_boundary;
+ bus_size_t _ds_align;
+ void *_ds_mlist;
+};
+typedef struct sparc_bus_dma_segment bus_dma_segment_t;
+# 425 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+struct sparc_bus_dma_tag {
+ void *_cookie;
+ struct sparc_bus_dma_tag* _parent;
+
+
+
+
+ int (*_dmamap_create)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
+      int, bus_size_t, bus_size_t, int, bus_dmamap_t *);
+ void (*_dmamap_destroy)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
+ int (*_dmamap_load)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+      void *, bus_size_t, struct proc *, int);
+ int (*_dmamap_load_mbuf)(bus_dma_tag_t, bus_dma_tag_t,
+      bus_dmamap_t, struct mbuf *, int);
+ int (*_dmamap_load_uio)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+      struct uio *, int);
+ int (*_dmamap_load_raw)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+      bus_dma_segment_t *, int, bus_size_t, int);
+ void (*_dmamap_unload)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
+ void (*_dmamap_sync)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+      bus_addr_t, bus_size_t, int);
+
+
+
+
+ int (*_dmamem_alloc)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
+      bus_size_t, bus_size_t, bus_dma_segment_t *, int, int *,
+      int);
+ void (*_dmamem_free)(bus_dma_tag_t, bus_dma_tag_t,
+      bus_dma_segment_t *, int);
+ int (*_dmamem_map)(bus_dma_tag_t, bus_dma_tag_t,
+      bus_dma_segment_t *, int, size_t, caddr_t *, int);
+ void (*_dmamem_unmap)(bus_dma_tag_t, bus_dma_tag_t, caddr_t,
+      size_t);
+ paddr_t (*_dmamem_mmap)(bus_dma_tag_t, bus_dma_tag_t,
+      bus_dma_segment_t *, int, off_t, int, int);
+};
+# 471 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
+static inline int
+bus_dmamap_create(bus_dma_tag_t t, bus_size_t s, int n, bus_size_t m,
+    bus_size_t b, int f, bus_dmamap_t *p)
+{
+ int r;
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamap_create == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamap_create)(t, t0, s, n, m, b, f, p);
+ ;
+ return (r);
+}
+static inline void
+bus_dmamap_destroy(bus_dma_tag_t t, bus_dmamap_t p)
+{
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamap_destroy == ((void *)0)) { t = t->_parent; };
+ (*(t)->_dmamap_destroy)(t, t0, p);
+ ;
+}
+static inline int
+bus_dmamap_load(bus_dma_tag_t t, bus_dmamap_t m, void *b, bus_size_t s,
+    struct proc *p, int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamap_load == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamap_load)(t, t0, m, b, s, p, f);
+ ;
+ return (r);
+}
+static inline int
+bus_dmamap_load_mbuf(bus_dma_tag_t t, bus_dmamap_t m, struct mbuf *b,
+    int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamap_load_mbuf == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamap_load_mbuf)(t, t0, m, b, f);
+ ;
+ return (r);
+}
+static inline int
+bus_dmamap_load_uio(bus_dma_tag_t t, bus_dmamap_t m, struct uio * u, int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamap_load_uio == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamap_load_uio)(t, t0, m, u, f);
+ ;
+ return (r);
+}
+static inline int
+bus_dmamap_load_raw(bus_dma_tag_t t, bus_dmamap_t m, bus_dma_segment_t *sg,
+    int n, bus_size_t s, int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamap_load_raw == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamap_load_raw)(t, t0, m, sg, n, s, f);
+ ;
+ return (r);
+}
+static inline void
+bus_dmamap_unload(bus_dma_tag_t t, bus_dmamap_t p)
+{
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamap_unload == ((void *)0)) { t = t->_parent; };
+ (*(t)->_dmamap_unload)(t, t0, p);
+ ;
+}
+static inline void
+bus_dmamap_sync(bus_dma_tag_t t, bus_dmamap_t p, bus_addr_t o, bus_size_t l,
+    int ops)
+{
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamap_sync == ((void *)0)) { t = t->_parent; };
+ (*(t)->_dmamap_sync)(t, t0, p, o, l, ops);
+ ;
+}
+static inline int
+bus_dmamem_alloc(bus_dma_tag_t t, bus_size_t s, bus_size_t a, bus_size_t b,
+    bus_dma_segment_t *sg, int n, int *r, int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int ret;
+ while (t->_dmamem_alloc == ((void *)0)) { t = t->_parent; };
+ ret = (*(t)->_dmamem_alloc)(t, t0, s, a, b, sg, n, r, f);
+ ;
+ return (ret);
+}
+static inline void
+bus_dmamem_free(bus_dma_tag_t t, bus_dma_segment_t *sg, int n)
+{
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamem_free == ((void *)0)) { t = t->_parent; };
+ (*(t)->_dmamem_free)(t, t0, sg, n);
+ ;
+}
+static inline int
+bus_dmamem_map(bus_dma_tag_t t, bus_dma_segment_t *sg, int n, size_t s,
+    caddr_t *k, int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamem_map == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamem_map)(t, t0, sg, n, s, k, f);
+ ;
+ return (r);
+}
+static inline void
+bus_dmamem_unmap(bus_dma_tag_t t, caddr_t k, size_t s)
+{
+ const bus_dma_tag_t t0 = t;
+ while (t->_dmamem_unmap == ((void *)0)) { t = t->_parent; };
+ (*(t)->_dmamem_unmap)(t, t0, k, s);
+ ;
+}
+static inline paddr_t
+bus_dmamem_mmap(bus_dma_tag_t t, bus_dma_segment_t *sg, int n, off_t o, int p,
+    int f)
+{
+ const bus_dma_tag_t t0 = t;
+ int r;
+ while (t->_dmamem_mmap == ((void *)0)) { t = t->_parent; };
+ r = (*(t)->_dmamem_mmap)(t, t0, sg, n, o, p, f);
+ ;
+ return (r);
+}
+
+
+
+
+
+
+struct sparc_bus_dmamap {
+
+
+
+ bus_addr_t _dm_dvmastart;
+ bus_size_t _dm_dvmasize;
+
+ bus_size_t _dm_size;
+ bus_size_t _dm_maxsegsz;
+ bus_size_t _dm_boundary;
+ int _dm_segcnt;
+ int _dm_flags;
+
+
+
+
+ int _dm_type;
+ void *_dm_source;
+
+ void *_dm_cookie;
+
+
+
+
+ bus_size_t dm_mapsize;
+ int dm_nsegs;
+
+ bus_dma_segment_t dm_segs[1];
+};
+# 24 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h" 1
+# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h"
+struct sbus_softc;
+
+
+
+
+
+
+struct sbus_reg {
+ u_int32_t sbr_slot;
+ u_int32_t sbr_offset;
+ u_int32_t sbr_size;
+};
+
+
+struct sbus_intr {
+ u_int32_t sbi_pri;
+ u_int32_t sbi_vec;
+};
+
+
+struct sbus_range {
+ u_int32_t cspace;
+ u_int32_t coffset;
+ u_int32_t pspace;
+ u_int32_t poffset;
+ u_int32_t size;
+};
+
+
+
+
+struct sbus_attach_args {
+ int sa_placeholder;
+ bus_space_tag_t sa_bustag;
+ bus_dma_tag_t sa_dmatag;
+ char *sa_name;
+ int sa_node;
+ struct sbus_reg *sa_reg;
+ int sa_nreg;
+
+
+
+
+ struct sbus_intr *sa_intr;
+ int sa_nintr;
+
+
+ u_int32_t *sa_promvaddrs;
+ int sa_npromvaddrs;
+
+ int sa_frequency;
+};
+
+int sbus_print(void *, const char *);
+
+int sbus_setup_attach_args(
+  struct sbus_softc *,
+  bus_space_tag_t,
+  bus_dma_tag_t,
+  int,
+  struct sbus_attach_args *);
+
+void sbus_destroy_attach_args(struct sbus_attach_args *);
+# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h" 1
+# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 1
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h" 1
+# 767 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+# 791 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h" 1
+# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
+struct extent_region {
+ struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
+ u_long er_start;
+ u_long er_end;
+ int er_flags;
+};
+
+
+
+
+
+struct extent {
+ char *ex_name;
+
+ struct { struct extent_region *lh_first; } ex_regions;
+ u_long ex_start;
+ u_long ex_end;
+ int ex_mtype;
+ int ex_flags;
+
+ struct { struct extent *le_next; struct extent **le_prev; } ex_link;
+};
+
+struct extent_fixed {
+ struct extent fex_extent;
+
+ struct { struct extent_region *lh_first; } fex_freelist;
+ caddr_t fex_storage;
+ size_t fex_storagesize;
+};
+# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
+void extent_print_all(void);
+
+struct extent *extent_create(char *, u_long, u_long, int,
+     caddr_t, size_t, int);
+void extent_destroy(struct extent *);
+int extent_alloc_subregion(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, u_long *);
+int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, struct extent_region *,
+     u_long *);
+int extent_alloc_region(struct extent *, u_long, u_long, int);
+int extent_free(struct extent *, u_long, u_long, int);
+void extent_print(struct extent *);
+# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 1
+# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h" 1
+# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+
+
+
+};
+# 64 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
+void __mtx_init(struct mutex *, int);
+# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 2
+# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
+# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 2
+
+
+
+
+struct strbuf_ctl {
+ bus_space_tag_t sb_bustag;
+ bus_space_handle_t sb_sb;
+ struct iommu_state *sb_iommu;
+# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h"
+ struct mutex sb_mtx;
+
+ paddr_t sb_flushpa;
+ volatile int64_t *sb_flush;
+};
+
+
+
+
+struct strbuf_flush {
+ char sbf_area[0x80];
+ void *sbf_flush;
+ paddr_t sbf_flushpa;
+};
+
+
+
+
+struct iommu_page_entry {
+ struct { struct iommu_page_entry *spe_left; struct iommu_page_entry *spe_right; } ipe_node;
+ paddr_t ipe_pa;
+ bus_addr_t ipe_va;
+};
+struct iommu_page_map {
+ struct iommu_page_tree { struct iommu_page_entry *sph_root; } ipm_tree;
+ int ipm_maxpage;
+ int ipm_pagecnt;
+ struct iommu_page_entry ipm_map[1];
+};
+
+
+
+
+
+
+struct iommu_map_state {
+ struct strbuf_flush ims_flush;
+ struct strbuf_ctl *ims_sb;
+ struct iommu_state *ims_iommu;
+ int ims_flags;
+ struct extent_region ims_er;
+ struct iommu_page_map ims_map;
+};
+
+
+
+
+
+struct iommu_state {
+ paddr_t is_ptsb;
+ int64_t *is_tsb;
+ int is_tsbsize;
+ u_int is_dvmabase;
+ u_int is_dvmaend;
+ int64_t is_cr;
+ struct mutex is_mtx;
+ struct extent *is_dvmamap;
+ int is_flags;
+
+
+ struct strbuf_ctl *is_sb[2];
+
+ paddr_t is_scratch;
+
+
+ bus_space_tag_t is_bustag;
+ bus_space_handle_t is_iommu;
+ uint64_t is_devhandle;
+};
+
+
+void iommu_init(char *, struct iommu_state *, int, u_int32_t);
+void iommu_reset(struct iommu_state *);
+paddr_t iommu_extract(struct iommu_state *, bus_addr_t);
+int64_t iommu_lookup_tte(struct iommu_state *, bus_addr_t);
+int64_t iommu_fetch_tte(struct iommu_state *, paddr_t);
+
+int iommu_dvmamap_create(bus_dma_tag_t, bus_dma_tag_t, struct strbuf_ctl *,
+     bus_size_t, int, bus_size_t, bus_size_t, int, bus_dmamap_t *);
+void iommu_dvmamap_destroy(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
+int iommu_dvmamap_load(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t, void *,
+     bus_size_t, struct proc *, int);
+void iommu_dvmamap_unload(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
+int iommu_dvmamap_load_raw(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+     bus_dma_segment_t *, int, bus_size_t, int);
+void iommu_dvmamap_sync(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
+     bus_addr_t, bus_size_t, int);
+int iommu_dvmamem_alloc(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
+     bus_size_t, bus_size_t, bus_dma_segment_t *, int, int *, int);
+void iommu_dvmamem_free(bus_dma_tag_t, bus_dma_tag_t, bus_dma_segment_t *,
+     int);
+# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h" 2
+# 90 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h"
+struct sbus_softc {
+ struct device sc_dev;
+ bus_space_tag_t sc_bustag;
+ bus_space_handle_t sc_bh;
+ bus_dma_tag_t sc_dmatag;
+ int sc_clockfreq;
+ struct sbus_range *sc_range;
+ int sc_nrange;
+ int sc_burst;
+ int *sc_intr2ipl;
+ int *sc_intr_compat;
+
+ int sc_ign;
+ struct iommu_state sc_is;
+ struct strbuf_ctl sc_sb;
+ int64_t sc_flush;
+ struct sbus_softc *sc_master;
+};
+
+bus_addr_t sbus_bus_addr(bus_space_tag_t, u_int, u_int);
+# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommureg.h" 1
+# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommureg.h"
+struct iommureg {
+ volatile u_int64_t iommu_cr;
+ volatile u_int64_t iommu_tsb;
+ volatile u_int64_t iommu_flush;
+ volatile u_int64_t iommu_ctxflush;
+ volatile u_int64_t iommu_reserved[28];
+ volatile u_int64_t iommu_cache_flush;
+ volatile u_int64_t iommu_cache_invalidate;
+ volatile u_int64_t iommu_reserved2[30];
+};
+
+
+struct iommu_strbuf {
+ volatile u_int64_t strbuf_ctl;
+ volatile u_int64_t strbuf_pgflush;
+ volatile u_int64_t strbuf_flushsync;
+};
+# 133 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 2
+# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h" 2
+
+
+struct intrmap {
+ char *in_class;
+ int in_lev;
+};
+extern struct intrmap intrmap[];
+
+
+
+
+
+
+
+struct upa_reg {
+ int64_t ur_paddr;
+ int64_t ur_len;
+};
+
+
+
+
+
+
+struct mainbus_attach_args {
+ bus_space_tag_t ma_bustag;
+ bus_dma_tag_t ma_dmatag;
+ char *ma_name;
+ struct upa_reg *ma_reg;
+ u_int *ma_address;
+ u_int *ma_interrupts;
+ int ma_upaid;
+ int ma_node;
+ int ma_nreg;
+ int ma_naddress;
+ int ma_ninterrupts;
+ int ma_pri;
+};
+
+
+
+
+long getproplen(int node, char *name);
+int getprop(int, char *, size_t, int *, void **);
+char *getpropstring(int node, char *name);
+int getpropint(int node, char *name, int deflt);
+int getpropspeed(int node, char *name);
+
+
+extern int optionsnode;
+
+
+char *getpropstringA(int, char *, char *);
+
+
+
+
+
+char *clockfreq(long freq);
+
+
+struct device;
+struct bootpath {
+ int node;
+ char name[16];
+ long val[3];
+ struct device *dev;
+};
+struct bootpath *bootpath_store(int, struct bootpath *);
+
+
+void mountroot_hook_establish(void (*)(struct device *), struct device *);
+
+void bootstrap(int);
+int firstchild(int);
+int nextsibling(int);
+void callrom(void);
+struct device *getdevunit(char *, int);
+void *findzs(int);
+int romgetcursoraddr(int **, int **);
+int findroot(void);
+int findnode(int, const char *);
+int checkstatus(int);
+int node_has_property(int, const char *);
+void device_register(struct device *, void *);
+# 26 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h" 1
+# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+struct scsi_generic {
+ u_int8_t opcode;
+ u_int8_t bytes[15];
+};
+
+struct scsi_test_unit_ready {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[3];
+ u_int8_t control;
+};
+
+struct scsi_send_diag {
+ u_int8_t opcode;
+ u_int8_t byte2;
+
+
+
+
+ u_int8_t unused[1];
+ u_int8_t paramlen[2];
+ u_int8_t control;
+};
+
+struct scsi_sense {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[2];
+ u_int8_t length;
+ u_int8_t control;
+};
+
+struct scsi_inquiry {
+ u_int8_t opcode;
+ u_int8_t flags;
+
+ u_int8_t pagecode;
+
+
+
+
+ u_int8_t length[2];
+ u_int8_t control;
+};
+
+struct scsi_mode_sense {
+ u_int8_t opcode;
+ u_int8_t byte2;
+
+ u_int8_t page;
+
+
+
+
+
+
+ u_int8_t unused;
+ u_int8_t length;
+ u_int8_t control;
+};
+
+struct scsi_mode_sense_big {
+ u_int8_t opcode;
+ u_int8_t byte2;
+
+ u_int8_t page;
+ u_int8_t unused[4];
+ u_int8_t length[2];
+ u_int8_t control;
+};
+
+struct scsi_mode_select {
+ u_int8_t opcode;
+ u_int8_t byte2;
+
+
+ u_int8_t unused[2];
+ u_int8_t length;
+ u_int8_t control;
+};
+
+struct scsi_mode_select_big {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[5];
+ u_int8_t length[2];
+ u_int8_t control;
+};
+
+struct scsi_reserve {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[2];
+ u_int8_t length;
+ u_int8_t control;
+};
+
+struct scsi_release {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[2];
+ u_int8_t length;
+ u_int8_t control;
+};
+
+struct scsi_prevent {
+ u_int8_t opcode;
+ u_int8_t byte2;
+ u_int8_t unused[2];
+ u_int8_t how;
+ u_int8_t control;
+};
+
+
+
+struct scsi_report_luns {
+ u_int8_t opcode;
+ u_int8_t unused;
+ u_int8_t selectreport;
+
+
+
+ u_int8_t unused2[3];
+ u_int8_t length[4];
+ u_int8_t unused4;
+ u_int8_t control;
+};
+# 224 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+struct scsi_inquiry_data {
+ u_int8_t device;
+
+
+
+
+
+
+ u_int8_t dev_qual2;
+
+
+ u_int8_t version;
+
+
+
+ u_int8_t response_format;
+ u_int8_t additional_length;
+
+
+ u_int8_t unused[2];
+ u_int8_t flags;
+
+
+
+
+
+
+
+ char vendor[8];
+ char product[16];
+ char revision[4];
+ u_int8_t extra[20];
+ u_int8_t flags2;
+
+
+
+ u_int8_t reserved;
+};
+
+struct scsi_vpd_hdr {
+ u_int8_t device;
+ u_int8_t page_code;
+ u_int8_t page_length[2];
+};
+
+struct scsi_vpd_serial {
+ struct scsi_vpd_hdr hdr;
+ char serial[32];
+};
+# 285 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+struct scsi_vpd_devid_hdr {
+ u_int8_t pi_code;
+
+
+
+
+
+ u_int8_t flags;
+# 308 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+ u_int8_t reserved;
+ u_int8_t len;
+};
+
+struct scsi_vpd_ata {
+ struct scsi_vpd_hdr hdr;
+
+ u_int8_t _reserved1[4];
+ u_int8_t sat_vendor[8];
+ u_int8_t sat_product[16];
+ u_int8_t sat_revision[4];
+ u_int8_t device_signature[20];
+ u_int8_t command_code;
+
+
+ u_int8_t _reserved2[3];
+ u_int8_t identify[512];
+};
+
+struct scsi_sense_data_unextended {
+       u_int8_t error_code;
+       u_int8_t block[3];
+};
+
+struct scsi_sense_data {
+       u_int8_t error_code;
+
+
+
+
+       u_int8_t segment;
+       u_int8_t flags;
+
+
+
+
+       u_int8_t info[4];
+       u_int8_t extra_len;
+       u_int8_t cmd_spec_info[4];
+       u_int8_t add_sense_code;
+       u_int8_t add_sense_code_qual;
+       u_int8_t fru;
+       u_int8_t sense_key_spec_1;
+
+
+
+
+
+       u_int8_t sense_key_spec_2;
+       u_int8_t sense_key_spec_3;
+};
+# 417 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+struct scsi_blk_desc {
+ u_int8_t density;
+ u_int8_t nblocks[3];
+ u_int8_t reserved;
+ u_int8_t blklen[3];
+};
+
+struct scsi_direct_blk_desc {
+ u_int8_t nblocks[4];
+ u_int8_t density;
+ u_int8_t blklen[3];
+};
+
+struct scsi_blk_desc_big {
+ u_int8_t nblocks[8];
+ u_int8_t density;
+ u_int8_t reserved[3];
+ u_int8_t blklen[4];
+};
+
+struct scsi_mode_header {
+ u_int8_t data_length;
+ u_int8_t medium_type;
+ u_int8_t dev_spec;
+ u_int8_t blk_desc_len;
+};
+
+struct scsi_mode_header_big {
+ u_int8_t data_length[2];
+ u_int8_t medium_type;
+ u_int8_t dev_spec;
+ u_int8_t reserved;
+
+ u_int8_t reserved2;
+ u_int8_t blk_desc_len[2];
+};
+
+
+
+
+union scsi_mode_sense_buf {
+ struct scsi_mode_header hdr;
+ struct scsi_mode_header_big hdr_big;
+ u_char buf[254];
+
+
+} __attribute__((__packed__));
+
+struct scsi_report_luns_data {
+ u_int8_t length[4];
+ u_int8_t reserved[4];
+
+
+
+
+ struct {
+  u_int8_t lundata[8];
+ } luns[256];
+};
+# 510 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_all.h"
+struct scsi_ata_passthru_12 {
+ u_int8_t opcode;
+ u_int8_t count_proto;
+ u_int8_t flags;
+ u_int8_t features;
+ u_int8_t sector_count;
+ u_int8_t lba_low;
+ u_int8_t lba_mid;
+ u_int8_t lba_high;
+ u_int8_t device;
+ u_int8_t command;
+ u_int8_t _reserved;
+ u_int8_t control;
+};
+
+struct scsi_ata_passthru_16 {
+ u_int8_t opcode;
+ u_int8_t count_proto;
+ u_int8_t flags;
+ u_int8_t features[2];
+ u_int8_t sector_count[2];
+ u_int8_t lba_low[2];
+ u_int8_t lba_mid[2];
+ u_int8_t lba_high[2];
+ u_int8_t device;
+ u_int8_t command;
+ u_int8_t control;
+};
+
+
+
+
+struct scsi_status_iu_header {
+       u_int8_t reserved[2];
+       u_int8_t flags;
+
+
+       u_int8_t status;
+       u_int8_t sense_length[4];
+       u_int8_t pkt_failures_length[4];
+ u_int8_t data[1];
+};
+# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h" 1
+# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h" 1
+# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
+struct bintime;
+
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+
+
+
+
+
+int timeout_hardclock_update(void);
+# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_debug.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_debug.h"
+extern u_int32_t scsidebug_buses, scsidebug_targets, scsidebug_luns;
+extern int scsidebug_level;
+# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h" 2
+
+static __inline void _lto2b(u_int32_t val, u_int8_t *bytes);
+static __inline void _lto3b(u_int32_t val, u_int8_t *bytes);
+static __inline void _lto4b(u_int32_t val, u_int8_t *bytes);
+static __inline void _lto8b(u_int64_t val, u_int8_t *bytes);
+static __inline u_int32_t _2btol(u_int8_t *bytes);
+static __inline u_int32_t _3btol(u_int8_t *bytes);
+static __inline u_int32_t _4btol(u_int8_t *bytes);
+static __inline u_int64_t _5btol(u_int8_t *bytes);
+static __inline u_int64_t _8btol(u_int8_t *bytes);
+
+static __inline void
+_lto2b(u_int32_t val, u_int8_t *bytes)
+{
+
+ bytes[0] = (val >> 8) & 0xff;
+ bytes[1] = val & 0xff;
+}
+
+static __inline void
+_lto3b(u_int32_t val, u_int8_t *bytes)
+{
+
+ bytes[0] = (val >> 16) & 0xff;
+ bytes[1] = (val >> 8) & 0xff;
+ bytes[2] = val & 0xff;
+}
+
+static __inline void
+_lto4b(u_int32_t val, u_int8_t *bytes)
+{
+
+ bytes[0] = (val >> 24) & 0xff;
+ bytes[1] = (val >> 16) & 0xff;
+ bytes[2] = (val >> 8) & 0xff;
+ bytes[3] = val & 0xff;
+}
+
+static __inline void
+_lto8b(u_int64_t val, u_int8_t *bytes)
+{
+
+ bytes[0] = (val >> 56) & 0xff;
+ bytes[1] = (val >> 48) & 0xff;
+ bytes[2] = (val >> 40) & 0xff;
+ bytes[3] = (val >> 32) & 0xff;
+ bytes[4] = (val >> 24) & 0xff;
+ bytes[5] = (val >> 16) & 0xff;
+ bytes[6] = (val >> 8) & 0xff;
+ bytes[7] = val & 0xff;
+}
+
+static __inline u_int32_t
+_2btol(u_int8_t *bytes)
+{
+ u_int32_t rv;
+
+ rv = (bytes[0] << 8) | bytes[1];
+ return (rv);
+}
+
+static __inline u_int32_t
+_3btol(u_int8_t *bytes)
+{
+ u_int32_t rv;
+
+ rv = (bytes[0] << 16) | (bytes[1] << 8) | bytes[2];
+ return (rv);
+}
+
+static __inline u_int32_t
+_4btol(u_int8_t *bytes)
+{
+ u_int32_t rv;
+
+ rv = (bytes[0] << 24) | (bytes[1] << 16) |
+     (bytes[2] << 8) | bytes[3];
+ return (rv);
+}
+
+static __inline u_int64_t
+_5btol(u_int8_t *bytes)
+{
+ u_int64_t rv;
+
+ rv = ((u_int64_t)bytes[0] << 32) |
+      ((u_int64_t)bytes[1] << 24) |
+      ((u_int64_t)bytes[2] << 16) |
+      ((u_int64_t)bytes[3] << 8) |
+      (u_int64_t)bytes[4];
+ return (rv);
+}
+
+static __inline u_int64_t
+_8btol(u_int8_t *bytes)
+{
+ u_int64_t rv;
+
+ rv = (((u_int64_t)bytes[0]) << 56) |
+     (((u_int64_t)bytes[1]) << 48) |
+     (((u_int64_t)bytes[2]) << 40) |
+     (((u_int64_t)bytes[3]) << 32) |
+     (((u_int64_t)bytes[4]) << 24) |
+     (((u_int64_t)bytes[5]) << 16) |
+     (((u_int64_t)bytes[6]) << 8) |
+     ((u_int64_t)bytes[7]);
+ return (rv);
+}
+# 175 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+struct devid {
+ u_int8_t d_type;
+ u_int8_t d_flags;
+
+ u_int8_t d_refcount;
+ u_int8_t d_len;
+
+
+
+
+
+};
+# 197 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+struct devid * devid_alloc(u_int8_t, u_int8_t, u_int8_t, u_int8_t *);
+struct devid * devid_copy(struct devid *);
+void devid_free(struct devid *);
+# 228 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+struct scsi_xfer;
+struct scsi_link;
+struct scsibus_softc;
+
+
+
+
+extern int scsi_autoconf;
+
+
+
+
+
+
+struct scsi_adapter {
+ void (*scsi_cmd)(struct scsi_xfer *);
+ void (*scsi_minphys)(struct buf *, struct scsi_link *);
+ int (*dev_probe)(struct scsi_link *);
+ void (*dev_free)(struct scsi_link *);
+ int (*ioctl)(struct scsi_link *, u_long, caddr_t, int);
+};
+
+struct scsi_iopool;
+
+struct scsi_iohandler {
+ struct { struct scsi_iohandler *tqe_next; struct scsi_iohandler **tqe_prev; } q_entry;
+ u_int q_state;
+
+ struct scsi_iopool *pool;
+ void (*handler)(void *, void *);
+ void *cookie;
+};
+struct scsi_runq { struct scsi_iohandler *tqh_first; struct scsi_iohandler **tqh_last; };
+
+struct scsi_iopool {
+
+ void *iocookie;
+
+
+
+
+
+
+ void *(*io_get)(void *);
+ void (*io_put)(void *, void *);
+
+
+ struct scsi_runq queue;
+
+ u_int running;
+
+ struct mutex mtx;
+};
+
+struct scsi_xshandler {
+ struct scsi_iohandler ioh;
+
+ struct scsi_link *link;
+ void (*handler)(struct scsi_xfer *);
+};
+
+
+
+
+
+
+
+struct scsi_link {
+ struct { struct scsi_link *sle_next; } bus_list;
+
+ u_int state;
+
+
+
+ u_int8_t scsibus;
+ u_int8_t luns;
+ u_int16_t target;
+ u_int16_t lun;
+ u_int16_t openings;
+ u_int64_t port_wwn;
+ u_int64_t node_wwn;
+ u_int16_t adapter_target;
+ u_int16_t adapter_buswidth;
+ u_int16_t flags;
+# 323 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+ u_int16_t quirks;
+# 334 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+ int (*interpret_sense)(struct scsi_xfer *);
+ void *device_softc;
+ struct scsi_adapter *adapter;
+ void *adapter_softc;
+ struct scsibus_softc *bus;
+ struct scsi_inquiry_data inqdata;
+ struct devid *id;
+
+ struct scsi_runq queue;
+ u_int running;
+ u_short pending;
+
+ struct scsi_iopool *pool;
+};
+
+int scsiprint(void *, const char *);
+
+
+
+
+
+struct scsi_inquiry_pattern {
+ u_int8_t type;
+ int removable;
+ char *vendor;
+ char *product;
+ char *revision;
+};
+
+struct scsibus_attach_args {
+ struct scsi_link *saa_sc_link;
+};
+# 375 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+struct scsibus_softc {
+ struct device sc_dev;
+ struct scsi_link *adapter_link;
+ struct { struct scsi_link *slh_first; } sc_link_list;
+ u_int16_t sc_buswidth;
+};
+
+
+
+
+
+struct scsi_attach_args {
+ struct scsi_link *sa_sc_link;
+ struct scsi_inquiry_data *sa_inqbuf;
+};
+
+
+
+
+
+
+
+struct scsi_xfer {
+ struct { struct scsi_xfer *sqe_next; } xfer_list;
+ int flags;
+ struct scsi_link *sc_link;
+ int retries;
+ int timeout;
+ struct scsi_generic *cmd;
+ int cmdlen;
+ u_char *data;
+ int datalen;
+ size_t resid;
+ int error;
+ struct buf *bp;
+ struct scsi_sense_data sense;
+ u_int8_t status;
+ struct scsi_generic cmdstore;
+
+
+
+ struct timeout stimeout;
+ void *cookie;
+ void (*done)(struct scsi_xfer *);
+
+ void *io;
+};
+struct scsi_xfer_list { struct scsi_xfer *sqh_first; struct scsi_xfer **sqh_last; };
+# 473 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.h"
+const void *scsi_inqmatch(struct scsi_inquiry_data *, const void *, int,
+     int, int *);
+
+void scsi_init(void);
+int scsi_test_unit_ready(struct scsi_link *, int, int);
+int scsi_inquire(struct scsi_link *, struct scsi_inquiry_data *, int);
+int scsi_inquire_vpd(struct scsi_link *, void *, u_int, u_int8_t, int);
+void scsi_init_inquiry(struct scsi_xfer *, u_int8_t, u_int8_t,
+     void *, size_t);
+int scsi_prevent(struct scsi_link *, int, int);
+int scsi_start(struct scsi_link *, int, int);
+int scsi_mode_sense(struct scsi_link *, int, int, struct scsi_mode_header *,
+     size_t, int, int);
+int scsi_mode_sense_big(struct scsi_link *, int, int,
+     struct scsi_mode_header_big *, size_t, int, int);
+void * scsi_mode_sense_page(struct scsi_mode_header *, int);
+void * scsi_mode_sense_big_page(struct scsi_mode_header_big *, int);
+int scsi_do_mode_sense(struct scsi_link *, int,
+     union scsi_mode_sense_buf *, void **, u_int32_t *, u_int64_t *,
+     u_int32_t *, int, int, int *);
+int scsi_mode_select(struct scsi_link *, int, struct scsi_mode_header *,
+     int, int);
+int scsi_mode_select_big(struct scsi_link *, int,
+     struct scsi_mode_header_big *, int, int);
+void scsi_done(struct scsi_xfer *);
+int scsi_do_ioctl(struct scsi_link *, u_long, caddr_t, int);
+void sc_print_addr(struct scsi_link *);
+int scsi_report_luns(struct scsi_link *, int,
+     struct scsi_report_luns_data *, u_int32_t, int, int);
+void scsi_minphys(struct buf *, struct scsi_link *);
+int scsi_interpret_sense(struct scsi_xfer *);
+
+void scsi_xs_show(struct scsi_xfer *);
+void scsi_print_sense(struct scsi_xfer *);
+void scsi_show_mem(u_char *, int);
+void scsi_strvis(u_char *, u_char *, int);
+int scsi_delay(struct scsi_xfer *, int);
+
+int scsi_probe(struct scsibus_softc *, int, int);
+int scsi_probe_bus(struct scsibus_softc *);
+int scsi_probe_target(struct scsibus_softc *, int);
+int scsi_probe_lun(struct scsibus_softc *, int, int);
+
+int scsi_detach(struct scsibus_softc *, int, int, int);
+int scsi_detach_bus(struct scsibus_softc *, int);
+int scsi_detach_target(struct scsibus_softc *, int, int);
+int scsi_detach_lun(struct scsibus_softc *, int, int, int);
+
+int scsi_req_probe(struct scsibus_softc *, int, int);
+int scsi_req_detach(struct scsibus_softc *, int, int, int);
+
+int scsi_activate(struct scsibus_softc *, int, int, int);
+
+struct scsi_link * scsi_get_link(struct scsibus_softc *, int, int);
+void scsi_add_link(struct scsibus_softc *,
+       struct scsi_link *);
+void scsi_remove_link(struct scsibus_softc *,
+       struct scsi_link *);
+
+extern const u_int8_t version_to_spc[];
+
+
+struct scsi_xfer * scsi_xs_get(struct scsi_link *, int);
+void scsi_xs_exec(struct scsi_xfer *);
+int scsi_xs_sync(struct scsi_xfer *);
+void scsi_xs_put(struct scsi_xfer *);
+
+
+
+
+
+
+
+void scsi_iopool_init(struct scsi_iopool *, void *,
+     void *(*)(void *), void (*)(void *, void *));
+void scsi_iopool_run(struct scsi_iopool *);
+void scsi_iopool_destroy(struct scsi_iopool *);
+void scsi_link_shutdown(struct scsi_link *);
+
+void * scsi_io_get(struct scsi_iopool *, int);
+void scsi_io_put(struct scsi_iopool *, void *);
+
+
+
+
+
+void * scsi_default_get(void *);
+void scsi_default_put(void *, void *);
+
+
+
+
+void scsi_ioh_set(struct scsi_iohandler *, struct scsi_iopool *,
+     void (*)(void *, void *), void *);
+int scsi_ioh_add(struct scsi_iohandler *);
+int scsi_ioh_del(struct scsi_iohandler *);
+
+void scsi_xsh_set(struct scsi_xshandler *, struct scsi_link *,
+     void (*)(struct scsi_xfer *));
+int scsi_xsh_add(struct scsi_xshandler *);
+int scsi_xsh_del(struct scsi_xshandler *);
+
+
+
+
+int scsi_pending_start(struct mutex *, u_int *);
+int scsi_pending_finish(struct mutex *, u_int *);
+
+
+
+
+void scsi_cmd_rw_decode(struct scsi_generic *, u_int64_t *, u_int32_t *);
+# 31 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwreg.h" 1
+# 159 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwreg.h"
+struct qlw_nvram_target {
+ u_int8_t parameter;
+ u_int8_t execution_throttle;
+ u_int8_t sync_period;
+ u_int8_t flags;
+ u_int8_t reserved[2];
+} __attribute__((__packed__));
+
+struct qlw_nvram_1040 {
+ u_int8_t id[4];
+ u_int8_t nvram_version;
+ u_int8_t config1;
+ u_int8_t reset_delay;
+ u_int8_t retry_count;
+ u_int8_t retry_delay;
+ u_int8_t config2;
+ u_int8_t tag_age_limit;
+ u_int8_t flags1;
+ u_int16_t selection_timeout;
+ u_int16_t max_queue_depth;
+ u_int8_t flags2;
+ u_int8_t reserved_0[5];
+ u_int8_t flags3;
+ u_int8_t reserved_1[5];
+ struct qlw_nvram_target target[16];
+ u_int8_t reserved_2[3];
+ u_int8_t checksum;
+} __attribute__((__packed__));
+
+struct qlw_nvram_bus {
+ u_int8_t config1;
+ u_int8_t reset_delay;
+ u_int8_t retry_count;
+ u_int8_t retry_delay;
+ u_int8_t config2;
+ u_int8_t reserved_0;
+ u_int16_t selection_timeout;
+ u_int16_t max_queue_depth;
+ u_int8_t reserved_1[6];
+ struct qlw_nvram_target target[16];
+} __attribute__((__packed__));
+
+struct qlw_nvram_1080 {
+ u_int8_t id[4];
+ u_int8_t nvram_version;
+ u_int8_t flags1;
+ u_int16_t flags2;
+ u_int8_t reserved_0[8];
+ u_int8_t isp_config;
+ u_int8_t termination;
+ u_int16_t isp_parameter;
+ u_int16_t fw_features;
+ u_int16_t reserved_1;
+ struct qlw_nvram_bus bus[2];
+ u_int8_t reserved_2[2];
+ u_int16_t subsystem_vendor_id;
+ u_int16_t subsystem_device_id;
+ u_int8_t reserved_3;
+ u_int8_t checksum;
+} __attribute__((__packed__));
+
+struct qlw_nvram {
+ u_int8_t id[4];
+ u_int8_t nvram_version;
+ u_int8_t data[251];
+};
+# 248 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwreg.h"
+struct qlw_iocb_hdr {
+ u_int8_t entry_type;
+ u_int8_t entry_count;
+ u_int8_t seqno;
+ u_int8_t flags;
+} __attribute__((__packed__));
+
+
+
+
+struct qlw_iocb_seg {
+ u_int32_t seg_addr;
+ u_int32_t seg_len;
+} __attribute__((__packed__));
+
+
+
+
+
+
+
+struct qlw_iocb_req0 {
+ struct qlw_iocb_hdr hdr;
+
+ u_int32_t handle;
+ u_int16_t device;
+ u_int16_t ccblen;
+ u_int16_t flags;
+ u_int16_t reserved;
+ u_int16_t timeout;
+ u_int16_t seg_count;
+ u_int8_t cdb[12];
+ struct qlw_iocb_seg segs[4];
+} __attribute__((__packed__));
+
+struct qlw_iocb_cont0 {
+ struct qlw_iocb_hdr hdr;
+
+ u_int32_t reserved;
+ struct qlw_iocb_seg segs[7];
+} __attribute__((__packed__));
+
+struct qlw_iocb_status {
+ struct qlw_iocb_hdr hdr;
+
+ u_int32_t handle;
+ u_int16_t scsi_status;
+ u_int16_t completion;
+ u_int16_t state_flags;
+ u_int16_t status_flags;
+ u_int16_t rsp_len;
+ u_int16_t sense_len;
+ u_int32_t resid;
+ u_int8_t fcp_rsp[8];
+ u_int8_t sense_data[32];
+} __attribute__((__packed__));
+# 323 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwreg.h"
+struct qlw_iocb_marker {
+ struct qlw_iocb_hdr hdr;
+
+ u_int32_t handle;
+ u_int16_t device;
+ u_int16_t modifier;
+ u_int8_t reserved2[52];
+
+} __attribute__((__packed__));
+# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwvar.h" 1
+# 20 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwvar.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h" 1
+# 24 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h"
+struct taskq;
+
+struct task {
+ struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
+ void (*t_func)(void *);
+ void *t_arg;
+ unsigned int t_flags;
+};
+
+struct task_list { struct task *tqh_first; struct task **tqh_last; };
+
+
+
+
+
+
+
+extern struct taskq *const systq;
+extern struct taskq *const systqmp;
+
+struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
+void taskq_destroy(struct taskq *);
+
+void task_set(struct task *, void (*)(void *), void *);
+int task_add(struct taskq *, struct task *);
+int task_del(struct taskq *, struct task *);
+# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/qlwvar.h" 2
+
+
+
+
+
+
+
+struct qlw_softc;
+
+enum qlw_isp_gen {
+ QLW_GEN_ISP1000 = 1,
+ QLW_GEN_ISP1040,
+ QLW_GEN_ISP1080,
+ QLW_GEN_ISP12160,
+};
+
+enum qlw_isp_type {
+ QLW_ISP1000 = 1,
+ QLW_ISP1020,
+ QLW_ISP1020A,
+ QLW_ISP1040,
+ QLW_ISP1040A,
+ QLW_ISP1040B,
+ QLW_ISP1040C,
+ QLW_ISP1240,
+ QLW_ISP1080,
+ QLW_ISP1280,
+ QLW_ISP10160,
+ QLW_ISP12160,
+};
+
+
+
+
+struct qlw_ccb {
+ struct qlw_softc *ccb_sc;
+ int ccb_id;
+ struct scsi_xfer *ccb_xs;
+
+ bus_dmamap_t ccb_dmamap;
+
+ struct { struct qlw_ccb *sqe_next; } ccb_link;
+};
+
+struct qlw_ccb_list { struct qlw_ccb *sqh_first; struct qlw_ccb **sqh_last; };
+
+struct qlw_dmamem {
+ bus_dmamap_t qdm_map;
+ bus_dma_segment_t qdm_seg;
+ size_t qdm_size;
+ caddr_t qdm_kva;
+};
+
+
+
+
+
+struct qlw_target {
+ u_int16_t qt_params;
+ u_int8_t qt_exec_throttle;
+ u_int8_t qt_sync_period;
+ u_int8_t qt_sync_offset;
+};
+
+struct qlw_softc {
+ struct device sc_dev;
+
+ int sc_flags;
+
+
+ bus_space_tag_t sc_iot;
+ bus_space_handle_t sc_ioh;
+ bus_size_t sc_ios;
+ bus_dma_tag_t sc_dmat;
+
+ struct scsi_link sc_link[2];
+ struct scsibus_softc *sc_scsibus[2];
+ int sc_running;
+
+ enum qlw_isp_type sc_isp_type;
+ enum qlw_isp_gen sc_isp_gen;
+ const u_int16_t *sc_firmware;
+ int sc_numbusses;
+ int sc_clock;
+
+ int sc_host_cmd_ctrl;
+ int sc_mbox_base;
+ u_int16_t sc_mbox[8];
+ int sc_mbox_pending;
+
+ int sc_maxrequests;
+ struct qlw_dmamem *sc_requests;
+ int sc_maxresponses;
+ struct qlw_dmamem *sc_responses;
+ int sc_maxccbs;
+ struct qlw_ccb *sc_ccbs;
+ struct qlw_ccb_list sc_ccb_free;
+ struct mutex sc_ccb_mtx;
+ struct mutex sc_queue_mtx;
+ struct scsi_iopool sc_iopool;
+ u_int16_t sc_next_req_id;
+ u_int16_t sc_last_resp_id;
+ int sc_marker_required[2];
+ u_int sc_update_required[2];
+ struct task sc_update_task;
+
+ struct qlw_nvram sc_nvram;
+ int sc_nvram_size;
+ int sc_nvram_minversion;
+
+ u_int16_t sc_isp_config;
+ u_int16_t sc_fw_features;
+
+ u_int8_t sc_initiator[2];
+ u_int8_t sc_retry_count[2];
+ u_int8_t sc_retry_delay[2];
+ u_int8_t sc_reset_delay[2];
+ u_int8_t sc_tag_age_limit[2];
+ u_int16_t sc_selection_timeout[2];
+ u_int16_t sc_max_queue_depth[2];
+ u_int8_t sc_async_data_setup[2];
+ u_int8_t sc_req_ack_active_neg[2];
+ u_int8_t sc_data_line_active_neg[2];
+ struct qlw_target sc_target[2][16];
+};
+
+
+int qlw_attach(struct qlw_softc *);
+int qlw_detach(struct qlw_softc *, int);
+
+int qlw_intr(void *);
+# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/microcode/isp/asm_sbus.h" 1
+# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/microcode/isp/asm_sbus.h"
+static const u_int16_t isp_1000_risc_code[] = {
+ 0x0078, 0x1041, 0x0000, 0x2757, 0x0000, 0x12ff, 0x2043, 0x4f50,
+ 0x5952, 0x4947, 0x4854, 0x2031, 0x3939, 0x312c, 0x3139, 0x3932,
+ 0x2c31, 0x3939, 0x332c, 0x3139, 0x3934, 0x2051, 0x4c4f, 0x4749,
+ 0x4320, 0x434f, 0x5250, 0x4f52, 0x4154, 0x494f, 0x4e00, 0x2049,
+ 0x5350, 0x3130, 0x3030, 0x2046, 0x6972, 0x6d77, 0x6172, 0x6520,
+ 0x2056, 0x6572, 0x7369, 0x6f6e, 0x2030, 0x312e, 0x3337, 0x2020,
+ 0x2043, 0x7573, 0x746f, 0x6d65, 0x7220, 0x4e6f, 0x2e20, 0x3135,
+ 0x2050, 0x726f, 0x6475, 0x6374, 0x204e, 0x6f2e, 0x2000, 0x3030,
+ 0x2024, 0x20b9, 0x1212, 0x20c1, 0x0008, 0x2071, 0x0010, 0x70c3,
+ 0x0004, 0x20c9, 0x5cff, 0x2089, 0x10ee, 0x70c7, 0x4953, 0x70cb,
+ 0x5020, 0x70cf, 0x2020, 0x70d3, 0x0001, 0x3f00, 0x70d6, 0x2031,
+ 0x0030, 0x2079, 0x3800, 0x7863, 0x0000, 0x2fa0, 0x2009, 0x031b,
+ 0x2011, 0x0000, 0x20a9, 0x0040, 0x42a4, 0x8109, 0x00c0, 0x1062,
+ 0x789b, 0x0101, 0x780b, 0x0002, 0x780f, 0x0002, 0x784f, 0x0bb8,
+ 0x2009, 0x3835, 0x200b, 0x0003, 0x78bb, 0x0000, 0x78bf, 0x0000,
+ 0x78c3, 0x0000, 0x2069, 0x3840, 0x00a8, 0x1085, 0x681b, 0x003c,
+ 0x2009, 0x1313, 0x21b8, 0x0078, 0x1087, 0x681b, 0x0028, 0x6807,
+ 0x0007, 0x680b, 0x00fa, 0x680f, 0x0008, 0x6813, 0x0005, 0x681f,
+ 0x0000, 0x6823, 0x0006, 0x6817, 0x0008, 0x6827, 0x0000, 0x2069,
+ 0x3a80, 0x2011, 0x0020, 0x2009, 0x0010, 0x680b, 0x0c19, 0x680f,
+ 0x0019, 0x6803, 0xdd00, 0x6807, 0x001a, 0x6a1a, 0x2d00, 0xa0e8,
+ 0x0008, 0xa290, 0x0004, 0x8109, 0x00c0, 0x109d, 0x2069, 0x3b00,
+ 0x2009, 0x0002, 0x20a9, 0x0100, 0x683f, 0x0000, 0x2001, 0x0008,
+ 0x8007, 0x6832, 0x6837, 0x000a, 0x680b, 0x0040, 0x6817, 0x0100,
+ 0x681f, 0x0064, 0xade8, 0x0010, 0x0070, 0x10c8, 0x0078, 0x10b4,
+ 0x8109, 0x00c0, 0x10b2, 0x1078, 0x1b64, 0x1078, 0x31c0, 0x1078,
+ 0x1747, 0x1078, 0x368b, 0x3200, 0xa085, 0x000d, 0x2090, 0x70c3,
+ 0x0000, 0x0090, 0x10e2, 0x70c0, 0xa086, 0x0002, 0x00c0, 0x10e2,
+ 0x1078, 0x11e0, 0x1078, 0x1112, 0x1078, 0x18f2, 0x1078, 0x1aaf,
+ 0x1078, 0x34fd, 0x1078, 0x184d, 0x0078, 0x10e2, 0x10f6, 0x10f8,
+ 0x1d05, 0x1d05, 0x321e, 0x321e, 0x1d05, 0x1d05, 0x0078, 0x10f6,
+ 0x0078, 0x10f8, 0x0078, 0x10fa, 0x0078, 0x10fc, 0x7008, 0x800c,
+ 0x00c8, 0x110d, 0x7007, 0x0002, 0xa08c, 0x000c, 0x00c0, 0x110e,
+ 0x8004, 0x8004, 0x00c8, 0x110d, 0x087a, 0x097a, 0x70c3, 0x4002,
+ 0x0078, 0x11e3, 0x7814, 0xa005, 0x00c0, 0x111a, 0x0010, 0x1156,
+ 0x0078, 0x1155, 0x2009, 0x3868, 0x2104, 0xa005, 0x00c0, 0x1155,
+ 0x7814, 0xa086, 0x0001, 0x00c0, 0x1127, 0x1078, 0x15ae, 0x7817,
+ 0x0000, 0x2009, 0x386f, 0x2104, 0xa065, 0x0040, 0x1143, 0x2009,
+ 0x386a, 0x211c, 0x8108, 0x2114, 0x8108, 0x2104, 0xa210, 0xa399,
+ 0x0000, 0x2009, 0x0018, 0x6083, 0x0103, 0x1078, 0x16d7, 0x00c0,
+ 0x114f, 0x1078, 0x173e, 0x2009, 0x386f, 0x200b, 0x0000, 0x2009,
+ 0x3869, 0x2104, 0x200b, 0x0000, 0xa005, 0x0040, 0x1153, 0x2001,
+ 0x4005, 0x0078, 0x11e2, 0x0078, 0x11e0, 0x007c, 0x2061, 0x0000,
+ 0x6018, 0xa084, 0x0001, 0x0040, 0x115e, 0x007c, 0x70c3, 0x0000,
+ 0x70c7, 0x0000, 0x70cb, 0x0000, 0x70cf, 0x0000, 0x70c0, 0xa0bc,
+ 0xffc0, 0x00c0, 0x11ae, 0x2038, 0x0079, 0x116e, 0x11e0, 0x122e,
+ 0x11fc, 0x122e, 0x127f, 0x127f, 0x11f3, 0x1608, 0x128a, 0x11ef,
+ 0x1200, 0x1202, 0x1204, 0x1206, 0x160d, 0x11ef, 0x1292, 0x12ba,
+ 0x15bc, 0x1602, 0x1208, 0x14e3, 0x1505, 0x151f, 0x1548, 0x149c,
+ 0x14aa, 0x14be, 0x14d2, 0x1357, 0x1332, 0x12e2, 0x12e9, 0x12ee,
+ 0x12f3, 0x12f9, 0x12fe, 0x1303, 0x1308, 0x130d, 0x1311, 0x1326,
+ 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x1363, 0x136c, 0x137b,
+ 0x13a1, 0x13ab, 0x13b2, 0x13d8, 0x13e7, 0x13f6, 0x1408, 0x147a,
+ 0x11ef, 0x148a, 0x11ef, 0x11ef, 0x11ef, 0x1491, 0xa0bc, 0xffa0,
+ 0x00c0, 0x11ef, 0x2038, 0xa084, 0x001f, 0x0079, 0x11b7, 0x11ef,
+ 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef,
+ 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x1665, 0x1674, 0x11ef,
+ 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef, 0x11ef,
+ 0x11ef, 0x16b3, 0x16bd, 0x16c1, 0x16cf, 0x167f, 0x169c, 0x72ca,
+ 0x71c6, 0x2001, 0x4006, 0x0078, 0x11e2, 0x73ce, 0x72ca, 0x71c6,
+ 0x2001, 0x4000, 0x70c2, 0x2061, 0x0000, 0x601b, 0x0001, 0x2091,
+ 0x5000, 0x2091, 0x4080, 0x007c, 0x71c6, 0x0078, 0x11e2, 0x70c3,
+ 0x4001, 0x0078, 0x11e3, 0x2099, 0x0041, 0x20a1, 0x0041, 0x20a9,
+ 0x0005, 0x53a3, 0x0078, 0x11e0, 0x70c4, 0x70c3, 0x0004, 0x007a,
+ 0x0078, 0x11e0, 0x0078, 0x11e0, 0x0078, 0x11e0, 0x0078, 0x11e0,
+ 0x2091, 0x8000, 0x70c3, 0x0000, 0x70c7, 0x4953, 0x70cb, 0x5020,
+ 0x70cf, 0x2020, 0x70d3, 0x0001, 0x3f00, 0x70d6, 0x2079, 0x0000,
+ 0x781b, 0x0001, 0x2031, 0x0030, 0x2059, 0x1000, 0x2029, 0x0457,
+ 0x2051, 0x0470, 0x2061, 0x0472, 0x20b9, 0xffff, 0x20c1, 0x0000,
+ 0x2091, 0x5000, 0x2091, 0x4080, 0x0078, 0x0455, 0x71d0, 0x72c8,
+ 0x73cc, 0x70c4, 0x20a0, 0x2098, 0x2031, 0x0030, 0x81ff, 0x0040,
+ 0x11e0, 0x7007, 0x0004, 0x731a, 0x721e, 0x2051, 0x0012, 0x2049,
+ 0x125d, 0x2041, 0x11e0, 0x7003, 0x0002, 0xa786, 0x0001, 0x00c0,
+ 0x124f, 0x2049, 0x126b, 0x2041, 0x1277, 0x7003, 0x0003, 0x7017,
+ 0x0000, 0x810b, 0x7112, 0x00c8, 0x1257, 0x7017, 0x0001, 0x7007,
+ 0x0001, 0xa786, 0x0001, 0x0040, 0x126b, 0x700c, 0xa084, 0x007f,
+ 0x8004, 0x2009, 0x0020, 0xa102, 0x0942, 0x094a, 0x20a8, 0x26a0,
+ 0x53a6, 0x0078, 0x10fe, 0x700c, 0xa084, 0x007f, 0x0040, 0x126b,
+ 0x80ac, 0x0048, 0x126b, 0x2698, 0x53a5, 0x0078, 0x10fe, 0x700c,
+ 0xa084, 0x007f, 0x80ac, 0x2698, 0x53a5, 0x0078, 0x11e0, 0x71c4,
+ 0x70c8, 0x2114, 0xa79e, 0x0004, 0x00c0, 0x1287, 0x200a, 0x72ca,
+ 0x0078, 0x11df, 0x70c7, 0x0125, 0x70cb, 0x0000, 0x70cf, 0x0f00,
+ 0x0078, 0x11e0, 0x70c4, 0x72c8, 0x73cc, 0x74d0, 0x70c6, 0x72ca,
+ 0x73ce, 0x74d2, 0xa005, 0x0040, 0x12b4, 0x8001, 0x7872, 0xa084,
+ 0xfc00, 0x0040, 0x12ab, 0x7898, 0xa085, 0x0001, 0x789a, 0x2001,
+ 0x4005, 0x0078, 0x11e2, 0x7a7a, 0x7b7e, 0x7c76, 0x7898, 0xa084,
+ 0xfffc, 0x789a, 0x0078, 0x12b8, 0x7898, 0xa085, 0x0001, 0x789a,
+ 0x0078, 0x11e0, 0x70c4, 0x72c8, 0x73cc, 0x74d4, 0x70c6, 0x72ca,
+ 0x73ce, 0x74d6, 0xa005, 0x0040, 0x12dc, 0x8001, 0x7886, 0xa084,
+ 0xfc00, 0x0040, 0x12d3, 0x7898, 0xa085, 0x0100, 0x789a, 0x2001,
+ 0x4005, 0x0078, 0x11e2, 0x7a8e, 0x7b92, 0x7c8a, 0x7898, 0xa084,
+ 0xfcff, 0x789a, 0x0078, 0x12e0, 0x7898, 0xa085, 0x0100, 0x789a,
+ 0x0078, 0x11e0, 0x2009, 0x3859, 0x210c, 0x2011, 0x0372, 0x0078,
+ 0x11de, 0x2009, 0x3841, 0x210c, 0x0078, 0x11df, 0x2009, 0x3842,
+ 0x210c, 0x0078, 0x11df, 0x2061, 0x3840, 0x610c, 0x6210, 0x0078,
+ 0x11de, 0x2009, 0x3845, 0x210c, 0x0078, 0x11df, 0x2009, 0x3846,
+ 0x210c, 0x0078, 0x11df, 0x2009, 0x3847, 0x210c, 0x0078, 0x11df,
+ 0x2009, 0x3848, 0x210c, 0x0078, 0x11df, 0x7908, 0x7a0c, 0x0078,
+ 0x11de, 0x71c4, 0x8107, 0xa084, 0x000f, 0x8003, 0x8003, 0x8003,
+ 0xa0e8, 0x3a80, 0x6a00, 0x6804, 0xa084, 0x0008, 0x0040, 0x1323,
+ 0x6b08, 0x0078, 0x1324, 0x6b0c, 0x0078, 0x11dd, 0x77c4, 0x1078,
+ 0x1758, 0x2091, 0x8000, 0x6b1c, 0x6a14, 0x2091, 0x8001, 0x2708,
+ 0x0078, 0x11dd, 0x2091, 0x8000, 0x7848, 0xa005, 0x00c0, 0x1346,
+ 0x2061, 0x3b00, 0x20a9, 0x0100, 0x603c, 0xa005, 0x00c0, 0x1346,
+ 0xace0, 0x0010, 0x00f0, 0x133c, 0x0078, 0x134e, 0x2019, 0x0000,
+ 0x2011, 0x0000, 0x2009, 0x0000, 0x0078, 0x1353, 0x7bb8, 0x7abc,
+ 0x79c0, 0x78c3, 0x0000, 0x2091, 0x8001, 0x0078, 0x11dd, 0x77c4,
+ 0x1078, 0x1758, 0x2091, 0x8000, 0x6908, 0x6a18, 0x6b10, 0x2091,
+ 0x8001, 0x0078, 0x11dd, 0x71c4, 0xa182, 0x0010, 0x00c8, 0x11d8,
+ 0x1078, 0x1be8, 0x0078, 0x11dd, 0x71c4, 0xa182, 0x0010, 0x00c8,
+ 0x11d8, 0x2011, 0x3841, 0x2204, 0x007e, 0x2112, 0x1078, 0x1ba1,
+ 0x017f, 0x0078, 0x11df, 0x71c4, 0x2011, 0x1399, 0x20a9, 0x0008,
+ 0x2204, 0xa106, 0x0040, 0x138b, 0x8210, 0x0070, 0x1389, 0x0078,
+ 0x1380, 0x0078, 0x11d8, 0xa292, 0x1399, 0x027e, 0x2011, 0x3842,
+ 0x2204, 0x2112, 0x017f, 0x007e, 0x1078, 0x1bad, 0x017f, 0x0078,
+ 0x11df, 0x03e8, 0x00fa, 0x01f4, 0x02ee, 0x0064, 0x0019, 0x0032,
+ 0x004b, 0x2061, 0x3840, 0x610c, 0x6210, 0x70c4, 0x600e, 0x70c8,
+ 0x6012, 0x0078, 0x11de, 0x2061, 0x3840, 0x6114, 0x70c4, 0x6016,
+ 0x0078, 0x11df, 0x71c4, 0x2011, 0x0004, 0x2019, 0x1212, 0xa186,
+ 0x0028, 0x0040, 0x13cb, 0x2011, 0x0005, 0x2019, 0x1212, 0xa186,
+ 0x0032, 0x0040, 0x13cb, 0x2011, 0x0006, 0x2019, 0x1313, 0xa186,
+ 0x003c, 0x00c0, 0x11d8, 0x2061, 0x3840, 0x6018, 0x007e, 0x611a,
+ 0x23b8, 0x1078, 0x1bbe, 0x1078, 0x368b, 0x017f, 0x0078, 0x11df,
+ 0x71c4, 0xa184, 0xffcf, 0x00c0, 0x11d8, 0x2011, 0x3847, 0x2204,
+ 0x2112, 0x007e, 0x1078, 0x1be0, 0x017f, 0x0078, 0x11df, 0x71c4,
+ 0xa182, 0x0010, 0x00c8, 0x11d8, 0x2011, 0x3848, 0x2204, 0x007e,
+ 0x2112, 0x1078, 0x1bcf, 0x017f, 0x0078, 0x11df, 0x71c4, 0x72c8,
+ 0xa184, 0xfffd, 0x00c0, 0x11d7, 0xa284, 0xfffd, 0x00c0, 0x11d7,
+ 0x2100, 0x7908, 0x780a, 0x2200, 0x7a0c, 0x780e, 0x0078, 0x11de,
+ 0x71c4, 0x8107, 0xa084, 0x000f, 0x8003, 0x8003, 0x8003, 0xa0e8,
+ 0x3a80, 0x2019, 0x0000, 0x72c8, 0x6800, 0x007e, 0xa226, 0x0040,
+ 0x1440, 0xa284, 0x0001, 0x0040, 0x1422, 0x2220, 0xa39d, 0x0002,
+ 0xa294, 0xfffe, 0x6a02, 0xa484, 0x2000, 0x0040, 0x1429, 0xa39d,
+ 0x0010, 0xa484, 0x1000, 0x0040, 0x142f, 0xa39d, 0x0008, 0xa484,
+ 0x4000, 0x0040, 0x1440, 0x810f, 0xa284, 0x4000, 0x0040, 0x143c,
+ 0x1078, 0x1c02, 0x0078, 0x1440, 0x1078, 0x1bf4, 0x0078, 0x1440,
+ 0x72cc, 0x82ff, 0x0040, 0x1472, 0x6808, 0xa206, 0x0040, 0x1472,
+ 0xa2a4, 0x00ff, 0x2061, 0x3840, 0x6118, 0xa186, 0x0028, 0x0040,
+ 0x1459, 0xa186, 0x0032, 0x0040, 0x145f, 0xa186, 0x003c, 0x0040,
+ 0x1465, 0xa482, 0x0064, 0x0048, 0x146f, 0x0078, 0x1469, 0xa482,
+ 0x0050, 0x0048, 0x146f, 0x0078, 0x1469, 0xa482, 0x0043, 0x0048,
+ 0x146f, 0x71c4, 0x71c6, 0x027f, 0x72ca, 0x0078, 0x11d9, 0x6a0a,
+ 0xa39d, 0x000a, 0x6804, 0xa305, 0x6806, 0x027f, 0x6b0c, 0x71c4,
+ 0x0078, 0x11dd, 0x77c4, 0x1078, 0x1758, 0x2091, 0x8000, 0x6a14,
+ 0x6b1c, 0x2091, 0x8001, 0x70c8, 0x6816, 0x70cc, 0x681e, 0x2708,
+ 0x0078, 0x11dd, 0x2011, 0x3835, 0x220c, 0x70c4, 0x2012, 0x0078,
+ 0x11df, 0x71c4, 0x72c8, 0x73cc, 0xa182, 0x0010, 0x00c8, 0x11d8,
+ 0x1078, 0x1c10, 0x0078, 0x11dd, 0x77c4, 0x1078, 0x1758, 0x2091,
+ 0x8000, 0x6a08, 0xa295, 0x0002, 0x6a0a, 0x2091, 0x8001, 0x2708,
+ 0x0078, 0x11de, 0x77c4, 0x1078, 0x1758, 0x2091, 0x8000, 0x6a08,
+ 0xa294, 0xfff9, 0x6a0a, 0x6804, 0xa005, 0x0040, 0x14b9, 0x1078,
+ 0x1b49, 0x2091, 0x8001, 0x2708, 0x0078, 0x11de, 0x77c4, 0x1078,
+ 0x1758, 0x2091, 0x8000, 0x6a08, 0xa295, 0x0004, 0x6a0a, 0x6804,
+ 0xa005, 0x0040, 0x14cd, 0x1078, 0x1b49, 0x2091, 0x8001, 0x2708,
+ 0x0078, 0x11de, 0x77c4, 0x2041, 0x0001, 0x2049, 0x0005, 0x2051,
+ 0x0020, 0x2091, 0x8000, 0x1078, 0x1765, 0x2091, 0x8001, 0x2708,
+ 0x6a08, 0x0078, 0x11de, 0x77c4, 0x72c8, 0x73cc, 0x77c6, 0x72ca,
+ 0x73ce, 0x1078, 0x17e6, 0x00c0, 0x1501, 0x6818, 0xa005, 0x0040,
+ 0x14fb, 0x2708, 0x1078, 0x1c20, 0x00c0, 0x14fb, 0x7817, 0xffff,
+ 0x2091, 0x8001, 0x007c, 0x2091, 0x8001, 0x2001, 0x4005, 0x0078,
+ 0x11e2, 0x2091, 0x8001, 0x0078, 0x11e0, 0x77c4, 0x77c6, 0x2041,
+ 0x0021, 0x2049, 0x0005, 0x2051, 0x0020, 0x2091, 0x8000, 0x1078,
+ 0x1765, 0x2061, 0x3840, 0x60a3, 0x0003, 0x67b6, 0x60a7, 0x0000,
+ 0x7817, 0xffff, 0x1078, 0x1b49, 0x2091, 0x8001, 0x007c, 0x77c8,
+ 0x77ca, 0x77c4, 0x77c6, 0xa7bc, 0xff00, 0x2091, 0x8000, 0x2061,
+ 0x3840, 0x60a3, 0x0002, 0x60a7, 0x0000, 0x67b6, 0x7817, 0xffff,
+ 0x1078, 0x1b49, 0x2091, 0x8001, 0x2041, 0x0021, 0x2049, 0x0004,
+ 0x2051, 0x0010, 0x2091, 0x8000, 0x1078, 0x1765, 0x70c8, 0x683e,
+ 0x8738, 0xa784, 0x001f, 0x00c0, 0x153c, 0x2091, 0x8001, 0x007c,
+ 0x7898, 0xa084, 0x0003, 0x00c0, 0x156c, 0x2039, 0x0000, 0x2041,
+ 0x0021, 0x2049, 0x0004, 0x2051, 0x0008, 0x1078, 0x1758, 0x2091,
+ 0x8000, 0x6808, 0xa80d, 0x690a, 0x2091, 0x8001, 0x8738, 0xa784,
+ 0x001f, 0x00c0, 0x1555, 0xa7bc, 0xff00, 0x873f, 0x8738, 0x873f,
+ 0xa784, 0x0f00, 0x00c0, 0x1555, 0x2091, 0x8000, 0x2069, 0x0100,
+ 0x6830, 0xa084, 0x0040, 0x0040, 0x1595, 0x684b, 0x0004, 0x20a9,
+ 0x0014, 0x6848, 0xa084, 0x0004, 0x0040, 0x1582, 0x0070, 0x1582,
+ 0x0078, 0x1579, 0x684b, 0x0009, 0x20a9, 0x0014, 0x6848, 0xa084,
+ 0x0001, 0x0040, 0x158f, 0x0070, 0x158f, 0x0078, 0x1586, 0x20a9,
+ 0x00fa, 0x0070, 0x1595, 0x0078, 0x1591, 0x2079, 0x3800, 0x7817,
+ 0x0001, 0x2061, 0x3840, 0x60a3, 0x0001, 0x60a7, 0x0000, 0x60c3,
+ 0x000f, 0x7898, 0xa085, 0x0002, 0x789a, 0x6808, 0xa084, 0xfffd,
+ 0x680a, 0x681b, 0x0046, 0x2091, 0x8001, 0x007c, 0x7898, 0xa084,
+ 0xfffd, 0x789a, 0xa084, 0x0001, 0x00c0, 0x15b8, 0x1078, 0x1830,
+ 0x71c4, 0x71c6, 0x794a, 0x007c, 0x74c4, 0x73c8, 0x72cc, 0x74c6,
+ 0x73ca, 0x72ce, 0x2079, 0x3800, 0x2009, 0x0040, 0x1078, 0x1735,
+ 0x0040, 0x15fe, 0x1078, 0x1705, 0x0040, 0x15d2, 0x1078, 0x173e,
+ 0x0078, 0x15fe, 0x6010, 0x2091, 0x8000, 0x7817, 0xffff, 0x2009,
+ 0x3868, 0x200b, 0x0005, 0x8108, 0x200b, 0x0000, 0x8108, 0x230a,
+ 0x8108, 0x220a, 0x8108, 0x240a, 0x8108, 0x200a, 0x8108, 0x200b,
+ 0x0000, 0x8108, 0x2c0a, 0xa02e, 0x2530, 0x0e7e, 0x1078, 0x3199,
+ 0x0e7f, 0x6592, 0x65a2, 0x6696, 0x66a6, 0x60ab, 0x0000, 0x60af,
+ 0x0000, 0x1078, 0x1b49, 0x2091, 0x8001, 0x007c, 0x70c3, 0x4005,
+ 0x0078, 0x11e3, 0x71c4, 0x70c7, 0x0000, 0x7906, 0x0078, 0x11e0,
+ 0x71c4, 0x71c6, 0x2168, 0x0078, 0x160f, 0x2069, 0x1000, 0x690c,
+ 0xa016, 0x2d04, 0xa210, 0x8d68, 0x8109, 0x00c0, 0x1611, 0xa285,
+ 0x0000, 0x00c0, 0x161f, 0x70c3, 0x4000, 0x0078, 0x1621, 0x70c3,
+ 0x4003, 0x70ca, 0x0078, 0x11e3, 0x71c4, 0x72c8, 0x73cc, 0x2100,
+ 0xa184, 0xfffc, 0x00c0, 0x11ef, 0x2100, 0x0079, 0x162f, 0x1646,
+ 0x165b, 0x165d, 0x165f, 0x70c3, 0x4003, 0x71ce, 0x72d2, 0x73d6,
+ 0x0078, 0x1642, 0x70c3, 0x4000, 0x70cf, 0x0000, 0x70d3, 0x0000,
+ 0x70d7, 0x0000, 0x77c6, 0x71ca, 0x0078, 0x11e0, 0x2031, 0x1661,
+ 0x2624, 0x8630, 0x2412, 0x2204, 0xa446, 0x00c0, 0x1633, 0xa484,
+ 0xffff, 0x00c0, 0x1648, 0x2031, 0x1661, 0x8210, 0x8319, 0xa384,
+ 0xffff, 0x00c0, 0x1648, 0x0078, 0x163a, 0x0078, 0x163a, 0x0078,
+ 0x163a, 0x5555, 0xaaaa, 0xffff, 0x0000, 0x77c4, 0x1078, 0x1758,
+ 0x2091, 0x8000, 0x6830, 0xa084, 0xff00, 0x8007, 0x2010, 0x2091,
+ 0x8001, 0x2708, 0x0078, 0x11de, 0x77c4, 0x1078, 0x1758, 0x2091,
+ 0x8000, 0x6a34, 0x2091, 0x8001, 0x2708, 0x0078, 0x11de, 0x77c4,
+ 0x077e, 0xa7bc, 0xff00, 0x20a9, 0x0020, 0x72c8, 0x8217, 0xa294,
+ 0xff00, 0x1078, 0x1758, 0x2091, 0x8000, 0x6c30, 0x6a32, 0x2091,
+ 0x8001, 0x8738, 0x00f0, 0x1689, 0x077f, 0x2708, 0x8427, 0xa4a4,
+ 0x00ff, 0x2410, 0x0078, 0x11de, 0x77c4, 0x077e, 0xa7bc, 0xff00,
+ 0x20a9, 0x0020, 0x72c8, 0x1078, 0x1758, 0x2091, 0x8000, 0x6c34,
+ 0x6a36, 0x2091, 0x8001, 0x8738, 0x00f0, 0x16a3, 0x077f, 0x2708,
+ 0x2410, 0x0078, 0x11de, 0x7960, 0x71c6, 0x71c4, 0xa182, 0x0003,
+ 0x00c8, 0x11d8, 0x7962, 0x0078, 0x11e0, 0x7960, 0x71c6, 0x0078,
+ 0x11e0, 0x7954, 0x71c6, 0x71c4, 0x7956, 0x7958, 0x71ca, 0x71c8,
+ 0x795a, 0x795c, 0x71ce, 0x71cc, 0x795e, 0x0078, 0x11e0, 0x7954,
+ 0x71c6, 0x7958, 0x71ca, 0x795c, 0x71ce, 0x0078, 0x11e0, 0x700c,
+ 0xa084, 0x007f, 0x0040, 0x16e3, 0x7007, 0x0004, 0x7004, 0xa084,
+ 0x0004, 0x00c0, 0x16de, 0x7017, 0x0000, 0x7112, 0x721a, 0x731e,
+ 0x8108, 0x810c, 0x81a9, 0x8c98, 0x20a1, 0x0030, 0x6080, 0x20a2,
+ 0x53a6, 0x780c, 0xa085, 0x0000, 0x7002, 0x7007, 0x0001, 0x7108,
+ 0x8104, 0x00c8, 0x16f7, 0x7007, 0x0002, 0xa184, 0x000c, 0x710c,
+ 0xa184, 0x0300, 0x7003, 0x0000, 0x007c, 0x700c, 0xa084, 0x007f,
+ 0x0040, 0x1711, 0x7007, 0x0004, 0x7004, 0xa084, 0x0004, 0x00c0,
+ 0x170c, 0x7017, 0x0000, 0x7112, 0x721a, 0x731e, 0x2099, 0x0030,
+ 0x8108, 0x81ac, 0x780c, 0xa085, 0x0001, 0x7002, 0x7007, 0x0001,
+ 0x7008, 0x800c, 0x00c8, 0x1720, 0x7007, 0x0002, 0xa08c, 0x000c,
+ 0x00c0, 0x1732, 0x710c, 0xa184, 0x0300, 0x00c0, 0x1732, 0x2ca0,
+ 0x53a5, 0xa006, 0x7003, 0x0000, 0x007c, 0x7850, 0xa065, 0x0040,
+ 0x173d, 0x2c04, 0x7852, 0x2063, 0x0000, 0x007c, 0x0f7e, 0x2079,
+ 0x3800, 0x7850, 0x2062, 0x2c00, 0x7852, 0x0f7f, 0x007c, 0x2011,
+ 0x5d00, 0x7a52, 0x2019, 0x0372, 0x8319, 0x0040, 0x1755, 0xa280,
+ 0x002f, 0x2012, 0x2010, 0x0078, 0x174c, 0x2013, 0x0000, 0x007c,
+ 0xa784, 0x0f00, 0x800b, 0xa784, 0x001f, 0x8003, 0x8003, 0x8003,
+ 0x8003, 0xa105, 0xa0e8, 0x3b00, 0x007c, 0x1078, 0x1758, 0x2900,
+ 0x682a, 0x2a00, 0x682e, 0x6808, 0xa084, 0xffef, 0xa80d, 0x690a,
+ 0x2091, 0x8000, 0x2009, 0x384f, 0x210c, 0x6804, 0xa005, 0x0040,
+ 0x1784, 0xa116, 0x00c0, 0x1784, 0x2060, 0x6000, 0x6806, 0x017e,
+ 0x200b, 0x0000, 0x0078, 0x1787, 0x2009, 0x0000, 0x017e, 0x6804,
+ 0xa065, 0x0040, 0x1798, 0x6000, 0x6806, 0x1078, 0x17ad, 0x1078,
+ 0x18a4, 0x1078, 0x2b27, 0x6810, 0x8001, 0x6812, 0x00c0, 0x1787,
+ 0x1078, 0x2b27, 0x017f, 0x6902, 0x6906, 0x2091, 0x8001, 0x007c,
+ 0xa065, 0x0040, 0x17ac, 0x6098, 0x609b, 0x0000, 0x2008, 0x1078,
+ 0x173e, 0x2100, 0x0078, 0x17a0, 0x007c, 0x6003, 0x0103, 0x20a9,
+ 0x001c, 0xac80, 0x0004, 0x20a0, 0x2001, 0x0000, 0x40a4, 0x6828,
+ 0x6016, 0x682c, 0x601e, 0x007c, 0x0e7e, 0x2071, 0x3840, 0x7040,
+ 0xa08c, 0x0200, 0x00c0, 0x17ca, 0xa088, 0x3880, 0x2d0a, 0x8000,
+ 0x7042, 0xa006, 0x0e7f, 0x007c, 0x0e7e, 0x2071, 0x3840, 0x2009,
+ 0x3880, 0x7240, 0x8221, 0x8211, 0x0048, 0x17e4, 0x2104, 0x8108,
+ 0xad06, 0x00c0, 0x17d3, 0x8119, 0x211e, 0x8108, 0x8318, 0x8211,
+ 0x00c8, 0x17dc, 0x7442, 0xa006, 0x0e7f, 0x007c, 0x1078, 0x1758,
+ 0x2091, 0x8000, 0x6804, 0x781e, 0xa065, 0x0040, 0x182f, 0x0078,
+ 0x17f7, 0x2c00, 0x781e, 0x6000, 0xa065, 0x0040, 0x182f, 0x600c,
+ 0xa306, 0x00c0, 0x17f1, 0x6008, 0xa206, 0x00c0, 0x17f1, 0x2c28,
+ 0x2001, 0x384f, 0x2004, 0xac06, 0x0040, 0x182f, 0x6804, 0xac06,
+ 0x00c0, 0x1814, 0x6000, 0x2060, 0x6806, 0xa005, 0x00c0, 0x1814,
+ 0x6803, 0x0000, 0x0078, 0x181e, 0x6400, 0x781c, 0x2060, 0x6402,
+ 0xa486, 0x0000, 0x00c0, 0x181e, 0x2c00, 0x6802, 0x2560, 0x1078,
+ 0x17ad, 0x6017, 0x0005, 0x601f, 0x0020, 0x1078, 0x18a4, 0x1078,
+ 0x2b27, 0x6810, 0x8001, 0x6812, 0x2001, 0xffff, 0xa005, 0x007c,
+ 0x2039, 0x0000, 0x2041, 0x0021, 0x2049, 0x0004, 0x2051, 0x0008,
+ 0x2091, 0x8000, 0x1078, 0x1765, 0x8738, 0xa784, 0x001f, 0x00c0,
+ 0x183a, 0xa7bc, 0xff00, 0x873f, 0x8738, 0x873f, 0xa784, 0x0f00,
+ 0x00c0, 0x183a, 0x2091, 0x8001, 0x007c, 0x0068, 0x185c, 0x2061,
+ 0x0000, 0x6018, 0xa084, 0x0001, 0x00c0, 0x185c, 0x78ac, 0x78af,
+ 0x0000, 0xa005, 0x00c0, 0x185d, 0x007c, 0xa08c, 0xfff0, 0x0040,
+ 0x1863, 0x1078, 0x1ce7, 0x0079, 0x1865, 0x1875, 0x1877, 0x187d,
+ 0x1881, 0x1875, 0x1885, 0x1875, 0x1875, 0x188b, 0x1875, 0x1892,
+ 0x1896, 0x1875, 0x1875, 0x1875, 0x1875, 0x1078, 0x1ce7, 0x1078,
+ 0x1830, 0x2001, 0x8001, 0x0078, 0x189c, 0x2001, 0x8003, 0x0078,
+ 0x189c, 0x2001, 0x8004, 0x0078, 0x189c, 0x1078, 0x1830, 0x2001,
+ 0x8006, 0x0078, 0x189c, 0x2001, 0x8009, 0x2011, 0x382c, 0x220c,
+ 0x0078, 0x11ec, 0x2001, 0x800c, 0x0078, 0x189c, 0x1078, 0x1830,
+ 0x2001, 0x800d, 0x0078, 0x189c, 0x70c2, 0x2061, 0x0000, 0x601b,
+ 0x0001, 0x2091, 0x4080, 0x007c, 0x2c04, 0x6082, 0x2c08, 0x2063,
+ 0x0000, 0x7864, 0x8000, 0x7866, 0x7868, 0xa005, 0x796a, 0x0040,
+ 0x18b4, 0x2c02, 0x0078, 0x18b5, 0x796e, 0x007c, 0x0c7e, 0x2061,
+ 0x3800, 0x6883, 0x0103, 0x2d08, 0x206b, 0x0000, 0x6064, 0x8000,
+ 0x6066, 0x6068, 0xa005, 0x616a, 0x0040, 0x18c9, 0x2d02, 0x0078,
+ 0x18cc, 0x616e, 0x1078, 0x2b41, 0x0c7f, 0x007c, 0x1078, 0x18df,
+ 0x0040, 0x18de, 0x0c7e, 0x6098, 0xa065, 0x0040, 0x18d9, 0x1078,
+ 0x17a0, 0x0c7f, 0x609b, 0x0000, 0x1078, 0x173e, 0x007c, 0x786c,
+ 0xa065, 0x0040, 0x18f1, 0x2091, 0x8000, 0x7864, 0x8001, 0x7866,
+ 0x2c04, 0x786e, 0xa005, 0x00c0, 0x18ef, 0x786a, 0x8000, 0x2091,
+ 0x8001, 0x007c, 0x7898, 0xa005, 0x00c0, 0x194d, 0x7974, 0x70d0,
+ 0x0005, 0x0005, 0x72d0, 0xa206, 0x00c0, 0x18f7, 0x2200, 0xa106,
+ 0x00c0, 0x190e, 0x7804, 0xa005, 0x0040, 0x194d, 0x7807, 0x0000,
+ 0x0068, 0x194d, 0x2091, 0x4080, 0x0078, 0x194d, 0x1078, 0x1735,
+ 0x0040, 0x194d, 0x7a7c, 0x7b78, 0xa184, 0xff00, 0x0040, 0x1921,
+ 0x810f, 0x810c, 0x810c, 0x8004, 0x8004, 0x8007, 0xa100, 0x0078,
+ 0x1924, 0x8107, 0x8004, 0x8004, 0xa210, 0xa399, 0x0000, 0x2009,
+ 0x0040, 0x1078, 0x1705, 0x0040, 0x1944, 0x1078, 0x173e, 0x7880,
+ 0x8000, 0x7882, 0xa086, 0x0002, 0x00c0, 0x194d, 0x2091, 0x8000,
+ 0x78af, 0x0002, 0x7883, 0x0000, 0x7898, 0xa085, 0x0003, 0x789a,
+ 0x2091, 0x8001, 0x0078, 0x194d, 0x7883, 0x0000, 0x1078, 0x1a99,
+ 0x6000, 0xa084, 0x0007, 0x0079, 0x194e, 0x007c, 0x1956, 0x1965,
+ 0x1985, 0x1956, 0x1997, 0x1956, 0x1956, 0x1956, 0x2039, 0x0400,
+ 0x78a8, 0xa705, 0x78aa, 0x6004, 0xa705, 0x6006, 0x1078, 0x19e2,
+ 0x6018, 0x78a6, 0x1078, 0x1a81, 0x007c, 0x78a8, 0xa084, 0x0100,
+ 0x0040, 0x196c, 0x0078, 0x1956, 0x78ab, 0x0000, 0x6000, 0x8007,
+ 0xa084, 0x00ff, 0x789e, 0x8001, 0x609b, 0x0000, 0x0040, 0x1982,
+ 0x1078, 0x19e2, 0x0040, 0x1982, 0x78a8, 0xa085, 0x0100, 0x78aa,
+ 0x0078, 0x1984, 0x1078, 0x1a06, 0x007c, 0x78a8, 0xa08c, 0x0e00,
+ 0x00c0, 0x198e, 0xa084, 0x0100, 0x00c0, 0x1990, 0x0078, 0x1956,
+ 0x1078, 0x19e2, 0x00c0, 0x1996, 0x1078, 0x1a06, 0x007c, 0x78a8,
+ 0xa084, 0x0100, 0x0040, 0x199e, 0x0078, 0x1956, 0x78ab, 0x0000,
+ 0x6710, 0x2011, 0x0001, 0x20a9, 0x0001, 0x6014, 0xa084, 0x00ff,
+ 0xa005, 0x0040, 0x19c1, 0x2011, 0x0001, 0xa7bc, 0xff00, 0x20a9,
+ 0x0020, 0xa08e, 0x0001, 0x0040, 0x19c1, 0x2039, 0x0000, 0x2011,
+ 0x0002, 0x20a9, 0x0100, 0xa08e, 0x0002, 0x0040, 0x19c1, 0x0078,
+ 0x19df, 0x1078, 0x1758, 0x2d00, 0x2091, 0x8000, 0x682b, 0x0000,
+ 0x682f, 0x0000, 0x6808, 0xa084, 0xffde, 0x680a, 0x2d00, 0xa080,
+ 0x0010, 0x2068, 0x2091, 0x8001, 0x0070, 0x19d8, 0x0078, 0x19c4,
+ 0x8211, 0x0040, 0x19df, 0x20a9, 0x0100, 0x0078, 0x19c4, 0x1078,
+ 0x173e, 0x007c, 0x78a0, 0xa06d, 0x00c0, 0x19ed, 0x2c00, 0x78a2,
+ 0x78a6, 0x609b, 0x0000, 0x0078, 0x19f9, 0x2c00, 0x689a, 0x609b,
+ 0x0000, 0x78a2, 0x2d00, 0x6002, 0x78a4, 0xad06, 0x00c0, 0x19f9,
+ 0x6002, 0x789c, 0x8001, 0x789e, 0x00c0, 0x1a05, 0x78a8, 0xa084,
+ 0x0000, 0x78aa, 0x78a4, 0x2060, 0xa006, 0x007c, 0xa02e, 0x2530,
+ 0x6118, 0xa184, 0x0060, 0x619e, 0x0040, 0x1a12, 0x0e7e, 0x1078,
+ 0x3199, 0x0e7f, 0x6592, 0x65a2, 0x6696, 0x66a6, 0x60ab, 0x0000,
+ 0x60af, 0x0000, 0x6710, 0x1078, 0x1758, 0x2091, 0x8000, 0x6808,
+ 0xa084, 0x0001, 0x0040, 0x1a34, 0x2091, 0x8001, 0x1078, 0x17ad,
+ 0x2091, 0x8000, 0x1078, 0x18a4, 0x2091, 0x8001, 0x78a3, 0x0000,
+ 0x78a7, 0x0000, 0x0078, 0x1a80, 0x6020, 0xa096, 0x0001, 0x00c0,
+ 0x1a3b, 0x8000, 0x6022, 0x6a10, 0x6814, 0x2091, 0x8001, 0xa202,
+ 0x0048, 0x1a4a, 0x0040, 0x1a4a, 0x2039, 0x0200, 0x1078, 0x1a81,
+ 0x0078, 0x1a80, 0x2c08, 0x2091, 0x8000, 0x6800, 0xa065, 0x0040,
+ 0x1a52, 0x6102, 0x6902, 0x00c0, 0x1a56, 0x6906, 0x2160, 0x6003,
+ 0x0000, 0x6810, 0x8000, 0x6812, 0x78b8, 0x8000, 0x78ba, 0x2091,
+ 0x8001, 0x6808, 0xa08c, 0x0040, 0x0040, 0x1a76, 0xa086, 0x0040,
+ 0x680a, 0x1078, 0x17bc, 0x017e, 0x007e, 0x6930, 0x2100, 0x810f,
+ 0xa105, 0x6832, 0x6934, 0x693a, 0x007f, 0x017f, 0x2091, 0x8000,
+ 0x1078, 0x1b49, 0x2091, 0x8001, 0x78a7, 0x0000, 0x78a3, 0x0000,
+ 0x007c, 0x6004, 0xa705, 0x6006, 0x2091, 0x8000, 0x1078, 0x18a4,
+ 0x2091, 0x8001, 0x78a4, 0xa065, 0x0040, 0x1a94, 0x6098, 0x78a6,
+ 0x609b, 0x0000, 0x0078, 0x1a84, 0x78a3, 0x0000, 0x78a7, 0x0000,
+ 0x007c, 0x7970, 0x7874, 0x8000, 0xa10a, 0x00c8, 0x1aa0, 0xa006,
+ 0x7876, 0x70d2, 0x7804, 0xa005, 0x0040, 0x1aae, 0x8001, 0x7806,
+ 0x00c0, 0x1aae, 0x0068, 0x1aae, 0x2091, 0x4080, 0x007c, 0x0068,
+ 0x1ac9, 0x2029, 0x0000, 0x786c, 0xa065, 0x0040, 0x1ac4, 0x1078,
+ 0x1aca, 0x0040, 0x1ac4, 0x057e, 0x1078, 0x1ae8, 0x057f, 0x00c0,
+ 0x1ac4, 0x8528, 0x0078, 0x1ab3, 0x85ff, 0x0040, 0x1ac9, 0x2091,
+ 0x4080, 0x007c, 0x2091, 0x8000, 0x7b84, 0x7988, 0x72d4, 0x0005,
+ 0x0005, 0x70d4, 0xa206, 0x00c0, 0x1ace, 0x2200, 0xa102, 0x00c0,
+ 0x1ade, 0x2300, 0x2091, 0x8001, 0xa005, 0x007c, 0x0048, 0x1ae4,
+ 0xa302, 0x2091, 0x8001, 0x007c, 0x8002, 0x2091, 0x8001, 0x007c,
+ 0x2091, 0x8000, 0x2071, 0x0020, 0x7004, 0xa005, 0x00c0, 0x1b3f,
+ 0x7008, 0x7208, 0xa206, 0x00c0, 0x1b3f, 0xa286, 0x0002, 0x00c0,
+ 0x1b3f, 0x2071, 0x0010, 0xa184, 0xff00, 0x0040, 0x1b08, 0x810f,
+ 0x810c, 0x810c, 0x8004, 0x8004, 0x8007, 0xa100, 0x0078, 0x1b0b,
+ 0x8107, 0x8004, 0x8004, 0x7a90, 0x7b8c, 0xa210, 0xa399, 0x0000,
+ 0x2009, 0x0018, 0x6024, 0xa005, 0x0040, 0x1b18, 0x2009, 0x0040,
+ 0x1078, 0x16d7, 0x0040, 0x1b31, 0x7894, 0x8000, 0x7896, 0xa086,
+ 0x0002, 0x00c0, 0x1b3f, 0x2091, 0x8000, 0x78af, 0x0003, 0x7897,
+ 0x0000, 0x7898, 0xa085, 0x0300, 0x789a, 0x2091, 0x8001, 0x0078,
+ 0x1b3f, 0x7897, 0x0000, 0x1078, 0x18ce, 0x7984, 0x7888, 0x8000,
+ 0xa10a, 0x00c8, 0x1b3c, 0xa006, 0x788a, 0x70d6, 0xa006, 0x2071,
+ 0x0010, 0x2091, 0x8001, 0x007c, 0x2009, 0x3868, 0x2091, 0x8000,
+ 0x200a, 0x0f7e, 0x2079, 0x0100, 0x2009, 0x3840, 0x2104, 0xa086,
+ 0x0000, 0x00c0, 0x1b62, 0x2009, 0x3812, 0x2104, 0xa005, 0x00c0,
+ 0x1b62, 0x7830, 0xa084, 0x00c0, 0x00c0, 0x1b62, 0x0018, 0x1b62,
+ 0x781b, 0x0044, 0x0f7f, 0x007c, 0x127e, 0x2091, 0x2300, 0x2071,
+ 0x3840, 0x2079, 0x0100, 0x2019, 0x305e, 0x20a1, 0x012b, 0x2304,
+ 0xa005, 0x0040, 0x1b7c, 0x789a, 0x8318, 0x23ac, 0x8318, 0x2398,
+ 0x53a6, 0x3318, 0x0078, 0x1b6f, 0x789b, 0x0020, 0x20a9, 0x0010,
+ 0x78af, 0x0000, 0x78af, 0x0220, 0x0070, 0x1b88, 0x0078, 0x1b80,
+ 0x7003, 0x0000, 0x1078, 0x1c87, 0x7004, 0xa084, 0x000f, 0xa085,
+ 0x6280, 0x7806, 0x780f, 0x9200, 0x7843, 0x00d8, 0x7853, 0x0080,
+ 0x780b, 0x0008, 0x7047, 0x387f, 0x7043, 0x0000, 0x127f, 0x2000,
+ 0x007c, 0xa18c, 0x000f, 0x2011, 0x0101, 0x2204, 0xa084, 0xfff0,
+ 0xa105, 0x2012, 0x1078, 0x1c87, 0x007c, 0x2011, 0x0101, 0x20a9,
+ 0x0009, 0x810b, 0x0070, 0x1bb6, 0x0078, 0x1bb1, 0xa18c, 0x0e00,
+ 0x2204, 0xa084, 0xf1ff, 0xa105, 0x2012, 0x007c, 0x2009, 0x0101,
+ 0x20a9, 0x0005, 0x8213, 0x0070, 0x1bc7, 0x0078, 0x1bc2, 0xa294,
+ 0x00e0, 0x2104, 0xa084, 0xff1f, 0xa205, 0x200a, 0x007c, 0x2011,
+ 0x0101, 0x20a9, 0x000c, 0x810b, 0x0070, 0x1bd8, 0x0078, 0x1bd3,
+ 0xa18c, 0xf000, 0x2204, 0xa084, 0x0fff, 0xa105, 0x2012, 0x007c,
+ 0x2011, 0x0102, 0x2204, 0xa084, 0xffcf, 0xa105, 0x2012, 0x007c,
+ 0x8103, 0x8003, 0xa080, 0x0020, 0x0c7e, 0x2061, 0x0100, 0x609a,
+ 0x62ac, 0x63ac, 0x0c7f, 0x007c, 0x8103, 0x8003, 0xa080, 0x0022,
+ 0x0c7e, 0x2061, 0x0100, 0x609a, 0x60a4, 0xa084, 0xffdf, 0x60ae,
+ 0x0c7f, 0x007c, 0x8103, 0x8003, 0xa080, 0x0022, 0x0c7e, 0x2061,
+ 0x0100, 0x609a, 0x60a4, 0xa085, 0x0020, 0x60ae, 0x0c7f, 0x007c,
+ 0x8103, 0x8003, 0xa080, 0x0020, 0x0c7e, 0x2061, 0x0100, 0x609a,
+ 0x60a4, 0x62ae, 0x2010, 0x60a4, 0x63ae, 0x2018, 0x0c7f, 0x007c,
+ 0x2091, 0x8000, 0x0c7e, 0x0e7e, 0x6818, 0xa005, 0x0040, 0x1c65,
+ 0x2061, 0x5c00, 0x1078, 0x1c6d, 0x0040, 0x1c53, 0x20a9, 0x0000,
+ 0x2061, 0x5b00, 0x0c7e, 0x1078, 0x1c6d, 0x0040, 0x1c3f, 0x0c7f,
+ 0x8c60, 0x0070, 0x1c3d, 0x0078, 0x1c32, 0x0078, 0x1c65, 0x007f,
+ 0xa082, 0x5b00, 0x2071, 0x3840, 0x70ba, 0x601c, 0xa085, 0x0800,
+ 0x601e, 0x71b6, 0x60a7, 0x0000, 0x2001, 0x0004, 0x70a2, 0x1078,
+ 0x1b44, 0x0078, 0x1c61, 0x2071, 0x3840, 0x601c, 0xa085, 0x0800,
+ 0x601e, 0x71b6, 0x60a7, 0x0000, 0x2001, 0x0006, 0x70a2, 0x1078,
+ 0x1b44, 0x2001, 0x0000, 0x0078, 0x1c67, 0x2001, 0x0001, 0x2091,
+ 0x8001, 0xa005, 0x0e7f, 0x0c7f, 0x007c, 0x2c04, 0xa005, 0x0040,
+ 0x1c84, 0x2060, 0x600c, 0xa306, 0x00c0, 0x1c81, 0x6008, 0xa206,
+ 0x00c0, 0x1c81, 0x6010, 0xa106, 0x00c0, 0x1c81, 0xa006, 0x0078,
+ 0x1c86, 0x6000, 0x0078, 0x1c6e, 0xa085, 0x0001, 0x007c, 0x2011,
+ 0x3841, 0x220c, 0xa18c, 0x000f, 0x2011, 0x013b, 0x2204, 0xa084,
+ 0x0100, 0x0040, 0x1c96, 0x2021, 0xff00, 0x2122, 0x007c, 0x0e7e,
+ 0x68e4, 0xa08c, 0x0020, 0x0040, 0x1ce5, 0xa084, 0x0006, 0x00c0,
+ 0x1ce5, 0x6010, 0x8007, 0xa084, 0x000f, 0x8003, 0x8003, 0x8003,
+ 0xa0f0, 0x3a80, 0x7004, 0xa084, 0x000a, 0x00c0, 0x1ce5, 0x7108,
+ 0xa194, 0xff00, 0x0040, 0x1ce5, 0xa18c, 0x00ff, 0x7104, 0xa084,
+ 0x0014, 0x00c0, 0x1cd2, 0x017e, 0x611c, 0xa18d, 0x0002, 0x611e,
+ 0x017f, 0xa085, 0x0014, 0x7006, 0x2001, 0x000c, 0xa106, 0x0040,
+ 0x1cce, 0x2100, 0x8003, 0x2008, 0x0078, 0x1ce2, 0x2009, 0x0019,
+ 0x0078, 0x1ce2, 0x2011, 0x0000, 0x7000, 0xa084, 0xdfff, 0x7002,
+ 0x7004, 0xa084, 0xffef, 0x7006, 0x017e, 0x611c, 0xa18d, 0x0002,
+ 0x611e, 0x017f, 0x2100, 0xa205, 0x700a, 0x0e7f, 0x007c, 0x0068,
+ 0x1ce7, 0x007e, 0x2071, 0x0000, 0x7018, 0xa084, 0x0001, 0x00c0,
+ 0x1cec, 0x007f, 0x2e08, 0x2071, 0x0010, 0x70ca, 0x007f, 0x70c6,
+ 0x70c3, 0x8002, 0x2071, 0x0000, 0x701b, 0x0001, 0x2091, 0x4080,
+ 0x007f, 0x2070, 0x007f, 0x0078, 0x1d03, 0x107e, 0x007e, 0x127e,
+ 0x2091, 0x2300, 0x7f3c, 0x7e58, 0x7c30, 0x7d38, 0xa594, 0x003f,
+ 0xa484, 0x4000, 0x0040, 0x1d1a, 0xa784, 0x007c, 0x00c0, 0x3022,
+ 0x1078, 0x1ce7, 0xa49c, 0x000f, 0xa382, 0x0004, 0x0050, 0x1d22,
+ 0x1078, 0x1ce7, 0x8507, 0xa084, 0x000f, 0x0079, 0x1d27, 0x21a1,
+ 0x2251, 0x2277, 0x24cf, 0x2787, 0x27cf, 0x2808, 0x2883, 0x28dd,
+ 0x2962, 0x1d4d, 0x1d37, 0x1fb8, 0x208d, 0x2766, 0x1d37, 0x1078,
+ 0x1ce7, 0x0018, 0x1d0a, 0x127f, 0x2091, 0x8001, 0x007f, 0x107f,
+ 0x007c, 0x7003, 0x0000, 0x703f, 0x0000, 0x7030, 0xa005, 0x0040,
+ 0x1d4b, 0x7033, 0x0000, 0x0018, 0x1d0a, 0x705c, 0xa005, 0x00c0,
+ 0x1df8, 0x70a0, 0xa084, 0x001f, 0x0079, 0x1d56, 0x1e18, 0x1d5e,
+ 0x1d6c, 0x1d8d, 0x1db3, 0x1ddf, 0x1ddd, 0x1d5e, 0x7808, 0xa084,
+ 0xfffd, 0x780a, 0x2009, 0x0046, 0x1078, 0x260f, 0x00c0, 0x1d6a,
+ 0x7003, 0x0004, 0x0078, 0x1d39, 0x1078, 0x2fe4, 0x00c0, 0x1d8b,
+ 0x70b4, 0x8007, 0x789b, 0x007e, 0x78aa, 0x789b, 0x0010, 0x78ab,
+ 0x000c, 0x789b, 0x0060, 0x78ab, 0x0001, 0x785b, 0x0004, 0x2009,
+ 0x00f7, 0x1078, 0x260d, 0x00c0, 0x1d8b, 0x7003, 0x0004, 0x70c3,
+ 0x000f, 0x7033, 0x3870, 0x0078, 0x1d39, 0x1078, 0x2fe4, 0x00c0,
+ 0x1db1, 0x71b4, 0x8107, 0x789b, 0x007e, 0x78aa, 0x789b, 0x0010,
+ 0xa18c, 0x0007, 0xa18d, 0x00c0, 0x79aa, 0x78ab, 0x0006, 0x789b,
+ 0x0060, 0x78ab, 0x0002, 0x785b, 0x0004, 0x2009, 0x00f7, 0x1078,
+ 0x260d, 0x00c0, 0x1db1, 0x7003, 0x0004, 0x70c3, 0x000f, 0x7033,
+ 0x3870, 0x0078, 0x1d39, 0x1078, 0x2fe4, 0x00c0, 0x1ddb, 0x71b4,
+ 0x8107, 0x789b, 0x007e, 0x78aa, 0x789b, 0x0010, 0xa18c, 0x0007,
+ 0xa18d, 0x00c0, 0x79aa, 0x78ab, 0x0020, 0x71b8, 0x79aa, 0x78ab,
+ 0x000d, 0x789b, 0x0060, 0x78ab, 0x0004, 0x785b, 0x0004, 0x2009,
+ 0x00f7, 0x1078, 0x260d, 0x00c0, 0x1ddb, 0x7003, 0x0004, 0x70c3,
+ 0x000f, 0x7033, 0x3870, 0x0078, 0x1d39, 0x0078, 0x1d8d, 0x1078,
+ 0x2fe4, 0x00c0, 0x1d39, 0x70bc, 0x2068, 0x789b, 0x0010, 0x6f10,
+ 0x1078, 0x2f11, 0x2c50, 0x6810, 0xa084, 0x001f, 0xa085, 0x0080,
+ 0x78aa, 0x6e18, 0x2041, 0x0001, 0x2001, 0x0004, 0x0078, 0x1f41,
+ 0x1078, 0x2fe4, 0x00c0, 0x1d39, 0x789b, 0x0010, 0x705c, 0x2068,
+ 0x6f10, 0x1078, 0x2f11, 0x2c50, 0x6008, 0xa085, 0x0010, 0x600a,
+ 0x6810, 0xa084, 0x001f, 0xa085, 0x0080, 0x78aa, 0x2031, 0x0020,
+ 0x2041, 0x0001, 0x1078, 0x304b, 0x2001, 0x0003, 0x0078, 0x1f2c,
+ 0x0018, 0x1d0a, 0x7440, 0xa485, 0x0000, 0x0040, 0x1e32, 0xa080,
+ 0x3880, 0x2030, 0x7144, 0x8108, 0xa12a, 0x0048, 0x1e29, 0x2009,
+ 0x3880, 0x2164, 0x6504, 0x85ff, 0x00c0, 0x1e3f, 0x8421, 0x00c0,
+ 0x1e23, 0x7146, 0x7003, 0x0000, 0x703f, 0x0000, 0x0078, 0x1d39,
+ 0x7640, 0xa6b0, 0x3880, 0x7144, 0x2600, 0x0078, 0x1e2e, 0x7146,
+ 0x2568, 0x2558, 0x753e, 0x2c50, 0x603c, 0xa085, 0x0000, 0x00c0,
+ 0x1e3c, 0x6708, 0x7736, 0xa784, 0x033f, 0x0040, 0x1e75, 0xa784,
+ 0x0021, 0x00c0, 0x1e3c, 0xa784, 0x0002, 0x0040, 0x1e5e, 0xa784,
+ 0x0004, 0x0040, 0x1e3c, 0xa7bc, 0xfffb, 0x670a, 0xa784, 0x0008,
+ 0x00c0, 0x1e3c, 0xa784, 0x0010, 0x00c0, 0x1e3c, 0xa184, 0x0200,
+ 0x00c0, 0x1e3c, 0xa784, 0x0100, 0x0040, 0x1e75, 0x6018, 0xa005,
+ 0x00c0, 0x1e3c, 0xa7bc, 0xfeff, 0x670a, 0x681f, 0x0000, 0x6e18,
+ 0xa684, 0x000e, 0x6118, 0x0040, 0x1e85, 0x601c, 0xa102, 0x0048,
+ 0x1e92, 0x0040, 0x1e92, 0x0078, 0x1e38, 0x81ff, 0x0040, 0x1e92,
+ 0x6828, 0x8007, 0xa084, 0x00ff, 0xa082, 0x0003, 0x0040, 0x1e92,
+ 0x00c0, 0x1e38, 0xa184, 0x0400, 0x00c0, 0x1ea1, 0x6130, 0xa18c,
+ 0xff00, 0x810f, 0x6030, 0xa084, 0xff00, 0xa105, 0x6032, 0x0078,
+ 0x1ea5, 0x6034, 0x603a, 0xa7bc, 0xfbff, 0xa784, 0x0080, 0x00c0,
+ 0x1eab, 0x700c, 0x6022, 0xa7bc, 0xff7f, 0x670a, 0x6b10, 0x8307,
+ 0xa084, 0x000f, 0x8003, 0x8003, 0x8003, 0xa080, 0x3a80, 0x2060,
+ 0x2048, 0x704a, 0x6000, 0x704e, 0x6004, 0x7052, 0x2a60, 0x0018,
+ 0x1d0a, 0x789b, 0x0010, 0xa046, 0x1078, 0x2fe4, 0x00c0, 0x1d39,
+ 0x6b10, 0xa39c, 0x001f, 0xa39d, 0x00c0, 0x704c, 0xa084, 0x8000,
+ 0x0040, 0x1ed6, 0xa684, 0x0001, 0x0040, 0x1ed8, 0xa39c, 0xffbf,
+ 0xa684, 0x0010, 0x0040, 0x1ede, 0xa39d, 0x0020, 0x7baa, 0x8840,
+ 0xa684, 0x000e, 0x00c0, 0x1ee9, 0xa7bd, 0x0010, 0x670a, 0x0078,
+ 0x1f2a, 0x714c, 0xa18c, 0x0800, 0x0040, 0x2b74, 0x2011, 0x0021,
+ 0x8004, 0x8004, 0x0048, 0x1f00, 0x2011, 0x0022, 0x8004, 0x0048,
+ 0x1f00, 0x2011, 0x0020, 0x8004, 0x0048, 0x1f00, 0x0040, 0x1f2a,
+ 0x7aaa, 0x8840, 0x1078, 0x2ffd, 0x6a10, 0x610c, 0x8108, 0xa18c,
+ 0x00ff, 0xa1e0, 0x5b00, 0x2c64, 0x8cff, 0x0040, 0x1f21, 0x6010,
+ 0xa206, 0x00c0, 0x1f0b, 0x60b4, 0x8001, 0x60b6, 0x00c0, 0x1f06,
+ 0x0c7e, 0x2a60, 0x6008, 0xa085, 0x0100, 0x600a, 0x0c7f, 0x0078,
+ 0x1e18, 0x1078, 0x2fe4, 0x00c0, 0x1d39, 0x2a60, 0x610e, 0x79aa,
+ 0x8840, 0x712e, 0x2001, 0x0001, 0x007e, 0x7150, 0xa184, 0x0018,
+ 0x0040, 0x1f40, 0xa184, 0x0010, 0x0040, 0x1f3a, 0x1078, 0x2d3d,
+ 0x00c0, 0x1f40, 0xa184, 0x0008, 0x0040, 0x1f40, 0x1078, 0x2c58,
+ 0x007f, 0x7002, 0xa68c, 0x0060, 0x88ff, 0x0040, 0x1f49, 0xa18d,
+ 0x0004, 0x795a, 0x69b2, 0x789b, 0x0060, 0x2800, 0x78aa, 0x789b,
+ 0x0061, 0x6814, 0xa085, 0x8000, 0x6816, 0x78aa, 0x157e, 0x137e,
+ 0x147e, 0x20a1, 0x012c, 0x789b, 0x0000, 0x8000, 0x80ac, 0xad80,
+ 0x000a, 0x2098, 0x53a6, 0x147f, 0x137f, 0x157f, 0x6810, 0x8007,
+ 0x789b, 0x007e, 0x78aa, 0x6d90, 0x7dd6, 0x7dde, 0x6e94, 0x7ed2,
+ 0x7eda, 0x7830, 0xa084, 0x00c0, 0x00c0, 0x1f78, 0x0098, 0x1f80,
+ 0x6008, 0xa084, 0xffef, 0x600a, 0x1078, 0x2ffd, 0x0078, 0x1d41,
+ 0x7200, 0xa284, 0x0007, 0xa086, 0x0001, 0x00c0, 0x1f8d, 0x781b,
+ 0x0049, 0x1078, 0x2ffd, 0x0078, 0x1f9e, 0x6ab0, 0xa295, 0x2000,
+ 0x7a5a, 0x781b, 0x0049, 0x1078, 0x2ffd, 0x7200, 0x2500, 0xa605,
+ 0x0040, 0x1f9e, 0xa284, 0x0007, 0x1079, 0x1fae, 0xad80, 0x0008,
+ 0x7032, 0xa284, 0x0007, 0xa086, 0x0001, 0x00c0, 0x1fac, 0x6018,
+ 0x8000, 0x601a, 0x1078, 0x2b4b, 0x0078, 0x1d39, 0x1fb6, 0x3376,
+ 0x3376, 0x3365, 0x3376, 0x1fb6, 0x1fb6, 0x1fb6, 0x1078, 0x1ce7,
+ 0x7808, 0xa084, 0xfffd, 0x780a, 0x0f7e, 0x2079, 0x3800, 0x7898,
+ 0x0f7f, 0xa084, 0x0001, 0x0040, 0x1fde, 0x70a0, 0xa086, 0x0001,
+ 0x00c0, 0x1fcd, 0x70a2, 0x0078, 0x2071, 0x70a0, 0xa086, 0x0005,
+ 0x00c0, 0x1fdc, 0x70bc, 0x2068, 0x6817, 0x0004, 0x6813, 0x0000,
+ 0x681c, 0xa085, 0x0008, 0x681e, 0x70a3, 0x0000, 0x157e, 0x2011,
+ 0x0004, 0x71a0, 0xa186, 0x0001, 0x0040, 0x2000, 0xa186, 0x0007,
+ 0x00c0, 0x1ff0, 0x2009, 0x382b, 0x200b, 0x0005, 0x0078, 0x2000,
+ 0x2009, 0x3813, 0x2104, 0x2009, 0x3812, 0x200a, 0x2009, 0x382b,
+ 0x200b, 0x0001, 0x70a3, 0x0000, 0x70a7, 0x0001, 0x0078, 0x2002,
+ 0x70a3, 0x0000, 0x1078, 0x314d, 0x20a9, 0x0010, 0x2039, 0x0000,
+ 0x1078, 0x2e16, 0xa7b8, 0x0100, 0x0070, 0x2010, 0x0078, 0x2008,
+ 0x7000, 0x2020, 0x0079, 0x2014, 0x2042, 0x202b, 0x202b, 0x201e,
+ 0x2042, 0x2042, 0x201c, 0x201c, 0x1078, 0x1ce7, 0x2021, 0x3857,
+ 0x2404, 0xa005, 0x0040, 0x202b, 0xad06, 0x00c0, 0x202b, 0x6800,
+ 0x2022, 0x0078, 0x203b, 0x681c, 0xa084, 0x0001, 0x00c0, 0x2037,
+ 0x6f10, 0x1078, 0x2f11, 0x1078, 0x2b06, 0x0078, 0x203b, 0x7054,
+ 0x2060, 0x6800, 0x6002, 0x6a16, 0x681c, 0xa085, 0x0008, 0x681e,
+ 0x1078, 0x18b6, 0x2021, 0x5c00, 0x1078, 0x2077, 0x2021, 0x3857,
+ 0x1078, 0x2077, 0x20a9, 0x0000, 0x2021, 0x5b00, 0x1078, 0x2077,
+ 0x8420, 0x0070, 0x2055, 0x0078, 0x204e, 0x1078, 0x2b55, 0x2061,
+ 0x3b00, 0x2021, 0x0002, 0x20a9, 0x0100, 0x6018, 0x6110, 0xa102,
+ 0x6012, 0x601b, 0x0000, 0xace0, 0x0010, 0x0070, 0x2069, 0x0078,
+ 0x205d, 0x2009, 0x382f, 0x200b, 0x0000, 0x8421, 0x00c0, 0x205b,
+ 0x157f, 0x7003, 0x0000, 0x703f, 0x0000, 0x0078, 0x1d39, 0x047e,
+ 0x2404, 0xa005, 0x0040, 0x2089, 0x2068, 0x6800, 0x007e, 0x6a16,
+ 0x681c, 0xa085, 0x0008, 0x681e, 0x1078, 0x18b6, 0x007f, 0x0078,
+ 0x2079, 0x047f, 0x2023, 0x0000, 0x007c, 0xa282, 0x0003, 0x0050,
+ 0x2093, 0x1078, 0x1ce7, 0x2300, 0x0079, 0x2096, 0x2099, 0x210c,
+ 0x211a, 0xa282, 0x0002, 0x0040, 0x209f, 0x1078, 0x1ce7, 0x70a0,
+ 0x70a3, 0x0000, 0x70c3, 0x0000, 0x0079, 0x20a6, 0x20ae, 0x20ae,
+ 0x20b0, 0x20e4, 0x2b7a, 0x20ae, 0x20e4, 0x20ae, 0x1078, 0x1ce7,
+ 0x77b4, 0x1078, 0x2e16, 0x77b4, 0xa7bc, 0x0f00, 0x1078, 0x2f11,
+ 0x6018, 0xa005, 0x0040, 0x20db, 0x2021, 0x5c00, 0x2009, 0x0004,
+ 0x2011, 0x0010, 0x1078, 0x216a, 0x0040, 0x20db, 0x157e, 0x20a9,
+ 0x0000, 0x2021, 0x5b00, 0x047e, 0x2009, 0x0004, 0x2011, 0x0010,
+ 0x1078, 0x216a, 0x047f, 0x0040, 0x20da, 0x8420, 0x0070, 0x20da,
+ 0x0078, 0x20cb, 0x157f, 0x8738, 0xa784, 0x001f, 0x00c0, 0x20b6,
+ 0x0078, 0x1d41, 0x0078, 0x1d41, 0x77b4, 0x1078, 0x2f11, 0x6018,
+ 0xa005, 0x0040, 0x210a, 0x2021, 0x5c00, 0x2009, 0x0005, 0x2011,
+ 0x0020, 0x1078, 0x216a, 0x0040, 0x210a, 0x157e, 0x20a9, 0x0000,
+ 0x2021, 0x5b00, 0x047e, 0x2009, 0x0005, 0x2011, 0x0020, 0x1078,
+ 0x216a, 0x047f, 0x0040, 0x2109, 0x8420, 0x0070, 0x2109, 0x0078,
+ 0x20fa, 0x157f, 0x0078, 0x1d41, 0x2200, 0x0079, 0x210f, 0x2112,
+ 0x2114, 0x2114, 0x1078, 0x1ce7, 0x70a3, 0x0000, 0x70a7, 0x0001,
+ 0x0078, 0x1d39, 0x2200, 0x0079, 0x211d, 0x2122, 0x2114, 0x2120,
+ 0x1078, 0x1ce7, 0x1078, 0x261c, 0x70a0, 0xa086, 0x0002, 0x00c0,
+ 0x2159, 0x77b4, 0x1078, 0x2e16, 0x77b4, 0xa7bc, 0x0f00, 0x1078,
+ 0x2f11, 0x6018, 0xa005, 0x0040, 0x2154, 0x2021, 0x5c00, 0x2009,
+ 0x0005, 0x2011, 0x0020, 0x1078, 0x216a, 0x0040, 0x2154, 0x157e,
+ 0x20a9, 0x0000, 0x2021, 0x5b00, 0x047e, 0x2009, 0x0005, 0x2011,
+ 0x0020, 0x1078, 0x216a, 0x047f, 0x0040, 0x2153, 0x8420, 0x0070,
+ 0x2153, 0x0078, 0x2144, 0x157f, 0x8738, 0xa784, 0x001f, 0x00c0,
+ 0x212f, 0x7000, 0xa086, 0x0001, 0x00c0, 0x2acd, 0x1078, 0x2b1e,
+ 0x6008, 0xa084, 0xffef, 0x600a, 0x1078, 0x2ac0, 0x0040, 0x2acd,
+ 0x0078, 0x1e18, 0x2404, 0xa005, 0x0040, 0x219d, 0x2068, 0x2d04,
+ 0x007e, 0x6810, 0xa706, 0x0040, 0x2179, 0x2d20, 0x007f, 0x0078,
+ 0x216b, 0x007f, 0x2022, 0x6916, 0x6814, 0xa086, 0x0050, 0x00c0,
+ 0x218c, 0x6817, 0x0006, 0x2200, 0xa086, 0x0010, 0x00c0, 0x218c,
+ 0x681c, 0xa084, 0xffef, 0x681e, 0x681c, 0xa205, 0x681e, 0x1078,
+ 0x18b6, 0x1078, 0x2b27, 0x6010, 0x8001, 0x6012, 0x6008, 0xa084,
+ 0xffef, 0x600a, 0x1078, 0x2b1e, 0x007c, 0xa085, 0x0001, 0x0078,
+ 0x219c, 0x2300, 0x0079, 0x21a4, 0x21a9, 0x21a7, 0x21ec, 0x1078,
+ 0x1ce7, 0x78e4, 0xa005, 0x00d0, 0x21cc, 0x0018, 0x21cc, 0x2008,
+ 0xa084, 0x0030, 0x00c0, 0x21b8, 0x781b, 0x0049, 0x0078, 0x1d39,
+ 0x78ec, 0xa084, 0x0003, 0x0040, 0x21b4, 0x2100, 0xa084, 0x0007,
+ 0x0079, 0x21c2, 0x21da, 0x21e0, 0x21d4, 0x21ca, 0x2fde, 0x2fde,
+ 0x21ca, 0x21e6, 0x1078, 0x1ce7, 0x7000, 0xa005, 0x0040, 0x1d41,
+ 0x2001, 0x0003, 0x0078, 0x24e3, 0x1078, 0x2df9, 0x781b, 0x0055,
+ 0x0078, 0x1d39, 0x1078, 0x2df9, 0x781b, 0x00dc, 0x0078, 0x1d39,
+ 0x1078, 0x2df9, 0x781b, 0x00e3, 0x0078, 0x1d39, 0x1078, 0x2df9,
+ 0x781b, 0x009d, 0x0078, 0x1d39, 0xa584, 0x000f, 0x00c0, 0x2216,
+ 0x1078, 0x261c, 0x7000, 0x0079, 0x21f5, 0x21fd, 0x220a, 0x21fd,
+ 0x2acd, 0x21ff, 0x2acd, 0x21fd, 0x21fd, 0x1078, 0x1ce7, 0x71a0,
+ 0x70a3, 0x0000, 0xa186, 0x0004, 0x00c0, 0x2208, 0x0078, 0x2b7a,
+ 0x0078, 0x2acd, 0x1078, 0x2b1e, 0x6008, 0xa084, 0xffef, 0x600a,
+ 0x1078, 0x2ac0, 0x0040, 0x2acd, 0x0078, 0x1e18, 0x78e4, 0xa005,
+ 0x00d0, 0x21cc, 0x0018, 0x21cc, 0x2008, 0xa084, 0x0030, 0x00c0,
+ 0x2225, 0x781b, 0x0049, 0x0078, 0x1d39, 0x78ec, 0xa084, 0x0003,
+ 0x0040, 0x2221, 0x2100, 0xa184, 0x0007, 0x0079, 0x222f, 0x223f,
+ 0x2245, 0x2239, 0x2237, 0x2fde, 0x2fde, 0x2237, 0x2fd6, 0x1078,
+ 0x1ce7, 0x1078, 0x2e01, 0x781b, 0x0055, 0x0078, 0x1d39, 0x1078,
+ 0x2e01, 0x781b, 0x00dc, 0x0078, 0x1d39, 0x1078, 0x2e01, 0x781b,
+ 0x00e3, 0x0078, 0x1d39, 0x1078, 0x2e01, 0x781b, 0x009d, 0x0078,
+ 0x1d39, 0x2300, 0x0079, 0x2254, 0x2259, 0x2257, 0x225b, 0x1078,
+ 0x1ce7, 0x0078, 0x2883, 0x6817, 0x0008, 0x78a3, 0x0000, 0x79e4,
+ 0xa184, 0x0030, 0x0040, 0x2883, 0x78ec, 0xa084, 0x0003, 0x0040,
+ 0x2883, 0xa184, 0x0007, 0x0079, 0x226d, 0x21da, 0x21e0, 0x21d4,
+ 0x2fb6, 0x2fde, 0x2fde, 0x2275, 0x2fd6, 0x1078, 0x1ce7, 0xa282,
+ 0x0005, 0x0050, 0x227d, 0x1078, 0x1ce7, 0x2300, 0x0079, 0x2280,
+ 0x2283, 0x24b7, 0x24c3, 0x2200, 0x0079, 0x2286, 0x228b, 0x228d,
+ 0x22a0, 0x228b, 0x249c, 0x1078, 0x1ce7, 0x789b, 0x0018, 0x78a8,
+ 0xa084, 0x00ff, 0xa082, 0x0020, 0x0048, 0x2dda, 0xa08a, 0x0004,
+ 0x00c8, 0x2dda, 0x0079, 0x229c, 0x2dda, 0x2dda, 0x2dda, 0x2d7c,
+ 0x789b, 0x0018, 0x79a8, 0xa184, 0x0080, 0x0040, 0x22b5, 0xa184,
+ 0x0018, 0x0040, 0x22b1, 0x0078, 0x2dda, 0x7000, 0xa005, 0x00c0,
+ 0x22ab, 0x2011, 0x0003, 0x0078, 0x2970, 0xa184, 0x00ff, 0xa08c,
+ 0x0080, 0x0040, 0x22e9, 0x7000, 0xa086, 0x0001, 0x00c0, 0x22c8,
+ 0x1078, 0x2b1e, 0x1078, 0x314d, 0x7034, 0x600a, 0x0078, 0x22cd,
+ 0x7000, 0xa086, 0x0003, 0x0040, 0x22c2, 0x7003, 0x0005, 0x2001,
+ 0x5c10, 0x2068, 0x703e, 0x7032, 0x157e, 0x20a9, 0x002f, 0x2003,
+ 0x0000, 0x8000, 0x0070, 0x22de, 0x0078, 0x22d7, 0x157f, 0x6813,
+ 0x0000, 0x68b3, 0x0700, 0x681f, 0x0800, 0x6823, 0x0003, 0x0078,
+ 0x2dda, 0xa08a, 0x0010, 0x00c8, 0x2dda, 0x0079, 0x22ef, 0x2301,
+ 0x22ff, 0x2317, 0x2319, 0x23ab, 0x2dda, 0x2dda, 0x23ad, 0x2dda,
+ 0x2dda, 0x2498, 0x2498, 0x2dda, 0x2dda, 0x2dda, 0x249a, 0x1078,
+ 0x1ce7, 0xa684, 0x1000, 0x0040, 0x230e, 0x2001, 0x0300, 0x8000,
+ 0x8000, 0x783a, 0x781b, 0x009a, 0x0078, 0x1d39, 0x6814, 0xa084,
+ 0x8000, 0x0040, 0x2315, 0x6817, 0x0003, 0x0078, 0x2fb6, 0x1078,
+ 0x1ce7, 0x691c, 0x691e, 0xa684, 0x1800, 0x00c0, 0x2333, 0x681c,
+ 0xa084, 0x0001, 0x00c0, 0x233b, 0x6814, 0xa086, 0x0008, 0x00c0,
+ 0x232b, 0x6817, 0x0000, 0xa684, 0x0400, 0x0040, 0x23a7, 0x781b,
+ 0x0058, 0x0078, 0x1d39, 0xa684, 0x1000, 0x0040, 0x233b, 0x781b,
+ 0x0058, 0x0078, 0x1d39, 0xa684, 0x0060, 0x0040, 0x23a3, 0xa684,
+ 0x0800, 0x0040, 0x23a3, 0xa684, 0x8000, 0x00c0, 0x2349, 0x0078,
+ 0x2363, 0xa6b4, 0x7fff, 0x7e5a, 0x6eb2, 0x789b, 0x0074, 0x7aac,
+ 0x79ac, 0x78ac, 0x801b, 0x00c8, 0x2356, 0x8000, 0xa084, 0x003f,
+ 0xa108, 0xa291, 0x0000, 0x6b94, 0x2100, 0xa302, 0x68ae, 0x6b90,
+ 0x2200, 0xa303, 0x68aa, 0xa684, 0x4000, 0x0040, 0x236b, 0xa6b4,
+ 0xbfff, 0x7e5a, 0x6eb2, 0x7000, 0xa086, 0x0003, 0x00c0, 0x2378,
+ 0x1078, 0x31c0, 0x1078, 0x3365, 0x781b, 0x0067, 0x0078, 0x1d39,
+ 0xa006, 0x1078, 0x3414, 0x6aac, 0x69a8, 0x6c94, 0x6b90, 0x2200,
+ 0xa105, 0x0040, 0x2387, 0x2200, 0xa422, 0x2100, 0xa31b, 0x7cd2,
+ 0x7bd6, 0x2300, 0xa405, 0x00c0, 0x2395, 0xa6b5, 0x4000, 0x7e5a,
+ 0x6eb2, 0x781b, 0x0067, 0x0078, 0x1d39, 0x781b, 0x0067, 0x2200,
+ 0xa115, 0x00c0, 0x239f, 0x1078, 0x3376, 0x0078, 0x1d39, 0x1078,
+ 0x339d, 0x0078, 0x1d39, 0x781b, 0x006a, 0x0078, 0x1d39, 0x781b,
+ 0x0058, 0x0078, 0x1d39, 0x1078, 0x1ce7, 0x0078, 0x240a, 0x691c,
+ 0xa184, 0x0100, 0x0040, 0x23c5, 0xa18c, 0xfeff, 0x691e, 0x0c7e,
+ 0x7048, 0x2060, 0x6000, 0xa084, 0xefff, 0x6002, 0x6004, 0xa084,
+ 0xfff5, 0x6006, 0x0c7f, 0x0078, 0x23f9, 0xa184, 0x0200, 0x0040,
+ 0x23f9, 0xa18c, 0xfdff, 0x691e, 0x0c7e, 0x7048, 0x2060, 0x6000,
+ 0xa084, 0xdfff, 0x6002, 0x6004, 0xa084, 0xffef, 0x6006, 0x2008,
+ 0x2c48, 0x0c7f, 0xa184, 0x0008, 0x0040, 0x23f9, 0x1078, 0x2f0d,
+ 0x1078, 0x2c58, 0x88ff, 0x0040, 0x23f9, 0x789b, 0x0060, 0x2800,
+ 0x78aa, 0x7e58, 0xa6b5, 0x0004, 0x7e5a, 0xa684, 0x0400, 0x00c0,
+ 0x23f5, 0x781b, 0x0055, 0x0078, 0x1d39, 0x781b, 0x0069, 0x0078,
+ 0x1d39, 0x7e58, 0xa684, 0x0400, 0x00c0, 0x2402, 0x781b, 0x0058,
+ 0x0078, 0x1d39, 0x781b, 0x006a, 0x0078, 0x1d39, 0x0078, 0x2de0,
+ 0x0078, 0x2de0, 0x2019, 0x0000, 0x7990, 0xa18c, 0x0007, 0x0040,
+ 0x2408, 0x789b, 0x0010, 0x78a8, 0xa094, 0x00ff, 0xa286, 0x0001,
+ 0x00c0, 0x242d, 0x2300, 0x7ca8, 0xa400, 0x2018, 0xa102, 0x0040,
+ 0x2425, 0x0048, 0x2425, 0x0078, 0x2427, 0x0078, 0x23af, 0x24a8,
+ 0x7aa8, 0x00f0, 0x2427, 0x0078, 0x2413, 0xa284, 0x00f0, 0xa086,
+ 0x0020, 0x00c0, 0x2489, 0x8318, 0x8318, 0x2300, 0xa102, 0x0040,
+ 0x243d, 0x0048, 0x243d, 0x0078, 0x2486, 0xa286, 0x0023, 0x0040,
+ 0x2408, 0x6818, 0xa084, 0xfff1, 0x681a, 0x7e58, 0xa684, 0xfff1,
+ 0xa085, 0x0010, 0x2030, 0x7e5a, 0x6008, 0xa085, 0x0010, 0x600a,
+ 0x0c7e, 0x7048, 0x2060, 0x6004, 0x2008, 0x2c48, 0x0c7f, 0xa184,
+ 0x0010, 0x0040, 0x2461, 0x1078, 0x2f0d, 0x1078, 0x2d3d, 0x0078,
+ 0x2470, 0x0c7e, 0x7048, 0x2060, 0x6004, 0x2008, 0x2c48, 0x0c7f,
+ 0xa184, 0x0008, 0x0040, 0x23f9, 0x1078, 0x2f0d, 0x1078, 0x2c58,
+ 0x88ff, 0x0040, 0x23f9, 0x789b, 0x0060, 0x2800, 0x78aa, 0xa6b5,
+ 0x0004, 0x7e5a, 0xa684, 0x0400, 0x00c0, 0x2482, 0x781b, 0x0055,
+ 0x0078, 0x1d39, 0x781b, 0x0069, 0x0078, 0x1d39, 0x7aa8, 0x0078,
+ 0x2413, 0x8318, 0x2300, 0xa102, 0x0040, 0x2492, 0x0048, 0x2492,
+ 0x0078, 0x2413, 0xa284, 0x0080, 0x00c0, 0x2de6, 0x0078, 0x2de0,
+ 0x0078, 0x2de6, 0x0078, 0x2dda, 0x789b, 0x0018, 0x78a8, 0xa084,
+ 0x00ff, 0xa08e, 0x0001, 0x0040, 0x24a7, 0x1078, 0x1ce7, 0x7aa8,
+ 0xa294, 0x00ff, 0x78a8, 0xa084, 0x00ff, 0xa08a, 0x0004, 0x00c8,
+ 0x2dda, 0x0079, 0x24b3, 0x2dda, 0x2bab, 0x2dda, 0x2cd8, 0xa282,
+ 0x0000, 0x00c0, 0x24bd, 0x1078, 0x1ce7, 0x1078, 0x2df9, 0x781b,
+ 0x0069, 0x0078, 0x1d39, 0xa282, 0x0003, 0x00c0, 0x24c9, 0x1078,
+ 0x1ce7, 0x1078, 0x2e09, 0x781b, 0x0069, 0x0078, 0x1d39, 0xa282,
+ 0x0004, 0x0050, 0x24d5, 0x1078, 0x1ce7, 0x2300, 0x0079, 0x24d8,
+ 0x24db, 0x25c6, 0x25f7, 0xa286, 0x0003, 0x0040, 0x24e1, 0x1078,
+ 0x1ce7, 0x2001, 0x0000, 0x703a, 0x7000, 0xa084, 0x0007, 0x0079,
+ 0x24e9, 0x24f1, 0x24f3, 0x24f3, 0x2703, 0x274c, 0x26cd, 0x24f1,
+ 0x24f1, 0x1078, 0x1ce7, 0xa684, 0x1000, 0x00c0, 0x24fb, 0x1078,
+ 0x314d, 0x0040, 0x25a0, 0x7868, 0xa08c, 0x00ff, 0x0040, 0x2557,
+ 0xa186, 0x0008, 0x00c0, 0x2512, 0x6008, 0xa084, 0xffef, 0x600a,
+ 0x1078, 0x2ac0, 0x0040, 0x2557, 0x1078, 0x2b1e, 0x1078, 0x314d,
+ 0x0078, 0x253e, 0xa186, 0x0028, 0x00c0, 0x2557, 0x1078, 0x314d,
+ 0x6008, 0xa084, 0xffef, 0x600a, 0x1078, 0x2b34, 0x6018, 0xa005,
+ 0x0040, 0x253e, 0x8001, 0x601a, 0xa005, 0x0040, 0x2534, 0x8001,
+ 0xa005, 0x0040, 0x2534, 0x601e, 0x0078, 0x253e, 0x6813, 0x0028,
+ 0x6817, 0x0000, 0x0078, 0x25b5, 0x6030, 0xa084, 0x00ff, 0xa005,
+ 0x0040, 0x252e, 0x6008, 0xa085, 0x0200, 0x600a, 0x681c, 0xa084,
+ 0x0001, 0x0040, 0x1d41, 0x681c, 0xa084, 0xfffe, 0x681e, 0x7054,
+ 0x0c7e, 0x2060, 0x6800, 0x6002, 0x0c7f, 0x6004, 0x6802, 0xa005,
+ 0x2d00, 0x00c0, 0x2554, 0x6002, 0x6006, 0x0078, 0x1d41, 0x017e,
+ 0x1078, 0x261c, 0x017f, 0xa684, 0xdf00, 0x681a, 0x6827, 0x0000,
+ 0x6f10, 0x81ff, 0x0040, 0x25a0, 0xa186, 0x0002, 0x00c0, 0x2598,
+ 0xa684, 0x0800, 0x00c0, 0x2574, 0xa684, 0x0060, 0x0040, 0x2574,
+ 0x78d8, 0x7adc, 0x682e, 0x6a2a, 0x8717, 0xa294, 0x000f, 0x8213,
+ 0x8213, 0x8213, 0xa290, 0x3a80, 0xa290, 0x0000, 0x221c, 0xa384,
+ 0x0100, 0x00c0, 0x2585, 0x0078, 0x258b, 0x8210, 0x2204, 0xa085,
+ 0x0018, 0x2012, 0x8211, 0xa384, 0x0400, 0x0040, 0x2598, 0x689c,
+ 0xa084, 0x0100, 0x00c0, 0x2598, 0x1078, 0x268c, 0x0078, 0x1d41,
+ 0xa186, 0x0018, 0x0040, 0x25a0, 0xa186, 0x0014, 0x0040, 0x1d41,
+ 0x6912, 0x6814, 0xa084, 0x8000, 0x0040, 0x25a8, 0x7038, 0x6816,
+ 0xa68c, 0xdf00, 0x691a, 0x1078, 0x2b0d, 0x1078, 0x2b1e, 0x00c0,
+ 0x25b5, 0x6008, 0xa084, 0xffef, 0x600a, 0x681c, 0xa084, 0x0001,
+ 0x00c0, 0x25be, 0x1078, 0x2b06, 0x0078, 0x25c2, 0x7054, 0x2060,
+ 0x6800, 0x6002, 0x1078, 0x18b6, 0x0078, 0x1d41, 0xa282, 0x0004,
+ 0x0048, 0x25cc, 0x1078, 0x1ce7, 0x2200, 0x0079, 0x25cf, 0x25d3,
+ 0x25d5, 0x25e2, 0x25d5, 0x1078, 0x1ce7, 0x7000, 0xa086, 0x0005,
+ 0x0040, 0x25de, 0x1078, 0x2df9, 0x781b, 0x0069, 0x781b, 0x006a,
+ 0x0078, 0x1d39, 0x7890, 0x8007, 0x8001, 0xa084, 0x0007, 0xa080,
+ 0x0018, 0x789a, 0x79a8, 0xa18c, 0x00ff, 0xa186, 0x0003, 0x0040,
+ 0x25f3, 0x0078, 0x2dda, 0x781b, 0x006a, 0x0078, 0x1d39, 0x681c,
+ 0xa085, 0x0004, 0x681e, 0x82ff, 0x00c0, 0x2602, 0x1078, 0x2df9,
+ 0x0078, 0x2609, 0x8211, 0x0040, 0x2607, 0x1078, 0x1ce7, 0x1078,
+ 0x2e09, 0x781b, 0x0069, 0x0078, 0x1d39, 0x1078, 0x2ffd, 0x7830,
+ 0xa084, 0x00c0, 0x00c0, 0x2619, 0x0018, 0x2619, 0x791a, 0xa006,
+ 0x007c, 0xa085, 0x0001, 0x007c, 0xa684, 0x0060, 0x00c0, 0x2626,
+ 0x682f, 0x0000, 0x682b, 0x0000, 0x0078, 0x268b, 0xa684, 0x0800,
+ 0x00c0, 0x2635, 0x68b0, 0xa084, 0x4800, 0xa635, 0xa684, 0x0800,
+ 0x00c0, 0x2635, 0x1078, 0x314d, 0x007c, 0xa684, 0x0020, 0x0040,
+ 0x265f, 0x78d0, 0x8003, 0x00c8, 0x2643, 0xa006, 0x1078, 0x3414,
+ 0x78d4, 0x1078, 0x3479, 0xa684, 0x4000, 0x0040, 0x264d, 0x682f,
+ 0x0000, 0x682b, 0x0000, 0x0078, 0x2632, 0x68b0, 0xa084, 0x4800,
+ 0xa635, 0xa684, 0x4000, 0x00c0, 0x2647, 0x7038, 0xa005, 0x00c0,
+ 0x2659, 0x79d8, 0x7adc, 0x692e, 0x6a2a, 0x0078, 0x2632, 0xa684,
+ 0x4000, 0x0040, 0x2669, 0x682f, 0x0000, 0x682b, 0x0000, 0x0078,
+ 0x2632, 0x68b0, 0xa084, 0x4800, 0xa635, 0xa684, 0x4000, 0x00c0,
+ 0x2663, 0x7038, 0xa005, 0x00c0, 0x2675, 0x79d8, 0x7adc, 0x78d0,
+ 0x80f3, 0x00c8, 0x267c, 0x8000, 0xa084, 0x003f, 0xa108, 0xa291,
+ 0x0000, 0x692e, 0x6a2a, 0x2100, 0xa205, 0x00c0, 0x2689, 0x0078,
+ 0x2632, 0x1078, 0x3414, 0x007c, 0xa384, 0x0200, 0x0040, 0x2694,
+ 0x6008, 0xa085, 0x0002, 0x600a, 0x6817, 0x0006, 0x6a28, 0x692c,
+ 0x6a3a, 0x693e, 0x682b, 0x0300, 0x682f, 0x0000, 0x6833, 0x2000,
+ 0x6893, 0x0000, 0x6897, 0x0020, 0x7000, 0x0079, 0x26a7, 0x26af,
+ 0x26b1, 0x26ba, 0x26af, 0x26af, 0x26af, 0x26af, 0x26af, 0x1078,
+ 0x1ce7, 0x681c, 0xa084, 0x0001, 0x00c0, 0x26ba, 0x1078, 0x2b06,
+ 0x0078, 0x26c0, 0x7054, 0x2c50, 0x2060, 0x6800, 0x6002, 0x2a60,
+ 0x2021, 0x3857, 0x2404, 0xa005, 0x0040, 0x26c9, 0x2020, 0x0078,
+ 0x26c2, 0x2d22, 0x206b, 0x0000, 0x007c, 0x77b4, 0x1078, 0x2e16,
+ 0xa7bc, 0x0f00, 0x1078, 0x2f11, 0x6018, 0xa005, 0x0040, 0x26fc,
+ 0x0d7e, 0x2001, 0x5c10, 0x2068, 0x0d7f, 0x2021, 0x5c00, 0x2009,
+ 0x0004, 0x2011, 0x0010, 0x1078, 0x216a, 0x0040, 0x26fc, 0x157e,
+ 0x20a9, 0x0000, 0x2021, 0x5b00, 0x047e, 0x2009, 0x0004, 0x2011,
+ 0x0010, 0x1078, 0x216a, 0x047f, 0x0040, 0x26fb, 0x8420, 0x0070,
+ 0x26fb, 0x0078, 0x26ec, 0x157f, 0x8738, 0xa784, 0x001f, 0x00c0,
+ 0x26d2, 0x0078, 0x1d41, 0x1078, 0x2b0d, 0x1078, 0x2b1e, 0x6827,
+ 0x0000, 0x789b, 0x000e, 0x6f10, 0x1078, 0x344a, 0x017e, 0xad88,
+ 0x0010, 0xa188, 0x0006, 0x2104, 0x017f, 0x8007, 0xa084, 0x00ff,
+ 0xa082, 0x0047, 0x0040, 0x271e, 0x0078, 0x272f, 0x0c7e, 0x6810,
+ 0x8007, 0xa084, 0x000f, 0x8003, 0x8003, 0x8003, 0xa0e0, 0x3a80,
+ 0x6004, 0xa084, 0xfff5, 0x6006, 0x0c7f, 0x1078, 0x2f6b, 0x6813,
+ 0x0002, 0xa684, 0x0800, 0x0040, 0x2739, 0x6918, 0xa18d, 0x2000,
+ 0x691a, 0x6814, 0xa084, 0x8000, 0x0040, 0x2740, 0x6817, 0x0000,
+ 0x2021, 0x3857, 0x6800, 0x2022, 0x6a38, 0x693c, 0x6a2a, 0x692e,
+ 0x1078, 0x18b6, 0x0078, 0x1d41, 0x1078, 0x261c, 0x6827, 0x0000,
+ 0x789b, 0x000e, 0x6f10, 0x1078, 0x3002, 0xa08c, 0x00ff, 0x6912,
+ 0x6814, 0xa084, 0x8000, 0x0040, 0x275f, 0x7038, 0x6816, 0xa68c,
+ 0xdf00, 0x691a, 0x70a3, 0x0000, 0x0078, 0x1d41, 0xa006, 0x1078,
+ 0x314d, 0x6813, 0x0000, 0x6817, 0x0001, 0xa68c, 0xdf00, 0x691a,
+ 0x6827, 0x0000, 0x7000, 0x0079, 0x2775, 0x277d, 0x277f, 0x277f,
+ 0x2781, 0x2781, 0x2781, 0x277d, 0x277d, 0x1078, 0x1ce7, 0x1078,
+ 0x2b1e, 0x6008, 0xa084, 0xffef, 0x600a, 0x0078, 0x2ad8, 0x2300,
+ 0x0079, 0x278a, 0x278d, 0x278f, 0x27cd, 0x1078, 0x1ce7, 0x7000,
+ 0x0079, 0x2792, 0x279a, 0x279c, 0x279c, 0x27a7, 0x279c, 0x27ae,
+ 0x279a, 0x279a, 0x1078, 0x1ce7, 0xa684, 0x2000, 0x00c0, 0x27a7,
+ 0xa6b5, 0x2000, 0x7e5a, 0x1078, 0x3376, 0x0078, 0x2fb6, 0x6814,
+ 0xa084, 0x8000, 0x0040, 0x27ae, 0x6817, 0x0007, 0x2009, 0x3818,
+ 0x210c, 0xa186, 0x0000, 0x0040, 0x27c3, 0xa186, 0x0001, 0x0040,
+ 0x27c7, 0x2009, 0x382b, 0x200b, 0x000b, 0x70a3, 0x0001, 0x781b,
+ 0x0046, 0x0078, 0x1d39, 0x781b, 0x00dd, 0x0078, 0x1d39, 0x2009,
+ 0x382b, 0x200b, 0x000a, 0x0078, 0x1d39, 0x1078, 0x1ce7, 0x2300,
+ 0x0079, 0x27d2, 0x27d5, 0x27d7, 0x27fa, 0x1078, 0x1ce7, 0x7000,
+ 0x0079, 0x27da, 0x27e2, 0x27e4, 0x27e4, 0x27ef, 0x27e4, 0x27f6,
+ 0x27e2, 0x27e2, 0x1078, 0x1ce7, 0xa684, 0x2000, 0x00c0, 0x27ef,
+ 0xa6b5, 0x2000, 0x7e5a, 0x1078, 0x3376, 0x0078, 0x2fb6, 0x6814,
+ 0xa084, 0x8000, 0x0040, 0x27f6, 0x6817, 0x0007, 0x781b, 0x00e4,
+ 0x0078, 0x1d39, 0x681c, 0xa085, 0x0004, 0x681e, 0x1078, 0x2f6b,
+ 0xa6b5, 0x0800, 0x1078, 0x2df9, 0x781b, 0x0069, 0x0078, 0x1d39,
+ 0x2300, 0x0079, 0x280b, 0x280e, 0x2810, 0x2812, 0x1078, 0x1ce7,
+ 0x1078, 0x1ce7, 0xa684, 0x0400, 0x00c0, 0x2831, 0x782b, 0x3009,
+ 0x789b, 0x0060, 0x78ab, 0x0000, 0xa684, 0xfffb, 0x785a, 0x79e4,
+ 0xa184, 0x0020, 0x0040, 0x2829, 0x78ec, 0xa084, 0x0003, 0x00c0,
+ 0x282d, 0x2001, 0x0014, 0x0078, 0x24e3, 0xa184, 0x0007, 0x0079,
+ 0x2869, 0x7a90, 0xa294, 0x0007, 0x789b, 0x0060, 0x79a8, 0x81ff,
+ 0x0040, 0x2867, 0x789b, 0x0010, 0x7ba8, 0xa384, 0x0001, 0x00c0,
+ 0x2858, 0x7ba8, 0x7ba8, 0xa386, 0x0001, 0x00c0, 0x284b, 0x2009,
+ 0xfff7, 0x0078, 0x2851, 0xa386, 0x0003, 0x00c0, 0x2858, 0x2009,
+ 0xffef, 0x0c7e, 0x7048, 0x2060, 0x6004, 0xa104, 0x6006, 0x0c7f,
+ 0x789b, 0x0060, 0x78ab, 0x0000, 0xa684, 0xfffb, 0x785a, 0x782b,
+ 0x3009, 0x691c, 0xa18c, 0xfdff, 0xa18c, 0xfeff, 0x691e, 0x0078,
+ 0x2fb6, 0x21da, 0x21e0, 0x2873, 0x287b, 0x2871, 0x2871, 0x2871,
+ 0x2fb6, 0x1078, 0x1ce7, 0x691c, 0xa18c, 0xfdff, 0xa18c, 0xfeff,
+ 0x691e, 0x0078, 0x2fbe, 0x691c, 0xa18c, 0xfdff, 0xa18c, 0xfeff,
+ 0x691e, 0x0078, 0x2fb6, 0x79e4, 0xa184, 0x0030, 0x0040, 0x288d,
+ 0x78ec, 0xa084, 0x0003, 0x00c0, 0x2895, 0x6814, 0xa085, 0x8000,
+ 0x6816, 0x2001, 0x0014, 0x0078, 0x24e3, 0xa184, 0x0007, 0x0079,
+ 0x2899, 0x2fb6, 0x2fb6, 0x28a1, 0x2fb6, 0x2fde, 0x2fde, 0x2fb6,
+ 0x2fb6, 0xa684, 0x0400, 0x00c0, 0x28d2, 0x681c, 0xa084, 0x0001,
+ 0x0040, 0x2fbe, 0xa68c, 0x2060, 0xa18c, 0xfffb, 0x795a, 0x69b2,
+ 0x789b, 0x0060, 0x78ab, 0x0000, 0x789b, 0x0061, 0x6814, 0xa085,
+ 0x8000, 0x6816, 0x78aa, 0x157e, 0x137e, 0x147e, 0x20a1, 0x012c,
+ 0x789b, 0x0000, 0x8000, 0x80ac, 0xad80, 0x000a, 0x2098, 0x53a6,
+ 0x147f, 0x137f, 0x157f, 0x6810, 0x8007, 0x789b, 0x007e, 0x78aa,
+ 0x0078, 0x2fbe, 0x6814, 0xa084, 0x8000, 0x0040, 0x28d9, 0x6817,
+ 0x0008, 0x781b, 0x00d8, 0x0078, 0x1d39, 0x2300, 0x0079, 0x28e0,
+ 0x28e5, 0x2960, 0x28e3, 0x1078, 0x1ce7, 0x7000, 0xa084, 0x0007,
+ 0x0079, 0x28ea, 0x28f2, 0x28f4, 0x2910, 0x28f2, 0x28f2, 0x26cd,
+ 0x28f2, 0x28f2, 0x1078, 0x1ce7, 0x691c, 0xa18d, 0x0001, 0x691e,
+ 0x6800, 0x6006, 0xa005, 0x00c0, 0x28fe, 0x6002, 0x6818, 0xa084,
+ 0x000e, 0x0040, 0x290a, 0x7014, 0x68b6, 0x712c, 0xa188, 0x5b00,
+ 0x0078, 0x290c, 0x2009, 0x5c00, 0x2104, 0x6802, 0x2d0a, 0x7156,
+ 0x6eb2, 0xa684, 0x0060, 0x0040, 0x295e, 0xa684, 0x0800, 0x00c0,
+ 0x2922, 0xa684, 0x7fff, 0x68b2, 0x6890, 0x6894, 0x1078, 0x314d,
+ 0x0078, 0x295e, 0xa684, 0x0020, 0x0040, 0x2934, 0xa006, 0x1078,
+ 0x3414, 0x78d0, 0x8003, 0x00c8, 0x2930, 0x78d4, 0x1078, 0x3479,
+ 0x79d8, 0x7adc, 0x0078, 0x2938, 0x1078, 0x2f1e, 0x1078, 0x3414,
+ 0xa684, 0x8000, 0x0040, 0x295e, 0xa684, 0x7fff, 0x68b2, 0x789b,
+ 0x0074, 0x1078, 0x3002, 0x2010, 0x1078, 0x3002, 0x2008, 0xa684,
+ 0x0020, 0x00c0, 0x2956, 0x1078, 0x3002, 0x801b, 0x00c8, 0x2951,
+ 0x8000, 0xa084, 0x003f, 0xa108, 0xa291, 0x0000, 0x6b94, 0x2100,
+ 0xa302, 0x68ae, 0x6b90, 0x2200, 0xa303, 0x68aa, 0x0078, 0x1d41,
+ 0x0078, 0x2de6, 0x7033, 0x0000, 0xa282, 0x0005, 0x0050, 0x296a,
+ 0x1078, 0x1ce7, 0x2300, 0x0079, 0x296d, 0x2970, 0x297a, 0x299d,
+ 0x2200, 0x0079, 0x2973, 0x2978, 0x2de6, 0x2978, 0x29c6, 0x2a17,
+ 0x1078, 0x1ce7, 0x7000, 0xa086, 0x0001, 0x00c0, 0x2987, 0x1078,
+ 0x2b1e, 0x1078, 0x314d, 0x7034, 0x600a, 0x0078, 0x298c, 0x7000,
+ 0xa086, 0x0003, 0x0040, 0x2981, 0x7003, 0x0005, 0x2001, 0x5c10,
+ 0x2068, 0x703e, 0x7032, 0x2200, 0x0079, 0x2996, 0x2de6, 0x299b,
+ 0x29c6, 0x299b, 0x2de6, 0x1078, 0x1ce7, 0x7000, 0xa086, 0x0001,
+ 0x00c0, 0x29aa, 0x1078, 0x2b1e, 0x1078, 0x314d, 0x7034, 0x600a,
+ 0x0078, 0x29af, 0x7000, 0xa086, 0x0003, 0x0040, 0x29a4, 0x7003,
+ 0x0005, 0x2001, 0x5c10, 0x2068, 0x703e, 0x7032, 0x2200, 0x0079,
+ 0x29b9, 0x29c0, 0x29be, 0x29c0, 0x29be, 0x29c0, 0x1078, 0x1ce7,
+ 0x1078, 0x2e09, 0x781b, 0x0069, 0x0078, 0x1d39, 0x7000, 0xa086,
+ 0x0001, 0x00c0, 0x29d3, 0x1078, 0x2b1e, 0x1078, 0x314d, 0x7034,
+ 0x600a, 0x0078, 0x29d8, 0x7000, 0xa086, 0x0003, 0x0040, 0x29cd,
+ 0x7003, 0x0002, 0x7a80, 0xa294, 0x0f00, 0x789b, 0x0018, 0x7ca8,
+ 0xa484, 0x001f, 0xa215, 0x2069, 0x5c00, 0x2d04, 0x2d08, 0x7156,
+ 0x2068, 0xa005, 0x0040, 0x29f3, 0x6810, 0xa206, 0x0040, 0x2a0c,
+ 0x6800, 0x0078, 0x29e6, 0x7003, 0x0005, 0x2001, 0x5c10, 0x2068,
+ 0x703e, 0x7032, 0x157e, 0x20a9, 0x002f, 0x2003, 0x0000, 0x8000,
+ 0x0070, 0x2a04, 0x0078, 0x29fd, 0x157f, 0x6a12, 0x68b3, 0x0700,
+ 0x681f, 0x0800, 0x6823, 0x0003, 0x6eb0, 0x7e5a, 0x681c, 0xa084,
+ 0x0c00, 0x0040, 0x2a6d, 0x1078, 0x2e01, 0x0078, 0x2a6d, 0x7000,
+ 0xa086, 0x0001, 0x00c0, 0x2a24, 0x1078, 0x2b1e, 0x1078, 0x314d,
+ 0x7034, 0x600a, 0x0078, 0x2a29, 0x7000, 0xa086, 0x0003, 0x0040,
+ 0x2a1e, 0x7003, 0x0002, 0x7a80, 0xa294, 0x0f00, 0x789b, 0x0018,
+ 0x7ca8, 0xa484, 0x001f, 0xa215, 0x79a8, 0x79a8, 0xa18c, 0x00ff,
+ 0xa1e8, 0x5b00, 0x2d04, 0x2d08, 0x7156, 0x2068, 0xa005, 0x0040,
+ 0x2a48, 0x6810, 0xa206, 0x0040, 0x2a61, 0x6800, 0x0078, 0x2a3b,
+ 0x7003, 0x0005, 0x2001, 0x5c10, 0x2068, 0x703e, 0x7032, 0x157e,
+ 0x20a9, 0x002f, 0x2003, 0x0000, 0x8000, 0x0070, 0x2a59, 0x0078,
+ 0x2a52, 0x157f, 0x6a12, 0x68b3, 0x0700, 0x681f, 0x0800, 0x6823,
+ 0x0003, 0x6eb0, 0x7e5a, 0x681c, 0xa084, 0x0c00, 0x0040, 0x2a6d,
+ 0x1078, 0x2dfd, 0x7e58, 0x0078, 0x2a6d, 0x027e, 0x8207, 0xa084,
+ 0x000f, 0x8003, 0x8003, 0x8003, 0xa080, 0x3a80, 0x2060, 0x704a,
+ 0x6000, 0x704e, 0x6004, 0x7052, 0xa684, 0x0060, 0x0040, 0x2aa4,
+ 0x6b94, 0x6c90, 0x69a8, 0x68ac, 0xa105, 0x00c0, 0x2a92, 0x7bd2,
+ 0x7bda, 0x7cd6, 0x7cde, 0xa6b4, 0xb7ff, 0x7e5a, 0x1078, 0x3376,
+ 0x0078, 0x2aa4, 0x68ac, 0xa31a, 0x2100, 0xa423, 0x2400, 0xa305,
+ 0x0040, 0x2aa4, 0x7bd2, 0x7bda, 0x7cd6, 0x7cde, 0x68ac, 0xa6b4,
+ 0xbfff, 0x7e5a, 0x1078, 0x339d, 0x077f, 0x1078, 0x2f11, 0x2009,
+ 0x006a, 0xa684, 0x0008, 0x0040, 0x2aaf, 0x2009, 0x0069, 0xa6b5,
+ 0x2000, 0x7e5a, 0x791a, 0x2d00, 0x703e, 0x8207, 0xa084, 0x000f,
+ 0x8003, 0x8003, 0x8003, 0xa080, 0x3a80, 0x2048, 0x0078, 0x1d39,
+ 0x6020, 0xa005, 0x0040, 0x2acc, 0x8001, 0x6022, 0x6008, 0xa085,
+ 0x0008, 0x600a, 0x7010, 0x6026, 0x007c, 0xa006, 0x1078, 0x314d,
+ 0x6813, 0x0000, 0x6817, 0x0001, 0x681f, 0x0040, 0x681b, 0x0100,
+ 0x7000, 0xa084, 0x0007, 0x0079, 0x2add, 0x2ae5, 0x2ae7, 0x2ae7,
+ 0x2b02, 0x2aef, 0x2ae5, 0x2ae5, 0x2ae5, 0x1078, 0x1ce7, 0x1078,
+ 0x2b0d, 0x1078, 0x2b06, 0x1078, 0x18b6, 0x0078, 0x1d41, 0x70a0,
+ 0x70a3, 0x0000, 0x0079, 0x2af4, 0x2afe, 0x2afe, 0x2afc, 0x2afc,
+ 0x2afc, 0x2afe, 0x2afc, 0x2afe, 0x0079, 0x20a6, 0x70a3, 0x0000,
+ 0x0078, 0x1d41, 0x6817, 0x0000, 0x0078, 0x2703, 0x6800, 0xa005,
+ 0x00c0, 0x2b0b, 0x6002, 0x6006, 0x007c, 0x1078, 0x2b27, 0x6010,
+ 0xa005, 0x0040, 0x2b18, 0x8001, 0x00d0, 0x2b18, 0x1078, 0x1ce7,
+ 0x6012, 0x6008, 0xa084, 0xffef, 0x600a, 0x007c, 0x1078, 0x2b34,
+ 0x6018, 0xa005, 0x0040, 0x2b26, 0x8001, 0x601a, 0x007c, 0x017e,
+ 0x007e, 0x2009, 0x382e, 0x2104, 0xa005, 0x0040, 0x2b31, 0x8001,
+ 0x200a, 0x007f, 0x017f, 0x007c, 0x017e, 0x007e, 0x2009, 0x382f,
+ 0x2104, 0xa005, 0x0040, 0x2b3e, 0x8001, 0x200a, 0x007f, 0x017f,
+ 0x007c, 0x017e, 0x007e, 0x2009, 0x3830, 0x2104, 0x8000, 0x200a,
+ 0x007f, 0x017f, 0x007c, 0x017e, 0x007e, 0x2009, 0x382f, 0x2104,
+ 0x8000, 0x200a, 0x007f, 0x017f, 0x007c, 0x027e, 0x037e, 0x007e,
+ 0x2009, 0x382e, 0x2114, 0x2019, 0x382f, 0x2304, 0xa202, 0x200a,
+ 0x201b, 0x0000, 0x2009, 0x3830, 0x007f, 0x037f, 0x027f, 0x007c,
+ 0x1078, 0x2ffd, 0x6817, 0x0018, 0x0078, 0x2b98, 0x1078, 0x2ffd,
+ 0x6817, 0x0019, 0x0078, 0x2b98, 0x1078, 0x2ffd, 0x6817, 0x001a,
+ 0x0078, 0x2b98, 0x77b4, 0x1078, 0x2f11, 0x71b8, 0xa18c, 0x00ff,
+ 0xa1e8, 0x5b00, 0x2d04, 0x2d08, 0x2068, 0xa005, 0x00c0, 0x2b8a,
+ 0x0078, 0x1d41, 0x6810, 0x72b4, 0xa206, 0x0040, 0x2b92, 0x6800,
+ 0x0078, 0x2b83, 0x6800, 0x200a, 0x6817, 0x0005, 0x70bf, 0x0000,
+ 0x1078, 0x2b0d, 0x681c, 0xa084, 0x0001, 0x00c0, 0x2ba1, 0x1078,
+ 0x2b06, 0x1078, 0x2b1e, 0x681b, 0x0000, 0x681f, 0x0020, 0x1078,
+ 0x18b6, 0x0078, 0x1d41, 0xa282, 0x0003, 0x00c0, 0x2dda, 0x7da8,
+ 0xa5ac, 0x00ff, 0x7ea8, 0xa6b4, 0x00ff, 0x691c, 0xa18d, 0x0080,
+ 0x691e, 0xa184, 0x0100, 0x0040, 0x2c0b, 0xa18c, 0xfeff, 0x691e,
+ 0xa6b4, 0x00ff, 0x0040, 0x2bf5, 0xa682, 0x000f, 0x0048, 0x2bcc,
+ 0x0040, 0x2bcc, 0x2031, 0x000f, 0x852b, 0x852b, 0x1078, 0x2e94,
+ 0x0040, 0x2bd6, 0x1078, 0x2ca4, 0x0078, 0x2bfe, 0x1078, 0x2e4f,
+ 0x0c7e, 0x2960, 0x6004, 0xa084, 0xfff5, 0x6006, 0x1078, 0x2cc8,
+ 0x0c7f, 0x691c, 0xa18d, 0x0100, 0x691e, 0x7e58, 0xa6b5, 0x0004,
+ 0x7e5a, 0xa684, 0x0400, 0x00c0, 0x2bf1, 0x781b, 0x0055, 0x0078,
+ 0x1d39, 0x781b, 0x0069, 0x0078, 0x1d39, 0x0c7e, 0x2960, 0x6004,
+ 0xa084, 0xfff5, 0x6006, 0x1078, 0x2cc8, 0x0c7f, 0x7e58, 0xa684,
+ 0x0400, 0x00c0, 0x2c07, 0x781b, 0x0058, 0x0078, 0x1d39, 0x781b,
+ 0x006a, 0x0078, 0x1d39, 0x0c7e, 0x7048, 0x2060, 0x6100, 0xa18c,
+ 0x1000, 0x0040, 0x2c4b, 0x6208, 0x8217, 0xa294, 0x00ff, 0xa282,
+ 0x000f, 0x0048, 0x2c1f, 0x0040, 0x2c1f, 0x2011, 0x000f, 0x2600,
+ 0xa202, 0x00c8, 0x2c24, 0x2230, 0x6208, 0xa294, 0x00ff, 0x7018,
+ 0xa086, 0x0028, 0x00c0, 0x2c34, 0xa282, 0x0019, 0x00c8, 0x2c3a,
+ 0x2011, 0x0019, 0x0078, 0x2c3a, 0xa282, 0x000c, 0x00c8, 0x2c3a,
+ 0x2011, 0x000c, 0x2200, 0xa502, 0x00c8, 0x2c3f, 0x2228, 0x1078,
+ 0x2e53, 0x852b, 0x852b, 0x1078, 0x2e94, 0x0040, 0x2c4b, 0x1078,
+ 0x2ca4, 0x0078, 0x2c4f, 0x1078, 0x2e4f, 0x1078, 0x2cc8, 0x7858,
+ 0xa085, 0x0004, 0x785a, 0x0c7f, 0x781b, 0x0069, 0x0078, 0x1d39,
+ 0x0c7e, 0x2960, 0x6000, 0xa084, 0x1000, 0x00c0, 0x2c72, 0xa084,
+ 0x0040, 0x00c0, 0x2c6c, 0xa18c, 0x0002, 0x00c0, 0x2c6c, 0xa18c,
+ 0xfff5, 0x6106, 0x0c7f, 0x007c, 0x2011, 0x0032, 0x2019, 0x0000,
+ 0x0078, 0x2c94, 0x6208, 0xa294, 0x00ff, 0x7018, 0xa086, 0x0028,
+ 0x00c0, 0x2c82, 0xa282, 0x0019, 0x00c8, 0x2c88, 0x2011, 0x0019,
+ 0x0078, 0x2c88, 0xa282, 0x000c, 0x00c8, 0x2c88, 0x2011, 0x000c,
+ 0x6308, 0x831f, 0xa39c, 0x00ff, 0xa382, 0x000f, 0x0048, 0x2c94,
+ 0x0040, 0x2c94, 0x2019, 0x000f, 0x78ab, 0x0001, 0x78ab, 0x0003,
+ 0x78ab, 0x0001, 0x7aaa, 0x7baa, 0xa8c0, 0x0005, 0x681c, 0xa085,
+ 0x0100, 0x681e, 0x0c7f, 0x007c, 0x0c7e, 0x7148, 0x2160, 0x2008,
+ 0xa084, 0xfff0, 0xa635, 0x7e86, 0x6018, 0x789a, 0x7eae, 0x6612,
+ 0x78a4, 0xa084, 0xfff8, 0xa18c, 0x0007, 0xa105, 0x78a6, 0x6016,
+ 0x788a, 0xa6b4, 0x000f, 0x8637, 0x8204, 0x8004, 0xa084, 0x00ff,
+ 0xa605, 0x600e, 0x6004, 0xa084, 0xfff5, 0x6006, 0x0c7f, 0x007c,
+ 0x0c7e, 0x7048, 0x2060, 0x6018, 0x789a, 0x78a4, 0xa084, 0xfff0,
+ 0x78a6, 0x6012, 0x7884, 0xa084, 0xfff0, 0x7886, 0x0c7f, 0x007c,
+ 0xa282, 0x0002, 0x00c0, 0x2dda, 0x7aa8, 0x691c, 0xa18d, 0x0080,
+ 0x691e, 0xa184, 0x0200, 0x0040, 0x2d1d, 0xa18c, 0xfdff, 0x691e,
+ 0xa294, 0x00ff, 0xa282, 0x0002, 0x00c8, 0x2dda, 0x1078, 0x2d63,
+ 0x1078, 0x2cc8, 0xa980, 0x0001, 0x200c, 0x1078, 0x2f0d, 0x1078,
+ 0x2c58, 0x88ff, 0x0040, 0x2d10, 0x789b, 0x0060, 0x2800, 0x78aa,
+ 0x7e58, 0xa6b5, 0x0004, 0x7e5a, 0xa684, 0x0400, 0x00c0, 0x2d0c,
+ 0x781b, 0x0055, 0x0078, 0x1d39, 0x781b, 0x0069, 0x0078, 0x1d39,
+ 0x7e58, 0xa684, 0x0400, 0x00c0, 0x2d19, 0x781b, 0x0058, 0x0078,
+ 0x1d39, 0x781b, 0x006a, 0x0078, 0x1d39, 0xa282, 0x0002, 0x00c8,
+ 0x2d25, 0xa284, 0x0001, 0x0040, 0x2d2f, 0x7148, 0xa188, 0x0000,
+ 0x210c, 0xa18c, 0x2000, 0x00c0, 0x2d2f, 0x2011, 0x0000, 0x1078,
+ 0x2e41, 0x1078, 0x2d63, 0x1078, 0x2cc8, 0x7858, 0xa085, 0x0004,
+ 0x785a, 0x781b, 0x0069, 0x0078, 0x1d39, 0x0c7e, 0x027e, 0x2960,
+ 0x6000, 0x2011, 0x0001, 0xa084, 0x2000, 0x00c0, 0x2d53, 0xa084,
+ 0x0080, 0x00c0, 0x2d51, 0xa18c, 0xffef, 0x6106, 0xa006, 0x0078,
+ 0x2d60, 0x2011, 0x0000, 0x78ab, 0x0001, 0x78ab, 0x0002, 0x78ab,
+ 0x0003, 0x7aaa, 0xa8c0, 0x0004, 0x681c, 0xa085, 0x0200, 0x681e,
+ 0x027f, 0x0c7f, 0x007c, 0x0c7e, 0x7048, 0x2060, 0x82ff, 0x0040,
+ 0x2d6b, 0x2011, 0x0040, 0x6018, 0xa080, 0x0002, 0x789a, 0x78a4,
+ 0xa084, 0xffbf, 0xa205, 0x78a6, 0x6016, 0x788a, 0x6004, 0xa084,
+ 0xffef, 0x6006, 0x0c7f, 0x007c, 0x007e, 0x7000, 0xa086, 0x0003,
+ 0x0040, 0x2d85, 0x007f, 0x0078, 0x2d88, 0x007f, 0x0078, 0x2dd6,
+ 0xa684, 0x0020, 0x0040, 0x2dd6, 0x7888, 0xa084, 0x0040, 0x0040,
+ 0x2dd6, 0x78a8, 0x8001, 0x0040, 0x2d95, 0x7bb8, 0xa384, 0x003f,
+ 0x831b, 0x00c8, 0x2d9c, 0x8000, 0xa005, 0x0040, 0x2dbd, 0x831b,
+ 0x00c8, 0x2da5, 0x8001, 0x0040, 0x2dd2, 0xa006, 0x1078, 0x3414,
+ 0x78b4, 0x1078, 0x3479, 0x0078, 0x2dd6, 0xa684, 0x4000, 0x0040,
+ 0x2dbd, 0x78b8, 0x801b, 0x00c8, 0x2db6, 0x8000, 0xa084, 0x003f,
+ 0x00c0, 0x2dd2, 0xa6b4, 0xbfff, 0x7e5a, 0x79d8, 0x7adc, 0x2001,
+ 0x0001, 0xa108, 0x00c8, 0x2dc6, 0xa291, 0x0000, 0x79d2, 0x79da,
+ 0x7ad6, 0x7ade, 0x1078, 0x3414, 0x781b, 0x0067, 0x1078, 0x32e4,
+ 0x0078, 0x1d39, 0x781b, 0x0067, 0x0078, 0x1d39, 0x781b, 0x006a,
+ 0x0078, 0x1d39, 0x1078, 0x2e0d, 0x781b, 0x0069, 0x0078, 0x1d39,
+ 0x1078, 0x2df9, 0x781b, 0x0069, 0x0078, 0x1d39, 0x6823, 0x0002,
+ 0x1078, 0x2e01, 0x691c, 0xa18d, 0x0020, 0x691e, 0x6814, 0xa084,
+ 0x8000, 0x0040, 0x2df5, 0x6817, 0x0005, 0x781b, 0x0069, 0x0078,
+ 0x1d39, 0x2001, 0x0005, 0x0078, 0x2e0f, 0x2001, 0x000c, 0x0078,
+ 0x2e0f, 0x2001, 0x0006, 0x0078, 0x2e0f, 0x2001, 0x000d, 0x0078,
+ 0x2e0f, 0x2001, 0x0009, 0x0078, 0x2e0f, 0x2001, 0x0007, 0x789b,
+ 0x007f, 0x78aa, 0xa6b5, 0x0008, 0x7e5a, 0x007c, 0x077e, 0x873f,
+ 0xa7bc, 0x000f, 0x873b, 0x873b, 0x8703, 0xa0e0, 0x3a80, 0xa7b8,
+ 0x0020, 0x7f9a, 0x79a4, 0xa184, 0x000f, 0x0040, 0x2e2f, 0xa184,
+ 0xfff0, 0x78a6, 0x6012, 0x6004, 0xa085, 0x0008, 0x6006, 0x8738,
+ 0x8738, 0x7f9a, 0x79a4, 0xa184, 0x0040, 0x0040, 0x2e3f, 0xa184,
+ 0xffbf, 0x78a6, 0x6016, 0x6004, 0xa085, 0x0010, 0x6006, 0x077f,
+ 0x007c, 0x789b, 0x0010, 0x78ab, 0x0001, 0x78ab, 0x0002, 0x78ab,
+ 0x0003, 0x7aaa, 0x789b, 0x0060, 0x78ab, 0x0004, 0x007c, 0x2031,
+ 0x0000, 0x2029, 0x0032, 0x789b, 0x0010, 0x78ab, 0x0001, 0x78ab,
+ 0x0003, 0x78ab, 0x0001, 0x7daa, 0x7eaa, 0x789b, 0x0060, 0x78ab,
+ 0x0005, 0x007c, 0x157e, 0x8007, 0xa084, 0x00ff, 0x8003, 0x8003,
+ 0xa080, 0x0020, 0x789a, 0x79a4, 0xa18c, 0xfff0, 0x2001, 0x3846,
+ 0x2004, 0xa082, 0x0028, 0x0040, 0x2e7d, 0x2021, 0x2ef4, 0x2019,
+ 0x0014, 0x20a9, 0x000c, 0x0078, 0x2e83, 0x2021, 0x2f00, 0x2019,
+ 0x0019, 0x20a9, 0x000d, 0x2011, 0x0064, 0x2404, 0xa084, 0xfff0,
+ 0xa106, 0x0040, 0x2e92, 0x8420, 0x2300, 0xa210, 0x0070, 0x2e92,
+ 0x0078, 0x2e85, 0x157f, 0x007c, 0x157e, 0x2011, 0x3846, 0x2214,
+ 0xa282, 0x0032, 0x0048, 0x2ea8, 0x0040, 0x2eac, 0x2021, 0x2ee6,
+ 0x2019, 0x0011, 0x20a9, 0x000e, 0x2011, 0x0032, 0x0078, 0x2ebc,
+ 0xa282, 0x0028, 0x0040, 0x2eb4, 0x2021, 0x2ef4, 0x2019, 0x0014,
+ 0x20a9, 0x000c, 0x0078, 0x2eba, 0x2021, 0x2f00, 0x2019, 0x0019,
+ 0x20a9, 0x000d, 0x2011, 0x0064, 0x2200, 0xa502, 0x0040, 0x2ecc,
+ 0x0048, 0x2ecc, 0x8420, 0x2300, 0xa210, 0x0070, 0x2ec9, 0x0078,
+ 0x2ebc, 0x157f, 0xa006, 0x007c, 0x157f, 0xa582, 0x0064, 0x00c8,
+ 0x2ed5, 0x7808, 0xa085, 0x0070, 0x780a, 0x78ec, 0xa084, 0x0300,
+ 0x0040, 0x2ee3, 0x2404, 0xa09e, 0x1201, 0x00c0, 0x2ee3, 0x2001,
+ 0x2101, 0x0078, 0x2ee4, 0x2404, 0xa005, 0x007c, 0x1201, 0x3002,
+ 0x3202, 0x4203, 0x4403, 0x5404, 0x5604, 0x6605, 0x6805, 0x7806,
+ 0x7a06, 0x0a07, 0x0c07, 0x0e07, 0x3202, 0x4202, 0x5202, 0x6202,
+ 0x7202, 0x6605, 0x7605, 0x7805, 0x7a05, 0x7c05, 0x7e05, 0x7f05,
+ 0x2202, 0x3202, 0x4202, 0x5202, 0x5404, 0x6404, 0x7404, 0x7604,
+ 0x7804, 0x7a04, 0x7c04, 0x7e04, 0x7f04, 0x789b, 0x0010, 0xa046,
+ 0x007c, 0xa784, 0x0f00, 0x800b, 0xa784, 0x001f, 0x8003, 0x8003,
+ 0x8003, 0x8003, 0xa105, 0xa0e0, 0x3b00, 0x007c, 0x79d8, 0x7adc,
+ 0x78d0, 0x801b, 0x00c8, 0x2f25, 0x8000, 0xa084, 0x003f, 0xa108,
+ 0xa291, 0x0000, 0x007c, 0x0f7e, 0x2079, 0x0100, 0x2009, 0x3840,
+ 0x2091, 0x8000, 0x2104, 0x0079, 0x2f35, 0x2f67, 0x2f3f, 0x2f3f,
+ 0x2f3f, 0x2f3f, 0x2f3f, 0x2f3d, 0x2f3d, 0x1078, 0x1ce7, 0x784b,
+ 0x0004, 0x7848, 0xa084, 0x0004, 0x00c0, 0x2f41, 0x784b, 0x0008,
+ 0x7848, 0xa084, 0x0008, 0x00c0, 0x2f48, 0x68b0, 0xa085, 0x4000,
+ 0x68b2, 0x7858, 0xa085, 0x4000, 0x785a, 0x7830, 0xa084, 0x0080,
+ 0x00c0, 0x2f67, 0x0018, 0x2f67, 0x6818, 0xa084, 0x0020, 0x00c0,
+ 0x2f65, 0x781b, 0x00dd, 0x0078, 0x2f67, 0x781b, 0x00e4, 0x2091,
+ 0x8001, 0x0f7f, 0x007c, 0x0c7e, 0x6810, 0x8007, 0xa084, 0x000f,
+ 0x8003, 0x8003, 0x8003, 0xa0e0, 0x3a80, 0x6004, 0xa084, 0x000a,
+ 0x00c0, 0x2fb4, 0x6108, 0xa194, 0xff00, 0x0040, 0x2fb4, 0xa18c,
+ 0x00ff, 0x6004, 0xa084, 0x0014, 0x00c0, 0x2f9d, 0xa085, 0x0014,
+ 0x6006, 0x017e, 0x691c, 0xa18d, 0x0002, 0x691e, 0x017f, 0x2001,
+ 0x000c, 0xa106, 0x0040, 0x2f99, 0x2100, 0x8003, 0x2008, 0x0078,
+ 0x2fad, 0x2009, 0x0019, 0x0078, 0x2fad, 0x2011, 0x0000, 0x6000,
+ 0xa084, 0xdfff, 0x6002, 0x6004, 0xa084, 0xffef, 0x6006, 0x017e,
+ 0x691c, 0xa18d, 0x0002, 0x691e, 0x017f, 0x2100, 0xa205, 0x600a,
+ 0x6004, 0xa085, 0x000a, 0x6006, 0x0c7f, 0x007c, 0x781b, 0x006a,
+ 0x0078, 0x1d39, 0x781b, 0x0069, 0x0078, 0x1d39, 0x781b, 0x0058,
+ 0x0078, 0x1d39, 0x781b, 0x0055, 0x0078, 0x1d39, 0x781b, 0x00dd,
+ 0x0078, 0x1d39, 0x781b, 0x00dc, 0x0078, 0x1d39, 0x781b, 0x00e4,
+ 0x0078, 0x1d39, 0x781b, 0x00e3, 0x0078, 0x1d39, 0x781b, 0x009e,
+ 0x0078, 0x1d39, 0x781b, 0x009d, 0x0078, 0x1d39, 0x70a3, 0x0001,
+ 0x781b, 0x0046, 0x0078, 0x1d39, 0x007e, 0x7830, 0xa084, 0x00c0,
+ 0x00c0, 0x2ffb, 0x7808, 0xa084, 0xfffd, 0x780a, 0x0005, 0x0005,
+ 0x0005, 0x0005, 0x78ec, 0xa084, 0x0021, 0x0040, 0x2ffb, 0x7808,
+ 0xa085, 0x0002, 0x780a, 0x007f, 0x007c, 0x7808, 0xa085, 0x0002,
+ 0x780a, 0x007c, 0x7830, 0xa084, 0x0040, 0x00c0, 0x3002, 0x0098,
+ 0x300b, 0x78ac, 0x007c, 0x7808, 0xa084, 0xfffd, 0x780a, 0x0005,
+ 0x0005, 0x0005, 0x0005, 0x78ec, 0xa084, 0x0021, 0x0040, 0x301a,
+ 0x0098, 0x3018, 0x78ac, 0x007e, 0x7808, 0xa085, 0x0002, 0x780a,
+ 0x007f, 0x007c, 0xa784, 0x0070, 0x0040, 0x302e, 0x0c7e, 0x2d60,
+ 0x2f68, 0x1078, 0x1c97, 0x2d78, 0x2c68, 0x0c7f, 0x6817, 0x0003,
+ 0x7858, 0xa084, 0x3f00, 0x681a, 0x682f, 0x0000, 0x682b, 0x0000,
+ 0x784b, 0x0008, 0x78e4, 0xa005, 0x00d0, 0x21cc, 0xa084, 0x0020,
+ 0x0040, 0x21cc, 0x78ec, 0xa084, 0x0003, 0x0040, 0x21cc, 0x0018,
+ 0x21cc, 0x0078, 0x2de0, 0x0c7e, 0x6810, 0x8007, 0xa084, 0x000f,
+ 0x8003, 0x8003, 0x8003, 0xa080, 0x3a80, 0x2060, 0x2048, 0x704a,
+ 0x6000, 0x704e, 0x6004, 0x7052, 0x0c7f, 0x007c, 0x0020, 0x0020,
+ 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020,
+ 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020,
+ 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020,
+ 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0020,
+ 0x0062, 0x0009, 0x0014, 0x0014, 0x9847, 0x0014, 0x0014, 0x98f5,
+ 0x98e7, 0x0014, 0x0014, 0x0080, 0x00bf, 0x0100, 0x0402, 0x2008,
+ 0xf880, 0xa20a, 0x0014, 0x300b, 0xa20c, 0x0014, 0xa200, 0x8838,
+ 0x817e, 0x842a, 0x84a0, 0x3806, 0x8839, 0x28c2, 0x9cc3, 0xa805,
+ 0x0864, 0xa83b, 0x3008, 0x28c1, 0x9cc3, 0xa201, 0x300c, 0x2847,
+ 0x8161, 0x846a, 0x8000, 0x84a4, 0x1856, 0x883a, 0xa808, 0x28e2,
+ 0x9ca0, 0xa8f3, 0x0864, 0xa829, 0x300c, 0xa801, 0x3008, 0x28e1,
+ 0x9ca0, 0x280d, 0xa204, 0x64c0, 0x67a0, 0x6fc0, 0x1814, 0x883b,
+ 0x7023, 0x8576, 0x8677, 0xa80f, 0x786e, 0x883e, 0xa80c, 0x282b,
+ 0xa205, 0x64a0, 0x67a0, 0x6fc0, 0x1814, 0x883b, 0x7023, 0x8576,
+ 0x8677, 0xa801, 0x883e, 0x2069, 0x28c1, 0x9cc3, 0x2044, 0x2103,
+ 0x20a2, 0x2081, 0xa8dc, 0xa207, 0x0014, 0xa203, 0x8000, 0x84a8,
+ 0x85a4, 0x1872, 0x849a, 0x883c, 0x1fe2, 0xf601, 0xa208, 0x856e,
+ 0x866f, 0x0704, 0x3008, 0x9ca0, 0x0014, 0xa202, 0x8000, 0x85a4,
+ 0x3009, 0x84a8, 0x19e2, 0xf848, 0x8174, 0x86eb, 0x85eb, 0x872e,
+ 0x87a9, 0x883f, 0x08e6, 0xa8f1, 0xf861, 0xa8e8, 0xf801, 0x0014,
+ 0xf881, 0x0016, 0x85b2, 0x80f0, 0x9532, 0xfaa2, 0x1de2, 0x0014,
+ 0x8532, 0xf221, 0x0014, 0x1de2, 0x84a8, 0xd6e0, 0x1fe6, 0x0014,
+ 0xa206, 0x6865, 0x817f, 0x842a, 0x1dc1, 0x8823, 0x0016, 0x6042,
+ 0x8008, 0xa8fa, 0x8000, 0x84a4, 0x8160, 0x842a, 0xf021, 0x3008,
+ 0x84a8, 0x1dc6, 0x20d7, 0x8822, 0x0016, 0x8000, 0x2848, 0x1011,
+ 0xa8fc, 0x3008, 0x8000, 0xa000, 0x2802, 0x1011, 0xa8fd, 0xa887,
+ 0x3008, 0x283d, 0x1011, 0xa8fd, 0xa209, 0x0017, 0x300c, 0x8000,
+ 0x85a4, 0x1de2, 0xdac1, 0x0014, 0x26e0, 0x873a, 0xfaa2, 0x19f2,
+ 0x1fe2, 0x0014, 0xa20b, 0x0014, 0xa20d, 0x817e, 0x842a, 0x84a0,
+ 0x3806, 0x0210, 0x9ccd, 0x0704, 0x0000, 0x127e, 0x2091, 0x2200,
+ 0x2049, 0x314d, 0x7000, 0x7204, 0xa205, 0x720c, 0xa215, 0x7008,
+ 0xa084, 0xfffd, 0xa205, 0x0040, 0x315f, 0x0078, 0x3164, 0x7003,
+ 0x0000, 0x127f, 0x2000, 0x007c, 0x7000, 0xa084, 0x0001, 0x00c0,
+ 0x3192, 0x7108, 0x8104, 0x00c8, 0x3171, 0x1078, 0x322e, 0x0078,
+ 0x3169, 0x700c, 0xa08c, 0x007f, 0x0040, 0x3192, 0x7004, 0x8004,
+ 0x00c8, 0x3189, 0x7014, 0xa005, 0x00c0, 0x3185, 0x7010, 0xa005,
+ 0x0040, 0x3189, 0xa102, 0x00c8, 0x3169, 0x7007, 0x0010, 0x0078,
+ 0x3192, 0x8aff, 0x0040, 0x3192, 0x1078, 0x33eb, 0x00c0, 0x318c,
+ 0x0040, 0x3169, 0x1078, 0x31dc, 0x7003, 0x0000, 0x127f, 0x2000,
+ 0x007c, 0x6424, 0x84ff, 0x0040, 0x31b6, 0x2c70, 0x2039, 0x31bb,
+ 0x2704, 0xae68, 0x680c, 0xa630, 0x6808, 0xa529, 0x8421, 0x0040,
+ 0x31b6, 0x8738, 0x2704, 0xa005, 0x00c0, 0x31a1, 0x7098, 0xa075,
+ 0x0040, 0x31b6, 0x2039, 0x31b8, 0x0078, 0x31a0, 0x007c, 0x0000,
+ 0x0004, 0x0008, 0x000c, 0x0010, 0x0014, 0x0018, 0x001c, 0x0000,
+ 0x127e, 0x2091, 0x2200, 0x2079, 0x3800, 0x2071, 0x0010, 0x7007,
+ 0x000a, 0x7007, 0x0002, 0x7003, 0x0000, 0x2071, 0x0020, 0x7007,
+ 0x000a, 0x7007, 0x0002, 0x7003, 0x0000, 0x2049, 0x0000, 0x78b7,
+ 0x0000, 0x127f, 0x2000, 0x007c, 0x2049, 0x31dc, 0x7004, 0x8004,
+ 0x00c8, 0x3208, 0x7007, 0x0012, 0x7108, 0x7008, 0xa106, 0x00c0,
+ 0x31e4, 0xa184, 0x0030, 0x0040, 0x31f1, 0xa086, 0x0030, 0x00c0,
+ 0x31e4, 0x7000, 0xa084, 0x0001, 0x00c0, 0x3208, 0x7008, 0xa084,
+ 0x000c, 0x00c0, 0x3206, 0x710c, 0xa184, 0x0300, 0x00c0, 0x3206,
+ 0xa184, 0x007f, 0x00c0, 0x31dc, 0x0078, 0x3208, 0x6817, 0x0003,
+ 0x7007, 0x0012, 0x7007, 0x0008, 0x7004, 0xa084, 0x0008, 0x00c0,
+ 0x320c, 0x7007, 0x0012, 0x7108, 0x8104, 0x0048, 0x3211, 0x78b7,
+ 0x0000, 0x7003, 0x0000, 0x2049, 0x0000, 0x007c, 0x107e, 0x007e,
+ 0x127e, 0x157e, 0x2091, 0x2200, 0x7108, 0x1078, 0x322e, 0x157f,
+ 0x127f, 0x2091, 0x8001, 0x007f, 0x107f, 0x007c, 0x7204, 0x2118,
+ 0x7108, 0x700c, 0xa084, 0x0300, 0x00c0, 0x3270, 0xa184, 0x000c,
+ 0x00c0, 0x3270, 0x8213, 0x8213, 0x8213, 0x8213, 0xa284, 0x0100,
+ 0xa10d, 0x810b, 0x810b, 0x810f, 0xa184, 0x0007, 0x0079, 0x3248,
+ 0x3252, 0x3262, 0x3270, 0x3262, 0x3284, 0x3284, 0x3270, 0x3282,
+ 0x1078, 0x1ce7, 0x7007, 0x0002, 0x8aff, 0x00c0, 0x325b, 0x2049,
+ 0x0000, 0x0078, 0x325f, 0x1078, 0x33eb, 0x00c0, 0x325b, 0x78b7,
+ 0x0000, 0x007c, 0x7007, 0x0002, 0x8aff, 0x00c0, 0x3269, 0x0078,
+ 0x326d, 0x1078, 0x33eb, 0x00c0, 0x3269, 0x78b7, 0x0000, 0x007c,
+ 0x7007, 0x0002, 0x1078, 0x31dc, 0x1078, 0x2f2b, 0x6814, 0xa084,
+ 0x8000, 0x0040, 0x327d, 0x6817, 0x0002, 0x007c, 0x1078, 0x1ce7,
+ 0x1078, 0x1ce7, 0x1078, 0x32d6, 0x7210, 0x7114, 0x700c, 0xa09c,
+ 0x007f, 0x2800, 0xa300, 0xa211, 0xa189, 0x0000, 0x78b4, 0xa005,
+ 0x0040, 0x3296, 0x78b7, 0x0000, 0x0078, 0x32b9, 0x1078, 0x32d6,
+ 0x2704, 0x2c58, 0xac60, 0x630c, 0x2200, 0xa322, 0x6308, 0x2100,
+ 0xa31b, 0x2400, 0xa305, 0x0040, 0x32af, 0x00c8, 0x32af, 0x8412,
+ 0x8210, 0x830a, 0xa189, 0x0000, 0x2b60, 0x0078, 0x3296, 0x2b60,
+ 0x8a07, 0xa7ba, 0x31b8, 0xa73d, 0x2c00, 0x6882, 0x6f86, 0x6c8e,
+ 0x6b8a, 0x7007, 0x0012, 0x1078, 0x31dc, 0x007c, 0x8738, 0x2704,
+ 0xa005, 0x00c0, 0x32ca, 0x6098, 0xa005, 0x0040, 0x32d3, 0x2060,
+ 0x2039, 0x31b8, 0x8a51, 0x0040, 0x32d2, 0x7008, 0xa084, 0x00c0,
+ 0xa086, 0x00c0, 0x007c, 0x2051, 0x0000, 0x007c, 0x8a50, 0x8739,
+ 0x2704, 0xa004, 0x00c0, 0x32e3, 0x2039, 0x31be, 0x6000, 0xa064,
+ 0x00c0, 0x32e3, 0x2d60, 0x007c, 0x127e, 0x0d7e, 0x2091, 0x2200,
+ 0x0d7f, 0x6880, 0x2060, 0x6884, 0x6b88, 0x6c8c, 0x8057, 0xaad4,
+ 0x00ff, 0xa084, 0x00ff, 0xa0b8, 0x31b8, 0x7e08, 0xa6b5, 0x000c,
+ 0x6818, 0xa084, 0x0040, 0x0040, 0x32ff, 0xa6b5, 0x0001, 0x0f7e,
+ 0x2079, 0x0100, 0x7858, 0x0f7f, 0xa084, 0x0040, 0x0040, 0x330e,
+ 0xa684, 0x0001, 0x00c0, 0x330e, 0xa6b5, 0x0001, 0x7007, 0x0004,
+ 0x7004, 0xa084, 0x0004, 0x00c0, 0x3310, 0x7000, 0xa005, 0x0040,
+ 0x331b, 0x1078, 0x1ce7, 0x2400, 0xa305, 0x00c0, 0x3321, 0x0078,
+ 0x335e, 0x2c58, 0x2704, 0xac60, 0x6004, 0xa400, 0x007e, 0x701a,
+ 0x6000, 0xa301, 0x701e, 0x2009, 0x04fd, 0x2104, 0xa086, 0x04fd,
+ 0x007f, 0x00c0, 0x334e, 0xa084, 0x0001, 0x0040, 0x334e, 0xa684,
+ 0x0001, 0x00c0, 0x334e, 0x7013, 0x0001, 0x7017, 0x0000, 0x7602,
+ 0x7007, 0x0001, 0x78b7, 0x0001, 0xa4a0, 0x0001, 0xa399, 0x0000,
+ 0x6004, 0xa400, 0x701a, 0x6000, 0xa301, 0x701e, 0x620c, 0x2400,
+ 0xa202, 0x7012, 0x6208, 0x2300, 0xa203, 0x7016, 0x7602, 0x7007,
+ 0x0001, 0x2b60, 0x1078, 0x32be, 0x0078, 0x3360, 0x1078, 0x33eb,
+ 0x00c0, 0x335e, 0x127f, 0x2000, 0x007c, 0x127e, 0x0d7e, 0x2091,
+ 0x2200, 0x0d7f, 0x7007, 0x0004, 0x7004, 0xa084, 0x0004, 0x00c0,
+ 0x336c, 0x7003, 0x0008, 0x127f, 0x2000, 0x007c, 0x127e, 0x0d7e,
+ 0x2091, 0x2200, 0x0d7f, 0x2049, 0x3376, 0x7007, 0x0004, 0x7004,
+ 0xa084, 0x0004, 0x00c0, 0x337f, 0x7e08, 0xa6b5, 0x000c, 0x6818,
+ 0xa084, 0x0040, 0x0040, 0x338e, 0xa6b5, 0x0001, 0x6824, 0xa005,
+ 0x0040, 0x339a, 0x2050, 0x2039, 0x31bb, 0x2d60, 0x1078, 0x33eb,
+ 0x00c0, 0x3396, 0x127f, 0x2000, 0x007c, 0x127e, 0x007e, 0x017e,
+ 0x0d7e, 0x2091, 0x2200, 0x0d7f, 0x037f, 0x047f, 0x7e08, 0xa6b5,
+ 0x000c, 0x6818, 0xa084, 0x0040, 0x0040, 0x33b0, 0xa6b5, 0x0001,
+ 0x2049, 0x339d, 0x6824, 0xa055, 0x0040, 0x33e8, 0x2d70, 0x2e60,
+ 0x2039, 0x31bb, 0x2704, 0xae68, 0x680c, 0xa422, 0x6808, 0xa31b,
+ 0x0048, 0x33d5, 0x8a51, 0x00c0, 0x33c7, 0x1078, 0x1ce7, 0x8738,
+ 0x2704, 0xa005, 0x00c0, 0x33bb, 0x7098, 0xa075, 0x2060, 0x0040,
+ 0x33e8, 0x2039, 0x31b8, 0x0078, 0x33ba, 0x8422, 0x8420, 0x831a,
+ 0xa399, 0x0000, 0x690c, 0x2400, 0xa122, 0x6908, 0x2300, 0xa11b,
+ 0x00c8, 0x33e4, 0x1078, 0x1ce7, 0x2071, 0x0020, 0x0078, 0x330e,
+ 0x127f, 0x2000, 0x007c, 0x7008, 0xa084, 0x00c0, 0xa086, 0x00c0,
+ 0x0040, 0x3413, 0x2704, 0xac08, 0x2104, 0x701e, 0x8108, 0x2104,
+ 0x701a, 0x8108, 0x2104, 0x7016, 0x8108, 0x2104, 0x7012, 0x0f7e,
+ 0x2079, 0x0100, 0x7858, 0x0f7f, 0xa084, 0x0040, 0x0040, 0x340e,
+ 0xa684, 0x0001, 0x00c0, 0x340e, 0xa6b5, 0x0001, 0x7602, 0x7007,
+ 0x0001, 0x1078, 0x32be, 0x007c, 0x127e, 0x007e, 0x0d7e, 0x2091,
+ 0x2200, 0x2049, 0x3414, 0x0d7f, 0x087f, 0x7108, 0xa184, 0x00c0,
+ 0x00c0, 0x342a, 0x6824, 0xa005, 0x0040, 0x343a, 0x0078, 0x3164,
+ 0x0078, 0x343a, 0x7108, 0x8104, 0x00c8, 0x3432, 0x1078, 0x322e,
+ 0x0078, 0x341d, 0x7007, 0x0010, 0x7108, 0x8104, 0x00c8, 0x3434,
+ 0x1078, 0x322e, 0x7008, 0xa086, 0x0002, 0x00c0, 0x341d, 0x7000,
+ 0xa005, 0x00c0, 0x341d, 0x7003, 0x0000, 0x2049, 0x0000, 0x127f,
+ 0x2000, 0x007c, 0x127e, 0x147e, 0x137e, 0x157e, 0x0d7e, 0x2091,
+ 0x2200, 0x0d7f, 0x2049, 0x344a, 0xad80, 0x0010, 0x20a0, 0x2099,
+ 0x0031, 0x700c, 0xa084, 0x007f, 0x6826, 0x7007, 0x0008, 0x7007,
+ 0x0002, 0x7003, 0x0001, 0x0040, 0x3468, 0x8000, 0x80ac, 0x53a5,
+ 0x7007, 0x0004, 0x7004, 0xa084, 0x0004, 0x00c0, 0x346a, 0x2049,
+ 0x0000, 0x7003, 0x0000, 0x157f, 0x137f, 0x147f, 0x127f, 0x2000,
+ 0x007c, 0x127e, 0x007e, 0x0d7e, 0x2091, 0x2200, 0x0d7f, 0x2049,
+ 0x3479, 0x6880, 0x2060, 0x6884, 0x6b88, 0x6c8c, 0x8057, 0xaad4,
+ 0x00ff, 0xa084, 0x00ff, 0xa0b8, 0x31b8, 0x7e08, 0xa6b5, 0x0004,
+ 0x7007, 0x0004, 0x7004, 0xa084, 0x0004, 0x00c0, 0x3492, 0x2c58,
+ 0x2704, 0xac60, 0x6004, 0xa400, 0x701a, 0x6000, 0xa301, 0x701e,
+ 0x7013, 0x0001, 0x7017, 0x0000, 0x7602, 0x7007, 0x0001, 0x007f,
+ 0x8007, 0x2009, 0x0031, 0x200a, 0x00a0, 0x34ac, 0x7108, 0x7007,
+ 0x0002, 0x810c, 0x00c8, 0x34ac, 0x810c, 0x0048, 0x34b9, 0x0078,
+ 0x3270, 0xa4a0, 0x0001, 0xa399, 0x0000, 0x6b8a, 0x6c8e, 0x7007,
+ 0x0004, 0x2049, 0x0000, 0x7003, 0x0000, 0x127f, 0x2000, 0x007c,
+ 0x20a9, 0x0010, 0xa006, 0x8004, 0x8086, 0x818e, 0x00c8, 0x34d1,
+ 0xa200, 0x00f0, 0x34cc, 0x8086, 0x818e, 0x007c, 0x157e, 0x20a9,
+ 0x0010, 0xa005, 0x0040, 0x34f7, 0xa11a, 0x00c8, 0x34f7, 0x8213,
+ 0x818d, 0x0048, 0x34ea, 0xa11a, 0x00c8, 0x34eb, 0x00f0, 0x34df,
+ 0x0078, 0x34ef, 0xa11a, 0x2308, 0x8210, 0x00f0, 0x34df, 0x007e,
+ 0x3200, 0xa084, 0xf7ff, 0x2080, 0x007f, 0x157f, 0x007c, 0x007e,
+ 0x3200, 0xa085, 0x0800, 0x0078, 0x34f3, 0x00e0, 0x3563, 0x2091,
+ 0x6000, 0x7820, 0x8001, 0x7822, 0x00c0, 0x355b, 0x7824, 0x7822,
+ 0x2009, 0x3834, 0x2104, 0xa005, 0x00c0, 0x3510, 0x2001, 0x0010,
+ 0x8001, 0x200a, 0x077e, 0x803f, 0x1078, 0x2f11, 0x077f, 0x20a9,
+ 0x0020, 0x601f, 0x0064, 0xace0, 0x0010, 0x00f0, 0x3519, 0x2091,
+ 0x8000, 0x2069, 0x3840, 0x6800, 0xa084, 0x0007, 0x0040, 0x3538,
+ 0xa086, 0x0002, 0x0040, 0x3538, 0x6830, 0xa00d, 0x0040, 0x3538,
+ 0x2104, 0xa005, 0x0040, 0x3538, 0x8001, 0x200a, 0x0040, 0x3640,
+ 0x2061, 0x3b00, 0x2009, 0x0002, 0x20a9, 0x0100, 0x603c, 0xa005,
+ 0x0040, 0x354e, 0x8001, 0x603e, 0x00c0, 0x354e, 0x6010, 0xa005,
+ 0x0040, 0x354e, 0x017e, 0x1078, 0x1b49, 0x017f, 0xace0, 0x0010,
+ 0x0070, 0x3554, 0x0078, 0x353e, 0x8109, 0x0040, 0x355b, 0x20a9,
+ 0x0100, 0x0078, 0x353e, 0x1078, 0x3578, 0x1078, 0x3566, 0x1078,
+ 0x359d, 0x1078, 0x3707, 0x2091, 0x8001, 0x007c, 0x783c, 0x8001,
+ 0x783e, 0x00c0, 0x3577, 0x7840, 0x783e, 0x7848, 0xa005, 0x0040,
+ 0x3577, 0x8001, 0x784a, 0x00c0, 0x3577, 0x1078, 0x1b49, 0x007c,
+ 0x7834, 0x8001, 0x7836, 0x00c0, 0x359c, 0x7838, 0x7836, 0x2091,
+ 0x8000, 0x7844, 0xa005, 0x00c0, 0x3587, 0x2001, 0x0101, 0x8001,
+ 0x7846, 0xa080, 0x5b00, 0x2040, 0x2004, 0xa065, 0x0040, 0x359c,
+ 0x6020, 0xa005, 0x0040, 0x3598, 0x8001, 0x6022, 0x0040, 0x35cc,
+ 0x6000, 0x2c40, 0x0078, 0x358d, 0x007c, 0x7828, 0x8001, 0x782a,
+ 0x00c0, 0x35cb, 0x782c, 0x782a, 0x7830, 0xa005, 0x00c0, 0x35aa,
+ 0x2001, 0x0200, 0x8001, 0x7832, 0x8003, 0x8003, 0x8003, 0x8003,
+ 0xa090, 0x3b00, 0xa298, 0x0002, 0x2304, 0xa084, 0x0008, 0x0040,
+ 0x35cb, 0xa290, 0x0009, 0x2204, 0xa005, 0x0040, 0x35c3, 0x8001,
+ 0x2012, 0x00c0, 0x35cb, 0x2304, 0xa084, 0xfff7, 0xa085, 0x0080,
+ 0x201a, 0x1078, 0x1b49, 0x007c, 0x2069, 0x3840, 0x6800, 0xa005,
+ 0x0040, 0x35d6, 0x683c, 0xac06, 0x0040, 0x3640, 0x6710, 0x6fb6,
+ 0x1078, 0x1758, 0x6808, 0xa084, 0x0020, 0x00c0, 0x363d, 0x2009,
+ 0x382b, 0x2104, 0xa005, 0x0040, 0x35e9, 0x6023, 0x0001, 0x0078,
+ 0x363d, 0x6808, 0xa084, 0xffef, 0xa085, 0x0021, 0x6017, 0x0006,
+ 0x60b0, 0xa084, 0x3f00, 0x601a, 0x601c, 0xa084, 0x00ff, 0xa085,
+ 0x0060, 0x601e, 0x6000, 0x2042, 0x6710, 0x6fb6, 0x1078, 0x1758,
+ 0x6818, 0xa005, 0x0040, 0x3606, 0x8001, 0x681a, 0x6808, 0xa084,
+ 0xffef, 0x680a, 0x6810, 0x8001, 0x00d0, 0x3610, 0x1078, 0x1ce7,
+ 0x6812, 0x602f, 0x0000, 0x602b, 0x0000, 0x2c68, 0x1078, 0x18b6,
+ 0x2069, 0x3840, 0x6710, 0xa784, 0x0f00, 0x68b6, 0x2001, 0x0002,
+ 0x1078, 0x1b44, 0x2041, 0x0021, 0x2049, 0x0005, 0x2051, 0x0030,
+ 0x1078, 0x1765, 0x2011, 0x3835, 0x2214, 0x6a3e, 0x8738, 0xa784,
+ 0x001f, 0x00c0, 0x3622, 0x2009, 0x382b, 0x200b, 0x0008, 0x2009,
+ 0x382c, 0x2069, 0x3840, 0x68b4, 0x200a, 0x2091, 0x8001, 0x007c,
+ 0x2009, 0x384f, 0x2164, 0x2069, 0x0100, 0x1078, 0x1c97, 0x6017,
+ 0x0006, 0x6858, 0xa084, 0x3f00, 0x601a, 0x601c, 0xa084, 0x00ff,
+ 0xa085, 0x0048, 0x601e, 0x602f, 0x0000, 0x602b, 0x0000, 0x6830,
+ 0xa084, 0x0040, 0x0040, 0x367c, 0x684b, 0x0004, 0x20a9, 0x0014,
+ 0x6848, 0xa084, 0x0004, 0x0040, 0x3669, 0x0070, 0x3669, 0x0078,
+ 0x3660, 0x684b, 0x0009, 0x20a9, 0x0014, 0x6848, 0xa084, 0x0001,
+ 0x0040, 0x3676, 0x0070, 0x3676, 0x0078, 0x366d, 0x20a9, 0x00fa,
+ 0x0070, 0x367c, 0x0078, 0x3678, 0x6808, 0xa084, 0xfffd, 0x680a,
+ 0x681b, 0x0046, 0x2009, 0x3868, 0x200b, 0x0007, 0x784c, 0x784a,
+ 0x2091, 0x8001, 0x007c, 0x2079, 0x3800, 0x1078, 0x36de, 0x1078,
+ 0x36a6, 0x1078, 0x36b4, 0x1078, 0x36c9, 0x1078, 0x36f3, 0x2009,
+ 0x3833, 0x200b, 0x0000, 0x2009, 0x3834, 0x200b, 0x0000, 0x7833,
+ 0x0000, 0x7847, 0x0000, 0x784b, 0x0000, 0x007c, 0x2019, 0x0003,
+ 0x2011, 0x3846, 0x2204, 0xa086, 0x003c, 0x0040, 0x36b1, 0x2019,
+ 0x0002, 0x7b2a, 0x7b2e, 0x007c, 0x2019, 0x0030, 0x2011, 0x3846,
+ 0x2204, 0xa086, 0x0032, 0x0040, 0x36c6, 0x2019, 0x0039, 0x2204,
+ 0xa086, 0x003c, 0x0040, 0x36c6, 0x2019, 0x0027, 0x7b36, 0x7b3a,
+ 0x007c, 0x2019, 0x000f, 0x2011, 0x3846, 0x2204, 0xa086, 0x003c,
+ 0x0040, 0x36db, 0x2019, 0x000d, 0x2204, 0xa086, 0x0032, 0x0040,
+ 0x36db, 0x2019, 0x000a, 0x7b3e, 0x7b42, 0x007c, 0x2019, 0x2faf,
+ 0x2011, 0x3846, 0x2204, 0xa086, 0x0032, 0x0040, 0x36f0, 0x2019,
+ 0x3971, 0x2204, 0xa086, 0x003c, 0x0040, 0x36f0, 0x2019, 0x2626,
+ 0x7b22, 0x7b26, 0x007c, 0x2019, 0x0001, 0x2011, 0x3846, 0x2204,
+ 0xa086, 0x003c, 0x0040, 0x36fe, 0x2019, 0x0001, 0x017e, 0x2009,
+ 0x3831, 0x230a, 0x2009, 0x3832, 0x230a, 0x017f, 0x007c, 0x2009,
+ 0x3831, 0x2104, 0x8001, 0x200a, 0xa005, 0x00c0, 0x3755, 0x2009,
+ 0x3832, 0x2104, 0x2009, 0x3831, 0x200a, 0x2009, 0x3833, 0x2104,
+ 0xa005, 0x00c0, 0x371d, 0x2001, 0x0200, 0x8001, 0x200a, 0x8003,
+ 0x8003, 0x8003, 0x8003, 0xa090, 0x3b00, 0x2208, 0xa298, 0x0002,
+ 0x2304, 0xa084, 0x0200, 0x0040, 0x3755, 0xa290, 0x000e, 0x2204,
+ 0xa005, 0x0040, 0x3740, 0x8001, 0x0040, 0x3740, 0x8001, 0x0040,
+ 0x3740, 0x8001, 0x0040, 0x3740, 0x8001, 0x2012, 0x00c0, 0x3755,
+ 0x2012, 0x2304, 0xa084, 0xfdff, 0xa085, 0x0400, 0x201a, 0xa188,
+ 0x000c, 0x2104, 0x007e, 0xa084, 0x00ff, 0x8001, 0x027f, 0xa294,
+ 0xff00, 0xa205, 0x200a, 0x1078, 0x1b49, 0x007c, 0x6ed0
+};
+# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/qlw_sbus.c" 2
+
+
+int qlw_sbus_match(struct device *, void *, void *);
+void qlw_sbus_attach(struct device *, struct device *, void *);
+
+struct cfattach qlw_sbus_ca = {
+ sizeof(struct qlw_softc),
+ qlw_sbus_match,
+ qlw_sbus_attach
+};
+
+int
+qlw_sbus_match(struct device *parent, void *cf, void *aux)
+{
+ struct sbus_attach_args *sa = aux;
+
+ if (strcmp("ptisp", sa->sa_name) == 0 ||
+     strcmp("PTI,ptisp", sa->sa_name) == 0 ||
+     strcmp("SUNW,isp", sa->sa_name) == 0 ||
+     strcmp("QLGC,isp", sa->sa_name) == 0)
+  return 2;
+
+ return 0;
+}
+
+void
+qlw_sbus_attach(struct device *parent, struct device *self, void *aux)
+{
+ struct qlw_softc *sc = (void *)self;
+ struct sbus_attach_args *sa = aux;
+ u_int32_t sbusburst, burst;
+ int freq;
+
+ if (sa->sa_nintr < 1) {
+  printf(": no interrupt\n");
+  return;
+ }
+
+ if (sa->sa_nreg < 1) {
+  printf(": no registers\n");
+  return;
+ }
+
+ if (bus_space_map(sa->sa_bustag, ((((bus_addr_t)sa->sa_reg[0].sbr_slot)<<32)|(sa->sa_reg[0].sbr_offset)), sa->sa_reg[0].sbr_size, 0, &sc->sc_ioh) != 0) {
+
+  printf(": can't map registers\n");
+  return;
+ }
+
+ printf(": %s\n", sa->sa_name);
+
+ if (bus_intr_establish(sa->sa_bustag, sa->sa_intr[0].sbi_pri, 5, 0,
+     qlw_intr, sc, sc->sc_dev.dv_xname) == ((void *)0)) {
+  printf("%s: can't establish interrupt\n", ((sc)->sc_dev.dv_xname));
+  goto unmap;
+ }
+
+
+
+
+ sbusburst = ((struct sbus_softc *)parent)->sc_burst;
+ if (sbusburst == 0)
+  sbusburst = 0x20 - 1;
+
+ burst = getpropint(sa->sa_node, "burst-sizes", -1);
+ if (burst == -1)
+  burst = sbusburst;
+
+
+ burst &= sbusburst;
+
+ if ((burst & 0x20))
+  sc->sc_isp_config = 0x0004 | 0x0002;
+ else if ((burst & 0x10))
+  sc->sc_isp_config = 0x0004 | 0x0001;
+ else if ((burst & 0x8))
+  sc->sc_isp_config = 0x0004 | 0x0008;
+
+ sc->sc_iot = sa->sa_bustag;
+ sc->sc_ios = sa->sa_reg[0].sbr_size;
+ sc->sc_dmat = sa->sa_dmatag;
+
+ sc->sc_isp_gen = QLW_GEN_ISP1000;
+ sc->sc_isp_type = QLW_ISP1000;
+ sc->sc_numbusses = 1;
+
+ freq = getpropint(sa->sa_node, "clock-frequency", 40000000);
+ sc->sc_clock = (freq + 500000) / 1000000;
+
+
+
+
+
+
+
+ if (strcmp("SUNW,isp", sa->sa_name) == 0 ||
+     strcmp("QLGC,isp", sa->sa_name) == 0)
+  sc->sc_firmware = isp_1000_risc_code;
+
+
+ sc->sc_initiator[0] = getpropint(sa->sa_node, "scsi-initiator-id", 6);
+
+ sc->sc_host_cmd_ctrl = 0x440;
+ sc->sc_mbox_base = 0x80;
+
+ qlw_attach(sc);
+ return;
+
+unmap:
+ bus_space_unmap(sa->sa_bustag, sc->sc_ioh, sa->sa_reg[0].sbr_size);
+}
