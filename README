@@ -1,0 +1,4 @@
+Checkout OpenBSD kernel source tree from previous midnight UTC.
+Run kernel config and C processor.  Commit preprocessed files to
+git and push to github to provide controlled sources for static
+code analysis.
