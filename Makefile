@@ -6,7 +6,7 @@ DATE !!=	date -u +%F
 all:
 	rm -f stamp-current
 	${.MAKE} stamp-current
-	${.MAKE} stamp-preproc
+	${.MAKE} stamp-commit
 
 clean:
 	rm -f stamp-*
@@ -43,5 +43,5 @@ stamp-preproc: stamp-config
 # check into git repository
 stamp-commit: stamp-preproc
 	git add stamp-current source/${KK}
-	git commit -m 'source update'
+	git commit -m 'source update at ${DATE}'
 	date -u >$@
