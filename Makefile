@@ -21,12 +21,16 @@ stamp-checkout: stamp-current
 	if ! [ -f openbsd/src/sys/Makefile ]; then mkdir -p openbsd;\
 	    cd openbsd && cvs -qR co src/sys/Makefile; fi
 	cd openbsd/src/sys && cvs -qR up -D'${DATE} UTC' -PdA -C
+	date -u >$@
+
+stamp-config: stamp-checkout
+	rm -f $@
 	make -C openbsd/src/sys/arch/${MACHINE}/compile/${KK} obj
 	make -C openbsd/src/sys/arch/${MACHINE}/compile/${KK} config
 	date -u >$@
 
 # run kernel config and gcc preprocessor
-stamp-preproc: stamp-checkout
+stamp-preproc: stamp-config
 	rm -f $@
 	mkdir -p source/${KK}
 	SYSOBJDIR=${.OBJDIR}/openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj\
