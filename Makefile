@@ -27,6 +27,8 @@ stamp-preproc: stamp-checkout
 	rm -f $@
 	mkdir -p source/$KK
 	SYSOBJDIR=${.OBJDIR}/openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj\
+	    KK=${KK} ${.MAKE} -C source clean
+	SYSOBJDIR=${.OBJDIR}/openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj\
 	    KK=${KK} time nice ${.MAKE} ${MAKEFLAGS} -C source cpp
 	date -u >$@
 
