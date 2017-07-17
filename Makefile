@@ -3,7 +3,10 @@ DATE !!=	date -u +%F
 
 .PHONY: all clean
 
-all: stamp-preproc
+all:
+	rm -f stamp-current
+	${.MAKE} stamp-current
+	${.MAKE} stamp-preproc
 
 clean:
 	rm -f stamp-*
@@ -29,7 +32,7 @@ stamp-preproc: stamp-checkout
 	SYSOBJDIR=${.OBJDIR}/openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj\
 	    KK=${KK} ${.MAKE} -C source clean
 	SYSOBJDIR=${.OBJDIR}/openbsd/src/sys/arch/${MACHINE}/compile/${KK}/obj\
-	    KK=${KK} time nice ${.MAKE} ${MAKEFLAGS} -C source cpp
+	    KK=${KK} time nice ${.MAKE} -C source cpp
 	date -u >$@
 
 # check into git repository
