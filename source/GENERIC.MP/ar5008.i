@@ -8721,7 +8721,7 @@ ar5008_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni,
   }
 
   protridx = (((ni->ni_chan)->ic_flags & 0x0100) != 0) ?
-      4 : 0;
+      4 : 1;
   if (ds->ds_ctl0 & 0x00400000) {
 
    dur += athn_txtime(sc, (sizeof(struct ieee80211_frame_ack) + 4),

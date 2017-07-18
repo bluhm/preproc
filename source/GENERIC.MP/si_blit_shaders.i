@@ -5926,7 +5926,169 @@ find_next_bit(volatile void *p, int max, int b)
  return max;
 }
 # 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h" 2
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h" 1
+# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h"
+struct list_head {
+ struct list_head *next, *prev;
+};
+
+
+
+static inline void
+INIT_LIST_HEAD(struct list_head *head) {
+ (head)->next = head;
+ (head)->prev = head;
+}
+
+
+
+
+
+
+static inline int
+list_empty(const struct list_head *head) {
+ return (head)->next == head;
+}
+
+static inline int
+list_is_singular(const struct list_head *head) {
+ return !list_empty(head) && ((head)->next == (head)->prev);
+}
+
+static inline void
+list_add(struct list_head *new, struct list_head *head) {
+        (head)->next->prev = new;
+        (new)->next = (head)->next;
+        (new)->prev = head;
+        (head)->next = new;
+}
+
+static inline void
+list_add_tail(struct list_head *entry, struct list_head *head) {
+ (entry)->prev = (head)->prev;
+ (entry)->next = head;
+ (head)->prev->next = entry;
+ (head)->prev = entry;
+}
+
+static inline void
+list_del(struct list_head *entry) {
+ (entry)->next->prev = (entry)->prev;
+ (entry)->prev->next = (entry)->next;
+}
+
+static inline void list_replace(struct list_head *old,
+    struct list_head *new)
+{
+ new->next = old->next;
+ new->next->prev = new;
+ new->prev = old->prev;
+ new->prev->next = new;
+}
+
+static inline void list_replace_init(struct list_head *old,
+         struct list_head *new)
+{
+ list_replace(old, new);
+ INIT_LIST_HEAD(old);
+}
+
+static inline void list_move(struct list_head *list, struct list_head *head)
+{
+ list_del(list);
+ list_add(list, head);
+}
+
+static inline void list_move_tail(struct list_head *list,
+    struct list_head *head)
+{
+ list_del(list);
+ list_add_tail(list, head);
+}
+
+static inline void
+list_del_init(struct list_head *entry) {
+ (entry)->next->prev = (entry)->prev;
+ (entry)->prev->next = (entry)->next;
+ INIT_LIST_HEAD(entry);
+}
+# 178 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h"
+static inline void
+__list_splice(const struct list_head *list, struct list_head *prev,
+    struct list_head *next)
+{
+ struct list_head *first = list->next;
+ struct list_head *last = list->prev;
+
+ first->prev = prev;
+ prev->next = first;
+
+ last->next = next;
+ next->prev = last;
+}
+
+static inline void
+list_splice(const struct list_head *list, struct list_head *head)
+{
+ if (list_empty(list))
+  return;
+
+ __list_splice(list, head, head->next);
+}
+
+static inline void
+list_splice_tail(const struct list_head *list, struct list_head *head)
+{
+ if (list_empty(list))
+  return;
+
+ __list_splice(list, head->prev, head);
+}
+
+void list_sort(void *, struct list_head *,
+     int (*)(void *, struct list_head *, struct list_head *));
+
+struct hlist_node {
+ struct hlist_node *next, **prev;
+};
+
+struct hlist_head {
+ struct hlist_node *first;
+};
+
+
+
+
+static inline void
+INIT_HLIST_HEAD(struct hlist_head *head) {
+ head->first = ((void *)0);
+}
+
+static inline int
+hlist_empty(const struct hlist_head *head) {
+ return head->first == ((void *)0);
+}
+
+static inline void
+hlist_add_head(struct hlist_node *new, struct hlist_head *head)
+{
+ if ((new->next = head->first) != ((void *)0))
+  head->first->prev = &new->next;
+ head->first = new;
+ new->prev = &head->first;
+}
+
+static inline void
+hlist_del_init(struct hlist_node *node)
+{
+ if (node->next != ((void *)0))
+  node->next->prev = node->prev;
+ *(node->prev) = node->next;
+ node->next = ((void *)0);
+ node->prev = ((void *)0);
+}
+# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h" 2
+# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 typedef int irqreturn_t;
 enum irqreturn {
  IRQ_NONE = 0,
@@ -5956,7 +6118,7 @@ typedef bus_addr_t phys_addr_t;
 typedef bus_addr_t resource_size_t;
 
 typedef off_t loff_t;
-# 110 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 111 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline uint8_t
 hweight8(uint32_t x)
 {
@@ -5998,7 +6160,7 @@ hweight64(uint64_t x)
  x = (x + (x >> 32)) & 0x000000ff;
  return x;
 }
-# 162 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 163 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline void
 bitmap_set(void *p, int b, u_int n)
 {
@@ -6041,7 +6203,31 @@ bitmap_weight(void *p, u_int n)
   sum += hweight32(ptr[b >> 5]);
  return sum;
 }
-# 224 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+
+
+
+static inline void
+__hash_init(struct hlist_head *table, u_int size)
+{
+ u_int i;
+
+ for (i = 0; i < size; i++)
+  INIT_HLIST_HEAD(&table[i]);
+}
+
+static inline _Bool
+__hash_empty(struct hlist_head *table, u_int size)
+{
+ u_int i;
+
+ for (i = 0; i < size; i++) {
+  if (!hlist_empty(&table[i]))
+   return 0;
+ }
+
+ return 1;
+}
+# 251 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct device_node;
 
 struct device_driver {
@@ -6055,7 +6241,7 @@ struct device_driver {
 
 
 struct module;
-# 328 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 355 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 enum {
  DUMP_PREFIX_NONE,
  DUMP_PREFIX_ADDRESS,
@@ -6064,7 +6250,7 @@ enum {
 
 void print_hex_dump(const char *, const char *, int, int, int,
   const void *, size_t, _Bool);
-# 415 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 442 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline void *
 ERR_PTR(long error)
 {
@@ -6100,7 +6286,7 @@ PTR_ERR_OR_ZERO(const void *ptr)
 {
  return IS_ERR(ptr)? PTR_ERR(ptr) : 0;
 }
-# 462 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 489 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 typedef struct rwlock rwlock_t;
 typedef struct mutex spinlock_t;
 
@@ -6116,7 +6302,7 @@ spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned 
 {
  __mtx_leave(mtxp);
 }
-# 508 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 535 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct wait_queue_head {
  struct mutex lock;
  unsigned int count;
@@ -6129,7 +6315,7 @@ init_waitqueue_head(wait_queue_head_t *wq)
  __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
  wq->count = 0;
 }
-# 607 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 634 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct completion {
  u_int done;
  wait_queue_head_t wait;
@@ -6297,7 +6483,7 @@ void flush_delayed_work(struct delayed_work *);
 
 
 typedef void *async_cookie_t;
-# 799 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 826 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 extern struct timespec ns_to_timespec(const int64_t);
 extern int64_t timeval_to_ns(const struct timeval *);
 extern int64_t timeval_to_us(const struct timeval *);
@@ -6332,7 +6518,7 @@ round_jiffies_up_relative(unsigned long j)
 {
  return ((((j)+((hz)-1))/(hz))*(hz));
 }
-# 844 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 871 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline void
 set_normalized_timespec(struct timespec *ts, time_t sec, int64_t nsec)
 {
@@ -6435,7 +6621,7 @@ ktime_us_delta(struct timeval a, struct timeval b)
 {
  return ktime_to_us(ktime_sub(a, b));
 }
-# 962 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 989 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline void *
 kmalloc(size_t size, int flags)
 {
@@ -6659,7 +6845,7 @@ void ida_remove(struct ida *, int);
 struct notifier_block {
  void *notifier_call;
 };
-# 1213 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1240 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline uint64_t
 div_u64(uint64_t x, uint32_t y)
 {
@@ -6726,7 +6912,7 @@ copy_from_user(void *to, const void *from, unsigned len)
 {
  return __copy_from_user(to, from, len);
 }
-# 1295 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1322 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 enum dmi_field {
         DMI_NONE,
         DMI_BIOS_VENDOR,
@@ -6791,7 +6977,7 @@ struct pci_dev {
  int irq;
  int msi_enabled;
 };
-# 1379 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1406 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline int
 pci_read_config_dword(struct pci_dev *pdev, int reg64, u32 *val)
 {
@@ -6888,7 +7074,7 @@ typedef enum {
  PCI_D3hot,
  PCI_D3cold
 } pci_power_t;
-# 1523 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1550 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct i2c_algorithm;
 
 
@@ -6962,7 +7148,7 @@ iowrite32(u32 val, volatile void *addr)
 {
  *(volatile uint32_t *)addr = val;
 }
-# 1608 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1635 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline int
 access_ok(int type, const void *addr, unsigned long size)
 {
@@ -6973,7 +7159,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1618, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 
@@ -6985,7 +7171,7 @@ void *kmap(struct vm_page *);
 void kunmap(void *addr);
 void *vmap(struct vm_page **, unsigned int, unsigned long, pgprot_t);
 void vunmap(void *, size_t);
-# 1639 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1666 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline unsigned long
 roundup_pow_of_two(unsigned long x)
 {
@@ -7065,7 +7251,7 @@ power_supply_is_system_supplied(void)
 
  return (1);
 }
-# 1731 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1758 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 static inline int
 isascii(int c)
 {
@@ -7081,7 +7267,7 @@ isprint(int c)
   return (1);
  return (0);
 }
-# 1756 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1783 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 typedef unsigned int gfp_t;
 
 struct vm_page *alloc_pages(unsigned int, unsigned int);
@@ -7104,7 +7290,7 @@ get_order(size_t size)
 {
  return flsl((size - 1) >> 13);
 }
-# 1868 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1895 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct fb_var_screeninfo {
  int pixclock;
 };
@@ -7113,7 +7299,7 @@ struct fb_info {
  struct fb_var_screeninfo var;
  void *par;
 };
-# 1889 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 1916 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct address_space;
 
 
@@ -7172,7 +7358,7 @@ backlight_update_status(struct backlight_device *bd)
 }
 
 void backlight_schedule_update_status(struct backlight_device *);
-# 1996 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 2023 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 struct pwm_device;
 
 static inline struct pwm_device *
@@ -7272,7 +7458,7 @@ sg_page(struct scatterlist *sgl)
 {
  return PHYS_TO_VM_PAGE(sgl->dma_address);
 }
-# 2103 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
+# 2130 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h"
 size_t sg_copy_from_buffer(struct scatterlist *, unsigned int,
     const void *, size_t);
 
@@ -7297,166 +7483,6 @@ release_firmware(const struct firmware *fw)
 void *memchr_inv(const void *, int, size_t);
 # 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drmP.h" 2
 # 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h"
-struct list_head {
- struct list_head *next, *prev;
-};
-
-
-
-static inline void
-INIT_LIST_HEAD(struct list_head *head) {
- (head)->next = head;
- (head)->prev = head;
-}
-
-
-
-
-
-
-static inline int
-list_empty(const struct list_head *head) {
- return (head)->next == head;
-}
-
-static inline int
-list_is_singular(const struct list_head *head) {
- return !list_empty(head) && ((head)->next == (head)->prev);
-}
-
-static inline void
-list_add(struct list_head *new, struct list_head *head) {
-        (head)->next->prev = new;
-        (new)->next = (head)->next;
-        (new)->prev = head;
-        (head)->next = new;
-}
-
-static inline void
-list_add_tail(struct list_head *entry, struct list_head *head) {
- (entry)->prev = (head)->prev;
- (entry)->next = head;
- (head)->prev->next = entry;
- (head)->prev = entry;
-}
-
-static inline void
-list_del(struct list_head *entry) {
- (entry)->next->prev = (entry)->prev;
- (entry)->prev->next = (entry)->next;
-}
-
-static inline void list_replace(struct list_head *old,
-    struct list_head *new)
-{
- new->next = old->next;
- new->next->prev = new;
- new->prev = old->prev;
- new->prev->next = new;
-}
-
-static inline void list_replace_init(struct list_head *old,
-         struct list_head *new)
-{
- list_replace(old, new);
- INIT_LIST_HEAD(old);
-}
-
-static inline void list_move(struct list_head *list, struct list_head *head)
-{
- list_del(list);
- list_add(list, head);
-}
-
-static inline void list_move_tail(struct list_head *list,
-    struct list_head *head)
-{
- list_del(list);
- list_add_tail(list, head);
-}
-
-static inline void
-list_del_init(struct list_head *entry) {
- (entry)->next->prev = (entry)->prev;
- (entry)->prev->next = (entry)->next;
- INIT_LIST_HEAD(entry);
-}
-# 178 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h"
-static inline void
-__list_splice(const struct list_head *list, struct list_head *prev,
-    struct list_head *next)
-{
- struct list_head *first = list->next;
- struct list_head *last = list->prev;
-
- first->prev = prev;
- prev->next = first;
-
- last->next = next;
- next->prev = last;
-}
-
-static inline void
-list_splice(const struct list_head *list, struct list_head *head)
-{
- if (list_empty(list))
-  return;
-
- __list_splice(list, head, head->next);
-}
-
-static inline void
-list_splice_tail(const struct list_head *list, struct list_head *head)
-{
- if (list_empty(list))
-  return;
-
- __list_splice(list, head->prev, head);
-}
-
-void list_sort(void *, struct list_head *,
-     int (*)(void *, struct list_head *, struct list_head *));
-
-struct hlist_node {
- struct hlist_node *next, **prev;
-};
-
-struct hlist_head {
- struct hlist_node *first;
-};
-
-
-
-
-static inline void
-INIT_HLIST_HEAD(struct hlist_head *head) {
- head->first = ((void *)0);
-}
-
-static inline int
-hlist_empty(const struct hlist_head *head) {
- return head->first == ((void *)0);
-}
-
-static inline void
-hlist_add_head(struct hlist_node *new, struct hlist_head *head)
-{
- if ((new->next = head->first) != ((void *)0))
-  head->first->prev = &new->next;
- head->first = new;
- new->prev = &head->first;
-}
-
-static inline void
-hlist_del_init(struct hlist_node *node)
-{
- if (node->next != ((void *)0))
-  node->next->prev = node->prev;
- *(node->prev) = node->next;
- node->next = ((void *)0);
- node->prev = ((void *)0);
-}
 # 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drmP.h" 2
 # 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm.h" 1
 # 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm.h"
@@ -8362,14 +8388,7 @@ typedef struct drm_set_version drm_set_version_t;
 # 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_vma_manager.h" 1
 # 27 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_vma_manager.h"
 # 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux_list.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h" 2
-
-
-
-
-
+# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h"
 enum drm_mm_search_flags {
  DRM_MM_SEARCH_DEFAULT = 0,
  DRM_MM_SEARCH_BEST = 1 << 0,
