@@ -12,5 +12,5 @@ cpp: ${CFILES:S/.c$/.i/}
 .SUFFIXES: .c .i
 
 .c.i:
-	cd ${SYSOBJDIR} && ${NORMAL_C} -I${SYSOBJDIR} -E\
+	cd ${SYSOBJDIR} && ${NORMAL_C} -I${SYSOBJDIR} -E -P \
 	    -o ${@:T:S,^,${.OBJDIR}/${KK}/,}
