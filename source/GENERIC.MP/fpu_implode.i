@@ -1,29 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -32,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -42,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -52,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -120,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -177,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -185,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -193,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -292,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -334,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -343,21 +202,8 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -366,65 +212,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -442,18 +270,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -470,7 +293,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -480,35 +302,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -518,47 +333,28 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -566,89 +362,49 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 296 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -658,8 +414,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -700,13 +454,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -736,37 +488,23 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ieee.h" 1
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ieee.h"
 struct ieee_single {
  u_int sng_sign:1;
  u_int sng_exp:8;
  u_int sng_frac:23;
 };
-
 struct ieee_double {
  u_int dbl_sign:1;
  u_int dbl_exp:11;
  u_int dbl_frach:20;
  u_int dbl_fracl;
 };
-
 struct ieee_ext {
  u_int ext_sign:1;
  u_int ext_exp:15;
@@ -775,9 +513,6 @@ struct ieee_ext {
  u_int ext_fraclm;
  u_int ext_fracl;
 };
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/instr.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/instr.h"
 enum IOP { IOP_OP2, IOP_CALL, IOP_reg, IOP_mem };
 enum IOP2 { IOP2_UNIMP, IOP2_BPcc, IOP2_Bicc, IOP2_BPr,
  IOP2_SETHI, IOP2_FBPfcc, IOP2_FBfcc, IOP2_CBccc };
@@ -817,48 +552,28 @@ enum IOP3_mem {
  IOP3_merr38, IOP3_merr39, IOP3_merr3a, IOP3_merr3b,
  IOP3_CASA, IOP3_PREFETCHA, IOP3_CASXA, IOP3_merr3f
 };
-# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/instr.h"
 union instr {
  int i_int;
-
-
-
-
-
-
  struct {
   u_int i_op:2;
   u_int :30;
  } i_any;
-
-
-
-
  struct {
   u_int :2;
   int i_disp:30;
  } i_call;
-
-
-
-
-
  struct {
   u_int :2;
   u_int :5;
   u_int i_op2:3;
   u_int :22;
  } i_op2;
-
-
  struct {
   u_int :2;
   u_int i_rd:5;
   u_int i_op2:3;
   u_int i_imm:22;
  } i_imm22;
-
-
  struct {
   u_int :2;
   u_int i_annul:1;
@@ -866,8 +581,6 @@ union instr {
   u_int i_op2:3;
   int i_disp:22;
  } i_branch;
-
-
  struct {
   u_int :2;
   u_int i_annul:1;
@@ -877,8 +590,6 @@ union instr {
   u_int i_pred:1;
   int i_disp:19;
  } i_branch_p;
-
-
  struct {
   u_int :2;
   u_int i_annul:1;
@@ -890,7 +601,6 @@ union instr {
   u_int i_rs1:1;
   u_int i_displo:16;
  } i_branch_pr;
-# 230 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/instr.h"
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -898,12 +608,6 @@ union instr {
   u_int i_rs1:5;
   u_int i_low14:14;
  } i_op3;
-
-
-
-
-
-
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -912,12 +616,6 @@ union instr {
   u_int i_i:1;
   u_int i_low13:13;
  } i_loadstore;
-
-
-
-
-
-
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -943,7 +641,6 @@ union instr {
   u_int i_opf:9;
   u_int i_rs2:5;
  } i_opf;
-# 293 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/instr.h"
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -951,10 +648,6 @@ union instr {
   u_int i_rs1:5;
   u_int i_low14:14;
  } i_op4;
-
-
-
-
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -965,10 +658,6 @@ union instr {
   u_int i_opf_low:6;
   u_int i_rs2:5;
  } i_fmovcc;
-
-
-
-
  struct {
   u_int :2;
   u_int i_rd:5;
@@ -979,11 +668,7 @@ union instr {
   u_int i_opf_low:6;
   u_int i_rs2:5;
  } i_fmovr;
-
 };
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe32 {
  int tf_psr;
  int tf_pc;
@@ -992,7 +677,6 @@ struct trapframe32 {
  int tf_global[8];
  int tf_out[8];
 };
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe64 {
  int64_t tf_tstate;
  int64_t tf_pc;
@@ -1008,22 +692,14 @@ struct trapframe64 {
  int64_t tf_local[8];
  int64_t tf_in[8];
 };
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct rwindow32 {
  int rw_local[8];
  int rw_in[8];
 };
-
-
 struct rwindow64 {
  int64_t rw_local[8];
  int64_t rw_in[8];
 };
-
-
-
-
-
 struct reg32 {
  int r_psr;
  int r_pc;
@@ -1032,7 +708,6 @@ struct reg32 {
  int r_global[8];
  int r_out[8];
 };
-
 struct reg64 {
  int64_t r_tstate;
  int64_t r_pc;
@@ -1043,15 +718,10 @@ struct reg64 {
  int64_t r_local[8];
  int64_t r_in[8];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/fsr.h" 1
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 2
-# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct fp_qentry {
  int *fq_addr;
  int fq_instr;
 };
-
 struct fpstate64 {
  u_int fs_regs[64];
  int64_t fs_fsr;
@@ -1059,41 +729,21 @@ struct fpstate64 {
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
 struct fpstate32 {
  u_int fs_regs[32];
  int fs_fsr;
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
-
-
 struct fpreg64 {
  u_int fr_regs[64];
  int64_t fr_fsr;
  int fr_gsr;
 };
-
-
-
-
 struct fpreg32 {
  u_int fr_regs[32];
  int fr_fsr;
 };
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_arith.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_emu.h" 1
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_emu.h"
 struct fpn {
  int fp_class;
  int fp_sign;
@@ -1101,7 +751,6 @@ struct fpn {
  int fp_sticky;
  u_int fp_mant[4];
 };
-# 138 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_emu.h"
 struct fpemu {
  struct fpstate64 *fe_fpstate;
  int fe_fsr;
@@ -1110,149 +759,82 @@ struct fpemu {
  struct fpn fe_f2;
  struct fpn fe_f3;
 };
-
-
-
-
-
-
 struct fpn *fpu_add(struct fpemu *);
-
 struct fpn *fpu_mul(struct fpemu *);
 struct fpn *fpu_div(struct fpemu *);
 struct fpn *fpu_sqrt(struct fpemu *);
-
-
-
-
-
-
 void fpu_compare(struct fpemu *, int);
-
-
 struct fpn *fpu_newnan(struct fpemu *);
-
-
-
-
-
-
 int fpu_shr(struct fpn *, int);
-
 void fpu_explode(struct fpemu *, struct fpn *, int, int);
 void fpu_implode(struct fpemu *, struct fpn *, int, u_int *);
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_extern.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_extern.h"
 struct proc;
 struct fpstate64;
 struct trapframe64;
 union instr;
 struct fpemu;
 struct fpn;
-
-
 void fpu_cleanup(struct proc *, struct fpstate64 *);
 int fpu_emulate(struct proc *, struct trapframe64 *, struct fpstate64 *);
 int fpu_execute(struct proc *, struct fpemu *, union instr);
-
-
 struct fpn *fpu_add(struct fpemu *);
-
-
 void fpu_compare(struct fpemu *, int);
-
-
 struct fpn *fpu_div(struct fpemu *);
-
-
 int fpu_itof(struct fpn *, u_int);
 int fpu_xtof(struct fpn *, u_int64_t);
 int fpu_stof(struct fpn *, u_int);
 int fpu_dtof(struct fpn *, u_int, u_int );
 int fpu_qtof(struct fpn *, u_int, u_int , u_int , u_int );
 void fpu_explode(struct fpemu *, struct fpn *, int, int );
-
-
 u_int fpu_ftoi(struct fpemu *, struct fpn *);
 u_int fpu_ftox(struct fpemu *, struct fpn *, u_int *);
 u_int fpu_ftos(struct fpemu *, struct fpn *);
 u_int fpu_ftod(struct fpemu *, struct fpn *, u_int *);
 u_int fpu_ftoq(struct fpemu *, struct fpn *, u_int *);
-
-
 struct fpn *fpu_mul(struct fpemu *);
-
-
 struct fpn *fpu_sqrt(struct fpemu *);
-
-
 int fpu_shr(register struct fpn *, register int);
 void fpu_norm(register struct fpn *);
 struct fpn *fpu_newnan(register struct fpemu *);
-# 59 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c" 2
-
 static int fpu_round(register struct fpemu *, register struct fpn *);
 static int toinf(struct fpemu *, int);
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
 static int
 fpu_round(register struct fpemu *fe, register struct fpn *fp)
 {
  register u_int m0, m1, m2, m3;
  register int gr, s;
-
  m0 = fp->fp_mant[0];
  m1 = fp->fp_mant[1];
  m2 = fp->fp_mant[2];
  m3 = fp->fp_mant[3];
  gr = m3 & 3;
  s = fp->fp_sticky;
-
-
  m3 = (m3 >> 2) | (m2 << (32 - 2));
  m2 = (m2 >> 2) | (m1 << (32 - 2));
  m1 = (m1 >> 2) | (m0 << (32 - 2));
  m0 >>= 2;
-
  if ((gr | s) == 0)
   goto rounddown;
-
  fe->fe_cx |= 0x01;
-
-
  switch ((fe->fe_fsr >> 30) & 0x03) {
-
  case 0:
  default:
-
-
-
-
-
   if ((gr & 2) == 0)
    goto rounddown;
   if ((gr & 1) || fp->fp_sticky || (m3 & 1))
    break;
   goto rounddown;
-
  case 1:
-
   goto rounddown;
-
  case 3:
-
   if (fp->fp_sign)
    break;
   goto rounddown;
-
  case 2:
-
   if (!fp->fp_sign)
    break;
   goto rounddown;
  }
-
-
  asm volatile("addcc %1,%2,%0" : "=r"(m3) : "r"(m3), "r"(1));
  asm volatile("addxcc %1,%2,%0" : "=r"(m2) : "r"(m2), "r"(0));
  asm volatile("addxcc %1,%2,%0" : "=r"(m1) : "r"(m1), "r"(0));
@@ -1262,7 +844,6 @@ fpu_round(register struct fpemu *fe, register struct fpn *fp)
  fp->fp_mant[2] = m2;
  fp->fp_mant[3] = m3;
  return (1);
-
 rounddown:
  fp->fp_mant[0] = m0;
  fp->fp_mant[1] = m1;
@@ -1270,46 +851,27 @@ rounddown:
  fp->fp_mant[3] = m3;
  return (0);
 }
-
-
-
-
-
-
 static int
 toinf(struct fpemu *fe, int sign)
 {
  int inf;
-
-
  switch ((fe->fe_fsr >> 30) & 0x03) {
-
  default:
  case 0:
   inf = 1;
   break;
-
  case 1:
   inf = 0;
   break;
-
  case 2:
   inf = sign == 0;
   break;
-
  case 3:
   inf = sign;
   break;
  }
  return (inf);
 }
-
-
-
-
-
-
-
 u_int
 fpu_ftoi(fe, fp)
  struct fpemu *fe;
@@ -1317,39 +879,25 @@ fpu_ftoi(fe, fp)
 {
  register u_int i;
  register int sign, exp;
-
  sign = fp->fp_sign;
  switch (fp->fp_class) {
-
  case 0:
   return (0);
-
  case 1:
-# 215 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
   if ((exp = fp->fp_exp) >= 32)
    break;
-
   if (fpu_shr(fp, 115 - 1 - exp) != 0)
    fe->fe_cx |= 0x01;
   i = fp->fp_mant[3];
   if (i >= ((u_int)0x80000000 + sign))
    break;
   return (sign ? -i : i);
-
  default:
   break;
  }
-
  fe->fe_cx = (fe->fe_cx & ~0x01) | 0x10;
  return (0x7fffffff + sign);
 }
-
-
-
-
-
-
-
 u_int
 fpu_ftox(fe, fp, res)
  struct fpemu *fe;
@@ -1358,19 +906,14 @@ fpu_ftox(fe, fp, res)
 {
  register u_int64_t i;
  register int sign, exp;
-
  sign = fp->fp_sign;
  switch (fp->fp_class) {
-
  case 0:
   i = 0;
   goto out;
-
  case 1:
-# 266 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
   if ((exp = fp->fp_exp) >= 64)
    break;
-
   if (fpu_shr(fp, 115 - 1 - exp) != 0)
    fe->fe_cx |= 0x01;
   i = ((u_int64_t)fp->fp_mant[2]<<32)|fp->fp_mant[3];
@@ -1379,22 +922,15 @@ fpu_ftox(fe, fp, res)
   if (sign)
    i = -i;
   goto out;
-
  default:
   break;
  }
-
  fe->fe_cx = (fe->fe_cx & ~0x01) | 0x10;
  i = 0x7fffffffffffffffLL + sign;
 out:
  res[1] = i & 0xffffffff;
  return (i >> 32);
 }
-
-
-
-
-
 u_int
 fpu_ftos(fe, fp)
  struct fpemu *fe;
@@ -1402,17 +938,7 @@ fpu_ftos(fe, fp)
 {
  register u_int sign = fp->fp_sign << 31;
  register int exp;
-
-
-
-
-
  if (((fp)->fp_class < 0)) {
-
-
-
-
-
   (void) fpu_shr(fp, 115 - 1 - 23);
   exp = 255;
   goto done;
@@ -1421,9 +947,7 @@ fpu_ftos(fe, fp)
   return (sign | ((255) << 23));
  if (((fp)->fp_class == 0))
   return (sign);
-# 341 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/fpu/fpu_implode.c"
  if ((exp = fp->fp_exp + 127) <= 0) {
-
   (void) fpu_shr(fp, 115 - 2 - 23 - exp);
   if (fpu_round(fe, fp) && fp->fp_mant[3] == ((1) << 23))
    return (sign | ((1) << 23) | 0);
@@ -1432,32 +956,20 @@ fpu_ftos(fe, fp)
    fe->fe_cx |= 0x04;
   return (sign | ((0) << 23) | fp->fp_mant[3]);
  }
-
  (void) fpu_shr(fp, 115 - 2 - 1 - 23);
-
  if ((fp->fp_mant[3] & ((1 << 2) << 23)) == 0)
   panic("fpu_ftos");
-
  if (fpu_round(fe, fp) && fp->fp_mant[3] == ((2) << 23))
   exp++;
  if (exp >= 255) {
-
   fe->fe_cx |= 0x08 | 0x01;
   if (toinf(fe, sign))
    return (sign | ((255) << 23));
   return (sign | ((255 - 1) << 23) | (((1) << 23) - 1));
  }
 done:
-
  return (sign | ((exp) << 23) | (fp->fp_mant[3] & (((1) << 23) - 1)));
 }
-
-
-
-
-
-
-
 u_int
 fpu_ftod(fe, fp, res)
  struct fpemu *fe;
@@ -1466,10 +978,6 @@ fpu_ftod(fe, fp, res)
 {
  register u_int sign = fp->fp_sign << 31;
  register int exp;
-
-
-
-
  if (((fp)->fp_class < 0)) {
   (void) fpu_shr(fp, 115 - 1 - 52);
   exp = 2047;
@@ -1483,7 +991,6 @@ fpu_ftod(fe, fp, res)
 zero: res[1] = 0;
   return (sign);
  }
-
  if ((exp = fp->fp_exp + 1023) <= 0) {
   (void) fpu_shr(fp, 115 - 2 - 52 - exp);
   if (fpu_round(fe, fp) && fp->fp_mant[2] == ((1) << (52 & 31))) {
@@ -1512,13 +1019,6 @@ done:
  res[1] = fp->fp_mant[3];
  return (sign | ((exp) << (52 & 31)) | (fp->fp_mant[2] & (((1) << (52 & 31)) - 1)));
 }
-
-
-
-
-
-
-
 u_int
 fpu_ftoq(fe, fp, res)
  struct fpemu *fe;
@@ -1527,10 +1027,6 @@ fpu_ftoq(fe, fp, res)
 {
  register u_int sign = fp->fp_sign << 31;
  register int exp;
-
-
-
-
  if (((fp)->fp_class < 0)) {
   (void) fpu_shr(fp, 2);
   exp = 32767;
@@ -1544,7 +1040,6 @@ fpu_ftoq(fe, fp, res)
 zero: res[1] = res[2] = res[3] = 0;
   return (sign);
  }
-
  if ((exp = fp->fp_exp + 16383) <= 0) {
   (void) fpu_shr(fp, 115 - 2 - 112 - exp);
   if (fpu_round(fe, fp) && fp->fp_mant[0] == ((1) << (112 & 31))) {
@@ -1557,7 +1052,6 @@ zero: res[1] = res[2] = res[3] = 0;
   exp = 0;
   goto done;
  }
-
  if (fpu_round(fe, fp) && fp->fp_mant[0] == ((2) << (112 & 31)))
   exp++;
  if (exp >= 32767) {
@@ -1575,10 +1069,6 @@ done:
  res[3] = fp->fp_mant[3];
  return (sign | ((exp) << (112 & 31)) | (fp->fp_mant[0] & (((1) << (112 & 31)) - 1)));
 }
-
-
-
-
 void
 fpu_implode(fe, fp, type, space)
  struct fpemu *fe;
@@ -1588,34 +1078,26 @@ fpu_implode(fe, fp, type, space)
 {
  ;
  switch (type) {
-
  case -1:
   space[0] = fpu_ftox(fe, fp, space);
   ;
   break;
-
  case 0:
   space[0] = fpu_ftoi(fe, fp);
   ;
   break;
-
  case 1:
   space[0] = fpu_ftos(fe, fp);
   ;
   break;
-
  case 2:
   space[0] = fpu_ftod(fe, fp, space);
   ;
   break;
-
  case 3:
-
   space[0] = fpu_ftoq(fe, fp, space);
   ;
-
   break;
-
  default:
   panic("fpu_implode");
  }

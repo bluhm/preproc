@@ -1,38 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/pf.h" 1
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -41,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -51,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -61,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -129,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -186,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -194,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -202,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -301,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -343,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -352,73 +202,41 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/errno.h" 1
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
 };
-
-
-
-
 struct timespec {
  time_t tv_sec;
  long tv_nsec;
 };
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 typedef uint32_t __fd_mask;
-
-
-
 typedef struct fd_set {
  __fd_mask fds_bits[(((1024) + ((((unsigned)(sizeof(__fd_mask) * 8))) - 1)) / (((unsigned)(sizeof(__fd_mask) * 8))))];
 } fd_set;
-
 static __inline void
 __fd_set(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] |= (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline void
 __fd_clr(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] &= ~(1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline int
 __fd_isset(int fd, const fd_set *p)
 {
  return (p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] & (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8)))));
 }
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct timezone {
  int tz_minuteswest;
  int tz_dsttime;
 };
-# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct itimerval {
  struct timeval it_interval;
  struct timeval it_value;
 };
-
-
-
-
-
 struct clockinfo {
  int hz;
  int tick;
@@ -426,112 +244,81 @@ struct clockinfo {
  int stathz;
  int profhz;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h" 1
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h"
 struct itimerspec {
  struct timespec it_interval;
  struct timespec it_value;
 };
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-
-
 struct bintime {
  time_t sec;
  uint64_t frac;
 };
-
 static __inline void
 bintime_addx(struct bintime *bt, uint64_t x)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += x;
  if (u > bt->frac)
   bt->sec++;
 }
-
 static __inline void
 bintime_add(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += bt2->frac;
  if (u > bt->frac)
   bt->sec++;
  bt->sec += bt2->sec;
 }
-
 static __inline void
 bintime_sub(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac -= bt2->frac;
  if (u < bt->frac)
   bt->sec--;
  bt->sec -= bt2->sec;
 }
-# 220 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 static __inline void
 bintime2timespec(struct bintime *bt, struct timespec *ts)
 {
-
  ts->tv_sec = bt->sec;
  ts->tv_nsec = (long)(((uint64_t)1000000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timespec2bintime(struct timespec *ts, struct bintime *bt)
 {
-
  bt->sec = ts->tv_sec;
-
  bt->frac = (uint64_t)ts->tv_nsec * (uint64_t)18446744073ULL;
 }
-
 static __inline void
 bintime2timeval(struct bintime *bt, struct timeval *tv)
 {
-
  tv->tv_sec = bt->sec;
  tv->tv_usec = (long)(((uint64_t)1000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timeval2bintime(struct timeval *tv, struct bintime *bt)
 {
-
  bt->sec = (time_t)tv->tv_sec;
-
  bt->frac = (uint64_t)tv->tv_usec * (uint64_t)18446744073709ULL;
 }
-
 extern volatile time_t time_second;
 extern volatile time_t time_uptime;
-# 278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 void bintime(struct bintime *);
 void nanotime(struct timespec *);
 void microtime(struct timeval *);
-
 void getnanotime(struct timespec *);
 void getmicrotime(struct timeval *);
-
 void binuptime(struct bintime *);
 void nanouptime(struct timespec *);
 void microuptime(struct timeval *);
-
 void getnanouptime(struct timespec *);
 void getmicrouptime(struct timeval *);
-
 struct proc;
 int clock_gettime(struct proc *, clockid_t, struct timespec *);
-
 int timespecfix(struct timespec *);
 int itimerfix(struct timeval *);
 int itimerdecr(struct itimerval *itp, int usec);
@@ -539,10 +326,6 @@ void itimerround(struct timeval *);
 int settime(struct timespec *);
 int ratecheck(struct timeval *, const struct timeval *);
 int ppsratecheck(struct timeval *, int *, int);
-
-
-
-
 struct clock_ymdhms {
         u_short dt_year;
         u_char dt_mon;
@@ -552,17 +335,12 @@ struct clock_ymdhms {
         u_char dt_min;
         u_char dt_sec;
 };
-
 time_t clock_ymdhms_to_secs(struct clock_ymdhms *);
 void clock_secs_to_ymdhms(time_t, struct clock_ymdhms *);
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h" 1
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rusage {
  struct timeval ru_utime;
  struct timeval ru_stime;
  long ru_maxrss;
-
  long ru_ixrss;
  long ru_idrss;
  long ru_isrss;
@@ -576,42 +354,22 @@ struct rusage {
  long ru_nsignals;
  long ru_nvcsw;
  long ru_nivcsw;
-
 };
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rlimit {
  rlim_t rlim_cur;
  rlim_t rlim_max;
 };
-
-
-
 struct loadavg {
  fixpt_t ldavg[3];
  long fscale;
 };
-
-
-
 extern struct loadavg averunnable;
 struct process;
 int dosetrlimit(struct proc *, u_int, struct rlimit *);
 int donice(struct proc *, struct process *, int);
 int dogetrusage(struct proc *, int, struct rusage *);
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 2
-
-
-
-
 struct ucred {
  u_int cr_ref;
-
-
-
  uid_t cr_uid;
  uid_t cr_ruid;
  uid_t cr_svuid;
@@ -621,24 +379,12 @@ struct ucred {
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 struct xucred {
  uid_t cr_uid;
  gid_t cr_gid;
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 int crfromxucred(struct ucred *, const struct xucred *);
 void crset(struct ucred *, const struct ucred *);
 struct ucred *crcopy(struct ucred *cr);
@@ -647,25 +393,15 @@ void crfree(struct ucred *cr);
 struct ucred *crget(void);
 int suser(struct proc *p, u_int flags);
 int suser_ucred(struct ucred *cred);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 struct iovec {
  void *iov_base;
  size_t iov_len;
 };
-
-
 enum uio_rw { UIO_READ, UIO_WRITE };
-
-
 enum uio_seg {
  UIO_USERSPACE,
  UIO_SYSSPACE
 };
-
-
-
 struct uio {
  struct iovec *uio_iov;
  int uio_iovcnt;
@@ -675,109 +411,60 @@ struct uio {
  enum uio_rw uio_rw;
  struct proc *uio_procp;
 };
-# 97 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 int ureadc(int c, struct uio *);
-
 struct file;
 int dofilereadv(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
 int dofilewritev(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h"
 struct refcnt {
  unsigned int refs;
 };
-
-
-
-
-
 void refcnt_init(struct refcnt *);
 void refcnt_take(struct refcnt *);
 int refcnt_rele(struct refcnt *);
 void refcnt_rele_wake(struct refcnt *);
 void refcnt_finalize(struct refcnt *, const char *);
-# 23 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 2
-# 32 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 struct srp {
  void *ref;
 };
-
-
-
 struct srp_hazard {
  struct srp *sh_p;
  void *sh_v;
 };
-
 struct srp_ref {
  struct srp_hazard *hz;
 } ;
-
-
-
 struct srp_gc {
  void (*srp_gc_dtor)(void *, void *);
  void *srp_gc_cookie;
  struct refcnt srp_gc_refcnt;
 };
-
-
-
-
-
-
-
 struct srpl_rc {
  void (*srpl_ref)(void *, void *);
  struct srp_gc srpl_gc;
 };
-
-
-
-
 struct srpl {
  struct srp sl_head;
 };
-
-
-
 void srp_startup(void);
 void srp_gc_init(struct srp_gc *, void (*)(void *, void *), void *);
 void *srp_swap_locked(struct srp *, void *);
 void srp_update_locked(struct srp_gc *, struct srp *, void *);
 void *srp_get_locked(struct srp *);
 void srp_gc_finalize(struct srp_gc *);
-
 void srp_init(struct srp *);
-
-
 void *srp_swap(struct srp *, void *);
 void srp_update(struct srp_gc *, struct srp *, void *);
 void srp_finalize(void *, const char *);
 void *srp_enter(struct srp_ref *, struct srp *);
 void *srp_follow(struct srp_ref *, struct srp *);
 void srp_leave(struct srp_ref *);
-# 101 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 void srpl_rc_init(struct srpl_rc *, void (*)(void *, void *),
       void (*)(void *, void *), void *);
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h" 1
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 typedef int sig_atomic_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 struct sigcontext {
  long sc_cookie;
-
  long sc_sp;
  long sc_pc;
  long sc_npc;
@@ -786,18 +473,11 @@ struct sigcontext {
  long sc_o0;
  int sc_mask;
 };
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-# 104 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef unsigned int sigset_t;
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 union sigval {
  int sival_int;
  void *sival_ptr;
 };
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 typedef struct {
  int si_signo;
  int si_code;
@@ -822,16 +502,9 @@ typedef struct {
    void *_addr;
    int _trapno;
   } _fault;
-# 172 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
  } _data;
 } siginfo_t;
-# 196 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 void initsiginfo(siginfo_t *, int, u_long, int, union sigval);
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-
-
-
-
 struct sigaction {
  union {
   void (*__sa_handler)(int);
@@ -840,49 +513,20 @@ struct sigaction {
  sigset_t sa_mask;
  int sa_flags;
 };
-# 146 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef void (*sig_t)(int);
-
-
-
-
-
 struct sigvec {
  void (*sv_handler)(int);
  int sv_mask;
  int sv_flags;
 };
-# 176 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef struct sigaltstack {
  void *ss_sp;
  size_t ss_size;
  int ss_flags;
 } stack_t;
-
-
-
-
-
 typedef struct sigcontext ucontext_t;
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/limits.h" 1
-# 35 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 2
-# 88 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 1
-# 152 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
 extern void delay(unsigned int);
-
-
 extern int cputyp;
-# 184 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 1
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h" 1
-# 553 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
@@ -899,36 +543,28 @@ extern __inline u_int64_t sparc_rdpr_cleanwin(void); extern __inline u_int64_t s
 extern __inline u_int64_t sparc_rdpr_otherwin(void); extern __inline u_int64_t sparc_rdpr_otherwin() { u_int64_t r; __asm volatile("rdpr %%" "otherwin" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_wstate(void); extern __inline u_int64_t sparc_rdpr_wstate() { u_int64_t r; __asm volatile("rdpr %%" "wstate" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_ver(void); extern __inline u_int64_t sparc_rdpr_ver() { u_int64_t r; __asm volatile("rdpr %%" "ver" ", %0" : "=r" (r) : : "%g0"); return (r); };
-# 596 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_char lduba_asi(paddr_t); extern __inline u_char lduba_asi(paddr_t va) { u_char r; __asm volatile( "lduba" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_char *)va) : "%g0"); return (r); } extern __inline u_char lduba_nc(paddr_t, int); extern __inline u_char lduba_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduba_asi(va)); };
 extern __inline u_short lduha_asi(paddr_t); extern __inline u_short lduha_asi(paddr_t va) { u_short r; __asm volatile( "lduha" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_short *)va) : "%g0"); return (r); } extern __inline u_short lduha_nc(paddr_t, int); extern __inline u_short lduha_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduha_asi(va)); };
 extern __inline u_int lduwa_asi(paddr_t); extern __inline u_int lduwa_asi(paddr_t va) { u_int r; __asm volatile( "lduwa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int *)va) : "%g0"); return (r); } extern __inline u_int lduwa_nc(paddr_t, int); extern __inline u_int lduwa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduwa_asi(va)); };
 extern __inline u_int64_t ldxa_asi(paddr_t); extern __inline u_int64_t ldxa_asi(paddr_t va) { u_int64_t r; __asm volatile( "ldxa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int64_t *)va) : "%g0"); return (r); } extern __inline u_int64_t ldxa_nc(paddr_t, int); extern __inline u_int64_t ldxa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (ldxa_asi(va)); };
-
 extern __inline int lda_asi(paddr_t); extern __inline int lda_asi(paddr_t va) { int r; __asm volatile( "lda" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile int *)va) : "%g0"); return (r); } extern __inline int lda_nc(paddr_t, int); extern __inline int lda_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lda_asi(va)); };
-# 647 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void stba_asi(paddr_t, u_int8_t); extern __inline void stba_asi(paddr_t va, u_int8_t val) { __asm volatile( "stba" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int8_t *)va) : "memory"); } extern __inline void stba_nc(paddr_t, int, u_int8_t); extern __inline void stba_nc(paddr_t va, int asi, u_int8_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stba_asi(va, val); };
 extern __inline void stha_asi(paddr_t, u_int16_t); extern __inline void stha_asi(paddr_t va, u_int16_t val) { __asm volatile( "stha" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int16_t *)va) : "memory"); } extern __inline void stha_nc(paddr_t, int, u_int16_t); extern __inline void stha_nc(paddr_t va, int asi, u_int16_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stha_asi(va, val); };
 extern __inline void stwa_asi(paddr_t, u_int32_t); extern __inline void stwa_asi(paddr_t va, u_int32_t val) { __asm volatile( "stwa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int32_t *)va) : "memory"); } extern __inline void stwa_nc(paddr_t, int, u_int32_t); extern __inline void stwa_nc(paddr_t va, int asi, u_int32_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stwa_asi(va, val); };
 extern __inline void stxa_asi(paddr_t, u_int64_t); extern __inline void stxa_asi(paddr_t va, u_int64_t val) { __asm volatile( "stxa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int64_t *)va) : "memory"); } extern __inline void stxa_nc(paddr_t, int, u_int64_t); extern __inline void stxa_nc(paddr_t va, int asi, u_int64_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stxa_asi(va, val); };
-
 extern __inline void sta_asi(paddr_t, u_int); extern __inline void sta_asi(paddr_t va, u_int val) { __asm volatile( "sta" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int *)va) : "memory"); } extern __inline void sta_nc(paddr_t, int, u_int); extern __inline void sta_nc(paddr_t va, int asi, u_int val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); sta_asi(va, val); };
-# 678 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void asi_set(int);
 extern __inline
 void asi_set(int asi)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0);
 }
-
 extern __inline u_int8_t asi_get(void);
 extern __inline
 u_int8_t asi_get(void)
 {
  return sparc_rd_asi();
 }
-
-
 extern __inline void flush(void *);
 extern __inline
 void flush(void *p)
@@ -937,86 +573,60 @@ void flush(void *p)
      : : "r" (p)
      : "memory");
 }
-
-
-
-
 extern u_int64_t stick(void);
-
 extern void tick_enable(void);
-
 extern void tickcmpr_set(u_int64_t);
 extern void sys_tickcmpr_set(u_int64_t);
 extern void stickcmpr_set(u_int64_t);
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h" 1
-# 231 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern u_int64_t ver;
-
 extern __inline void splx(int);
-
-
-
-
-
-
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
 void splassert_check(int, const char *);
-# 258 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern __inline u_int64_t getpstate(void);
 extern __inline
 u_int64_t getpstate(void)
 {
  return (sparc_rdpr_pstate());
 }
-
 extern __inline void setpstate(u_int64_t);
 extern __inline void setpstate(u_int64_t newpstate)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((newpstate) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (newpstate), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline int getcwp(void);
 extern __inline
 int getcwp(void)
 {
  return (sparc_rdpr_cwp());
 }
-
 extern __inline void setcwp(u_int64_t);
 extern __inline void
 setcwp(u_int64_t newcwp)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "cwp" : : "rI" ((newcwp) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "cwp" : : "r" (newcwp), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline u_int64_t getver(void);
 extern __inline
 u_int64_t getver(void)
 {
  return (sparc_rdpr_ver());
 }
-
 extern __inline u_int64_t intr_disable(void);
 extern __inline u_int64_t
 intr_disable(void)
 {
  u_int64_t s;
-
  s = sparc_rdpr_pstate();
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s & ~0x002) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s & ~0x002), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
  return (s);
 }
-
 extern __inline void intr_restore(u_int64_t);
 extern __inline void
 intr_restore(u_int64_t s)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline void stxa_sync(u_int64_t, u_int64_t, u_int64_t);
 extern __inline void
 stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
@@ -1026,42 +636,32 @@ stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
  __asm volatile("membar #Sync" : : : "memory");
  intr_restore(s);
 }
-
 static inline int
 _spl(int newipl)
 {
  int oldpil;
-
  __asm volatile( "    rdpr %%pil, %0		\n"
    "    wrpr %%g0, %1, %%pil	\n"
      : "=&r" (oldpil)
      : "I" (newipl)
      : "%g0");
  __asm volatile("" : : : "memory");
-
  return (oldpil);
 }
-
-
 static inline int
 _splraise(int newpil)
 {
  int oldpil;
-
  oldpil = sparc_rdpr_pil();
  if (newpil > oldpil)
   do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
         return (oldpil);
 }
-
 static inline void
 _splx(int newpil)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe32 {
  int tf_psr;
  int tf_pc;
@@ -1070,7 +670,6 @@ struct trapframe32 {
  int tf_global[8];
  int tf_out[8];
 };
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe64 {
  int64_t tf_tstate;
  int64_t tf_pc;
@@ -1086,22 +685,14 @@ struct trapframe64 {
  int64_t tf_local[8];
  int64_t tf_in[8];
 };
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct rwindow32 {
  int rw_local[8];
  int rw_in[8];
 };
-
-
 struct rwindow64 {
  int64_t rw_local[8];
  int64_t rw_in[8];
 };
-
-
-
-
-
 struct reg32 {
  int r_psr;
  int r_pc;
@@ -1110,7 +701,6 @@ struct reg32 {
  int r_global[8];
  int r_out[8];
 };
-
 struct reg64 {
  int64_t r_tstate;
  int64_t r_pc;
@@ -1121,15 +711,10 @@ struct reg64 {
  int64_t r_local[8];
  int64_t r_in[8];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/fsr.h" 1
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 2
-# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct fp_qentry {
  int *fq_addr;
  int fq_instr;
 };
-
 struct fpstate64 {
  u_int fs_regs[64];
  int64_t fs_fsr;
@@ -1137,74 +722,37 @@ struct fpstate64 {
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
 struct fpstate32 {
  u_int fs_regs[32];
  int fs_fsr;
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
-
-
 struct fpreg64 {
  u_int fr_regs[64];
  int64_t fr_fsr;
  int fr_gsr;
 };
-
-
-
-
 struct fpreg32 {
  u_int fr_regs[32];
  int fr_fsr;
 };
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h"
 struct intrhand;
 void send_softint(int cpu, int level, struct intrhand *ih);
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 2
-
 struct evcount {
  u_int64_t ec_count;
  int ec_id;
  const char *ec_name;
  void *ec_data;
-
  struct { struct evcount *tqe_next; struct evcount **tqe_prev; } next;
 };
-
 void evcount_attach(struct evcount *, const char *, void *);
 void evcount_detach(struct evcount *);
 int evcount_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-
-
-
-
-
-
 struct intrhand {
  int (*ih_fun)(void *);
  void *ih_arg;
  short ih_number;
-
  char ih_pil;
  char ih_mpsafe;
  struct intrhand *ih_next;
@@ -1217,21 +765,13 @@ struct intrhand {
  struct cpu_info *ih_cpu;
  char ih_name[32];
 };
-
 extern struct intrhand *intrlev[(1<<11)];
-
 void intr_establish(int, struct intrhand *);
-# 107 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
 int splraise(int);
 void intr_barrier(void *);
-
 void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 1
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 struct schedstate_percpu {
  struct timespec spc_runtime;
  volatile int spc_schedflags;
@@ -1242,31 +782,21 @@ struct schedstate_percpu {
  int spc_pscnt;
  int spc_psdiv;
  struct proc *spc_idleproc;
-
  u_int spc_nrun;
  fixpt_t spc_ldavg;
-
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
-
-
-
-
  struct { struct proc *lh_first; } spc_deadproc;
-
  volatile int spc_barrier;
 };
-# 134 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 extern int schedhz;
 extern int rrticks_init;
-
 struct proc;
 void schedclock(struct proc *);
 struct cpu_info;
 void roundrobin(struct cpu_info *);
 void scheduler_start(void);
 void userret(struct proc *p);
-
 void sched_init_cpu(struct cpu_info *);
 void sched_idle(void *);
 void sched_exit(struct proc *);
@@ -1280,27 +810,13 @@ void cpu_idle_cycle(void);
 void cpu_idle_leave(void);
 void sched_peg_curproc(struct cpu_info *ci);
 void sched_barrier(struct cpu_info *ci);
-
 int sysctl_hwsetperf(void *, size_t *, void *, size_t);
 int sysctl_hwperfpolicy(void *, size_t *, void *, size_t);
-
-
 void sched_start_secondary_cpus(void);
 void sched_stop_secondary_cpus(void);
-
-
-
-
 void sched_init_runqueues(void);
 void setrunqueue(struct proc *);
 void remrunqueue(struct proc *);
-# 189 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -1308,196 +824,99 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 2
-# 190 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 2
-
-
-
-
-
-
-
 extern struct __mp_lock sched_lock;
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct cpu_info {
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
  struct cpu_info * volatile ci_self;
-
-
  struct proc *ci_curproc;
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
-
  struct proc *ci_fpproc;
  int ci_number;
  int ci_flags;
  int ci_upaid;
-
  int ci_itid;
  struct srp_hazard ci_srp_hazards[16];
-
  int ci_node;
  u_int32_t ci_randseed;
  struct schedstate_percpu ci_schedstate;
-
  int ci_want_resched;
  int ci_handled_intr_level;
  void *ci_intrpending[16][8];
  u_int64_t ci_tick;
  struct intrhand ci_tickintr;
-
  volatile int ci_ddb_paused;
-
-
-
-
-
-
-
  void (*ci_spinup)(void);
  void *ci_initstack;
  paddr_t ci_paddr;
-
-
  struct rwindow64 ci_rw;
  u_int64_t ci_rwsp;
-
  paddr_t ci_mmfsa;
  paddr_t ci_cpumq;
  paddr_t ci_devmq;
-
  paddr_t ci_cpuset;
  paddr_t ci_mondo;
-
-
  int ci_pci_probe;
  int ci_pci_fault;
-
-
  int ci_mutex_level;
-
-
-
-
 };
-
-
-
 extern struct cpu_info *cpus;
-
-
-
 register struct cpu_info *__curcpu asm ("g7");
-# 186 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void cpu_boot_secondary_processors(void);
-
 void sparc64_send_ipi(int, void (*)(void), u_int64_t, u_int64_t);
 void sparc64_broadcast_ipi(void (*)(void), u_int64_t, u_int64_t);
-
 void cpu_unidle(struct cpu_info *);
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct clockframe {
  struct trapframe64 t;
  int saved_intr_level;
 };
-
-
-
-
-
 extern void (*cpu_start_clock)(void);
-
-
-
-
-
-
-
 extern void need_resched(struct cpu_info *);
-# 292 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void signotify(struct proc *);
-
-
 int cpu_myid(void);
-
 int ldcontrolb(caddr_t);
 void dumpconf(void);
 caddr_t reserve_dumppages(caddr_t);
-
 struct timeval;
 int clockintr(void *);
 int statintr(void *);
-
 struct fpstate64;
 void savefpstate(struct fpstate64 *);
 void loadfpstate(struct fpstate64 *);
 void clearfpstate(void);
 u_int64_t probeget(paddr_t, int, int);
-
 void write_user_windows(void);
 void proc_trampoline(void);
 struct pcb;
@@ -1508,59 +927,38 @@ void copywords(const void *, void *, size_t);
 void qcopy(const void *, void *, size_t);
 void qzero(void *, size_t);
 void switchtoctx(int);
-
 void pmap_unuse_final(struct proc *);
 int rwindow_save(struct proc *);
-
 void fpusave_cpu(struct cpu_info *, int);
 void fpusave_proc(struct proc *, int);
-
 int cnrom(void);
-
 void zsconsole(struct tty *, int, int, void (**)(struct tty *, int));
-
 void fb_unblank(void);
-
 void tda_full_blast(void);
-
 int emulinstr(vaddr_t, struct trapframe64 *);
 int emul_qf(int32_t, struct proc *, union sigval, struct trapframe64 *);
 int emul_popc(int32_t, struct proc *, union sigval, struct trapframe64 *);
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct trapvec {
  int tv_instr[8];
 };
 extern struct trapvec trapbase[];
-
 extern void wzero(void *, u_int);
 extern void wcopy(const void *, void *, u_int);
-
 struct blink_led {
  void (*bl_func)(void *, int);
  void *bl_arg;
  struct { struct blink_led *sle_next; } bl_next;
 };
-
 extern void blink_led_register(struct blink_led *);
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h" 1
-# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h"
 struct __mp_lock_cpu {
  volatile u_int mplc_ticket;
  volatile u_int mplc_depth;
 };
-
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
  volatile u_int mpl_users;
 };
-
-
-
 void __mp_lock_init(struct __mp_lock *);
 void __mp_lock(struct __mp_lock *);
 void __mp_unlock(struct __mp_lock *);
@@ -1568,22 +966,9 @@ int __mp_release_all(struct __mp_lock *);
 int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 2
-
 extern struct __mp_lock kernel_lock;
-# 372 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 185 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 2
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -1592,65 +977,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -1668,18 +1035,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -1696,7 +1058,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -1706,35 +1067,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -1744,63 +1098,38 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -1810,8 +1139,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -1852,13 +1179,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -1888,29 +1213,17 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 1
-# 69 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct m_tag {
  struct { struct m_tag *sle_next; } m_tag_link;
  u_int16_t m_tag_id;
  u_int16_t m_tag_len;
 };
-# 82 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct m_hdr {
  struct mbuf *mh_next;
  struct mbuf *mh_nextpkt;
@@ -1918,15 +1231,9 @@ struct m_hdr {
  u_int mh_len;
  short mh_type;
  u_short mh_flags;
-
-
-
 };
-
-
 struct pf_state_key;
 struct inpcb;
-
 struct pkthdr_pf {
  struct pf_state_key *statekey;
  struct inpcb *inp;
@@ -1937,7 +1244,6 @@ struct pkthdr_pf {
  u_int8_t prio;
  u_int8_t pad[3];
 };
-# 125 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct pkthdr {
  void *ph_cookie;
  struct { struct m_tag *slh_first; } ph_tags;
@@ -1952,8 +1258,6 @@ struct pkthdr {
  u_int8_t ph_loopcnt;
  struct pkthdr_pf pf;
 };
-
-
 struct mbuf_ext {
  caddr_t ext_buf;
  void *ext_arg;
@@ -1961,14 +1265,7 @@ struct mbuf_ext {
  u_int ext_size;
  struct mbuf *ext_nextref;
  struct mbuf *ext_prevref;
-
-
-
-
-
-
 };
-
 struct mbuf {
  struct m_hdr m_hdr;
  union {
@@ -1982,9 +1279,6 @@ struct mbuf {
   char M_databuf[(256 - sizeof(struct m_hdr))];
  } M_dat;
 };
-# 249 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h" 1
-# 319 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 struct kmemstats {
  long ks_inuse;
  long ks_calls;
@@ -1996,10 +1290,6 @@ struct kmemstats {
  long ks_size;
  long ks_spare;
 };
-
-
-
-
 struct kmemusage {
  short ku_indx;
  union {
@@ -2007,14 +1297,7 @@ struct kmemusage {
   u_short pagecnt;
  } ku_un;
 };
-
-
-
 struct kmem_freelist;
-
-
-
-
 struct kmembuckets {
  struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
  u_int64_t kb_calls;
@@ -2024,85 +1307,54 @@ struct kmembuckets {
  u_int64_t kb_highwat;
  u_int64_t kb_couldfree;
 };
-# 388 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 extern struct kmemstats kmemstats[];
 extern struct kmemusage *kmemusage;
 extern char *kmembase;
 extern struct kmembuckets bucket[];
-
 void *malloc(size_t, int, int);
 void *mallocarray(size_t, size_t, int, int);
 void free(void *, int, size_t);
 int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
      struct proc *);
-
 size_t malloc_roundup(size_t);
 void malloc_printit(int (*)(const char *, ...));
-
 void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
-# 250 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 2
-# 316 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 u_int mextfree_register(void (*)(caddr_t, u_int, void *));
-# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct mbstat {
  u_long m_drops;
  u_long m_wait;
  u_long m_drain;
  u_short m_mtypes[256];
 };
-
-
-
-
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 struct mutex {
  volatile void *mtx_owner;
  int mtx_wantipl;
  int mtx_oldipl;
-
-
-
 };
-# 64 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 void __mtx_init(struct mutex *, int);
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 2
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
 void __mtx_enter(struct mutex *);
 int __mtx_enter_try(struct mutex *);
 void __mtx_leave(struct mutex *);
-# 407 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 2
-
 struct mbuf_list {
  struct mbuf *ml_head;
  struct mbuf *ml_tail;
  u_int ml_len;
 };
-
 struct mbuf_queue {
  struct mutex mq_mtx;
  struct mbuf_list mq_list;
  u_int mq_maxlen;
  u_int mq_drops;
 };
-
-
 struct pool;
-
 extern int nmbclust;
 extern int mblowat;
 extern int mcllowat;
 extern int max_linkhdr;
 extern int max_protohdr;
 extern int max_hdr;
-
 void mbinit(void);
 void mbcpuinit(void);
 struct mbuf *m_copym(struct mbuf *, int, int, int);
@@ -2137,17 +1389,13 @@ int m_apply(struct mbuf *, int, int,
      int (*)(caddr_t, caddr_t, unsigned int), caddr_t);
 struct mbuf *m_dup_pkt(struct mbuf *, unsigned int, int);
 int m_dup_pkthdr(struct mbuf *, struct mbuf *, int);
-
 static inline struct mbuf *
 m_freemp(struct mbuf **mp)
 {
  struct mbuf *m = *mp;
-
  *mp = ((void *)0);
  return m_freem(m);
 }
-
-
 struct m_tag *m_tag_get(int, int, int);
 void m_tag_prepend(struct mbuf *, struct m_tag *);
 void m_tag_delete(struct mbuf *, struct m_tag *);
@@ -2158,14 +1406,12 @@ int m_tag_copy_chain(struct mbuf *, struct mbuf *, int);
 void m_tag_init(struct mbuf *);
 struct m_tag *m_tag_first(struct mbuf *);
 struct m_tag *m_tag_next(struct mbuf *, struct m_tag *);
-# 521 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 void ml_init(struct mbuf_list *);
 void ml_enqueue(struct mbuf_list *, struct mbuf *);
 struct mbuf * ml_dequeue(struct mbuf_list *);
 void ml_enlist(struct mbuf_list *, struct mbuf_list *);
 struct mbuf * ml_dechain(struct mbuf_list *);
 unsigned int ml_purge(struct mbuf_list *);
-# 546 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 void mq_init(struct mbuf_queue *, u_int, int);
 int mq_enqueue(struct mbuf_queue *, struct mbuf *);
 struct mbuf * mq_dequeue(struct mbuf_queue *);
@@ -2173,82 +1419,52 @@ int mq_enlist(struct mbuf_queue *, struct mbuf_list *);
 void mq_delist(struct mbuf_queue *, struct mbuf_list *);
 struct mbuf * mq_dechain(struct mbuf_queue *);
 unsigned int mq_purge(struct mbuf_queue *);
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/protosw.h" 1
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/protosw.h"
 struct mbuf;
 struct sockaddr;
 struct socket;
 struct domain;
 struct proc;
-
 struct protosw {
  short pr_type;
  struct domain *pr_domain;
  short pr_protocol;
  short pr_flags;
-
-
-
  int (*pr_input)(struct mbuf **, int *, int, int);
-
  int (*pr_output)(struct mbuf *, struct socket *, struct sockaddr *,
       struct mbuf *);
-
  void (*pr_ctlinput)(int, struct sockaddr *, u_int, void *);
-
  int (*pr_ctloutput)(int, struct socket *, int, int, struct mbuf *);
-
-
-
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
-
  int (*pr_attach)(struct socket *, int);
-
-
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
  void (*pr_drain)(void);
-
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
-# 231 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/protosw.h"
 struct sockaddr;
 struct protosw *pffindproto(int, int, int);
 struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
-
 extern u_char ip_protox[];
 extern struct protosw inetsw[];
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 typedef __socklen_t socklen_t;
-
-
-
-
 typedef __sa_family_t sa_family_t;
-# 120 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct linger {
  int l_onoff;
  int l_linger;
 };
-# 138 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct splice {
  int sp_fd;
  off_t sp_max;
  struct timeval sp_idle;
 };
-# 207 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockaddr {
  __uint8_t sa_len;
  sa_family_t sa_family;
  char sa_data[14];
 };
-# 225 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockaddr_storage {
  __uint8_t ss_len;
  sa_family_t ss_family;
@@ -2256,23 +1472,15 @@ struct sockaddr_storage {
  __uint64_t __ss_pad2;
  unsigned char __ss_pad3[240];
 };
-
-
-
-
-
-
 struct sockproto {
  unsigned short sp_family;
  unsigned short sp_protocol;
 };
-# 298 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockpeercred {
  uid_t uid;
  gid_t gid;
  pid_t pid;
 };
-# 428 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct msghdr {
  void *msg_name;
  socklen_t msg_namelen;
@@ -2282,28 +1490,17 @@ struct msghdr {
  socklen_t msg_controllen;
  int msg_flags;
 };
-# 457 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct cmsghdr {
  socklen_t cmsg_len;
  int cmsg_level;
  int cmsg_type;
-
 };
-# 537 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 void pfctlinput(int, struct sockaddr *);
-
 static inline struct sockaddr *
 sstosa(struct sockaddr_storage *ss)
 {
  return ((struct sockaddr *)(ss));
 }
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h" 1
-# 35 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct kevent {
  __uintptr_t ident;
  short filter;
@@ -2312,17 +1509,14 @@ struct kevent {
  __int64_t data;
  void *udata;
 };
-# 126 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct knote;
 struct klist { struct knote *slh_first; };
-# 145 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct filterops {
  int f_isfd;
  int (*f_attach)(struct knote *kn);
  void (*f_detach)(struct knote *kn);
  int (*f_event)(struct knote *kn, long hint);
 };
-
 struct knote {
  struct { struct knote *sle_next; } kn_link;
  struct { struct knote *sle_next; } kn_selnext;
@@ -2338,11 +1532,8 @@ struct knote {
  } kn_ptr;
  const struct filterops *kn_fop;
  void *kn_hook;
-# 178 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 };
-
 struct proc;
-
 extern void knote(struct klist *list, long hint);
 extern void knote_activate(struct knote *);
 extern void knote_remove(struct proc *p, struct klist *list);
@@ -2353,62 +1544,33 @@ extern int kqueue_register(struct kqueue *kq,
 extern int filt_seltrue(struct knote *kn, long hint);
 extern int seltrue_kqfilter(dev_t, struct knote *);
 extern void klist_invalidate(struct klist *);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h" 2
-
-
-
-
-
 struct selinfo {
  pid_t si_seltid;
  struct klist si_note;
  short si_flags;
 };
-
-
-
 struct proc;
-
 void selrecord(struct proc *selector, struct selinfo *);
 void selwakeup(struct selinfo *);
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h" 1
-# 24 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h"
 struct taskq;
-
 struct task {
  struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
  void (*t_func)(void *);
  void *t_arg;
  unsigned int t_flags;
 };
-
 struct task_list { struct task *tqh_first; struct task **tqh_last; };
-
-
-
-
-
-
-
 extern struct taskq *const systq;
 extern struct taskq *const systqmp;
-
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
-
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct circq {
  struct circq *next;
  struct circq *prev;
 };
-
 struct timeout {
  struct circq to_list;
  void (*to_func)(void *);
@@ -2416,9 +1578,7 @@ struct timeout {
  int to_time;
  int to_flags;
 };
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct bintime;
-
 void timeout_set(struct timeout *, void (*)(void *), void *);
 void timeout_set_proc(struct timeout *, void (*)(void *), void *);
 int timeout_add(struct timeout *, int);
@@ -2430,30 +1590,10 @@ int timeout_add_msec(struct timeout *, int);
 int timeout_add_usec(struct timeout *, int);
 int timeout_add_nsec(struct timeout *, int);
 int timeout_del(struct timeout *);
-
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
-
-
-
-
-
 int timeout_hardclock_update(void);
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h" 2
-
-
-
-
-
-
 struct soqhead { struct socket *tqh_first; struct socket **tqh_last; };
-
-
-
-
-
-
-
 struct socket {
  short so_type;
  short so_options;
@@ -2461,7 +1601,6 @@ struct socket {
  short so_state;
  void *so_pcb;
  struct protosw *so_proto;
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -2476,9 +1615,6 @@ struct socket {
  uid_t so_siguid;
  uid_t so_sigeuid;
  u_long so_oobmark;
-
-
-
  struct sosplice {
   struct socket *ssp_socket;
   struct socket *ssp_soback;
@@ -2488,9 +1624,6 @@ struct socket {
   struct timeout ssp_idleto;
   struct task ssp_task;
  } *so_sp;
-
-
-
  struct sockbuf {
   u_long sb_cc;
   u_long sb_datacc;
@@ -2502,49 +1635,32 @@ struct socket {
   struct mbuf *sb_mb;
   struct mbuf *sb_mbtail;
   struct mbuf *sb_lastrecord;
-
   struct selinfo sb_sel;
   int sb_flagsintr;
   short sb_flags;
   u_short sb_timeo;
  } so_rcv, so_snd;
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
  void (*so_upcall)(struct socket *so, caddr_t arg, int waitf);
  caddr_t so_upcallarg;
  uid_t so_euid, so_ruid;
  gid_t so_egid, so_rgid;
  pid_t so_cpid;
 };
-# 157 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
 void soassertlocked(struct socket *);
-# 169 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
 static inline int
 sb_notify(struct socket *so, struct sockbuf *sb)
 {
  int flags = (sb->sb_flags | sb->sb_flagsintr);
-
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 174, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  return ((flags & (0x04|0x08|0x10|0x20|0x80)) != 0);
 }
-
-
-
-
-
-
-
 static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
-
-
-
-
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
-# 205 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
 static inline int
 soreadable(struct socket *so)
 {
@@ -2554,26 +1670,16 @@ soreadable(struct socket *so)
  return (so->so_state & 0x020) || so->so_qlen || so->so_error ||
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
-# 247 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
 int sblock(struct socket *, struct sockbuf *, int);
-
-
 void sbunlock(struct sockbuf *);
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h"
 extern u_long sb_max;
-
 extern struct pool socket_pool;
-
 struct mbuf;
 struct sockaddr;
 struct proc;
 struct msghdr;
 struct stat;
 struct knote;
-
-
-
-
 int soo_read(struct file *fp, off_t *, struct uio *uio,
      struct ucred *cred);
 int soo_write(struct file *fp, off_t *, struct uio *uio,
@@ -2641,30 +1747,21 @@ void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
 void sowwakeup(struct socket *);
 int sockargs(struct mbuf **, const void *, size_t, int);
-
 int sosleep(struct socket *, void *, int, const char *, int);
 int solock(struct socket *);
 void sounlock(int);
-
 int sendit(struct proc *, int, struct msghdr *, int, register_t *);
 int recvit(struct proc *, int, struct msghdr *, caddr_t,
       register_t *);
 int doaccept(struct proc *, int, struct sockaddr *, socklen_t *, int,
      register_t *);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h"
 extern long hostid;
 extern char hostname[256];
 extern int hostnamelen;
 extern char domainname[256];
 extern int domainnamelen;
-
-
 extern struct timespec boottime;
 extern struct timezone tz;
-
 extern int tick;
 extern int tickfix;
 extern int tickfixinterval;
@@ -2676,12 +1773,8 @@ extern int profhz;
 extern int lbolt;
 extern int tickdelta;
 extern long timedelta;
-
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h" 1
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h"
 struct kinfo_pool {
  unsigned int pr_size;
  unsigned int pr_pgsize;
@@ -2689,12 +1782,9 @@ struct kinfo_pool {
  unsigned int pr_minpages;
  unsigned int pr_maxpages;
  unsigned int pr_hardlimit;
-
-
  unsigned int pr_npages;
  unsigned int pr_nout;
  unsigned int pr_nitems;
-
  unsigned long pr_nget;
  unsigned long pr_nput;
  unsigned long pr_nfail;
@@ -2703,66 +1793,45 @@ struct kinfo_pool {
  unsigned int pr_hiwat;
  unsigned long pr_nidle;
 };
-
 struct kinfo_pool_cache {
  uint64_t pr_ngc;
  unsigned int pr_len;
  unsigned int pr_nitems;
  unsigned int pr_contention;
 };
-
-
-
-
-
 struct kinfo_pool_cache_cpu {
  unsigned int pr_cpu;
-
-
  uint64_t pr_nget;
  uint64_t pr_nfail;
  uint64_t pr_nput;
-
-
  uint64_t pr_nlget;
  uint64_t pr_nlfail;
  uint64_t pr_nlput;
 };
-
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h" 1
-# 767 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);
  unsigned int t_offset;
 };
-
 struct rb_tree {
  struct rb_entry *rbt_root;
 };
-
 struct rb_entry {
  struct rb_entry *rbt_parent;
  struct rb_entry *rbt_left;
  struct rb_entry *rbt_right;
  unsigned int rbt_color;
 };
-# 791 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 static inline void
 _rb_init(struct rb_tree *rbt)
 {
  rbt->rbt_root = ((void *)0);
 }
-
 static inline int
 _rb_empty(struct rb_tree *rbt)
 {
  return (rbt->rbt_root == ((void *)0));
 }
-
 void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
@@ -2780,25 +1849,18 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
-# 100 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h" 2
-
-
 struct pool;
 struct pool_request;
 struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
-
 struct pool_allocator {
  void *(*pa_alloc)(struct pool *, int, int *);
  void (*pa_free)(struct pool *, void *);
  size_t pa_pagesz;
 };
-# 138 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h"
 struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
-
 struct pool_cache_item;
 struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
 struct cpumem;
-
 struct pool {
  struct mutex pr_mtx;
  struct { struct pool *sqe_next; }
@@ -2821,24 +1883,15 @@ struct pool {
  unsigned int pr_nitems;
  unsigned int pr_nout;
  unsigned int pr_hardlimit;
-
  unsigned int pr_serial;
  unsigned int pr_pgsize;
  vaddr_t pr_pgmask;
  struct pool_allocator *
    pr_alloc;
  const char * pr_wchan;
-
-
-
-
-
-
  int pr_ipl;
-
  struct phtree { struct rb_tree rbh_root; }
    pr_phtree;
-
  struct cpumem * pr_cache;
  unsigned long pr_cache_magic[2];
  struct mutex pr_cache_mtx;
@@ -2851,30 +1904,16 @@ struct pool {
  int pr_cache_tick;
  int pr_cache_nout;
  uint64_t pr_cache_ngc;
-
  u_int pr_align;
  u_int pr_maxcolors;
  int pr_phoffset;
-
-
-
-
-
  const char *pr_hardlimit_warning;
  struct timeval pr_hardlimit_ratecap;
  struct timeval pr_hardlimit_warning_last;
-
-
-
-
  struct mutex pr_requests_mtx;
  struct pool_requests
    pr_requests;
  unsigned int pr_requesting;
-
-
-
-
  unsigned long pr_nget;
  unsigned long pr_nfail;
  unsigned long pr_nput;
@@ -2882,26 +1921,17 @@ struct pool {
  unsigned long pr_npagefree;
  unsigned int pr_hiwat;
  unsigned long pr_nidle;
-
-
  const struct kmem_pa_mode *
    pr_crange;
 };
-
-
-
-
-
 extern struct pool_allocator pool_allocator_single;
 extern struct pool_allocator pool_allocator_multi;
-
 struct pool_request {
  struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
  void (*pr_handler)(void *, void *);
  void *pr_cookie;
  void *pr_item;
 };
-
 void pool_init(struct pool *, size_t, u_int, int, int,
       const char *, struct pool_allocator *);
 void pool_cache_init(struct pool *);
@@ -2912,7 +1942,6 @@ int pool_sethardlimit(struct pool *, u_int, const char *, int);
 struct uvm_constraint_range;
 void pool_set_constraints(struct pool *,
       const struct kmem_pa_mode *mode);
-
 void *pool_get(struct pool *, int) __attribute__((__malloc__));
 void pool_request_init(struct pool_request *,
       void (*)(void *, void *), void *);
@@ -2921,38 +1950,22 @@ void pool_put(struct pool *, void *);
 int pool_reclaim(struct pool *);
 void pool_reclaim_all(void);
 int pool_prime(struct pool *, int);
-
-
-
-
-
 void pool_printit(struct pool *, const char *,
       int (*)(const char *, ...));
 void pool_walk(struct pool *, int, int (*)(const char *, ...),
       void (*)(void *, int, int (*)(const char *, ...)));
-
-
-
 void dma_alloc_init(void);
 void *dma_alloc(size_t size, int flags);
 void dma_free(void *m, size_t size);
-# 82 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
 };
-# 65 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_clonereq {
  int ifcr_total;
  int ifcr_count;
  char *ifcr_buffer;
 };
-
-
-
 struct if_rxring {
  int rxr_adjusted;
  u_int rxr_alive;
@@ -2960,25 +1973,16 @@ struct if_rxring {
  u_int rxr_lwm;
  u_int rxr_hwm;
 };
-
 struct if_rxring_info {
  char ifr_name[16];
  u_int ifr_size;
  struct if_rxring ifr_info;
 };
-
-
 struct if_rxrinfo {
  u_int ifri_total;
  struct if_rxring_info *ifri_entries;
 };
-
-
-
-
-
 struct if_data {
-
  u_char ifi_type;
  u_char ifi_addrlen;
  u_char ifi_hdrlen;
@@ -2987,7 +1991,6 @@ struct if_data {
  u_int32_t ifi_metric;
  u_int32_t ifi_rdomain;
  u_int64_t ifi_baudrate;
-
  u_int64_t ifi_ipackets;
  u_int64_t ifi_ierrors;
  u_int64_t ifi_opackets;
@@ -3003,13 +2006,11 @@ struct if_data {
  u_int32_t ifi_capabilities;
  struct timeval ifi_lastchange;
 };
-# 145 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_status_description {
  u_char ifs_type;
  u_char ifs_state;
  const char *ifs_string;
 };
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_msghdr {
  u_short ifm_msglen;
  u_char ifm_version;
@@ -3024,11 +2025,6 @@ struct if_msghdr {
  int ifm_xflags;
  struct if_data ifm_data;
 };
-
-
-
-
-
 struct ifa_msghdr {
  u_short ifam_msglen;
  u_char ifam_version;
@@ -3042,10 +2038,6 @@ struct ifa_msghdr {
  int ifam_flags;
  int ifam_metric;
 };
-
-
-
-
 struct if_announcemsghdr {
  u_short ifan_msglen;
  u_char ifan_version;
@@ -3055,32 +2047,19 @@ struct if_announcemsghdr {
  u_short ifan_what;
  char ifan_name[16];
 };
-
-
-
-
-
 struct if_nameindex_msg {
  unsigned int if_index;
  char if_name[16];
 };
-# 321 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct ifg_req {
  union {
   char ifgrqu_group[16];
   char ifgrqu_member[16];
  } ifgrq_ifgrqu;
-
-
 };
-
 struct ifg_attrib {
  int ifg_carp_demoted;
 };
-
-
-
-
 struct ifgroupreq {
  char ifgr_name[16];
  u_int ifgr_len;
@@ -3089,17 +2068,7 @@ struct ifgroupreq {
   struct ifg_req *ifgru_groups;
   struct ifg_attrib ifgru_attrib;
  } ifgr_ifgru;
-
-
-
 };
-
-
-
-
-
-
-
 struct ifreq {
  char ifr_name[16];
  union {
@@ -3113,23 +2082,16 @@ struct ifreq {
   caddr_t ifru_data;
   unsigned int ifru_index;
  } ifr_ifru;
-# 383 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 };
-
 struct ifaliasreq {
  char ifra_name[16];
  union {
   struct sockaddr ifrau_addr;
   int ifrau_align;
   } ifra_ifrau;
-
-
-
  struct sockaddr ifra_dstaddr;
-
  struct sockaddr ifra_mask;
 };
-
 struct ifmediareq {
  char ifm_name[16];
  uint64_t ifm_current;
@@ -3139,83 +2101,48 @@ struct ifmediareq {
  int ifm_count;
  uint64_t *ifm_ulist;
 };
-
 struct ifkalivereq {
  char ikar_name[16];
  int ikar_timeo;
  int ikar_cnt;
 };
-
-
-
-
-
-
-
 struct ifconf {
  int ifc_len;
  union {
   caddr_t ifcu_buf;
   struct ifreq *ifcu_req;
  } ifc_ifcu;
-
-
 };
-
-
-
-
 struct if_laddrreq {
  char iflr_name[16];
  unsigned int flags;
-
  unsigned int prefixlen;
  struct sockaddr_storage addr;
  struct sockaddr_storage dstaddr;
 };
-
-
 struct if_afreq {
  char ifar_name[16];
  sa_family_t ifar_af;
 };
-
-
 struct if_parent {
  char ifp_name[16];
  char ifp_parent[16];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h"
 struct arphdr {
  u_int16_t ar_hrd;
-
-
-
-
  u_int16_t ar_pro;
  u_int8_t ar_hln;
  u_int8_t ar_pln;
  u_int16_t ar_op;
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h"
 };
-
-
-
-
 struct arpreq {
  struct sockaddr arp_pa;
  struct sockaddr arp_ha;
  int arp_flags;
 };
-# 456 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h" 2
-
-
 struct socket;
 struct ifnet;
 struct ifq_ops;
-
 void if_alloc_sadl(struct ifnet *);
 void if_free_sadl(struct ifnet *);
 void if_attach(struct ifnet *);
@@ -3246,59 +2173,33 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
-# 84 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h" 1
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h"
 struct ifnet;
-
 struct ifq_ops;
-
 struct ifqueue {
  struct ifnet *ifq_if;
  union {
   void *_ifq_softc;
-
-
-
-
-
-
   struct ifqueue *_ifq_ifqs[1];
  } _ifq_ptr;
-
-
-
-
  struct mutex ifq_mtx;
  const struct ifq_ops *ifq_ops;
  void *ifq_q;
  struct mbuf_list ifq_free;
  unsigned int ifq_len;
  unsigned int ifq_oactive;
-
-
  uint64_t ifq_packets;
  uint64_t ifq_bytes;
  uint64_t ifq_qdrops;
  uint64_t ifq_errors;
  uint64_t ifq_mcasts;
-
-
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
-
-
  struct task ifq_start;
  struct task ifq_restart;
-
-
  unsigned int ifq_maxlen;
  unsigned int ifq_idx;
 };
-# 360 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h"
 struct ifq_ops {
  unsigned int (*ifqop_idx)(unsigned int,
         const struct mbuf *);
@@ -3311,11 +2212,6 @@ struct ifq_ops {
  void *(*ifqop_alloc)(unsigned int, void *);
  void (*ifqop_free)(unsigned int, void *);
 };
-
-
-
-
-
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
@@ -3332,71 +2228,49 @@ void ifq_q_leave(struct ifqueue *, void *);
 void ifq_serialize(struct ifqueue *, struct task *);
 int ifq_is_serialized(struct ifqueue *);
 void ifq_barrier(struct ifqueue *);
-
-
-
-
-
 static inline void
 ifq_set_oactive(struct ifqueue *ifq)
 {
  ifq->ifq_oactive = 1;
 }
-
 static inline void
 ifq_clr_oactive(struct ifqueue *ifq)
 {
  ifq->ifq_oactive = 0;
 }
-
 static inline unsigned int
 ifq_is_oactive(struct ifqueue *ifq)
 {
  return (ifq->ifq_oactive);
 }
-
 static inline void
 ifq_start(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_start);
 }
-
 static inline void
 ifq_restart(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_restart);
 }
-
 static inline unsigned int
 ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
 {
  return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
 }
-
-
-
 extern const struct ifq_ops * const ifq_priq_ops;
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h" 2
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct rtentry;
 struct timeout;
 struct ifnet;
 struct task;
-
-
-
-
 struct if_clone {
  struct { struct if_clone *le_next; struct if_clone **le_prev; } ifc_list;
  const char *ifc_name;
  size_t ifc_namelen;
-
  int (*ifc_create)(struct if_clone *, int);
  int (*ifc_destroy)(struct ifnet *);
 };
-# 100 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct ifnet_head { struct ifnet *tqh_first; struct ifnet **tqh_last; };
-
 struct ifnet {
  void *if_softc;
  struct refcnt if_refcnt;
@@ -3407,7 +2281,6 @@ struct ifnet {
  struct hook_desc_head *if_addrhooks;
  struct hook_desc_head *if_linkstatehooks;
  struct hook_desc_head *if_detachhooks;
-
  void (*if_rtrequest)(struct ifnet *, int, struct rtentry *);
  char if_xname[16];
  int if_pcount;
@@ -3421,8 +2294,6 @@ struct ifnet {
   caddr_t carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
-
-
  unsigned int if_index;
  short if_timer;
  unsigned short if_flags;
@@ -3436,41 +2307,27 @@ struct ifnet {
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;
-
-
  struct mbuf_queue if_inputqueue;
  struct task *if_inputtask;
  struct srpl if_inputs;
-
-
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
-
-
  int (*if_ll_output)(struct ifnet *, struct mbuf *,
       struct sockaddr *, struct rtentry *);
-
  void (*if_start)(struct ifnet *);
-
  int (*if_ioctl)(struct ifnet *, u_long, caddr_t);
-
  void (*if_watchdog)(struct ifnet *);
  int (*if_wol)(struct ifnet *, int);
-
  struct ifqueue if_snd;
  struct ifqueue **if_ifqs;
  void (*if_qstart)(struct ifqueue *);
  unsigned int if_nifqs;
-
  struct sockaddr_dl *if_sadl;
-
  void *if_afdata[36];
 };
-# 200 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct ifaddr {
  struct sockaddr *ifa_addr;
  struct sockaddr *ifa_dstaddr;
-
  struct sockaddr *ifa_netmask;
  struct ifnet *ifa_ifp;
  struct { struct ifaddr *tqe_next; struct ifaddr **tqe_prev; } ifa_list;
@@ -3478,23 +2335,12 @@ struct ifaddr {
  u_int ifa_refcnt;
  int ifa_metric;
 };
-
-
-
-
-
-
 struct ifmaddr {
  struct sockaddr *ifma_addr;
  unsigned int ifma_ifidx;
  unsigned int ifma_refcnt;
  struct { struct ifmaddr *tqe_next; struct ifmaddr **tqe_prev; } ifma_list;
 };
-
-
-
-
-
 struct ifg_group {
  char ifg_group[16];
  u_int ifg_refcnt;
@@ -3503,32 +2349,23 @@ struct ifg_group {
  struct { struct ifg_member *tqh_first; struct ifg_member **tqh_last; } ifg_members;
  struct { struct ifg_group *tqe_next; struct ifg_group **tqe_prev; } ifg_next;
 };
-
 struct ifg_member {
  struct { struct ifg_member *tqe_next; struct ifg_member **tqe_prev; } ifgm_next;
  struct ifnet *ifgm_ifp;
 };
-
 struct ifg_list {
  struct ifg_group *ifgl_group;
  struct { struct ifg_list *tqe_next; struct ifg_list **tqe_prev; } ifgl_next;
 };
-# 280 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct niqueue {
  struct mbuf_queue ni_q;
  u_int ni_isr;
 };
-
-
-
-
 void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
-# 300 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 extern struct ifnet_head ifnet;
 extern struct taskq *softnettq;
-
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -3536,65 +2373,44 @@ void if_input(struct ifnet *, struct mbuf_list *);
 int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
 void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
 void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
-
 struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
 struct ifaddr *ifa_ifwithdstaddr(struct sockaddr *, u_int);
 struct ifaddr *ifaof_ifpforaddr(struct sockaddr *, struct ifnet *);
 void ifafree(struct ifaddr *);
-
 int if_isconnected(const struct ifnet *, unsigned int);
-
 void if_clone_attach(struct if_clone *);
 void if_clone_detach(struct if_clone *);
-
 int if_clone_create(const char *, int);
 int if_clone_destroy(const char *);
-
 struct if_clone *
  if_clone_lookup(const char *, int *);
-
 int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
      struct mbuf_queue *);
-
 void ifa_add(struct ifnet *, struct ifaddr *);
 void ifa_del(struct ifnet *, struct ifaddr *);
 void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
      struct sockaddr *);
-
 void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
-
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
-
-
-
-
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
 int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
      struct if_rxring *);
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h" 1
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h"
 struct rt_kmetrics {
  u_int64_t rmx_pksent;
  int64_t rmx_expire;
  u_int rmx_locks;
  u_int rmx_mtu;
 };
-
-
-
-
 struct rt_metrics {
  u_int64_t rmx_pksent;
  int64_t rmx_expire;
  u_int rmx_locks;
  u_int rmx_mtu;
  u_int rmx_refcnt;
-
  u_int rmx_hopcount;
  u_int rmx_recvpipe;
  u_int rmx_sendpipe;
@@ -3603,11 +2419,6 @@ struct rt_metrics {
  u_int rmx_rttvar;
  u_int rmx_pad;
 };
-# 84 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.h" 1
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/art.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/art.h"
 struct art_root {
  struct srp ar_root;
  struct rwlock ar_lock;
@@ -3617,16 +2428,7 @@ struct art_root {
  uint8_t ar_off;
  unsigned int ar_rtableid;
 };
-
-
-
-
-
 struct rtentry;
-
-
-
-
 struct art_node {
  union {
      struct srpl an__rtlist;
@@ -3634,9 +2436,6 @@ struct art_node {
  } an_pointer;
  uint8_t an_plen;
 };
-
-
-
 void art_init(void);
 struct art_root *art_alloc(unsigned int, unsigned int, unsigned int);
 struct art_node *art_insert(struct art_root *, struct art_node *, void *,
@@ -3648,26 +2447,15 @@ struct art_node *art_lookup(struct art_root *, void *, int,
        struct srp_ref *);
 int art_walk(struct art_root *,
        int (*)(struct art_node *, void *), void *);
-
 struct art_node *art_get(void *, uint8_t);
 void art_put(struct art_node *);
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.h" 2
-
-
-
-
-
-
-
 int rtable_satoplen(sa_family_t, struct sockaddr *);
-
 void rtable_init(void);
 int rtable_exists(unsigned int);
 int rtable_add(unsigned int);
 unsigned int rtable_l2(unsigned int);
 unsigned int rtable_loindex(unsigned int);
 void rtable_l2set(unsigned int, unsigned int, unsigned int);
-
 struct rtentry *rtable_lookup(unsigned int, struct sockaddr *,
        struct sockaddr *, struct sockaddr *, uint8_t);
 struct rtentry *rtable_match(unsigned int, struct sockaddr *, uint32_t *);
@@ -3679,44 +2467,31 @@ int rtable_delete(unsigned int, struct sockaddr *,
        struct sockaddr *, struct rtentry *);
 int rtable_walk(unsigned int, sa_family_t,
        int (*)(struct rtentry *, void *, unsigned int), void *);
-
 int rtable_mpath_capable(unsigned int, sa_family_t);
 struct rtentry *rtable_mpath_match(unsigned int, struct rtentry *,
        struct sockaddr *, uint8_t);
 int rtable_mpath_reprio(unsigned int, struct sockaddr *,
        struct sockaddr *, uint8_t, struct rtentry *);
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h" 2
-# 95 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h"
 struct rtentry {
-
-
-
  struct sockaddr *rt_dest;
  struct { struct srp se_next; } rt_next;
-
  struct sockaddr *rt_gateway;
  struct ifaddr *rt_ifa;
  caddr_t rt_llinfo;
-
  union {
   struct rtentry *_nh;
   unsigned int _ref;
  } RT_gw;
-
-
  struct rtentry *rt_parent;
  struct { struct rttimer *lh_first; } rt_timer;
  struct rt_kmetrics rt_rmx;
  unsigned int rt_ifidx;
  unsigned int rt_flags;
  int rt_refcnt;
-
  int rt_plen;
-
  uint16_t rt_labelid;
  uint8_t rt_priority;
 };
-# 182 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h"
 struct rtstat {
  u_int32_t rts_badredirect;
  u_int32_t rts_dynamic;
@@ -3724,18 +2499,10 @@ struct rtstat {
  u_int32_t rts_unreach;
  u_int32_t rts_wildcard;
 };
-
-
-
-
 struct rt_tableinfo {
  u_short rti_tableid;
  u_short rti_domainid;
 };
-
-
-
-
 struct rt_msghdr {
  u_short rtm_msglen;
  u_char rtm_version;
@@ -3754,48 +2521,31 @@ struct rt_msghdr {
  u_int rtm_inits;
  struct rt_metrics rtm_rmx;
 };
-# 306 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h"
 struct sockaddr_rtlabel {
  u_int8_t sr_len;
  sa_family_t sr_family;
  char sr_label[32];
 };
-
-
-
 struct sockaddr_rtdns {
  u_int8_t sr_len;
  sa_family_t sr_family;
  char sr_dns[128];
 };
-
-
-
 struct sockaddr_rtstatic {
  u_int8_t sr_len;
  sa_family_t sr_family;
  char sr_static[128];
 };
-
-
-
 struct sockaddr_rtsearch {
  u_int8_t sr_len;
  sa_family_t sr_family;
  char sr_search[128];
 };
-
-
-
-
-
-
 struct route {
  struct rtentry *ro_rt;
  u_long ro_tableid;
  struct sockaddr ro_dst;
 };
-
 struct rt_addrinfo {
  int rti_addrs;
  struct sockaddr *rti_info[15];
@@ -3804,226 +2554,156 @@ struct rt_addrinfo {
  struct rt_msghdr *rti_rtm;
  u_char rti_mpls;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/percpu.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/percpu.h"
 struct cpumem {
  void *mem;
 };
-
 struct cpumem_iter {
  unsigned int cpu;
 } ;
-
 struct counters_ref {
  uint64_t g;
  uint64_t *c;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int
 _atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
  __asm volatile("cas [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline unsigned long
 _atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline void *
 _atomic_cas_ptr(volatile void *p, void *e, void *n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*(volatile unsigned long *)p)
      : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
-
  return (n);
 }
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
 static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-
-
 static inline void *
 _atomic_swap_ptr(volatile void *p, void *v)
 {
  void *e, *r;
-
  r = *(void **)p;
  do {
   e = r;
   r = _atomic_cas_ptr((p), (e), (v));
  } while (r != e);
-
  return (r);
 }
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-# 129 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static __inline void
 atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e | v));
  } while (r != e);
 }
-
 static __inline void
 atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e & ~v));
  } while (r != e);
 }
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 2
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/percpu.h" 2
-
 struct pool;
-
 struct cpumem *cpumem_get(struct pool *);
 void cpumem_put(struct pool *, struct cpumem *);
-
 struct cpumem *cpumem_malloc(size_t, int);
 struct cpumem *cpumem_malloc_ncpus(struct cpumem *, size_t, int);
 void cpumem_free(struct cpumem *, int, size_t);
-
 void *cpumem_first(struct cpumem_iter *, struct cpumem *);
 void *cpumem_next(struct cpumem_iter *, struct cpumem *);
-
 static inline void *
 cpumem_enter(struct cpumem *cm)
 {
-
  return (cm[(__curcpu->ci_number)].mem);
-
-
-
 }
-
 static inline void
 cpumem_leave(struct cpumem *cm, void *mem)
 {
-
 }
-# 113 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/percpu.h"
 struct cpumem *counters_alloc(unsigned int);
 struct cpumem *counters_alloc_ncpus(struct cpumem *, unsigned int);
 void counters_free(struct cpumem *, unsigned int);
 void counters_read(struct cpumem *, uint64_t *, unsigned int);
 void counters_zero(struct cpumem *, unsigned int);
-
 static inline uint64_t *
 counters_enter(struct counters_ref *ref, struct cpumem *cm)
 {
  ref->c = cpumem_enter(cm);
-
  ref->g = ++(*ref->c);
  __asm volatile("membar " "#StoreStore" ::: "memory");
  return (ref->c + 1);
-
-
-
 }
-
 static inline void
 counters_leave(struct counters_ref *ref, struct cpumem *cm)
 {
-
  __asm volatile("membar " "#StoreStore" ::: "memory");
  (*ref->c) = ++ref->g;
-
  cpumem_leave(cm, ref->c);
 }
-
 static inline void
 counters_inc(struct cpumem *cm, unsigned int c)
 {
  struct counters_ref ref;
  uint64_t *counters;
-
  counters = counters_enter(&ref, cm);
  counters[c]++;
  counters_leave(&ref, cm);
 }
-
 static inline void
 counters_add(struct cpumem *cm, unsigned int c, uint64_t v)
 {
  struct counters_ref ref;
  uint64_t *counters;
-
  counters = counters_enter(&ref, cm);
  counters[c] += v;
  counters_leave(&ref, cm);
 }
-
 static inline void
 counters_pkt(struct cpumem *cm, unsigned int c, unsigned int b, uint64_t v)
 {
  struct counters_ref ref;
  uint64_t *counters;
-
  counters = counters_enter(&ref, cm);
  counters[c]++;
  counters[b] += v;
  counters_leave(&ref, cm);
 }
-# 359 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.h" 2
-
 enum rtstat_counters {
  rts_badredirect,
  rts_dynamic,
  rts_newgateway,
  rts_unreach,
  rts_wildcard,
-
  rts_ncounters
 };
-
 static inline void
 rtstat_inc(enum rtstat_counters c)
 {
  extern struct cpumem *rtcounters;
-
  counters_inc(rtcounters, c);
 }
-
-
-
-
-
-
 struct rttimer {
  struct { struct rttimer *tqe_next; struct rttimer **tqe_prev; } rtt_next;
  struct { struct rttimer *le_next; struct rttimer **le_prev; } rtt_link;
@@ -4034,32 +2714,22 @@ struct rttimer {
  time_t rtt_time;
  u_int rtt_tableid;
 };
-
 struct rttimer_queue {
  long rtq_timeout;
  unsigned long rtq_count;
  struct { struct rttimer *tqh_first; struct rttimer **tqh_last; } rtq_head;
  struct { struct rttimer_queue *le_next; struct rttimer_queue **le_prev; } rtq_link;
 };
-
 const char *rtlabel_id2name(u_int16_t);
 u_int16_t rtlabel_name2id(char *);
 struct sockaddr *rtlabel_id2sa(u_int16_t, struct sockaddr_rtlabel *);
 void rtlabel_unref(u_int16_t);
-
-
-
-
-
-
 extern struct rtstat rtstat;
-
 struct mbuf;
 struct socket;
 struct ifnet;
 struct sockaddr_in6;
 struct bfd_config;
-
 void route_init(void);
 void rtm_ifchg(struct ifnet *);
 void rtm_ifannounce(struct ifnet *, int);
@@ -4072,7 +2742,6 @@ void rtm_addr(struct rtentry *, int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
-
 int rt_timer_add(struct rtentry *,
                void(*)(struct rtentry *, struct rttimer *),
         struct rttimer_queue *, u_int);
@@ -4082,18 +2751,12 @@ void rt_timer_queue_change(struct rttimer_queue *, long);
 void rt_timer_queue_destroy(struct rttimer_queue *);
 unsigned long rt_timer_queue_count(struct rttimer_queue *);
 void rt_timer_timer(void *);
-
 int rtisvalid(struct rtentry *);
 int rt_hash(struct rtentry *, struct sockaddr *, uint32_t *);
-
-
-
 struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
-
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-
 int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
@@ -4105,22 +2768,14 @@ int rtrequest(int, struct rt_addrinfo *, u_int8_t, struct rtentry **,
       u_int);
 int rtrequest_delete(struct rt_addrinfo *, u_int8_t, struct ifnet *,
       struct rtentry **, u_int);
-
 void rt_if_track(struct ifnet *);
 int rt_if_linkstate_change(struct rtentry *, void *, u_int);
-
 int rtdeletemsg(struct rtentry *, struct ifnet *, u_int);
-# 86 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h" 1
-# 63 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 typedef __in_addr_t in_addr_t;
 typedef __in_port_t in_port_t;
-# 165 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct in_addr {
  in_addr_t s_addr;
 };
-# 256 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct sockaddr_in {
  u_int8_t sin_len;
  sa_family_t sin_family;
@@ -4128,23 +2783,14 @@ struct sockaddr_in {
  struct in_addr sin_addr;
  int8_t sin_zero[8];
 };
-# 271 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct ip_opts {
  struct in_addr ip_dst;
-
-
-
  int8_t ip_opts[40];
-
 };
-# 362 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct ip_mreq {
  struct in_addr imr_multiaddr;
  struct in_addr imr_interface;
 };
-# 788 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h" 1
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct in6_addr {
  union {
   u_int8_t __u6_addr8[16];
@@ -4152,7 +2798,6 @@ struct in6_addr {
   u_int32_t __u6_addr32[4];
  } __u6_addr;
 };
-# 106 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct sockaddr_in6 {
  u_int8_t sin6_len;
  sa_family_t sin6_family;
@@ -4161,65 +2806,40 @@ struct sockaddr_in6 {
  struct in6_addr sin6_addr;
  u_int32_t sin6_scope_id;
 };
-# 130 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 extern const struct sockaddr_in6 sa6_any;
-
 extern const struct in6_addr in6mask0;
 extern const struct in6_addr in6mask32;
 extern const struct in6_addr in6mask64;
 extern const struct in6_addr in6mask96;
 extern const struct in6_addr in6mask128;
-
-
-
 extern const struct in6_addr in6addr_any;
 extern const struct in6_addr in6addr_loopback;
 extern const struct in6_addr in6addr_intfacelocal_allnodes;
 extern const struct in6_addr in6addr_linklocal_allnodes;
 extern const struct in6_addr in6addr_linklocal_allrouters;
-
-
-
-
-
 struct route_in6 {
  struct rtentry *ro_rt;
  u_long ro_tableid;
  struct sockaddr_in6 ro_dst;
 };
-# 366 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct ipv6_mreq {
  struct in6_addr ipv6mr_multiaddr;
  unsigned int ipv6mr_interface;
 };
-
-
-
-
 struct in6_pktinfo {
  struct in6_addr ipi6_addr;
  unsigned int ipi6_ifindex;
 };
-
-
-
-
-
-
 struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-# 407 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 extern u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
-
 struct mbuf;
 struct ifnet;
 struct cmsghdr;
-
 void ipv6_input(struct ifnet *, struct mbuf *);
-
 int in6_cksum(struct mbuf *, u_int8_t, u_int32_t, u_int32_t);
 void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
@@ -4227,58 +2847,42 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
-
 struct inpcb;
-
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
 void in6_recoverscope(struct sockaddr_in6 *, const struct in6_addr *);
 void in6_clearscope(struct in6_addr *);
-
 struct sockaddr;
 struct sockaddr_in6;
 struct ifaddr;
 struct in6_ifaddr;
-
-
-
-
-
-
-
 static inline struct sockaddr_in6 *
 satosin6(struct sockaddr *sa)
 {
  return ((struct sockaddr_in6 *)(sa));
 }
-
 static inline struct sockaddr *
 sin6tosa(struct sockaddr_in6 *sin6)
 {
  return ((struct sockaddr *)(sin6));
 }
-
 static inline struct in6_ifaddr *
 ifatoia6(struct ifaddr *ifa)
 {
  return ((struct in6_ifaddr *)(ifa));
 }
-# 712 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 
 struct cmsghdr;
-
 extern int inet6_opt_init(void *, socklen_t);
 extern int inet6_opt_append(void *, socklen_t, int, u_int8_t,
   socklen_t, u_int8_t, void **);
 extern int inet6_opt_finish(void *, socklen_t, int);
 extern int inet6_opt_set_val(void *, int, void *, socklen_t);
-
 extern int inet6_opt_next(void *, socklen_t, int, u_int8_t *,
   socklen_t *, void **);
 extern int inet6_opt_find(void *, socklen_t, int, u_int8_t,
   socklen_t *, void **);
 extern int inet6_opt_get_val(void *, int, void *, socklen_t);
-
 extern socklen_t inet6_rth_space(int, int);
 extern void *inet6_rth_init(void *, socklen_t, int, int);
 extern int inet6_rth_add(void *, const struct in6_addr *);
@@ -4286,19 +2890,14 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-# 789 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h" 2
-# 802 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 extern int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
-
 struct mbuf;
 struct sockaddr;
 struct sockaddr_in;
 struct ifaddr;
 struct in_ifaddr;
-
 void ipv4_input(struct ifnet *, struct mbuf *);
-
 int in_broadcast(struct in_addr, u_int);
 int in_canforward(struct in_addr);
 int in_cksum(struct mbuf *, int);
@@ -4307,69 +2906,44 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
-
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
-
 const char *inet_ntop(int, const void *, char *, socklen_t);
 const char *sockaddr_ntop(struct sockaddr *, char *, size_t);
-# 838 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 static inline struct sockaddr_in *
 satosin(struct sockaddr *sa)
 {
  return ((struct sockaddr_in *)(sa));
 }
-
 static inline struct sockaddr *
 sintosa(struct sockaddr_in *sin)
 {
  return ((struct sockaddr *)(sin));
 }
-
 static inline struct in_ifaddr *
 ifatoia(struct ifaddr *ifa)
 {
  return ((struct in_ifaddr *)(ifa));
 }
-# 88 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ip {
-
-
-
-
-
  u_int ip_v:4,
     ip_hl:4;
-
  u_int8_t ip_tos;
  u_int16_t ip_len;
  u_int16_t ip_id;
  u_int16_t ip_off;
-
-
-
-
  u_int8_t ip_ttl;
  u_int8_t ip_p;
  u_int16_t ip_sum;
  struct in_addr ip_src, ip_dst;
 };
-# 166 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ip_timestamp {
  u_int8_t ipt_code;
  u_int8_t ipt_len;
  u_int8_t ipt_ptr;
-
-
-
-
-
  u_int ipt_oflw:4,
    ipt_flg:4;
-
  union ipt_timestamp {
    u_int32_t ipt_time[1];
    struct ipt_ta {
@@ -4378,7 +2952,6 @@ struct ip_timestamp {
    } ipt_ta[1];
  } ipt_timestamp;
 };
-# 217 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ippseudo {
  struct in_addr ippseudo_src;
  struct in_addr ippseudo_dst;
@@ -4386,11 +2959,6 @@ struct ippseudo {
  u_int8_t ippseudo_p;
  u_int16_t ippseudo_len;
 };
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 1
-# 68 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip6.h" 1
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip6.h"
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -4404,7 +2972,6 @@ struct ip6_hdr {
  struct in6_addr ip6_src;
  struct in6_addr ip6_dst;
 } __attribute__((__packed__));
-# 116 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip6.h"
 struct ip6_hdr_pseudo {
  struct in6_addr ip6ph_src;
  struct in6_addr ip6ph_dst;
@@ -4412,78 +2979,49 @@ struct ip6_hdr_pseudo {
  u_int8_t ip6ph_zero[3];
  u_int8_t ip6ph_nxt;
 } __attribute__((__packed__));
-
-
-
-
-
 struct ip6_ext {
  u_int8_t ip6e_nxt;
  u_int8_t ip6e_len;
 } __attribute__((__packed__));
-
-
-
 struct ip6_hbh {
  u_int8_t ip6h_nxt;
  u_int8_t ip6h_len;
-
 } __attribute__((__packed__));
-
-
-
 struct ip6_dest {
  u_int8_t ip6d_nxt;
  u_int8_t ip6d_len;
-
 } __attribute__((__packed__));
-# 172 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip6.h"
 struct ip6_opt {
  u_int8_t ip6o_type;
  u_int8_t ip6o_len;
 } __attribute__((__packed__));
-
-
 struct ip6_opt_jumbo {
  u_int8_t ip6oj_type;
  u_int8_t ip6oj_len;
  u_int8_t ip6oj_jumbo_len[4];
 } __attribute__((__packed__));
-
-
-
 struct ip6_opt_nsap {
  u_int8_t ip6on_type;
  u_int8_t ip6on_len;
  u_int8_t ip6on_src_nsap_len;
  u_int8_t ip6on_dst_nsap_len;
-
-
 } __attribute__((__packed__));
-
-
 struct ip6_opt_tunnel {
  u_int8_t ip6ot_type;
  u_int8_t ip6ot_len;
  u_int8_t ip6ot_encap_limit;
 } __attribute__((__packed__));
-
-
 struct ip6_opt_router {
  u_int8_t ip6or_type;
  u_int8_t ip6or_len;
  u_int8_t ip6or_value[2];
 } __attribute__((__packed__));
-# 222 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip6.h"
 struct ip6_rthdr {
  u_int8_t ip6r_nxt;
  u_int8_t ip6r_len;
  u_int8_t ip6r_type;
  u_int8_t ip6r_segleft;
-
 } __attribute__((__packed__));
-
-
 struct ip6_rthdr0 {
  u_int8_t ip6r0_nxt;
  u_int8_t ip6r0_len;
@@ -4491,17 +3029,12 @@ struct ip6_rthdr0 {
  u_int8_t ip6r0_segleft;
  u_int32_t ip6r0_reserved;
 } __attribute__((__packed__));
-
-
 struct ip6_frag {
  u_int8_t ip6f_nxt;
  u_int8_t ip6f_reserved;
  u_int16_t ip6f_offlg;
  u_int32_t ip6f_ident;
 } __attribute__((__packed__));
-# 69 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_var.h" 1
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_var.h"
 struct ip6q {
  struct { struct ip6q *tqe_next; struct ip6q **tqe_prev; } ip6q_queue;
  struct ip6asfrag_list { struct ip6asfrag *lh_first; } ip6q_asfrag;
@@ -4512,7 +3045,6 @@ struct ip6q {
  u_int8_t ip6q_nxt;
  u_int8_t ip6q_ttl;
 };
-
 struct ip6asfrag {
  struct { struct ip6asfrag *le_next; struct ip6asfrag **le_prev; } ip6af_list;
  struct mbuf *ip6af_m;
@@ -4522,60 +3054,27 @@ struct ip6asfrag {
  u_int32_t ip6af_flow;
  u_int16_t ip6af_mff;
 };
-
-
-
 struct ip6_moptions {
  struct { struct in6_multi_mship *lh_first; } im6o_memberships;
  unsigned short im6o_ifidx;
  u_char im6o_hlim;
  u_char im6o_loop;
 };
-
-
-
-
-
-
 struct ip6po_rhinfo {
  struct ip6_rthdr *ip6po_rhi_rthdr;
  struct route_in6 ip6po_rhi_route;
 };
-
-
-
 struct ip6_pktopts {
-
  int ip6po_hlim;
-
-
  struct in6_pktinfo *ip6po_pktinfo;
-
-
  struct ip6_hbh *ip6po_hbh;
-
-
  struct ip6_dest *ip6po_dest1;
-
-
  struct ip6po_rhinfo ip6po_rhinfo;
-
-
  struct ip6_dest *ip6po_dest2;
-
-
  int ip6po_tclass;
-
-
  int ip6po_minmtu;
-
-
-
-
  int ip6po_flags;
-
 };
-
 struct ip6stat {
  u_int64_t ip6s_total;
  u_int64_t ip6s_tooshort;
@@ -4607,39 +3106,15 @@ struct ip6stat {
  u_int64_t ip6s_mext2m;
  u_int64_t ip6s_nogif;
  u_int64_t ip6s_toomanyhdr;
-
-
-
-
-
-
-
  u_int64_t ip6s_sources_none;
-
  u_int64_t ip6s_sources_sameif[16];
-
  u_int64_t ip6s_sources_otherif[16];
-
-
-
-
  u_int64_t ip6s_sources_samescope[16];
-
-
-
-
  u_int64_t ip6s_sources_otherscope[16];
-
  u_int64_t ip6s_sources_deprecated[16];
-
  u_int64_t ip6s_forward_cachehit;
  u_int64_t ip6s_forward_cachemiss;
 };
-
-
-
-
-
 enum ip6stat_counters {
  ip6s_total,
  ip6s_tooshort,
@@ -4681,29 +3156,19 @@ enum ip6stat_counters {
  ip6s_forward_cachemiss,
  ip6s_ncounters,
 };
-
 extern struct cpumem *ip6counters;
-
 static inline void
 ip6stat_inc(enum ip6stat_counters c)
 {
  counters_inc(ip6counters, c);
 }
-
 static inline void
 ip6stat_add(enum ip6stat_counters c, uint64_t v)
 {
  counters_add(ip6counters, c, v);
 }
-
-
-
-
-
-
 extern int ip6_mtudisc_timeout;
 extern struct rttimer_queue *icmp6_mtudisc_timeout_q;
-
 extern int ip6_defhlim;
 extern int ip6_defmcasthlim;
 extern int ip6_forwarding;
@@ -4714,7 +3179,6 @@ extern int ip6_use_deprecated;
 extern int ip6_mcast_pmtu;
 extern int ip6_neighborgcthresh;
 extern int ip6_maxdynroutes;
-
 extern struct socket *ip6_mrouter[255];
 extern int ip6_sendredirects;
 extern int ip6_maxfragpackets;
@@ -4724,15 +3188,11 @@ extern time_t ip6_log_time;
 extern int ip6_hdrnestlimit;
 extern int ip6_dad_count;
 extern int ip6_dad_pending;
-
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
-
 struct in6pcb;
 struct inpcb;
-
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
-
 void ip6_init(void);
 void ip6intr(void);
 int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
@@ -4747,9 +3207,7 @@ int ip6_process_hopopts(struct mbuf *, u_int8_t *, int, u_int32_t *,
       u_int32_t *);
 void ip6_savecontrol(struct inpcb *, struct mbuf *, struct mbuf **);
 int ip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-
 void ip6_forward(struct mbuf *, struct rtentry *, int);
-
 void ip6_mloopback(struct ifnet *, struct mbuf *, struct sockaddr_in6 *);
 int ip6_output(struct mbuf *, struct ip6_pktopts *, struct route_in6 *, int,
      struct ip6_moptions *, struct inpcb *);
@@ -4763,15 +3221,12 @@ void ip6_clearpktopts(struct ip6_pktopts *, int);
 void ip6_randomid_init(void);
 u_int32_t ip6_randomid(void);
 void ip6_send(struct mbuf *);
-
 int route6_input(struct mbuf **, int *, int, int);
-
 void frag6_init(void);
 int frag6_input(struct mbuf **, int *, int, int);
 int frag6_deletefraghdr(struct mbuf *, int);
 void frag6_slowtimo(void);
 void frag6_drain(void);
-
 void rip6_init(void);
 int rip6_input(struct mbuf **, int *, int, int);
 void rip6_ctlinput(int, struct sockaddr *, u_int, void *);
@@ -4782,27 +3237,19 @@ int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
-
 int in6_pcbselsrc(struct in6_addr **, struct sockaddr_in6 *,
      struct inpcb *, struct ip6_pktopts *);
 int in6_selectsrc(struct in6_addr **, struct sockaddr_in6 *,
      struct ip6_moptions *, unsigned int);
 struct rtentry *in6_selectroute(struct sockaddr_in6 *, struct ip6_pktopts *,
      struct route_in6 *, unsigned int rtableid);
-
 u_int32_t ip6_randomflowlabel(void);
-
-
 struct tdb;
 struct tdb *
  ip6_output_ipsec_lookup(struct mbuf *, int *, struct inpcb *);
 int ip6_output_ipsec_send(struct tdb *, struct mbuf *, int, int);
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h" 1
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct icmp6_hdr {
  u_int8_t icmp6_type;
  u_int8_t icmp6_code;
@@ -4813,64 +3260,35 @@ struct icmp6_hdr {
   u_int8_t icmp6_un_data8[4];
  } icmp6_dataun;
 } __attribute__((__packed__));
-# 163 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct mld_hdr {
  struct icmp6_hdr mld_icmp6_hdr;
  struct in6_addr mld_addr;
 } __attribute__((__packed__));
-# 179 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct nd_router_solicit {
  struct icmp6_hdr nd_rs_hdr;
-
 } __attribute__((__packed__));
-
-
-
-
-
-
 struct nd_router_advert {
  struct icmp6_hdr nd_ra_hdr;
  u_int32_t nd_ra_reachable;
  u_int32_t nd_ra_retransmit;
-
 } __attribute__((__packed__));
-# 213 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct nd_neighbor_solicit {
  struct icmp6_hdr nd_ns_hdr;
  struct in6_addr nd_ns_target;
-
 } __attribute__((__packed__));
-
-
-
-
-
-
 struct nd_neighbor_advert {
  struct icmp6_hdr nd_na_hdr;
  struct in6_addr nd_na_target;
-
 } __attribute__((__packed__));
-# 238 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct nd_redirect {
  struct icmp6_hdr nd_rd_hdr;
  struct in6_addr nd_rd_target;
  struct in6_addr nd_rd_dst;
-
 } __attribute__((__packed__));
-
-
-
-
-
-
 struct nd_opt_hdr {
  u_int8_t nd_opt_type;
  u_int8_t nd_opt_len;
-
 } __attribute__((__packed__));
-# 265 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct nd_opt_prefix_info {
  u_int8_t nd_opt_pi_type;
  u_int8_t nd_opt_pi_len;
@@ -4881,25 +3299,18 @@ struct nd_opt_prefix_info {
  u_int32_t nd_opt_pi_reserved2;
  struct in6_addr nd_opt_pi_prefix;
 } __attribute__((__packed__));
-
-
-
-
 struct nd_opt_rd_hdr {
  u_int8_t nd_opt_rh_type;
  u_int8_t nd_opt_rh_len;
  u_int16_t nd_opt_rh_reserved1;
  u_int32_t nd_opt_rh_reserved2;
-
 } __attribute__((__packed__));
-
 struct nd_opt_mtu {
  u_int8_t nd_opt_mtu_type;
  u_int8_t nd_opt_mtu_len;
  u_int16_t nd_opt_mtu_reserved;
  u_int32_t nd_opt_mtu_mtu;
 } __attribute__((__packed__));
-
 struct nd_opt_route_info {
  u_int8_t nd_opt_rti_type;
  u_int8_t nd_opt_rti_len;
@@ -4907,55 +3318,32 @@ struct nd_opt_route_info {
  u_int8_t nd_opt_rti_flags;
  u_int32_t nd_opt_rti_lifetime;
 } __attribute__((__packed__));
-
 struct nd_opt_rdnss {
  u_int8_t nd_opt_rdnss_type;
  u_int8_t nd_opt_rdnss_len;
  u_int16_t nd_opt_rdnss_reserved;
  u_int32_t nd_opt_rdnss_lifetime;
-
 } __attribute__((__packed__));
-
 struct nd_opt_dnssl {
  u_int8_t nd_opt_dnssl_type;
  u_int8_t nd_opt_dnssl_len;
  u_int16_t nd_opt_dnssl_reserved;
  u_int32_t nd_opt_dnssl_lifetime;
-
 } __attribute__((__packed__));
-
-
-
-
 struct icmp6_namelookup {
  struct icmp6_hdr icmp6_nl_hdr;
  u_int8_t icmp6_nl_nonce[8];
  int32_t icmp6_nl_ttl;
-
-
-
-
-
 } __attribute__((__packed__));
-
-
-
-
 struct icmp6_nodeinfo {
  struct icmp6_hdr icmp6_ni_hdr;
  u_int8_t icmp6_ni_nonce[8];
-
 } __attribute__((__packed__));
-# 365 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct ni_reply_fqdn {
  u_int32_t ni_fqdn_ttl;
  u_int8_t ni_fqdn_namelen;
  u_int8_t ni_fqdn_name[3];
 } __attribute__((__packed__));
-
-
-
-
 struct icmp6_router_renum {
  struct icmp6_hdr rr_hdr;
  u_int8_t rr_segnum;
@@ -4963,7 +3351,6 @@ struct icmp6_router_renum {
  u_int16_t rr_maxdelay;
  u_int32_t rr_reserved;
 } __attribute__((__packed__));
-# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct rr_pco_match {
  u_int8_t rpm_code;
  u_int8_t rpm_len;
@@ -4974,12 +3361,6 @@ struct rr_pco_match {
  u_int16_t rpm_reserved;
  struct in6_addr rpm_prefix;
 } __attribute__((__packed__));
-
-
-
-
-
-
 struct rr_pco_use {
  u_int8_t rpu_uselen;
  u_int8_t rpu_keeplen;
@@ -4990,12 +3371,6 @@ struct rr_pco_use {
  u_int32_t rpu_flags;
  struct in6_addr rpu_prefix;
 } __attribute__((__packed__));
-
-
-
-
-
-
 struct rr_result {
  u_int16_t rrr_flags;
  u_int8_t rrr_ordinal;
@@ -5003,32 +3378,18 @@ struct rr_result {
  u_int32_t rrr_ifid;
  struct in6_addr rrr_prefix;
 } __attribute__((__packed__));
-
-
-
-
-
-
-
 struct icmp6_filter {
  u_int32_t icmp6_filt[8];
 };
-# 460 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 struct icmp6stat {
-
  u_int64_t icp6s_error;
  u_int64_t icp6s_canterror;
  u_int64_t icp6s_toofreq;
  u_int64_t icp6s_outhist[256];
-
  u_int64_t icp6s_badcode;
  u_int64_t icp6s_tooshort;
  u_int64_t icp6s_checksum;
  u_int64_t icp6s_badlen;
-
-
-
-
  u_int64_t icp6s_reflect;
  u_int64_t icp6s_inhist[256];
  u_int64_t icp6s_nd_toomanyopt;
@@ -5053,7 +3414,6 @@ struct icmp6stat {
  u_int64_t icp6s_badra;
  u_int64_t icp6s_badredirect;
 };
-# 568 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/icmp6.h"
 enum icmp6stat_counters {
  icp6s_error,
  icp6s_canterror,
@@ -5088,19 +3448,15 @@ enum icmp6stat_counters {
  icp6s_badredirect,
  icp6s_ncounters,
 };
-
 extern struct cpumem *icmp6counters;
-
 static inline void
 icmp6stat_inc(enum icmp6stat_counters c)
 {
  counters_inc(icmp6counters, c);
 }
-
 struct rtentry;
 struct rttimer;
 struct in6_multi;
-
 void icmp6_init(void);
 void icmp6_paramerror(struct mbuf *, int);
 void icmp6_error(struct mbuf *, int, int, int);
@@ -5111,28 +3467,17 @@ void icmp6_prepare(struct mbuf *);
 void icmp6_redirect_input(struct mbuf *, int);
 void icmp6_redirect_output(struct mbuf *, struct rtentry *);
 int icmp6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-
 struct ip6ctlparam;
 void icmp6_mtudisc_update(struct ip6ctlparam *, int);
 void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
-
 extern int icmp6_redirtimeout;
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
 struct m_tag;
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/radix.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/radix.h"
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
  short rn_b;
  char rn_bmask;
  u_char rn_flags;
-
-
-
  union {
   struct {
    caddr_t rn_Key;
@@ -5146,7 +3491,6 @@ struct radix_node {
   } rn_node;
  } rn_u;
 };
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/radix.h"
 struct radix_mask {
  short rm_b;
  char rm_unused;
@@ -5158,10 +3502,6 @@ struct radix_mask {
  } rm_rmu;
  int rm_refs;
 };
-
-
-
-
 struct radix_node_head {
  struct radix_node *rnh_treetop;
  int rnh_addrsize;
@@ -5169,27 +3509,21 @@ struct radix_node_head {
  struct radix_node rnh_nodes[3];
  u_int rnh_rtableid;
 };
-
 void rn_init(unsigned int);
 int rn_inithead(void **, int);
-
 int rn_walktree(struct radix_node_head *,
      int (*)(struct radix_node *, void *, u_int), void *);
-
 struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
        struct radix_node [2], u_int8_t);
 struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
        struct radix_node *);
 struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
 struct radix_node *rn_match(void *, struct radix_node_head *);
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h" 2
-
 union sockaddr_union {
  struct sockaddr sa;
  struct sockaddr_in sin;
  struct sockaddr_in6 sin6;
 };
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
 struct sockaddr_encap {
  u_int8_t sen_len;
  u_int8_t sen_family;
@@ -5203,7 +3537,6 @@ struct sockaddr_encap {
    u_int16_t Sport;
    u_int16_t Dport;
   } Sip4;
-
   struct {
    u_int8_t Direction;
    struct in6_addr Src;
@@ -5212,16 +3545,13 @@ struct sockaddr_encap {
    u_int16_t Sport;
    u_int16_t Dport;
   } Sip6;
-
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
-# 163 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
 struct ipsec_id {
  u_int16_t type;
  int16_t len;
 };
-
 struct ipsec_ids {
  struct rb_entry id_node_id;
  struct rb_entry id_node_flow;
@@ -5233,7 +3563,6 @@ struct ipsec_ids {
 };
 struct ipsec_ids_flows { struct rb_tree rbh_root; };
 struct ipsec_ids_tree { struct rb_tree rbh_root; };
-
 struct ipsec_acquire {
  union sockaddr_union ipa_addr;
  u_int32_t ipa_seq;
@@ -5245,77 +3574,55 @@ struct ipsec_acquire {
  struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_ipo_next;
  struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_next;
 };
-
 struct ipsec_policy {
  struct radix_node ipo_nodes[2];
  struct sockaddr_encap ipo_addr;
  struct sockaddr_encap ipo_mask;
-
  union sockaddr_union ipo_src;
  union sockaddr_union ipo_dst;
-# 209 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
  u_int64_t ipo_last_searched;
-
  u_int8_t ipo_flags;
  u_int8_t ipo_type;
  u_int8_t ipo_sproto;
  u_int ipo_rdomain;
-
  int ipo_ref_count;
-
  struct tdb *ipo_tdb;
-
  struct ipsec_ids *ipo_ids;
-
  struct ipo_acquires_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipo_acquires;
  struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_tdb_next;
  struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_list;
 };
-# 243 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
 struct tdb {
-# 252 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
  struct tdb *tdb_hnext;
  struct tdb *tdb_dnext;
  struct tdb *tdb_snext;
  struct tdb *tdb_inext;
  struct tdb *tdb_onext;
-
  struct xformsw *tdb_xform;
  struct enc_xform *tdb_encalgxform;
  struct auth_hash *tdb_authalgxform;
  struct comp_algo *tdb_compalgxform;
-# 281 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
  u_int32_t tdb_flags;
-
  struct timeout tdb_timer_tmo;
  struct timeout tdb_first_tmo;
  struct timeout tdb_stimer_tmo;
  struct timeout tdb_sfirst_tmo;
-
  u_int32_t tdb_seq;
  u_int32_t tdb_exp_allocations;
  u_int32_t tdb_soft_allocations;
  u_int32_t tdb_cur_allocations;
-
  u_int64_t tdb_exp_bytes;
  u_int64_t tdb_soft_bytes;
  u_int64_t tdb_cur_bytes;
-
  u_int64_t tdb_exp_timeout;
  u_int64_t tdb_soft_timeout;
  u_int64_t tdb_established;
-
  u_int64_t tdb_first_use;
  u_int64_t tdb_soft_first_use;
  u_int64_t tdb_exp_first_use;
-
-
-
  u_int64_t tdb_last_used;
  u_int64_t tdb_last_marked;
-
  u_int64_t tdb_cryptoid;
-
  u_int32_t tdb_spi;
  u_int16_t tdb_amxkeylen;
  u_int16_t tdb_emxkeylen;
@@ -5324,50 +3631,32 @@ struct tdb {
  u_int8_t tdb_wnd;
  u_int8_t tdb_satype;
  u_int8_t tdb_updates;
-
  union sockaddr_union tdb_dst;
  union sockaddr_union tdb_src;
-
  u_int8_t *tdb_amxkey;
  u_int8_t *tdb_emxkey;
-
-
-
-
  u_int64_t tdb_rpl;
  u_int32_t tdb_seen[((((2100+32)) + ((32) - 1)) / (32))];
-
  u_int8_t tdb_iv[4];
-
  struct ipsec_ids *tdb_ids;
  int tdb_ids_swapped;
-
  u_int32_t tdb_mtu;
  u_int64_t tdb_mtutimeout;
-
  u_int16_t tdb_udpencap_port;
-
  u_int16_t tdb_tag;
  u_int32_t tdb_tap;
-
  u_int tdb_rdomain;
-
  struct sockaddr_encap tdb_filter;
  struct sockaddr_encap tdb_filtermask;
-
  struct tdb_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } tdb_policy_head;
  struct { struct tdb *tqe_next; struct tdb **tqe_prev; } tdb_sync_entry;
 };
-
-
-
 struct tdb_ident {
  u_int32_t spi;
  union sockaddr_union dst;
  u_int8_t proto;
  u_int rdomain;
 };
-
 struct tdb_crypto {
  u_int32_t tc_spi;
  union sockaddr_union tc_dst;
@@ -5376,7 +3665,6 @@ struct tdb_crypto {
  int tc_skip;
  u_int tc_rdomain;
 };
-
 struct ipsecinit {
  u_int8_t *ii_enckey;
  u_int8_t *ii_authkey;
@@ -5386,7 +3674,6 @@ struct ipsecinit {
  u_int8_t ii_authalg;
  u_int8_t ii_compalg;
 };
-# 399 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.h"
 struct xformsw {
  u_short xf_type;
  u_short xf_flags;
@@ -5398,11 +3685,9 @@ struct xformsw {
  int (*xf_output)(struct mbuf *, struct tdb *, struct mbuf **,
      int, int);
 };
-
 extern int ipsec_in_use;
 extern u_int64_t ipsec_last_added;
 extern int ipsec_policy_pool_initialized;
-
 extern int ipsec_keep_invalid;
 extern int ipsec_require_pfs;
 extern int ipsec_expire_acquire;
@@ -5414,35 +3699,21 @@ extern int ipsec_soft_timeout;
 extern int ipsec_exp_timeout;
 extern int ipsec_soft_first_use;
 extern int ipsec_exp_first_use;
-
 extern char ipsec_def_enc[];
 extern char ipsec_def_auth[];
 extern char ipsec_def_comp[];
-
 extern struct enc_xform enc_xform_des;
 extern struct enc_xform enc_xform_3des;
 extern struct enc_xform enc_xform_blf;
 extern struct enc_xform enc_xform_cast5;
-
 extern struct auth_hash auth_hash_hmac_md5_96;
 extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
-
 extern struct comp_algo comp_algo_deflate;
-
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
 extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
-
-
-
-
-
-
-
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
-
-
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
   union sockaddr_union *, u_int8_t, int *);
 struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
@@ -5461,45 +3732,29 @@ void tdb_free(struct tdb *);
 int tdb_init(struct tdb *, u_int16_t, struct ipsecinit *);
 void tdb_unlink(struct tdb *);
 int tdb_walk(u_int, int (*)(struct tdb *, void *, int), void *);
-
-
 int ipe4_attach(void);
 int ipe4_init(struct tdb *, struct xformsw *, struct ipsecinit *);
 int ipe4_zeroize(struct tdb *);
 int ipe4_input(struct mbuf *, struct tdb *, int, int);
-
-
 int ah_attach(void);
 int ah_init(struct tdb *, struct xformsw *, struct ipsecinit *);
 int ah_zeroize(struct tdb *);
 int ah_input(struct mbuf *, struct tdb *, int, int);
 int ah_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
 int ah_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-
 int ah4_input(struct mbuf **, int *, int, int);
 void ah4_ctlinput(int, struct sockaddr *, u_int, void *);
 void udpencap_ctlinput(int, struct sockaddr *, u_int, void *);
-
-
 int ah6_input(struct mbuf **, int *, int, int);
-
-
-
 int esp_attach(void);
 int esp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
 int esp_zeroize(struct tdb *);
 int esp_input(struct mbuf *, struct tdb *, int, int);
 int esp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
 int esp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-
 int esp4_input(struct mbuf **, int *, int, int);
 void esp4_ctlinput(int, struct sockaddr *, u_int, void *);
-
-
 int esp6_input(struct mbuf **, int *, int, int);
-
-
-
 int ipcomp_attach(void);
 int ipcomp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
 int ipcomp_zeroize(struct tdb *);
@@ -5507,11 +3762,7 @@ int ipcomp_input(struct mbuf *, struct tdb *, int, int);
 int ipcomp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
 int ipcomp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int ipcomp4_input(struct mbuf **, int *, int, int);
-
 int ipcomp6_input(struct mbuf **, int *, int, int);
-
-
-
 int tcp_signature_tdb_attach(void);
 int tcp_signature_tdb_init(struct tdb *, struct xformsw *,
      struct ipsecinit *);
@@ -5519,11 +3770,7 @@ int tcp_signature_tdb_zeroize(struct tdb *);
 int tcp_signature_tdb_input(struct mbuf *, struct tdb *, int, int);
 int tcp_signature_tdb_output(struct mbuf *, struct tdb *, struct mbuf **,
    int, int);
-
-
 int checkreplaywindow(struct tdb *, u_int32_t, u_int32_t *, int);
-
-
 int ipsp_process_packet(struct mbuf *, struct tdb *, int, int);
 int ipsp_process_done(struct mbuf *, struct tdb *);
 struct tdb *ipsp_spd_lookup(struct mbuf *, int, int, int *, int,
@@ -5537,7 +3784,6 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
-
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -5546,21 +3792,15 @@ void ipsec_adjust_mtu(struct mbuf *, u_int32_t);
 struct ipsec_acquire *ipsec_get_acquire(u_int32_t);
 int ipsec_forward_check(struct mbuf *, int, int);
 int ipsec_local_check(struct mbuf *, int, int, int);
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/siphash.h" 1
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/siphash.h"
 typedef struct _SIPHASH_CTX {
  uint64_t v[4];
  uint8_t buf[8];
  uint32_t bytes;
 } SIPHASH_CTX;
-
 typedef struct {
  uint64_t k0;
  uint64_t k1;
 } SIPHASH_KEY;
-
 void SipHash_Init(SIPHASH_CTX *, const SIPHASH_KEY *);
 void SipHash_Update(SIPHASH_CTX *, int, int, const void *, size_t)
       __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
@@ -5569,10 +3809,7 @@ void SipHash_Final(void *, SIPHASH_CTX *, int, int)
       __attribute__ ((__bounded__ (__minbytes__, 1, 8) ));
 uint64_t SipHash(const SIPHASH_KEY *, int, int, const void *, size_t)
       __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h" 2
-
 struct pf_state_key;
-
 union inpaddru {
  struct in6_addr iau_addr6;
  struct {
@@ -5580,7 +3817,6 @@ union inpaddru {
   struct in_addr inaddr;
  } iau_a4u;
 };
-# 92 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h"
 struct inpcb {
  struct { struct inpcb *le_next; struct inpcb **le_prev; } inp_hash;
  struct { struct inpcb *le_next; struct inpcb **le_prev; } inp_lhash;
@@ -5588,10 +3824,6 @@ struct inpcb {
  struct inpcbtable *inp_table;
  union inpaddru inp_faddru;
  union inpaddru inp_laddru;
-
-
-
-
  u_int16_t inp_fport;
  u_int16_t inp_lport;
  struct socket *inp_socket;
@@ -5600,15 +3832,11 @@ struct inpcb {
   struct route ru_route;
   struct route_in6 ru_route6;
  } inp_ru;
-
-
  int inp_flags;
  union {
   struct ip hu_ip;
   struct ip6_hdr hu_ipv6;
  } inp_hu;
-
-
  struct mbuf *inp_options;
  struct ip6_pktopts *inp_outputopts6;
  int inp_hops;
@@ -5616,30 +3844,16 @@ struct inpcb {
   struct ip_moptions *mou_mo;
   struct ip6_moptions *mou_mo6;
  } inp_mou;
-
-
  u_char inp_seclevel[4];
-
-
-
-
  u_char inp_ip_minttl;
-
-
-
  int inp_cksum6;
-
-
-
  struct icmp6_filter *inp_icmp6filt;
  struct pf_state_key *inp_pf_sk;
  u_int inp_rtableid;
  int inp_pipex;
  int inp_divertfl;
 };
-
 struct inpcbhead { struct inpcb *lh_first; };
-
 struct inpcbtable {
  struct inpthead { struct inpcb *tqh_first; struct inpcb **tqh_last; } inpt_queue;
  struct inpcbhead *inpt_hashtbl, *inpt_lhashtbl;
@@ -5647,19 +3861,12 @@ struct inpcbtable {
  u_long inpt_hash, inpt_lhash;
  int inpt_count;
 };
-# 243 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.h"
 struct baddynamicports {
  u_int32_t tcp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];
  u_int32_t udp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];
 };
-
-
-
 extern struct baddynamicports baddynamicports;
 extern struct baddynamicports rootonlyports;
-
-
-
 void in_losing(struct inpcb *);
 int in_pcballoc(struct socket *, struct inpcbtable *);
 int in_pcbbind(struct inpcb *, struct mbuf *, struct proc *);
@@ -5674,7 +3881,6 @@ struct inpcb *
 struct inpcb *
   in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int, int,
      struct mbuf *, u_int);
-
 struct inpcb *
   in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
           u_int, const struct in6_addr *, u_int, u_int);
@@ -5687,7 +3893,6 @@ int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
 int in6_pcbconnect(struct inpcb *, struct mbuf *);
 int in6_setsockaddr(struct inpcb *, struct mbuf *);
 int in6_setpeeraddr(struct inpcb *, struct mbuf *);
-
 void in_pcbinit(struct inpcbtable *, int);
 struct inpcb *
   in_pcblookup_local(struct inpcbtable *, void *, u_int, int, u_int);
@@ -5702,16 +3907,11 @@ int in_rootonly(u_int16_t, u_int16_t);
 int in_pcbselsrc(struct in_addr **, struct sockaddr_in *, struct inpcb *);
 struct rtentry *
  in_pcbrtentry(struct inpcb *);
-
-
 int in6_pcbnotify(struct inpcbtable *, struct sockaddr_in6 *,
  u_int, const struct sockaddr_in6 *, u_int, u_int, int, void *,
  void (*)(struct inpcb *, int));
 int in6_selecthlim(struct inpcb *);
 int in_pcbpickport(u_int16_t *, void *, int, struct inpcb *, struct proc *);
-# 90 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_var.h" 1
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_var.h"
 struct ipovly {
  u_int8_t ih_x1[9];
  u_int8_t ih_pr;
@@ -5719,7 +3919,6 @@ struct ipovly {
  struct in_addr ih_src;
  struct in_addr ih_dst;
 };
-
 struct ipstat {
  u_long ips_total;
  u_long ips_badsum;
@@ -5754,16 +3953,10 @@ struct ipstat {
  u_long ips_outswcsum;
  u_long ips_notmember;
 };
-
 struct ipoption {
  struct in_addr ipopt_dst;
  int8_t ipopt_list[40];
 };
-
-
-
-
-
 enum ipstat_counters {
  ips_total,
  ips_badsum,
@@ -5797,22 +3990,14 @@ enum ipstat_counters {
  ips_inswcsum,
  ips_outswcsum,
  ips_notmember,
-
  ips_ncounters
 };
-
 extern struct cpumem *ipcounters;
-
 static inline void
 ipstat_inc(enum ipstat_counters c)
 {
  counters_inc(ipcounters, c);
 }
-
-
-
-
-
 struct ip_moptions {
  struct in_multi **imo_membership;
  unsigned short imo_ifidx;
@@ -5821,12 +4006,6 @@ struct ip_moptions {
  u_int16_t imo_num_memberships;
  u_int16_t imo_max_memberships;
 };
-
-
-
-
-
-
 struct ipqehead { struct ipqent *lh_first; };
 struct ipqent {
  struct { struct ipqent *le_next; struct ipqent **le_prev; } ipqe_q;
@@ -5834,13 +4013,6 @@ struct ipqent {
  struct mbuf *ipqe_m;
  u_int8_t ipqe_mff;
 };
-
-
-
-
-
-
-
 struct ipq {
  struct { struct ipq *le_next; struct ipq **le_prev; } ipq_q;
  u_int8_t ipq_ttl;
@@ -5849,39 +4021,24 @@ struct ipq {
  struct ipqehead ipq_fragq;
  struct in_addr ipq_src, ipq_dst;
 };
-
-
-
-
-
-
-
 extern struct ipstat ipstat;
 extern struct ipqhead { struct ipq *lh_first; } ipq;
 extern int ip_defttl;
-
-
-
 extern int ip_mtudisc;
 extern u_int ip_mtudisc_timeout;
-
 extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
 extern int encdebug;
 extern int ipforwarding;
-
 extern int ipmforwarding;
-
 extern int ipmultipath;
 extern int la_hold_total;
-
 extern struct rttimer_queue *ip_mtudisc_timeout_q;
 extern struct pool ipqent_pool;
 struct route;
 struct inpcb;
-
 int ip_ctloutput(int, struct socket *, int, int, struct mbuf *);
 void ip_drain(void);
 void ip_flush(void);
@@ -5922,50 +4079,23 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
-
-
 extern struct socket *ip_mrouter[];
-# 91 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp.h"
 typedef u_int32_t tcp_seq;
-
-
-
-
-
 struct tcphdr {
  u_int16_t th_sport;
  u_int16_t th_dport;
  tcp_seq th_seq;
  tcp_seq th_ack;
-
-
-
-
-
  u_int32_t th_off:4,
     th_x2:4;
-
  u_int8_t th_flags;
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp.h"
  u_int16_t th_win;
  u_int16_t th_sum;
  u_int16_t th_urp;
 };
-# 92 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_fsm.h" 1
-# 93 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_seq.h" 1
-# 64 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_seq.h"
 extern tcp_seq tcp_iss;
-# 94 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_timer.h" 1
-# 143 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_timer.h"
 typedef void (*tcp_timer_func_t)(void *);
-
 extern const tcp_timer_func_t tcp_timer_funcs[4];
-
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -5973,16 +4103,11 @@ extern int tcp_keepintvl;
 extern int tcp_maxidle;
 extern int tcp_ttl;
 extern int tcp_backoff[];
-
 void tcp_timer_init(void);
-# 95 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
 struct sackblk {
  tcp_seq start;
  tcp_seq end;
 };
-
 struct sackhole {
  tcp_seq start;
  tcp_seq end;
@@ -5990,20 +4115,12 @@ struct sackhole {
  tcp_seq rxmit;
  struct sackhole *next;
 };
-
-
-
-
 struct tcpqehead { struct tcpqent *tqh_first; struct tcpqent **tqh_last; };
 struct tcpqent {
  struct { struct tcpqent *tqe_next; struct tcpqent **tqe_prev; } tcpqe_q;
  struct tcphdr *tcpqe_tcp;
  struct mbuf *tcpqe_m;
 };
-
-
-
-
 struct tcpcb {
  struct tcpqehead t_segq;
  struct timeout t_timer[4];
@@ -6014,15 +4131,9 @@ struct tcpcb {
  u_short t_maxseg;
  char t_force;
  u_int t_flags;
-# 104 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
  struct timeout t_delack_to;
-
-
-
-
-
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -6030,58 +4141,28 @@ struct tcpcb {
  tcp_seq snd_wl2;
  tcp_seq iss;
  u_long snd_wnd;
-
  int sack_enable;
  int snd_numholes;
  struct sackhole *snd_holes;
-
  tcp_seq snd_fack;
  u_long snd_awnd;
-
  int retran_data;
-
-
-
  tcp_seq snd_last;
-
-
  u_long rcv_wnd;
  tcp_seq rcv_nxt;
  tcp_seq rcv_up;
  tcp_seq irs;
-
  tcp_seq rcv_lastsack;
  int rcv_numsacks;
  struct sackblk sackblks[6];
-
-
-
-
-
-
  tcp_seq rcv_adv;
-
  tcp_seq snd_max;
-
-
-
  u_long snd_cwnd;
  u_long snd_ssthresh;
-
-
-
-
-
  u_int rfbuf_cnt;
  u_int32_t rfbuf_ts;
-
  u_short t_maxopd;
  u_short t_peermss;
-
-
-
-
-
  uint32_t t_rcvtime;
  uint32_t t_rtttime;
  tcp_seq t_rtseq;
@@ -6089,15 +4170,9 @@ struct tcpcb {
  short t_rttvar;
  u_short t_rttmin;
  u_long max_sndwnd;
-
-
  char t_oobflags;
  char t_iobc;
-
-
  short t_softerror;
-
-
  u_char snd_scale;
  u_char rcv_scale;
  u_char request_r_scale;
@@ -6106,65 +4181,42 @@ struct tcpcb {
  u_int32_t ts_modulate;
  u_int32_t ts_recent_age;
  tcp_seq last_ack_sent;
-
-
  struct { struct syn_cache *lh_first; } t_sc;
-
-
  u_int t_pmtud_mss_acked;
  u_int t_pmtud_mtu_sent;
  tcp_seq t_pmtud_th_seq;
  u_int t_pmtud_nextmtu;
  u_short t_pmtud_ip_len;
  u_short t_pmtud_ip_hl;
-
  int pf;
-
  struct timeout t_reap_to;
 };
-
-
-
-
-
 extern int tcp_delack_ticks;
 void tcp_delack(void *);
-# 244 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;
  u_int32_t ts_ecr;
  u_int16_t maxseg;
 };
-# 258 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
 union syn_cache_sa {
  struct sockaddr sa;
  struct sockaddr_in sin;
  struct sockaddr_in6 sin6;
 };
-
 struct syn_cache {
  struct { struct syn_cache *tqe_next; struct syn_cache **tqe_prev; } sc_bucketq;
  struct timeout sc_timer;
  union {
   struct route route4;
-
   struct route_in6 route6;
-
  } sc_route_u;
-
-
-
-
  long sc_win;
  struct syn_cache_head *sc_buckethead;
  struct syn_cache_set *sc_set;
  u_int32_t sc_hash;
  u_int32_t sc_timestamp;
  u_int32_t sc_modulate;
-
-
-
  union syn_cache_sa sc_src;
  union syn_cache_sa sc_dst;
  tcp_seq sc_irs;
@@ -6174,22 +4226,18 @@ struct syn_cache {
  u_int sc_rxttot;
  u_short sc_rxtshift;
  u_short sc_flags;
-# 303 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
  struct mbuf *sc_ipopts;
  u_int16_t sc_peermaxseg;
  u_int16_t sc_ourmaxseg;
  u_int sc_request_r_scale : 4,
     sc_requested_s_scale : 4;
-
  struct tcpcb *sc_tp;
  struct { struct syn_cache *le_next; struct syn_cache **le_prev; } sc_tpq;
 };
-
 struct syn_cache_head {
  struct { struct syn_cache *tqh_first; struct syn_cache **tqh_last; } sch_bucket;
  u_short sch_length;
 };
-
 struct syn_cache_set {
  struct syn_cache_head *scs_buckethead;
  int scs_size;
@@ -6197,7 +4245,6 @@ struct syn_cache_set {
  int scs_use;
  u_int32_t scs_random[5];
 };
-# 363 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
 struct tcpstat {
  u_int32_t tcps_connattempt;
  u_int32_t tcps_accepts;
@@ -6215,7 +4262,6 @@ struct tcpstat {
  u_int32_t tcps_keeptimeo;
  u_int32_t tcps_keepprobe;
  u_int32_t tcps_keepdrops;
-
  u_int32_t tcps_sndtotal;
  u_int32_t tcps_sndpack;
  u_int64_t tcps_sndbyte;
@@ -6227,7 +4273,6 @@ struct tcpstat {
  u_int32_t tcps_sndurg;
  u_int32_t tcps_sndwinup;
  u_int32_t tcps_sndctrl;
-
  u_int32_t tcps_rcvtotal;
  u_int32_t tcps_rcvpack;
  u_int64_t tcps_rcvbyte;
@@ -6255,18 +4300,14 @@ struct tcpstat {
  u_int32_t tcps_pawsdrop;
  u_int32_t tcps_predack;
  u_int32_t tcps_preddat;
-
  u_int32_t tcps_pcbhashmiss;
  u_int32_t tcps_noport;
  u_int32_t tcps_badsyn;
  u_int32_t tcps_dropsyn;
-
  u_int32_t tcps_rcvbadsig;
  u_int64_t tcps_rcvgoodsig;
  u_int32_t tcps_inswcsum;
  u_int32_t tcps_outswcsum;
-
-
  u_int32_t tcps_ecn_accepts;
  u_int32_t tcps_ecn_rcvece;
  u_int32_t tcps_ecn_rcvcwr;
@@ -6277,8 +4318,6 @@ struct tcpstat {
  u_int32_t tcps_cwr_ecn;
  u_int32_t tcps_cwr_frecovery;
  u_int32_t tcps_cwr_timeout;
-
-
  u_int64_t tcps_sc_added;
  u_int64_t tcps_sc_completed;
  u_int64_t tcps_sc_timed_out;
@@ -6298,26 +4337,18 @@ struct tcpstat {
  u_int64_t tcps_sc_bucket_maxlen;
  u_int64_t tcps_sc_bucket_limit;
  u_int64_t tcps_sc_uses_left;
-
  u_int64_t tcps_conndrained;
-
  u_int64_t tcps_sack_recovery_episode;
  u_int64_t tcps_sack_rexmits;
  u_int64_t tcps_sack_rexmit_bytes;
  u_int64_t tcps_sack_rcv_opts;
  u_int64_t tcps_sack_snd_opts;
 };
-# 562 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_var.h"
 struct tcp_ident_mapping {
  struct sockaddr_storage faddr, laddr;
  int euid, ruid;
  u_int rdomain;
 };
-
-
-
-
-
 enum tcpstat_counters {
  tcps_connattempt,
  tcps_accepts,
@@ -6418,28 +4449,23 @@ enum tcpstat_counters {
  tcps_sack_snd_opts,
  tcps_ncounters,
 };
-
 extern struct cpumem *tcpcounters;
-
 static inline void
 tcpstat_inc(enum tcpstat_counters c)
 {
  counters_inc(tcpcounters, c);
 }
-
 static inline void
 tcpstat_add(enum tcpstat_counters c, uint64_t v)
 {
  counters_add(tcpcounters, c, v);
 }
-
 static inline void
 tcpstat_pkt(enum tcpstat_counters pcounter, enum tcpstat_counters bcounter,
     uint64_t v)
 {
  counters_pkt(tcpcounters, pcounter, bcounter, v);
 }
-
 extern struct inpcbtable tcbtable;
 extern u_int32_t tcp_now;
 extern int tcp_do_rfc1323;
@@ -6447,32 +4473,25 @@ extern int tcptv_keep_init;
 extern int tcp_mssdflt;
 extern int tcp_rst_ppslim;
 extern int tcp_ack_on_push;
-
 extern int tcp_do_sack;
 extern struct pool sackhl_pool;
 extern int tcp_sackhole_limit;
-
 extern int tcp_do_ecn;
 extern int tcp_do_rfc3390;
-
 extern struct pool tcpqe_pool;
 extern int tcp_reass_limit;
-
 extern int tcp_syn_hash_size;
 extern int tcp_syn_cache_limit;
 extern int tcp_syn_bucket_limit;
 extern int tcp_syn_use_limit;
 extern struct syn_cache_set tcp_syn_cache[];
 extern int tcp_syn_cache_active;
-
 void tcp_canceltimers(struct tcpcb *);
 struct tcpcb *
   tcp_close(struct tcpcb *);
 void tcp_reaper(void *);
 int tcp_freeq(struct tcpcb *);
-
 void tcp6_ctlinput(int, struct sockaddr *, u_int, void *);
-
 void tcp_ctlinput(int, struct sockaddr *, u_int, void *);
 int tcp_ctloutput(int, struct socket *, int, int, struct mbuf *);
 struct tcpcb *
@@ -6488,10 +4507,8 @@ void tcp_mss_update(struct tcpcb *);
 u_int tcp_hdrsz(struct tcpcb *);
 void tcp_mtudisc(struct inpcb *, int);
 void tcp_mtudisc_increase(struct inpcb *, int);
-
 void tcp6_mtudisc(struct inpcb *, int);
 void tcp6_mtudisc_callback(struct sockaddr_in6 *, u_int);
-
 struct tcpcb *
   tcp_newtcpcb(struct inpcb *);
 void tcp_notify(struct inpcb *, int);
@@ -6516,7 +4533,6 @@ int tcp_usrreq(struct socket *,
 int tcp_attach(struct socket *, int);
 void tcp_xmit_timer(struct tcpcb *, int);
 void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
-
 void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);
 void tcp_update_sack_list(struct tcpcb *tp, tcp_seq, tcp_seq);
 void tcp_del_sackholes(struct tcpcb *, struct tcphdr *);
@@ -6525,38 +4541,24 @@ void tcp_sack_adjust(struct tcpcb *tp);
 struct sackhole *
   tcp_sack_output(struct tcpcb *tp);
 int tcp_sack_partialack(struct tcpcb *, struct tcphdr *);
-
-
-
-
-
 int tcp_newreno(struct tcpcb *, struct tcphdr *);
 u_long tcp_seq_subtract(u_long, u_long );
-
-
 int tcp_signature_apply(caddr_t, caddr_t, unsigned int);
 int tcp_signature(struct tdb *, int, struct mbuf *, struct tcphdr *,
      int, int, char *);
-
 void tcp_set_iss_tsm(struct tcpcb *);
-
 void syn_cache_unreach(struct sockaddr *, struct sockaddr *,
     struct tcphdr *, u_int);
 void syn_cache_init(void);
 void syn_cache_cleanup(struct tcpcb *);
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_debug.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_debug.h"
 struct tcpiphdr {
  struct ipovly ti_i;
  struct tcphdr ti_t;
 };
-# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_debug.h"
 struct tcpipv6hdr {
  struct ip6_hdr ti6_i;
  struct tcphdr ti6_t;
 };
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_debug.h"
 struct tcp_debug {
  uint32_t td_time;
  short td_act;
@@ -6567,32 +4569,12 @@ struct tcp_debug {
  short td_req;
  struct tcpcb td_cb;
 };
-# 103 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_debug.h"
 extern struct tcp_debug tcp_debug[];
 extern int tcp_debx;
-# 97 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h" 1
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h" 2
-
-
-
-
-
-
-
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
-# 62 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 typedef struct refcnt pf_refcnt_t;
-
-
-
-
 enum { PF_INOUT, PF_IN, PF_OUT, PF_FWD };
 enum { PF_PASS, PF_DROP, PF_SCRUB, PF_NOSCRUB, PF_NAT, PF_NONAT,
    PF_BINAT, PF_NOBINAT, PF_RDR, PF_NORDR, PF_SYNPROXY_DROP, PF_DEFER,
@@ -6605,11 +4587,6 @@ enum { PF_CHANGE_NONE, PF_CHANGE_ADD_HEAD, PF_CHANGE_ADD_TAIL,
    PF_CHANGE_REMOVE, PF_CHANGE_GET_TICKET };
 enum { PF_GET_NONE, PF_GET_CLR_CNTR };
 enum { PF_SK_WIRE, PF_SK_STACK, PF_SK_BOTH };
-
-
-
-
-
 enum { PFTM_TCP_FIRST_PACKET, PFTM_TCP_OPENING, PFTM_TCP_ESTABLISHED,
    PFTM_TCP_CLOSING, PFTM_TCP_FIN_WAIT, PFTM_TCP_CLOSED,
    PFTM_UDP_FIRST_PACKET, PFTM_UDP_SINGLE, PFTM_UDP_MULTIPLE,
@@ -6618,17 +4595,14 @@ enum { PFTM_TCP_FIRST_PACKET, PFTM_TCP_OPENING, PFTM_TCP_ESTABLISHED,
    PFTM_OTHER_MULTIPLE, PFTM_FRAG, PFTM_INTERVAL,
    PFTM_ADAPTIVE_START, PFTM_ADAPTIVE_END, PFTM_SRC_NODE,
    PFTM_TS_DIFF, PFTM_MAX, PFTM_PURGE, PFTM_UNLINKED };
-# 121 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 enum { PF_NOPFROUTE, PF_ROUTETO, PF_DUPTO, PF_REPLYTO };
 enum { PF_LIMIT_STATES, PF_LIMIT_SRC_NODES, PF_LIMIT_FRAGS,
    PF_LIMIT_TABLES, PF_LIMIT_TABLE_ENTRIES, PF_LIMIT_MAX };
-
 enum { PF_POOL_NONE, PF_POOL_BITMASK, PF_POOL_RANDOM,
    PF_POOL_SRCHASH, PF_POOL_ROUNDROBIN, PF_POOL_LEASTSTATES };
 enum { PF_ADDR_ADDRMASK, PF_ADDR_NOROUTE, PF_ADDR_DYNIFTL,
    PF_ADDR_TABLE, PF_ADDR_RTLABEL, PF_ADDR_URPFFAILED,
    PF_ADDR_RANGE, PF_ADDR_NONE };
-# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_addr {
  union {
   struct in_addr v4;
@@ -6637,13 +4611,7 @@ struct pf_addr {
   u_int16_t addr16[8];
   u_int32_t addr32[4];
  } pfa;
-
-
-
-
-
 };
-# 170 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_addr_wrap {
  union {
   struct {
@@ -6664,8 +4632,6 @@ struct pf_addr_wrap {
  u_int8_t type;
  u_int8_t iflags;
 };
-
-
 struct pfi_dynaddr {
  struct { struct pfi_dynaddr *tqe_next; struct pfi_dynaddr **tqe_prev; } entry;
  struct pf_addr pfid_addr4;
@@ -6681,17 +4647,14 @@ struct pfi_dynaddr {
  sa_family_t pfid_af;
  u_int8_t pfid_iflags;
 };
-# 301 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_rule_uid {
  uid_t uid[2];
  u_int8_t op;
 };
-
 struct pf_rule_gid {
  uid_t gid[2];
  u_int8_t op;
 };
-
 struct pf_rule_addr {
  struct pf_addr_wrap addr;
  u_int16_t port[2];
@@ -6699,18 +4662,13 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
-
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
   u_int16_t key16[8];
   u_int32_t key32[4];
  } pfk;
-
-
-
 };
-
 struct pf_pool {
  struct pf_addr_wrap addr;
  struct pf_poolhashkey key;
@@ -6725,26 +4683,15 @@ struct pf_pool {
  u_int8_t port_op;
  u_int8_t opts;
 };
-
-
 typedef u_int32_t pf_osfp_t;
-
-
-
-
 struct pf_osfp_entry {
  struct { struct pf_osfp_entry *sle_next; } fp_entry;
  pf_osfp_t fp_os;
  int fp_enflags;
-
-
-
-
  u_char fp_class_nm[32];
  u_char fp_version_nm[32];
  u_char fp_subtype_nm[32];
 };
-# 391 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 typedef u_int64_t pf_tcpopts_t;
 struct pf_os_fingerprint {
  struct pf_osfp_enlist { struct pf_osfp_entry *slh_first; } fp_oses;
@@ -6753,14 +4700,11 @@ struct pf_os_fingerprint {
  u_int16_t fp_psize;
  u_int16_t fp_mss;
  u_int16_t fp_flags;
-# 414 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
  u_int8_t fp_optcnt;
  u_int8_t fp_wscale;
  u_int8_t fp_ttl;
-# 429 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
  struct { struct pf_os_fingerprint *sle_next; } fp_next;
 };
-
 struct pf_osfp_ioctl {
  struct pf_osfp_entry fp_os;
  pf_tcpopts_t fp_tcpopts;
@@ -6771,10 +4715,8 @@ struct pf_osfp_ioctl {
  u_int8_t fp_optcnt;
  u_int8_t fp_wscale;
  u_int8_t fp_ttl;
-
  int fp_getnum;
 };
-
 struct pf_rule_actions {
  int rtableid;
  u_int16_t qid;
@@ -6787,48 +4729,34 @@ struct pf_rule_actions {
  u_int8_t set_prio[2];
  u_int8_t pad[3];
 };
-
 union pf_rule_ptr {
  struct pf_rule *ptr;
  u_int32_t nr;
 };
-
-
-
 struct pf_rule {
  struct pf_rule_addr src;
  struct pf_rule_addr dst;
-# 479 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
  union pf_rule_ptr skip[9];
-
  char label[64];
-
  char ifname[16];
  char rcv_ifname[16];
  char qname[64];
  char pqname[64];
-
  char tagname[64];
  char match_tagname[64];
-
  char overload_tblname[32];
-
  struct { struct pf_rule *tqe_next; struct pf_rule **tqe_prev; } entries;
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
-
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
-
  struct pfi_kif *kif;
  struct pfi_kif *rcv_kif;
  struct pf_anchor *anchor;
  struct pfr_ktable *overload_tbl;
-
  pf_osfp_t os_fingerprint;
-
  int rtableid;
  int onrdomain;
  u_int32_t timeout[PFTM_MAX];
@@ -6850,17 +4778,14 @@ struct pf_rule {
  u_int32_t prob;
  uid_t cuid;
  pid_t cpid;
-
  u_int16_t return_icmp;
  u_int16_t return_icmp6;
  u_int16_t max_mss;
  u_int16_t tag;
  u_int16_t match_tag;
  u_int16_t scrub_flags;
-
  struct pf_rule_uid uid;
  struct pf_rule_gid gid;
-
  u_int32_t rule_flag;
  u_int8_t action;
  u_int8_t direction;
@@ -6869,10 +4794,6 @@ struct pf_rule {
  u_int8_t quick;
  u_int8_t ifnot;
  u_int8_t match_tag_not;
-
-
-
-
  u_int8_t keep_state;
  sa_family_t af;
  u_int8_t proto;
@@ -6888,44 +4809,32 @@ struct pf_rule {
  u_int8_t set_tos;
  u_int8_t anchor_relative;
  u_int8_t anchor_wildcard;
-
-
-
  u_int8_t flush;
  u_int8_t prio;
  u_int8_t set_prio[2];
  sa_family_t naf;
  u_int8_t rcvifnot;
  u_int8_t pad[2];
-
  struct {
   struct pf_addr addr;
   u_int16_t port;
  } divert, divert_packet;
-
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
 };
-# 611 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_threshold {
  u_int32_t limit;
-
-
  u_int32_t seconds;
  u_int32_t count;
  u_int32_t last;
 };
-
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
  struct pf_rule *r;
 };
-
 struct pf_rule_slist { struct pf_rule_item *slh_first; };
-
 enum pf_sn_types { PF_SN_NONE, PF_SN_NAT, PF_SN_RDR, PF_SN_ROUTE, PF_SN_MAX };
-
 struct pf_src_node {
  struct { struct pf_src_node *rbe_left; struct pf_src_node *rbe_right; struct pf_src_node *rbe_parent; int rbe_color; } entry;
  struct pf_addr addr;
@@ -6943,38 +4852,26 @@ struct pf_src_node {
  sa_family_t naf;
  u_int8_t type;
 };
-
 struct pf_sn_item {
  struct { struct pf_sn_item *sle_next; } next;
  struct pf_src_node *sn;
 };
-
 struct pf_sn_head { struct pf_sn_item *slh_first; };
-
-
-
 struct pf_state_scrub {
  struct timeval pfss_last;
  u_int32_t pfss_tsecr;
  u_int32_t pfss_tsval;
  u_int32_t pfss_tsval0;
  u_int16_t pfss_flags;
-
-
-
-
-
  u_int8_t pfss_ttl;
  u_int8_t pad;
  u_int32_t pfss_ts_mod;
 };
-
 struct pf_state_host {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t pad;
 };
-
 struct pf_state_peer {
  struct pf_state_scrub *scrub;
  u_int32_t seqlo;
@@ -6987,10 +4884,7 @@ struct pf_state_peer {
  u_int8_t tcp_est;
  u_int8_t pad[1];
 };
-
 struct pf_state_queue { struct pf_state *tqh_first; struct pf_state **tqh_last; };
-
-
 struct pf_state_key_cmp {
  struct pf_addr addr[2];
  u_int16_t port[2];
@@ -6998,21 +4892,17 @@ struct pf_state_key_cmp {
  sa_family_t af;
  u_int8_t proto;
 };
-
 struct pf_state_item {
  struct { struct pf_state_item *tqe_next; struct pf_state_item **tqe_prev; } entry;
  struct pf_state *s;
 };
-
 struct pf_statelisthead { struct pf_state_item *tqh_first; struct pf_state_item **tqh_last; };
-
 struct pf_state_key {
  struct pf_addr addr[2];
  u_int16_t port[2];
  u_int16_t rdomain;
  sa_family_t af;
  u_int8_t proto;
-
  struct { struct pf_state_key *rbe_left; struct pf_state_key *rbe_right; struct pf_state_key *rbe_parent; int rbe_color; } entry;
  struct pf_statelisthead states;
  struct pf_state_key *reverse;
@@ -7020,24 +4910,17 @@ struct pf_state_key {
  pf_refcnt_t refcnt;
  u_int8_t removed;
 };
-
-
-
-
-
 struct pf_state_cmp {
  u_int64_t id;
  u_int32_t creatorid;
  u_int8_t direction;
  u_int8_t pad[3];
 };
-
 struct pf_state {
  u_int64_t id;
  u_int32_t creatorid;
  u_int8_t direction;
  u_int8_t pad[3];
-
  struct { struct pf_state *tqe_next; struct pf_state **tqe_prev; } sync_list;
  struct { struct pf_state *tqe_next; struct pf_state **tqe_prev; } entry_list;
  struct { struct pf_state *rbe_left; struct pf_state *rbe_right; struct pf_state *rbe_parent; int rbe_color; } entry_id;
@@ -7061,7 +4944,6 @@ struct pf_state {
  u_int16_t pqid;
  u_int16_t tag;
  u_int16_t state_flags;
-# 776 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
  u_int8_t log;
  u_int8_t timeout;
  u_int8_t sync_state;
@@ -7075,19 +4957,12 @@ struct pf_state {
  u_int16_t if_index_out;
  u_int8_t pad2[2];
 };
-
-
-
-
-
 struct pfsync_state_scrub {
  u_int16_t pfss_flags;
  u_int8_t pfss_ttl;
-
  u_int8_t scrub_flag;
  u_int32_t pfss_ts_mod;
 } __attribute__((__packed__));
-
 struct pfsync_state_peer {
  struct pfsync_state_scrub scrub;
  u_int32_t seqlo;
@@ -7099,7 +4974,6 @@ struct pfsync_state_peer {
  u_int8_t wscale;
  u_int8_t pad[6];
 } __attribute__((__packed__));
-
 struct pfsync_state_key {
  struct pf_addr addr[2];
  u_int16_t port[2];
@@ -7107,7 +4981,6 @@ struct pfsync_state_key {
  sa_family_t af;
  u_int8_t pad;
 };
-
 struct pfsync_state {
  u_int64_t id;
  char ifname[16];
@@ -7138,11 +5011,8 @@ struct pfsync_state {
  u_int16_t state_flags;
  u_int8_t set_prio[2];
 } __attribute__((__packed__));
-# 906 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_rulequeue { struct pf_rule *tqh_first; struct pf_rule **tqh_last; };
-
 struct pf_anchor;
-
 struct pf_ruleset {
  struct {
   struct pf_rulequeue queues[2];
@@ -7159,7 +5029,6 @@ struct pf_ruleset {
  int tables;
  int topen;
 };
-
 struct pf_anchor_global { struct pf_anchor *rbh_root; };
 struct pf_anchor_node { struct pf_anchor *rbh_root; };
 struct pf_anchor {
@@ -7175,18 +5044,15 @@ struct pf_anchor {
 };
  void pf_anchor_global_RB_INSERT_COLOR(struct pf_anchor_global *, struct pf_anchor *); void pf_anchor_global_RB_REMOVE_COLOR(struct pf_anchor_global *, struct pf_anchor *, struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_REMOVE(struct pf_anchor_global *, struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_INSERT(struct pf_anchor_global *, struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_FIND(struct pf_anchor_global *, struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_NFIND(struct pf_anchor_global *, struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_NEXT(struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_PREV(struct pf_anchor *); struct pf_anchor *pf_anchor_global_RB_MINMAX(struct pf_anchor_global *, int);
  void pf_anchor_node_RB_INSERT_COLOR(struct pf_anchor_node *, struct pf_anchor *); void pf_anchor_node_RB_REMOVE_COLOR(struct pf_anchor_node *, struct pf_anchor *, struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_REMOVE(struct pf_anchor_node *, struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_INSERT(struct pf_anchor_node *, struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_FIND(struct pf_anchor_node *, struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_NFIND(struct pf_anchor_node *, struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_NEXT(struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_PREV(struct pf_anchor *); struct pf_anchor *pf_anchor_node_RB_MINMAX(struct pf_anchor_node *, int);
-# 957 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pfr_table {
  char pfrt_anchor[1024];
  char pfrt_name[32];
  u_int32_t pfrt_flags;
  u_int8_t pfrt_fback;
 };
-
 enum { PFR_FB_NONE, PFR_FB_MATCH, PFR_FB_ADDED, PFR_FB_DELETED,
  PFR_FB_CHANGED, PFR_FB_CLEARED, PFR_FB_DUPLICATE,
  PFR_FB_NOTMATCH, PFR_FB_CONFLICT, PFR_FB_NOCOUNT, PFR_FB_MAX };
-
 struct pfr_addr {
  union {
   struct in_addr _pfra_ip4addr;
@@ -7202,23 +5068,16 @@ struct pfr_addr {
  u_int8_t pfra_type;
  u_int8_t pad[7];
 };
-
-
-
 enum { PFR_DIR_IN, PFR_DIR_OUT, PFR_DIR_MAX };
 enum { PFR_OP_BLOCK, PFR_OP_MATCH, PFR_OP_PASS, PFR_OP_ADDR_MAX,
     PFR_OP_TABLE_MAX };
-
-
 struct pfr_astats {
  struct pfr_addr pfras_a;
  u_int64_t pfras_packets[PFR_DIR_MAX][PFR_OP_ADDR_MAX];
  u_int64_t pfras_bytes[PFR_DIR_MAX][PFR_OP_ADDR_MAX];
  time_t pfras_tzero;
 };
-
 enum { PFR_REFCNT_RULE, PFR_REFCNT_ANCHOR, PFR_REFCNT_MAX };
-
 struct pfr_tstats {
  struct pfr_table pfrts_t;
  u_int64_t pfrts_packets[PFR_DIR_MAX][PFR_OP_TABLE_MAX];
@@ -7229,26 +5088,16 @@ struct pfr_tstats {
  int pfrts_cnt;
  int pfrts_refcnt[PFR_REFCNT_MAX];
 };
-
-
-
 struct pfr_kcounters {
  u_int64_t pfrkc_packets[PFR_DIR_MAX][PFR_OP_ADDR_MAX];
  u_int64_t pfrkc_bytes[PFR_DIR_MAX][PFR_OP_ADDR_MAX];
  u_int64_t states;
 };
-
-
-
-
-
-
 union pfsockaddr_union {
  struct sockaddr sa;
  struct sockaddr_in sin;
  struct sockaddr_in6 sin6;
 };
-
 struct pfr_kentryworkq { struct pfr_kentry *slh_first; };
 struct _pfr_kentry {
  struct radix_node _pfrke_node[2];
@@ -7261,37 +5110,25 @@ struct _pfr_kentry {
  u_int8_t _pfrke_flags;
  u_int8_t _pfrke_type;
 };
-
-
-
-
 enum { PFRKE_PLAIN, PFRKE_ROUTE, PFRKE_COST, PFRKE_MAX };
-
 struct pfr_kentry {
  union {
   struct _pfr_kentry _ke;
  } u;
 };
-# 1063 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pfr_kentry_route {
  union {
   struct _pfr_kentry _ke;
  } u;
-
  struct pfi_kif *kif;
 };
-
 struct pfr_kentry_cost {
  union {
   struct _pfr_kentry _ke;
  } u;
-
  struct pfi_kif *kif;
-
-
  u_int16_t weight;
 };
-
 struct pfr_kentry_all {
  union {
   struct _pfr_kentry _ke;
@@ -7299,8 +5136,6 @@ struct pfr_kentry_all {
   struct pfr_kentry_cost kc;
  } u;
 };
-
-
 struct pfr_ktableworkq { struct pfr_ktable *slh_first; };
 struct pfr_ktablehead { struct pfr_ktable *rbh_root; };
 struct pfr_ktable {
@@ -7318,27 +5153,17 @@ struct pfr_ktable {
  u_int16_t pfrkt_gcdweight;
  u_int16_t pfrkt_maxweight;
 };
-# 1121 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_state_tree { struct pf_state_key *rbh_root; };
  void pf_state_tree_RB_INSERT_COLOR(struct pf_state_tree *, struct pf_state_key *); void pf_state_tree_RB_REMOVE_COLOR(struct pf_state_tree *, struct pf_state_key *, struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_REMOVE(struct pf_state_tree *, struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_INSERT(struct pf_state_tree *, struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_FIND(struct pf_state_tree *, struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_NFIND(struct pf_state_tree *, struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_NEXT(struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_PREV(struct pf_state_key *); struct pf_state_key *pf_state_tree_RB_MINMAX(struct pf_state_tree *, int);
-
 struct pf_state_tree_ext_gwy { struct pf_state_key *rbh_root; };
  void pf_state_tree_ext_gwy_RB_INSERT_COLOR(struct pf_state_tree_ext_gwy *, struct pf_state_key *); void pf_state_tree_ext_gwy_RB_REMOVE_COLOR(struct pf_state_tree_ext_gwy *, struct pf_state_key *, struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_REMOVE(struct pf_state_tree_ext_gwy *, struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_INSERT(struct pf_state_tree_ext_gwy *, struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_FIND(struct pf_state_tree_ext_gwy *, struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_NFIND(struct pf_state_tree_ext_gwy *, struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_NEXT(struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_PREV(struct pf_state_key *); struct pf_state_key *pf_state_tree_ext_gwy_RB_MINMAX(struct pf_state_tree_ext_gwy *, int);
-
-
 struct pfi_ifhead { struct pfi_kif *rbh_root; };
-
-
 extern struct pf_state_tree pf_statetbl;
-
-
 struct pfi_kif_cmp {
  char pfik_name[16];
 };
-
 struct ifnet;
 struct ifg_group;
-
 struct pfi_kif {
  char pfik_name[16];
  struct { struct pfi_kif *rbe_left; struct pfi_kif *rbe_right; struct pfi_kif *rbe_parent; int rbe_color; } pfik_tree;
@@ -7355,14 +5180,12 @@ struct pfi_kif {
  int pfik_routes;
  struct { struct pfi_dynaddr *tqh_first; struct pfi_dynaddr **tqh_last; } pfik_dynaddrs;
 };
-
 enum pfi_kif_refs {
  PFI_KIF_REF_NONE,
  PFI_KIF_REF_STATE,
  PFI_KIF_REF_RULE,
  PFI_KIF_REF_ROUTE
 };
-# 1287 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_status {
  u_int64_t counters[17];
  u_int64_t lcounters[7];
@@ -7381,30 +5204,21 @@ struct pf_status {
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
-
-
-
-
-
-
 struct pf_queue_bwspec {
  u_int absolute;
  u_int percent;
 };
-
 struct pf_queue_scspec {
  struct pf_queue_bwspec m1;
  struct pf_queue_bwspec m2;
  u_int d;
 };
-
 struct pf_queue_fqspec {
  u_int flows;
  u_int quantum;
  u_int target;
  u_int interval;
 };
-
 struct pf_queuespec {
  struct { struct pf_queuespec *tqe_next; struct pf_queuespec **tqe_prev; } entries;
  char qname[64];
@@ -7420,56 +5234,43 @@ struct pf_queuespec {
  u_int32_t qid;
  u_int32_t parent_qid;
 };
-
-
-
-
 struct priq_opts {
  int flags;
 };
-
 struct hfsc_opts {
-
  u_int rtsc_m1;
  u_int rtsc_d;
  u_int rtsc_m2;
-
  u_int lssc_m1;
  u_int lssc_d;
  u_int lssc_m2;
-
  u_int ulsc_m1;
  u_int ulsc_d;
  u_int ulsc_m2;
  int flags;
 };
-
 struct pfq_ops {
  void * (*pfq_alloc)(struct ifnet *);
  int (*pfq_addqueue)(void *, struct pf_queuespec *);
  void (*pfq_free)(void *);
  int (*pfq_qstats)(struct pf_queuespec *, void *, int *);
-
  unsigned int (*pfq_qlength)(void *);
  struct mbuf * (*pfq_enqueue)(void *, struct mbuf *);
  struct mbuf * (*pfq_deq_begin)(void *, void **, struct mbuf_list *);
  void (*pfq_deq_commit)(void *, struct mbuf *, void *);
  void (*pfq_purge)(void *, struct mbuf_list *);
 };
-
 struct pf_tagname {
  struct { struct pf_tagname *tqe_next; struct pf_tagname **tqe_prev; } entries;
  char name[64];
  u_int16_t tag;
  int ref;
 };
-
 struct pf_divert {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t rdomain;
 };
-# 1406 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pfioc_rule {
  u_int32_t action;
  u_int32_t ticket;
@@ -7478,7 +5279,6 @@ struct pfioc_rule {
  char anchor_call[1024];
  struct pf_rule rule;
 };
-
 struct pfioc_natlook {
  struct pf_addr saddr;
  struct pf_addr daddr;
@@ -7494,18 +5294,15 @@ struct pfioc_natlook {
  u_int8_t proto;
  u_int8_t direction;
 };
-
 struct pfioc_state {
  struct pfsync_state state;
 };
-
 struct pfioc_src_node_kill {
  sa_family_t psnk_af;
  struct pf_rule_addr psnk_src;
  struct pf_rule_addr psnk_dst;
  u_int psnk_killed;
 };
-
 struct pfioc_state_kill {
  struct pf_state_cmp psk_pfcmp;
  sa_family_t psk_af;
@@ -7517,43 +5314,33 @@ struct pfioc_state_kill {
  u_int psk_killed;
  u_int16_t psk_rdomain;
 };
-
 struct pfioc_states {
  int ps_len;
  union {
   caddr_t psu_buf;
   struct pfsync_state *psu_states;
  } ps_u;
-
-
 };
-
 struct pfioc_src_nodes {
  int psn_len;
  union {
   caddr_t psu_buf;
   struct pf_src_node *psu_src_nodes;
  } psn_u;
-
-
 };
-
 struct pfioc_tm {
  int timeout;
  int seconds;
 };
-
 struct pfioc_limit {
  int index;
  unsigned limit;
 };
-
 struct pfioc_ruleset {
  u_int32_t nr;
  char path[1024];
  char name[64];
 };
-
 struct pfioc_trans {
  int size;
  int esize;
@@ -7563,13 +5350,11 @@ struct pfioc_trans {
   u_int32_t ticket;
  } *array;
 };
-
 struct pfioc_queue {
  u_int32_t ticket;
  u_int nr;
  struct pf_queuespec queue;
 };
-
 struct pfioc_qstats {
  u_int32_t ticket;
  u_int32_t nr;
@@ -7577,7 +5362,6 @@ struct pfioc_qstats {
  void *buf;
  int nbytes;
 };
-# 1525 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pfioc_table {
  struct pfr_table pfrio_table;
  void *pfrio_buffer;
@@ -7590,13 +5374,6 @@ struct pfioc_table {
  int pfrio_flags;
  u_int32_t pfrio_ticket;
 };
-
-
-
-
-
-
-
 struct pfioc_iface {
  char pfiio_name[16];
  void *pfiio_buffer;
@@ -7605,23 +5382,17 @@ struct pfioc_iface {
  int pfiio_nzero;
  int pfiio_flags;
 };
-# 1621 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfvar.h"
 struct pf_pdesc;
-
 struct pf_src_tree { struct pf_src_node *rbh_root; };
  void pf_src_tree_RB_INSERT_COLOR(struct pf_src_tree *, struct pf_src_node *); void pf_src_tree_RB_REMOVE_COLOR(struct pf_src_tree *, struct pf_src_node *, struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_REMOVE(struct pf_src_tree *, struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_INSERT(struct pf_src_tree *, struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_FIND(struct pf_src_tree *, struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_NFIND(struct pf_src_tree *, struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_NEXT(struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_PREV(struct pf_src_node *); struct pf_src_node *pf_src_tree_RB_MINMAX(struct pf_src_tree *, int);;
 extern struct pf_src_tree tree_src_tracking;
-
 struct pf_state_tree_id { struct pf_state *rbh_root; };
  void pf_state_tree_id_RB_INSERT_COLOR(struct pf_state_tree_id *, struct pf_state *); void pf_state_tree_id_RB_REMOVE_COLOR(struct pf_state_tree_id *, struct pf_state *, struct pf_state *); struct pf_state *pf_state_tree_id_RB_REMOVE(struct pf_state_tree_id *, struct pf_state *); struct pf_state *pf_state_tree_id_RB_INSERT(struct pf_state_tree_id *, struct pf_state *); struct pf_state *pf_state_tree_id_RB_FIND(struct pf_state_tree_id *, struct pf_state *); struct pf_state *pf_state_tree_id_RB_NFIND(struct pf_state_tree_id *, struct pf_state *); struct pf_state *pf_state_tree_id_RB_NEXT(struct pf_state *); struct pf_state *pf_state_tree_id_RB_PREV(struct pf_state *); struct pf_state *pf_state_tree_id_RB_MINMAX(struct pf_state_tree_id *, int);;
-
 extern struct pf_state_tree_id tree_id;
 extern struct pf_state_queue state_list;
-
 struct pf_queuehead { struct pf_queuespec *tqh_first; struct pf_queuespec **tqh_last; };
 extern struct pf_queuehead pf_queues[2];
 extern struct pf_queuehead *pf_queues_active, *pf_queues_inactive;
-
 extern u_int32_t ticket_pabuf;
 extern struct pool pf_src_tree_pl, pf_sn_item_pl, pf_rule_pl;
 extern struct pool pf_state_pl, pf_state_key_pl, pf_state_item_pl,
@@ -7629,7 +5400,6 @@ extern struct pool pf_state_pl, pf_state_key_pl, pf_state_item_pl,
 extern struct pool pf_state_scrub_pl;
 extern struct ifnet *sync_ifp;
 extern struct pf_rule pf_default_rule;
-
 extern int pf_tbladdr_setup(struct pf_ruleset *,
         struct pf_addr_wrap *);
 extern void pf_tbladdr_remove(struct pf_addr_wrap *);
@@ -7656,7 +5426,6 @@ struct pf_src_node *pf_get_src_node(struct pf_state *,
 void pf_src_tree_remove_state(struct pf_state *);
 void pf_state_rm_src_node(struct pf_state *,
         struct pf_src_node *);
-
 extern struct pf_state *pf_find_state_byid(struct pf_state_cmp *);
 extern struct pf_state *pf_find_state_all(struct pf_state_key_cmp *,
         u_int, int *);
@@ -7673,18 +5442,12 @@ struct pf_divert *pf_find_divert(struct mbuf *);
 int pf_setup_pdesc(struct pf_pdesc *, sa_family_t,
         int, struct pfi_kif *, struct mbuf *,
         u_short *);
-
 int pf_test(sa_family_t, int, struct ifnet *, struct mbuf **);
-
 void pf_poolmask(struct pf_addr *, struct pf_addr*,
      struct pf_addr *, struct pf_addr *, sa_family_t);
 void pf_addr_inc(struct pf_addr *, sa_family_t);
-
 void *pf_pull_hdr(struct mbuf *, int, void *, int, u_short *, u_short *,
      sa_family_t);
-
-
-
 int pf_patch_8(struct pf_pdesc *, u_int8_t *, u_int8_t, _Bool);
 int pf_patch_16(struct pf_pdesc *, u_int16_t *, u_int16_t);
 int pf_patch_16_unaligned(struct pf_pdesc *, void *, u_int16_t, _Bool);
@@ -7701,7 +5464,6 @@ int pf_match(u_int8_t, u_int32_t, u_int32_t, u_int32_t);
 int pf_match_port(u_int8_t, u_int16_t, u_int16_t, u_int16_t);
 int pf_match_uid(u_int8_t, uid_t, uid_t, uid_t);
 int pf_match_gid(u_int8_t, gid_t, gid_t, gid_t);
-
 int pf_refragment6(struct mbuf **, struct m_tag *mtag,
      struct sockaddr_in6 *, struct ifnet *, struct rtentry *);
 void pf_normalize_init(void);
@@ -7734,7 +5496,6 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
-
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -7776,9 +5537,7 @@ int pfr_ina_rollback(struct pfr_table *, u_int32_t, int *, int);
 int pfr_ina_commit(struct pfr_table *, u_int32_t, int *, int *, int);
 int pfr_ina_define(struct pfr_table *, struct pfr_addr *, int, int *,
      int *, u_int32_t, int);
-
 extern struct pfi_kif *pfi_all;
-
 void pfi_initialize(void);
 struct pfi_kif *pfi_kif_find(const char *);
 struct pfi_kif *pfi_kif_get(const char *);
@@ -7800,7 +5559,6 @@ int pfi_get_ifaces(const char *, struct pfi_kif *, int *);
 int pfi_set_flags(const char *, int);
 int pfi_clear_flags(const char *, int);
 void pfi_xcommit(void);
-
 int pf_match_tag(struct mbuf *, struct pf_rule *, int *);
 u_int16_t pf_tagname2tag(char *, int);
 void pf_tag2tagname(u_int16_t, char *);
@@ -7809,29 +5567,19 @@ void pf_tag_unref(u_int16_t);
 void pf_tag_packet(struct mbuf *, int, int);
 int pf_addr_compare(struct pf_addr *, struct pf_addr *,
       sa_family_t);
-
 const struct pfq_ops
   *pf_queue_manager(struct pf_queuespec *);
-
 extern struct pf_status pf_status;
 extern struct pool pf_frent_pl, pf_frag_pl;
-
 struct pf_pool_limit {
  void *pp;
  unsigned limit;
  unsigned limit_new;
 };
 extern struct pf_pool_limit pf_pool_limits[PF_LIMIT_MAX];
-
-
-
 extern struct pf_anchor_global pf_anchors;
 extern struct pf_anchor pf_main_anchor;
-
-
 struct tcphdr;
-
-
 void pf_init_ruleset(struct pf_ruleset *);
 int pf_anchor_setup(struct pf_rule *,
        const struct pf_ruleset *, const char *);
@@ -7843,19 +5591,12 @@ struct pf_anchor *pf_find_anchor(const char *);
 struct pf_ruleset *pf_find_ruleset(const char *);
 struct pf_ruleset *pf_find_or_create_ruleset(const char *);
 void pf_rs_initialize(void);
-
-
 int pf_anchor_copyout(const struct pf_ruleset *,
        const struct pf_rule *, struct pfioc_rule *);
 void pf_anchor_remove(struct pf_rule *);
-
-
-
 int pf_osfp_add(struct pf_osfp_ioctl *);
-
 struct pf_osfp_enlist *
  pf_osfp_fingerprint(struct pf_pdesc *);
-
 struct pf_osfp_enlist *
  pf_osfp_fingerprint_hdr(const struct ip *, const struct ip6_hdr *,
      const struct tcphdr *);
@@ -7865,8 +5606,6 @@ void pf_osfp_initialize(void);
 int pf_osfp_match(struct pf_osfp_enlist *, pf_osfp_t);
 struct pf_os_fingerprint *
  pf_osfp_validate(void);
-
-
 void pf_print_host(struct pf_addr *, u_int16_t,
        sa_family_t);
 int pf_get_transaddr(struct pf_rule *, struct pf_pdesc *,
@@ -7876,13 +5615,11 @@ int pf_map_addr(sa_family_t, struct pf_rule *,
        struct pf_addr *, struct pf_src_node **,
        struct pf_pool *, enum pf_sn_types);
 int pf_postprocess_addr(struct pf_state *);
-
 struct pf_state_key *pf_state_key_ref(struct pf_state_key *);
 void pf_state_key_unref(struct pf_state_key *);
 int pf_state_key_isvalid(struct pf_state_key *);
 void pf_pkt_unlink_state_key(struct mbuf *);
 void pf_pkt_state_key_ref(struct mbuf *);
-
 struct mbuf * pf_build_tcp(const struct pf_rule *, sa_family_t,
        const struct pf_addr *, const struct pf_addr *,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
@@ -7893,25 +5630,15 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
-# 100 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
-
 struct tcpiphdr tcp_saveti;
-
 int tcp_mss_adv(struct mbuf *, int);
 int tcp_flush_queue(struct tcpcb *);
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_var.h" 1
-# 82 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_var.h"
 struct in6_addrlifetime {
  time_t ia6t_expire;
  time_t ia6t_preferred;
  u_int32_t ia6t_vltime;
  u_int32_t ia6t_pltime;
 };
-
-
 struct nd_ifinfo;
 struct in6_ifextra {
  struct nd_ifinfo *nd_ifinfo;
@@ -7919,32 +5646,18 @@ struct in6_ifextra {
  int nprefixes;
  int ndefrouters;
 };
-
 struct in6_ifaddr {
  struct ifaddr ia_ifa;
-
-
-
  struct sockaddr_in6 ia_addr;
  struct sockaddr_in6 ia_dstaddr;
  struct sockaddr_in6 ia_prefixmask;
  struct { struct in6_ifaddr *tqe_next; struct in6_ifaddr **tqe_prev; } ia_list;
  int ia6_flags;
-
  struct in6_addrlifetime ia6_lifetime;
  time_t ia6_createtime;
-
-
  time_t ia6_updatetime;
-
-
  struct { struct in6_multi_mship *lh_first; } ia6_memberships;
 };
-
-
-
-
-
 struct in6_ifstat {
  u_int64_t ifs6_in_receive;
  u_int64_t ifs6_in_hdrerr;
@@ -7952,115 +5665,57 @@ struct in6_ifstat {
  u_int64_t ifs6_in_noroute;
  u_int64_t ifs6_in_addrerr;
  u_int64_t ifs6_in_protounknown;
-
  u_int64_t ifs6_in_truncated;
  u_int64_t ifs6_in_discard;
-
  u_int64_t ifs6_in_deliver;
-
  u_int64_t ifs6_out_forward;
-
  u_int64_t ifs6_out_request;
-
  u_int64_t ifs6_out_discard;
  u_int64_t ifs6_out_fragok;
  u_int64_t ifs6_out_fragfail;
  u_int64_t ifs6_out_fragcreat;
-
  u_int64_t ifs6_reass_reqd;
-
  u_int64_t ifs6_reass_ok;
-
-
  u_int64_t ifs6_reass_fail;
-
-
  u_int64_t ifs6_in_mcast;
  u_int64_t ifs6_out_mcast;
 };
-
-
-
-
-
 struct icmp6_ifstat {
-
-
-
-
  u_int64_t ifs6_in_msg;
-
  u_int64_t ifs6_in_error;
-
  u_int64_t ifs6_in_dstunreach;
-
  u_int64_t ifs6_in_adminprohib;
-
  u_int64_t ifs6_in_timeexceed;
-
  u_int64_t ifs6_in_paramprob;
-
  u_int64_t ifs6_in_pkttoobig;
-
  u_int64_t ifs6_in_echo;
-
  u_int64_t ifs6_in_echoreply;
-
  u_int64_t ifs6_in_routersolicit;
-
  u_int64_t ifs6_in_routeradvert;
-
  u_int64_t ifs6_in_neighborsolicit;
-
  u_int64_t ifs6_in_neighboradvert;
-
  u_int64_t ifs6_in_redirect;
-
  u_int64_t ifs6_in_mldquery;
-
  u_int64_t ifs6_in_mldreport;
-
  u_int64_t ifs6_in_mlddone;
-
-
-
-
-
  u_int64_t ifs6_out_msg;
-
  u_int64_t ifs6_out_error;
-
  u_int64_t ifs6_out_dstunreach;
-
  u_int64_t ifs6_out_adminprohib;
-
  u_int64_t ifs6_out_timeexceed;
-
  u_int64_t ifs6_out_paramprob;
-
  u_int64_t ifs6_out_pkttoobig;
-
  u_int64_t ifs6_out_echo;
-
  u_int64_t ifs6_out_echoreply;
-
  u_int64_t ifs6_out_routersolicit;
-
  u_int64_t ifs6_out_routeradvert;
-
  u_int64_t ifs6_out_neighborsolicit;
-
  u_int64_t ifs6_out_neighboradvert;
-
  u_int64_t ifs6_out_redirect;
-
  u_int64_t ifs6_out_mldquery;
-
  u_int64_t ifs6_out_mldreport;
-
  u_int64_t ifs6_out_mlddone;
 };
-
 struct in6_ifreq {
  char ifr_name[16];
  union {
@@ -8075,45 +5730,32 @@ struct in6_ifreq {
   struct icmp6_ifstat ifru_icmp6stat;
  } ifr_ifru;
 };
-
 struct in6_aliasreq {
  char ifra_name[16];
  union {
   struct sockaddr_in6 ifrau_addr;
   int ifrau_align;
   } ifra_ifrau;
-
-
-
  struct sockaddr_in6 ifra_dstaddr;
  struct sockaddr_in6 ifra_prefixmask;
  int ifra_flags;
  struct in6_addrlifetime ifra_lifetime;
 };
-# 336 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_var.h"
 struct in6_multi_mship {
  struct in6_multi *i6mm_maddr;
  struct { struct in6_multi_mship *le_next; struct in6_multi_mship **le_prev; } i6mm_chain;
 };
-
 struct in6_multi {
  struct ifmaddr in6m_ifma;
-
-
-
  struct sockaddr_in6 in6m_sin;
-
-
  u_int in6m_state;
  u_int in6m_timer;
 };
-
 static __inline struct in6_multi *
 ifmatoin6m(struct ifmaddr *ifma)
 {
        return ((struct in6_multi *)(ifma));
 }
-# 381 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_var.h"
 struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
 void in6_delmulti(struct in6_multi *);
 int in6_hasmulti(struct in6_addr *, struct ifnet *);
@@ -8134,9 +5776,6 @@ int in6_matchlen(struct in6_addr *, struct in6_addr *);
 int in6_are_prefix_equal(struct in6_addr *, struct in6_addr *, int);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
-# 109 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.h"
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -8144,15 +5783,10 @@ struct nd_ifinfo {
  u_int32_t flags;
  int recalctm;
  u_int8_t initialized;
-
  u_int8_t randomseed0[8];
  u_int8_t randomseed1[8];
  u_int8_t randomid[8];
 };
-
-
-
-
 struct in6_nbrinfo {
  char ifname[16];
  struct in6_addr addr;
@@ -8161,24 +5795,20 @@ struct in6_nbrinfo {
  int isrouter;
  int state;
 };
-
 struct prf_ra {
  u_int onlink : 1;
  u_int autonomous : 1;
  u_int router : 1;
  u_int reserved : 5;
 };
-
 struct in6_ndireq {
  char ifname[16];
  struct nd_ifinfo ndi;
 };
-
 struct in6_ndifreq {
  char ifname[16];
  u_long ifindex;
 };
-# 116 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.h"
 struct llinfo_nd6 {
  struct { struct llinfo_nd6 *tqe_next; struct llinfo_nd6 **tqe_prev; } ln_list;
  struct rtentry *ln_rt;
@@ -8187,10 +5817,8 @@ struct llinfo_nd6 {
  int ln_byhint;
  short ln_state;
  short ln_router;
-
  struct timeout ln_timer_ch;
 };
-# 141 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.h"
 extern int nd6_prune;
 extern int nd6_delay;
 extern int nd6_umaxtries;
@@ -8198,9 +5826,6 @@ extern int nd6_mmaxtries;
 extern int nd6_maxnudhint;
 extern int nd6_gctimer;
 extern int nd6_debug;
-
-
-
 union nd_opts {
  struct nd_opt_hdr *nd_opt_array[9];
  struct {
@@ -8216,7 +5841,6 @@ union nd_opts {
   struct nd_opt_prefix_info *pi_end;
  } nd_opt_each;
 };
-# 176 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.h"
 void nd6_init(void);
 struct nd_ifinfo *nd6_ifattach(struct ifnet *);
 void nd6_ifdetach(struct nd_ifinfo *);
@@ -8235,7 +5859,6 @@ void nd6_cache_lladdr(struct ifnet *, struct in6_addr *, char *, int, int, int);
 int nd6_resolve(struct ifnet *, struct rtentry *, struct mbuf *,
   struct sockaddr *, u_char *);
 int nd6_need_cache(struct ifnet *);
-
 void nd6_na_input(struct mbuf *, int, int);
 void nd6_na_output(struct ifnet *, struct in6_addr *,
  struct in6_addr *, u_long, int, struct sockaddr *);
@@ -8246,32 +5869,18 @@ caddr_t nd6_ifptomac(struct ifnet *);
 void nd6_dad_start(struct ifaddr *);
 void nd6_dad_stop(struct ifaddr *);
 void nd6_ra_input(struct mbuf *, int, int);
-
 void nd6_rs_input(struct mbuf *, int, int);
-
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
-# 110 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c" 2
-
 struct tcpipv6hdr tcp_saveti6;
-
-
-
-
-
-
-
 int tcprexmtthresh = 3;
 int tcptv_keep_init = ( 75*2);
-
 int tcp_rst_ppslim = 100;
 int tcp_rst_ppslim_count = 0;
 struct timeval tcp_rst_ppslim_last;
-
 int tcp_ackdrop_ppslim = 100;
 int tcp_ackdrop_ppslim_count = 0;
 struct timeval tcp_ackdrop_ppslim_last;
-# 188 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void syn_cache_put(struct syn_cache *);
 void syn_cache_rm(struct syn_cache *);
 int syn_cache_respond(struct syn_cache *, struct mbuf *);
@@ -8288,51 +5897,31 @@ struct socket *syn_cache_get(struct sockaddr *, struct sockaddr *,
   struct mbuf *);
 struct syn_cache *syn_cache_lookup(struct sockaddr *, struct sockaddr *,
   struct syn_cache_head **, u_int);
-# 216 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 int
 tcp_reass(struct tcpcb *tp, struct tcphdr *th, struct mbuf *m, int *tlen)
 {
  struct tcpqent *p, *q, *nq, *tiqe;
-
-
-
-
-
  tiqe = pool_get(&tcpqe_pool, 0x0002);
  if (tiqe == ((void *)0)) {
   tiqe = (*(((struct tcpqehead *)((&tp->t_segq)->tqh_last))->tqh_last));
   if (tiqe != ((void *)0) && th->th_seq == tp->rcv_nxt) {
-
    m_freem(tiqe->tcpqe_m);
    do { if (((tiqe)->tcpqe_q.tqe_next) != ((void *)0)) (tiqe)->tcpqe_q.tqe_next->tcpqe_q.tqe_prev = (tiqe)->tcpqe_q.tqe_prev; else (&tp->t_segq)->tqh_last = (tiqe)->tcpqe_q.tqe_prev; *(tiqe)->tcpqe_q.tqe_prev = (tiqe)->tcpqe_q.tqe_next; ((tiqe)->tcpqe_q.tqe_prev) = ((void *)-1); ((tiqe)->tcpqe_q.tqe_next) = ((void *)-1); } while (0);
   }
   if (tiqe == ((void *)0) || th->th_seq != tp->rcv_nxt) {
-
    tcp_freeq(tp);
    tcpstat_inc(tcps_rcvmemdrop);
    m_freem(m);
    return (0);
   }
  }
-
-
-
-
  for (p = ((void *)0), q = ((&tp->t_segq)->tqh_first); q != ((void *)0);
      p = q, q = ((q)->tcpqe_q.tqe_next))
   if (((int)((q->tcpqe_tcp->th_seq)-(th->th_seq)) > 0))
    break;
-
-
-
-
-
-
  if (p != ((void *)0)) {
   struct tcphdr *phdr = p->tcpqe_tcp;
   int i;
-
-
   i = phdr->th_seq + phdr->th_urp - th->th_seq;
   if (i > 0) {
           if (i >= *tlen) {
@@ -8348,15 +5937,9 @@ tcp_reass(struct tcpcb *tp, struct tcphdr *th, struct mbuf *m, int *tlen)
   }
  }
  tcpstat_pkt(tcps_rcvoopack, tcps_rcvoobyte, *tlen);
-
-
-
-
-
  for (; q != ((void *)0); q = nq) {
   struct tcphdr *qhdr = q->tcpqe_tcp;
   int i = (th->th_seq + *tlen) - qhdr->th_seq;
-
   if (i <= 0)
    break;
   if (i < qhdr->th_urp) {
@@ -8370,8 +5953,6 @@ tcp_reass(struct tcpcb *tp, struct tcphdr *th, struct mbuf *m, int *tlen)
   do { if (((q)->tcpqe_q.tqe_next) != ((void *)0)) (q)->tcpqe_q.tqe_next->tcpqe_q.tqe_prev = (q)->tcpqe_q.tqe_prev; else (&tp->t_segq)->tqh_last = (q)->tcpqe_q.tqe_prev; *(q)->tcpqe_q.tqe_prev = (q)->tcpqe_q.tqe_next; ((q)->tcpqe_q.tqe_prev) = ((void *)-1); ((q)->tcpqe_q.tqe_next) = ((void *)-1); } while (0);
   pool_put(&tcpqe_pool, q);
  }
-
-
  tiqe->tcpqe_m = m;
  th->th_urp = *tlen;
  tiqe->tcpqe_tcp = th;
@@ -8380,24 +5961,16 @@ tcp_reass(struct tcpcb *tp, struct tcphdr *th, struct mbuf *m, int *tlen)
  } else {
   do { if (((tiqe)->tcpqe_q.tqe_next = (p)->tcpqe_q.tqe_next) != ((void *)0)) (tiqe)->tcpqe_q.tqe_next->tcpqe_q.tqe_prev = &(tiqe)->tcpqe_q.tqe_next; else (&tp->t_segq)->tqh_last = &(tiqe)->tcpqe_q.tqe_next; (p)->tcpqe_q.tqe_next = (tiqe); (tiqe)->tcpqe_q.tqe_prev = &(p)->tcpqe_q.tqe_next; } while (0);
  }
-
  if (th->th_seq != tp->rcv_nxt)
   return (0);
-
  return (tcp_flush_queue(tp));
 }
-
 int
 tcp_flush_queue(struct tcpcb *tp)
 {
  struct socket *so = tp->t_inpcb->inp_socket;
  struct tcpqent *q, *nq;
  int flags;
-
-
-
-
-
  if (((tp->t_state) >= 4) == 0)
   return (0);
  q = ((&tp->t_segq)->tqh_first);
@@ -8408,7 +5981,6 @@ tcp_flush_queue(struct tcpcb *tp)
  do {
   tp->rcv_nxt += q->tcpqe_tcp->th_urp;
   flags = q->tcpqe_tcp->th_flags & 0x01;
-
   nq = ((q)->tcpqe_q.tqe_next);
   do { if (((q)->tcpqe_q.tqe_next) != ((void *)0)) (q)->tcpqe_q.tqe_next->tcpqe_q.tqe_prev = (q)->tcpqe_q.tqe_prev; else (&tp->t_segq)->tqh_last = (q)->tcpqe_q.tqe_prev; *(q)->tcpqe_q.tqe_prev = (q)->tcpqe_q.tqe_next; ((q)->tcpqe_q.tqe_prev) = ((void *)-1); ((q)->tcpqe_q.tqe_next) = ((void *)-1); } while (0);
   do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
@@ -8424,11 +5996,6 @@ tcp_flush_queue(struct tcpcb *tp)
  tp->t_flags &= ~0x01000000;
  return (flags);
 }
-
-
-
-
-
 int
 tcp_input(struct mbuf **mp, int *offp, int proto, int af)
 {
@@ -8449,77 +6016,43 @@ tcp_input(struct mbuf **mp, int *offp, int proto, int af)
  u_long tiwin;
  struct tcp_opt_info opti;
  struct tcphdr *th;
-
  struct ip6_hdr *ip6 = ((void *)0);
-
-
  struct m_tag *mtag;
  struct tdb_ident *tdbi;
  struct tdb *tdb;
  int error;
-
-
  u_char iptos;
-
-
  tcpstat_inc(tcps_rcvtotal);
-
  opti.ts_present = 0;
  opti.maxseg = 0;
-
-
-
-
  if (m->m_hdr.mh_flags & (0x0100|0x0200))
   goto drop;
-
-
-
-
-
  do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (iphlen) + (sizeof(*th))) (th) = (struct tcphdr *)(((caddr_t)(((m))->m_hdr.mh_data)) + (iphlen)); else { t = m_pulldown((m), (iphlen), (sizeof(*th)), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (sizeof(*th))) panic("m_pulldown malfunction"); (th) = (struct tcphdr *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (th) = (struct tcphdr *)((void *)0); (m) = ((void *)0); } } } while ( 0);
  if (!th) {
   tcpstat_inc(tcps_rcvshort);
   return 257;
  }
-
  tlen = m->M_dat.MH.MH_pkthdr.len - iphlen;
  switch (af) {
  case 2:
   ip = ((struct ip *)((m)->m_hdr.mh_data));
-
-
   iptos = ip->ip_tos;
-
   break;
-
  case 24:
   ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-
   iptos = (((__uint32_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_flow)) >> 20) & 0xff;
-# 434 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   if (((*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[12]) == 0))) {
-
    goto drop;
   }
-
-
   if (((&ip6->ip6_dst)->__u6_addr.__u6_addr8[0] == 0xff)) {
-
    goto drop;
   }
   break;
-
  default:
   unhandled_af(af);
  }
-
-
-
-
  if ((m->M_dat.MH.MH_pkthdr.csum_flags & 0x0020) == 0) {
   int sum;
-
   if (m->M_dat.MH.MH_pkthdr.csum_flags & 0x0040) {
    tcpstat_inc(tcps_rcvbadsum);
    goto drop;
@@ -8529,23 +6062,16 @@ tcp_input(struct mbuf **mp, int *offp, int proto, int af)
   case 2:
    sum = in4_cksum(m, 6, iphlen, tlen);
    break;
-
   case 24:
    sum = in6_cksum(m, 6, sizeof(struct ip6_hdr),
        tlen);
    break;
-
   }
   if (sum != 0) {
    tcpstat_inc(tcps_rcvbadsum);
    goto drop;
   }
  }
-
-
-
-
-
  off = th->th_off << 2;
  if (off < sizeof(struct tcphdr) || off > tlen) {
   tcpstat_inc(tcps_rcvbadoff);
@@ -8560,13 +6086,6 @@ tcp_input(struct mbuf **mp, int *offp, int proto, int af)
   }
   optlen = off - sizeof(struct tcphdr);
   optp = (u_int8_t *)(th + 1);
-
-
-
-
-
-
-
   if ((optlen == (10 +2) ||
        (optlen > (10 +2) &&
    optp[(10 +2)] == 0)) &&
@@ -8579,31 +6098,19 @@ tcp_input(struct mbuf **mp, int *offp, int proto, int af)
   }
  }
  tiflags = th->th_flags;
-
-
-
-
  th->th_seq = ((__uint32_t)(th->th_seq));
  th->th_ack = ((__uint32_t)(th->th_ack));
  th->th_win = ((__uint16_t)(th->th_win));
  th->th_urp = ((__uint16_t)(th->th_urp));
-
-
-
-
-
  inp = pf_inp_lookup(m);
-
 findpcb:
  if (inp == ((void *)0)) {
   switch (af) {
-
   case 24:
    inp = in6_pcbhashlookup(&tcbtable, &ip6->ip6_src,
        th->th_sport, &ip6->ip6_dst, th->th_dport,
        m->M_dat.MH.MH_pkthdr.ph_rtableid);
    break;
-
   case 2:
    inp = in_pcbhashlookup(&tcbtable, ip->ip_src,
        th->th_sport, ip->ip_dst, th->th_dport,
@@ -8617,25 +6124,17 @@ findpcb:
    inpl_reverse = 1;
   tcpstat_inc(tcps_pcbhashmiss);
   switch (af) {
-
   case 24:
    inp = in6_pcblookup_listen(&tcbtable,
        &ip6->ip6_dst, th->th_dport, inpl_reverse, m,
        m->M_dat.MH.MH_pkthdr.ph_rtableid);
    break;
-
   case 2:
    inp = in_pcblookup_listen(&tcbtable,
        ip->ip_dst, th->th_dport, inpl_reverse, m,
        m->M_dat.MH.MH_pkthdr.ph_rtableid);
    break;
   }
-
-
-
-
-
-
   if (inp == ((void *)0)) {
    tcpstat_inc(tcps_noport);
    goto dropwithreset_ratelim;
@@ -8643,39 +6142,30 @@ findpcb:
  }
  ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 577, "sotoinpcb(inp->inp_socket) == inp"));
  ((((struct tcpcb *)(inp)->inp_ppcb) == ((void *)0) || ((struct tcpcb *)(inp)->inp_ppcb)->t_inpcb == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 578, "intotcpcb(inp) == NULL || intotcpcb(inp)->t_inpcb == inp"));
-
-
  switch (af) {
  case 2:
   if (inp->inp_ip_minttl && inp->inp_ip_minttl > ip->ip_ttl)
    goto drop;
   break;
-
  case 24:
   if (inp->inp_ip_minttl &&
       inp->inp_ip_minttl > ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim)
    goto drop;
   break;
-
  }
-
  tp = ((struct tcpcb *)(inp)->inp_ppcb);
  if (tp == ((void *)0))
   goto dropwithreset_ratelim;
  if (tp->t_state == 0)
   goto drop;
-
-
  if ((tiflags & 0x02) == 0)
   tiwin = th->th_win << tp->snd_scale;
  else
   tiwin = th->th_win;
-
  so = inp->inp_socket;
  if (so->so_options & (0x0001|0x0002)) {
   union syn_cache_sa src;
   union syn_cache_sa dst;
-
   __builtin_bzero((&src), (sizeof(src)));
   __builtin_bzero((&dst), (sizeof(dst)));
   switch (af) {
@@ -8684,38 +6174,31 @@ findpcb:
    src.sin.sin_family = 2;
    src.sin.sin_addr = ip->ip_src;
    src.sin.sin_port = th->th_sport;
-
    dst.sin.sin_len = sizeof(struct sockaddr_in);
    dst.sin.sin_family = 2;
    dst.sin.sin_addr = ip->ip_dst;
    dst.sin.sin_port = th->th_dport;
    break;
-
   case 24:
    src.sin6.sin6_len = sizeof(struct sockaddr_in6);
    src.sin6.sin6_family = 24;
    src.sin6.sin6_addr = ip6->ip6_src;
    src.sin6.sin6_port = th->th_sport;
-
    dst.sin6.sin6_len = sizeof(struct sockaddr_in6);
    dst.sin6.sin6_family = 24;
    dst.sin6.sin6_addr = ip6->ip6_dst;
    dst.sin6.sin6_port = th->th_dport;
    break;
-
   default:
    goto badsyn;
   }
-
   if (so->so_options & 0x0001) {
    ostate = tp->t_state;
    switch (af) {
-
    case 24:
     __builtin_memcpy((&tcp_saveti6.ti6_i), (ip6), (sizeof(*ip6)));
     __builtin_memcpy((&tcp_saveti6.ti6_t), (th), (sizeof(*th)));
     break;
-
    case 2:
     __builtin_memcpy((&tcp_saveti.ti_i), (ip), (sizeof(*ip)));
     __builtin_memcpy((&tcp_saveti.ti_t), (th), (sizeof(*th)));
@@ -8724,7 +6207,6 @@ findpcb:
   }
   if (so->so_options & 0x0002) {
    switch (tiflags & (0x04|0x02|0x10)) {
-
    case 0x02|0x10|0x04:
    case 0x02|0x04:
    case 0x10|0x04:
@@ -8732,57 +6214,31 @@ findpcb:
     syn_cache_reset(&src.sa, &dst.sa, th,
         inp->inp_rtableid);
     goto drop;
-
    case 0x02|0x10:
-
-
-
-
-
     goto badsyn;
-
    case 0x10:
     so = syn_cache_get(&src.sa, &dst.sa,
      th, iphlen, tlen, so, m);
     if (so == ((void *)0)) {
-
-
-
-
      goto badsyn;
     } else if (so == (struct socket *)(-1)) {
-# 697 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
      m = *mp = ((void *)0);
      goto drop;
     } else {
-
-
-
-
      tp = ((void *)0);
      inp = ((struct inpcb *)(so)->so_pcb);
      tp = ((struct tcpcb *)(inp)->inp_ppcb);
      if (tp == ((void *)0))
       goto badsyn;
-
     }
     break;
-
    default:
-
-
-
-
-
     goto badsyn;
-
    case 0x02:
-# 761 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     if (ip6 && !ip6_use_deprecated) {
      struct in6_ifaddr *ia6;
      struct ifnet *ifp =
          if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-
      if (ifp &&
          (ia6 = in6ifa_ifpwithaddr(ifp,
          &ip6->ip6_dst)) &&
@@ -8794,24 +6250,14 @@ findpcb:
      }
      if_put(ifp);
     }
-
-
-
-
-
-
-
     if (th->th_dport == th->th_sport) {
      switch (af) {
-
      case 24:
       if ((__builtin_memcmp((&(&ip6->ip6_src)->__u6_addr.__u6_addr8[0]), (&(&ip6->ip6_dst)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0)) {
-
        tcpstat_inc(tcps_badsyn);
        goto drop;
       }
       break;
-
      case 2:
       if (ip->ip_dst.s_addr == ip->ip_src.s_addr) {
        tcpstat_inc(tcps_badsyn);
@@ -8820,11 +6266,6 @@ findpcb:
       break;
      }
     }
-
-
-
-
-
     if (so->so_qlen > so->so_qlimit ||
         syn_cache_add(&src.sa, &dst.sa, th, iphlen,
         so, m, optp, optlen, &opti, reuse) == -1) {
@@ -8835,22 +6276,9 @@ findpcb:
    }
   }
  }
-
-
-
-
-
-
  if (tp->t_state == 1)
   panic("tcp_input: TCPS_LISTEN");
-
-
-
  pf_inp_link(m, inp);
-
-
-
-
  mtag = m_tag_find(m, 0x0001, ((void *)0));
  if (mtag != ((void *)0)) {
   tdbi = (struct tdb_ident *)(mtag + 1);
@@ -8864,81 +6292,41 @@ findpcb:
   tcpstat_inc(tcps_rcvnosec);
   goto drop;
  }
-
-
-
-
-
-
  tp->t_rcvtime = tcp_now;
  if (((tp->t_state) >= 4))
   timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
-
-
  if (tp->sack_enable)
   tcp_del_sackholes(tp, th);
-
-
-
-
-
-
  if (optp || (tp->t_flags & 0x0400))
-
-
-
   if (tcp_dooptions(tp, optp, optlen, th, m, iphlen, &opti,
       m->M_dat.MH.MH_pkthdr.ph_rtableid))
    goto drop;
-
  if (opti.ts_present && opti.ts_ecr) {
   int rtt_test;
-
-
   opti.ts_ecr -= tp->ts_modulate;
-
-
   rtt_test = tcp_now - opti.ts_ecr;
   if (rtt_test < 0 || rtt_test > (1<<9))
    opti.ts_ecr = 0;
  }
-
-
-
  if ((iptos & 0x03) == 0x03) {
   tp->t_flags |= 0x00010000;
   tcpstat_inc(tcps_ecn_rcvce);
  }
-# 907 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if (tp->t_state == 4 &&
-
      (tiflags & (0x02|0x01|0x04|0x20|0x40|0x80|0x10)) == 0x10 &&
-
-
-
      (!opti.ts_present || ((int)((opti.ts_val)-(tp->ts_recent)) >= 0)) &&
      th->th_seq == tp->rcv_nxt &&
      tiwin && tiwin == tp->snd_wnd &&
      tp->snd_nxt == tp->snd_max) {
-
-
-
-
-
-
   if (opti.ts_present && ((int)((th->th_seq)-(tp->last_ack_sent)) <= 0)) {
    tp->ts_recent_age = tcp_now;
    tp->ts_recent = opti.ts_val;
   }
-
   if (tlen == 0) {
    if (((int)((th->th_ack)-(tp->snd_una)) > 0) &&
        ((int)((th->th_ack)-(tp->snd_max)) <= 0) &&
        tp->snd_cwnd >= tp->snd_wnd &&
        tp->t_dupacks == 0) {
-
-
-
     tcpstat_inc(tcps_predack);
     if (opti.ts_present && opti.ts_ecr)
      tcp_xmit_timer(tp, tcp_now - opti.ts_ecr);
@@ -8951,47 +6339,19 @@ findpcb:
         acked);
     do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
     sbdrop(so, &so->so_snd, acked);
-
-
-
-
-
-
-
     if ((tp->t_flags & 0x00400000) &&
         ((int)((th->th_ack)-(tp->t_pmtud_th_seq)) > 0))
      tp->t_flags &= ~0x00400000;
-
-
-
-
-
     if (tp->t_pmtud_mss_acked < acked)
      tp->t_pmtud_mss_acked = acked;
-
     tp->snd_una = th->th_ack;
-
-
-
-
-
-
-
     if (((int)((tp->snd_una)-(tp->snd_last)) > 0))
-
     tp->snd_last = tp->snd_una;
-
-
-
-
-
     m_freem(m);
-# 993 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     if (tp->snd_una == tp->snd_max)
      timeout_del(&(tp)->t_timer[(0)]);
     else if (((&(tp)->t_timer[(1)])->to_flags & 2) == 0)
      timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
-
     tcp_update_sndspace(tp);
     if (sb_notify(so, &so->so_snd)) {
      tp->t_flags |= 0x01000000;
@@ -9006,26 +6366,13 @@ findpcb:
   } else if (th->th_ack == tp->snd_una &&
       (((&tp->t_segq)->tqh_first) == ((void *)0)) &&
       tlen <= sbspace(so, &so->so_rcv)) {
-
-
-
-
-
-
-
    if (tp->sack_enable && tp->rcv_numsacks)
     tcp_clean_sackreport(tp);
-
    tcpstat_inc(tcps_preddat);
    tp->rcv_nxt += tlen;
    tcpstat_pkt(tcps_rcvpack, tcps_rcvbyte, tlen);
    do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
-
    do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add(&(tp)->t_delack_to, tcp_delack_ticks); } } while ( 0); if_put(ifp); } while (0);
-
-
-
-
    if (so->so_state & 0x020)
     m_freem(m);
    else {
@@ -9033,7 +6380,6 @@ findpcb:
      if (tp->rfbuf_ts < opti.ts_ecr &&
          opti.ts_ecr - tp->rfbuf_ts < hz) {
       tcp_update_rcvspace(tp);
-
       tp->rfbuf_cnt = 0;
       tp->rfbuf_ts = 0;
      } else
@@ -9050,38 +6396,16 @@ findpcb:
    return 257;
   }
  }
-
-
-
-
  hdroptlen = iphlen + off;
-
-
-
-
-
-
-
  { int win;
-
  win = sbspace(so, &so->so_rcv);
  if (win < 0)
   win = 0;
  tp->rcv_wnd = imax(win, (int)(tp->rcv_adv - tp->rcv_nxt));
  }
-
-
  tp->rfbuf_cnt = 0;
  tp->rfbuf_ts = 0;
-
  switch (tp->t_state) {
-
-
-
-
-
-
-
  case 3:
   if (tiflags & 0x10) {
    if (tiflags & 0x02) {
@@ -9093,18 +6417,14 @@ findpcb:
     goto dropwithreset;
   }
   break;
-# 1112 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  case 2:
   if ((tiflags & 0x10) &&
       (((int)((th->th_ack)-(tp->iss)) <= 0) ||
        ((int)((th->th_ack)-(tp->snd_max)) > 0)))
    goto dropwithreset;
   if (tiflags & 0x04) {
-
-
    if (tcp_do_ecn && !(tp->t_flags & 0x00040000))
     goto drop;
-
    if (tiflags & 0x10)
     tp = tcp_drop(tp, 61);
    goto drop;
@@ -9119,26 +6439,12 @@ findpcb:
   timeout_del(&(tp)->t_timer[(0)]);
   tp->irs = th->th_seq;
   tcp_mss(tp, opti.maxseg);
-
   if (tp->t_rxtshift > 0)
    tp->snd_cwnd = tp->t_maxseg;
   (tp)->rcv_adv = (tp)->rcv_nxt = (tp)->irs + 1;
   tp->t_flags |= 0x0001;
-
-
-
-
-
-
   if (tp->sack_enable)
    tp->sack_enable = tp->t_flags & 0x0200;
-
-
-
-
-
-
-
   if (tcp_do_ecn) {
    switch (tiflags & (0x10|0x40|0x80)) {
    case 0x10|0x40:
@@ -9148,32 +6454,22 @@ findpcb:
     tcpstat_inc(tcps_ecn_accepts);
    }
   }
-
-
   if (tiflags & 0x10 && ((int)((tp->snd_una)-(tp->iss)) > 0)) {
    tcpstat_inc(tcps_connects);
    soisconnected(so);
    tp->t_state = 4;
    timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
-
    if ((tp->t_flags & (0x0040|0x0020)) ==
     (0x0040|0x0020)) {
     tp->snd_scale = tp->requested_s_scale;
     tp->rcv_scale = tp->request_r_scale;
    }
    tcp_flush_queue(tp);
-
-
-
-
-
    if (tp->t_rtttime)
     tcp_xmit_timer(tp, tcp_now - tp->t_rtttime);
-# 1195 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
    tp->snd_cwnd += tp->t_maxseg;
   } else
    tp->t_state = 3;
-# 1207 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   th->th_seq++;
   if (tlen > tp->rcv_wnd) {
    todrop = tlen - tp->rcv_wnd;
@@ -9186,30 +6482,12 @@ findpcb:
   tp->snd_wl1 = th->th_seq - 1;
   tp->rcv_up = th->th_seq;
   goto step6;
-
-
-
-
-
-
  case 10:
   if (((tiflags & (0x02|0x10)) == 0x02) &&
       ((opti.ts_present &&
       ((int)((tp->ts_recent)-(opti.ts_val)) < 0)) ||
       ((int)((th->th_seq)-(tp->rcv_nxt)) > 0))) {
-
-
-
-
-
-
    pf_inp_unlink(inp);
-
-
-
-
-
-
    iss = tp->snd_nxt +
        ((arc4random() & 0x7fffffff) | 0x8000);
    reuse = &iss;
@@ -9218,13 +6496,9 @@ findpcb:
    goto findpcb;
   }
  }
-# 1262 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if (opti.ts_present && (tiflags & 0x04) == 0 && tp->ts_recent &&
      ((int)((opti.ts_val)-(tp->ts_recent)) < 0)) {
-
-
   if ((int)(tcp_now - tp->ts_recent_age) > (24 * 24 * 60 * 60 * 2)) {
-# 1278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
    tp->ts_recent = 0;
   } else {
    tcpstat_pkt(tcps_rcvduppack, tcps_rcvdupbyte, tlen);
@@ -9232,7 +6506,6 @@ findpcb:
    goto dropafterack;
   }
  }
-
  todrop = tp->rcv_nxt - th->th_seq;
  if (todrop > 0) {
   if (tiflags & 0x02) {
@@ -9246,16 +6519,7 @@ findpcb:
   }
   if (todrop > tlen ||
       (todrop == tlen && (tiflags & 0x01) == 0)) {
-
-
-
-
-
    tiflags &= ~0x01;
-
-
-
-
    tp->t_flags |= 0x0001;
    todrop = tlen;
    tcpstat_pkt(tcps_rcvduppack, tcps_rcvdupbyte, todrop);
@@ -9273,34 +6537,17 @@ findpcb:
    th->th_urp = 0;
   }
  }
-
-
-
-
-
  if ((so->so_state & 0x001) &&
      tp->t_state > 5 && tlen) {
   tp = tcp_close(tp);
   tcpstat_inc(tcps_rcvafterclose);
   goto dropwithreset;
  }
-
-
-
-
-
  todrop = (th->th_seq + tlen) - (tp->rcv_nxt+tp->rcv_wnd);
  if (todrop > 0) {
   tcpstat_inc(tcps_rcvpackafterwin);
   if (todrop >= tlen) {
    tcpstat_add(tcps_rcvbyteafterwin, tlen);
-
-
-
-
-
-
-
    if (tp->rcv_wnd == 0 && th->th_seq == tp->rcv_nxt) {
     tp->t_flags |= 0x0001;
     tcpstat_inc(tcps_rcvwinprobe);
@@ -9312,35 +6559,22 @@ findpcb:
   tlen -= todrop;
   tiflags &= ~(0x08|0x01);
  }
-
-
-
-
-
-
-
  if (opti.ts_present && ((int)((opti.ts_val)-(tp->ts_recent)) >= 0) &&
      ((int)((th->th_seq)-(tp->last_ack_sent)) <= 0)) {
   tp->ts_recent_age = tcp_now;
   tp->ts_recent = opti.ts_val;
  }
-# 1388 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if (tiflags & 0x04) {
   if (th->th_seq != tp->last_ack_sent &&
       th->th_seq != tp->rcv_nxt &&
       th->th_seq != (tp->rcv_nxt + 1))
    goto drop;
-
   switch (tp->t_state) {
   case 3:
-
-
    if (tcp_do_ecn && !(tp->t_flags & 0x00040000))
     goto drop;
-
    so->so_error = 61;
    goto close;
-
   case 4:
   case 6:
   case 9:
@@ -9358,40 +6592,20 @@ findpcb:
    goto drop;
   }
  }
-
-
-
-
-
  if (tiflags & 0x02)
   goto dropafterack_ratelim;
-
-
-
-
  if ((tiflags & 0x10) == 0) {
   if (tp->t_flags & 0x0001)
    goto dropafterack;
   else
    goto drop;
  }
-
-
-
-
  switch (tp->t_state) {
-
-
-
-
-
-
  case 3:
   tcpstat_inc(tcps_connects);
   soisconnected(so);
   tp->t_state = 4;
   timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
-
   if ((tp->t_flags & (0x0040|0x0020)) ==
    (0x0040|0x0020)) {
    tp->snd_scale = tp->requested_s_scale;
@@ -9400,7 +6614,6 @@ findpcb:
   }
   tcp_flush_queue(tp);
   tp->snd_wl1 = th->th_seq - 1;
-# 1473 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  case 4:
  case 6:
  case 9:
@@ -9408,18 +6621,10 @@ findpcb:
  case 7:
  case 8:
  case 10:
-
-
-
-
-
-
-
   if (tcp_do_ecn && (tiflags & 0x40)) {
    if ((tp->t_flags & 0x00008000) &&
        ((int)((tp->snd_una)-(tp->snd_last)) >= 0)) {
     u_int win;
-
     win = min(tp->snd_wnd, tp->snd_cwnd) / tp->t_maxseg;
     if (win > 1) {
      tp->snd_ssthresh = win / 2 * tp->t_maxseg;
@@ -9431,134 +6636,80 @@ findpcb:
    }
    tcpstat_inc(tcps_ecn_rcvece);
   }
-
-
-
-
   if ((tiflags & 0x80)) {
    tp->t_flags &= ~0x00010000;
    tcpstat_inc(tcps_ecn_rcvcwr);
   }
-
-
   if (((int)((th->th_ack)-(tp->snd_una)) <= 0)) {
-# 1526 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
    if (tlen) {
-
     if (th->th_seq != tp->rcv_nxt &&
        ((int)((th->th_ack)-(tp->snd_una - tp->max_sndwnd)) < 0)) {
-
      tcpstat_inc(tcps_rcvacktooold);
      goto drop;
     }
     break;
    }
-
-
-
-
-
-
    if (th->th_ack != tp->snd_una) {
     tp->t_dupacks = 0;
     break;
    }
    if (tiwin == tp->snd_wnd) {
     tcpstat_inc(tcps_rcvdupack);
-# 1572 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     if (((&(tp)->t_timer[(0)])->to_flags & 2) == 0)
      tp->t_dupacks = 0;
-# 1584 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     else if (++tp->t_dupacks == tcprexmtthresh) {
-
      tcp_seq onxt = tp->snd_nxt;
      u_long win =
          ulmin(tp->snd_wnd, tp->snd_cwnd) /
       2 / tp->t_maxseg;
-
-
      if (((int)((th->th_ack)-(tp->snd_last)) < 0)){
-
-
-
-
       tp->t_dupacks = 0;
       goto drop;
      }
-
      if (win < 2)
       win = 2;
      tp->snd_ssthresh = win * tp->t_maxseg;
-
      tp->snd_last = tp->snd_max;
      if (tp->sack_enable) {
       timeout_del(&(tp)->t_timer[(0)]);
       tp->t_rtttime = 0;
-
       tp->t_flags |= 0x00020000;
-
       tcpstat_inc(tcps_cwr_frecovery);
       tcpstat_inc(tcps_sack_recovery_episode);
-# 1627 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
       (void) tcp_output(tp);
       tp->snd_cwnd = tp->snd_ssthresh+
                 tp->t_maxseg * tp->t_dupacks;
-
       goto drop;
      }
-
      timeout_del(&(tp)->t_timer[(0)]);
      tp->t_rtttime = 0;
      tp->snd_nxt = th->th_ack;
      tp->snd_cwnd = tp->t_maxseg;
-
      tp->t_flags |= 0x00020000;
-
      tcpstat_inc(tcps_cwr_frecovery);
      tcpstat_inc(tcps_sndrexmitfast);
      (void) tcp_output(tp);
-
      tp->snd_cwnd = tp->snd_ssthresh +
          tp->t_maxseg * tp->t_dupacks;
      if (((int)((onxt)-(tp->snd_nxt)) > 0))
       tp->snd_nxt = onxt;
      goto drop;
     } else if (tp->t_dupacks > tcprexmtthresh) {
-# 1662 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
      tp->snd_cwnd += tp->t_maxseg;
      (void) tcp_output(tp);
      goto drop;
     }
    } else if (tiwin < tp->snd_wnd) {
-
-
-
-
-
-
     tp->t_dupacks = 0;
    }
    break;
   }
-
-
-
-
-
   if (tp->sack_enable) {
    if (tp->t_dupacks >= tcprexmtthresh) {
-
     if (tcp_sack_partialack(tp, th)) {
-
-
-
-
-
      tp->snd_cwnd += tp->t_maxseg;
      tp->t_flags |= 0x00800000;
-
     } else {
-
      tp->snd_cwnd = tp->snd_ssthresh;
      if (tcp_seq_subtract(tp->snd_max,
          th->th_ack) < tp->snd_ssthresh)
@@ -9566,16 +6717,11 @@ findpcb:
          tcp_seq_subtract(tp->snd_max,
                 th->th_ack);
      tp->t_dupacks = 0;
-
-
-
-
     }
    }
   } else {
    if (tp->t_dupacks >= tcprexmtthresh &&
        !tcp_newreno(tp, th)) {
-
     tp->snd_cwnd = tp->snd_ssthresh;
     if (tcp_seq_subtract(tp->snd_max, th->th_ack) <
         tp->snd_ssthresh)
@@ -9587,51 +6733,27 @@ findpcb:
   }
   if (tp->t_dupacks < tcprexmtthresh)
    tp->t_dupacks = 0;
-
-
-
-
-
-
   if (((int)((th->th_ack)-(tp->snd_max)) > 0)) {
    tcpstat_inc(tcps_rcvacktoomuch);
    goto dropafterack_ratelim;
   }
   acked = th->th_ack - tp->snd_una;
   tcpstat_pkt(tcps_rcvackpack, tcps_rcvackbyte, acked);
-# 1746 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   if (opti.ts_present && opti.ts_ecr)
    tcp_xmit_timer(tp, tcp_now - opti.ts_ecr);
   else if (tp->t_rtttime && ((int)((th->th_ack)-(tp->t_rtseq)) > 0))
    tcp_xmit_timer(tp, tcp_now - tp->t_rtttime);
-
-
-
-
-
-
-
   if (th->th_ack == tp->snd_max) {
    timeout_del(&(tp)->t_timer[(0)]);
    tp->t_flags |= 0x00800000;
   } else if (((&(tp)->t_timer[(1)])->to_flags & 2) == 0)
    timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
-
-
-
-
-
-
-
   {
   u_int cw = tp->snd_cwnd;
   u_int incr = tp->t_maxseg;
-
   if (cw > tp->snd_ssthresh)
    incr = incr * incr / cw;
-
   if (tp->t_dupacks < tcprexmtthresh)
-
   tp->snd_cwnd = ulmin(cw + incr, 65535<<tp->snd_scale);
   }
   do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
@@ -9644,55 +6766,25 @@ findpcb:
    tp->snd_wnd -= acked;
    ourfinisacked = 0;
   }
-
   tcp_update_sndspace(tp);
   if (sb_notify(so, &so->so_snd)) {
    tp->t_flags |= 0x01000000;
    sowwakeup(so);
    tp->t_flags &= ~0x01000000;
   }
-
-
-
-
-
-
   if ((tp->t_flags & 0x00400000) &&
       ((int)((th->th_ack)-(tp->t_pmtud_th_seq)) > 0))
    tp->t_flags &= ~0x00400000;
-
-
-
-
-
   if (tp->t_pmtud_mss_acked < acked)
    tp->t_pmtud_mss_acked = acked;
-
   tp->snd_una = th->th_ack;
-
-
   if (((int)((tp->snd_una)-(tp->snd_last)) > 0))
    tp->snd_last = tp->snd_una;
-
   if (((int)((tp->snd_nxt)-(tp->snd_una)) < 0))
    tp->snd_nxt = tp->snd_una;
-# 1833 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   switch (tp->t_state) {
-
-
-
-
-
-
   case 6:
    if (ourfinisacked) {
-
-
-
-
-
-
-
     if (so->so_state & 0x020) {
      soisdisconnected(so);
      timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2));
@@ -9700,13 +6792,6 @@ findpcb:
     tp->t_state = 9;
    }
    break;
-
-
-
-
-
-
-
   case 7:
    if (ourfinisacked) {
     tp->t_state = 10;
@@ -9715,41 +6800,22 @@ findpcb:
     soisdisconnected(so);
    }
    break;
-
-
-
-
-
-
-
   case 8:
    if (ourfinisacked) {
     tp = tcp_close(tp);
     goto drop;
    }
    break;
-
-
-
-
-
-
   case 10:
    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
    goto dropafterack;
   }
  }
-
 step6:
-
-
-
-
  if ((tiflags & 0x10) &&
      (((int)((tp->snd_wl1)-(th->th_seq)) < 0) || (tp->snd_wl1 == th->th_seq &&
      (((int)((tp->snd_wl2)-(th->th_ack)) < 0) ||
      (tp->snd_wl2 == th->th_ack && tiwin > tp->snd_wnd))))) {
-
   if (tlen == 0 &&
       tp->snd_wl2 == th->th_ack && tiwin > tp->snd_wnd)
    tcpstat_inc(tcps_rcvwinupd);
@@ -9760,24 +6826,13 @@ step6:
    tp->max_sndwnd = tp->snd_wnd;
   tp->t_flags |= 0x00800000;
  }
-
-
-
-
  if ((tiflags & 0x20) && th->th_urp &&
      ((tp->t_state) >= 10) == 0) {
-
-
-
-
-
-
   if (th->th_urp + so->so_rcv.sb_cc > sb_max) {
    th->th_urp = 0;
    tiflags &= ~0x20;
    goto dodata;
   }
-# 1947 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   if (((int)((th->th_seq+th->th_urp)-(tp->rcv_up)) > 0)) {
    tp->rcv_up = th->th_seq + th->th_urp;
    so->so_oobmark = so->so_rcv.sb_cc +
@@ -9787,31 +6842,17 @@ step6:
    sohasoutofband(so);
    tp->t_oobflags &= ~(0x01 | 0x02);
   }
-
-
-
-
-
-
   if (th->th_urp <= (u_int16_t) tlen &&
       (so->so_options & 0x0100) == 0)
           tcp_pulloutofband(so, th->th_urp, m, hdroptlen);
  } else
-
-
-
-
-
   if (((int)((tp->rcv_nxt)-(tp->rcv_up)) > 0))
    tp->rcv_up = tp->rcv_nxt;
 dodata:
-# 1983 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if ((tlen || (tiflags & 0x01)) &&
      ((tp->t_state) >= 10) == 0) {
-
   tcp_seq laststart = th->th_seq;
   tcp_seq lastend = th->th_seq + tlen;
-
   if (th->th_seq == tp->rcv_nxt && (((&tp->t_segq)->tqh_first) == ((void *)0)) &&
       tp->t_state == 4) {
    do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add(&(tp)->t_delack_to, tcp_delack_ticks); } } while ( 0); if_put(ifp); } while (0);
@@ -9833,20 +6874,12 @@ dodata:
    tiflags = tcp_reass(tp, th, m, &tlen);
    tp->t_flags |= 0x0001;
   }
-
   if (tp->sack_enable)
    tcp_update_sack_list(tp, laststart, lastend);
-# 2027 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  } else {
   m_freem(m);
   tiflags &= ~0x01;
  }
-
-
-
-
-
-
  if ((tiflags & 0x01) && ((tp->t_state) >= 4)) {
   if (((tp->t_state) >= 10) == 0) {
    socantrcvmore(so);
@@ -9854,37 +6887,18 @@ dodata:
    tp->rcv_nxt++;
   }
   switch (tp->t_state) {
-
-
-
-
   case 4:
    tp->t_state = 5;
    break;
-
-
-
-
-
   case 6:
    tp->t_state = 7;
    break;
-
-
-
-
-
-
   case 9:
    tp->t_state = 10;
    tcp_canceltimers(tp);
    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
    soisdisconnected(so);
    break;
-
-
-
-
   case 10:
    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
    break;
@@ -9892,74 +6906,41 @@ dodata:
  }
  if (so->so_options & 0x0001) {
   switch (tp->pf) {
-
   case 24:
    tcp_trace(0, ostate, tp, (caddr_t) &tcp_saveti6,
        0, tlen);
    break;
-
   case 2:
    tcp_trace(0, ostate, tp, (caddr_t) &tcp_saveti,
        0, tlen);
    break;
   }
  }
-
-
-
-
  if (tp->t_flags & (0x0001|0x00800000))
   (void) tcp_output(tp);
  return 257;
-
 badsyn:
-
-
-
  tcpstat_inc(tcps_badsyn);
  tp = ((void *)0);
  goto dropwithreset;
-
 dropafterack_ratelim:
  if (ppsratecheck(&tcp_ackdrop_ppslim_last, &tcp_ackdrop_ppslim_count,
      tcp_ackdrop_ppslim) == 0) {
-
   goto drop;
  }
-
-
 dropafterack:
-
-
-
-
  if (tiflags & 0x04)
   goto drop;
  m_freem(m);
  tp->t_flags |= 0x0001;
  (void) tcp_output(tp);
  return 257;
-
 dropwithreset_ratelim:
-
-
-
-
-
-
  if (ppsratecheck(&tcp_rst_ppslim_last, &tcp_rst_ppslim_count,
      tcp_rst_ppslim) == 0) {
-
   goto drop;
  }
-
-
 dropwithreset:
-
-
-
-
-
  if (tiflags & 0x04)
   goto drop;
  if (tiflags & 0x10) {
@@ -9973,30 +6954,22 @@ dropwithreset:
  }
  m_freem(m);
  return 257;
-
 drop:
-
-
-
  if (tp && (tp->t_inpcb->inp_socket->so_options & 0x0001)) {
   switch (tp->pf) {
-
   case 24:
    tcp_trace(4, ostate, tp, (caddr_t) &tcp_saveti6,
        0, tlen);
    break;
-
   case 2:
    tcp_trace(4, ostate, tp, (caddr_t) &tcp_saveti,
        0, tlen);
    break;
   }
  }
-
  m_freem(m);
  return 257;
 }
-
 int
 tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
     struct mbuf *m, int iphlen, struct tcp_opt_info *oi,
@@ -10004,11 +6977,8 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
 {
  u_int16_t mss = 0;
  int opt, optlen;
-
  caddr_t sigp = ((void *)0);
  struct tdb *tdb = ((void *)0);
-
-
  for (; cp && cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
@@ -10023,10 +6993,8 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
     break;
   }
   switch (opt) {
-
   default:
    continue;
-
   case 2:
    if (optlen != 4)
     continue;
@@ -10038,7 +7006,6 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
    mss = ((__uint16_t)(mss));
    oi->maxseg = mss;
    break;
-
   case 3:
    if (optlen != 3)
     continue;
@@ -10049,7 +7016,6 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
    tp->t_flags |= 0x0040;
    tp->requested_s_scale = min(cp[2], 14);
    break;
-
   case 8:
    if (optlen != 10)
     continue;
@@ -10058,21 +7024,14 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
    oi->ts_val = ((__uint32_t)(oi->ts_val));
    __builtin_memcpy((&oi->ts_ecr), (cp + 6), (sizeof(oi->ts_ecr)));
    oi->ts_ecr = ((__uint32_t)(oi->ts_ecr));
-
    if (!(th->th_flags & 0x02))
     continue;
    if (((tp->t_state) >= 3))
     continue;
-
-
-
-
    tp->t_flags |= 0x0100;
    tp->ts_recent = oi->ts_val;
    tp->ts_recent_age = tcp_now;
    break;
-
-
   case 4:
    if (!tp->sack_enable || optlen!=2)
     continue;
@@ -10080,34 +7039,24 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
     continue;
    if (((tp->t_state) >= 3))
     continue;
-
    tp->t_flags |= 0x0200;
    break;
   case 5:
    tcp_sack_option(tp, th, cp, optlen);
    break;
-
-
   case 19:
    if (optlen != 18)
     continue;
-
    if (sigp && timingsafe_bcmp(sigp, cp + 2, 16))
     return (-1);
-
    sigp = cp + 2;
    break;
-
   }
  }
-
-
  if (tp->t_flags & 0x0400) {
   union sockaddr_union src, dst;
-
   __builtin_memset((&src), (0), (sizeof(union sockaddr_union)));
   __builtin_memset((&dst), (0), (sizeof(union sockaddr_union)));
-
   switch (tp->pf) {
   case 0:
   case 2:
@@ -10118,7 +7067,6 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
    dst.sa.sa_family = 2;
    dst.sin.sin_addr = ((struct ip *)((m)->m_hdr.mh_data))->ip_dst;
    break;
-
   case 24:
    src.sa.sa_len = sizeof(struct sockaddr_in6);
    src.sa.sa_family = 24;
@@ -10127,70 +7075,43 @@ tcp_dooptions(struct tcpcb *tp, u_char *cp, int cnt, struct tcphdr *th,
    dst.sa.sa_family = 24;
    dst.sin6.sin6_addr = ((struct ip6_hdr *)((m)->m_hdr.mh_data))->ip6_dst;
    break;
-
   }
-
   tdb = gettdbbysrcdst(rtable_l2(rtableid),
       0, &src, &dst, 6);
-
-
-
-
-
   if (tdb == ((void *)0) && tp->t_state == 1)
    tp->t_flags &= ~0x0400;
-
  }
-
  if ((sigp ? 0x0400 : 0) ^ (tp->t_flags & 0x0400)) {
   tcpstat_inc(tcps_rcvbadsig);
   return (-1);
  }
-
  if (sigp) {
   char sig[16];
-
   if (tdb == ((void *)0)) {
    tcpstat_inc(tcps_rcvbadsig);
    return (-1);
   }
-
   if (tcp_signature(tdb, tp->pf, m, th, iphlen, 1, sig) < 0)
    return (-1);
-
   if (timingsafe_bcmp(sig, sigp, 16)) {
    tcpstat_inc(tcps_rcvbadsig);
    return (-1);
   }
-
   tcpstat_inc(tcps_rcvgoodsig);
  }
-
-
  return (0);
 }
-
-
 u_long
 tcp_seq_subtract(u_long a, u_long b)
 {
  return ((long)(a - b));
 }
-# 2374 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void
 tcp_update_sack_list(struct tcpcb *tp, tcp_seq rcv_laststart,
     tcp_seq rcv_lastend)
 {
-
-
-
-
-
-
  int i, j = 0, count = 0, lastpos = -1;
  struct sackblk sack, firstsack, temp[6];
-
-
  for (i = 0; i < tp->rcv_numsacks; i++) {
   sack = tp->sackblks[i];
   if (sack.start == 0 && sack.end == 0) {
@@ -10209,22 +7130,16 @@ tcp_update_sack_list(struct tcpcb *tp, tcp_seq rcv_laststart,
  if (tp->rcv_numsacks == 0) {
   tcp_clean_sackreport(tp);
   if (((int)((tp->rcv_nxt)-(rcv_laststart)) < 0)) {
-
    tp->sackblks[0].start = rcv_laststart;
    tp->sackblks[0].end = rcv_lastend;
    tp->rcv_numsacks = 1;
   }
   return;
  }
-
  for (i = 0; i < tp->rcv_numsacks; i++)
   tp->sackblks[i] = temp[i];
  if (((int)((tp->rcv_nxt)-(rcv_lastend)) >= 0))
   return;
-
-
-
-
  firstsack.start = rcv_laststart;
  firstsack.end = rcv_lastend;
  for (i = 0; i < tp->rcv_numsacks; i++) {
@@ -10233,10 +7148,6 @@ tcp_update_sack_list(struct tcpcb *tp, tcp_seq rcv_laststart,
       ((int)((sack.start)-(firstsack.end)) > 0))
    continue;
   if (sack.start == firstsack.start && sack.end == firstsack.end){
-
-
-
-
    tp->sackblks[i].start = tp->sackblks[i].end = 0;
    lastpos = i;
    continue;
@@ -10267,31 +7178,21 @@ tcp_update_sack_list(struct tcpcb *tp, tcp_seq rcv_laststart,
  tp->sackblks[0] = firstsack;
  return;
 }
-
-
-
-
-
 void
 tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
 {
  int tmp_olen;
  u_char *tmp_cp;
  struct sackhole *cur, *p, *temp;
-
  if (!tp->sack_enable)
   return;
-
  if ((th->th_flags & 0x10) == 0)
         return;
-
  if (((int)((th->th_ack)-(tp->snd_una)) < 0) ||
      ((int)((th->th_ack)-(tp->snd_max)) > 0))
   return;
-
  if (optlen <= 2 || (optlen - 2) % 8 != 0)
   return;
-
  tmp_cp = cp + 2;
  tmp_olen = optlen - 2;
  tcpstat_inc(tcps_sack_rcv_opts);
@@ -10301,7 +7202,6 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
   panic("tcp_sack_option");
  while (tmp_olen > 0) {
   struct sackblk sack;
-
   __builtin_memcpy((&sack.start), (tmp_cp), (sizeof(tcp_seq)));
   sack.start = ((__uint32_t)(sack.start));
   __builtin_memcpy((&sack.end), (tmp_cp + sizeof(tcp_seq)), (sizeof(tcp_seq)));
@@ -10312,11 +7212,6 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
    continue;
   if (((int)((sack.end)-(tp->snd_una)) <= 0))
    continue;
-
-
-
-
-
   if (((int)((th->th_ack)-(tp->snd_una)) > 0)) {
    if (((int)((sack.start)-(th->th_ack)) < 0))
     continue;
@@ -10327,7 +7222,6 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
    tp->snd_holes = (struct sackhole *)
        pool_get(&sackhl_pool, 0x0002);
    if (tp->snd_holes == ((void *)0)) {
-
     goto done;
    }
    cur = tp->snd_holes;
@@ -10337,24 +7231,17 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
    cur->next = ((void *)0);
    tp->snd_numholes = 1;
    tp->rcv_lastsack = sack.end;
-
-
-
-
    cur->dups = min(tcprexmtthresh,
        ((sack.end - cur->end)/tp->t_maxseg));
    if (cur->dups < 1)
     cur->dups = 1;
    continue;
   }
-
   p = cur = tp->snd_holes;
   while (cur) {
    if (((int)((sack.end)-(cur->start)) <= 0))
-
     break;
    if (((int)((sack.start)-(cur->end)) >= 0)) {
-
     cur->dups++;
     if (((sack.end - cur->end)/tp->t_maxseg) >=
         tcprexmtthresh)
@@ -10364,9 +7251,7 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
     continue;
    }
    if (((int)((sack.start)-(cur->start)) <= 0)) {
-# 2572 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     if (((int)((sack.end)-(cur->end)) >= 0)) {
-
      if (p != cur) {
       p->next = cur->next;
       pool_put(&sackhl_pool, cur);
@@ -10380,21 +7265,13 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
      tp->snd_numholes--;
      continue;
     }
-
     cur->start = sack.end;
     cur->rxmit = (((int)((cur->rxmit)-(cur->start)) > 0) ? (cur->rxmit) : (cur->start));
     p = cur;
     cur = cur->next;
     continue;
    }
-
    if (((int)((sack.end)-(cur->end)) >= 0)) {
-
-
-
-
-
-
     cur->end = sack.start;
     cur->rxmit = (((int)((cur->rxmit)-(cur->end)) < 0) ? (cur->rxmit) : (cur->end));
     cur->dups++;
@@ -10407,15 +7284,10 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
    }
    if (((int)((cur->start)-(sack.start)) < 0) &&
        ((int)((cur->end)-(sack.end)) > 0)) {
-
-
-
-
     temp = (struct sackhole *)
         pool_get(&sackhl_pool, 0x0002);
     if (temp == ((void *)0))
      goto done;
-# 2632 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
     temp->next = cur->next;
     temp->start = sack.end;
     temp->end = cur->end;
@@ -10433,12 +7305,7 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
     tp->snd_numholes++;
    }
   }
-
   if (((int)((tp->rcv_lastsack)-(sack.start)) < 0)) {
-
-
-
-
    temp = (struct sackhole *)
        pool_get(&sackhl_pool, 0x0002);
    if (temp == ((void *)0))
@@ -10457,20 +7324,12 @@ tcp_sack_option(struct tcpcb *tp, struct tcphdr *th, u_char *cp, int optlen)
   }
  }
 done:
-# 2688 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  return;
 }
-
-
-
-
-
-
 void
 tcp_del_sackholes(struct tcpcb *tp, struct tcphdr *th)
 {
  if (tp->sack_enable && tp->t_state != 1) {
-
   tcp_seq lastack = ((int)((th->th_ack)-(tp->snd_una)) > 0) ?
    th->th_ack : tp->snd_una;
   struct sackhole *cur = tp->snd_holes;
@@ -10491,60 +7350,37 @@ tcp_del_sackholes(struct tcpcb *tp, struct tcphdr *th)
   tp->snd_holes = cur;
  }
 }
-
-
-
-
 void
 tcp_clean_sackreport(struct tcpcb *tp)
 {
  int i;
-
  tp->rcv_numsacks = 0;
  for (i = 0; i < 6; i++)
   tp->sackblks[i].start = tp->sackblks[i].end=0;
-
 }
-
-
-
-
-
-
 int
 tcp_sack_partialack(struct tcpcb *tp, struct tcphdr *th)
 {
  if (((int)((th->th_ack)-(tp->snd_last)) < 0)) {
-
   timeout_del(&(tp)->t_timer[(0)]);
   tp->t_rtttime = 0;
-
-
-
-
-
-
   if (tp->snd_cwnd > (th->th_ack - tp->snd_una)) {
    tp->snd_cwnd -= th->th_ack - tp->snd_una;
    tp->snd_cwnd += tp->t_maxseg;
   } else
    tp->snd_cwnd = tp->t_maxseg;
-
   return (1);
  }
  return (0);
 }
-# 2772 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void
 tcp_pulloutofband(struct socket *so, u_int urgent, struct mbuf *m, int off)
 {
         int cnt = off + urgent - 1;
-
  while (cnt >= 0) {
   if (m->m_hdr.mh_len > cnt) {
    char *cp = ((caddr_t)((m)->m_hdr.mh_data)) + cnt;
    struct tcpcb *tp = (((struct tcpcb *)(((struct inpcb *)(so)->so_pcb))->inp_ppcb));
-
    tp->t_iobc = *cp;
    tp->t_oobflags |= 0x01;
    __builtin_memmove((cp), (cp + 1), (m->m_hdr.mh_len - cnt - 1));
@@ -10558,54 +7394,37 @@ tcp_pulloutofband(struct socket *so, u_int urgent, struct mbuf *m, int off)
  }
  panic("tcp_pulloutofband");
 }
-
-
-
-
-
 void
 tcp_xmit_timer(struct tcpcb *tp, int rtt)
 {
  short delta;
  short rttmin;
-
  if (rtt < 0)
   rtt = 0;
  else if (rtt > (1<<9))
   rtt = (1<<9);
-
  tcpstat_inc(tcps_rttupdated);
  if (tp->t_srtt != 0) {
-# 2822 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   delta = (rtt << 2) -
       (tp->t_srtt >> 3);
   if ((tp->t_srtt += delta) <= 0)
    tp->t_srtt = 1 << 2;
-# 2836 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   if (delta < 0)
    delta = -delta;
   delta -= (tp->t_rttvar >> 2);
   if ((tp->t_rttvar += delta) <= 0)
    tp->t_rttvar = 1 << 2;
  } else {
-
-
-
-
-
   tp->t_srtt = (rtt + 1) << (3 + 2);
   tp->t_rttvar = (rtt + 1) <<
       (2 + 2 - 1);
  }
  tp->t_rtttime = 0;
  tp->t_rxtshift = 0;
-# 2865 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  rttmin = min(max(rtt + 2, tp->t_rttmin), ( 64*2));
  do { (tp->t_rxtcur) = (((((tp)->t_srtt >> 3) + (tp)->t_rttvar) >> 2)); if ((tp->t_rxtcur) < (rttmin)) (tp->t_rxtcur) = (rttmin); else if ((tp->t_rxtcur) > (( 64*2))) (tp->t_rxtcur) = (( 64*2)); } while ( 0);
-# 2875 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  tp->t_softerror = 0;
 }
-# 2902 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 int
 tcp_mss(struct tcpcb *tp, int offer)
 {
@@ -10614,49 +7433,26 @@ tcp_mss(struct tcpcb *tp, int offer)
  int mss, mssopt;
  int iphlen;
  struct inpcb *inp;
-
  inp = tp->t_inpcb;
-
  mssopt = mss = tcp_mssdflt;
-
  rt = in_pcbrtentry(inp);
-
  if (rt == ((void *)0))
   goto out;
-
  ifp = if_get(rt->rt_ifidx);
  if (ifp == ((void *)0))
   goto out;
-
  switch (tp->pf) {
-
  case 24:
   iphlen = sizeof(struct ip6_hdr);
   break;
-
  case 2:
   iphlen = sizeof(struct ip);
   break;
  default:
-
   goto out;
  }
-
-
-
-
-
  if (rt->rt_rmx.rmx_mtu) {
-
-
-
-
   if (tp->pf == 24 && rt->rt_rmx.rmx_mtu < 1280) {
-
-
-
-
-
    mss = 1280 - iphlen - sizeof(struct ip6_frag) -
        sizeof(struct tcphdr);
   } else {
@@ -10669,81 +7465,51 @@ tcp_mss(struct tcpcb *tp, int offer)
   if (ip_mtudisc)
    mss = ifp->if_data.ifi_mtu - iphlen - sizeof(struct tcphdr);
  }
-
  else if (tp->pf == 24) {
-
-
-
-
   mss = ifp->if_data.ifi_mtu - iphlen - sizeof(struct tcphdr);
  }
-
-
-
  if (offer != -1) {
   mssopt = ifp->if_data.ifi_mtu - iphlen - sizeof(struct tcphdr);
   mssopt = max(tcp_mssdflt, mssopt);
  }
  out:
  if_put(ifp);
-# 2992 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if (offer > 0)
   tp->t_peermss = offer;
  if (tp->t_peermss)
   mss = min(mss, max(tp->t_peermss, 216));
-
-
  mss = max(mss, 64);
-# 3007 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  tp->t_maxopd = mss;
-
  if ((tp->t_flags & (0x0080|0x0008)) == 0x0080 &&
      (tp->t_flags & 0x0100) == 0x0100)
   mss -= (10 +2);
-
  if (tp->t_flags & 0x0400)
   mss -= (18 +2);
-
-
  if (offer == -1) {
-
   tp->t_flags &= ~0x00400000;
   tp->t_pmtud_mtu_sent = 0;
   tp->t_pmtud_mss_acked = 0;
   if (mss < tp->t_maxseg) {
-
-
-
-
-
    tp->snd_cwnd = ulmax((tp->snd_cwnd / tp->t_maxseg) *
           mss, mss);
   }
  } else if (tcp_do_rfc3390 == 2) {
-
   tp->snd_cwnd = ulmin(10 * mss, ulmax(2 * mss, 14600));
  } else if (tcp_do_rfc3390) {
-
   tp->snd_cwnd = ulmin(4 * mss, ulmax(2 * mss, 4380));
  } else
   tp->snd_cwnd = mss;
-
  tp->t_maxseg = mss;
-
  return (offer != -1 ? mssopt : mss);
 }
-
 u_int
 tcp_hdrsz(struct tcpcb *tp)
 {
  u_int hlen;
-
  switch (tp->pf) {
-
  case 24:
   hlen = sizeof(struct ip6_hdr);
   break;
-
  case 2:
   hlen = sizeof(struct ip);
   break;
@@ -10752,17 +7518,13 @@ tcp_hdrsz(struct tcpcb *tp)
   break;
  }
  hlen += sizeof(struct tcphdr);
-
  if ((tp->t_flags & (0x0080|0x0008)) == 0x0080 &&
      (tp->t_flags & 0x0100) == 0x0100)
   hlen += (10 +2);
-
  if (tp->t_flags & 0x0400)
   hlen += (18 +2);
-
  return (hlen);
 }
-# 3085 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void
 tcp_mss_update(struct tcpcb *tp)
 {
@@ -10770,19 +7532,14 @@ tcp_mss_update(struct tcpcb *tp)
  u_long bufsize;
  struct rtentry *rt;
  struct socket *so;
-
  so = tp->t_inpcb->inp_socket;
  mss = tp->t_maxseg;
-
  rt = in_pcbrtentry(tp->t_inpcb);
-
  if (rt == ((void *)0))
   return;
-
  bufsize = so->so_snd.sb_hiwat;
  if (bufsize < mss) {
   mss = bufsize;
-
   tcp_mss(tp, mss);
  } else {
   bufsize = ((((bufsize)+((mss)-1))/(mss))*(mss));
@@ -10790,7 +7547,6 @@ tcp_mss_update(struct tcpcb *tp)
    bufsize = sb_max;
   (void)sbreserve(so, &so->so_snd, bufsize);
  }
-
  bufsize = so->so_rcv.sb_hiwat;
  if (bufsize > mss) {
   bufsize = ((((bufsize)+((mss)-1))/(mss))*(mss));
@@ -10798,72 +7554,49 @@ tcp_mss_update(struct tcpcb *tp)
    bufsize = sb_max;
   (void)sbreserve(so, &so->so_rcv, bufsize);
  }
-
 }
-# 3130 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 int
 tcp_newreno(struct tcpcb *tp, struct tcphdr *th)
 {
  if (((int)((th->th_ack)-(tp->snd_last)) < 0)) {
-
-
-
-
-
-
   tcp_seq onxt = tp->snd_nxt;
   u_long ocwnd = tp->snd_cwnd;
   timeout_del(&(tp)->t_timer[(0)]);
   tp->t_rtttime = 0;
   tp->snd_nxt = th->th_ack;
-
-
-
-
   tp->snd_cwnd = tp->t_maxseg + (th->th_ack - tp->snd_una);
   (void) tcp_output(tp);
   tp->snd_cwnd = ocwnd;
   if (((int)((onxt)-(tp->snd_nxt)) > 0))
    tp->snd_nxt = onxt;
-
-
-
-
   if (tp->snd_cwnd > th->th_ack - tp->snd_una)
    tp->snd_cwnd -= th->th_ack - tp->snd_una;
   else
    tp->snd_cwnd = 0;
   tp->snd_cwnd += tp->t_maxseg;
-
   return 1;
  }
  return 0;
 }
-
-
 int
 tcp_mss_adv(struct mbuf *m, int af)
 {
  int mss = 0;
  int iphlen;
  struct ifnet *ifp = ((void *)0);
-
  if (m && (m->m_hdr.mh_flags & 0x0002))
   ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-
  switch (af) {
  case 2:
   if (ifp != ((void *)0))
    mss = ifp->if_data.ifi_mtu;
   iphlen = sizeof(struct ip);
   break;
-
  case 24:
   if (ifp != ((void *)0))
    mss = ifp->if_data.ifi_mtu;
   iphlen = sizeof(struct ip6_hdr);
   break;
-
  default:
   unhandled_af(af);
  }
@@ -10871,21 +7604,12 @@ tcp_mss_adv(struct mbuf *m, int af)
  mss = mss - iphlen - sizeof(struct tcphdr);
  return (max(mss, tcp_mssdflt));
 }
-
-
-
-
-
-
-
 int tcp_syn_hash_size = 293;
 int tcp_syn_cache_limit = 293*35;
 int tcp_syn_bucket_limit = 3*35;
 int tcp_syn_use_limit = 100000;
-
 struct syn_cache_set tcp_syn_cache[2];
 int tcp_syn_cache_active;
-# 3252 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void
 syn_cache_rm(struct syn_cache *sc)
 {
@@ -10897,7 +7621,6 @@ syn_cache_rm(struct syn_cache *sc)
  timeout_del(&sc->sc_timer);
  sc->sc_set->scs_count--;
 }
-
 void
 syn_cache_put(struct syn_cache *sc)
 {
@@ -10909,15 +7632,11 @@ syn_cache_put(struct syn_cache *sc)
  timeout_set(&sc->sc_timer, syn_cache_reaper, sc);
  timeout_add(&sc->sc_timer, 0);
 }
-
 struct pool syn_cache_pool;
-# 3294 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 void
 syn_cache_init(void)
 {
  int i;
-
-
  tcp_syn_cache[0].scs_buckethead = mallocarray(tcp_syn_hash_size,
      sizeof(struct syn_cache_head), 139, 0x0001|0x0008);
  tcp_syn_cache[1].scs_buckethead = mallocarray(tcp_syn_hash_size,
@@ -10928,12 +7647,9 @@ syn_cache_init(void)
   do { (&tcp_syn_cache[0].scs_buckethead[i].sch_bucket)->tqh_first = ((void *)0); (&tcp_syn_cache[0].scs_buckethead[i].sch_bucket)->tqh_last = &(&tcp_syn_cache[0].scs_buckethead[i].sch_bucket)->tqh_first; } while (0);
   do { (&tcp_syn_cache[1].scs_buckethead[i].sch_bucket)->tqh_first = ((void *)0); (&tcp_syn_cache[1].scs_buckethead[i].sch_bucket)->tqh_last = &(&tcp_syn_cache[1].scs_buckethead[i].sch_bucket)->tqh_first; } while (0);
  }
-
-
  pool_init(&syn_cache_pool, sizeof(struct syn_cache), 0, 2,
      0, "syncache", ((void *)0));
 }
-
 void
 syn_cache_insert(struct syn_cache *sc, struct tcpcb *tp)
 {
@@ -10941,22 +7657,13 @@ syn_cache_insert(struct syn_cache *sc, struct tcpcb *tp)
  struct syn_cache_head *scp;
  struct syn_cache *sc2;
  int i;
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
-
-
-
-
-
-
  if (set->scs_count == 0 && set->scs_use <= 0) {
   set->scs_use = tcp_syn_use_limit;
   if (set->scs_size != tcp_syn_hash_size) {
    scp = mallocarray(tcp_syn_hash_size, sizeof(struct
        syn_cache_head), 139, 0x0002|0x0008);
    if (scp == ((void *)0)) {
-
     set->scs_use = 0;
    } else {
     free(set->scs_buckethead, 139,
@@ -10971,43 +7678,20 @@ syn_cache_insert(struct syn_cache *sc, struct tcpcb *tp)
   arc4random_buf(set->scs_random, sizeof(set->scs_random));
   tcpstat_inc(tcps_sc_seedrandom);
  }
-
  do { switch ((&sc->sc_src.sa)->sa_family) { case 2: sc->sc_hash = (((&satosin(&sc->sc_src.sa)->sin_addr)->s_addr ^ ((set->scs_random))[0]) * (((((u_int32_t)(satosin(&sc->sc_dst.sa)->sin_port))<<16) + ((u_int32_t)(satosin(&sc->sc_src.sa)->sin_port))) ^ ((set->scs_random))[4])); break; case 24: sc->sc_hash = (((&satosin6(&sc->sc_src.sa)->sin6_addr)->__u6_addr.__u6_addr32[0] ^ ((set->scs_random))[0]) * ((&satosin6(&sc->sc_src.sa)->sin6_addr)->__u6_addr.__u6_addr32[1] ^ ((set->scs_random))[1]) * ((&satosin6(&sc->sc_src.sa)->sin6_addr)->__u6_addr.__u6_addr32[2] ^ ((set->scs_random))[2]) * ((&satosin6(&sc->sc_src.sa)->sin6_addr)->__u6_addr.__u6_addr32[3] ^ ((set->scs_random))[3]) * (((((u_int32_t)(satosin6(&sc->sc_dst.sa)->sin6_port))<<16) + ((u_int32_t)(satosin6(&sc->sc_src.sa)->sin6_port))) ^ ((set->scs_random))[4])); break; default: sc->sc_hash = 0; } } while ( 0);
-
  scp = &set->scs_buckethead[sc->sc_hash % set->scs_size];
  sc->sc_buckethead = scp;
-
-
-
-
-
  if (scp->sch_length >= tcp_syn_bucket_limit) {
   tcpstat_inc(tcps_sc_bucketoverflow);
-
-
-
-
   set->scs_use = 0;
-
-
-
-
   sc2 = ((&scp->sch_bucket)->tqh_first);
-
-
-
-
-
   if (sc2 == ((void *)0))
    panic("%s: bucketoverflow: impossible", __func__);
-
   syn_cache_rm(sc2);
   syn_cache_put(sc2);
  } else if (set->scs_count >= tcp_syn_cache_limit) {
   struct syn_cache_head *scp2, *sce;
-
   tcpstat_inc(tcps_sc_overflowed);
-# 3397 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   scp2 = scp;
   if ((((&scp2->sch_bucket)->tqh_first) == ((void *)0))) {
    sce = &set->scs_buckethead[set->scs_size];
@@ -11017,132 +7701,75 @@ syn_cache_insert(struct syn_cache *sc, struct tcpcb *tp)
     if (! (((&scp2->sch_bucket)->tqh_first) == ((void *)0)))
      break;
    }
-
-
-
-
-
    if (scp2 == scp)
     panic("%s: cacheoverflow: impossible",
         __func__);
-
   }
   sc2 = ((&scp2->sch_bucket)->tqh_first);
   syn_cache_rm(sc2);
   syn_cache_put(sc2);
  }
-
-
-
-
  sc->sc_rxttot = 0;
  sc->sc_rxtshift = 0;
  do { do { ((sc)->sc_rxtcur) = (( 3*2) * tcp_backoff[(sc)->sc_rxtshift]); if (((sc)->sc_rxtcur) < (( 1*2))) ((sc)->sc_rxtcur) = (( 1*2)); else if (((sc)->sc_rxtcur) > (( 64*2))) ((sc)->sc_rxtcur) = (( 64*2)); } while ( 0); if (!((&(sc)->sc_timer)->to_flags & 4)) timeout_set_proc(&(sc)->sc_timer, syn_cache_timer, (sc)); timeout_add(&(sc)->sc_timer, (sc)->sc_rxtcur * (hz / 2)); } while ( 0);
-
-
  do { if (((sc)->sc_tpq.le_next = (&tp->t_sc)->lh_first) != ((void *)0)) (&tp->t_sc)->lh_first->sc_tpq.le_prev = &(sc)->sc_tpq.le_next; (&tp->t_sc)->lh_first = (sc); (sc)->sc_tpq.le_prev = &(&tp->t_sc)->lh_first; } while (0);
-
-
  do { (sc)->sc_bucketq.tqe_next = ((void *)0); (sc)->sc_bucketq.tqe_prev = (&scp->sch_bucket)->tqh_last; *(&scp->sch_bucket)->tqh_last = (sc); (&scp->sch_bucket)->tqh_last = &(sc)->sc_bucketq.tqe_next; } while (0);
  scp->sch_length++;
  sc->sc_set = set;
  set->scs_count++;
  set->scs_use--;
-
  tcpstat_inc(tcps_sc_added);
-
-
-
-
-
  if (set->scs_use <= 0 &&
      tcp_syn_cache[!tcp_syn_cache_active].scs_count == 0)
   tcp_syn_cache_active = !tcp_syn_cache_active;
 }
-
-
-
-
-
-
 void
 syn_cache_timer(void *arg)
 {
  struct syn_cache *sc = arg;
  int s;
-
  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
  if (sc->sc_flags & 0x0004)
   goto out;
-
  if (__builtin_expect(((sc->sc_rxtshift == 12) != 0), 0)) {
-
   goto dropit;
  }
-
-
-
-
-
-
  sc->sc_rxttot += sc->sc_rxtcur;
  if (sc->sc_rxttot >= tcptv_keep_init)
   goto dropit;
-
  tcpstat_inc(tcps_sc_retransmitted);
  (void) syn_cache_respond(sc, ((void *)0));
-
-
  sc->sc_rxtshift++;
  do { do { ((sc)->sc_rxtcur) = (( 3*2) * tcp_backoff[(sc)->sc_rxtshift]); if (((sc)->sc_rxtcur) < (( 1*2))) ((sc)->sc_rxtcur) = (( 1*2)); else if (((sc)->sc_rxtcur) > (( 64*2))) ((sc)->sc_rxtcur) = (( 64*2)); } while ( 0); if (!((&(sc)->sc_timer)->to_flags & 4)) timeout_set_proc(&(sc)->sc_timer, syn_cache_timer, (sc)); timeout_add(&(sc)->sc_timer, (sc)->sc_rxtcur * (hz / 2)); } while ( 0);
-
  out:
  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
  return;
-
  dropit:
  tcpstat_inc(tcps_sc_timed_out);
  syn_cache_rm(sc);
  syn_cache_put(sc);
  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
 }
-
 void
 syn_cache_reaper(void *arg)
 {
  struct syn_cache *sc = arg;
-
  pool_put(&syn_cache_pool, (sc));
  return;
 }
-
-
-
-
-
-
 void
 syn_cache_cleanup(struct tcpcb *tp)
 {
  struct syn_cache *sc, *nsc;
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
  for ((sc) = ((&tp->t_sc)->lh_first); (sc) && ((nsc) = ((sc)->sc_tpq.le_next), 1); (sc) = (nsc)) {
-
   if (sc->sc_tp != tp)
    panic("invalid sc_tp in syn_cache_cleanup");
-
   syn_cache_rm(sc);
   syn_cache_put(sc);
  }
-
  do { ((&tp->t_sc)->lh_first) = ((void *)0); } while (0);
 }
-
-
-
-
 struct syn_cache *
 syn_cache_lookup(struct sockaddr *src, struct sockaddr *dst,
     struct syn_cache_head **headp, u_int rtableid)
@@ -11152,10 +7779,7 @@ syn_cache_lookup(struct sockaddr *src, struct sockaddr *dst,
  struct syn_cache_head *scp;
  u_int32_t hash;
  int i;
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
-
  sets[0] = &tcp_syn_cache[tcp_syn_cache_active];
  sets[1] = &tcp_syn_cache[!tcp_syn_cache_active];
  for (i = 0; i < 2; i++) {
@@ -11175,7 +7799,6 @@ syn_cache_lookup(struct sockaddr *src, struct sockaddr *dst,
  }
  return (((void *)0));
 }
-# 3588 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 struct socket *
 syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
     u_int hlen, u_int tlen, struct socket *so, struct mbuf *m)
@@ -11186,84 +7809,43 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  struct tcpcb *tp = ((void *)0);
  struct mbuf *am;
  struct socket *oso;
-
  struct pf_divert *divert = ((void *)0);
-
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
  sc = syn_cache_lookup(src, dst, &scp, ((struct inpcb *)(so)->so_pcb)->inp_rtableid);
  if (sc == ((void *)0))
   return (((void *)0));
-
-
-
-
-
  if ((th->th_ack != sc->sc_iss + 1) ||
      ((int)((th->th_seq)-(sc->sc_irs)) <= 0) ||
      ((int)((th->th_seq)-(sc->sc_irs + 1 + sc->sc_win)) > 0)) {
   (void) syn_cache_respond(sc, m);
   return ((struct socket *)(-1));
  }
-
-
  syn_cache_rm(sc);
-
-
-
-
-
-
-
  oso = so;
  so = sonewconn(so, 0x002);
  if (so == ((void *)0))
   goto resetandabort;
-
  oldinp = ((struct inpcb *)(oso)->so_pcb);
  inp = ((struct inpcb *)(so)->so_pcb);
-
-
-
-
-
-
-
  __builtin_memcpy((inp->inp_seclevel), (oldinp->inp_seclevel), (sizeof(oldinp->inp_seclevel)));
-
-
-
-
-
-
-
  inp->inp_flags |= (oldinp->inp_flags & 0x100);
  if (inp->inp_flags & 0x100) {
   inp->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = oldinp->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_hlim;
   inp->inp_hops = oldinp->inp_hops;
  } else
-
  {
   inp->inp_hu.hu_ip.ip_ttl = oldinp->inp_hu.hu_ip.ip_ttl;
  }
-
-
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08 &&
      (divert = pf_find_divert(m)) != ((void *)0))
   inp->inp_rtableid = divert->rdomain;
  else
-
-
  inp->inp_rtableid = sc->sc_rtableid;
-
  inp->inp_lport = th->th_dport;
  switch (src->sa_family) {
-
  case 24:
   inp->inp_laddru.iau_addr6 = satosin6(dst)->sin6_addr;
   break;
-
  case 2:
   inp->inp_laddru.iau_a4u.inaddr = satosin(dst)->sin_addr;
   inp->inp_options = ip_srcroute(m);
@@ -11274,27 +7856,18 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
   break;
  }
  in_pcbrehash(inp);
-
-
-
-
  if (src->sa_family == 2)
   inp->inp_ru.ru_route = sc->sc_route_u.route4;
-
  else
   inp->inp_ru.ru_route6 = sc->sc_route_u.route6;
-
  sc->sc_route_u.route4.ro_rt = ((void *)0);
-
  am = m_get(0x0002, 3);
  if (am == ((void *)0))
   goto resetandabort;
  am->m_hdr.mh_len = src->sa_len;
  __builtin_memcpy((((caddr_t)((am)->m_hdr.mh_data))), (src), (src->sa_len));
-
  switch (src->sa_family) {
  case 2:
-
   if (inp->inp_flags & 0x100) {
    (void) m_free(am);
    goto resetandabort;
@@ -11304,17 +7877,14 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
    goto resetandabort;
   }
   break;
-
  case 24:
   if (in6_pcbconnect(inp, am)) {
    (void) m_free(am);
    goto resetandabort;
   }
   break;
-
  }
  (void) m_free(am);
-
  tp = ((struct tcpcb *)(inp)->inp_ppcb);
  tp->t_flags = (((struct tcpcb *)(((struct inpcb *)(oso)->so_pcb))->inp_ppcb))->t_flags & (0x02000000|0x0004);
  if (sc->sc_request_r_scale != 15) {
@@ -11324,7 +7894,6 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  }
  if (sc->sc_flags & 0x0002)
   tp->t_flags |= 0x0080|0x0100;
-
  tp->t_template = tcp_template(tp);
  if (tp->t_template == 0) {
   tp = tcp_drop(tp, 55);
@@ -11332,67 +7901,42 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
   m_freem(m);
   goto abort;
  }
-
  tp->sack_enable = sc->sc_flags & 0x0008;
-
-
  tp->ts_modulate = sc->sc_modulate;
  tp->ts_recent = sc->sc_timestamp;
  tp->iss = sc->sc_iss;
  tp->irs = sc->sc_irs;
  (tp)->snd_una = (tp)->snd_nxt = (tp)->snd_max = (tp)->snd_up = (tp)->iss;
-
  tp->snd_last = tp->snd_una;
-
-
-
-
-
-
-
  if (sc->sc_flags & 0x0010) {
   tp->t_flags |= 0x00008000;
   tcpstat_inc(tcps_ecn_accepts);
  }
-
-
  if (sc->sc_flags & 0x0008)
   tp->t_flags |= 0x0200;
-
-
  if (sc->sc_flags & 0x0020)
   tp->t_flags |= 0x0400;
-
  (tp)->rcv_adv = (tp)->rcv_nxt = (tp)->irs + 1;
  tp->t_state = 3;
  tp->t_rcvtime = tcp_now;
  timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2));
  tcpstat_inc(tcps_accepts);
-
  tcp_mss(tp, sc->sc_peermaxseg);
  if (sc->sc_peermaxseg)
   tcp_mss_update(tp);
-
  if (sc->sc_rxtshift > 0)
   tp->snd_cwnd = tp->t_maxseg;
  tp->snd_wl1 = sc->sc_irs;
  tp->rcv_up = sc->sc_irs + 1;
-
-
-
-
-
  tp->snd_up = tp->snd_una;
  tp->snd_max = tp->snd_nxt = tp->iss+1;
  timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
  if (sc->sc_win > 0 && ((int)((tp->rcv_nxt + sc->sc_win)-(tp->rcv_adv)) > 0))
   tp->rcv_adv = tp->rcv_nxt + sc->sc_win;
  tp->last_ack_sent = tp->rcv_nxt;
-
  tcpstat_inc(tcps_sc_completed);
  syn_cache_put(sc);
  return (so);
-
 resetandabort:
  tcp_respond(((void *)0), ((caddr_t)((m)->m_hdr.mh_data)), th, (tcp_seq)0, th->th_ack, 0x04,
      m->M_dat.MH.MH_pkthdr.ph_rtableid);
@@ -11404,22 +7948,13 @@ abort:
  tcpstat_inc(tcps_sc_aborted);
  return ((struct socket *)(-1));
 }
-
-
-
-
-
-
-
 void
 syn_cache_reset(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
     u_int rtableid)
 {
  struct syn_cache *sc;
  struct syn_cache_head *scp;
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
  if ((sc = syn_cache_lookup(src, dst, &scp, rtableid)) == ((void *)0))
   return;
  if (((int)((th->th_seq)-(sc->sc_irs)) < 0) ||
@@ -11429,33 +7964,26 @@ syn_cache_reset(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  tcpstat_inc(tcps_sc_reset);
  syn_cache_put(sc);
 }
-
 void
 syn_cache_unreach(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
     u_int rtableid)
 {
  struct syn_cache *sc;
  struct syn_cache_head *scp;
-
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
-
  if ((sc = syn_cache_lookup(src, dst, &scp, rtableid)) == ((void *)0))
   return;
-
  if (((__uint32_t)(th->th_seq)) != sc->sc_iss) {
   return;
  }
-# 3866 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  if ((sc->sc_flags & 0x0001) == 0 || sc->sc_rxtshift < 3) {
   sc->sc_flags |= 0x0001;
   return;
  }
-
  syn_cache_rm(sc);
  tcpstat_inc(tcps_sc_unreach);
  syn_cache_put(sc);
 }
-# 3890 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
 int
 syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
     u_int iphlen, struct socket *so, struct mbuf *m, u_char *optp, int optlen,
@@ -11466,58 +7994,33 @@ syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  struct syn_cache *sc;
  struct syn_cache_head *scp;
  struct mbuf *ipopts;
-
  tp = (((struct tcpcb *)(((struct inpcb *)(so)->so_pcb))->inp_ppcb));
-# 3912 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
  win = sbspace(so, &so->so_rcv);
  if (win > 65535)
   win = 65535;
-
  __builtin_bzero((&tb), (sizeof(tb)));
-
  if (optp || (tp->t_flags & 0x0400)) {
-
-
-
   tb.pf = tp->pf;
-
   tb.sack_enable = tp->sack_enable;
-
   tb.t_flags = tcp_do_rfc1323 ? (0x0020|0x0080) : 0;
-
   if (tp->t_flags & 0x0400)
    tb.t_flags |= 0x0400;
-
   tb.t_state = 1;
   if (tcp_dooptions(&tb, optp, optlen, th, m, iphlen, oi,
       ((struct inpcb *)(so)->so_pcb)->inp_rtableid))
    return (-1);
  }
-
  switch (src->sa_family) {
  case 2:
-
-
-
   ipopts = ip_srcroute(m);
   break;
  default:
   ipopts = ((void *)0);
  }
-
-
-
-
-
-
  sc = syn_cache_lookup(src, dst, &scp, ((struct inpcb *)(so)->so_pcb)->inp_rtableid);
  if (sc != ((void *)0)) {
   tcpstat_inc(tcps_sc_dupesyn);
   if (ipopts) {
-
-
-
-
    m_free(sc->sc_ipopts);
    sc->sc_ipopts = ipopts;
   }
@@ -11528,24 +8031,17 @@ syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
   }
   return (0);
  }
-
  sc = pool_get(&syn_cache_pool, 0x0002|0x0008);
  if (sc == ((void *)0)) {
   m_free(ipopts);
   return (-1);
  }
-
-
-
-
-
  __builtin_memcpy((&sc->sc_src), (src), (src->sa_len));
  __builtin_memcpy((&sc->sc_dst), (dst), (dst->sa_len));
  sc->sc_rtableid = ((struct inpcb *)(so)->so_pcb)->inp_rtableid;
  sc->sc_flags = 0;
  sc->sc_ipopts = ipopts;
  sc->sc_irs = th->th_seq;
-
  sc->sc_iss = issp ? *issp : arc4random();
  sc->sc_peermaxseg = oi->maxseg;
  sc->sc_ourmaxseg = tcp_mss_adv(m, sc->sc_src.sa.sa_family);
@@ -11560,7 +8056,6 @@ syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
      (0x0040|0x0020)) {
   sc->sc_requested_s_scale = tb.requested_s_scale;
   sc->sc_request_r_scale = 0;
-# 4023 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c"
   while (sc->sc_request_r_scale < 14 &&
       (65535 << sc->sc_request_r_scale) < sb_max)
    sc->sc_request_r_scale++;
@@ -11568,26 +8063,13 @@ syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
   sc->sc_requested_s_scale = 15;
   sc->sc_request_r_scale = 15;
  }
-
-
-
-
  if (tcp_do_ecn &&
      (th->th_flags & (0x40|0x80)) == (0x40|0x80))
   sc->sc_flags |= 0x0010;
-
-
-
-
-
-
  if (tb.sack_enable && (tb.t_flags & 0x0200))
   sc->sc_flags |= 0x0008;
-
-
  if (tb.t_flags & 0x0400)
   sc->sc_flags |= 0x0020;
-
  sc->sc_tp = tp;
  if (syn_cache_respond(sc, m) == 0) {
   syn_cache_insert(sc, tp);
@@ -11597,10 +8079,8 @@ syn_cache_add(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
   syn_cache_put(sc);
   tcpstat_inc(tcps_sc_dropped);
  }
-
  return (0);
 }
-
 int
 syn_cache_respond(struct syn_cache *sc, struct mbuf *m)
 {
@@ -11608,47 +8088,29 @@ syn_cache_respond(struct syn_cache *sc, struct mbuf *m)
  int optlen, error;
  u_int16_t tlen;
  struct ip *ip = ((void *)0);
-
  struct ip6_hdr *ip6 = ((void *)0);
-
  struct tcphdr *th;
  u_int hlen;
  struct inpcb *inp;
-
  switch (sc->sc_src.sa.sa_family) {
  case 2:
   hlen = sizeof(struct ip);
   break;
-
  case 24:
   hlen = sizeof(struct ip6_hdr);
   break;
-
  default:
   m_freem(m);
   return (47);
  }
-
-
  optlen = 4 + (sc->sc_request_r_scale != 15 ? 4 : 0) +
-
      ((sc->sc_flags & 0x0008) ? 4 : 0) +
-
-
      ((sc->sc_flags & 0x0020) ? (18 +2) : 0) +
-
      ((sc->sc_flags & 0x0002) ? (10 +2) : 0);
-
  tlen = hlen + sizeof(struct tcphdr) + optlen;
-
-
-
-
  m_freem(m);
-
  if (max_linkhdr + tlen > (1 << 11))
   return (55);
-
  m = m_gethdr((0x0002), (1));
  if (m && max_linkhdr + tlen > ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
   (void) m_clget((m), (0x0002), (1 << 11));
@@ -11659,14 +8121,11 @@ syn_cache_respond(struct syn_cache *sc, struct mbuf *m)
  }
  if (m == ((void *)0))
   return (55);
-
-
  m->m_hdr.mh_data += max_linkhdr;
  m->m_hdr.mh_len = m->M_dat.MH.MH_pkthdr.len = tlen;
  m->M_dat.MH.MH_pkthdr.ph_ifidx = 0;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_rtableid;
  __builtin_memset((((u_char *)((m)->m_hdr.mh_data))), (0), (tlen));
-
  switch (sc->sc_src.sa.sa_family) {
  case 2:
   ip = ((struct ip *)((m)->m_hdr.mh_data));
@@ -11677,141 +8136,95 @@ syn_cache_respond(struct syn_cache *sc, struct mbuf *m)
   th->th_dport = sc->sc_src.sin.sin_port;
   th->th_sport = sc->sc_dst.sin.sin_port;
   break;
-
  case 24:
   ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
   ip6->ip6_dst = sc->sc_src.sin6.sin6_addr;
   ip6->ip6_src = sc->sc_dst.sin6.sin6_addr;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 6;
-
   th = (struct tcphdr *)(ip6 + 1);
   th->th_dport = sc->sc_src.sin6.sin6_port;
   th->th_sport = sc->sc_dst.sin6.sin6_port;
   break;
-
  default:
   unhandled_af(sc->sc_src.sa.sa_family);
  }
-
  th->th_seq = ((__uint32_t)(sc->sc_iss));
  th->th_ack = ((__uint32_t)(sc->sc_irs + 1));
  th->th_off = (sizeof(struct tcphdr) + optlen) >> 2;
  th->th_flags = 0x02|0x10;
-
-
  if (tcp_do_ecn && (sc->sc_flags & 0x0010))
   th->th_flags |= 0x40;
-
  th->th_win = ((__uint16_t)(sc->sc_win));
-
-
-
-
  optp = (u_int8_t *)(th + 1);
  *optp++ = 2;
  *optp++ = 4;
  *optp++ = (sc->sc_ourmaxseg >> 8) & 0xff;
  *optp++ = sc->sc_ourmaxseg & 0xff;
-
-
-
  if (sc->sc_flags & 0x0008) {
   *((u_int32_t *)optp) = ((__uint32_t)((1<<24|1<<16|4<<8|2)));
   optp += 4;
  }
-
-
  if (sc->sc_request_r_scale != 15) {
   *((u_int32_t *)optp) = ((__uint32_t)(1 << 24 | 3 << 16 | 3 << 8 | sc->sc_request_r_scale));
-
-
   optp += 4;
  }
-
  if (sc->sc_flags & 0x0002) {
   u_int32_t *lp = (u_int32_t *)(optp);
-
   *lp++ = ((__uint32_t)((1<<24|1<<16|8<<8|10)));
   *lp++ = ((__uint32_t)(tcp_now + (sc)->sc_modulate));
   *lp = ((__uint32_t)(sc->sc_timestamp));
   optp += (10 +2);
  }
-
-
  if (sc->sc_flags & 0x0020) {
   union sockaddr_union src, dst;
   struct tdb *tdb;
-
   __builtin_bzero((&src), (sizeof(union sockaddr_union)));
   __builtin_bzero((&dst), (sizeof(union sockaddr_union)));
   src.sa.sa_len = sc->sc_src.sa.sa_len;
   src.sa.sa_family = sc->sc_src.sa.sa_family;
   dst.sa.sa_len = sc->sc_dst.sa.sa_len;
   dst.sa.sa_family = sc->sc_dst.sa.sa_family;
-
   switch (sc->sc_src.sa.sa_family) {
   case 0:
   case 2:
    src.sin.sin_addr = ((struct ip *)((m)->m_hdr.mh_data))->ip_src;
    dst.sin.sin_addr = ((struct ip *)((m)->m_hdr.mh_data))->ip_dst;
    break;
-
   case 24:
    src.sin6.sin6_addr = ((struct ip6_hdr *)((m)->m_hdr.mh_data))->ip6_src;
    dst.sin6.sin6_addr = ((struct ip6_hdr *)((m)->m_hdr.mh_data))->ip6_dst;
    break;
-
   }
-
   tdb = gettdbbysrcdst(rtable_l2(sc->sc_rtableid),
       0, &src, &dst, 6);
   if (tdb == ((void *)0)) {
    m_freem(m);
    return (1);
   }
-
-
   *(optp++) = 19;
   *(optp++) = 18;
-
   if (tcp_signature(tdb, sc->sc_src.sa.sa_family, m, th,
       hlen, 0, optp) < 0) {
    m_freem(m);
    return (22);
   }
   optp += 16;
-
-
-
-
   *optp++ = 1;
   *optp++ = 0;
  }
-
-
-
  switch (sc->sc_src.sa.sa_family) {
  case 2:
   ip->ip_len = ((__uint16_t)(tlen - hlen));
   th->th_sum = 0;
   th->th_sum = in_cksum(m, tlen);
   break;
-
  case 24:
   ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(tlen - hlen));
   th->th_sum = 0;
   th->th_sum = in6_cksum(m, 6, hlen, tlen - hlen);
   break;
-
  }
-
-
  inp = sc->sc_tp ? sc->sc_tp->t_inpcb : ((void *)0);
-
-
-
-
-
  switch (sc->sc_src.sa.sa_family) {
  case 2:
   ip->ip_len = ((__uint16_t)(tlen));
@@ -11819,30 +8232,22 @@ syn_cache_respond(struct syn_cache *sc, struct mbuf *m)
   if (inp != ((void *)0))
    ip->ip_tos = inp->inp_hu.hu_ip.ip_tos;
   break;
-
  case 24:
   ip6->ip6_ctlun.ip6_un2_vfc &= ~0xf0;
   ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(tlen - hlen));
-
-
   break;
-
  }
-
  switch (sc->sc_src.sa.sa_family) {
  case 2:
   error = ip_output(m, sc->sc_ipopts, &sc->sc_route_u.route4,
       (ip_mtudisc ? 0x0800 : 0), ((void *)0), inp, 0);
   break;
-
  case 24:
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = in6_selecthlim(inp);
-
   error = ip6_output(m, ((void *)0) , &sc->sc_route_u.route6, 0,
       ((void *)0), ((void *)0));
   break;
-
  default:
   error = 47;
   break;

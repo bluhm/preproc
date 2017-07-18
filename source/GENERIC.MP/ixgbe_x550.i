@@ -1,42 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/bpfilter.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/vlan.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -45,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -55,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -65,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -133,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -190,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -198,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -206,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -305,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -347,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -356,73 +202,41 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/errno.h" 1
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
 };
-
-
-
-
 struct timespec {
  time_t tv_sec;
  long tv_nsec;
 };
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 typedef uint32_t __fd_mask;
-
-
-
 typedef struct fd_set {
  __fd_mask fds_bits[(((1024) + ((((unsigned)(sizeof(__fd_mask) * 8))) - 1)) / (((unsigned)(sizeof(__fd_mask) * 8))))];
 } fd_set;
-
 static __inline void
 __fd_set(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] |= (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline void
 __fd_clr(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] &= ~(1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline int
 __fd_isset(int fd, const fd_set *p)
 {
  return (p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] & (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8)))));
 }
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct timezone {
  int tz_minuteswest;
  int tz_dsttime;
 };
-# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct itimerval {
  struct timeval it_interval;
  struct timeval it_value;
 };
-
-
-
-
-
 struct clockinfo {
  int hz;
  int tick;
@@ -430,112 +244,81 @@ struct clockinfo {
  int stathz;
  int profhz;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h" 1
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h"
 struct itimerspec {
  struct timespec it_interval;
  struct timespec it_value;
 };
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-
-
 struct bintime {
  time_t sec;
  uint64_t frac;
 };
-
 static __inline void
 bintime_addx(struct bintime *bt, uint64_t x)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += x;
  if (u > bt->frac)
   bt->sec++;
 }
-
 static __inline void
 bintime_add(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += bt2->frac;
  if (u > bt->frac)
   bt->sec++;
  bt->sec += bt2->sec;
 }
-
 static __inline void
 bintime_sub(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac -= bt2->frac;
  if (u < bt->frac)
   bt->sec--;
  bt->sec -= bt2->sec;
 }
-# 220 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 static __inline void
 bintime2timespec(struct bintime *bt, struct timespec *ts)
 {
-
  ts->tv_sec = bt->sec;
  ts->tv_nsec = (long)(((uint64_t)1000000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timespec2bintime(struct timespec *ts, struct bintime *bt)
 {
-
  bt->sec = ts->tv_sec;
-
  bt->frac = (uint64_t)ts->tv_nsec * (uint64_t)18446744073ULL;
 }
-
 static __inline void
 bintime2timeval(struct bintime *bt, struct timeval *tv)
 {
-
  tv->tv_sec = bt->sec;
  tv->tv_usec = (long)(((uint64_t)1000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timeval2bintime(struct timeval *tv, struct bintime *bt)
 {
-
  bt->sec = (time_t)tv->tv_sec;
-
  bt->frac = (uint64_t)tv->tv_usec * (uint64_t)18446744073709ULL;
 }
-
 extern volatile time_t time_second;
 extern volatile time_t time_uptime;
-# 278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 void bintime(struct bintime *);
 void nanotime(struct timespec *);
 void microtime(struct timeval *);
-
 void getnanotime(struct timespec *);
 void getmicrotime(struct timeval *);
-
 void binuptime(struct bintime *);
 void nanouptime(struct timespec *);
 void microuptime(struct timeval *);
-
 void getnanouptime(struct timespec *);
 void getmicrouptime(struct timeval *);
-
 struct proc;
 int clock_gettime(struct proc *, clockid_t, struct timespec *);
-
 int timespecfix(struct timespec *);
 int itimerfix(struct timeval *);
 int itimerdecr(struct itimerval *itp, int usec);
@@ -543,10 +326,6 @@ void itimerround(struct timeval *);
 int settime(struct timespec *);
 int ratecheck(struct timeval *, const struct timeval *);
 int ppsratecheck(struct timeval *, int *, int);
-
-
-
-
 struct clock_ymdhms {
         u_short dt_year;
         u_char dt_mon;
@@ -556,17 +335,12 @@ struct clock_ymdhms {
         u_char dt_min;
         u_char dt_sec;
 };
-
 time_t clock_ymdhms_to_secs(struct clock_ymdhms *);
 void clock_secs_to_ymdhms(time_t, struct clock_ymdhms *);
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h" 1
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rusage {
  struct timeval ru_utime;
  struct timeval ru_stime;
  long ru_maxrss;
-
  long ru_ixrss;
  long ru_idrss;
  long ru_isrss;
@@ -580,42 +354,22 @@ struct rusage {
  long ru_nsignals;
  long ru_nvcsw;
  long ru_nivcsw;
-
 };
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rlimit {
  rlim_t rlim_cur;
  rlim_t rlim_max;
 };
-
-
-
 struct loadavg {
  fixpt_t ldavg[3];
  long fscale;
 };
-
-
-
 extern struct loadavg averunnable;
 struct process;
 int dosetrlimit(struct proc *, u_int, struct rlimit *);
 int donice(struct proc *, struct process *, int);
 int dogetrusage(struct proc *, int, struct rusage *);
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 2
-
-
-
-
 struct ucred {
  u_int cr_ref;
-
-
-
  uid_t cr_uid;
  uid_t cr_ruid;
  uid_t cr_svuid;
@@ -625,24 +379,12 @@ struct ucred {
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 struct xucred {
  uid_t cr_uid;
  gid_t cr_gid;
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 int crfromxucred(struct ucred *, const struct xucred *);
 void crset(struct ucred *, const struct ucred *);
 struct ucred *crcopy(struct ucred *cr);
@@ -651,25 +393,15 @@ void crfree(struct ucred *cr);
 struct ucred *crget(void);
 int suser(struct proc *p, u_int flags);
 int suser_ucred(struct ucred *cred);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 struct iovec {
  void *iov_base;
  size_t iov_len;
 };
-
-
 enum uio_rw { UIO_READ, UIO_WRITE };
-
-
 enum uio_seg {
  UIO_USERSPACE,
  UIO_SYSSPACE
 };
-
-
-
 struct uio {
  struct iovec *uio_iov;
  int uio_iovcnt;
@@ -679,109 +411,60 @@ struct uio {
  enum uio_rw uio_rw;
  struct proc *uio_procp;
 };
-# 97 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 int ureadc(int c, struct uio *);
-
 struct file;
 int dofilereadv(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
 int dofilewritev(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h"
 struct refcnt {
  unsigned int refs;
 };
-
-
-
-
-
 void refcnt_init(struct refcnt *);
 void refcnt_take(struct refcnt *);
 int refcnt_rele(struct refcnt *);
 void refcnt_rele_wake(struct refcnt *);
 void refcnt_finalize(struct refcnt *, const char *);
-# 23 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 2
-# 32 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 struct srp {
  void *ref;
 };
-
-
-
 struct srp_hazard {
  struct srp *sh_p;
  void *sh_v;
 };
-
 struct srp_ref {
  struct srp_hazard *hz;
 } ;
-
-
-
 struct srp_gc {
  void (*srp_gc_dtor)(void *, void *);
  void *srp_gc_cookie;
  struct refcnt srp_gc_refcnt;
 };
-
-
-
-
-
-
-
 struct srpl_rc {
  void (*srpl_ref)(void *, void *);
  struct srp_gc srpl_gc;
 };
-
-
-
-
 struct srpl {
  struct srp sl_head;
 };
-
-
-
 void srp_startup(void);
 void srp_gc_init(struct srp_gc *, void (*)(void *, void *), void *);
 void *srp_swap_locked(struct srp *, void *);
 void srp_update_locked(struct srp_gc *, struct srp *, void *);
 void *srp_get_locked(struct srp *);
 void srp_gc_finalize(struct srp_gc *);
-
 void srp_init(struct srp *);
-
-
 void *srp_swap(struct srp *, void *);
 void srp_update(struct srp_gc *, struct srp *, void *);
 void srp_finalize(void *, const char *);
 void *srp_enter(struct srp_ref *, struct srp *);
 void *srp_follow(struct srp_ref *, struct srp *);
 void srp_leave(struct srp_ref *);
-# 101 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 void srpl_rc_init(struct srpl_rc *, void (*)(void *, void *),
       void (*)(void *, void *), void *);
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h" 1
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 typedef int sig_atomic_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 struct sigcontext {
  long sc_cookie;
-
  long sc_sp;
  long sc_pc;
  long sc_npc;
@@ -790,18 +473,11 @@ struct sigcontext {
  long sc_o0;
  int sc_mask;
 };
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-# 104 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef unsigned int sigset_t;
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 union sigval {
  int sival_int;
  void *sival_ptr;
 };
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 typedef struct {
  int si_signo;
  int si_code;
@@ -826,16 +502,9 @@ typedef struct {
    void *_addr;
    int _trapno;
   } _fault;
-# 172 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
  } _data;
 } siginfo_t;
-# 196 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 void initsiginfo(siginfo_t *, int, u_long, int, union sigval);
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-
-
-
-
 struct sigaction {
  union {
   void (*__sa_handler)(int);
@@ -844,49 +513,20 @@ struct sigaction {
  sigset_t sa_mask;
  int sa_flags;
 };
-# 146 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef void (*sig_t)(int);
-
-
-
-
-
 struct sigvec {
  void (*sv_handler)(int);
  int sv_mask;
  int sv_flags;
 };
-# 176 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef struct sigaltstack {
  void *ss_sp;
  size_t ss_size;
  int ss_flags;
 } stack_t;
-
-
-
-
-
 typedef struct sigcontext ucontext_t;
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/limits.h" 1
-# 35 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 2
-# 88 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 1
-# 152 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
 extern void delay(unsigned int);
-
-
 extern int cputyp;
-# 184 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 1
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h" 1
-# 553 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
@@ -903,36 +543,28 @@ extern __inline u_int64_t sparc_rdpr_cleanwin(void); extern __inline u_int64_t s
 extern __inline u_int64_t sparc_rdpr_otherwin(void); extern __inline u_int64_t sparc_rdpr_otherwin() { u_int64_t r; __asm volatile("rdpr %%" "otherwin" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_wstate(void); extern __inline u_int64_t sparc_rdpr_wstate() { u_int64_t r; __asm volatile("rdpr %%" "wstate" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_ver(void); extern __inline u_int64_t sparc_rdpr_ver() { u_int64_t r; __asm volatile("rdpr %%" "ver" ", %0" : "=r" (r) : : "%g0"); return (r); };
-# 596 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_char lduba_asi(paddr_t); extern __inline u_char lduba_asi(paddr_t va) { u_char r; __asm volatile( "lduba" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_char *)va) : "%g0"); return (r); } extern __inline u_char lduba_nc(paddr_t, int); extern __inline u_char lduba_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduba_asi(va)); };
 extern __inline u_short lduha_asi(paddr_t); extern __inline u_short lduha_asi(paddr_t va) { u_short r; __asm volatile( "lduha" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_short *)va) : "%g0"); return (r); } extern __inline u_short lduha_nc(paddr_t, int); extern __inline u_short lduha_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduha_asi(va)); };
 extern __inline u_int lduwa_asi(paddr_t); extern __inline u_int lduwa_asi(paddr_t va) { u_int r; __asm volatile( "lduwa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int *)va) : "%g0"); return (r); } extern __inline u_int lduwa_nc(paddr_t, int); extern __inline u_int lduwa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduwa_asi(va)); };
 extern __inline u_int64_t ldxa_asi(paddr_t); extern __inline u_int64_t ldxa_asi(paddr_t va) { u_int64_t r; __asm volatile( "ldxa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int64_t *)va) : "%g0"); return (r); } extern __inline u_int64_t ldxa_nc(paddr_t, int); extern __inline u_int64_t ldxa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (ldxa_asi(va)); };
-
 extern __inline int lda_asi(paddr_t); extern __inline int lda_asi(paddr_t va) { int r; __asm volatile( "lda" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile int *)va) : "%g0"); return (r); } extern __inline int lda_nc(paddr_t, int); extern __inline int lda_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lda_asi(va)); };
-# 647 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void stba_asi(paddr_t, u_int8_t); extern __inline void stba_asi(paddr_t va, u_int8_t val) { __asm volatile( "stba" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int8_t *)va) : "memory"); } extern __inline void stba_nc(paddr_t, int, u_int8_t); extern __inline void stba_nc(paddr_t va, int asi, u_int8_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stba_asi(va, val); };
 extern __inline void stha_asi(paddr_t, u_int16_t); extern __inline void stha_asi(paddr_t va, u_int16_t val) { __asm volatile( "stha" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int16_t *)va) : "memory"); } extern __inline void stha_nc(paddr_t, int, u_int16_t); extern __inline void stha_nc(paddr_t va, int asi, u_int16_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stha_asi(va, val); };
 extern __inline void stwa_asi(paddr_t, u_int32_t); extern __inline void stwa_asi(paddr_t va, u_int32_t val) { __asm volatile( "stwa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int32_t *)va) : "memory"); } extern __inline void stwa_nc(paddr_t, int, u_int32_t); extern __inline void stwa_nc(paddr_t va, int asi, u_int32_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stwa_asi(va, val); };
 extern __inline void stxa_asi(paddr_t, u_int64_t); extern __inline void stxa_asi(paddr_t va, u_int64_t val) { __asm volatile( "stxa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int64_t *)va) : "memory"); } extern __inline void stxa_nc(paddr_t, int, u_int64_t); extern __inline void stxa_nc(paddr_t va, int asi, u_int64_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stxa_asi(va, val); };
-
 extern __inline void sta_asi(paddr_t, u_int); extern __inline void sta_asi(paddr_t va, u_int val) { __asm volatile( "sta" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int *)va) : "memory"); } extern __inline void sta_nc(paddr_t, int, u_int); extern __inline void sta_nc(paddr_t va, int asi, u_int val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); sta_asi(va, val); };
-# 678 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void asi_set(int);
 extern __inline
 void asi_set(int asi)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0);
 }
-
 extern __inline u_int8_t asi_get(void);
 extern __inline
 u_int8_t asi_get(void)
 {
  return sparc_rd_asi();
 }
-
-
 extern __inline void flush(void *);
 extern __inline
 void flush(void *p)
@@ -941,86 +573,60 @@ void flush(void *p)
      : : "r" (p)
      : "memory");
 }
-
-
-
-
 extern u_int64_t stick(void);
-
 extern void tick_enable(void);
-
 extern void tickcmpr_set(u_int64_t);
 extern void sys_tickcmpr_set(u_int64_t);
 extern void stickcmpr_set(u_int64_t);
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h" 1
-# 231 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern u_int64_t ver;
-
 extern __inline void splx(int);
-
-
-
-
-
-
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
 void splassert_check(int, const char *);
-# 258 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern __inline u_int64_t getpstate(void);
 extern __inline
 u_int64_t getpstate(void)
 {
  return (sparc_rdpr_pstate());
 }
-
 extern __inline void setpstate(u_int64_t);
 extern __inline void setpstate(u_int64_t newpstate)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((newpstate) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (newpstate), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline int getcwp(void);
 extern __inline
 int getcwp(void)
 {
  return (sparc_rdpr_cwp());
 }
-
 extern __inline void setcwp(u_int64_t);
 extern __inline void
 setcwp(u_int64_t newcwp)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "cwp" : : "rI" ((newcwp) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "cwp" : : "r" (newcwp), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline u_int64_t getver(void);
 extern __inline
 u_int64_t getver(void)
 {
  return (sparc_rdpr_ver());
 }
-
 extern __inline u_int64_t intr_disable(void);
 extern __inline u_int64_t
 intr_disable(void)
 {
  u_int64_t s;
-
  s = sparc_rdpr_pstate();
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s & ~0x002) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s & ~0x002), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
  return (s);
 }
-
 extern __inline void intr_restore(u_int64_t);
 extern __inline void
 intr_restore(u_int64_t s)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline void stxa_sync(u_int64_t, u_int64_t, u_int64_t);
 extern __inline void
 stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
@@ -1030,42 +636,32 @@ stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
  __asm volatile("membar #Sync" : : : "memory");
  intr_restore(s);
 }
-
 static inline int
 _spl(int newipl)
 {
  int oldpil;
-
  __asm volatile( "    rdpr %%pil, %0		\n"
    "    wrpr %%g0, %1, %%pil	\n"
      : "=&r" (oldpil)
      : "I" (newipl)
      : "%g0");
  __asm volatile("" : : : "memory");
-
  return (oldpil);
 }
-
-
 static inline int
 _splraise(int newpil)
 {
  int oldpil;
-
  oldpil = sparc_rdpr_pil();
  if (newpil > oldpil)
   do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
         return (oldpil);
 }
-
 static inline void
 _splx(int newpil)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe32 {
  int tf_psr;
  int tf_pc;
@@ -1074,7 +670,6 @@ struct trapframe32 {
  int tf_global[8];
  int tf_out[8];
 };
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe64 {
  int64_t tf_tstate;
  int64_t tf_pc;
@@ -1090,22 +685,14 @@ struct trapframe64 {
  int64_t tf_local[8];
  int64_t tf_in[8];
 };
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct rwindow32 {
  int rw_local[8];
  int rw_in[8];
 };
-
-
 struct rwindow64 {
  int64_t rw_local[8];
  int64_t rw_in[8];
 };
-
-
-
-
-
 struct reg32 {
  int r_psr;
  int r_pc;
@@ -1114,7 +701,6 @@ struct reg32 {
  int r_global[8];
  int r_out[8];
 };
-
 struct reg64 {
  int64_t r_tstate;
  int64_t r_pc;
@@ -1125,15 +711,10 @@ struct reg64 {
  int64_t r_local[8];
  int64_t r_in[8];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/fsr.h" 1
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 2
-# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct fp_qentry {
  int *fq_addr;
  int fq_instr;
 };
-
 struct fpstate64 {
  u_int fs_regs[64];
  int64_t fs_fsr;
@@ -1141,74 +722,37 @@ struct fpstate64 {
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
 struct fpstate32 {
  u_int fs_regs[32];
  int fs_fsr;
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
-
-
 struct fpreg64 {
  u_int fr_regs[64];
  int64_t fr_fsr;
  int fr_gsr;
 };
-
-
-
-
 struct fpreg32 {
  u_int fr_regs[32];
  int fr_fsr;
 };
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h"
 struct intrhand;
 void send_softint(int cpu, int level, struct intrhand *ih);
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 2
-
 struct evcount {
  u_int64_t ec_count;
  int ec_id;
  const char *ec_name;
  void *ec_data;
-
  struct { struct evcount *tqe_next; struct evcount **tqe_prev; } next;
 };
-
 void evcount_attach(struct evcount *, const char *, void *);
 void evcount_detach(struct evcount *);
 int evcount_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-
-
-
-
-
-
 struct intrhand {
  int (*ih_fun)(void *);
  void *ih_arg;
  short ih_number;
-
  char ih_pil;
  char ih_mpsafe;
  struct intrhand *ih_next;
@@ -1221,21 +765,13 @@ struct intrhand {
  struct cpu_info *ih_cpu;
  char ih_name[32];
 };
-
 extern struct intrhand *intrlev[(1<<11)];
-
 void intr_establish(int, struct intrhand *);
-# 107 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
 int splraise(int);
 void intr_barrier(void *);
-
 void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 1
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 struct schedstate_percpu {
  struct timespec spc_runtime;
  volatile int spc_schedflags;
@@ -1246,31 +782,21 @@ struct schedstate_percpu {
  int spc_pscnt;
  int spc_psdiv;
  struct proc *spc_idleproc;
-
  u_int spc_nrun;
  fixpt_t spc_ldavg;
-
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
-
-
-
-
  struct { struct proc *lh_first; } spc_deadproc;
-
  volatile int spc_barrier;
 };
-# 134 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 extern int schedhz;
 extern int rrticks_init;
-
 struct proc;
 void schedclock(struct proc *);
 struct cpu_info;
 void roundrobin(struct cpu_info *);
 void scheduler_start(void);
 void userret(struct proc *p);
-
 void sched_init_cpu(struct cpu_info *);
 void sched_idle(void *);
 void sched_exit(struct proc *);
@@ -1284,27 +810,13 @@ void cpu_idle_cycle(void);
 void cpu_idle_leave(void);
 void sched_peg_curproc(struct cpu_info *ci);
 void sched_barrier(struct cpu_info *ci);
-
 int sysctl_hwsetperf(void *, size_t *, void *, size_t);
 int sysctl_hwperfpolicy(void *, size_t *, void *, size_t);
-
-
 void sched_start_secondary_cpus(void);
 void sched_stop_secondary_cpus(void);
-
-
-
-
 void sched_init_runqueues(void);
 void setrunqueue(struct proc *);
 void remrunqueue(struct proc *);
-# 189 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -1312,196 +824,99 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 2
-# 190 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 2
-
-
-
-
-
-
-
 extern struct __mp_lock sched_lock;
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct cpu_info {
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
  struct cpu_info * volatile ci_self;
-
-
  struct proc *ci_curproc;
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
-
  struct proc *ci_fpproc;
  int ci_number;
  int ci_flags;
  int ci_upaid;
-
  int ci_itid;
  struct srp_hazard ci_srp_hazards[16];
-
  int ci_node;
  u_int32_t ci_randseed;
  struct schedstate_percpu ci_schedstate;
-
  int ci_want_resched;
  int ci_handled_intr_level;
  void *ci_intrpending[16][8];
  u_int64_t ci_tick;
  struct intrhand ci_tickintr;
-
  volatile int ci_ddb_paused;
-
-
-
-
-
-
-
  void (*ci_spinup)(void);
  void *ci_initstack;
  paddr_t ci_paddr;
-
-
  struct rwindow64 ci_rw;
  u_int64_t ci_rwsp;
-
  paddr_t ci_mmfsa;
  paddr_t ci_cpumq;
  paddr_t ci_devmq;
-
  paddr_t ci_cpuset;
  paddr_t ci_mondo;
-
-
  int ci_pci_probe;
  int ci_pci_fault;
-
-
  int ci_mutex_level;
-
-
-
-
 };
-
-
-
 extern struct cpu_info *cpus;
-
-
-
 register struct cpu_info *__curcpu asm ("g7");
-# 186 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void cpu_boot_secondary_processors(void);
-
 void sparc64_send_ipi(int, void (*)(void), u_int64_t, u_int64_t);
 void sparc64_broadcast_ipi(void (*)(void), u_int64_t, u_int64_t);
-
 void cpu_unidle(struct cpu_info *);
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct clockframe {
  struct trapframe64 t;
  int saved_intr_level;
 };
-
-
-
-
-
 extern void (*cpu_start_clock)(void);
-
-
-
-
-
-
-
 extern void need_resched(struct cpu_info *);
-# 292 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void signotify(struct proc *);
-
-
 int cpu_myid(void);
-
 int ldcontrolb(caddr_t);
 void dumpconf(void);
 caddr_t reserve_dumppages(caddr_t);
-
 struct timeval;
 int clockintr(void *);
 int statintr(void *);
-
 struct fpstate64;
 void savefpstate(struct fpstate64 *);
 void loadfpstate(struct fpstate64 *);
 void clearfpstate(void);
 u_int64_t probeget(paddr_t, int, int);
-
 void write_user_windows(void);
 void proc_trampoline(void);
 struct pcb;
@@ -1512,59 +927,38 @@ void copywords(const void *, void *, size_t);
 void qcopy(const void *, void *, size_t);
 void qzero(void *, size_t);
 void switchtoctx(int);
-
 void pmap_unuse_final(struct proc *);
 int rwindow_save(struct proc *);
-
 void fpusave_cpu(struct cpu_info *, int);
 void fpusave_proc(struct proc *, int);
-
 int cnrom(void);
-
 void zsconsole(struct tty *, int, int, void (**)(struct tty *, int));
-
 void fb_unblank(void);
-
 void tda_full_blast(void);
-
 int emulinstr(vaddr_t, struct trapframe64 *);
 int emul_qf(int32_t, struct proc *, union sigval, struct trapframe64 *);
 int emul_popc(int32_t, struct proc *, union sigval, struct trapframe64 *);
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct trapvec {
  int tv_instr[8];
 };
 extern struct trapvec trapbase[];
-
 extern void wzero(void *, u_int);
 extern void wcopy(const void *, void *, u_int);
-
 struct blink_led {
  void (*bl_func)(void *, int);
  void *bl_arg;
  struct { struct blink_led *sle_next; } bl_next;
 };
-
 extern void blink_led_register(struct blink_led *);
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h" 1
-# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h"
 struct __mp_lock_cpu {
  volatile u_int mplc_ticket;
  volatile u_int mplc_depth;
 };
-
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
  volatile u_int mpl_users;
 };
-
-
-
 void __mp_lock_init(struct __mp_lock *);
 void __mp_lock(struct __mp_lock *);
 void __mp_unlock(struct __mp_lock *);
@@ -1572,22 +966,9 @@ int __mp_release_all(struct __mp_lock *);
 int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 2
-
 extern struct __mp_lock kernel_lock;
-# 372 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 185 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 2
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -1596,65 +977,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -1672,18 +1035,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -1700,7 +1058,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -1710,35 +1067,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -1748,63 +1098,38 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -1814,8 +1139,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -1856,13 +1179,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -1892,34 +1213,17 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sockio.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sockio.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ioccom.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sockio.h" 2
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 1
-# 69 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct m_tag {
  struct { struct m_tag *sle_next; } m_tag_link;
  u_int16_t m_tag_id;
  u_int16_t m_tag_len;
 };
-# 82 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct m_hdr {
  struct mbuf *mh_next;
  struct mbuf *mh_nextpkt;
@@ -1927,15 +1231,9 @@ struct m_hdr {
  u_int mh_len;
  short mh_type;
  u_short mh_flags;
-
-
-
 };
-
-
 struct pf_state_key;
 struct inpcb;
-
 struct pkthdr_pf {
  struct pf_state_key *statekey;
  struct inpcb *inp;
@@ -1946,7 +1244,6 @@ struct pkthdr_pf {
  u_int8_t prio;
  u_int8_t pad[3];
 };
-# 125 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct pkthdr {
  void *ph_cookie;
  struct { struct m_tag *slh_first; } ph_tags;
@@ -1961,8 +1258,6 @@ struct pkthdr {
  u_int8_t ph_loopcnt;
  struct pkthdr_pf pf;
 };
-
-
 struct mbuf_ext {
  caddr_t ext_buf;
  void *ext_arg;
@@ -1970,14 +1265,7 @@ struct mbuf_ext {
  u_int ext_size;
  struct mbuf *ext_nextref;
  struct mbuf *ext_prevref;
-
-
-
-
-
-
 };
-
 struct mbuf {
  struct m_hdr m_hdr;
  union {
@@ -1991,9 +1279,6 @@ struct mbuf {
   char M_databuf[(256 - sizeof(struct m_hdr))];
  } M_dat;
 };
-# 249 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h" 1
-# 319 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 struct kmemstats {
  long ks_inuse;
  long ks_calls;
@@ -2005,10 +1290,6 @@ struct kmemstats {
  long ks_size;
  long ks_spare;
 };
-
-
-
-
 struct kmemusage {
  short ku_indx;
  union {
@@ -2016,14 +1297,7 @@ struct kmemusage {
   u_short pagecnt;
  } ku_un;
 };
-
-
-
 struct kmem_freelist;
-
-
-
-
 struct kmembuckets {
  struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
  u_int64_t kb_calls;
@@ -2033,85 +1307,54 @@ struct kmembuckets {
  u_int64_t kb_highwat;
  u_int64_t kb_couldfree;
 };
-# 388 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 extern struct kmemstats kmemstats[];
 extern struct kmemusage *kmemusage;
 extern char *kmembase;
 extern struct kmembuckets bucket[];
-
 void *malloc(size_t, int, int);
 void *mallocarray(size_t, size_t, int, int);
 void free(void *, int, size_t);
 int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
      struct proc *);
-
 size_t malloc_roundup(size_t);
 void malloc_printit(int (*)(const char *, ...));
-
 void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
-# 250 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 2
-# 316 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 u_int mextfree_register(void (*)(caddr_t, u_int, void *));
-# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 struct mbstat {
  u_long m_drops;
  u_long m_wait;
  u_long m_drain;
  u_short m_mtypes[256];
 };
-
-
-
-
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 struct mutex {
  volatile void *mtx_owner;
  int mtx_wantipl;
  int mtx_oldipl;
-
-
-
 };
-# 64 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 void __mtx_init(struct mutex *, int);
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 2
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
 void __mtx_enter(struct mutex *);
 int __mtx_enter_try(struct mutex *);
 void __mtx_leave(struct mutex *);
-# 407 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h" 2
-
 struct mbuf_list {
  struct mbuf *ml_head;
  struct mbuf *ml_tail;
  u_int ml_len;
 };
-
 struct mbuf_queue {
  struct mutex mq_mtx;
  struct mbuf_list mq_list;
  u_int mq_maxlen;
  u_int mq_drops;
 };
-
-
 struct pool;
-
 extern int nmbclust;
 extern int mblowat;
 extern int mcllowat;
 extern int max_linkhdr;
 extern int max_protohdr;
 extern int max_hdr;
-
 void mbinit(void);
 void mbcpuinit(void);
 struct mbuf *m_copym(struct mbuf *, int, int, int);
@@ -2146,17 +1389,13 @@ int m_apply(struct mbuf *, int, int,
      int (*)(caddr_t, caddr_t, unsigned int), caddr_t);
 struct mbuf *m_dup_pkt(struct mbuf *, unsigned int, int);
 int m_dup_pkthdr(struct mbuf *, struct mbuf *, int);
-
 static inline struct mbuf *
 m_freemp(struct mbuf **mp)
 {
  struct mbuf *m = *mp;
-
  *mp = ((void *)0);
  return m_freem(m);
 }
-
-
 struct m_tag *m_tag_get(int, int, int);
 void m_tag_prepend(struct mbuf *, struct m_tag *);
 void m_tag_delete(struct mbuf *, struct m_tag *);
@@ -2167,14 +1406,12 @@ int m_tag_copy_chain(struct mbuf *, struct mbuf *, int);
 void m_tag_init(struct mbuf *);
 struct m_tag *m_tag_first(struct mbuf *);
 struct m_tag *m_tag_next(struct mbuf *, struct m_tag *);
-# 521 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 void ml_init(struct mbuf_list *);
 void ml_enqueue(struct mbuf_list *, struct mbuf *);
 struct mbuf * ml_dequeue(struct mbuf_list *);
 void ml_enlist(struct mbuf_list *, struct mbuf_list *);
 struct mbuf * ml_dechain(struct mbuf_list *);
 unsigned int ml_purge(struct mbuf_list *);
-# 546 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mbuf.h"
 void mq_init(struct mbuf_queue *, u_int, int);
 int mq_enqueue(struct mbuf_queue *, struct mbuf *);
 struct mbuf * mq_dequeue(struct mbuf_queue *);
@@ -2182,20 +1419,13 @@ int mq_enlist(struct mbuf_queue *, struct mbuf_list *);
 void mq_delist(struct mbuf_queue *, struct mbuf_list *);
 struct mbuf * mq_dechain(struct mbuf_queue *);
 unsigned int mq_purge(struct mbuf_queue *);
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h"
 extern long hostid;
 extern char hostname[256];
 extern int hostnamelen;
 extern char domainname[256];
 extern int domainnamelen;
-
-
 extern struct timespec boottime;
 extern struct timezone tz;
-
 extern int tick;
 extern int tickfix;
 extern int tickfixinterval;
@@ -2207,12 +1437,8 @@ extern int profhz;
 extern int lbolt;
 extern int tickdelta;
 extern long timedelta;
-
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h" 1
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 enum devclass {
  DV_DULL,
  DV_CPU,
@@ -2221,7 +1447,6 @@ enum devclass {
  DV_TAPE,
  DV_TTY
 };
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 struct device {
  enum devclass dv_class;
  struct { struct device *tqe_next; struct device **tqe_prev; } dv_list;
@@ -2232,15 +1457,7 @@ struct device {
  int dv_flags;
  int dv_ref;
 };
-
-
-
-
 struct devicelist { struct device *tqh_first; struct device **tqh_last; };
-
-
-
-
 struct cfdata {
  struct cfattach *cf_attach;
  struct cfdriver *cf_driver;
@@ -2253,15 +1470,8 @@ struct cfdata {
  short cf_starunit1;
 };
 extern struct cfdata cfdata[];
-
-
-
-
-
-
 typedef int (*cfmatch_t)(struct device *, void *, void *);
 typedef void (*cfscan_t)(struct device *, void *);
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 struct cfattach {
  size_t ca_devsize;
  cfmatch_t ca_match;
@@ -2269,11 +1479,6 @@ struct cfattach {
  int (*ca_detach)(struct device *, int);
  int (*ca_activate)(struct device *, int);
 };
-
-
-
-
-
 struct cfdriver {
  void **cd_devs;
  char *cd_name;
@@ -2281,32 +1486,14 @@ struct cfdriver {
  int cd_indirect;
  int cd_ndevs;
 };
-
-
-
-
-
-
-
 typedef int (*cfprint_t)(void *, const char *);
-
-
-
-
-
-
-
 struct pdevinit {
  void (*pdev_attach)(int);
  int pdev_count;
 };
-
-
 extern struct devicelist alldevs;
-
 extern int autoconf_verbose;
 extern volatile int config_pending;
-
 void config_init(void);
 void *config_search(cfmatch_t, struct device *, void *);
 struct device *config_found_sm(struct device *, void *, cfprint_t,
@@ -2327,53 +1514,38 @@ void config_pending_incr(void);
 void config_pending_decr(void);
 void config_mountroot(struct device *, void (*)(struct device *));
 void config_process_deferred_mountroot(void);
-
 struct device *device_mainbus(void);
 struct device *device_mpath(void);
 struct device *device_lookup(struct cfdriver *, int unit);
 void device_ref(struct device *);
 void device_unref(struct device *);
-
 struct nam2blk {
  char *name;
  int maj;
 };
-
 int findblkmajor(struct device *dv);
 char *findblkname(int);
 void setroot(struct device *, int, int);
 struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
 struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
 void device_register(struct device *, void *);
-
 int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 typedef __socklen_t socklen_t;
-
-
-
-
 typedef __sa_family_t sa_family_t;
-# 120 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct linger {
  int l_onoff;
  int l_linger;
 };
-# 138 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct splice {
  int sp_fd;
  off_t sp_max;
  struct timeval sp_idle;
 };
-# 207 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockaddr {
  __uint8_t sa_len;
  sa_family_t sa_family;
  char sa_data[14];
 };
-# 225 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockaddr_storage {
  __uint8_t ss_len;
  sa_family_t ss_family;
@@ -2381,23 +1553,15 @@ struct sockaddr_storage {
  __uint64_t __ss_pad2;
  unsigned char __ss_pad3[240];
 };
-
-
-
-
-
-
 struct sockproto {
  unsigned short sp_family;
  unsigned short sp_protocol;
 };
-# 298 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct sockpeercred {
  uid_t uid;
  gid_t gid;
  pid_t pid;
 };
-# 428 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct msghdr {
  void *msg_name;
  socklen_t msg_namelen;
@@ -2407,29 +1571,21 @@ struct msghdr {
  socklen_t msg_controllen;
  int msg_flags;
 };
-# 457 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 struct cmsghdr {
  socklen_t cmsg_len;
  int cmsg_level;
  int cmsg_type;
-
 };
-# 537 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socket.h"
 void pfctlinput(int, struct sockaddr *);
-
 static inline struct sockaddr *
 sstosa(struct sockaddr_storage *ss)
 {
  return ((struct sockaddr *)(ss));
 }
-# 52 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct circq {
  struct circq *next;
  struct circq *prev;
 };
-
 struct timeout {
  struct circq to_list;
  void (*to_func)(void *);
@@ -2437,9 +1593,7 @@ struct timeout {
  int to_time;
  int to_flags;
 };
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct bintime;
-
 void timeout_set(struct timeout *, void (*)(void *), void *);
 void timeout_set_proc(struct timeout *, void (*)(void *), void *);
 int timeout_add(struct timeout *, int);
@@ -2451,18 +1605,9 @@ int timeout_add_msec(struct timeout *, int);
 int timeout_add_usec(struct timeout *, int);
 int timeout_add_nsec(struct timeout *, int);
 int timeout_del(struct timeout *);
-
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
-
-
-
-
-
 int timeout_hardclock_update(void);
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h" 1
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h"
 struct kinfo_pool {
  unsigned int pr_size;
  unsigned int pr_pgsize;
@@ -2470,12 +1615,9 @@ struct kinfo_pool {
  unsigned int pr_minpages;
  unsigned int pr_maxpages;
  unsigned int pr_hardlimit;
-
-
  unsigned int pr_npages;
  unsigned int pr_nout;
  unsigned int pr_nitems;
-
  unsigned long pr_nget;
  unsigned long pr_nput;
  unsigned long pr_nfail;
@@ -2484,66 +1626,45 @@ struct kinfo_pool {
  unsigned int pr_hiwat;
  unsigned long pr_nidle;
 };
-
 struct kinfo_pool_cache {
  uint64_t pr_ngc;
  unsigned int pr_len;
  unsigned int pr_nitems;
  unsigned int pr_contention;
 };
-
-
-
-
-
 struct kinfo_pool_cache_cpu {
  unsigned int pr_cpu;
-
-
  uint64_t pr_nget;
  uint64_t pr_nfail;
  uint64_t pr_nput;
-
-
  uint64_t pr_nlget;
  uint64_t pr_nlfail;
  uint64_t pr_nlput;
 };
-
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h" 1
-# 767 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);
  unsigned int t_offset;
 };
-
 struct rb_tree {
  struct rb_entry *rbt_root;
 };
-
 struct rb_entry {
  struct rb_entry *rbt_parent;
  struct rb_entry *rbt_left;
  struct rb_entry *rbt_right;
  unsigned int rbt_color;
 };
-# 791 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 static inline void
 _rb_init(struct rb_tree *rbt)
 {
  rbt->rbt_root = ((void *)0);
 }
-
 static inline int
 _rb_empty(struct rb_tree *rbt)
 {
  return (rbt->rbt_root == ((void *)0));
 }
-
 void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
@@ -2561,25 +1682,18 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
-# 100 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h" 2
-
-
 struct pool;
 struct pool_request;
 struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
-
 struct pool_allocator {
  void *(*pa_alloc)(struct pool *, int, int *);
  void (*pa_free)(struct pool *, void *);
  size_t pa_pagesz;
 };
-# 138 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/pool.h"
 struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
-
 struct pool_cache_item;
 struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
 struct cpumem;
-
 struct pool {
  struct mutex pr_mtx;
  struct { struct pool *sqe_next; }
@@ -2602,24 +1716,15 @@ struct pool {
  unsigned int pr_nitems;
  unsigned int pr_nout;
  unsigned int pr_hardlimit;
-
  unsigned int pr_serial;
  unsigned int pr_pgsize;
  vaddr_t pr_pgmask;
  struct pool_allocator *
    pr_alloc;
  const char * pr_wchan;
-
-
-
-
-
-
  int pr_ipl;
-
  struct phtree { struct rb_tree rbh_root; }
    pr_phtree;
-
  struct cpumem * pr_cache;
  unsigned long pr_cache_magic[2];
  struct mutex pr_cache_mtx;
@@ -2632,30 +1737,16 @@ struct pool {
  int pr_cache_tick;
  int pr_cache_nout;
  uint64_t pr_cache_ngc;
-
  u_int pr_align;
  u_int pr_maxcolors;
  int pr_phoffset;
-
-
-
-
-
  const char *pr_hardlimit_warning;
  struct timeval pr_hardlimit_ratecap;
  struct timeval pr_hardlimit_warning_last;
-
-
-
-
  struct mutex pr_requests_mtx;
  struct pool_requests
    pr_requests;
  unsigned int pr_requesting;
-
-
-
-
  unsigned long pr_nget;
  unsigned long pr_nfail;
  unsigned long pr_nput;
@@ -2663,26 +1754,17 @@ struct pool {
  unsigned long pr_npagefree;
  unsigned int pr_hiwat;
  unsigned long pr_nidle;
-
-
  const struct kmem_pa_mode *
    pr_crange;
 };
-
-
-
-
-
 extern struct pool_allocator pool_allocator_single;
 extern struct pool_allocator pool_allocator_multi;
-
 struct pool_request {
  struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
  void (*pr_handler)(void *, void *);
  void *pr_cookie;
  void *pr_item;
 };
-
 void pool_init(struct pool *, size_t, u_int, int, int,
       const char *, struct pool_allocator *);
 void pool_cache_init(struct pool *);
@@ -2693,7 +1775,6 @@ int pool_sethardlimit(struct pool *, u_int, const char *, int);
 struct uvm_constraint_range;
 void pool_set_constraints(struct pool *,
       const struct kmem_pa_mode *mode);
-
 void *pool_get(struct pool *, int) __attribute__((__malloc__));
 void pool_request_init(struct pool_request *,
       void (*)(void *, void *), void *);
@@ -2702,123 +1783,83 @@ void pool_put(struct pool *, void *);
 int pool_reclaim(struct pool *);
 void pool_reclaim_all(void);
 int pool_prime(struct pool *, int);
-
-
-
-
-
 void pool_printit(struct pool *, const char *,
       int (*)(const char *, ...));
 void pool_walk(struct pool *, int, int (*)(const char *, ...),
       void (*)(void *, int, int (*)(const char *, ...)));
-
-
-
 void dma_alloc_init(void);
 void *dma_alloc(size_t size, int flags);
 void dma_free(void *m, size_t size);
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int
 _atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
  __asm volatile("cas [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline unsigned long
 _atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline void *
 _atomic_cas_ptr(volatile void *p, void *e, void *n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*(volatile unsigned long *)p)
      : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
-
  return (n);
 }
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
 static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-
-
 static inline void *
 _atomic_swap_ptr(volatile void *p, void *v)
 {
  void *e, *r;
-
  r = *(void **)p;
  do {
   e = r;
   r = _atomic_cas_ptr((p), (e), (v));
  } while (r != e);
-
  return (r);
 }
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-# 129 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static __inline void
 atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e | v));
  } while (r != e);
 }
-
 static __inline void
 atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e & ~v));
  } while (r != e);
 }
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 2
-# 56 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
 };
-# 65 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_clonereq {
  int ifcr_total;
  int ifcr_count;
  char *ifcr_buffer;
 };
-
-
-
 struct if_rxring {
  int rxr_adjusted;
  u_int rxr_alive;
@@ -2826,25 +1867,16 @@ struct if_rxring {
  u_int rxr_lwm;
  u_int rxr_hwm;
 };
-
 struct if_rxring_info {
  char ifr_name[16];
  u_int ifr_size;
  struct if_rxring ifr_info;
 };
-
-
 struct if_rxrinfo {
  u_int ifri_total;
  struct if_rxring_info *ifri_entries;
 };
-
-
-
-
-
 struct if_data {
-
  u_char ifi_type;
  u_char ifi_addrlen;
  u_char ifi_hdrlen;
@@ -2853,7 +1885,6 @@ struct if_data {
  u_int32_t ifi_metric;
  u_int32_t ifi_rdomain;
  u_int64_t ifi_baudrate;
-
  u_int64_t ifi_ipackets;
  u_int64_t ifi_ierrors;
  u_int64_t ifi_opackets;
@@ -2869,13 +1900,11 @@ struct if_data {
  u_int32_t ifi_capabilities;
  struct timeval ifi_lastchange;
 };
-# 145 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_status_description {
  u_char ifs_type;
  u_char ifs_state;
  const char *ifs_string;
 };
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct if_msghdr {
  u_short ifm_msglen;
  u_char ifm_version;
@@ -2890,11 +1919,6 @@ struct if_msghdr {
  int ifm_xflags;
  struct if_data ifm_data;
 };
-
-
-
-
-
 struct ifa_msghdr {
  u_short ifam_msglen;
  u_char ifam_version;
@@ -2908,10 +1932,6 @@ struct ifa_msghdr {
  int ifam_flags;
  int ifam_metric;
 };
-
-
-
-
 struct if_announcemsghdr {
  u_short ifan_msglen;
  u_char ifan_version;
@@ -2921,32 +1941,19 @@ struct if_announcemsghdr {
  u_short ifan_what;
  char ifan_name[16];
 };
-
-
-
-
-
 struct if_nameindex_msg {
  unsigned int if_index;
  char if_name[16];
 };
-# 321 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 struct ifg_req {
  union {
   char ifgrqu_group[16];
   char ifgrqu_member[16];
  } ifgrq_ifgrqu;
-
-
 };
-
 struct ifg_attrib {
  int ifg_carp_demoted;
 };
-
-
-
-
 struct ifgroupreq {
  char ifgr_name[16];
  u_int ifgr_len;
@@ -2955,17 +1962,7 @@ struct ifgroupreq {
   struct ifg_req *ifgru_groups;
   struct ifg_attrib ifgru_attrib;
  } ifgr_ifgru;
-
-
-
 };
-
-
-
-
-
-
-
 struct ifreq {
  char ifr_name[16];
  union {
@@ -2979,23 +1976,16 @@ struct ifreq {
   caddr_t ifru_data;
   unsigned int ifru_index;
  } ifr_ifru;
-# 383 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h"
 };
-
 struct ifaliasreq {
  char ifra_name[16];
  union {
   struct sockaddr ifrau_addr;
   int ifrau_align;
   } ifra_ifrau;
-
-
-
  struct sockaddr ifra_dstaddr;
-
  struct sockaddr ifra_mask;
 };
-
 struct ifmediareq {
  char ifm_name[16];
  uint64_t ifm_current;
@@ -3005,83 +1995,48 @@ struct ifmediareq {
  int ifm_count;
  uint64_t *ifm_ulist;
 };
-
 struct ifkalivereq {
  char ikar_name[16];
  int ikar_timeo;
  int ikar_cnt;
 };
-
-
-
-
-
-
-
 struct ifconf {
  int ifc_len;
  union {
   caddr_t ifcu_buf;
   struct ifreq *ifcu_req;
  } ifc_ifcu;
-
-
 };
-
-
-
-
 struct if_laddrreq {
  char iflr_name[16];
  unsigned int flags;
-
  unsigned int prefixlen;
  struct sockaddr_storage addr;
  struct sockaddr_storage dstaddr;
 };
-
-
 struct if_afreq {
  char ifar_name[16];
  sa_family_t ifar_af;
 };
-
-
 struct if_parent {
  char ifp_name[16];
  char ifp_parent[16];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h"
 struct arphdr {
  u_int16_t ar_hrd;
-
-
-
-
  u_int16_t ar_pro;
  u_int8_t ar_hln;
  u_int8_t ar_pln;
  u_int16_t ar_op;
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_arp.h"
 };
-
-
-
-
 struct arpreq {
  struct sockaddr arp_pa;
  struct sockaddr arp_ha;
  int arp_flags;
 };
-# 456 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.h" 2
-
-
 struct socket;
 struct ifnet;
 struct ifq_ops;
-
 void if_alloc_sadl(struct ifnet *);
 void if_free_sadl(struct ifnet *);
 void if_attach(struct ifnet *);
@@ -3112,32 +2067,15 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_media.h" 1
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_media.h"
 struct ifnet;
-
-
-
-
-
 typedef int (*ifm_change_cb_t)(struct ifnet *);
 typedef void (*ifm_stat_cb_t)(struct ifnet *, struct ifmediareq *);
-
-
-
-
 struct ifmedia_entry {
  struct { struct ifmedia_entry *tqe_next; struct ifmedia_entry **tqe_prev; } ifm_list;
  uint64_t ifm_media;
  u_int ifm_data;
  void *ifm_aux;
 };
-
-
-
-
-
 struct ifmedia {
  uint64_t ifm_mask;
  uint64_t ifm_media;
@@ -3146,61 +2084,36 @@ struct ifmedia {
  ifm_change_cb_t ifm_change;
  ifm_stat_cb_t ifm_status;
 };
-
-
 void ifmedia_init(struct ifmedia *, uint64_t, ifm_change_cb_t,
       ifm_stat_cb_t);
-
-
 void ifmedia_add(struct ifmedia *, uint64_t, int, void *);
-
-
 void ifmedia_list_add(struct ifmedia *, struct ifmedia_entry *,
      int);
-
-
 void ifmedia_set(struct ifmedia *, uint64_t);
-
-
 int ifmedia_ioctl(struct ifnet *, struct ifreq *, struct ifmedia *,
      u_long);
-
-
 struct ifmedia_entry *ifmedia_match(struct ifmedia *, uint64_t, uint64_t);
-
-
 void ifmedia_delete_instance(struct ifmedia *, uint64_t);
-
-
 uint64_t ifmedia_baudrate(uint64_t);
-# 448 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_media.h"
 struct ifmedia_description {
  uint64_t ifmt_word;
  const char *ifmt_string;
 };
-# 751 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_media.h"
 struct ifmedia_baudrate {
  uint64_t ifmb_word;
  uint64_t ifmb_baudrate;
 };
-# 897 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_media.h"
 struct ifmedia_status_description {
  uint64_t ifms_type;
  uint64_t ifms_valid;
  uint64_t ifms_bit;
  const char *ifms_string[2];
 };
-# 59 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h" 1
-# 63 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 typedef __in_addr_t in_addr_t;
 typedef __in_port_t in_port_t;
-# 165 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct in_addr {
  in_addr_t s_addr;
 };
-# 256 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct sockaddr_in {
  u_int8_t sin_len;
  sa_family_t sin_family;
@@ -3208,23 +2121,14 @@ struct sockaddr_in {
  struct in_addr sin_addr;
  int8_t sin_zero[8];
 };
-# 271 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct ip_opts {
  struct in_addr ip_dst;
-
-
-
  int8_t ip_opts[40];
-
 };
-# 362 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 struct ip_mreq {
  struct in_addr imr_multiaddr;
  struct in_addr imr_interface;
 };
-# 788 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h" 1
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct in6_addr {
  union {
   u_int8_t __u6_addr8[16];
@@ -3232,7 +2136,6 @@ struct in6_addr {
   u_int32_t __u6_addr32[4];
  } __u6_addr;
 };
-# 106 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct sockaddr_in6 {
  u_int8_t sin6_len;
  sa_family_t sin6_family;
@@ -3241,65 +2144,40 @@ struct sockaddr_in6 {
  struct in6_addr sin6_addr;
  u_int32_t sin6_scope_id;
 };
-# 130 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 extern const struct sockaddr_in6 sa6_any;
-
 extern const struct in6_addr in6mask0;
 extern const struct in6_addr in6mask32;
 extern const struct in6_addr in6mask64;
 extern const struct in6_addr in6mask96;
 extern const struct in6_addr in6mask128;
-
-
-
 extern const struct in6_addr in6addr_any;
 extern const struct in6_addr in6addr_loopback;
 extern const struct in6_addr in6addr_intfacelocal_allnodes;
 extern const struct in6_addr in6addr_linklocal_allnodes;
 extern const struct in6_addr in6addr_linklocal_allrouters;
-
-
-
-
-
 struct route_in6 {
  struct rtentry *ro_rt;
  u_long ro_tableid;
  struct sockaddr_in6 ro_dst;
 };
-# 366 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 struct ipv6_mreq {
  struct in6_addr ipv6mr_multiaddr;
  unsigned int ipv6mr_interface;
 };
-
-
-
-
 struct in6_pktinfo {
  struct in6_addr ipi6_addr;
  unsigned int ipi6_ifindex;
 };
-
-
-
-
-
-
 struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-# 407 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 extern u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
-
 struct mbuf;
 struct ifnet;
 struct cmsghdr;
-
 void ipv6_input(struct ifnet *, struct mbuf *);
-
 int in6_cksum(struct mbuf *, u_int8_t, u_int32_t, u_int32_t);
 void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
@@ -3307,58 +2185,42 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
-
 struct inpcb;
-
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
 void in6_recoverscope(struct sockaddr_in6 *, const struct in6_addr *);
 void in6_clearscope(struct in6_addr *);
-
 struct sockaddr;
 struct sockaddr_in6;
 struct ifaddr;
 struct in6_ifaddr;
-
-
-
-
-
-
-
 static inline struct sockaddr_in6 *
 satosin6(struct sockaddr *sa)
 {
  return ((struct sockaddr_in6 *)(sa));
 }
-
 static inline struct sockaddr *
 sin6tosa(struct sockaddr_in6 *sin6)
 {
  return ((struct sockaddr *)(sin6));
 }
-
 static inline struct in6_ifaddr *
 ifatoia6(struct ifaddr *ifa)
 {
  return ((struct in6_ifaddr *)(ifa));
 }
-# 712 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6.h"
 
 struct cmsghdr;
-
 extern int inet6_opt_init(void *, socklen_t);
 extern int inet6_opt_append(void *, socklen_t, int, u_int8_t,
   socklen_t, u_int8_t, void **);
 extern int inet6_opt_finish(void *, socklen_t, int);
 extern int inet6_opt_set_val(void *, int, void *, socklen_t);
-
 extern int inet6_opt_next(void *, socklen_t, int, u_int8_t *,
   socklen_t *, void **);
 extern int inet6_opt_find(void *, socklen_t, int, u_int8_t,
   socklen_t *, void **);
 extern int inet6_opt_get_val(void *, int, void *, socklen_t);
-
 extern socklen_t inet6_rth_space(int, int);
 extern void *inet6_rth_init(void *, socklen_t, int, int);
 extern int inet6_rth_add(void *, const struct in6_addr *);
@@ -3366,19 +2228,14 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-# 789 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h" 2
-# 802 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 extern int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
-
 struct mbuf;
 struct sockaddr;
 struct sockaddr_in;
 struct ifaddr;
 struct in_ifaddr;
-
 void ipv4_input(struct ifnet *, struct mbuf *);
-
 int in_broadcast(struct in_addr, u_int);
 int in_canforward(struct in_addr);
 int in_cksum(struct mbuf *, int);
@@ -3387,51 +2244,34 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
-
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
-
 const char *inet_ntop(int, const void *, char *, socklen_t);
 const char *sockaddr_ntop(struct sockaddr *, char *, size_t);
-# 838 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in.h"
 static inline struct sockaddr_in *
 satosin(struct sockaddr *sa)
 {
  return ((struct sockaddr_in *)(sa));
 }
-
 static inline struct sockaddr *
 sintosa(struct sockaddr_in *sin)
 {
  return ((struct sockaddr *)(sin));
 }
-
 static inline struct in_ifaddr *
 ifatoia(struct ifaddr *ifa)
 {
  return ((struct in_ifaddr *)(ifa));
 }
-# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h" 1
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
 struct ether_addr {
  u_int8_t ether_addr_octet[6];
 };
-
-
-
-
 struct ether_header {
  u_int8_t ether_dhost[6];
  u_int8_t ether_shost[6];
  u_int16_t ether_type;
 };
-
-
-
-
-
 struct ether_vlan_header {
         u_char evl_dhost[6];
         u_char evl_shost[6];
@@ -3439,10 +2279,6 @@ struct ether_vlan_header {
         u_int16_t evl_tag;
         u_int16_t evl_proto;
 };
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ethertypes.h" 1
-# 109 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h" 2
-# 128 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
 struct ether_arp {
  struct arphdr ea_hdr;
  u_int8_t arp_sha[6];
@@ -3450,12 +2286,6 @@ struct ether_arp {
  u_int8_t arp_tha[6];
  u_int8_t arp_tpa[4];
 };
-
-
-
-
-
-
 struct sockaddr_inarp {
  u_int8_t sin_len;
  u_int8_t sin_family;
@@ -3464,92 +2294,49 @@ struct sockaddr_inarp {
  struct in_addr sin_srcaddr;
  u_int16_t sin_tos;
  u_int16_t sin_other;
-
 };
-# 193 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h" 1
-# 24 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/task.h"
 struct taskq;
-
 struct task {
  struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
  void (*t_func)(void *);
  void *t_arg;
  unsigned int t_flags;
 };
-
 struct task_list { struct task *tqh_first; struct task **tqh_last; };
-
-
-
-
-
-
-
 extern struct taskq *const systq;
 extern struct taskq *const systqmp;
-
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
-
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h"
 struct ifnet;
-
 struct ifq_ops;
-
 struct ifqueue {
  struct ifnet *ifq_if;
  union {
   void *_ifq_softc;
-
-
-
-
-
-
   struct ifqueue *_ifq_ifqs[1];
  } _ifq_ptr;
-
-
-
-
  struct mutex ifq_mtx;
  const struct ifq_ops *ifq_ops;
  void *ifq_q;
  struct mbuf_list ifq_free;
  unsigned int ifq_len;
  unsigned int ifq_oactive;
-
-
  uint64_t ifq_packets;
  uint64_t ifq_bytes;
  uint64_t ifq_qdrops;
  uint64_t ifq_errors;
  uint64_t ifq_mcasts;
-
-
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
-
-
  struct task ifq_start;
  struct task ifq_restart;
-
-
  unsigned int ifq_maxlen;
  unsigned int ifq_idx;
 };
-# 360 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.h"
 struct ifq_ops {
  unsigned int (*ifqop_idx)(unsigned int,
         const struct mbuf *);
@@ -3562,11 +2349,6 @@ struct ifq_ops {
  void *(*ifqop_alloc)(unsigned int, void *);
  void (*ifqop_free)(unsigned int, void *);
 };
-
-
-
-
-
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
@@ -3583,71 +2365,49 @@ void ifq_q_leave(struct ifqueue *, void *);
 void ifq_serialize(struct ifqueue *, struct task *);
 int ifq_is_serialized(struct ifqueue *);
 void ifq_barrier(struct ifqueue *);
-
-
-
-
-
 static inline void
 ifq_set_oactive(struct ifqueue *ifq)
 {
  ifq->ifq_oactive = 1;
 }
-
 static inline void
 ifq_clr_oactive(struct ifqueue *ifq)
 {
  ifq->ifq_oactive = 0;
 }
-
 static inline unsigned int
 ifq_is_oactive(struct ifqueue *ifq)
 {
  return (ifq->ifq_oactive);
 }
-
 static inline void
 ifq_start(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_start);
 }
-
 static inline void
 ifq_restart(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_restart);
 }
-
 static inline unsigned int
 ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
 {
  return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
 }
-
-
-
 extern const struct ifq_ops * const ifq_priq_ops;
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h" 2
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct rtentry;
 struct timeout;
 struct ifnet;
 struct task;
-
-
-
-
 struct if_clone {
  struct { struct if_clone *le_next; struct if_clone **le_prev; } ifc_list;
  const char *ifc_name;
  size_t ifc_namelen;
-
  int (*ifc_create)(struct if_clone *, int);
  int (*ifc_destroy)(struct ifnet *);
 };
-# 100 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct ifnet_head { struct ifnet *tqh_first; struct ifnet **tqh_last; };
-
 struct ifnet {
  void *if_softc;
  struct refcnt if_refcnt;
@@ -3658,7 +2418,6 @@ struct ifnet {
  struct hook_desc_head *if_addrhooks;
  struct hook_desc_head *if_linkstatehooks;
  struct hook_desc_head *if_detachhooks;
-
  void (*if_rtrequest)(struct ifnet *, int, struct rtentry *);
  char if_xname[16];
  int if_pcount;
@@ -3672,8 +2431,6 @@ struct ifnet {
   caddr_t carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
-
-
  unsigned int if_index;
  short if_timer;
  unsigned short if_flags;
@@ -3687,41 +2444,27 @@ struct ifnet {
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;
-
-
  struct mbuf_queue if_inputqueue;
  struct task *if_inputtask;
  struct srpl if_inputs;
-
-
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
-
-
  int (*if_ll_output)(struct ifnet *, struct mbuf *,
       struct sockaddr *, struct rtentry *);
-
  void (*if_start)(struct ifnet *);
-
  int (*if_ioctl)(struct ifnet *, u_long, caddr_t);
-
  void (*if_watchdog)(struct ifnet *);
  int (*if_wol)(struct ifnet *, int);
-
  struct ifqueue if_snd;
  struct ifqueue **if_ifqs;
  void (*if_qstart)(struct ifqueue *);
  unsigned int if_nifqs;
-
  struct sockaddr_dl *if_sadl;
-
  void *if_afdata[36];
 };
-# 200 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct ifaddr {
  struct sockaddr *ifa_addr;
  struct sockaddr *ifa_dstaddr;
-
  struct sockaddr *ifa_netmask;
  struct ifnet *ifa_ifp;
  struct { struct ifaddr *tqe_next; struct ifaddr **tqe_prev; } ifa_list;
@@ -3729,23 +2472,12 @@ struct ifaddr {
  u_int ifa_refcnt;
  int ifa_metric;
 };
-
-
-
-
-
-
 struct ifmaddr {
  struct sockaddr *ifma_addr;
  unsigned int ifma_ifidx;
  unsigned int ifma_refcnt;
  struct { struct ifmaddr *tqe_next; struct ifmaddr **tqe_prev; } ifma_list;
 };
-
-
-
-
-
 struct ifg_group {
  char ifg_group[16];
  u_int ifg_refcnt;
@@ -3754,32 +2486,23 @@ struct ifg_group {
  struct { struct ifg_member *tqh_first; struct ifg_member **tqh_last; } ifg_members;
  struct { struct ifg_group *tqe_next; struct ifg_group **tqe_prev; } ifg_next;
 };
-
 struct ifg_member {
  struct { struct ifg_member *tqe_next; struct ifg_member **tqe_prev; } ifgm_next;
  struct ifnet *ifgm_ifp;
 };
-
 struct ifg_list {
  struct ifg_group *ifgl_group;
  struct { struct ifg_list *tqe_next; struct ifg_list **tqe_prev; } ifgl_next;
 };
-# 280 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 struct niqueue {
  struct mbuf_queue ni_q;
  u_int ni_isr;
 };
-
-
-
-
 void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
-# 300 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_var.h"
 extern struct ifnet_head ifnet;
 extern struct taskq *softnettq;
-
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -3787,52 +2510,32 @@ void if_input(struct ifnet *, struct mbuf_list *);
 int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
 void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
 void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
-
 struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
 struct ifaddr *ifa_ifwithdstaddr(struct sockaddr *, u_int);
 struct ifaddr *ifaof_ifpforaddr(struct sockaddr *, struct ifnet *);
 void ifafree(struct ifaddr *);
-
 int if_isconnected(const struct ifnet *, unsigned int);
-
 void if_clone_attach(struct if_clone *);
 void if_clone_detach(struct if_clone *);
-
 int if_clone_create(const char *, int);
 int if_clone_destroy(const char *);
-
 struct if_clone *
  if_clone_lookup(const char *, int *);
-
 int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
      struct mbuf_queue *);
-
 void ifa_add(struct ifnet *, struct ifaddr *);
 void ifa_del(struct ifnet *, struct ifaddr *);
 void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
      struct sockaddr *);
-
 void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
-
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
-
-
-
-
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
 int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
      struct if_rxring *);
-# 194 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h" 2
-
-
-
-
-
-
 struct arpcom {
  struct ifnet ac_if;
  u_int8_t ac_enaddr[6];
@@ -3840,26 +2543,18 @@ struct arpcom {
  struct { struct ether_multi *lh_first; } ac_multiaddrs;
  int ac_multicnt;
  int ac_multirangecnt;
-
 };
-
 extern int arpt_keep;
 extern int arpt_down;
-
 extern u_int8_t etherbroadcastaddr[6];
 extern u_int8_t etheranyaddr[6];
 extern u_int8_t ether_ipmulticast_min[6];
 extern u_int8_t ether_ipmulticast_max[6];
-
-
 extern unsigned int revarp_ifidx;
-
-
 void revarpinput(struct ifnet *, struct mbuf *);
 void revarprequest(struct ifnet *);
 int revarpwhoarewe(struct ifnet *, struct in_addr *, struct in_addr *);
 int revarpwhoami(struct in_addr *, struct ifnet *);
-
 void arpinput(struct ifnet *, struct mbuf *);
 void arprequest(struct ifnet *, u_int32_t *, u_int32_t *, u_int8_t *);
 void arpwhohas(struct arpcom *, struct in_addr *);
@@ -3867,7 +2562,6 @@ int arpproxy(struct in_addr, unsigned int);
 int arpresolve(struct ifnet *, struct rtentry *, struct mbuf *,
      struct sockaddr *, u_char *);
 void arp_rtrequest(struct ifnet *, int, struct rtentry *);
-
 void ether_fakeaddr(struct ifnet *);
 int ether_addmulti(struct ifreq *, struct arpcom *);
 int ether_delmulti(struct ifreq *, struct arpcom *);
@@ -3880,64 +2574,37 @@ int ether_output(struct ifnet *,
      struct mbuf *, struct sockaddr *, struct rtentry *);
 void ether_rtrequest(struct ifnet *, int, struct rtentry *);
 char *ether_sprintf(u_char *);
-# 257 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
 struct ether_multi {
  u_int8_t enm_addrlo[6];
  u_int8_t enm_addrhi[6];
  u_int enm_refcount;
  struct { struct ether_multi *le_next; struct ether_multi **le_prev; } enm_list;
 };
-
-
-
-
-
 struct ether_multistep {
  struct ether_multi *e_enm;
 };
-# 314 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.h"
 u_int32_t ether_crc32_le_update(u_int32_t crc, const u_int8_t *, size_t);
 u_int32_t ether_crc32_be_update(u_int32_t crc, const u_int8_t *, size_t);
 u_int32_t ether_crc32_le(const u_int8_t *, size_t);
 u_int32_t ether_crc32_be(const u_int8_t *, size_t);
-# 62 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ip {
-
-
-
-
-
  u_int ip_v:4,
     ip_hl:4;
-
  u_int8_t ip_tos;
  u_int16_t ip_len;
  u_int16_t ip_id;
  u_int16_t ip_off;
-
-
-
-
  u_int8_t ip_ttl;
  u_int8_t ip_p;
  u_int16_t ip_sum;
  struct in_addr ip_src, ip_dst;
 };
-# 166 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ip_timestamp {
  u_int8_t ipt_code;
  u_int8_t ipt_len;
  u_int8_t ipt_ptr;
-
-
-
-
-
  u_int ipt_oflw:4,
    ipt_flg:4;
-
  union ipt_timestamp {
    u_int32_t ipt_time[1];
    struct ipt_ta {
@@ -3946,7 +2613,6 @@ struct ip_timestamp {
    } ipt_ta[1];
  } ipt_timestamp;
 };
-# 217 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip.h"
 struct ippseudo {
  struct in_addr ippseudo_src;
  struct in_addr ippseudo_dst;
@@ -3954,90 +2620,53 @@ struct ippseudo {
  u_int8_t ippseudo_p;
  u_int16_t ippseudo_len;
 };
-# 63 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h"
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
-# 62 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h"
 struct bpf_program {
  u_int bf_len;
  struct bpf_insn *bf_insns;
 };
-
-
-
-
 struct bpf_stat {
  u_int bs_recv;
  u_int bs_drop;
 };
-# 86 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h"
 struct bpf_version {
  u_short bv_major;
  u_short bv_minor;
 };
-# 129 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h"
 struct bpf_timeval {
  u_int32_t tv_sec;
  u_int32_t tv_usec;
 };
-
-
-
-
 struct bpf_hdr {
  struct bpf_timeval bh_tstamp;
  u_int32_t bh_caplen;
  u_int32_t bh_datalen;
  u_int16_t bh_hdrlen;
-
 };
-# 266 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.h"
 struct bpf_insn {
  u_int16_t code;
  u_char jt;
  u_char jf;
  u_int32_t k;
 };
-
-
-
-
 struct bpf_dltlist {
  u_int bfl_len;
  u_int *bfl_list;
 };
-
-
-
-
 struct bpf_ops {
  u_int32_t (*ldw)(const void *, u_int32_t, int *);
  u_int32_t (*ldh)(const void *, u_int32_t, int *);
  u_int32_t (*ldb)(const void *, u_int32_t, int *);
 };
 
-
-
-
-
-
-
-
 u_int bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int)
      __attribute__ ((__bounded__ (__buffer__, 2, 4) ));
-
 u_int _bpf_filter(const struct bpf_insn *, const struct bpf_ops *,
       const void *, u_int);
 
-
-
 struct ifnet;
 struct mbuf;
-
 int bpf_validate(struct bpf_insn *, int);
 int bpf_mtap(caddr_t, const struct mbuf *, u_int);
 int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
@@ -4047,84 +2676,51 @@ int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
 void bpfilterattach(int);
-
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
-# 66 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-
-
 typedef int boolean_t;
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h"
 typedef u_int16_t pci_vendor_id_t;
 typedef u_int16_t pci_product_id_t;
-# 111 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h"
 typedef u_int8_t pci_class_t;
 typedef u_int8_t pci_subclass_t;
 typedef u_int8_t pci_interface_t;
 typedef u_int8_t pci_revision_t;
-# 636 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h"
 typedef u_int8_t pci_intr_pin_t;
 typedef u_int8_t pci_intr_line_t;
-# 669 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h"
 struct pci_vpd_smallres {
  uint8_t vpdres_byte0;
-
 } __attribute__((__packed__));
-
 struct pci_vpd_largeres {
  uint8_t vpdres_byte0;
  uint8_t vpdres_len_lsb;
  uint8_t vpdres_len_msb;
-
 } __attribute__((__packed__));
-# 695 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcireg.h"
 struct pci_vpd {
  uint8_t vpd_key0;
  uint8_t vpd_key1;
  uint8_t vpd_len;
-
 } __attribute__((__packed__));
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
 struct extent_region {
  struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
  u_long er_start;
  u_long er_end;
  int er_flags;
 };
-
-
-
-
-
 struct extent {
  char *ex_name;
-
  struct { struct extent_region *lh_first; } ex_regions;
  u_long ex_start;
  u_long ex_end;
  int ex_mtype;
  int ex_flags;
-
  struct { struct extent *le_next; struct extent **le_prev; } ex_link;
 };
-
 struct extent_fixed {
  struct extent fex_extent;
-
  struct { struct extent_region *lh_first; } fex_freelist;
  caddr_t fex_storage;
  size_t fex_storagesize;
 };
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
 void extent_print_all(void);
-
 struct extent *extent_create(char *, u_long, u_long, int,
      caddr_t, size_t, int);
 void extent_destroy(struct extent *);
@@ -4136,11 +2732,7 @@ int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
 int extent_alloc_region(struct extent *, u_long, u_long, int);
 int extent_free(struct extent *, u_long, u_long, int);
 void extent_print(struct extent *);
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 1
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 extern int bus_space_debug;
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 enum bus_type {
  UPA_BUS_SPACE,
  SBUS_BUS_SPACE,
@@ -4149,26 +2741,12 @@ enum bus_type {
  PCI_MEMORY_BUS_SPACE,
  LAST_BUS_SPACE
 };
-
-
-
-
-
-
 typedef const struct sparc_bus_space_tag *bus_space_tag_t;
 typedef u_long bus_addr_t;
 typedef u_long bus_size_t;
-
-
 typedef struct _bus_space_handle {
         paddr_t bh_ptr;
-
-
-
-
-
 } bus_space_handle_t;
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct sparc_bus_space_tag {
  void *cookie;
  bus_space_tag_t parent;
@@ -4176,52 +2754,39 @@ struct sparc_bus_space_tag {
         u_int8_t asi;
         u_int8_t sasi;
  char name[32];
-
  int (*sparc_bus_alloc)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, bus_addr_t,
   bus_size_t, bus_size_t, bus_size_t,
   int, bus_addr_t *, bus_space_handle_t *);
-
  void (*sparc_bus_free)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t);
-
  int (*sparc_bus_map)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, bus_size_t,
   int, bus_space_handle_t *);
-
  int (*sparc_bus_protect)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t, int);
-
  int (*sparc_bus_unmap)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t);
-
  int (*sparc_bus_subregion)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t,
   bus_size_t, bus_space_handle_t *);
-
  paddr_t (*sparc_bus_mmap)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, off_t, int, int);
-
  void *(*sparc_intr_establish)(bus_space_tag_t,
   bus_space_tag_t,
   int, int, int,
   int (*)(void *), void *,
   const char *);
-
  bus_addr_t (*sparc_bus_addr)(bus_space_tag_t,
   bus_space_tag_t, bus_space_handle_t);
 };
-
-
-
-
 int bus_space_alloc(
     bus_space_tag_t,
     bus_addr_t,
@@ -4273,7 +2838,6 @@ void *bus_intr_establish(
     bus_space_tag_t,
     int,
     int,
-
     int,
     int (*)(void *),
     void *,
@@ -4295,7 +2859,6 @@ void bus_space_render_tag(
 void *bus_space_vaddr(
     bus_space_tag_t,
     bus_space_handle_t);
-# 311 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 static inline void
 bus_space_barrier(t, h, o, s, f)
  bus_space_tag_t t;
@@ -4304,13 +2867,8 @@ bus_space_barrier(t, h, o, s, f)
  bus_size_t s;
  int f;
 {
-# 334 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
  __asm volatile("membar " "#Sync" ::: "memory");
-
 }
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h"
 static inline u_int16_t bus_space_read_2(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_2(bus_space_tag_t,
@@ -4336,44 +2894,24 @@ void bus_space_set_region_2(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_2(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int16_t bus_space_read_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int16_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int16_t __rlduhu_int16_t; if(t->asi == 0x80 || (sizeof(u_int16_t) == 1 && t->asi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->asi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int16_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->asi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int32_t bus_space_read_4(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_4(bus_space_tag_t,
@@ -4399,44 +2937,24 @@ void bus_space_set_region_4(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_4(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int32_t bus_space_read_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int32_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int32_t __rlduwu_int32_t; if(t->asi == 0x80 || (sizeof(u_int32_t) == 1 && t->asi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->asi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int32_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->asi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int64_t bus_space_read_8(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_8(bus_space_tag_t,
@@ -4462,44 +2980,24 @@ void bus_space_set_region_8(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_8(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int64_t bus_space_read_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int64_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int64_t __rldxu_int64_t; if(t->asi == 0x80 || (sizeof(u_int64_t) == 1 && t->asi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->asi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int64_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->asi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int8_t bus_space_read_1(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_1(bus_space_tag_t,
@@ -4525,44 +3023,24 @@ void bus_space_set_region_1(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_1(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int8_t bus_space_read_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int8_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int8_t __rldubu_int8_t; if(t->asi == 0x80 || (sizeof(u_int8_t) == 1 && t->asi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->asi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int8_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->asi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int16_t bus_space_read_raw_2(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_2(bus_space_tag_t,
@@ -4585,44 +3063,24 @@ void bus_space_write_raw_region_2(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_2(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int16_t,
     size_t);
-
 static inline
 u_int16_t bus_space_read_raw_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int16_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int16_t __rlduhu_int16_t; if(t->sasi == 0x80 || (sizeof(u_int16_t) == 1 && t->sasi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->sasi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int16_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int32_t bus_space_read_raw_4(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_4(bus_space_tag_t,
@@ -4645,44 +3103,24 @@ void bus_space_write_raw_region_4(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_4(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int32_t,
     size_t);
-
 static inline
 u_int32_t bus_space_read_raw_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int32_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int32_t __rlduwu_int32_t; if(t->sasi == 0x80 || (sizeof(u_int32_t) == 1 && t->sasi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->sasi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int32_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int64_t bus_space_read_raw_8(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_8(bus_space_tag_t,
@@ -4705,44 +3143,24 @@ void bus_space_write_raw_region_8(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_8(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int64_t,
     size_t);
-
 static inline
 u_int64_t bus_space_read_raw_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int64_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int64_t __rldxu_int64_t; if(t->sasi == 0x80 || (sizeof(u_int64_t) == 1 && t->sasi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->sasi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int64_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int8_t bus_space_read_raw_1(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_1(bus_space_tag_t,
@@ -4765,74 +3183,39 @@ void bus_space_write_raw_region_1(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_1(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int8_t,
     size_t);
-
 static inline
 u_int8_t bus_space_read_raw_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int8_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int8_t __rldubu_int8_t; if(t->sasi == 0x80 || (sizeof(u_int8_t) == 1 && t->sasi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->sasi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int8_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 2
-# 382 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct mbuf;
 struct uio;
-# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 typedef struct sparc_bus_dma_tag *bus_dma_tag_t;
 typedef struct sparc_bus_dmamap *bus_dmamap_t;
-
-
-
-
-
-
-
 struct sparc_bus_dma_segment {
  bus_addr_t ds_addr;
  bus_size_t ds_len;
-
-
-
-
-
-
-
  bus_size_t _ds_boundary;
  bus_size_t _ds_align;
  void *_ds_mlist;
 };
 typedef struct sparc_bus_dma_segment bus_dma_segment_t;
-# 425 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct sparc_bus_dma_tag {
  void *_cookie;
  struct sparc_bus_dma_tag* _parent;
-
-
-
-
  int (*_dmamap_create)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
       int, bus_size_t, bus_size_t, int, bus_dmamap_t *);
  void (*_dmamap_destroy)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
@@ -4847,10 +3230,6 @@ struct sparc_bus_dma_tag {
  void (*_dmamap_unload)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
  void (*_dmamap_sync)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
       bus_addr_t, bus_size_t, int);
-
-
-
-
  int (*_dmamem_alloc)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
       bus_size_t, bus_size_t, bus_dma_segment_t *, int, int *,
       int);
@@ -4863,7 +3242,6 @@ struct sparc_bus_dma_tag {
  paddr_t (*_dmamem_mmap)(bus_dma_tag_t, bus_dma_tag_t,
       bus_dma_segment_t *, int, off_t, int, int);
 };
-# 471 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 static inline int
 bus_dmamap_create(bus_dma_tag_t t, bus_size_t s, int n, bus_size_t m,
     bus_size_t b, int f, bus_dmamap_t *p)
@@ -4992,67 +3370,28 @@ bus_dmamem_mmap(bus_dma_tag_t t, bus_dma_segment_t *sg, int n, off_t o, int p,
  ;
  return (r);
 }
-
-
-
-
-
-
 struct sparc_bus_dmamap {
-
-
-
  bus_addr_t _dm_dvmastart;
  bus_size_t _dm_dvmasize;
-
  bus_size_t _dm_size;
  bus_size_t _dm_maxsegsz;
  bus_size_t _dm_boundary;
  int _dm_segcnt;
  int _dm_flags;
-
-
-
-
  int _dm_type;
  void *_dm_source;
-
  void *_dm_cookie;
-
-
-
-
  bus_size_t dm_mapsize;
  int dm_nsegs;
-
  bus_dma_segment_t dm_segs[1];
 };
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h" 2
-
-
-
-
-
 typedef u_int32_t pcireg_t;
-# 66 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
 struct pcibus_attach_args;
 struct pci_softc;
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/pci_machdep.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/pci_machdep.h"
 struct pci_attach_args;
-
-
-
-
-
 typedef struct sparc_pci_chipset *pci_chipset_tag_t;
-
-
 typedef u_int pci_intr_handle_t;
-# 65 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/pci_machdep.h"
 typedef u_int64_t pcitag_t;
-
 struct sparc_pci_chipset {
  void *cookie;
  bus_space_tag_t bustag;
@@ -5064,7 +3403,6 @@ struct sparc_pci_chipset {
  void (*conf_write)(pci_chipset_tag_t, pcitag_t, int, pcireg_t);
  int (*intr_map)(struct pci_attach_args *, pci_intr_handle_t *);
 };
-
 void pci_attach_hook(struct device *, struct device *,
          struct pcibus_attach_args *);
 int pci_bus_maxdevs(pci_chipset_tag_t, int);
@@ -5077,24 +3415,15 @@ void pci_conf_write(pci_chipset_tag_t, pcitag_t, int,
         pcireg_t);
 int pci_intr_map(struct pci_attach_args *, pci_intr_handle_t *);
 int pci_intr_map_msi(struct pci_attach_args *, pci_intr_handle_t *);
-
 int pci_intr_line(pci_chipset_tag_t, pci_intr_handle_t);
 const char *pci_intr_string(pci_chipset_tag_t, pci_intr_handle_t);
 void *pci_intr_establish(pci_chipset_tag_t, pci_intr_handle_t,
      int, int (*)(void *), void *, const char *);
 void pci_intr_disestablish(pci_chipset_tag_t, void *);
-
 void pci_msi_enable(pci_chipset_tag_t, pcitag_t, bus_addr_t, int);
-
 int sparc64_pci_enumerate_bus(struct pci_softc *,
       int (*match)(struct pci_attach_args *),
       struct pci_attach_args *);
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h" 2
-
-
-
-
-
 struct pcibus_attach_args {
  char *pba_busname;
  bus_space_tag_t pba_iot;
@@ -5102,70 +3431,46 @@ struct pcibus_attach_args {
  bus_dma_tag_t pba_dmat;
  pci_chipset_tag_t pba_pc;
  int pba_flags;
-
  struct extent *pba_ioex;
  struct extent *pba_memex;
  struct extent *pba_pmemex;
  struct extent *pba_busex;
-
  int pba_domain;
  int pba_bus;
-
-
-
-
-
  pcitag_t *pba_bridgetag;
  pci_intr_handle_t *pba_bridgeih;
-
-
-
-
-
  u_int pba_intrswiz;
  pcitag_t pba_intrtag;
 };
-
-
-
-
 struct pci_attach_args {
  bus_space_tag_t pa_iot;
  bus_space_tag_t pa_memt;
  bus_dma_tag_t pa_dmat;
  pci_chipset_tag_t pa_pc;
  int pa_flags;
-
  struct extent *pa_ioex;
  struct extent *pa_memex;
  struct extent *pa_pmemex;
  struct extent *pa_busex;
-
  u_int pa_domain;
  u_int pa_bus;
  u_int pa_device;
  u_int pa_function;
  pcitag_t pa_tag;
  pcireg_t pa_id, pa_class;
-
  pcitag_t *pa_bridgetag;
  pci_intr_handle_t *pa_bridgeih;
-# 149 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
  u_int pa_intrswiz;
  pcitag_t pa_intrtag;
  pci_intr_pin_t pa_intrpin;
  pci_intr_line_t pa_intrline;
  pci_intr_pin_t pa_rawintrpin;
 };
-# 173 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
 struct pci_quirkdata {
  pci_vendor_id_t vendor;
  pci_product_id_t product;
  int quirks;
 };
-
-
-
 struct pci_softc {
  struct device sc_dev;
  bus_space_tag_t sc_iot, sc_memt;
@@ -5183,10 +3488,8 @@ struct pci_softc {
  u_int sc_intrswiz;
  pcitag_t sc_intrtag;
 };
-
 extern int pci_ndomains;
 extern int pci_dopm;
-# 221 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcivar.h"
 int pci_mapreg_probe(pci_chipset_tag_t, pcitag_t, int, pcireg_t *);
 pcireg_t pci_mapreg_type(pci_chipset_tag_t, pcitag_t, int);
 int pci_mapreg_info(pci_chipset_tag_t, pcitag_t, int, pcireg_t,
@@ -5194,37 +3497,24 @@ int pci_mapreg_info(pci_chipset_tag_t, pcitag_t, int, pcireg_t,
 int pci_mapreg_map(struct pci_attach_args *, int, pcireg_t, int,
      bus_space_tag_t *, bus_space_handle_t *, bus_addr_t *,
      bus_size_t *, bus_size_t);
-
-
 int pci_io_find(pci_chipset_tag_t, pcitag_t, int, bus_addr_t *,
      bus_size_t *);
 int pci_mem_find(pci_chipset_tag_t, pcitag_t, int, bus_addr_t *,
      bus_size_t *, int *);
-
 int pci_get_capability(pci_chipset_tag_t, pcitag_t, int,
      int *, pcireg_t *);
 int pci_get_ht_capability(pci_chipset_tag_t, pcitag_t, int,
      int *, pcireg_t *);
-
 struct pci_matchid {
  pci_vendor_id_t pm_vid;
  pci_product_id_t pm_pid;
 };
-
 int pci_matchbyid(struct pci_attach_args *, const struct pci_matchid *, int);
 int pci_get_powerstate(pci_chipset_tag_t, pcitag_t);
 int pci_set_powerstate(pci_chipset_tag_t, pcitag_t, int);
 void pci_disable_legacy_vga(struct device *);
-
-
-
-
 int pci_vpd_read(pci_chipset_tag_t, pcitag_t, int, int, pcireg_t *);
 int pci_vpd_write(pci_chipset_tag_t, pcitag_t, int, int, pcireg_t *);
-
-
-
-
 const char *pci_findvendor(pcireg_t);
 const char *pci_findproduct(pcireg_t);
 int pci_find_device(struct pci_attach_args *pa,
@@ -5236,25 +3526,16 @@ void pci_devinfo(pcireg_t, pcireg_t, int, char *, size_t);
 const struct pci_quirkdata *
  pci_lookup_quirkdata(pci_vendor_id_t, pci_product_id_t);
 void pciagp_set_pchb(struct pci_attach_args *);
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/pcidevs.h" 1
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h" 1
-# 1469 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 enum {
  PBA_STRATEGY_EQUAL = 0,
-
  PBA_STRATEGY_WEIGHTED = 1,
-
 };
-# 2568 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 enum ixgbe_fdir_pballoc_type {
  IXGBE_FDIR_PBALLOC_NONE = 0,
  IXGBE_FDIR_PBALLOC_64K = 1,
  IXGBE_FDIR_PBALLOC_128K = 2,
  IXGBE_FDIR_PBALLOC_256K = 3,
 };
-# 2697 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 struct ixgbe_hic_hdr {
  uint8_t cmd;
  uint8_t buf_len;
@@ -5264,26 +3545,22 @@ struct ixgbe_hic_hdr {
  } cmd_or_resp;
  uint8_t checksum;
 };
-
 struct ixgbe_hic_hdr2_req {
  uint8_t cmd;
  uint8_t buf_lenh;
  uint8_t buf_lenl;
  uint8_t checksum;
 };
-
 struct ixgbe_hic_hdr2_rsp {
  uint8_t cmd;
  uint8_t buf_lenl;
  uint8_t buf_lenh_status;
  uint8_t checksum;
 };
-
 union ixgbe_hic_hdr2 {
  struct ixgbe_hic_hdr2_req req;
  struct ixgbe_hic_hdr2_rsp rsp;
 };
-
 struct ixgbe_hic_drv_info {
  struct ixgbe_hic_hdr hdr;
  uint8_t port_num;
@@ -5294,8 +3571,6 @@ struct ixgbe_hic_drv_info {
  uint8_t pad;
  uint16_t pad2;
 };
-
-
 struct ixgbe_hic_read_shadow_ram {
  union ixgbe_hic_hdr2 hdr;
  uint32_t address;
@@ -5304,7 +3579,6 @@ struct ixgbe_hic_read_shadow_ram {
  uint16_t data;
  uint16_t pad3;
 };
-
 struct ixgbe_hic_write_shadow_ram {
  union ixgbe_hic_hdr2 hdr;
  uint32_t address;
@@ -5313,14 +3587,12 @@ struct ixgbe_hic_write_shadow_ram {
  uint16_t data;
  uint16_t pad3;
 };
-
 struct ixgbe_hic_disable_rxen {
  struct ixgbe_hic_hdr hdr;
  uint8_t port_number;
  uint8_t pad2;
  uint16_t pad3;
 };
-
 struct ixgbe_hic_internal_phy_req {
  struct ixgbe_hic_hdr hdr;
  uint8_t port_number;
@@ -5330,13 +3602,10 @@ struct ixgbe_hic_internal_phy_req {
  uint32_t write_data;
  uint16_t pad;
 };
-
 struct ixgbe_hic_internal_phy_resp {
  struct ixgbe_hic_hdr hdr;
  uint32_t read_data;
 };
-
-
 struct ixgbe_legacy_tx_desc {
  uint64_t buffer_addr;
  union {
@@ -5356,8 +3625,6 @@ struct ixgbe_legacy_tx_desc {
   } fields;
  } upper;
 };
-
-
 union ixgbe_adv_tx_desc {
  struct {
   uint64_t buffer_addr;
@@ -5370,8 +3637,6 @@ union ixgbe_adv_tx_desc {
   uint32_t status;
  } wb;
 };
-
-
 struct ixgbe_legacy_rx_desc {
  uint64_t buffer_addr;
  uint16_t length;
@@ -5380,8 +3645,6 @@ struct ixgbe_legacy_rx_desc {
  uint8_t errors;
  uint16_t vlan;
 };
-
-
 union ixgbe_adv_rx_desc {
  struct {
   uint64_t pkt_addr;
@@ -5411,21 +3674,15 @@ union ixgbe_adv_rx_desc {
   } upper;
  } wb;
 };
-
-
 struct ixgbe_adv_tx_context_desc {
  uint32_t vlan_macip_lens;
  uint32_t seqnum_seed;
  uint32_t type_tucmd_mlhl;
  uint32_t mss_l4len_idx;
 };
-# 2926 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 typedef uint32_t ixgbe_autoneg_advertised;
-
 typedef uint32_t ixgbe_link_speed;
-# 2942 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 typedef uint32_t ixgbe_physical_layer;
-# 3035 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 enum ixgbe_atr_flow_type {
  IXGBE_ATR_FLOW_TYPE_IPV4 = 0x0,
  IXGBE_ATR_FLOW_TYPE_UDPV4 = 0x1,
@@ -5444,10 +3701,7 @@ enum ixgbe_atr_flow_type {
  IXGBE_ATR_FLOW_TYPE_TUNNELED_TCPV6 = 0x16,
  IXGBE_ATR_FLOW_TYPE_TUNNELED_SCTPV6 = 0x17,
 };
-
-
 union ixgbe_atr_input {
-# 3072 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
  struct {
   uint8_t vm_pool;
   uint8_t flow_type;
@@ -5464,8 +3718,6 @@ union ixgbe_atr_input {
  } formatted;
  uint32_t dword_stream[14];
 };
-
-
 union ixgbe_atr_hash_dword {
  struct {
   uint8_t vm_pool;
@@ -5480,26 +3732,17 @@ union ixgbe_atr_hash_dword {
  uint16_t flex_bytes;
  uint32_t dword;
 };
-
-
-
-
-
-
-
 enum ixgbe_fcoe_boot_status {
  ixgbe_fcoe_bootstatus_disabled = 0,
  ixgbe_fcoe_bootstatus_enabled = 1,
  ixgbe_fcoe_bootstatus_unavailable = 0xFFFF
 };
-
 enum ixgbe_eeprom_type {
  ixgbe_eeprom_uninitialized = 0,
  ixgbe_eeprom_spi,
  ixgbe_flash,
  ixgbe_eeprom_none
 };
-
 enum ixgbe_mac_type {
  ixgbe_mac_unknown = 0,
  ixgbe_mac_82598EB,
@@ -5513,7 +3756,6 @@ enum ixgbe_mac_type {
  ixgbe_mac_X550EM_x_vf,
  ixgbe_num_macs
 };
-
 enum ixgbe_phy_type {
  ixgbe_phy_unknown = 0,
  ixgbe_phy_none,
@@ -5541,7 +3783,6 @@ enum ixgbe_phy_type {
  ixgbe_phy_sfp_unsupported,
  ixgbe_phy_generic
 };
-# 3179 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 enum ixgbe_sfp_type {
  ixgbe_sfp_type_da_cu = 0,
  ixgbe_sfp_type_sr = 1,
@@ -5561,7 +3802,6 @@ enum ixgbe_sfp_type {
  ixgbe_sfp_type_not_present = 0xFFFE,
  ixgbe_sfp_type_unknown = 0xFFFF
 };
-
 enum ixgbe_media_type {
  ixgbe_media_type_unknown = 0,
  ixgbe_media_type_fiber,
@@ -5572,8 +3812,6 @@ enum ixgbe_media_type {
  ixgbe_media_type_cx4,
  ixgbe_media_type_virtual
 };
-
-
 enum ixgbe_fc_mode {
  ixgbe_fc_none = 0,
  ixgbe_fc_rx_pause,
@@ -5581,16 +3819,11 @@ enum ixgbe_fc_mode {
  ixgbe_fc_full,
  ixgbe_fc_default
 };
-
-
-
 enum ixgbe_smart_speed {
  ixgbe_smart_speed_auto = 0,
  ixgbe_smart_speed_on,
  ixgbe_smart_speed_off
 };
-
-
 enum ixgbe_bus_type {
  ixgbe_bus_type_unknown = 0,
  ixgbe_bus_type_pci,
@@ -5599,8 +3832,6 @@ enum ixgbe_bus_type {
  ixgbe_bus_type_internal,
  ixgbe_bus_type_reserved
 };
-
-
 enum ixgbe_bus_speed {
  ixgbe_bus_speed_unknown = 0,
  ixgbe_bus_speed_33 = 33,
@@ -5613,8 +3844,6 @@ enum ixgbe_bus_speed {
  ixgbe_bus_speed_8000 = 8000,
  ixgbe_bus_speed_reserved
 };
-
-
 enum ixgbe_bus_width {
  ixgbe_bus_width_unknown = 0,
  ixgbe_bus_width_pcie_x1 = 1,
@@ -5625,7 +3854,6 @@ enum ixgbe_bus_width {
  ixgbe_bus_width_64 = 64,
  ixgbe_bus_width_reserved
 };
-
 struct ixgbe_addr_filter_info {
  uint32_t num_mc_addrs;
  uint32_t rar_used_count;
@@ -5633,18 +3861,13 @@ struct ixgbe_addr_filter_info {
  uint32_t overflow_promisc;
  _Bool user_set_promisc;
 };
-
-
 struct ixgbe_bus_info {
  enum ixgbe_bus_speed speed;
  enum ixgbe_bus_width width;
  enum ixgbe_bus_type type;
-
  uint16_t func;
  uint16_t lan_id;
 };
-
-
 struct ixgbe_fc_info {
  uint32_t high_water[8];
  uint32_t low_water[8];
@@ -5656,8 +3879,6 @@ struct ixgbe_fc_info {
  enum ixgbe_fc_mode current_mode;
  enum ixgbe_fc_mode requested_mode;
 };
-
-
 struct ixgbe_hw_stats {
  uint64_t crcerrs;
  uint64_t illerrc;
@@ -5736,16 +3957,10 @@ struct ixgbe_hw_stats {
  uint64_t o2bgptc;
  uint64_t o2bspc;
 };
-
-
 struct ixgbe_hw;
-
-
 typedef uint8_t* (*ixgbe_mc_addr_itr)(struct ixgbe_hw *hw,
           uint8_t **mc_addr_ptr,
           uint32_t *vmdq);
-
-
 struct ixgbe_eeprom_operations {
  int32_t (*init_params)(struct ixgbe_hw *);
  int32_t (*read)(struct ixgbe_hw *, uint16_t, uint16_t *);
@@ -5754,7 +3969,6 @@ struct ixgbe_eeprom_operations {
  int32_t (*update_checksum)(struct ixgbe_hw *);
  int32_t (*calc_checksum)(struct ixgbe_hw *);
 };
-
 struct ixgbe_mac_operations {
  int32_t (*init_hw)(struct ixgbe_hw *);
  int32_t (*reset_hw)(struct ixgbe_hw *);
@@ -5776,8 +3990,6 @@ struct ixgbe_mac_operations {
  void (*release_swfw_sync)(struct ixgbe_hw *, uint32_t);
  int32_t (*prot_autoc_read)(struct ixgbe_hw *, _Bool *, uint32_t *);
  int32_t (*prot_autoc_write)(struct ixgbe_hw *, uint32_t, _Bool);
-
-
  void (*disable_tx_laser)(struct ixgbe_hw *);
  void (*enable_tx_laser)(struct ixgbe_hw *);
  void (*flap_tx_laser)(struct ixgbe_hw *);
@@ -5787,14 +3999,10 @@ struct ixgbe_mac_operations {
  int32_t (*get_link_capabilities)(struct ixgbe_hw *, ixgbe_link_speed *,
       _Bool *);
  void (*set_rate_select_speed)(struct ixgbe_hw *, ixgbe_link_speed);
-
-
  int32_t (*led_on)(struct ixgbe_hw *, uint32_t);
  int32_t (*led_off)(struct ixgbe_hw *, uint32_t);
  int32_t (*blink_led_start)(struct ixgbe_hw *, uint32_t);
  int32_t (*blink_led_stop)(struct ixgbe_hw *, uint32_t);
-
-
  int32_t (*set_rar)(struct ixgbe_hw *, uint32_t, uint8_t *, uint32_t, uint32_t);
  int32_t (*clear_rar)(struct ixgbe_hw *, uint32_t);
  int32_t (*insert_mac_addr)(struct ixgbe_hw *, uint8_t *, uint32_t);
@@ -5811,19 +4019,12 @@ struct ixgbe_mac_operations {
  int32_t (*init_uta_tables)(struct ixgbe_hw *);
  void (*set_mac_anti_spoofing)(struct ixgbe_hw *, _Bool, int);
  void (*set_vlan_anti_spoofing)(struct ixgbe_hw *, _Bool, int);
-
-
  int32_t (*fc_enable)(struct ixgbe_hw *);
  int32_t (*setup_fc)(struct ixgbe_hw *);
-
-
  void (*disable_rx)(struct ixgbe_hw *hw);
  void (*enable_rx)(struct ixgbe_hw *hw);
-
-
  void (*stop_mac_link_on_d3)(struct ixgbe_hw *);
 };
-
 struct ixgbe_phy_operations {
  int32_t (*identify)(struct ixgbe_hw *);
  int32_t (*identify_sfp)(struct ixgbe_hw *);
@@ -5857,7 +4058,6 @@ struct ixgbe_phy_operations {
  int32_t (*write_i2c_byte_unlocked)(struct ixgbe_hw *, uint8_t offset, uint8_t addr,
         uint8_t value);
 };
-
 struct ixgbe_eeprom_info {
  struct ixgbe_eeprom_operations ops;
  enum ixgbe_eeprom_type type;
@@ -5867,14 +4067,11 @@ struct ixgbe_eeprom_info {
  uint16_t word_page_size;
  uint16_t ctrl_word_3;
 };
-
-
 struct ixgbe_mac_info {
  struct ixgbe_mac_operations ops;
  enum ixgbe_mac_type type;
  uint8_t addr[6];
  uint8_t perm_addr[6];
-
  uint32_t mta_shadow[128];
  int32_t mc_filter_type;
  uint32_t mcft_size;
@@ -5894,7 +4091,6 @@ struct ixgbe_mac_info {
  uint8_t flags;
  uint32_t max_link_up_time;
 };
-
 struct ixgbe_phy_info {
  struct ixgbe_phy_operations ops;
  enum ixgbe_phy_type type;
@@ -5915,7 +4111,6 @@ struct ixgbe_phy_info {
  _Bool qsfp_shared_i2c_bus;
  uint32_t nw_mng_if_sel;
 };
-# 3641 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_type.h"
 struct ixgbe_mbx_operations {
  void (*init_params)(struct ixgbe_hw *hw);
  int32_t (*read)(struct ixgbe_hw *, uint32_t *, uint16_t, uint16_t);
@@ -5926,16 +4121,13 @@ struct ixgbe_mbx_operations {
  int32_t (*check_for_ack)(struct ixgbe_hw *, uint16_t);
  int32_t (*check_for_rst)(struct ixgbe_hw *, uint16_t);
 };
-
 struct ixgbe_mbx_stats {
  uint32_t msgs_tx;
  uint32_t msgs_rx;
-
  uint32_t acks;
  uint32_t reqs;
  uint32_t rsts;
 };
-
 struct ixgbe_mbx_info {
  struct ixgbe_mbx_operations ops;
  struct ixgbe_mbx_stats stats;
@@ -5944,7 +4136,6 @@ struct ixgbe_mbx_info {
  uint32_t v2p_mailbox;
  uint16_t size;
 };
-
 struct ixgbe_hw {
  uint8_t *hw_addr;
  void *back;
@@ -5964,27 +4155,18 @@ struct ixgbe_hw {
  int api_version;
  _Bool force_full_reset;
 };
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h" 2
-# 119 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h"
 struct ixgbe_hw;
-
 struct ixgbe_osdep {
  bus_dma_tag_t os_dmat;
  bus_space_tag_t os_memt;
  bus_space_handle_t os_memh;
-
  bus_size_t os_memsize;
  bus_addr_t os_membase;
-
  void *os_sc;
  struct pci_attach_args os_pa;
 };
-
 extern uint16_t ixgbe_read_pci_cfg(struct ixgbe_hw *, uint32_t);
-
-
 extern void ixgbe_write_pci_cfg(struct ixgbe_hw *, uint32_t, uint16_t);
-# 155 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe.h"
 uint16_t ixgbe_get_pcie_msix_count_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_init_ops_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_init_hw_generic(struct ixgbe_hw *hw);
@@ -5999,10 +4181,8 @@ int32_t ixgbe_get_mac_addr_generic(struct ixgbe_hw *hw, uint8_t *mac_addr);
 int32_t ixgbe_get_bus_info_generic(struct ixgbe_hw *hw);
 void ixgbe_set_lan_id_multi_port_pcie(struct ixgbe_hw *hw);
 int32_t ixgbe_stop_adapter_generic(struct ixgbe_hw *hw);
-
 int32_t ixgbe_led_on_generic(struct ixgbe_hw *hw, uint32_t index);
 int32_t ixgbe_led_off_generic(struct ixgbe_hw *hw, uint32_t index);
-
 int32_t ixgbe_init_eeprom_params_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_write_eeprom_generic(struct ixgbe_hw *hw, uint16_t offset, uint16_t data);
 int32_t ixgbe_read_eerd_generic(struct ixgbe_hw *hw, uint16_t offset, uint16_t *data);
@@ -6014,7 +4194,6 @@ int32_t ixgbe_validate_eeprom_checksum_generic(struct ixgbe_hw *hw,
             uint16_t *checksum_val);
 int32_t ixgbe_update_eeprom_checksum_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_poll_eerd_eewr_done(struct ixgbe_hw *hw, uint32_t ee_reg);
-
 int32_t ixgbe_set_rar_generic(struct ixgbe_hw *hw, uint32_t index, uint8_t *addr, uint32_t vmdq,
          uint32_t enable_addr);
 int32_t ixgbe_clear_rar_generic(struct ixgbe_hw *hw, uint32_t index);
@@ -6027,22 +4206,17 @@ int32_t ixgbe_disable_mc_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_enable_rx_dma_generic(struct ixgbe_hw *hw, uint32_t regval);
 int32_t ixgbe_disable_sec_rx_path_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_enable_sec_rx_path_generic(struct ixgbe_hw *hw);
-
 int32_t ixgbe_fc_enable_generic(struct ixgbe_hw *hw);
 void ixgbe_fc_autoneg(struct ixgbe_hw *hw);
 int32_t ixgbe_setup_fc_generic(struct ixgbe_hw *hw);
-
 int32_t ixgbe_validate_mac_addr(uint8_t *mac_addr);
 int32_t ixgbe_acquire_swfw_sync(struct ixgbe_hw *hw, uint32_t mask);
 void ixgbe_release_swfw_sync(struct ixgbe_hw *hw, uint32_t mask);
 int32_t ixgbe_disable_pcie_master(struct ixgbe_hw *hw);
-
 int32_t prot_autoc_read_generic(struct ixgbe_hw *hw, _Bool *, uint32_t *reg_val);
 int32_t prot_autoc_write_generic(struct ixgbe_hw *hw, uint32_t reg_val, _Bool locked);
-
 int32_t ixgbe_blink_led_start_generic(struct ixgbe_hw *hw, uint32_t index);
 int32_t ixgbe_blink_led_stop_generic(struct ixgbe_hw *hw, uint32_t index);
-
 int32_t ixgbe_set_vmdq_generic(struct ixgbe_hw *hw, uint32_t rar, uint32_t vmdq);
 int32_t ixgbe_clear_vmdq_generic(struct ixgbe_hw *hw, uint32_t rar, uint32_t vmdq);
 int32_t ixgbe_insert_mac_addr_generic(struct ixgbe_hw *hw, uint8_t *addr, uint32_t vmdq);
@@ -6052,22 +4226,18 @@ int32_t ixgbe_set_vfta_generic(struct ixgbe_hw *hw, uint32_t vlan,
 int32_t ixgbe_set_vlvf_generic(struct ixgbe_hw *hw, uint32_t vlan, uint32_t vind,
           _Bool vlan_on, _Bool *vfta_changed);
 int32_t ixgbe_clear_vfta_generic(struct ixgbe_hw *hw);
-
 int32_t ixgbe_check_mac_link_generic(struct ixgbe_hw *hw,
          ixgbe_link_speed *speed,
          _Bool *link_up,
          _Bool link_up_wait_to_complete);
-
 int32_t ixgbe_get_device_caps_generic(struct ixgbe_hw *hw,
           uint16_t *device_caps);
 int32_t ixgbe_host_interface_command(struct ixgbe_hw *hw, uint32_t *buffer,
          uint32_t length, uint32_t timeout,
          _Bool return_data);
 void ixgbe_clear_tx_pending(struct ixgbe_hw *hw);
-
 _Bool ixgbe_mng_present(struct ixgbe_hw *hw);
 _Bool ixgbe_mng_enabled(struct ixgbe_hw *hw);
-
 void ixgbe_disable_rx_generic(struct ixgbe_hw *hw);
 void ixgbe_enable_rx_generic(struct ixgbe_hw *hw);
 int32_t ixgbe_setup_mac_link_multispeed_fiber(struct ixgbe_hw *hw,
@@ -6075,15 +4245,12 @@ int32_t ixgbe_setup_mac_link_multispeed_fiber(struct ixgbe_hw *hw,
            _Bool autoneg_wait_to_complete);
 void ixgbe_set_soft_rate_select_speed(struct ixgbe_hw *hw,
           ixgbe_link_speed speed);
-
 int32_t ixgbe_init_shared_code(struct ixgbe_hw *hw);
-
 int32_t ixgbe_init_ops_82598(struct ixgbe_hw *hw);
 int32_t ixgbe_init_ops_82599(struct ixgbe_hw *hw);
 int32_t ixgbe_init_ops_X540(struct ixgbe_hw *hw);
 int32_t ixgbe_init_ops_X550(struct ixgbe_hw *hw);
 int32_t ixgbe_init_ops_X550EM(struct ixgbe_hw *hw);
-
 int32_t ixgbe_set_mac_type(struct ixgbe_hw *hw);
 int32_t ixgbe_init_hw(struct ixgbe_hw *hw);
 enum ixgbe_media_type ixgbe_get_media_type(struct ixgbe_hw *hw);
@@ -6097,20 +4264,15 @@ int32_t ixgbe_check_link(struct ixgbe_hw *hw, ixgbe_link_speed *speed,
     _Bool *link_up, _Bool link_up_wait_to_complete);
 int32_t ixgbe_get_link_capabilities(struct ixgbe_hw *hw, ixgbe_link_speed *speed,
         _Bool *autoneg);
-
 int32_t ixgbe_set_rar(struct ixgbe_hw *hw, uint32_t index, uint8_t *addr,
         uint32_t vmdq, uint32_t enable_addr);
 int32_t ixgbe_set_vmdq(struct ixgbe_hw *hw, uint32_t rar, uint32_t vmdq);
 int32_t ixgbe_clear_vmdq(struct ixgbe_hw *hw, uint32_t rar, uint32_t vmdq);
 int32_t ixgbe_init_uta_tables(struct ixgbe_hw *hw);
-
 void ixgbe_add_uc_addr(struct ixgbe_hw *hw, uint8_t *addr, uint32_t vmdq);
 void ixgbe_set_mta(struct ixgbe_hw *hw, uint8_t *mc_addr);
-
 void ixgbe_disable_rx(struct ixgbe_hw *hw);
 void ixgbe_enable_rx(struct ixgbe_hw *hw);
-
-
 int32_t ixgbe_init_phy_ops_generic(struct ixgbe_hw *hw);
 _Bool ixgbe_validate_phy_addr(struct ixgbe_hw *hw, uint32_t phy_addr);
 enum ixgbe_phy_type ixgbe_get_phy_type_from_id(uint32_t phy_id);
@@ -6133,8 +4295,6 @@ int32_t ixgbe_get_copper_link_capabilities_generic(struct ixgbe_hw *hw,
          ixgbe_link_speed *speed,
          _Bool *autoneg);
 int32_t ixgbe_check_reset_blocked(struct ixgbe_hw *hw);
-
-
 int32_t ixgbe_check_phy_link_tnx(struct ixgbe_hw *hw,
      ixgbe_link_speed *speed,
      _Bool *link_up);
@@ -6143,7 +4303,6 @@ int32_t ixgbe_get_phy_firmware_version_tnx(struct ixgbe_hw *hw,
         uint16_t *firmware_version);
 int32_t ixgbe_get_phy_firmware_version_generic(struct ixgbe_hw *hw,
             uint16_t *firmware_version);
-
 int32_t ixgbe_reset_phy_nl(struct ixgbe_hw *hw);
 _Bool ixgbe_is_sfp(struct ixgbe_hw *hw);
 int32_t ixgbe_set_copper_phy_power(struct ixgbe_hw *hw, _Bool on);
@@ -6167,8 +4326,6 @@ int32_t ixgbe_read_i2c_eeprom_generic(struct ixgbe_hw *hw, uint8_t byte_offset,
           uint8_t *eeprom_data);
 int32_t ixgbe_write_i2c_eeprom_generic(struct ixgbe_hw *hw, uint8_t byte_offset,
            uint8_t eeprom_data);
-
-
 int32_t ixgbe_read_mbx(struct ixgbe_hw *, uint32_t *, uint16_t, uint16_t);
 int32_t ixgbe_write_mbx(struct ixgbe_hw *, uint32_t *, uint16_t, uint16_t);
 int32_t ixgbe_read_posted_mbx(struct ixgbe_hw *, uint32_t *, uint16_t, uint16_t);
@@ -6178,13 +4335,9 @@ int32_t ixgbe_check_for_ack(struct ixgbe_hw *, uint16_t);
 int32_t ixgbe_check_for_rst(struct ixgbe_hw *, uint16_t);
 void ixgbe_init_mbx_ops_generic(struct ixgbe_hw *hw);
 void ixgbe_init_mbx_params_pf(struct ixgbe_hw *);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c" 2
-
-
 extern int32_t ixgbe_init_eeprom_params_X540(struct ixgbe_hw *hw);
 extern int32_t ixgbe_acquire_swfw_sync_X540(struct ixgbe_hw *hw, uint32_t mask);
 extern void ixgbe_release_swfw_sync_X540(struct ixgbe_hw *hw, uint32_t mask);
-
 int32_t ixgbe_get_bus_info_X550em(struct ixgbe_hw *hw);
 int32_t ixgbe_init_eeprom_params_X550(struct ixgbe_hw *hw);
 int32_t ixgbe_update_eeprom_checksum_X550(struct ixgbe_hw *hw);
@@ -6240,26 +4393,20 @@ int32_t ixgbe_reset_phy_t_X550em(struct ixgbe_hw *hw);
 int32_t ixgbe_identify_sfp_module_X550em(struct ixgbe_hw *hw);
 int32_t ixgbe_led_on_t_X550em(struct ixgbe_hw *hw, uint32_t led_idx);
 int32_t ixgbe_led_off_t_X550em(struct ixgbe_hw *hw, uint32_t led_idx);
-
 int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed);
-# 109 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_init_ops_X550(struct ixgbe_hw *hw)
 {
  struct ixgbe_mac_info *mac = &hw->mac;
  struct ixgbe_eeprom_info *eeprom = &hw->eeprom;
  int32_t ret_val;
-
  ;;
-
  ret_val = ixgbe_init_ops_X540(hw);
-
  eeprom->ops.init_params = ixgbe_init_eeprom_params_X550;
  eeprom->ops.calc_checksum = ixgbe_calc_eeprom_checksum_X550;
  eeprom->ops.read = ixgbe_read_ee_hostif_X550;
  eeprom->ops.write = ixgbe_write_ee_hostif_X550;
  eeprom->ops.update_checksum = ixgbe_update_eeprom_checksum_X550;
  eeprom->ops.validate_checksum = ixgbe_validate_eeprom_checksum_X550;
-
  mac->ops.disable_rx = ixgbe_disable_rx_x550;
  if (hw->device_id == 0x15AD) {
   hw->mac.ops.led_on = ixgbe_led_on_t_X550em;
@@ -6267,47 +4414,38 @@ int32_t ixgbe_init_ops_X550(struct ixgbe_hw *hw)
  }
  return ret_val;
 }
-# 142 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_cs4227(struct ixgbe_hw *hw, uint16_t reg64, uint16_t *value)
 {
  return hw->phy.ops.read_i2c_combined_unlocked(hw, 0xBE, reg64,
             value);
 }
-# 156 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_write_cs4227(struct ixgbe_hw *hw, uint16_t reg64, uint16_t value)
 {
  return hw->phy.ops.write_i2c_combined_unlocked(hw, 0xBE, reg64,
              value);
 }
-# 170 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_pe(struct ixgbe_hw *hw, uint8_t reg64, uint8_t *value)
 {
  int32_t status;
-
  status = hw->phy.ops.read_i2c_byte_unlocked(hw, reg64, 0xE0, value);
  if (status != 0)
   ;
  return status;
 }
-# 188 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_write_pe(struct ixgbe_hw *hw, uint8_t reg64, uint8_t value)
 {
  int32_t status;
-
  status = hw->phy.ops.write_i2c_byte_unlocked(hw, reg64, 0xE0, value);
  if (status != 0)
   ;
  return status;
 }
-# 205 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
 {
  int32_t status;
  uint32_t retry;
  uint16_t value;
  uint8_t reg64;
-
-
  status = ixgbe_read_pe(hw, 1, &reg64);
  if (status != 0)
   return status;
@@ -6315,7 +4453,6 @@ int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
  status = ixgbe_write_pe(hw, 1, reg64);
  if (status != 0)
   return status;
-
  status = ixgbe_read_pe(hw, 3, &reg64);
  if (status != 0)
   return status;
@@ -6323,7 +4460,6 @@ int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
  status = ixgbe_write_pe(hw, 3, reg64);
  if (status != 0)
   return status;
-
  status = ixgbe_read_pe(hw, 1, &reg64);
  if (status != 0)
   return status;
@@ -6331,9 +4467,7 @@ int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
  status = ixgbe_write_pe(hw, 1, reg64);
  if (status != 0)
   return status;
-
  delay(500);
-
  status = ixgbe_read_pe(hw, 1, &reg64);
  if (status != 0)
   return status;
@@ -6341,8 +4475,6 @@ int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
  status = ixgbe_write_pe(hw, 1, reg64);
  if (status != 0)
   return status;
-
-
  delay(1000 * (450));
  for (retry = 0; retry < 15; retry++) {
   status = ixgbe_read_cs4227(hw, 0x0181,
@@ -6356,28 +4488,20 @@ int32_t ixgbe_reset_cs4227(struct ixgbe_hw *hw)
   ;
   return -3;
  }
-
  status = ixgbe_read_cs4227(hw, 0x5001, &value);
  if (status != 0 ||
      !(value & 0x0001)) {
   ;
   return -3;
  }
-
  return 0;
 }
-
-
-
-
-
 void ixgbe_check_cs4227(struct ixgbe_hw *hw)
 {
  int32_t status = 0;
  uint32_t swfw_mask = hw->phy.phy_semaphore_mask;
  uint16_t value = 0;
  uint8_t retry;
-
  for (retry = 0; retry < 15; retry++) {
   status = hw->mac.ops.acquire_swfw_sync(hw, swfw_mask);
   if (status != 0) {
@@ -6385,24 +4509,16 @@ void ixgbe_check_cs4227(struct ixgbe_hw *hw)
    delay(1000 * (30));
    continue;
   }
-
-
   status = ixgbe_read_cs4227(hw, 2, &value);
-
   if (status == 0 &&
       value == 0x5AA5)
    goto out;
-
   if (status != 0 ||
       value != 0x1357)
    break;
-
-
   hw->mac.ops.release_swfw_sync(hw, swfw_mask);
   delay(1000 * (30));
  }
-
-
  if (retry == 15) {
   status = hw->mac.ops.acquire_swfw_sync(hw, swfw_mask);
   if (status != 0) {
@@ -6410,17 +4526,11 @@ void ixgbe_check_cs4227(struct ixgbe_hw *hw)
    return;
   }
  }
-
-
  status = ixgbe_reset_cs4227(hw);
  if (status != 0) {
   ;
   goto out;
  }
-
-
-
-
  ixgbe_write_cs4227(hw, 2,
       0x1357);
  hw->mac.ops.release_swfw_sync(hw, swfw_mask);
@@ -6430,24 +4540,15 @@ void ixgbe_check_cs4227(struct ixgbe_hw *hw)
   ;
   return;
  }
-
-
  status = ixgbe_write_cs4227(hw, 2,
   0x5AA5);
-
 out:
  hw->mac.ops.release_swfw_sync(hw, swfw_mask);
  delay(1000 * (hw->eeprom.semaphore_delay));
 }
-
-
-
-
-
 void ixgbe_setup_mux_ctl(struct ixgbe_hw *hw)
 {
  uint32_t esdp = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00020);
-
  if (hw->bus.lan_id) {
   esdp &= ~(0x00020000 | 0x00000002);
   esdp |= 0x00000200;
@@ -6456,27 +4557,15 @@ void ixgbe_setup_mux_ctl(struct ixgbe_hw *hw)
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00020, esdp);
  bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00008);
 }
-
-
-
-
-
-
-
 int32_t ixgbe_identify_phy_x550em(struct ixgbe_hw *hw)
 {
  int32_t ret_val;
-
  switch (hw->device_id) {
  case 0x15AC:
-
   hw->phy.phy_semaphore_mask = 0x1806;
   ixgbe_setup_mux_ctl(hw);
   ixgbe_check_cs4227(hw);
-
   ret_val = ixgbe_identify_module_generic(hw);
-
-
   if (ret_val == -20) {
    hw->phy.type = ixgbe_phy_none;
    return 0;
@@ -6497,108 +4586,75 @@ int32_t ixgbe_identify_phy_x550em(struct ixgbe_hw *hw)
  }
  return 0;
 }
-
 int32_t ixgbe_read_phy_reg_x550em(struct ixgbe_hw *hw, uint32_t reg_addr,
       uint32_t device_type, uint16_t *phy_data)
 {
  return 0x7FFFFFFF;
 }
-
 int32_t ixgbe_write_phy_reg_x550em(struct ixgbe_hw *hw, uint32_t reg_addr,
        uint32_t device_type, uint16_t phy_data)
 {
  return 0x7FFFFFFF;
 }
-# 422 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_init_ops_X550EM(struct ixgbe_hw *hw)
 {
  struct ixgbe_mac_info *mac = &hw->mac;
  struct ixgbe_eeprom_info *eeprom = &hw->eeprom;
  struct ixgbe_phy_info *phy = &hw->phy;
  int32_t ret_val;
-
  ;;
-
-
  ret_val = ixgbe_init_ops_X550(hw);
-# 441 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
  mac->ops.disable_sec_rx_path = ((void *)0);
  mac->ops.enable_sec_rx_path = ((void *)0);
-
-
  mac->ops.prot_autoc_read = ((void *)0);
  mac->ops.prot_autoc_write = ((void *)0);
-
-
  hw->bus.type = ixgbe_bus_type_internal;
  mac->ops.get_bus_info = ixgbe_get_bus_info_X550em;
-
  mac->ops.get_media_type = ixgbe_get_media_type_X550em;
  mac->ops.setup_sfp = ixgbe_setup_sfp_modules_X550em;
  mac->ops.get_link_capabilities = ixgbe_get_link_capabilities_X550em;
  mac->ops.reset_hw = ixgbe_reset_hw_X550em;
  mac->ops.get_supported_physical_layer =
         ixgbe_get_supported_physical_layer_X550em;
-
  if (mac->ops.get_media_type(hw) == ixgbe_media_type_copper)
   mac->ops.setup_fc = ixgbe_setup_fc_generic;
  else
   mac->ops.setup_fc = ixgbe_setup_fc_X550em;
-
  mac->ops.acquire_swfw_sync = ixgbe_acquire_swfw_sync_X550em;
  mac->ops.release_swfw_sync = ixgbe_release_swfw_sync_X550em;
-
-
  phy->ops.init = ixgbe_init_phy_ops_X550em;
  phy->ops.identify = ixgbe_identify_phy_x550em;
  if (mac->ops.get_media_type(hw) != ixgbe_media_type_copper)
   phy->ops.set_phy_power = ((void *)0);
-
-
-
  eeprom->ops.init_params = ixgbe_init_eeprom_params_X540;
  eeprom->ops.read = ixgbe_read_ee_hostif_X550;
  eeprom->ops.write = ixgbe_write_ee_hostif_X550;
  eeprom->ops.update_checksum = ixgbe_update_eeprom_checksum_X550;
  eeprom->ops.validate_checksum = ixgbe_validate_eeprom_checksum_X550;
  eeprom->ops.calc_checksum = ixgbe_calc_eeprom_checksum_X550;
-
  return ret_val;
 }
-# 492 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_init_eeprom_params_X550(struct ixgbe_hw *hw)
 {
  struct ixgbe_eeprom_info *eeprom = &hw->eeprom;
  uint32_t eec;
  uint16_t eeprom_size;
-
  ;;
-
  if (eeprom->type == ixgbe_eeprom_uninitialized) {
   eeprom->semaphore_delay = 10;
   eeprom->type = ixgbe_flash;
-
   eec = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x10010);
   eeprom_size = (uint16_t)((eec & 0x00007800) >>
         11);
   eeprom->word_size = 1 << (eeprom_size +
        6);
-
   ;
-
  }
-
  return 0;
 }
-# 526 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_iosf_wait(struct ixgbe_hw *hw, uint32_t *ctrl)
 {
  uint32_t i, command = 0;
-
-
-
-
-
  for (i = 0; i < 100; i++) {
   command = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011144);
   if ((command & (1 << 31)) == 0)
@@ -6611,99 +4667,67 @@ int32_t ixgbe_iosf_wait(struct ixgbe_hw *hw, uint32_t *ctrl)
   ;
   return -3;
  }
-
  return 0;
 }
-# 558 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_write_iosf_sb_reg_x550(struct ixgbe_hw *hw, uint32_t reg_addr,
          uint32_t device_type, uint32_t data)
 {
  uint32_t gssr = 0x0004 | 0x0002;
  uint32_t command, error;
  int32_t ret;
-
  ret = hw->mac.ops.acquire_swfw_sync(hw, gssr);
  if (ret != 0)
   return ret;
-
  ret = ixgbe_iosf_wait(hw, ((void *)0));
  if (ret != 0)
   goto out;
-
  command = ((reg_addr << 0) |
      (device_type << 28));
-
-
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011144, command);
-
-
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011148, data);
-
  ret = ixgbe_iosf_wait(hw, &command);
-
  if ((command & (0x3 << 18)) != 0) {
   error = (command & (0xFF << 20)) >>
     20;
   ;
   ret = -3;
  }
-
 out:
  hw->mac.ops.release_swfw_sync(hw, gssr);
  return ret;
 }
-# 604 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_iosf_sb_reg_x550(struct ixgbe_hw *hw, uint32_t reg_addr,
         uint32_t device_type, uint32_t *data)
 {
  uint32_t gssr = 0x0004 | 0x0002;
  uint32_t command, error;
  int32_t ret;
-
  ret = hw->mac.ops.acquire_swfw_sync(hw, gssr);
  if (ret != 0)
   return ret;
-
  ret = ixgbe_iosf_wait(hw, ((void *)0));
  if (ret != 0)
   goto out;
-
  command = ((reg_addr << 0) |
      (device_type << 28));
-
-
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011144, command);
-
  ret = ixgbe_iosf_wait(hw, &command);
-
  if ((command & (0x3 << 18)) != 0) {
   error = (command & (0xFF << 20)) >>
     20;
   ;
   ret = -3;
  }
-
  if (ret == 0)
   *data = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011148);
-
 out:
  hw->mac.ops.release_swfw_sync(hw, gssr);
  return ret;
 }
-
-
-
-
-
-
-
 enum ixgbe_media_type ixgbe_get_media_type_X550em(struct ixgbe_hw *hw)
 {
  enum ixgbe_media_type media_type;
-
  ;;
-
-
  switch (hw->device_id) {
  case 0x15AB:
  case 0x15AA:
@@ -6722,16 +4746,9 @@ enum ixgbe_media_type ixgbe_get_media_type_X550em(struct ixgbe_hw *hw)
  }
  return media_type;
 }
-
-
-
-
-
-
 int32_t ixgbe_supported_sfp_modules_X550em(struct ixgbe_hw *hw, _Bool *linear)
 {
  ;;
-
  switch (hw->phy.sfp_type) {
  case ixgbe_sfp_type_not_present:
   return -20;
@@ -6755,72 +4772,37 @@ int32_t ixgbe_supported_sfp_modules_X550em(struct ixgbe_hw *hw, _Bool *linear)
  default:
   return -19;
  }
-
  return 0;
 }
-
-
-
-
-
-
-
 int32_t ixgbe_identify_sfp_module_X550em(struct ixgbe_hw *hw)
 {
  int32_t status;
  _Bool linear;
-
  ;;
-
  status = ixgbe_identify_module_generic(hw);
-
  if (status != 0)
   return status;
-
-
  status = ixgbe_supported_sfp_modules_X550em(hw, &linear);
-
  return status;
 }
-
-
-
-
-
 int32_t ixgbe_setup_sfp_modules_X550em(struct ixgbe_hw *hw)
 {
  int32_t status;
  _Bool linear;
-
  ;;
-
-
  status = ixgbe_supported_sfp_modules_X550em(hw, &linear);
-
  if (status != 0)
   return status;
-
  ixgbe_init_mac_link_ops_X550em(hw);
  hw->phy.ops.reset = ((void *)0);
-
  return 0;
 }
-
-
-
-
-
 void ixgbe_init_mac_link_ops_X550em(struct ixgbe_hw *hw)
 {
  struct ixgbe_mac_info *mac = &hw->mac;
-
  ;;
-
   switch (hw->mac.ops.get_media_type(hw)) {
   case ixgbe_media_type_fiber:
-
-
-
   mac->ops.disable_tx_laser = ((void *)0);
   mac->ops.enable_tx_laser = ((void *)0);
   mac->ops.flap_tx_laser = ((void *)0);
@@ -6837,26 +4819,13 @@ void ixgbe_init_mac_link_ops_X550em(struct ixgbe_hw *hw)
   break;
   }
 }
-
-
-
-
-
-
-
 int32_t ixgbe_get_link_capabilities_X550em(struct ixgbe_hw *hw,
         ixgbe_link_speed *speed,
         _Bool *autoneg)
 {
  ;;
-
-
  if (hw->phy.media_type == ixgbe_media_type_fiber) {
-
-
   *autoneg = 0;
-
-
   if (hw->phy.sfp_type == ixgbe_sfp_type_1g_sx_core0 ||
       hw->phy.sfp_type == ixgbe_sfp_type_1g_sx_core1
       || hw->phy.sfp_type == ixgbe_sfp_type_1g_lx_core0 ||
@@ -6864,8 +4833,6 @@ int32_t ixgbe_get_link_capabilities_X550em(struct ixgbe_hw *hw,
    *speed = 0x0020;
    return 0;
   }
-
-
   if (hw->phy.multispeed_fiber)
    *speed = 0x0080 |
      0x0020;
@@ -6876,214 +4843,140 @@ int32_t ixgbe_get_link_capabilities_X550em(struct ixgbe_hw *hw,
     0x0020;
   *autoneg = 1;
  }
-
  return 0;
 }
-# 843 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_get_lasi_ext_t_x550em(struct ixgbe_hw *hw, _Bool *lsc)
 {
  uint32_t status;
  uint16_t reg64;
-
  *lsc = 0;
-
-
  status = hw->phy.ops.read_reg(hw, 0xFC00,
           0x1E,
           &reg64);
-
  if (status != 0 ||
      !(reg64 & 0x1))
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xFC01,
           0x1E,
           &reg64);
-
  if (status != 0 ||
      !(reg64 & (0x1000 |
      0x4)))
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xCC00,
           0x1E,
           &reg64);
-
  if (status != 0)
   return status;
-
-
  if (reg64 & 0x4000) {
-
   ixgbe_set_copper_phy_power(hw, 0);
   return -26;
  } else if (reg64 & 0x0010) {
-
   status = hw->phy.ops.read_reg(hw, 0xC850,
        0x1E,
        &reg64);
-
   if (status != 0)
    return status;
-
-
   if (reg64 == 0x8007) {
-
    ixgbe_set_copper_phy_power(hw, 0);
    return -26;
   }
  }
-
-
  status = hw->phy.ops.read_reg(hw, 0xFC00,
           0x7, &reg64);
-
  if (status != 0 ||
      !(reg64 & 0x200))
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xCC01,
           0x7, &reg64);
-
  if (status != 0)
   return status;
-
-
  if (reg64 & 0x1)
   *lsc = 1;
-
  return 0;
 }
-# 930 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_enable_lasi_ext_t_x550em(struct ixgbe_hw *hw)
 {
  uint32_t status;
  uint16_t reg64;
  _Bool lsc;
-
-
  status = ixgbe_get_lasi_ext_t_x550em(hw, &lsc);
-
-
  status = hw->phy.ops.read_reg(hw, 0xD401,
           0x7, &reg64);
-
  if (status != 0)
   return status;
-
  reg64 |= 0x1;
-
  status = hw->phy.ops.write_reg(hw, 0xD401,
            0x7, reg64);
-
  if (status != 0)
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xD400,
           0x1E,
           &reg64);
-
  if (status != 0)
   return status;
-
  reg64 |= 0x4000;
-
  status = hw->phy.ops.write_reg(hw, 0xD400,
            0x1E,
            reg64);
-
  if (status != 0)
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xFF01,
           0x1E,
           &reg64);
-
  if (status != 0)
   return status;
-
  reg64 |= (0x1000 |
   0x4);
-
  status = hw->phy.ops.write_reg(hw, 0xFF01,
            0x1E,
            reg64);
-
  if (status != 0)
   return status;
-
-
  status = hw->phy.ops.read_reg(hw, 0xFF00,
           0x1E,
           &reg64);
-
  if (status != 0)
   return status;
-
  reg64 |= 0x1;
-
  status = hw->phy.ops.write_reg(hw, 0xFF00,
            0x1E,
            reg64);
-
  return status;
 }
-# 1013 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_setup_kr_speed_x550em(struct ixgbe_hw *hw,
         ixgbe_link_speed speed)
 {
  int32_t status;
  uint32_t reg_val;
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x820C : 0x420C),
   0, &reg_val);
  if (status)
   return status;
-
  reg_val |= (1 << 29);
  reg_val &= ~((1 << 18) |
        (1 << 16));
-
-
  if (speed & 0x0080)
   reg_val |= (1 << 18);
-
-
  if (speed & 0x0020)
   reg_val |= (1 << 16);
-
-
  reg_val |= (1 << 31);
  status = ixgbe_write_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x820C : 0x420C),
   0, reg_val);
-
  return status;
 }
-# 1054 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_init_phy_ops_X550em(struct ixgbe_hw *hw)
 {
  struct ixgbe_phy_info *phy = &hw->phy;
  ixgbe_link_speed speed;
  int32_t ret_val;
-
  ;;
-
  hw->mac.ops.set_lan_id(hw);
-
  if (hw->mac.ops.get_media_type(hw) == ixgbe_media_type_fiber) {
   phy->phy_semaphore_mask = 0x1806;
   ixgbe_setup_mux_ctl(hw);
-
-
-
-
   phy->nw_mng_if_sel = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011178);
   if (phy->nw_mng_if_sel & (1 << 24)) {
    speed = 0x0080 |
@@ -7091,18 +4984,12 @@ int32_t ixgbe_init_phy_ops_X550em(struct ixgbe_hw *hw)
   }
   phy->ops.identify_sfp = ixgbe_identify_sfp_module_X550em;
  }
-
-
  ret_val = phy->ops.identify(hw);
  if (ret_val == -19)
   return ret_val;
-
-
  ixgbe_init_mac_link_ops_X550em(hw);
  if (phy->sfp_type != ixgbe_sfp_type_unknown)
   phy->ops.reset = ((void *)0);
-
-
  switch (hw->phy.type) {
  case ixgbe_phy_x550em_kx4:
   phy->ops.setup_link = ((void *)0);
@@ -7115,14 +5002,7 @@ int32_t ixgbe_init_phy_ops_X550em(struct ixgbe_hw *hw)
   phy->ops.write_reg = ixgbe_write_phy_reg_x550em;
   break;
  case ixgbe_phy_x550em_ext_t:
-
-
-
   phy->nw_mng_if_sel = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00011178);
-
-
-
-
   if (!(phy->nw_mng_if_sel & (1 << 24))) {
    phy->ops.setup_internal_link =
            ixgbe_setup_internal_phy_t_x550em;
@@ -7131,7 +5011,6 @@ int32_t ixgbe_init_phy_ops_X550em(struct ixgbe_hw *hw)
     0x0020;
    ret_val = ixgbe_setup_kr_speed_x550em(hw, speed);
   }
-
   phy->ops.handle_lasi = ixgbe_handle_lasi_ext_t_x550em;
   phy->ops.reset = ixgbe_reset_phy_t_X550em;
   break;
@@ -7140,7 +5019,6 @@ int32_t ixgbe_init_phy_ops_X550em(struct ixgbe_hw *hw)
  }
  return ret_val;
 }
-# 1136 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
 {
  ixgbe_link_speed link_speed;
@@ -7149,167 +5027,95 @@ int32_t ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
  uint32_t i;
  uint32_t hlreg0;
  _Bool link_up = 0;
-
  ;;
-
-
  status = hw->mac.ops.stop_adapter(hw);
  if (status != 0)
   return status;
-
-
  ixgbe_clear_tx_pending(hw);
-
  if (hw->device_id == 0x15AD) {
-
   hlreg0 = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x04240);
   hlreg0 &= ~0x00010000;
   bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x04240, hlreg0);
  }
-
-
  status = hw->phy.ops.init(hw);
-
  if (status == -19)
   return status;
-
-
  if (hw->phy.type == ixgbe_phy_x550em_ext_t) {
   status = ixgbe_init_ext_t_x550em(hw);
   if (status)
    return status;
  }
-
-
  if (hw->phy.sfp_setup_needed) {
   status = hw->mac.ops.setup_sfp(hw);
   hw->phy.sfp_setup_needed = 0;
  }
-
  if (status == -19)
   return status;
-
-
  if (!hw->phy.reset_disable && hw->phy.ops.reset)
   hw->phy.ops.reset(hw);
-
 mac_reset_top:
-
-
-
-
-
  ctrl = 0x00000008;
  if (!hw->force_full_reset) {
   hw->mac.ops.check_link(hw, &link_speed, &link_up, 0);
   if (link_up)
    ctrl = 0x04000000;
  }
-
  ctrl |= bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00000);
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00000, ctrl);
  bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00008);
-
-
  for (i = 0; i < 10; i++) {
   delay(1);
   ctrl = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00000);
   if (!(ctrl & (0x00000008 | 0x04000000)))
    break;
  }
-
  if (ctrl & (0x00000008 | 0x04000000)) {
   status = -15;
   ;
  }
-
  delay(1000 * (50));
-
-
-
-
-
  if (hw->mac.flags & 0x01) {
   hw->mac.flags &= ~0x01;
   goto mac_reset_top;
  }
-
-
  hw->mac.ops.get_mac_addr(hw, hw->mac.perm_addr);
-
-
-
-
-
  hw->mac.num_rar_entries = 128;
  hw->mac.ops.init_rx_addrs(hw);
-
  if (hw->device_id == 0x15AC)
   ixgbe_setup_mux_ctl(hw);
-
  return status;
 }
-
-
-
-
-
 int32_t ixgbe_init_ext_t_x550em(struct ixgbe_hw *hw)
 {
  uint32_t status;
  uint16_t reg64;
-
  status = hw->phy.ops.read_reg(hw,
           0xCC02,
           0x1,
           &reg64);
-
  if (status != 0)
   return status;
-
-
-
-
  if (reg64 & 0x3) {
   status = hw->phy.ops.read_reg(hw,
      0xC479,
      0x1E,
      &reg64);
-
   if (status != 0)
    return status;
-
   reg64 &= ~0x8000;
-
   status = hw->phy.ops.write_reg(hw,
      0xC479,
      0x1E,
      reg64);
-
   if (status != 0)
    return status;
  }
-
  return status;
 }
-
-
-
-
-
-
-
 int32_t ixgbe_setup_kr_x550em(struct ixgbe_hw *hw)
 {
  return ixgbe_setup_kr_speed_x550em(hw, hw->phy.autoneg_advertised);
 }
-
-
-
-
-
-
-
 int32_t ixgbe_setup_mac_link_sfp_x550em(struct ixgbe_hw *hw,
      ixgbe_link_speed speed,
      _Bool autoneg_wait_to_complete)
@@ -7317,42 +5123,28 @@ int32_t ixgbe_setup_mac_link_sfp_x550em(struct ixgbe_hw *hw,
  int32_t ret_val;
  uint16_t reg_slice, reg_val;
  _Bool setup_linear = 0;
-
-
  ret_val = ixgbe_supported_sfp_modules_X550em(hw, &setup_linear);
-
-
-
-
-
  if (ret_val == -20)
   return 0;
-
  if (ret_val != 0)
   return ret_val;
-
  if (!(hw->phy.nw_mng_if_sel & (1 << 24))) {
-
   reg_slice = 0x12AD +
        (hw->bus.lan_id << 12);
   reg_val = 0;
   ret_val = hw->phy.ops.write_i2c_combined(hw, 0xBE,
         reg_slice, reg_val);
-
   reg_slice = 0x12B0 +
        (hw->bus.lan_id << 12);
   reg_val = (0x0004 << 1) | 0x1;
   ret_val = hw->phy.ops.write_i2c_combined(hw, 0xBE,
         reg_slice, reg_val);
-
-
   reg_slice = 0x1AAD +
        (hw->bus.lan_id << 12);
   reg_val = (speed & 0x0080) ?
   0 : 0x8000;
   ret_val = hw->phy.ops.write_i2c_combined(hw, 0xBE,
         reg_slice, reg_val);
-
   reg_slice = 0x1AB0 +
        (hw->bus.lan_id << 12);
   if (setup_linear)
@@ -7361,14 +5153,9 @@ int32_t ixgbe_setup_mac_link_sfp_x550em(struct ixgbe_hw *hw,
    reg_val = (0x0004 << 1) | 0x1;
   ret_val = hw->phy.ops.write_i2c_combined(hw, 0xBE,
         reg_slice, reg_val);
-
-
   ret_val = ixgbe_setup_ixfi_x550em(hw, &speed);
  } else {
-
   ixgbe_setup_kr_speed_x550em(hw, speed);
-
-
   reg_slice = 0x12B0 +
        (hw->bus.lan_id << 12);
   if (setup_linear)
@@ -7380,23 +5167,17 @@ int32_t ixgbe_setup_mac_link_sfp_x550em(struct ixgbe_hw *hw,
  }
  return ret_val;
 }
-# 1384 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
 {
  int32_t status;
  uint32_t reg_val;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
      ((hw->bus.lan_id) ? 0x820C : 0x420C),
      0, &reg_val);
  if (status != 0)
   return status;
-
  reg_val &= ~(1 << 29);
  reg_val &= ~(0x7 << 8);
-
-
  switch (*speed) {
  case 0x0080:
   reg_val |= (4 << 8);
@@ -7405,17 +5186,13 @@ int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
   reg_val |= (2 << 8);
   break;
  default:
-
   return -8;
  }
-
  status = ixgbe_write_iosf_sb_reg_x550(hw,
      ((hw->bus.lan_id) ? 0x820C : 0x420C),
      0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
     ((hw->bus.lan_id) ? 0x8B00 : 0x4B00),
     0, &reg_val);
@@ -7427,8 +5204,6 @@ int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
     0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
     ((hw->bus.lan_id) ? 0x8634 : 0x4634),
     0, &reg_val);
@@ -7455,8 +5230,6 @@ int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
     0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
     ((hw->bus.lan_id) ? 0x9520 : 0x5520),
     0, &reg_val);
@@ -7471,8 +5244,6 @@ int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
     0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
      ((hw->bus.lan_id) ? 0x820C : 0x420C),
      0, &reg_val);
@@ -7482,69 +5253,50 @@ int32_t ixgbe_setup_ixfi_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed)
  status = ixgbe_write_iosf_sb_reg_x550(hw,
      ((hw->bus.lan_id) ? 0x820C : 0x420C),
      0, reg_val);
-
  return status;
 }
-# 1496 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_ext_phy_t_x550em_get_link(struct ixgbe_hw *hw, _Bool *link_up)
 {
  uint32_t ret;
  uint16_t autoneg_status;
-
  *link_up = 0;
-
-
  ret = hw->phy.ops.read_reg(hw, 0x1,
        0x7,
        &autoneg_status);
  if (ret != 0)
   return ret;
-
  ret = hw->phy.ops.read_reg(hw, 0x1,
        0x7,
        &autoneg_status);
  if (ret != 0)
   return ret;
-
  *link_up = !!(autoneg_status & 0x4);
-
  return 0;
 }
-# 1533 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_setup_internal_phy_t_x550em(struct ixgbe_hw *hw)
 {
  ixgbe_link_speed force_speed;
  _Bool link_up;
  uint32_t status;
  uint16_t speed;
-
  if (hw->mac.ops.get_media_type(hw) != ixgbe_media_type_copper)
   return -4;
-
-
  status = ixgbe_ext_phy_t_x550em_get_link(hw, &link_up);
  if (status != 0)
   return status;
-
  if (!link_up)
   return 0;
-
  status = hw->phy.ops.read_reg(hw, 0xC800,
           0x7,
           &speed);
  if (status != 0)
   return status;
-
-
  status = ixgbe_ext_phy_t_x550em_get_link(hw, &link_up);
  if (status != 0)
   return status;
  if (!link_up)
   return 0;
-
-
  speed &= 0x7;
-
  switch (speed) {
  case 0x7:
   force_speed = 0x0080;
@@ -7553,25 +5305,14 @@ int32_t ixgbe_setup_internal_phy_t_x550em(struct ixgbe_hw *hw)
   force_speed = 0x0020;
   break;
  default:
-
   return -13;
  }
-
  return ixgbe_setup_ixfi_x550em(hw, &force_speed);
 }
-
-
-
-
-
-
-
 int32_t ixgbe_setup_phy_loopback_x550em(struct ixgbe_hw *hw)
 {
  int32_t status;
  uint32_t reg_val;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x820C : 0x420C),
   0, &reg_val);
@@ -7585,8 +5326,6 @@ int32_t ixgbe_setup_phy_loopback_x550em(struct ixgbe_hw *hw)
   0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x8010 : 0x4010),
   0, &reg_val);
@@ -7599,8 +5338,6 @@ int32_t ixgbe_setup_phy_loopback_x550em(struct ixgbe_hw *hw)
   0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x8E00 : 0x4E00),
   0, &reg_val);
@@ -7612,8 +5349,6 @@ int32_t ixgbe_setup_phy_loopback_x550em(struct ixgbe_hw *hw)
   0, reg_val);
  if (status != 0)
   return status;
-
-
  status = ixgbe_read_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x8B00 : 0x4B00),
   0, &reg_val);
@@ -7623,47 +5358,33 @@ int32_t ixgbe_setup_phy_loopback_x550em(struct ixgbe_hw *hw)
  status = ixgbe_write_iosf_sb_reg_x550(hw,
   ((hw->bus.lan_id) ? 0x8B00 : 0x4B00),
   0, reg_val);
-
  return status;
 }
-# 1658 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_ee_hostif_data_X550(struct ixgbe_hw *hw, uint16_t offset,
            uint16_t *data)
 {
  int32_t status;
  struct ixgbe_hic_read_shadow_ram buffer;
-
  ;;
  buffer.hdr.req.cmd = 0x31;
  buffer.hdr.req.buf_lenh = 0;
  buffer.hdr.req.buf_lenl = 0x6;
  buffer.hdr.req.checksum = 0xFF;
-
-
  buffer.address = ((__uint32_t)(offset * 2));
-
  buffer.length = ((__uint16_t)(sizeof(uint16_t)));
-
  status = ixgbe_host_interface_command(hw, (uint32_t *)&buffer,
            sizeof(buffer),
            500, 0);
-
  if (status)
   return status;
-
  *data = (uint16_t)bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((3) << 2)));
-
-
  return 0;
 }
-# 1696 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_ee_hostif_X550(struct ixgbe_hw *hw, uint16_t offset,
       uint16_t *data)
 {
  int32_t status = 0;
-
  ;;
-
  if (hw->mac.ops.acquire_swfw_sync(hw, 0x0001) ==
      0) {
   status = ixgbe_read_ee_hostif_data_X550(hw, offset, data);
@@ -7671,10 +5392,8 @@ int32_t ixgbe_read_ee_hostif_X550(struct ixgbe_hw *hw, uint16_t offset,
  } else {
   status = -16;
  }
-
  return status;
 }
-# 1723 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_read_ee_hostif_buffer_X550(struct ixgbe_hw *hw,
       uint16_t offset, uint16_t words,
       uint16_t *data)
@@ -7684,10 +5403,7 @@ int32_t ixgbe_read_ee_hostif_buffer_X550(struct ixgbe_hw *hw,
  uint16_t words_to_read;
  int32_t status;
  uint32_t i;
-
  ;;
-
-
  status = hw->mac.ops.acquire_swfw_sync(hw, 0x0001);
  if (status) {
   ;
@@ -7698,31 +5414,24 @@ int32_t ixgbe_read_ee_hostif_buffer_X550(struct ixgbe_hw *hw,
    words_to_read = 1024 / 2;
   else
    words_to_read = words;
-
   buffer.hdr.req.cmd = 0x31;
   buffer.hdr.req.buf_lenh = 0;
   buffer.hdr.req.buf_lenl = 0x6;
   buffer.hdr.req.checksum = 0xFF;
-
-
   buffer.address = ((__uint32_t)((offset + current_word) * 2));
   buffer.length = ((__uint16_t)(words_to_read * 2));
-
   status = ixgbe_host_interface_command(hw, (uint32_t *)&buffer,
             sizeof(buffer),
             500,
             0);
-
   if (status) {
    ;
    goto out;
   }
-
   for (i = 0; i < words_to_read; i++) {
    uint32_t reg64 = 0x15800 + (3 << 2) +
       2 * i;
    uint32_t value = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, reg64);
-
    data[current_word] = (uint16_t)(value & 0xffff);
    current_word++;
    i++;
@@ -7734,44 +5443,33 @@ int32_t ixgbe_read_ee_hostif_buffer_X550(struct ixgbe_hw *hw,
   }
   words -= words_to_read;
  }
-
 out:
  hw->mac.ops.release_swfw_sync(hw, 0x0001);
  return status;
 }
-# 1796 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_write_ee_hostif_data_X550(struct ixgbe_hw *hw, uint16_t offset,
      uint16_t data)
 {
  int32_t status;
  struct ixgbe_hic_write_shadow_ram buffer;
-
  ;;
-
  buffer.hdr.req.cmd = 0x33;
  buffer.hdr.req.buf_lenh = 0;
  buffer.hdr.req.buf_lenl = 0xA;
  buffer.hdr.req.checksum = 0xFF;
-
-
  buffer.length = ((__uint16_t)(sizeof(uint16_t)));
  buffer.data = data;
  buffer.address = ((__uint32_t)(offset * 2));
-
  status = ixgbe_host_interface_command(hw, (uint32_t *)&buffer,
            sizeof(buffer),
            500, 0);
-
  return status;
 }
-# 1829 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_write_ee_hostif_X550(struct ixgbe_hw *hw, uint16_t offset,
        uint16_t data)
 {
  int32_t status = 0;
-
  ;;
-
  if (hw->mac.ops.acquire_swfw_sync(hw, 0x0001) ==
      0) {
   status = ixgbe_write_ee_hostif_data_X550(hw, offset, data);
@@ -7780,10 +5478,8 @@ int32_t ixgbe_write_ee_hostif_X550(struct ixgbe_hw *hw, uint16_t offset,
   ;
   status = -16;
  }
-
  return status;
 }
-# 1857 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_checksum_ptr_x550(struct ixgbe_hw *hw, uint16_t ptr,
     uint16_t size, uint16_t *csum, uint16_t *buffer,
     uint32_t buffer_size)
@@ -7792,10 +5488,7 @@ int32_t ixgbe_checksum_ptr_x550(struct ixgbe_hw *hw, uint16_t ptr,
  int32_t status;
  uint16_t length, bufsz, i, start;
  uint16_t *local_buffer;
-
  bufsz = sizeof(buf) / sizeof(buf[0]);
-
-
  if (!buffer) {
   status = ixgbe_read_ee_hostif_buffer_X550(hw, ptr, bufsz, buf);
   if (status) {
@@ -7808,31 +5501,24 @@ int32_t ixgbe_checksum_ptr_x550(struct ixgbe_hw *hw, uint16_t ptr,
    return -5;
   local_buffer = &buffer[ptr];
  }
-
  if (size) {
   start = 0;
   length = size;
  } else {
   start = 1;
   length = local_buffer[0];
-
-
   if (length == 0xFFFF || length == 0 ||
       (ptr + length) >= hw->eeprom.word_size)
    return 0;
  }
-
  if (buffer && ((uint32_t)start + (uint32_t)length > buffer_size))
   return -5;
-
  for (i = start; length; i++, length--) {
   if (i == bufsz && !buffer) {
    ptr += bufsz;
    i = 0;
    if (length < bufsz)
     bufsz = length;
-
-
    status = ixgbe_read_ee_hostif_buffer_X550(hw, ptr,
           bufsz, buf);
    if (status) {
@@ -7844,7 +5530,6 @@ int32_t ixgbe_checksum_ptr_x550(struct ixgbe_hw *hw, uint16_t ptr,
  }
  return 0;
 }
-# 1926 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_calc_checksum_X550(struct ixgbe_hw *hw, uint16_t *buffer,
      uint32_t buffer_size)
 {
@@ -7853,13 +5538,9 @@ int32_t ixgbe_calc_checksum_X550(struct ixgbe_hw *hw, uint16_t *buffer,
  int32_t status;
  uint16_t checksum = 0;
  uint16_t pointer, i, size;
-
  ;;
-
  hw->eeprom.ops.init_params(hw);
-
  if (!buffer) {
-
   status = ixgbe_read_ee_hostif_buffer_X550(hw, 0,
            0x41 + 1,
            eeprom_ptrs);
@@ -7873,30 +5554,16 @@ int32_t ixgbe_calc_checksum_X550(struct ixgbe_hw *hw, uint16_t *buffer,
    return -5;
   local_buffer = buffer;
  }
-
-
-
-
-
  for (i = 0; i <= 0x41; i++)
   if (i != 0x3F)
    checksum += local_buffer[i];
-
-
-
-
-
  for (i = 0x02; i < 0x0F; i++) {
   if (i == 0x04 || i == 0x05)
    continue;
-
   pointer = local_buffer[i];
-
-
   if (pointer == 0xFFFF || pointer == 0 ||
       pointer >= hw->eeprom.word_size)
    continue;
-
   switch (i) {
   case 0x06:
    size = 0x24;
@@ -7909,146 +5576,86 @@ int32_t ixgbe_calc_checksum_X550(struct ixgbe_hw *hw, uint16_t *buffer,
    size = 0;
    break;
   }
-
   status = ixgbe_checksum_ptr_x550(hw, pointer, size, &checksum,
       buffer, buffer_size);
   if (status)
    return status;
  }
-
  checksum = (uint16_t)0xBABA - checksum;
-
  return (int32_t)checksum;
 }
-
-
-
-
-
-
-
 int32_t ixgbe_calc_eeprom_checksum_X550(struct ixgbe_hw *hw)
 {
  return ixgbe_calc_checksum_X550(hw, ((void *)0), 0);
 }
-# 2021 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_validate_eeprom_checksum_X550(struct ixgbe_hw *hw, uint16_t *checksum_val)
 {
  int32_t status;
  uint16_t checksum;
  uint16_t read_checksum = 0;
-
  ;;
-
-
-
-
-
  status = hw->eeprom.ops.read(hw, 0, &checksum);
  if (status) {
   ;
   return status;
  }
-
  status = hw->eeprom.ops.calc_checksum(hw);
  if (status < 0)
   return status;
-
  checksum = (uint16_t)(status & 0xffff);
-
  status = ixgbe_read_ee_hostif_X550(hw, 0x3F,
         &read_checksum);
  if (status)
   return status;
-
-
-
-
  if (read_checksum != checksum) {
   status = -2;
   ;
  }
-
-
  if (checksum_val)
   *checksum_val = checksum;
-
  return status;
 }
-# 2073 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_update_eeprom_checksum_X550(struct ixgbe_hw *hw)
 {
  int32_t status;
  uint16_t checksum = 0;
-
  ;;
-
-
-
-
-
  status = ixgbe_read_ee_hostif_X550(hw, 0, &checksum);
  if (status) {
   ;
   return status;
  }
-
  status = ixgbe_calc_eeprom_checksum_X550(hw);
  if (status < 0)
   return status;
-
  checksum = (uint16_t)(status & 0xffff);
-
  status = ixgbe_write_ee_hostif_X550(hw, 0x3F,
          checksum);
  if (status)
   return status;
-
  status = ixgbe_update_flash_X550(hw);
-
  return status;
 }
-
-
-
-
-
-
-
 int32_t ixgbe_update_flash_X550(struct ixgbe_hw *hw)
 {
  int32_t status = 0;
  union ixgbe_hic_hdr2 buffer;
-
  ;;
-
  buffer.req.cmd = 0x36;
  buffer.req.buf_lenh = 0;
  buffer.req.buf_lenl = 0;
  buffer.req.checksum = 0xFF;
-
  status = ixgbe_host_interface_command(hw, (uint32_t *)&buffer,
            sizeof(buffer),
            500, 0);
-
  return status;
 }
-
-
-
-
-
-
-
 uint32_t ixgbe_get_supported_physical_layer_X550em(struct ixgbe_hw *hw)
 {
  uint32_t physical_layer = 0;
  uint16_t ext_ability = 0;
-
  ;;
-
  hw->phy.ops.identify(hw);
-
  switch (hw->phy.type) {
  case ixgbe_phy_x550em_kr:
   physical_layer = 0x0800 |
@@ -8070,51 +5677,33 @@ uint32_t ixgbe_get_supported_physical_layer_X550em(struct ixgbe_hw *hw)
  default:
   break;
  }
-
  if (hw->mac.ops.get_media_type(hw) == ixgbe_media_type_fiber)
   physical_layer = ixgbe_get_supported_phy_sfp_layer_generic(hw);
-
  return physical_layer;
 }
-# 2181 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_get_bus_info_X550em(struct ixgbe_hw *hw)
 {
-
  ;;
-
  hw->bus.width = ixgbe_bus_width_unknown;
  hw->bus.speed = ixgbe_bus_speed_unknown;
-
  hw->mac.ops.set_lan_id(hw);
-
  return 0;
 }
-
-
-
-
-
-
 void ixgbe_disable_rx_x550(struct ixgbe_hw *hw)
 {
  uint32_t rxctrl;
  int32_t status;
  struct ixgbe_hic_disable_rxen fw_cmd;
-
  ;;
-
  rxctrl = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x03000);
  if (rxctrl & 0x00000001) {
   fw_cmd.hdr.cmd = 0xDE;
   fw_cmd.hdr.buf_len = 0x1;
   fw_cmd.hdr.checksum = 0xFF;
   fw_cmd.port_number = (uint8_t)hw->bus.lan_id;
-
   status = ixgbe_host_interface_command(hw, (uint32_t *)&fw_cmd,
      sizeof(struct ixgbe_hic_disable_rxen),
      500, 1);
-
-
   if (status) {
    rxctrl = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x03000);
    if (rxctrl & 0x00000001) {
@@ -8124,65 +5713,39 @@ void ixgbe_disable_rx_x550(struct ixgbe_hw *hw)
   }
  }
 }
-# 2236 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_get_lcd_t_x550em(struct ixgbe_hw *hw, ixgbe_link_speed *lcd_speed)
 {
  uint16_t an_lp_status;
  int32_t status;
  uint16_t word = hw->eeprom.ctrl_word_3;
-
  *lcd_speed = 0;
-
  status = hw->phy.ops.read_reg(hw, 0xE820,
           0x7,
           &an_lp_status);
-
  if (status != 0)
   return status;
-
-
  if (an_lp_status & 0x8000) {
   *lcd_speed = 0x0020;
   return status;
  }
-
-
  if ((hw->bus.lan_id && (word & 0x100)) ||
      (word & 0x40))
   return status;
-
-
  *lcd_speed = 0x0080;
  return status;
 }
-
-
-
-
-
-
-
 int32_t ixgbe_setup_fc_X550em(struct ixgbe_hw *hw)
 {
  int32_t ret_val = 0;
  uint32_t pause, asm_dir, reg_val;
-
  ;;
-
-
  if (hw->fc.strict_ieee && hw->fc.requested_mode == ixgbe_fc_rx_pause) {
   ;
   ret_val = -13;
   goto out;
  }
-
-
-
-
  if (hw->fc.requested_mode == ixgbe_fc_default)
   hw->fc.requested_mode = ixgbe_fc_full;
-
-
  switch (hw->fc.requested_mode) {
  case ixgbe_fc_none:
   pause = 0;
@@ -8193,7 +5756,6 @@ int32_t ixgbe_setup_fc_X550em(struct ixgbe_hw *hw)
   asm_dir = 1;
   break;
  case ixgbe_fc_rx_pause:
-# 2312 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
  case ixgbe_fc_full:
   pause = 1;
   asm_dir = 1;
@@ -8203,7 +5765,6 @@ int32_t ixgbe_setup_fc_X550em(struct ixgbe_hw *hw)
   ret_val = -4;
   goto out;
  }
-
  if (hw->device_id == 0x15AB) {
   ret_val = ixgbe_read_iosf_sb_reg_x550(hw,
    ((hw->bus.lan_id) ? 0x822C : 0x422C),
@@ -8219,24 +5780,14 @@ int32_t ixgbe_setup_fc_X550em(struct ixgbe_hw *hw)
   ret_val = ixgbe_write_iosf_sb_reg_x550(hw,
    ((hw->bus.lan_id) ? 0x822C : 0x422C),
    0, reg_val);
-
-
   hw->fc.disable_fc_autoneg = 1;
  }
-
 out:
  return ret_val;
 }
-
-
-
-
-
-
 void ixgbe_set_mux(struct ixgbe_hw *hw, uint8_t state)
 {
  uint32_t esdp;
-
  if (!hw->bus.lan_id)
   return;
  esdp = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00020);
@@ -8247,178 +5798,109 @@ void ixgbe_set_mux(struct ixgbe_hw *hw, uint8_t state)
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00020, esdp);
  bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x00008);
 }
-# 2373 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_acquire_swfw_sync_X550em(struct ixgbe_hw *hw, uint32_t mask)
 {
  int32_t status;
-
  ;;
-
  status = ixgbe_acquire_swfw_sync_X540(hw, mask);
  if (status)
   return status;
-
  if (mask & 0x1800)
   ixgbe_set_mux(hw, 1);
-
  return 0;
 }
-# 2396 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 void ixgbe_release_swfw_sync_X550em(struct ixgbe_hw *hw, uint32_t mask)
 {
  ;;
-
  if (mask & 0x1800)
   ixgbe_set_mux(hw, 0);
-
  ixgbe_release_swfw_sync_X540(hw, mask);
 }
-# 2417 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_handle_lasi_ext_t_x550em(struct ixgbe_hw *hw)
 {
  _Bool lsc;
  uint32_t status;
-
  status = ixgbe_get_lasi_ext_t_x550em(hw, &lsc);
-
  if (status != 0)
   return status;
-
  if (lsc && hw->phy.ops.setup_internal_link)
   return hw->phy.ops.setup_internal_link(hw);
-
  return 0;
 }
-# 2444 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_setup_mac_link_t_X550em(struct ixgbe_hw *hw,
           ixgbe_link_speed speed,
           _Bool autoneg_wait_to_complete)
 {
  int32_t status;
  ixgbe_link_speed force_speed;
-
  ;;
-
-
-
-
  if (speed & 0x0080)
   force_speed = 0x0080;
  else
   force_speed = 0x0020;
-
-
  if (!(hw->phy.nw_mng_if_sel & (1 << 24))) {
   status = ixgbe_setup_ixfi_x550em(hw, &force_speed);
-
   if (status != 0)
    return status;
  }
-
  return hw->phy.ops.setup_link_speed(hw, speed, autoneg_wait_to_complete);
 }
-# 2481 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/ixgbe_x550.c"
 int32_t ixgbe_check_link_t_X550em(struct ixgbe_hw *hw, ixgbe_link_speed *speed,
       _Bool *link_up, _Bool link_up_wait_to_complete)
 {
  uint32_t status;
  uint16_t autoneg_status;
-
  if (hw->mac.ops.get_media_type(hw) != ixgbe_media_type_copper)
   return -4;
-
  status = ixgbe_check_mac_link_generic(hw, speed, link_up,
            link_up_wait_to_complete);
-
-
  if (status != 0 || !(*link_up))
   return status;
-
-
-
-
  status = hw->phy.ops.read_reg(hw, 0x1,
           0x7,
           &autoneg_status);
-
  if (status != 0)
   return status;
-
  status = hw->phy.ops.read_reg(hw, 0x1,
           0x7,
           &autoneg_status);
-
  if (status != 0)
   return status;
-
-
  if (!(autoneg_status & 0x4))
   *link_up = 0;
-
  return 0;
 }
-
-
-
-
-
 int32_t ixgbe_reset_phy_t_X550em(struct ixgbe_hw *hw)
 {
  int32_t status;
-
  status = ixgbe_reset_phy_generic(hw);
-
  if (status != 0)
   return status;
-
-
  return ixgbe_enable_lasi_ext_t_x550em(hw);
 }
-
-
-
-
-
-
 int32_t ixgbe_led_on_t_X550em(struct ixgbe_hw *hw, uint32_t led_idx)
 {
  uint16_t phy_data;
-
  ;;
-
  if (led_idx >= 3)
   return -5;
-
-
  hw->phy.ops.read_reg(hw, 0xC430 + led_idx,
         0x1E, &phy_data);
  phy_data |= (1 << 8);
  hw->phy.ops.write_reg(hw, 0xC430 + led_idx,
          0x1E, phy_data);
-
  return 0;
 }
-
-
-
-
-
-
 int32_t ixgbe_led_off_t_X550em(struct ixgbe_hw *hw, uint32_t led_idx)
 {
  uint16_t phy_data;
-
  ;;
-
  if (led_idx >= 3)
   return -5;
-
-
  hw->phy.ops.read_reg(hw, 0xC430 + led_idx,
         0x1E, &phy_data);
  phy_data &= ~(1 << 8);
  hw->phy.ops.write_reg(hw, 0xC430 + led_idx,
          0x1E, phy_data);
-
  return 0;
 }

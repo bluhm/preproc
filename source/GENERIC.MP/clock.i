@@ -1,35 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
-# 66 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 1
-# 47 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -38,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -48,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -58,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -126,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -183,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -191,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -199,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -298,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -340,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -349,73 +202,41 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 61 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/errno.h" 1
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
 };
-
-
-
-
 struct timespec {
  time_t tv_sec;
  long tv_nsec;
 };
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 typedef uint32_t __fd_mask;
-
-
-
 typedef struct fd_set {
  __fd_mask fds_bits[(((1024) + ((((unsigned)(sizeof(__fd_mask) * 8))) - 1)) / (((unsigned)(sizeof(__fd_mask) * 8))))];
 } fd_set;
-
 static __inline void
 __fd_set(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] |= (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline void
 __fd_clr(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] &= ~(1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline int
 __fd_isset(int fd, const fd_set *p)
 {
  return (p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] & (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8)))));
 }
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct timezone {
  int tz_minuteswest;
  int tz_dsttime;
 };
-# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct itimerval {
  struct timeval it_interval;
  struct timeval it_value;
 };
-
-
-
-
-
 struct clockinfo {
  int hz;
  int tick;
@@ -423,112 +244,81 @@ struct clockinfo {
  int stathz;
  int profhz;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h" 1
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h"
 struct itimerspec {
  struct timespec it_interval;
  struct timespec it_value;
 };
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-
-
 struct bintime {
  time_t sec;
  uint64_t frac;
 };
-
 static __inline void
 bintime_addx(struct bintime *bt, uint64_t x)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += x;
  if (u > bt->frac)
   bt->sec++;
 }
-
 static __inline void
 bintime_add(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += bt2->frac;
  if (u > bt->frac)
   bt->sec++;
  bt->sec += bt2->sec;
 }
-
 static __inline void
 bintime_sub(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac -= bt2->frac;
  if (u < bt->frac)
   bt->sec--;
  bt->sec -= bt2->sec;
 }
-# 220 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 static __inline void
 bintime2timespec(struct bintime *bt, struct timespec *ts)
 {
-
  ts->tv_sec = bt->sec;
  ts->tv_nsec = (long)(((uint64_t)1000000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timespec2bintime(struct timespec *ts, struct bintime *bt)
 {
-
  bt->sec = ts->tv_sec;
-
  bt->frac = (uint64_t)ts->tv_nsec * (uint64_t)18446744073ULL;
 }
-
 static __inline void
 bintime2timeval(struct bintime *bt, struct timeval *tv)
 {
-
  tv->tv_sec = bt->sec;
  tv->tv_usec = (long)(((uint64_t)1000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timeval2bintime(struct timeval *tv, struct bintime *bt)
 {
-
  bt->sec = (time_t)tv->tv_sec;
-
  bt->frac = (uint64_t)tv->tv_usec * (uint64_t)18446744073709ULL;
 }
-
 extern volatile time_t time_second;
 extern volatile time_t time_uptime;
-# 278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 void bintime(struct bintime *);
 void nanotime(struct timespec *);
 void microtime(struct timeval *);
-
 void getnanotime(struct timespec *);
 void getmicrotime(struct timeval *);
-
 void binuptime(struct bintime *);
 void nanouptime(struct timespec *);
 void microuptime(struct timeval *);
-
 void getnanouptime(struct timespec *);
 void getmicrouptime(struct timeval *);
-
 struct proc;
 int clock_gettime(struct proc *, clockid_t, struct timespec *);
-
 int timespecfix(struct timespec *);
 int itimerfix(struct timeval *);
 int itimerdecr(struct itimerval *itp, int usec);
@@ -536,10 +326,6 @@ void itimerround(struct timeval *);
 int settime(struct timespec *);
 int ratecheck(struct timeval *, const struct timeval *);
 int ppsratecheck(struct timeval *, int *, int);
-
-
-
-
 struct clock_ymdhms {
         u_short dt_year;
         u_char dt_mon;
@@ -549,17 +335,12 @@ struct clock_ymdhms {
         u_char dt_min;
         u_char dt_sec;
 };
-
 time_t clock_ymdhms_to_secs(struct clock_ymdhms *);
 void clock_secs_to_ymdhms(time_t, struct clock_ymdhms *);
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h" 1
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rusage {
  struct timeval ru_utime;
  struct timeval ru_stime;
  long ru_maxrss;
-
  long ru_ixrss;
  long ru_idrss;
  long ru_isrss;
@@ -573,42 +354,22 @@ struct rusage {
  long ru_nsignals;
  long ru_nvcsw;
  long ru_nivcsw;
-
 };
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resource.h"
 struct rlimit {
  rlim_t rlim_cur;
  rlim_t rlim_max;
 };
-
-
-
 struct loadavg {
  fixpt_t ldavg[3];
  long fscale;
 };
-
-
-
 extern struct loadavg averunnable;
 struct process;
 int dosetrlimit(struct proc *, u_int, struct rlimit *);
 int donice(struct proc *, struct process *, int);
 int dogetrusage(struct proc *, int, struct rusage *);
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/ucred.h" 2
-
-
-
-
 struct ucred {
  u_int cr_ref;
-
-
-
  uid_t cr_uid;
  uid_t cr_ruid;
  uid_t cr_svuid;
@@ -618,24 +379,12 @@ struct ucred {
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 struct xucred {
  uid_t cr_uid;
  gid_t cr_gid;
  short cr_ngroups;
  gid_t cr_groups[16];
 };
-
-
-
-
-
-
 int crfromxucred(struct ucred *, const struct xucred *);
 void crset(struct ucred *, const struct ucred *);
 struct ucred *crcopy(struct ucred *cr);
@@ -644,25 +393,15 @@ void crfree(struct ucred *cr);
 struct ucred *crget(void);
 int suser(struct proc *p, u_int flags);
 int suser_ucred(struct ucred *cred);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 struct iovec {
  void *iov_base;
  size_t iov_len;
 };
-
-
 enum uio_rw { UIO_READ, UIO_WRITE };
-
-
 enum uio_seg {
  UIO_USERSPACE,
  UIO_SYSSPACE
 };
-
-
-
 struct uio {
  struct iovec *uio_iov;
  int uio_iovcnt;
@@ -672,109 +411,60 @@ struct uio {
  enum uio_rw uio_rw;
  struct proc *uio_procp;
 };
-# 97 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/uio.h"
 int ureadc(int c, struct uio *);
-
 struct file;
 int dofilereadv(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
 int dofilewritev(struct proc *, int, struct file *,
      const struct iovec *, int, int, off_t *, register_t *);
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h" 1
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/refcnt.h"
 struct refcnt {
  unsigned int refs;
 };
-
-
-
-
-
 void refcnt_init(struct refcnt *);
 void refcnt_take(struct refcnt *);
 int refcnt_rele(struct refcnt *);
 void refcnt_rele_wake(struct refcnt *);
 void refcnt_finalize(struct refcnt *, const char *);
-# 23 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h" 2
-# 32 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 struct srp {
  void *ref;
 };
-
-
-
 struct srp_hazard {
  struct srp *sh_p;
  void *sh_v;
 };
-
 struct srp_ref {
  struct srp_hazard *hz;
 } ;
-
-
-
 struct srp_gc {
  void (*srp_gc_dtor)(void *, void *);
  void *srp_gc_cookie;
  struct refcnt srp_gc_refcnt;
 };
-
-
-
-
-
-
-
 struct srpl_rc {
  void (*srpl_ref)(void *, void *);
  struct srp_gc srpl_gc;
 };
-
-
-
-
 struct srpl {
  struct srp sl_head;
 };
-
-
-
 void srp_startup(void);
 void srp_gc_init(struct srp_gc *, void (*)(void *, void *), void *);
 void *srp_swap_locked(struct srp *, void *);
 void srp_update_locked(struct srp_gc *, struct srp *, void *);
 void *srp_get_locked(struct srp *);
 void srp_gc_finalize(struct srp_gc *);
-
 void srp_init(struct srp *);
-
-
 void *srp_swap(struct srp *, void *);
 void srp_update(struct srp_gc *, struct srp *, void *);
 void srp_finalize(void *, const char *);
 void *srp_enter(struct srp_ref *, struct srp *);
 void *srp_follow(struct srp_ref *, struct srp *);
 void srp_leave(struct srp_ref *);
-# 101 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/srp.h"
 void srpl_rc_init(struct srpl_rc *, void (*)(void *, void *),
       void (*)(void *, void *), void *);
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h" 1
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 typedef int sig_atomic_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/signal.h"
 struct sigcontext {
  long sc_cookie;
-
  long sc_sp;
  long sc_pc;
  long sc_npc;
@@ -783,18 +473,11 @@ struct sigcontext {
  long sc_o0;
  int sc_mask;
 };
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-# 104 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef unsigned int sigset_t;
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 union sigval {
  int sival_int;
  void *sival_ptr;
 };
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 typedef struct {
  int si_signo;
  int si_code;
@@ -819,16 +502,9 @@ typedef struct {
    void *_addr;
    int _trapno;
   } _fault;
-# 172 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
  } _data;
 } siginfo_t;
-# 196 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/siginfo.h"
 void initsiginfo(siginfo_t *, int, u_long, int, union sigval);
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h" 2
-
-
-
-
 struct sigaction {
  union {
   void (*__sa_handler)(int);
@@ -837,49 +513,20 @@ struct sigaction {
  sigset_t sa_mask;
  int sa_flags;
 };
-# 146 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef void (*sig_t)(int);
-
-
-
-
-
 struct sigvec {
  void (*sv_handler)(int);
  int sv_mask;
  int sv_flags;
 };
-# 176 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/signal.h"
 typedef struct sigaltstack {
  void *ss_sp;
  size_t ss_size;
  int ss_flags;
 } stack_t;
-
-
-
-
-
 typedef struct sigcontext ucontext_t;
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/limits.h" 1
-# 35 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/limits.h" 2
-# 88 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 1
-# 152 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
 extern void delay(unsigned int);
-
-
 extern int cputyp;
-# 184 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 1
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h" 1
-# 553 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
@@ -896,36 +543,28 @@ extern __inline u_int64_t sparc_rdpr_cleanwin(void); extern __inline u_int64_t s
 extern __inline u_int64_t sparc_rdpr_otherwin(void); extern __inline u_int64_t sparc_rdpr_otherwin() { u_int64_t r; __asm volatile("rdpr %%" "otherwin" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_wstate(void); extern __inline u_int64_t sparc_rdpr_wstate() { u_int64_t r; __asm volatile("rdpr %%" "wstate" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rdpr_ver(void); extern __inline u_int64_t sparc_rdpr_ver() { u_int64_t r; __asm volatile("rdpr %%" "ver" ", %0" : "=r" (r) : : "%g0"); return (r); };
-# 596 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline u_char lduba_asi(paddr_t); extern __inline u_char lduba_asi(paddr_t va) { u_char r; __asm volatile( "lduba" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_char *)va) : "%g0"); return (r); } extern __inline u_char lduba_nc(paddr_t, int); extern __inline u_char lduba_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduba_asi(va)); };
 extern __inline u_short lduha_asi(paddr_t); extern __inline u_short lduha_asi(paddr_t va) { u_short r; __asm volatile( "lduha" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_short *)va) : "%g0"); return (r); } extern __inline u_short lduha_nc(paddr_t, int); extern __inline u_short lduha_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduha_asi(va)); };
 extern __inline u_int lduwa_asi(paddr_t); extern __inline u_int lduwa_asi(paddr_t va) { u_int r; __asm volatile( "lduwa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int *)va) : "%g0"); return (r); } extern __inline u_int lduwa_nc(paddr_t, int); extern __inline u_int lduwa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lduwa_asi(va)); };
 extern __inline u_int64_t ldxa_asi(paddr_t); extern __inline u_int64_t ldxa_asi(paddr_t va) { u_int64_t r; __asm volatile( "ldxa" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile u_int64_t *)va) : "%g0"); return (r); } extern __inline u_int64_t ldxa_nc(paddr_t, int); extern __inline u_int64_t ldxa_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (ldxa_asi(va)); };
-
 extern __inline int lda_asi(paddr_t); extern __inline int lda_asi(paddr_t va) { int r; __asm volatile( "lda" " [%1] %%asi, %0" : "=r" (r) : "r" ((volatile int *)va) : "%g0"); return (r); } extern __inline int lda_nc(paddr_t, int); extern __inline int lda_nc(paddr_t va, int asi) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); return (lda_asi(va)); };
-# 647 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void stba_asi(paddr_t, u_int8_t); extern __inline void stba_asi(paddr_t va, u_int8_t val) { __asm volatile( "stba" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int8_t *)va) : "memory"); } extern __inline void stba_nc(paddr_t, int, u_int8_t); extern __inline void stba_nc(paddr_t va, int asi, u_int8_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stba_asi(va, val); };
 extern __inline void stha_asi(paddr_t, u_int16_t); extern __inline void stha_asi(paddr_t va, u_int16_t val) { __asm volatile( "stha" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int16_t *)va) : "memory"); } extern __inline void stha_nc(paddr_t, int, u_int16_t); extern __inline void stha_nc(paddr_t va, int asi, u_int16_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stha_asi(va, val); };
 extern __inline void stwa_asi(paddr_t, u_int32_t); extern __inline void stwa_asi(paddr_t va, u_int32_t val) { __asm volatile( "stwa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int32_t *)va) : "memory"); } extern __inline void stwa_nc(paddr_t, int, u_int32_t); extern __inline void stwa_nc(paddr_t va, int asi, u_int32_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stwa_asi(va, val); };
 extern __inline void stxa_asi(paddr_t, u_int64_t); extern __inline void stxa_asi(paddr_t va, u_int64_t val) { __asm volatile( "stxa" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int64_t *)va) : "memory"); } extern __inline void stxa_nc(paddr_t, int, u_int64_t); extern __inline void stxa_nc(paddr_t va, int asi, u_int64_t val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); stxa_asi(va, val); };
-
 extern __inline void sta_asi(paddr_t, u_int); extern __inline void sta_asi(paddr_t va, u_int val) { __asm volatile( "sta" " %0, [%1] %%asi" : : "r" (val), "r" ((volatile u_int *)va) : "memory"); } extern __inline void sta_nc(paddr_t, int, u_int); extern __inline void sta_nc(paddr_t va, int asi, u_int val) { do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0); sta_asi(va, val); };
-# 678 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/ctlreg.h"
 extern __inline void asi_set(int);
 extern __inline
 void asi_set(int asi)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wr %%g0, %0, %%" "asi" : : "rI" ((asi) ^ (0)) : "%g0"); else __asm volatile("wr %0, %1, %%" "asi" : : "r" (asi), "rI" (0) : "%g0"); } while(0);
 }
-
 extern __inline u_int8_t asi_get(void);
 extern __inline
 u_int8_t asi_get(void)
 {
  return sparc_rd_asi();
 }
-
-
 extern __inline void flush(void *);
 extern __inline
 void flush(void *p)
@@ -934,86 +573,60 @@ void flush(void *p)
      : : "r" (p)
      : "memory");
 }
-
-
-
-
 extern u_int64_t stick(void);
-
 extern void tick_enable(void);
-
 extern void tickcmpr_set(u_int64_t);
 extern void sys_tickcmpr_set(u_int64_t);
 extern void stickcmpr_set(u_int64_t);
-# 76 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h" 1
-# 231 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern u_int64_t ver;
-
 extern __inline void splx(int);
-
-
-
-
-
-
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
 void splassert_check(int, const char *);
-# 258 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/psl.h"
 extern __inline u_int64_t getpstate(void);
 extern __inline
 u_int64_t getpstate(void)
 {
  return (sparc_rdpr_pstate());
 }
-
 extern __inline void setpstate(u_int64_t);
 extern __inline void setpstate(u_int64_t newpstate)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((newpstate) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (newpstate), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline int getcwp(void);
 extern __inline
 int getcwp(void)
 {
  return (sparc_rdpr_cwp());
 }
-
 extern __inline void setcwp(u_int64_t);
 extern __inline void
 setcwp(u_int64_t newcwp)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "cwp" : : "rI" ((newcwp) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "cwp" : : "r" (newcwp), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline u_int64_t getver(void);
 extern __inline
 u_int64_t getver(void)
 {
  return (sparc_rdpr_ver());
 }
-
 extern __inline u_int64_t intr_disable(void);
 extern __inline u_int64_t
 intr_disable(void)
 {
  u_int64_t s;
-
  s = sparc_rdpr_pstate();
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s & ~0x002) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s & ~0x002), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
  return (s);
 }
-
 extern __inline void intr_restore(u_int64_t);
 extern __inline void
 intr_restore(u_int64_t s)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pstate" : : "rI" ((s) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pstate" : : "r" (s), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-
 extern __inline void stxa_sync(u_int64_t, u_int64_t, u_int64_t);
 extern __inline void
 stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
@@ -1023,42 +636,32 @@ stxa_sync(u_int64_t va, u_int64_t asi, u_int64_t val)
  __asm volatile("membar #Sync" : : : "memory");
  intr_restore(s);
 }
-
 static inline int
 _spl(int newipl)
 {
  int oldpil;
-
  __asm volatile( "    rdpr %%pil, %0		\n"
    "    wrpr %%g0, %1, %%pil	\n"
      : "=&r" (oldpil)
      : "I" (newipl)
      : "%g0");
  __asm volatile("" : : : "memory");
-
  return (oldpil);
 }
-
-
 static inline int
 _splraise(int newpil)
 {
  int oldpil;
-
  oldpil = sparc_rdpr_pil();
  if (newpil > oldpil)
   do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
         return (oldpil);
 }
-
 static inline void
 _splx(int newpil)
 {
  do { if (__builtin_constant_p(0)) __asm volatile("wrpr %%g0, %0, %%" "pil" : : "rI" ((newpil) ^ (0)) : "%g0"); else __asm volatile("wrpr %0, %1, %%" "pil" : : "r" (newpil), "rI" (0) : "%g0"); __asm volatile("" : : : "memory"); } while(0);
 }
-# 77 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe32 {
  int tf_psr;
  int tf_pc;
@@ -1067,7 +670,6 @@ struct trapframe32 {
  int tf_global[8];
  int tf_out[8];
 };
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct trapframe64 {
  int64_t tf_tstate;
  int64_t tf_pc;
@@ -1083,22 +685,14 @@ struct trapframe64 {
  int64_t tf_local[8];
  int64_t tf_in[8];
 };
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct rwindow32 {
  int rw_local[8];
  int rw_in[8];
 };
-
-
 struct rwindow64 {
  int64_t rw_local[8];
  int64_t rw_in[8];
 };
-
-
-
-
-
 struct reg32 {
  int r_psr;
  int r_pc;
@@ -1107,7 +701,6 @@ struct reg32 {
  int r_global[8];
  int r_out[8];
 };
-
 struct reg64 {
  int64_t r_tstate;
  int64_t r_pc;
@@ -1118,15 +711,10 @@ struct reg64 {
  int64_t r_local[8];
  int64_t r_in[8];
 };
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/fsr.h" 1
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h" 2
-# 147 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/reg.h"
 struct fp_qentry {
  int *fq_addr;
  int fq_instr;
 };
-
 struct fpstate64 {
  u_int fs_regs[64];
  int64_t fs_fsr;
@@ -1134,74 +722,37 @@ struct fpstate64 {
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
 struct fpstate32 {
  u_int fs_regs[32];
  int fs_fsr;
  int fs_qsize;
  struct fp_qentry fs_queue[16];
 };
-
-
-
-
-
-
 struct fpreg64 {
  u_int fr_regs[64];
  int64_t fr_fsr;
  int fr_gsr;
 };
-
-
-
-
 struct fpreg32 {
  u_int fr_regs[32];
  int fr_fsr;
 };
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h"
 struct intrhand;
 void send_softint(int cpu, int level, struct intrhand *ih);
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 34 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/evcount.h" 2
-
 struct evcount {
  u_int64_t ec_count;
  int ec_id;
  const char *ec_name;
  void *ec_data;
-
  struct { struct evcount *tqe_next; struct evcount **tqe_prev; } next;
 };
-
 void evcount_attach(struct evcount *, const char *, void *);
 void evcount_detach(struct evcount *);
 int evcount_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h" 2
-
-
-
-
-
-
-
 struct intrhand {
  int (*ih_fun)(void *);
  void *ih_arg;
  short ih_number;
-
  char ih_pil;
  char ih_mpsafe;
  struct intrhand *ih_next;
@@ -1214,21 +765,13 @@ struct intrhand {
  struct cpu_info *ih_cpu;
  char ih_name[32];
 };
-
 extern struct intrhand *intrlev[(1<<11)];
-
 void intr_establish(int, struct intrhand *);
-# 107 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/intr.h"
 int splraise(int);
 void intr_barrier(void *);
-
 void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 1
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 struct schedstate_percpu {
  struct timespec spc_runtime;
  volatile int spc_schedflags;
@@ -1239,31 +782,21 @@ struct schedstate_percpu {
  int spc_pscnt;
  int spc_psdiv;
  struct proc *spc_idleproc;
-
  u_int spc_nrun;
  fixpt_t spc_ldavg;
-
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
-
-
-
-
  struct { struct proc *lh_first; } spc_deadproc;
-
  volatile int spc_barrier;
 };
-# 134 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
 extern int schedhz;
 extern int rrticks_init;
-
 struct proc;
 void schedclock(struct proc *);
 struct cpu_info;
 void roundrobin(struct cpu_info *);
 void scheduler_start(void);
 void userret(struct proc *p);
-
 void sched_init_cpu(struct cpu_info *);
 void sched_idle(void *);
 void sched_exit(struct proc *);
@@ -1277,27 +810,13 @@ void cpu_idle_cycle(void);
 void cpu_idle_leave(void);
 void sched_peg_curproc(struct cpu_info *ci);
 void sched_barrier(struct cpu_info *ci);
-
 int sysctl_hwsetperf(void *, size_t *, void *, size_t);
 int sysctl_hwperfpolicy(void *, size_t *, void *, size_t);
-
-
 void sched_start_secondary_cpus(void);
 void sched_stop_secondary_cpus(void);
-
-
-
-
 void sched_init_runqueues(void);
 void setrunqueue(struct proc *);
 void remrunqueue(struct proc *);
-# 189 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -1305,196 +824,99 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/lock.h" 2
-# 190 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/sched.h" 2
-
-
-
-
-
-
-
 extern struct __mp_lock sched_lock;
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 98 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct cpu_info {
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
  struct cpu_info * volatile ci_self;
-
-
  struct proc *ci_curproc;
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
-
  struct proc *ci_fpproc;
  int ci_number;
  int ci_flags;
  int ci_upaid;
-
  int ci_itid;
  struct srp_hazard ci_srp_hazards[16];
-
  int ci_node;
  u_int32_t ci_randseed;
  struct schedstate_percpu ci_schedstate;
-
  int ci_want_resched;
  int ci_handled_intr_level;
  void *ci_intrpending[16][8];
  u_int64_t ci_tick;
  struct intrhand ci_tickintr;
-
  volatile int ci_ddb_paused;
-
-
-
-
-
-
-
  void (*ci_spinup)(void);
  void *ci_initstack;
  paddr_t ci_paddr;
-
-
  struct rwindow64 ci_rw;
  u_int64_t ci_rwsp;
-
  paddr_t ci_mmfsa;
  paddr_t ci_cpumq;
  paddr_t ci_devmq;
-
  paddr_t ci_cpuset;
  paddr_t ci_mondo;
-
-
  int ci_pci_probe;
  int ci_pci_fault;
-
-
  int ci_mutex_level;
-
-
-
-
 };
-
-
-
 extern struct cpu_info *cpus;
-
-
-
 register struct cpu_info *__curcpu asm ("g7");
-# 186 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void cpu_boot_secondary_processors(void);
-
 void sparc64_send_ipi(int, void (*)(void), u_int64_t, u_int64_t);
 void sparc64_broadcast_ipi(void (*)(void), u_int64_t, u_int64_t);
-
 void cpu_unidle(struct cpu_info *);
-# 259 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct clockframe {
  struct trapframe64 t;
  int saved_intr_level;
 };
-
-
-
-
-
 extern void (*cpu_start_clock)(void);
-
-
-
-
-
-
-
 extern void need_resched(struct cpu_info *);
-# 292 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 void signotify(struct proc *);
-
-
 int cpu_myid(void);
-
 int ldcontrolb(caddr_t);
 void dumpconf(void);
 caddr_t reserve_dumppages(caddr_t);
-
 struct timeval;
 int clockintr(void *);
 int statintr(void *);
-
 struct fpstate64;
 void savefpstate(struct fpstate64 *);
 void loadfpstate(struct fpstate64 *);
 void clearfpstate(void);
 u_int64_t probeget(paddr_t, int, int);
-
 void write_user_windows(void);
 void proc_trampoline(void);
 struct pcb;
@@ -1505,59 +927,38 @@ void copywords(const void *, void *, size_t);
 void qcopy(const void *, void *, size_t);
 void qzero(void *, size_t);
 void switchtoctx(int);
-
 void pmap_unuse_final(struct proc *);
 int rwindow_save(struct proc *);
-
 void fpusave_cpu(struct cpu_info *, int);
 void fpusave_proc(struct proc *, int);
-
 int cnrom(void);
-
 void zsconsole(struct tty *, int, int, void (**)(struct tty *, int));
-
 void fb_unblank(void);
-
 void tda_full_blast(void);
-
 int emulinstr(vaddr_t, struct trapframe64 *);
 int emul_qf(int32_t, struct proc *, union sigval, struct trapframe64 *);
 int emul_popc(int32_t, struct proc *, union sigval, struct trapframe64 *);
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h"
 struct trapvec {
  int tv_instr[8];
 };
 extern struct trapvec trapbase[];
-
 extern void wzero(void *, u_int);
 extern void wcopy(const void *, void *, u_int);
-
 struct blink_led {
  void (*bl_func)(void *, int);
  void *bl_arg;
  struct { struct blink_led *sle_next; } bl_next;
 };
-
 extern void blink_led_register(struct blink_led *);
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h" 1
-# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mplock.h"
 struct __mp_lock_cpu {
  volatile u_int mplc_ticket;
  volatile u_int mplc_depth;
 };
-
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
  volatile u_int mpl_users;
 };
-
-
-
 void __mp_lock_init(struct __mp_lock *);
 void __mp_lock(struct __mp_lock *);
 void __mp_unlock(struct __mp_lock *);
@@ -1565,25 +966,14 @@ int __mp_release_all(struct __mp_lock *);
 int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mplock.h" 2
-
 extern struct __mp_lock kernel_lock;
-# 372 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cpu.h" 2
-# 185 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/param.h" 2
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/param.h" 2
-# 67 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/kernel.h"
 extern long hostid;
 extern char hostname[256];
 extern int hostnamelen;
 extern char domainname[256];
 extern int domainnamelen;
-
-
 extern struct timespec boottime;
 extern struct timezone tz;
-
 extern int tick;
 extern int tickfix;
 extern int tickfixinterval;
@@ -1595,12 +985,8 @@ extern int profhz;
 extern int lbolt;
 extern int tickdelta;
 extern long timedelta;
-
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-# 68 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h" 1
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 enum devclass {
  DV_DULL,
  DV_CPU,
@@ -1609,7 +995,6 @@ enum devclass {
  DV_TAPE,
  DV_TTY
 };
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 struct device {
  enum devclass dv_class;
  struct { struct device *tqe_next; struct device **tqe_prev; } dv_list;
@@ -1620,15 +1005,7 @@ struct device {
  int dv_flags;
  int dv_ref;
 };
-
-
-
-
 struct devicelist { struct device *tqh_first; struct device **tqh_last; };
-
-
-
-
 struct cfdata {
  struct cfattach *cf_attach;
  struct cfdriver *cf_driver;
@@ -1641,15 +1018,8 @@ struct cfdata {
  short cf_starunit1;
 };
 extern struct cfdata cfdata[];
-
-
-
-
-
-
 typedef int (*cfmatch_t)(struct device *, void *, void *);
 typedef void (*cfscan_t)(struct device *, void *);
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/device.h"
 struct cfattach {
  size_t ca_devsize;
  cfmatch_t ca_match;
@@ -1657,11 +1027,6 @@ struct cfattach {
  int (*ca_detach)(struct device *, int);
  int (*ca_activate)(struct device *, int);
 };
-
-
-
-
-
 struct cfdriver {
  void **cd_devs;
  char *cd_name;
@@ -1669,32 +1034,14 @@ struct cfdriver {
  int cd_indirect;
  int cd_ndevs;
 };
-
-
-
-
-
-
-
 typedef int (*cfprint_t)(void *, const char *);
-
-
-
-
-
-
-
 struct pdevinit {
  void (*pdev_attach)(int);
  int pdev_count;
 };
-
-
 extern struct devicelist alldevs;
-
 extern int autoconf_verbose;
 extern volatile int config_pending;
-
 void config_init(void);
 void *config_search(cfmatch_t, struct device *, void *);
 struct device *config_found_sm(struct device *, void *, cfprint_t,
@@ -1715,41 +1062,27 @@ void config_pending_incr(void);
 void config_pending_decr(void);
 void config_mountroot(struct device *, void (*)(struct device *));
 void config_process_deferred_mountroot(void);
-
 struct device *device_mainbus(void);
 struct device *device_mpath(void);
 struct device *device_lookup(struct cfdriver *, int unit);
 void device_ref(struct device *);
 void device_unref(struct device *);
-
 struct nam2blk {
  char *name;
  int maj;
 };
-
 int findblkmajor(struct device *dv);
 char *findblkname(int);
 void setroot(struct device *, int, int);
 struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
 struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
 void device_register(struct device *, void *);
-
 int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
-# 69 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/proc.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/proc.h"
 struct mdproc {
  struct trapframe64 *md_tf;
  struct fpstate64 *md_fpstate;
  volatile int md_astpending;
 };
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct kevent {
  __uintptr_t ident;
  short filter;
@@ -1758,17 +1091,14 @@ struct kevent {
  __int64_t data;
  void *udata;
 };
-# 126 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct knote;
 struct klist { struct knote *slh_first; };
-# 145 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 struct filterops {
  int f_isfd;
  int (*f_attach)(struct knote *kn);
  void (*f_detach)(struct knote *kn);
  int (*f_event)(struct knote *kn, long hint);
 };
-
 struct knote {
  struct { struct knote *sle_next; } kn_link;
  struct { struct knote *sle_next; } kn_selnext;
@@ -1784,11 +1114,8 @@ struct knote {
  } kn_ptr;
  const struct filterops *kn_fop;
  void *kn_hook;
-# 178 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/event.h"
 };
-
 struct proc;
-
 extern void knote(struct klist *list, long hint);
 extern void knote_activate(struct knote *);
 extern void knote_remove(struct proc *p, struct klist *list);
@@ -1799,35 +1126,18 @@ extern int kqueue_register(struct kqueue *kq,
 extern int filt_seltrue(struct knote *kn, long hint);
 extern int seltrue_kqfilter(dev_t, struct knote *);
 extern void klist_invalidate(struct klist *);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/selinfo.h" 2
-
-
-
-
-
 struct selinfo {
  pid_t si_seltid;
  struct klist si_note;
  short si_flags;
 };
-
-
-
 struct proc;
-
 void selrecord(struct proc *selector, struct selinfo *);
 void selwakeup(struct selinfo *);
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syslimits.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct circq {
  struct circq *next;
  struct circq *prev;
 };
-
 struct timeout {
  struct circq to_list;
  void (*to_func)(void *);
@@ -1835,9 +1145,7 @@ struct timeout {
  int to_time;
  int to_flags;
 };
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timeout.h"
 struct bintime;
-
 void timeout_set(struct timeout *, void (*)(void *), void *);
 void timeout_set_proc(struct timeout *, void (*)(void *), void *);
 int timeout_add(struct timeout *, int);
@@ -1849,130 +1157,79 @@ int timeout_add_msec(struct timeout *, int);
 int timeout_add_usec(struct timeout *, int);
 int timeout_add_nsec(struct timeout *, int);
 int timeout_del(struct timeout *);
-
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
-
-
-
-
-
 int timeout_hardclock_update(void);
-# 48 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 struct mutex {
  volatile void *mtx_owner;
  int mtx_wantipl;
  int mtx_oldipl;
-
-
-
 };
-# 64 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/mutex.h"
 void __mtx_init(struct mutex *, int);
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h" 2
-# 74 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/mutex.h"
 void __mtx_enter(struct mutex *);
 int __mtx_enter_try(struct mutex *);
 void __mtx_leave(struct mutex *);
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h" 1
-# 21 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int
 _atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
  __asm volatile("cas [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline unsigned long
 _atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*p)
      : "r" (p), "r" (e), "m" (*p));
-
  return (n);
 }
-
-
 static inline void *
 _atomic_cas_ptr(volatile void *p, void *e, void *n)
 {
  __asm volatile("casx [%2], %3, %0"
      : "+r" (n), "=m" (*(volatile unsigned long *)p)
      : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
-
  return (n);
 }
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
 static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-
-
 static inline void *
 _atomic_swap_ptr(volatile void *p, void *v)
 {
  void *e, *r;
-
  r = *(void **)p;
  do {
   e = r;
   r = _atomic_cas_ptr((p), (e), (v));
  } while (r != e);
-
  return (r);
 }
-# 108 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
 static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-# 129 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/atomic.h"
 static __inline void
 atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e | v));
  } while (r != e);
 }
-
 static __inline void
 atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
 {
  unsigned int e, r;
-
  r = *uip;
  do {
   e = r;
   r = _atomic_cas_uint((uip), (e), (e & ~v));
  } while (r != e);
 }
-# 22 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/atomic.h" 2
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h" 2
-
-
-
-
-
-
 struct process;
 struct session {
  int s_count;
@@ -1984,12 +1241,7 @@ struct session {
  uid_t s_verauthuid;
  struct timeout s_verauthto;
 };
-
 void zapverauth( void *);
-
-
-
-
 struct pgrp {
  struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
  struct { struct process *lh_first; } pg_members;
@@ -1997,31 +1249,23 @@ struct pgrp {
  pid_t pg_id;
  int pg_jobc;
 };
-
-
-
-
 struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
 struct whitepaths;
 union sigval;
-
 struct emul {
  char e_name[8];
  int *e_errno;
-
  void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
  int e_nosys;
  int e_nsysent;
  struct sysent *e_sysent;
  char **e_syscallnames;
  int e_arglen;
-
  void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
         void *, void *);
-
  void (*e_setregs)(struct proc *, struct exec_package *,
       u_long, register_t *);
  int (*e_fixup)(struct proc *, struct exec_package *);
@@ -2032,72 +1276,46 @@ struct emul {
  int e_flags;
  struct uvm_object *e_sigobject;
 };
-# 128 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 struct tusage {
  struct timespec tu_runtime;
  uint64_t tu_uticks;
  uint64_t tu_sticks;
  uint64_t tu_iticks;
 };
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 struct process {
-
-
-
-
-
  struct proc *ps_mainproc;
  struct ucred *ps_ucred;
-
  struct { struct process *le_next; struct process **le_prev; } ps_list;
  struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
-
  struct { struct process *le_next; struct process **le_prev; } ps_pglist;
  struct process *ps_pptr;
  struct { struct process *le_next; struct process **le_prev; } ps_sibling;
  struct { struct process *lh_first; } ps_children;
  struct { struct process *le_next; struct process **le_prev; } ps_hash;
-
  struct sigacts *ps_sigacts;
  struct vnode *ps_textvp;
  struct filedesc *ps_fd;
  struct vmspace *ps_vmspace;
  pid_t ps_pid;
-
-
-
  struct klist ps_klist;
  int ps_flags;
-
  struct proc *ps_single;
  int ps_singlecount;
-
  int ps_traceflag;
  struct vnode *ps_tracevp;
  struct ucred *ps_tracecred;
-
  pid_t ps_oppid;
  int ps_ptmask;
  struct ptrace_state *ps_ptstat;
-
  struct rusage *ps_ru;
  struct tusage ps_tu;
  struct rusage ps_cru;
  struct itimerval ps_timer[3];
-
  u_int64_t ps_wxcounter;
-
-
-
-
-
-
  struct plimit *ps_limit;
  struct pgrp *ps_pgrp;
  struct emul *ps_emul;
-
  char ps_comm[16 +1];
-
  vaddr_t ps_strings;
  vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
@@ -2105,63 +1323,40 @@ struct process {
  u_long ps_sigcookie;
  u_int ps_rtableid;
  char ps_nice;
-
  struct uprof {
   caddr_t pr_base;
   size_t pr_size;
   u_long pr_off;
   u_int pr_scale;
  } ps_prof;
-
  u_short ps_acflag;
-
  uint64_t ps_pledge;
  struct whitepaths *ps_pledgepaths;
-
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
-
-
-
  int ps_refcnt;
-
  struct timespec ps_start;
  struct timeout ps_realit_to;
 };
-# 276 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 struct lock_list_entry;
-
 struct proc {
  struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
  struct { struct proc *le_next; struct proc **le_prev; } p_list;
-
  struct process *p_p;
  struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
-
  struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
  struct futex *p_futex;
-
-
  struct filedesc *p_fd;
  struct vmspace *p_vmspace;
-
-
  int p_flag;
  u_char p_spare;
  char p_stat;
  char p_pad1[1];
  u_char p_descfd;
-
  pid_t p_tid;
  struct { struct proc *le_next; struct proc **le_prev; } p_hash;
-
-
-
  int p_dupfd;
-
  long p_thrslpid;
-
-
  u_int p_estcpu;
  int p_cpticks;
  const volatile void *p_wchan;
@@ -2173,98 +1368,67 @@ struct proc {
  u_int p_sticks;
  u_int p_iticks;
  struct cpu_info * volatile p_cpu;
-
  struct rusage p_ru;
  struct tusage p_tu;
  struct timespec p_rtime;
-
  int p_siglist;
-
-
-
-
-
-
  sigset_t p_sigmask;
-
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
-
  struct ucred *p_ucred;
  struct sigaltstack p_sigstk;
-
  u_long p_prof_addr;
  u_long p_prof_ticks;
-
-
-
  struct user *p_addr;
  struct mdproc p_md;
-
  sigset_t p_oldmask;
  int p_sisig;
  union sigval p_sigval;
  long p_sitrapno;
  int p_sicode;
-
  u_short p_xstat;
-
  struct lock_list_entry *p_sleeplocks;
 };
-# 404 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 struct uidinfo {
  struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
  uid_t ui_uid;
  long ui_proccnt;
  long ui_lockcnt;
 };
-
 struct uidinfo *uid_find(uid_t);
-# 456 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
-
-
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
 extern u_long pidhash;
-
-
 extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
 extern u_long pgrphash;
-
 extern struct proc proc0;
 extern struct process process0;
 extern int nprocesses, maxprocess;
 extern int nthreads, maxthread;
 extern int randompid;
-
 struct proclist { struct proc *lh_first; };
 struct processlist { struct process *lh_first; };
 extern struct processlist allprocess;
 extern struct processlist zombprocess;
 extern struct proclist allproc;
-
 extern struct process *initprocess;
 extern struct proc *reaperproc;
 extern struct proc *syncerproc;
-
 extern struct pool process_pool;
 extern struct pool proc_pool;
 extern struct pool rusage_pool;
 extern struct pool ucred_pool;
 extern struct pool session_pool;
 extern struct pool pgrp_pool;
-
 void freepid(pid_t);
-
 struct process *prfind(pid_t);
 struct process *zombiefind(pid_t);
 struct proc *tfind(pid_t);
 struct pgrp *pgfind(pid_t);
 void proc_printit(struct proc *p, const char *modif,
     int (*pr)(const char *, ...));
-
 int chgproccnt(uid_t uid, int diff);
 int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
@@ -2293,17 +1457,13 @@ int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
 int groupmember(gid_t, struct ucred *);
 void dorefreshcreds(struct process *, struct proc *);
 void dosigsuspend(struct proc *, sigset_t);
-
 static inline void
 refreshcreds(struct proc *p)
 {
  struct process *pr = p->p_p;
-
-
  if (pr->ps_ucred != p->p_ucred)
   dorefreshcreds(pr, p);
 }
-
 enum single_thread_mode {
  SINGLE_SUSPEND,
  SINGLE_PTRACE,
@@ -2314,27 +1474,19 @@ int single_thread_set(struct proc *, enum single_thread_mode, int);
 void single_thread_wait(struct process *);
 void single_thread_clear(struct proc *, int);
 int single_thread_check(struct proc *, int);
-
 void child_return(void *);
-
 int proc_cansugid(struct proc *);
-
 struct sleep_state {
  int sls_s;
  int sls_catch;
  int sls_do_sleep;
  int sls_sig;
 };
-
-
 void proc_trampoline_mp(void);
-# 572 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/proc.h"
 struct cpuset {
  int cs_set[(((256) - 1)/32 + 1)];
 };
-
 void cpuset_init_cpu(struct cpu_info *);
-
 void cpuset_clear(struct cpuset *);
 void cpuset_add(struct cpuset *, struct cpu_info *);
 void cpuset_del(struct cpuset *, struct cpu_info *);
@@ -2345,14 +1497,10 @@ void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
 void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
 void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
 struct cpu_info *cpuset_first(struct cpuset *);
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resourcevar.h" 1
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resourcevar.h"
 struct plimit {
  struct rlimit pl_rlimit[9];
  int p_refcnt;
 };
-# 59 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/resourcevar.h"
 void addupc_intr(struct proc *, u_long);
 void addupc_task(struct proc *, u_long, u_int);
 void tuagg_unlocked(struct process *, struct proc *);
@@ -2364,11 +1512,7 @@ void calcru(struct tusage *, struct timeval *, struct timeval *,
      struct timeval *);
 struct plimit *limcopy(struct plimit *);
 void limfree(struct plimit *);
-
 void ruadd(struct rusage *, struct rusage *);
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h" 1
-# 319 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 struct kmemstats {
  long ks_inuse;
  long ks_calls;
@@ -2380,10 +1524,6 @@ struct kmemstats {
  long ks_size;
  long ks_spare;
 };
-
-
-
-
 struct kmemusage {
  short ku_indx;
  union {
@@ -2391,14 +1531,7 @@ struct kmemusage {
   u_short pagecnt;
  } ku_un;
 };
-
-
-
 struct kmem_freelist;
-
-
-
-
 struct kmembuckets {
  struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
  u_int64_t kb_calls;
@@ -2408,34 +1541,22 @@ struct kmembuckets {
  u_int64_t kb_highwat;
  u_int64_t kb_couldfree;
 };
-# 388 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/malloc.h"
 extern struct kmemstats kmemstats[];
 extern struct kmemusage *kmemusage;
 extern char *kmembase;
 extern struct kmembuckets bucket[];
-
 void *malloc(size_t, int, int);
 void *mallocarray(size_t, size_t, int, int);
 void free(void *, int, size_t);
 int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
      struct proc *);
-
 size_t malloc_roundup(size_t);
 void malloc_printit(int (*)(const char *, ...));
-
 void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -2444,65 +1565,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -2520,18 +1623,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -2548,7 +1646,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -2558,35 +1655,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -2596,63 +1686,38 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -2662,8 +1727,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -2704,13 +1767,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -2740,67 +1801,27 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timetc.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/timetc.h"
 struct timecounter;
 typedef u_int timecounter_get_t(struct timecounter *);
 typedef void timecounter_pps_t(struct timecounter *);
-
 struct timecounter {
  timecounter_get_t *tc_get_timecount;
-
-
-
-
-
  timecounter_pps_t *tc_poll_pps;
-
-
-
-
-
-
  u_int tc_counter_mask;
-
  u_int64_t tc_frequency;
-
  char *tc_name;
-
  int tc_quality;
-
-
-
-
-
  void *tc_priv;
-
  struct timecounter *tc_next;
-
  int64_t tc_freq_adj;
-
 };
-
 extern struct timecounter *timecounter;
-
 u_int64_t tc_getfrequency(void);
 void tc_init(struct timecounter *tc);
 void tc_setclock(struct timespec *ts);
@@ -2809,13 +1830,7 @@ void tc_ticktock(void);
 void inittimecounter(void);
 int sysctl_tc(int *, u_int, void *, size_t *, void *, size_t);
 int tc_adjfreq(int64_t *, int64_t *);
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 1
-# 80 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 extern int bus_space_debug;
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 enum bus_type {
  UPA_BUS_SPACE,
  SBUS_BUS_SPACE,
@@ -2824,26 +1839,12 @@ enum bus_type {
  PCI_MEMORY_BUS_SPACE,
  LAST_BUS_SPACE
 };
-
-
-
-
-
-
 typedef const struct sparc_bus_space_tag *bus_space_tag_t;
 typedef u_long bus_addr_t;
 typedef u_long bus_size_t;
-
-
 typedef struct _bus_space_handle {
         paddr_t bh_ptr;
-
-
-
-
-
 } bus_space_handle_t;
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct sparc_bus_space_tag {
  void *cookie;
  bus_space_tag_t parent;
@@ -2851,52 +1852,39 @@ struct sparc_bus_space_tag {
         u_int8_t asi;
         u_int8_t sasi;
  char name[32];
-
  int (*sparc_bus_alloc)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, bus_addr_t,
   bus_size_t, bus_size_t, bus_size_t,
   int, bus_addr_t *, bus_space_handle_t *);
-
  void (*sparc_bus_free)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t);
-
  int (*sparc_bus_map)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, bus_size_t,
   int, bus_space_handle_t *);
-
  int (*sparc_bus_protect)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t, int);
-
  int (*sparc_bus_unmap)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t);
-
  int (*sparc_bus_subregion)(bus_space_tag_t,
   bus_space_tag_t,
   bus_space_handle_t, bus_size_t,
   bus_size_t, bus_space_handle_t *);
-
  paddr_t (*sparc_bus_mmap)(bus_space_tag_t,
   bus_space_tag_t,
   bus_addr_t, off_t, int, int);
-
  void *(*sparc_intr_establish)(bus_space_tag_t,
   bus_space_tag_t,
   int, int, int,
   int (*)(void *), void *,
   const char *);
-
  bus_addr_t (*sparc_bus_addr)(bus_space_tag_t,
   bus_space_tag_t, bus_space_handle_t);
 };
-
-
-
-
 int bus_space_alloc(
     bus_space_tag_t,
     bus_addr_t,
@@ -2948,7 +1936,6 @@ void *bus_intr_establish(
     bus_space_tag_t,
     int,
     int,
-
     int,
     int (*)(void *),
     void *,
@@ -2970,7 +1957,6 @@ void bus_space_render_tag(
 void *bus_space_vaddr(
     bus_space_tag_t,
     bus_space_handle_t);
-# 311 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 static inline void
 bus_space_barrier(t, h, o, s, f)
  bus_space_tag_t t;
@@ -2979,13 +1965,8 @@ bus_space_barrier(t, h, o, s, f)
  bus_size_t s;
  int f;
 {
-# 334 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
  __asm volatile("membar " "#Sync" ::: "memory");
-
 }
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/busop.h"
 static inline u_int16_t bus_space_read_2(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_2(bus_space_tag_t,
@@ -3011,44 +1992,24 @@ void bus_space_set_region_2(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_2(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int16_t bus_space_read_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int16_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int16_t __rlduhu_int16_t; if(t->asi == 0x80 || (sizeof(u_int16_t) == 1 && t->asi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->asi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int16_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->asi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int32_t bus_space_read_4(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_4(bus_space_tag_t,
@@ -3074,44 +2035,24 @@ void bus_space_set_region_4(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_4(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int32_t bus_space_read_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int32_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int32_t __rlduwu_int32_t; if(t->asi == 0x80 || (sizeof(u_int32_t) == 1 && t->asi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->asi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int32_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->asi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int64_t bus_space_read_8(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_8(bus_space_tag_t,
@@ -3137,44 +2078,24 @@ void bus_space_set_region_8(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_8(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int64_t bus_space_read_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int64_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int64_t __rldxu_int64_t; if(t->asi == 0x80 || (sizeof(u_int64_t) == 1 && t->asi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->asi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int64_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->asi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int8_t bus_space_read_1(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_1(bus_space_tag_t,
@@ -3200,44 +2121,24 @@ void bus_space_set_region_1(bus_space_tag_t, bus_space_handle_t,
 void bus_space_copy_1(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, bus_space_handle_t, bus_size_t,
     bus_size_t);
-
 static inline
 u_int8_t bus_space_read_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int8_t r;
-
  ;
  r = (__builtin_constant_p(t->asi) ? ({ u_int8_t __rldubu_int8_t; if(t->asi == 0x80 || (sizeof(u_int8_t) == 1 && t->asi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->asi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->asi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int8_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->asi) ? ({ if((t->asi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->asi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->asi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->asi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int16_t bus_space_read_raw_2(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_2(bus_space_tag_t,
@@ -3260,44 +2161,24 @@ void bus_space_write_raw_region_2(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_2(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int16_t,
     size_t);
-
 static inline
 u_int16_t bus_space_read_raw_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int16_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int16_t __rlduhu_int16_t; if(t->sasi == 0x80 || (sizeof(u_int16_t) == 1 && t->sasi == 0x88)) __rlduhu_int16_t = *((volatile u_int16_t *)(h.bh_ptr + o)); else __asm volatile("lduha" " [%1] " "t->sasi" ", %0" : "=r" (__rlduhu_int16_t) : "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "%g0"); __rlduhu_int16_t; }) : lduha_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_2(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int16_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int16_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int16_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stha" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int16_t *)(h.bh_ptr + o)) : "memory"); }) : stha_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int32_t bus_space_read_raw_4(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_4(bus_space_tag_t,
@@ -3320,44 +2201,24 @@ void bus_space_write_raw_region_4(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_4(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int32_t,
     size_t);
-
 static inline
 u_int32_t bus_space_read_raw_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int32_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int32_t __rlduwu_int32_t; if(t->sasi == 0x80 || (sizeof(u_int32_t) == 1 && t->sasi == 0x88)) __rlduwu_int32_t = *((volatile u_int32_t *)(h.bh_ptr + o)); else __asm volatile("lduwa" " [%1] " "t->sasi" ", %0" : "=r" (__rlduwu_int32_t) : "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "%g0"); __rlduwu_int32_t; }) : lduwa_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_4(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int32_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int32_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int32_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stwa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int32_t *)(h.bh_ptr + o)) : "memory"); }) : stwa_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int64_t bus_space_read_raw_8(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_8(bus_space_tag_t,
@@ -3380,44 +2241,24 @@ void bus_space_write_raw_region_8(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_8(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int64_t,
     size_t);
-
 static inline
 u_int64_t bus_space_read_raw_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int64_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int64_t __rldxu_int64_t; if(t->sasi == 0x80 || (sizeof(u_int64_t) == 1 && t->sasi == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(h.bh_ptr + o)); else __asm volatile("ldxa" " [%1] " "t->sasi" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_8(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int64_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int64_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int64_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stxa" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int64_t *)(h.bh_ptr + o)) : "memory"); }) : stxa_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-
-
-
-
-
-
-
 static inline u_int8_t bus_space_read_raw_1(bus_space_tag_t,
     bus_space_handle_t, bus_size_t);
 static inline void bus_space_write_raw_1(bus_space_tag_t,
@@ -3440,74 +2281,39 @@ void bus_space_write_raw_region_1(bus_space_tag_t, bus_space_handle_t,
 void bus_space_set_raw_region_1(bus_space_tag_t, bus_space_handle_t,
     bus_size_t, u_int8_t,
     size_t);
-
 static inline
 u_int8_t bus_space_read_raw_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o)
 {
  u_int8_t r;
-
  ;
  r = (__builtin_constant_p(t->sasi) ? ({ u_int8_t __rldubu_int8_t; if(t->sasi == 0x80 || (sizeof(u_int8_t) == 1 && t->sasi == 0x88)) __rldubu_int8_t = *((volatile u_int8_t *)(h.bh_ptr + o)); else __asm volatile("lduba" " [%1] " "t->sasi" ", %0" : "=r" (__rldubu_int8_t) : "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "%g0"); __rldubu_int8_t; }) : lduba_nc((h.bh_ptr + o), t->sasi));
  ;
-
-
-
-
-
  return (r);
 }
-
 static inline
 void bus_space_write_raw_1(bus_space_tag_t t, bus_space_handle_t h,
     bus_size_t o, u_int8_t v)
 {
  ;
  ;
-
-
-
-
-
  (__builtin_constant_p(t->sasi) ? ({ if((t->sasi) == 0x80 || (sizeof(u_int8_t) == 1 && (t->sasi) == 0x88)) *((volatile u_int8_t *)(h.bh_ptr + o)) = (v); else __asm volatile("stba" " %0, [%1] " "(t->sasi)" : : "r" ((v)), "r" ((volatile u_int8_t *)(h.bh_ptr + o)) : "memory"); }) : stba_nc((h.bh_ptr + o), t->sasi, (v)));
 }
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h" 2
-# 382 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct mbuf;
 struct uio;
-# 393 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 typedef struct sparc_bus_dma_tag *bus_dma_tag_t;
 typedef struct sparc_bus_dmamap *bus_dmamap_t;
-
-
-
-
-
-
-
 struct sparc_bus_dma_segment {
  bus_addr_t ds_addr;
  bus_size_t ds_len;
-
-
-
-
-
-
-
  bus_size_t _ds_boundary;
  bus_size_t _ds_align;
  void *_ds_mlist;
 };
 typedef struct sparc_bus_dma_segment bus_dma_segment_t;
-# 425 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 struct sparc_bus_dma_tag {
  void *_cookie;
  struct sparc_bus_dma_tag* _parent;
-
-
-
-
  int (*_dmamap_create)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
       int, bus_size_t, bus_size_t, int, bus_dmamap_t *);
  void (*_dmamap_destroy)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
@@ -3522,10 +2328,6 @@ struct sparc_bus_dma_tag {
  void (*_dmamap_unload)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
  void (*_dmamap_sync)(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t,
       bus_addr_t, bus_size_t, int);
-
-
-
-
  int (*_dmamem_alloc)(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
       bus_size_t, bus_size_t, bus_dma_segment_t *, int, int *,
       int);
@@ -3538,7 +2340,6 @@ struct sparc_bus_dma_tag {
  paddr_t (*_dmamem_mmap)(bus_dma_tag_t, bus_dma_tag_t,
       bus_dma_segment_t *, int, off_t, int, int);
 };
-# 471 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/bus.h"
 static inline int
 bus_dmamap_create(bus_dma_tag_t t, bus_size_t s, int n, bus_size_t m,
     bus_size_t b, int f, bus_dmamap_t *p)
@@ -3667,66 +2468,31 @@ bus_dmamem_mmap(bus_dma_tag_t t, bus_dma_segment_t *sg, int n, off_t o, int p,
  ;
  return (r);
 }
-
-
-
-
-
-
 struct sparc_bus_dmamap {
-
-
-
  bus_addr_t _dm_dvmastart;
  bus_size_t _dm_dvmasize;
-
  bus_size_t _dm_size;
  bus_size_t _dm_maxsegsz;
  bus_size_t _dm_boundary;
  int _dm_segcnt;
  int _dm_flags;
-
-
-
-
  int _dm_type;
  void *_dm_source;
-
  void *_dm_cookie;
-
-
-
-
  bus_size_t dm_mapsize;
  int dm_nsegs;
-
  bus_dma_segment_t dm_segs[1];
 };
-# 81 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h" 1
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h"
 struct sbus_softc;
-
-
-
-
-
-
 struct sbus_reg {
  u_int32_t sbr_slot;
  u_int32_t sbr_offset;
  u_int32_t sbr_size;
 };
-
-
 struct sbus_intr {
  u_int32_t sbi_pri;
  u_int32_t sbi_vec;
 };
-
-
 struct sbus_range {
  u_int32_t cspace;
  u_int32_t coffset;
@@ -3734,10 +2500,6 @@ struct sbus_range {
  u_int32_t poffset;
  u_int32_t size;
 };
-
-
-
-
 struct sbus_attach_args {
  int sa_placeholder;
  bus_space_tag_t sa_bustag;
@@ -3746,66 +2508,44 @@ struct sbus_attach_args {
  int sa_node;
  struct sbus_reg *sa_reg;
  int sa_nreg;
-
-
-
-
  struct sbus_intr *sa_intr;
  int sa_nintr;
-
-
  u_int32_t *sa_promvaddrs;
  int sa_npromvaddrs;
-
  int sa_frequency;
 };
-
 int sbus_print(void *, const char *);
-
 int sbus_setup_attach_args(
   struct sbus_softc *,
   bus_space_tag_t,
   bus_dma_tag_t,
   int,
   struct sbus_attach_args *);
-
 void sbus_destroy_attach_args(struct sbus_attach_args *);
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h" 1
-# 78 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h" 1
-# 767 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);
  unsigned int t_offset;
 };
-
 struct rb_tree {
  struct rb_entry *rbt_root;
 };
-
 struct rb_entry {
  struct rb_entry *rbt_parent;
  struct rb_entry *rbt_left;
  struct rb_entry *rbt_right;
  unsigned int rbt_color;
 };
-# 791 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/tree.h"
 static inline void
 _rb_init(struct rb_tree *rbt)
 {
  rbt->rbt_root = ((void *)0);
 }
-
 static inline int
 _rb_empty(struct rb_tree *rbt)
 {
  return (rbt->rbt_root == ((void *)0));
 }
-
 void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
 void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
@@ -3823,44 +2563,28 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
 struct extent_region {
  struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
  u_long er_start;
  u_long er_end;
  int er_flags;
 };
-
-
-
-
-
 struct extent {
  char *ex_name;
-
  struct { struct extent_region *lh_first; } ex_regions;
  u_long ex_start;
  u_long ex_end;
  int ex_mtype;
  int ex_flags;
-
  struct { struct extent *le_next; struct extent **le_prev; } ex_link;
 };
-
 struct extent_fixed {
  struct extent fex_extent;
-
  struct { struct extent_region *lh_first; } fex_freelist;
  caddr_t fex_storage;
  size_t fex_storagesize;
 };
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/extent.h"
 void extent_print_all(void);
-
 struct extent *extent_create(char *, u_long, u_long, int,
      caddr_t, size_t, int);
 void extent_destroy(struct extent *);
@@ -3872,35 +2596,19 @@ int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
 int extent_alloc_region(struct extent *, u_long, u_long, int);
 int extent_free(struct extent *, u_long, u_long, int);
 void extent_print(struct extent *);
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h" 2
-
-
-
-
-
 struct strbuf_ctl {
  bus_space_tag_t sb_bustag;
  bus_space_handle_t sb_sb;
  struct iommu_state *sb_iommu;
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommuvar.h"
  struct mutex sb_mtx;
-
  paddr_t sb_flushpa;
  volatile int64_t *sb_flush;
 };
-
-
-
-
 struct strbuf_flush {
  char sbf_area[0x80];
  void *sbf_flush;
  paddr_t sbf_flushpa;
 };
-
-
-
-
 struct iommu_page_entry {
  struct { struct iommu_page_entry *spe_left; struct iommu_page_entry *spe_right; } ipe_node;
  paddr_t ipe_pa;
@@ -3912,12 +2620,6 @@ struct iommu_page_map {
  int ipm_pagecnt;
  struct iommu_page_entry ipm_map[1];
 };
-
-
-
-
-
-
 struct iommu_map_state {
  struct strbuf_flush ims_flush;
  struct strbuf_ctl *ims_sb;
@@ -3926,11 +2628,6 @@ struct iommu_map_state {
  struct extent_region ims_er;
  struct iommu_page_map ims_map;
 };
-
-
-
-
-
 struct iommu_state {
  paddr_t is_ptsb;
  int64_t *is_tsb;
@@ -3941,25 +2638,17 @@ struct iommu_state {
  struct mutex is_mtx;
  struct extent *is_dvmamap;
  int is_flags;
-
-
  struct strbuf_ctl *is_sb[2];
-
  paddr_t is_scratch;
-
-
  bus_space_tag_t is_bustag;
  bus_space_handle_t is_iommu;
  uint64_t is_devhandle;
 };
-
-
 void iommu_init(char *, struct iommu_state *, int, u_int32_t);
 void iommu_reset(struct iommu_state *);
 paddr_t iommu_extract(struct iommu_state *, bus_addr_t);
 int64_t iommu_lookup_tte(struct iommu_state *, bus_addr_t);
 int64_t iommu_fetch_tte(struct iommu_state *, paddr_t);
-
 int iommu_dvmamap_create(bus_dma_tag_t, bus_dma_tag_t, struct strbuf_ctl *,
      bus_size_t, int, bus_size_t, bus_size_t, int, bus_dmamap_t *);
 void iommu_dvmamap_destroy(bus_dma_tag_t, bus_dma_tag_t, bus_dmamap_t);
@@ -3974,8 +2663,6 @@ int iommu_dvmamem_alloc(bus_dma_tag_t, bus_dma_tag_t, bus_size_t,
      bus_size_t, bus_size_t, bus_dma_segment_t *, int, int *, int);
 void iommu_dvmamem_free(bus_dma_tag_t, bus_dma_tag_t, bus_dma_segment_t *,
      int);
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h" 2
-# 90 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusvar.h"
 struct sbus_softc {
  struct device sc_dev;
  bus_space_tag_t sc_bustag;
@@ -3987,18 +2674,13 @@ struct sbus_softc {
  int sc_burst;
  int *sc_intr2ipl;
  int *sc_intr_compat;
-
  int sc_ign;
  struct iommu_state sc_is;
  struct strbuf_ctl sc_sb;
  int64_t sc_flush;
  struct sbus_softc *sc_master;
 };
-
 bus_addr_t sbus_bus_addr(bus_space_tag_t, u_int, u_int);
-# 132 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommureg.h" 1
-# 53 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/iommureg.h"
 struct iommureg {
  volatile u_int64_t iommu_cr;
  volatile u_int64_t iommu_tsb;
@@ -4009,39 +2691,20 @@ struct iommureg {
  volatile u_int64_t iommu_cache_invalidate;
  volatile u_int64_t iommu_reserved2[30];
 };
-
-
 struct iommu_strbuf {
  volatile u_int64_t strbuf_ctl;
  volatile u_int64_t strbuf_pgflush;
  volatile u_int64_t strbuf_flushsync;
 };
-# 133 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sbus/sbusvar.h" 2
-# 79 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/autoconf.h" 2
-
-
 struct intrmap {
  char *in_class;
  int in_lev;
 };
 extern struct intrmap intrmap[];
-
-
-
-
-
-
-
 struct upa_reg {
  int64_t ur_paddr;
  int64_t ur_len;
 };
-
-
-
-
-
-
 struct mainbus_attach_args {
  bus_space_tag_t ma_bustag;
  bus_dma_tag_t ma_dmatag;
@@ -4056,29 +2719,14 @@ struct mainbus_attach_args {
  int ma_ninterrupts;
  int ma_pri;
 };
-
-
-
-
 long getproplen(int node, char *name);
 int getprop(int, char *, size_t, int *, void **);
 char *getpropstring(int node, char *name);
 int getpropint(int node, char *name, int deflt);
 int getpropspeed(int node, char *name);
-
-
 extern int optionsnode;
-
-
 char *getpropstringA(int, char *, char *);
-
-
-
-
-
 char *clockfreq(long freq);
-
-
 struct device;
 struct bootpath {
  int node;
@@ -4087,10 +2735,7 @@ struct bootpath {
  struct device *dev;
 };
 struct bootpath *bootpath_store(int, struct bootpath *);
-
-
 void mountroot_hook_establish(void (*)(struct device *), struct device *);
-
 void bootstrap(int);
 int firstchild(int);
 int nextsibling(int);
@@ -4103,10 +2748,6 @@ int findnode(int, const char *);
 int checkstatus(int);
 int node_has_property(int, const char *);
 void device_register(struct device *, void *);
-# 82 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/idprom.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/idprom.h"
 struct idprom {
  u_char id_format;
  u_char id_machine;
@@ -4116,14 +2757,9 @@ struct idprom {
  u_char id_checksum;
  char id_undef[16];
 };
-# 84 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/clock_subr.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/clock_subr.h"
 struct todr_chip_handle {
  void *cookie;
  void *bus_cookie;
-
  int (*todr_gettime)(struct todr_chip_handle *, struct timeval *);
  int (*todr_settime)(struct todr_chip_handle *, struct timeval *);
  int (*todr_getcal)(struct todr_chip_handle *, int *);
@@ -4131,48 +2767,25 @@ struct todr_chip_handle {
  int (*todr_setwen)(struct todr_chip_handle *, int);
 };
 typedef struct todr_chip_handle *todr_chip_handle_t;
-# 86 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/mk48txxreg.h" 1
-# 85 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/mk48txxreg.h"
 todr_chip_handle_t mk48txx_attach(bus_space_tag_t, bus_space_handle_t,
       const char *, int);
-
-
 int mk48txx_get_nvram_size(todr_chip_handle_t, bus_size_t *);
-# 87 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intreg.h"
 struct intrhand;
 void send_softint(int cpu, int level, struct intrhand *ih);
-# 89 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/timerreg.h" 1
-# 68 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/timerreg.h"
 struct timer_4u {
  volatile int64_t t_count;
  volatile int64_t t_limit;
-
-
-
-
-
 };
-
 struct timerreg_4u {
  struct timer_4u *t_timer;
  volatile int64_t *t_clrintr;
  volatile int64_t *t_mapintr;
 };
-# 90 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusreg.h" 1
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/sbusreg.h"
 struct sysioreg {
  struct upareg {
   u_int64_t upa_portid;
   u_int64_t upa_config;
  } sys_upa;
-
  u_int64_t sys_csr;
  u_int64_t pad0;
  u_int64_t sys_ecccr;
@@ -4181,16 +2794,12 @@ struct sysioreg {
  u_int64_t sys_ue_afar;
  u_int64_t sys_ce_afsr;
  u_int64_t sys_ce_afar;
-
  u_int64_t pad1[22];
-
  struct perfmon {
   u_int64_t pm_cr;
   u_int64_t pm_count;
  } sys_pm;
-
  u_int64_t pad2[990];
-
  struct sbusreg {
   u_int64_t sbus_cr;
   u_int64_t reserved;
@@ -4204,25 +2813,17 @@ struct sysioreg {
   u_int64_t sbus_config14;
   u_int64_t sbus_config15;
  } sys_sbus;
-
  u_int64_t pad3[117];
-
  struct iommureg sys_iommu;
-
  u_int64_t pad4[64];
-
  struct iommu_strbuf sys_strbuf;
-
  u_int64_t pad5[125];
-
  u_int64_t sbus_slot0_int;
  u_int64_t sbus_slot1_int;
  u_int64_t sbus_slot2_int;
  u_int64_t sbus_slot3_int;
  u_int64_t intr_retry;
-
  u_int64_t pad6[123];
-
  u_int64_t scsi_int_map;
  u_int64_t ether_int_map;
  u_int64_t bpp_int_map;
@@ -4243,17 +2844,12 @@ struct sysioreg {
  u_int64_t pwrmgt_int_map;
  u_int64_t upagr_int_map;
  u_int64_t reserved_int_map;
-
  u_int64_t pad8[108];
-
-
  u_int64_t sbus0_clr_int[8];
  u_int64_t sbus1_clr_int[8];
  u_int64_t sbus2_clr_int[8];
  u_int64_t sbus3_clr_int[8];
-
  u_int64_t pad9[96];
-
  u_int64_t scsi_clr_int;
  u_int64_t ether_clr_int;
  u_int64_t bpp_clr_int;
@@ -4272,49 +2868,32 @@ struct sysioreg {
  u_int64_t ce_clr_int;
  u_int64_t sbus_clr_async_int;
  u_int64_t pwrmgt_clr_int;
-
  u_int64_t pad11[110];
-
  struct timer_counter {
   u_int64_t tc_count;
   u_int64_t tc_limit;
  } tc[2];
-
  u_int64_t pad12[252];
-
  u_int64_t sys_svadiag;
-
  u_int64_t pad13[31];
-
  u_int64_t iommu_queue_diag[16];
  u_int64_t tlb_tag_diag[16];
  u_int64_t tlb_data_diag[32];
-
  u_int64_t pad14[32];
-
  u_int64_t sbus_int_diag;
  u_int64_t obio_int_diag;
-
  u_int64_t pad15[254];
-
  u_int64_t strbuf_data_diag[128];
  u_int64_t strbuf_error_diag[128];
  u_int64_t strbuf_pg_tag_diag[16];
  u_int64_t pad16[16];
  u_int64_t strbuf_ln_tag_diag[16];
 };
-# 92 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/ebusreg.h" 1
-# 65 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/ebusreg.h"
 struct ebus_regs {
  u_int32_t hi;
  u_int32_t lo;
  u_int32_t size;
 };
-
-
-
 struct ebus_ranges {
  u_int32_t child_hi;
  u_int32_t child_lo;
@@ -4323,7 +2902,6 @@ struct ebus_ranges {
  u_int32_t phys_lo;
  u_int32_t size;
 };
-
 struct ebus_mainbus_ranges {
  u_int32_t child_hi;
  u_int32_t child_lo;
@@ -4331,7 +2909,6 @@ struct ebus_mainbus_ranges {
  u_int32_t phys_lo;
  u_int32_t size;
 };
-
 struct ebus_interrupt_map {
  u_int32_t hi;
  u_int32_t lo;
@@ -4339,66 +2916,46 @@ struct ebus_interrupt_map {
  int32_t cnode;
  u_int32_t cintr;
 };
-
 struct ebus_interrupt_map_mask {
  u_int32_t hi;
  u_int32_t lo;
  u_int32_t intr;
 };
-# 94 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/ebusvar.h" 1
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/ebusvar.h"
 struct ebus_attach_args {
  char *ea_name;
  int ea_node;
-
  bus_space_tag_t ea_memtag;
  bus_space_tag_t ea_iotag;
  bus_dma_tag_t ea_dmatag;
-
  struct ebus_regs *ea_regs;
  u_int32_t *ea_vaddrs;
  u_int32_t *ea_intrs;
-
  int ea_nregs;
  int ea_nvaddrs;
  int ea_nintrs;
 };
-
 struct ebus_softc {
  struct device sc_dev;
-
  int sc_node;
-
  bus_space_tag_t sc_memtag;
  bus_space_tag_t sc_iotag;
  bus_dma_tag_t sc_dmatag;
-
  void *sc_range;
  struct ebus_interrupt_map *sc_intmap;
  struct ebus_interrupt_map_mask sc_intmapmask;
-
  int sc_nrange;
  int sc_nintmap;
 };
-
-
 int ebus_setup_attach_args(struct ebus_softc *, int,
     struct ebus_attach_args *);
 void ebus_destroy_attach_args(struct ebus_attach_args *);
 int ebus_print(void *, const char *);
-
-
 bus_dma_tag_t ebus_alloc_dma_tag(struct ebus_softc *, bus_dma_tag_t);
-# 95 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/fhcvar.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/fhcvar.h"
 struct fhc_reg {
  u_int32_t fbr_slot;
  u_int32_t fbr_offset;
  u_int32_t fbr_size;
 };
-
 struct fhc_range {
  u_int32_t cspace;
  u_int32_t coffset;
@@ -4406,7 +2963,6 @@ struct fhc_range {
  u_int32_t poffset;
  u_int32_t size;
 };
-
 struct fhc_softc {
  struct device sc_dv;
  int sc_node;
@@ -4425,10 +2981,8 @@ struct fhc_softc {
  bus_space_handle_t sc_treg;
  struct blink_led sc_blink;
 };
-
 void fhc_attach(struct fhc_softc *);
 int fhc_get_string(int, char *, char **);
-
 struct fhc_attach_args {
  bus_space_tag_t fa_bustag;
  char *fa_name;
@@ -4440,54 +2994,37 @@ struct fhc_attach_args {
  int fa_nintr;
  int fa_npromvaddrs;
 };
-# 96 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c" 2
-
 extern u_int64_t cpu_clockrate;
-
 struct clock_wenable_info {
  bus_space_tag_t cwi_bt;
  bus_space_handle_t cwi_bh;
  bus_size_t cwi_size;
 };
-
 struct cfdriver clock_cd = {
  ((void *)0), "clock", DV_DULL
 };
-
 u_int tick_get_timecount(struct timecounter *);
-
 struct timecounter tick_timecounter = {
  tick_get_timecount, ((void *)0), ~0u, 0, "tick", 0, ((void *)0)
 };
-
 u_int sys_tick_get_timecount(struct timecounter *);
-
 struct timecounter sys_tick_timecounter = {
  sys_tick_get_timecount, ((void *)0), ~0u, 0, "sys_tick", 1000, ((void *)0)
 };
-# 130 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
 int statvar = 8192;
 int statmin;
-
 static long tick_increment;
-
 void tick_start(void);
 void sys_tick_start(void);
 void stick_start(void);
-
 int tickintr(void *);
 int sys_tickintr(void *);
 int stickintr(void *);
 int schedintr(void *);
-
 static struct intrhand level10 = { clockintr };
 static struct intrhand level0 = { tickintr };
 static struct intrhand level14 = { statintr };
 static struct intrhand schedint = { schedintr };
-
-
-
-
 static int clockmatch_sbus(struct device *, void *, void *);
 static void clockattach_sbus(struct device *, struct device *, void *);
 static int clockmatch_ebus(struct device *, void *, void *);
@@ -4495,36 +3032,26 @@ static void clockattach_ebus(struct device *, struct device *, void *);
 static int clockmatch_fhc(struct device *, void *, void *);
 static void clockattach_fhc(struct device *, struct device *, void *);
 static void clockattach(int, bus_space_tag_t, bus_space_handle_t);
-
 struct cfattach clock_sbus_ca = {
  sizeof(struct device), clockmatch_sbus, clockattach_sbus
 };
-
 struct cfattach clock_ebus_ca = {
  sizeof(struct device), clockmatch_ebus, clockattach_ebus
 };
-
 struct cfattach clock_fhc_ca = {
  sizeof(struct device), clockmatch_fhc, clockattach_fhc
 };
-
-
 todr_chip_handle_t todr_handle = ((void *)0);
 static struct idprom *idprom;
-
 static int timermatch(struct device *, void *, void *);
 static void timerattach(struct device *, struct device *, void *);
-
 struct timerreg_4u timerreg_4u;
-
 struct cfattach timer_ca = {
  sizeof(struct device), timermatch, timerattach
 };
-
 struct cfdriver timer_cd = {
  ((void *)0), "timer", DV_DULL
 };
-
 int clock_bus_wenable(struct todr_chip_handle *, int);
 struct chiptime;
 void myetheraddr(u_char *);
@@ -4532,13 +3059,7 @@ struct idprom *getidprom(void);
 int chiptotime(int, int, int, int, int, int);
 void timetochip(struct chiptime *);
 void stopcounter(struct timer_4u *);
-
 int timerblurb = 10;
-
-
-
-
-
 static int
 clockmatch_sbus(parent, cf, aux)
  struct device *parent;
@@ -4546,10 +3067,8 @@ clockmatch_sbus(parent, cf, aux)
  void *aux;
 {
  struct sbus_attach_args *sa = aux;
-
  return (strcmp("eeprom", sa->sa_name) == 0);
 }
-
 static int
 clockmatch_ebus(parent, cf, aux)
  struct device *parent;
@@ -4557,10 +3076,8 @@ clockmatch_ebus(parent, cf, aux)
  void *aux;
 {
  struct ebus_attach_args *ea = aux;
-
  return (strcmp("eeprom", ea->ea_name) == 0);
 }
-
 static int
 clockmatch_fhc(parent, cf, aux)
  struct device *parent;
@@ -4568,10 +3085,8 @@ clockmatch_fhc(parent, cf, aux)
  void *aux;
 {
  struct fhc_attach_args *fa = aux;
-
  return (strcmp("eeprom", fa->fa_name) == 0);
 }
-# 260 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
 static void
 clockattach_sbus(parent, self, aux)
  struct device *parent, *self;
@@ -4581,34 +3096,17 @@ clockattach_sbus(parent, self, aux)
  bus_space_tag_t bt = sa->sa_bustag;
  int sz;
  static struct clock_wenable_info cwi;
-
-
  sz = 8192;
-
  if (bus_space_map(bt, ((((bus_addr_t)sa->sa_reg[0].sbr_slot)<<32)|((sa->sa_reg[0].sbr_offset & ~(1 << 13)))), sz, 0x0002 | 0x0004, &cwi.cwi_bh) != 0) {
-
-
-
-
-
   printf("%s: can't map register\n", self->dv_xname);
   return;
  }
  clockattach(sa->sa_node, bt, cwi.cwi_bh);
-
-
  cwi.cwi_bt = bt;
  cwi.cwi_size = sz;
  todr_handle->bus_cookie = &cwi;
  todr_handle->todr_setwen = clock_bus_wenable;
 }
-
-
-
-
-
-
-
 int
 clock_bus_wenable(handle, onoff)
  struct todr_chip_handle *handle;
@@ -4618,14 +3116,12 @@ clock_bus_wenable(handle, onoff)
  int prot;
  volatile static int writers;
  struct clock_wenable_info *cwi = handle->bus_cookie;
-
  s = _splraise(15);
  if (onoff)
   prot = writers++ == 0 ? 1 : 0;
  else
   prot = --writers == 0 ? 1 : 0;
  _splx(s);
-
  if (prot) {
   err = bus_space_protect(cwi->cwi_bt, cwi->cwi_bh, cwi->cwi_size,
       onoff ? 0 : 0x0004);
@@ -4635,8 +3131,6 @@ clock_bus_wenable(handle, onoff)
  }
  return (err);
 }
-
-
 static void
 clockattach_ebus(parent, self, aux)
  struct device *parent, *self;
@@ -4646,10 +3140,7 @@ clockattach_ebus(parent, self, aux)
  bus_space_tag_t bt;
  int sz;
  static struct clock_wenable_info cwi;
-
-
  sz = ea->ea_regs[0].size;
-
  if (ea->ea_nvaddrs) {
   if (bus_space_map(ea->ea_memtag, ea->ea_vaddrs[0], 0,
       0x0010, &cwi.cwi_bh) != 0) {
@@ -4658,28 +3149,20 @@ clockattach_ebus(parent, self, aux)
   }
   bt = ea->ea_memtag;
  } else if (bus_space_map(ea->ea_iotag, ((((paddr_t)((&ea->ea_regs[0])->hi)) << 32UL) | ((paddr_t)(&ea->ea_regs[0])->lo)), sz, 0, &cwi.cwi_bh) == 0) {
-
   bt = ea->ea_iotag;
  } else if (bus_space_map(ea->ea_memtag, ((((paddr_t)((&ea->ea_regs[0])->hi)) << 32UL) | ((paddr_t)(&ea->ea_regs[0])->lo)), sz, 0x0002 | 0x0004, &cwi.cwi_bh) == 0) {
-
-
-
   bt = ea->ea_memtag;
  } else {
   printf("%s: can't map register\n", self->dv_xname);
   return;
  }
-
  clockattach(ea->ea_node, bt, cwi.cwi_bh);
-
-
  cwi.cwi_bt = bt;
  cwi.cwi_size = sz;
  todr_handle->bus_cookie = &cwi;
  todr_handle->todr_setwen = (ea->ea_memtag == bt) ?
      clock_bus_wenable : ((void *)0);
 }
-
 static void
 clockattach_fhc(parent, self, aux)
  struct device *parent, *self;
@@ -4689,26 +3172,17 @@ clockattach_fhc(parent, self, aux)
  bus_space_tag_t bt = fa->fa_bustag;
  int sz;
  static struct clock_wenable_info cwi;
-
-
  sz = 8192;
-
  if (bus_space_map(bt, ((((bus_addr_t)fa->fa_reg[0].fbr_slot)<<32)|((fa->fa_reg[0].fbr_offset & ~(1 << 13)))), fa->fa_reg[0].fbr_size, 0x0002 | 0x0004, &cwi.cwi_bh) != 0) {
-
-
   printf("%s: can't map register\n", self->dv_xname);
   return;
  }
-
  clockattach(fa->fa_node, bt, cwi.cwi_bh);
-
-
  cwi.cwi_bt = bt;
  cwi.cwi_size = sz;
  todr_handle->bus_cookie = &cwi;
  todr_handle->todr_setwen = clock_bus_wenable;
 }
-
 static void
 clockattach(node, bt, bh)
  int node;
@@ -4718,19 +3192,11 @@ clockattach(node, bt, bh)
  char *model;
  struct idprom *idp;
  int h;
-
  model = getpropstring(node, "model");
-
-
  if (model == ((void *)0))
   panic("clockattach: no model property");
-
-
-
  if ((todr_handle = mk48txx_attach(bt, bh, model, 1968)) == ((void *)0))
   panic("Can't attach %s tod clock", model);
-
-
  if (idprom == ((void *)0)) {
   idp = getidprom();
   if (idp == ((void *)0))
@@ -4746,13 +3212,11 @@ clockattach(node, bt, bh)
  hostid = h;
  printf("\n");
 }
-
 struct idprom *
 getidprom(void)
 {
  struct idprom *idp = ((void *)0);
  int node, n;
-
  node = findroot();
  if (getprop(node, "idprom", sizeof(*idp), &n, (void **)&idp) != 0)
   return (((void *)0));
@@ -4762,27 +3226,14 @@ getidprom(void)
  }
  return (idp);
 }
-
-
-
-
-
 static int
 timermatch(parent, cf, aux)
  struct device *parent;
  void *cf;
  void *aux;
 {
-
-
-
-
-
-
-
   return (0);
 }
-
 static void
 timerattach(parent, self, aux)
  struct device *parent, *self;
@@ -4790,56 +3241,37 @@ timerattach(parent, self, aux)
 {
  struct mainbus_attach_args *ma = aux;
  u_int *va = ma->ma_address;
-
-
-
-
-
-
-
  timerreg_4u.t_timer = (struct timer_4u *)(u_long)va[0];
  timerreg_4u.t_clrintr = (int64_t *)(u_long)va[1];
  timerreg_4u.t_mapintr = (int64_t *)(u_long)va[2];
-
-
  level10.ih_number = ((ma->ma_interrupts[0])&(0x0000007c0LL|0x00000003fLL));
  level10.ih_clr = (void *)&timerreg_4u.t_clrintr[0];
  level10.ih_map = (void *)&timerreg_4u.t_mapintr[0];
  strlcpy(level10.ih_name, "clock", sizeof(level10.ih_name));
  intr_establish(10, &level10);
-
  level14.ih_number = ((ma->ma_interrupts[1])&(0x0000007c0LL|0x00000003fLL));
  level14.ih_clr = (void *)&timerreg_4u.t_clrintr[1];
  level14.ih_map = (void *)&timerreg_4u.t_mapintr[1];
  strlcpy(level14.ih_name, "prof", sizeof(level14.ih_name));
  intr_establish(14, &level14);
-
  printf(" ivec 0x%llx, 0x%llx\n", ((level10.ih_number)&(0x0000007c0LL|0x00000003fLL)),
      ((level14.ih_number)&(0x0000007c0LL|0x00000003fLL)));
 }
-
 void
 stopcounter(creg)
  struct timer_4u *creg;
 {
-
  volatile int discard;
  discard = creg->t_limit;
  creg->t_limit = 0;
 }
-
-
-
-
 void
 myetheraddr(cp)
  u_char *cp;
 {
  struct idprom *idp;
-
  if ((idp = idprom) == ((void *)0)) {
   int node, n;
-
   node = findroot();
   if (getprop(node, "idprom", sizeof *idp, &n, (void **)&idp) ||
       n != 1) {
@@ -4848,7 +3280,6 @@ myetheraddr(cp)
    return;
   }
  }
-
  cp[0] = idp->id_ether[0];
  cp[1] = idp->id_ether[1];
  cp[2] = idp->id_ether[2];
@@ -4858,74 +3289,35 @@ myetheraddr(cp)
  if (idprom == ((void *)0))
   free(idp, 2, 0);
 }
-
-
-
-
-
-
-
 void
 cpu_initclocks(void)
 {
  int statint, minint;
-
-
-
  u_int sys_tick_rate;
  int impl = 0;
-# 572 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
  if (1000000 % hz) {
   printf("cannot get %d Hz clock; using 100 Hz\n", hz);
   hz = 100;
   tick = 1000000 / hz;
  }
-
-
  if (!cpu_clockrate)
-
   cpu_clockrate = 200000000;
-
  tick_timecounter.tc_frequency = cpu_clockrate;
  tc_init(&tick_timecounter);
-
-
-
-
-
-
  if ((cputyp == 3) || (cputyp == 4))
   impl = (getver() & 0x0000ffff00000000ULL) >> 32;
-
  sys_tick_rate = getpropint(findroot(), "stick-frequency", 0);
  if (sys_tick_rate > 0 && impl != 0x13) {
   sys_tick_timecounter.tc_frequency = sys_tick_rate;
   tc_init(&sys_tick_timecounter);
  }
-
-
-
-
-
  if (!timerreg_4u.t_timer || !timerreg_4u.t_clrintr) {
   struct cpu_info *ci;
-
-
   level0.ih_clr = 0;
-
-
-
-
-
-
-
   level0.ih_number = 1;
   strlcpy(level0.ih_name, "clock", sizeof(level0.ih_name));
   intr_establish(10, &level0);
-
-
   stathz = 0;
-
   if (sys_tick_rate > 0) {
    tick_increment = sys_tick_rate / hz;
    if (impl == 0x13) {
@@ -4936,183 +3328,115 @@ cpu_initclocks(void)
     cpu_start_clock = sys_tick_start;
    }
   } else {
-
    tick_increment = cpu_clockrate / hz;
    level0.ih_fun = tickintr;
    cpu_start_clock = tick_start;
   }
-
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next)
    __builtin_memcpy((&ci->ci_tickintr), (&level0), (sizeof(level0)));
-
   cpu_start_clock();
-
   return;
  }
-
  if (stathz == 0)
   stathz = hz;
  if (1000000 % stathz) {
   printf("cannot get %d Hz statclock; using 100 Hz\n", stathz);
   stathz = 100;
  }
-
  profhz = stathz;
-
  statint = 1000000 / stathz;
  minint = statint / 2 + 100;
  while (statvar > minint)
   statvar >>= 1;
-
-
-
-
  schedint.ih_pil = 14;
  schedint.ih_clr = ((void *)0);
  schedint.ih_arg = 0;
  schedint.ih_pending = 0;
  schedhz = stathz/4;
-
-
-
-
-
-
-
  (__builtin_constant_p(0x04) ? ({ if((0x04) == 0x80 || (sizeof(u_int64_t) == 1 && (0x04) == 0x88)) *((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[0].t_limit)) = ((((tick) - 1) & 0x1fffffff)|0x80000000|0x20000000|0x40000000); else __asm volatile("stxa" " %0, [%1] " "(0x04)" : : "r" (((((tick) - 1) & 0x1fffffff)|0x80000000|0x20000000|0x40000000)), "r" ((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[0].t_limit)) : "memory"); }) : stxa_nc(((vaddr_t)&timerreg_4u.t_timer[0].t_limit), 0x04, ((((tick) - 1) & 0x1fffffff)|0x80000000|0x20000000|0x40000000)));
-
  (__builtin_constant_p(0x04) ? ({ if((0x04) == 0x80 || (sizeof(u_int64_t) == 1 && (0x04) == 0x88)) *((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_mapintr[0])) = (timerreg_4u.t_mapintr[0]|0x080000000LL); else __asm volatile("stxa" " %0, [%1] " "(0x04)" : : "r" ((timerreg_4u.t_mapintr[0]|0x080000000LL)), "r" ((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_mapintr[0])) : "memory"); }) : stxa_nc(((vaddr_t)&timerreg_4u.t_mapintr[0]), 0x04, (timerreg_4u.t_mapintr[0]|0x080000000LL)));
-# 688 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
   (__builtin_constant_p(0x04) ? ({ if((0x04) == 0x80 || (sizeof(u_int64_t) == 1 && (0x04) == 0x88)) *((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[1].t_limit)) = ((((statint) - 1) & 0x1fffffff)|0x80000000|0x40000000); else __asm volatile("stxa" " %0, [%1] " "(0x04)" : : "r" (((((statint) - 1) & 0x1fffffff)|0x80000000|0x40000000)), "r" ((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[1].t_limit)) : "memory"); }) : stxa_nc(((vaddr_t)&timerreg_4u.t_timer[1].t_limit), 0x04, ((((statint) - 1) & 0x1fffffff)|0x80000000|0x40000000)));
-
  (__builtin_constant_p(0x04) ? ({ if((0x04) == 0x80 || (sizeof(u_int64_t) == 1 && (0x04) == 0x88)) *((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_mapintr[1])) = (timerreg_4u.t_mapintr[1]|0x080000000LL); else __asm volatile("stxa" " %0, [%1] " "(0x04)" : : "r" ((timerreg_4u.t_mapintr[1]|0x080000000LL)), "r" ((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_mapintr[1])) : "memory"); }) : stxa_nc(((vaddr_t)&timerreg_4u.t_mapintr[1]), 0x04, (timerreg_4u.t_mapintr[1]|0x080000000LL)));
-
-
  statmin = statint - (statvar >> 1);
-
 }
-
-
-
-
-
 void
 setstatclockrate(newhz)
  int newhz;
 {
-
 }
-# 716 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
 int
 clockintr(cap)
  void *cap;
 {
-# 750 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
  hardclock((struct clockframe *)cap);
-
  return (1);
 }
-# 763 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
 int
 tickintr(cap)
  void *cap;
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
-
  while (ci->ci_tick < (sparc_rdpr_tick() & 0x7fffffffffffffff)) {
   ci->ci_tick += tick_increment;
   hardclock((struct clockframe *)cap);
   ((void)_atomic_add_long_nv(((unsigned long *)&level0.ih_count.ec_count), (1)));
  }
-
-
  s = intr_disable();
  tickcmpr_set(ci->ci_tick);
  intr_restore(s);
-
  return (1);
 }
-
 int
 sys_tickintr(cap)
  void *cap;
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
  while (ci->ci_tick < (sparc_rd_sys_tick() & 0x7fffffffffffffff)) {
   ci->ci_tick += tick_increment;
   hardclock((struct clockframe *)cap);
   ((void)_atomic_add_long_nv(((unsigned long *)&level0.ih_count.ec_count), (1)));
  }
-
-
  s = intr_disable();
  sys_tickcmpr_set(ci->ci_tick);
  intr_restore(s);
-
  return (1);
 }
-
 int
 stickintr(cap)
  void *cap;
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
  while (ci->ci_tick < stick()) {
   ci->ci_tick += tick_increment;
   hardclock((struct clockframe *)cap);
   ((void)_atomic_add_long_nv(((unsigned long *)&level0.ih_count.ec_count), (1)));
  }
-
-
  s = intr_disable();
  stickcmpr_set(ci->ci_tick);
  intr_restore(s);
-
  return (1);
 }
-
-
-
-
 int
 statintr(cap)
  void *cap;
 {
  u_long newint, r, var;
  struct cpu_info *ci = (__curcpu->ci_self);
-# 853 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
  statclock((struct clockframe *)cap);
-# 863 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/clock.c"
  var = statvar;
  do {
   r = random() & (var - 1);
  } while (r == 0);
  newint = statmin + r;
-
  if (schedhz)
   if ((++ci->ci_schedstate.spc_schedticks & 3) == 0)
    send_softint(-1, 14, &schedint);
  (__builtin_constant_p(0x04) ? ({ if((0x04) == 0x80 || (sizeof(u_int64_t) == 1 && (0x04) == 0x88)) *((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[1].t_limit)) = ((((newint) - 1) & 0x1fffffff)|0x80000000|0x40000000); else __asm volatile("stxa" " %0, [%1] " "(0x04)" : : "r" (((((newint) - 1) & 0x1fffffff)|0x80000000|0x40000000)), "r" ((volatile u_int64_t *)((vaddr_t)&timerreg_4u.t_timer[1].t_limit)) : "memory"); }) : stxa_nc(((vaddr_t)&timerreg_4u.t_timer[1].t_limit), 0x04, ((((newint) - 1) & 0x1fffffff)|0x80000000|0x40000000)));
-
-
  return (1);
 }
-
 int
 schedintr(arg)
  void *arg;
@@ -5121,18 +3445,7 @@ schedintr(arg)
   schedclock((__curcpu->ci_self)->ci_curproc);
  return (1);
 }
-
-
-
-
-
-
-
 int sparc_clock_time_is_ok;
-
-
-
-
 void
 inittodr(time_t base)
 {
@@ -5140,29 +3453,16 @@ inittodr(time_t base)
  char *bad = ((void *)0);
  struct timeval tv;
  struct timespec ts;
-
  tv.tv_sec = tv.tv_usec = 0;
-
  if (base < 5 * (86400L * 365)) {
-
-
-
-
   if (base != 0)
    printf("WARNING: preposterous time in file system\n");
-
   base = 21*(86400L * 365) + 186*86400L + 86400L/2;
   badbase = 1;
  }
-
  if (todr_handle != ((void *)0))
   ((*(todr_handle)->todr_gettime)(todr_handle, &tv));
-
  if (tv.tv_sec == 0) {
-
-
-
-
   bad = "WARNING: bad date in battery clock";
   tv.tv_sec = base;
   tv.tv_usec = 0;
@@ -5170,119 +3470,76 @@ inittodr(time_t base)
    resettodr();
  } else {
   time_t deltat = tv.tv_sec - base;
-
   sparc_clock_time_is_ok = 1;
-
   if (deltat < 0)
    deltat = -deltat;
   if (!(waszero || deltat < 2 * 86400L)) {
-
    printf("WARNING: clock %s %lld days",
        tv.tv_sec < base ? "lost" : "gained",
        (long long)(deltat / 86400L));
    bad = "";
-
   }
  }
-
  ts.tv_sec = tv.tv_sec;
  ts.tv_nsec = tv.tv_usec * 1000;
  tc_setclock(&ts);
-
  if (bad) {
   printf("%s", bad);
   printf(" -- CHECK AND RESET THE DATE!\n");
  }
 }
-
-
-
-
-
-
-
 void
 resettodr(void)
 {
  struct timeval tv;
-
  if (time_second == 1)
   return;
-
  microtime(&tv);
-
  sparc_clock_time_is_ok = 1;
  if (todr_handle == 0 || ((*(todr_handle)->todr_settime)(todr_handle, &tv)) != 0)
   printf("Cannot set time in time-of-day clock\n");
 }
-
 void
 tick_start(void)
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
-
-
  s = intr_disable();
  ci->ci_tick = (((((sparc_rdpr_tick() & 0x7fffffffffffffff))+((tick_increment)-1))/(tick_increment))*(tick_increment));
  tickcmpr_set(ci->ci_tick);
  intr_restore(s);
 }
-
 void
 sys_tick_start(void)
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
-
-
  s = intr_disable();
  ci->ci_tick = (((((sparc_rd_sys_tick() & 0x7fffffffffffffff))+((tick_increment)-1))/(tick_increment))*(tick_increment));
  sys_tickcmpr_set(ci->ci_tick);
  intr_restore(s);
 }
-
 void
 stick_start(void)
 {
  struct cpu_info *ci = (__curcpu->ci_self);
  u_int64_t s;
-
-
-
-
-
-
  s = intr_disable();
  ci->ci_tick = ((((stick())+((tick_increment)-1))/(tick_increment))*(tick_increment));
  stickcmpr_set(ci->ci_tick);
  intr_restore(s);
 }
-
 u_int
 tick_get_timecount(struct timecounter *tc)
 {
  u_int64_t tick;
-
  __asm volatile("rd %%tick, %0" : "=r" (tick) :);
-
  return (tick & ~0u);
 }
-
 u_int
 sys_tick_get_timecount(struct timecounter *tc)
 {
  u_int64_t tick;
-
  __asm volatile("rd %%sys_tick, %0" : "=r" (tick) :);
-
  return (tick & ~0u);
 }

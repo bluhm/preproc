@@ -1,29 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c"
-# 49 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -32,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -42,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -52,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -120,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -177,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -185,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -193,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -292,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -334,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -343,51 +202,30 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 50 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wsksymdef.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wsksymvar.h" 1
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wsksymvar.h"
 typedef u_int16_t keysym_t;
 typedef u_int32_t kbd_t;
-
 struct wscons_keymap {
  keysym_t command;
  keysym_t group1[2];
  keysym_t group2[2];
 };
-
 struct wscons_keydesc {
  kbd_t name;
  kbd_t base;
  int map_size;
  const keysym_t *map;
 };
-
-
 struct wskbd_mapdata {
  const struct wscons_keydesc *keydesc;
  kbd_t layout;
 };
-
-
-
-
-
-
-
 void wskbd_get_mapentry(const struct wskbd_mapdata *, int,
                                 struct wscons_keymap *);
 void wskbd_init_keymap(int, struct wscons_keymap **, int *);
 int wskbd_load_keymap(const struct wskbd_mapdata *, kbd_t,
                                struct wscons_keymap **, int *);
 keysym_t wskbd_compose_value(keysym_t *);
-# 52 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ukbdmap.c" 2
-
-
-
 static const keysym_t ukbd_keydesc_us[] = {
-
     ((4) | 0xe000), 0x61,
     ((5) | 0xe000), 0x62,
     ((6) | 0xe000), 0x63,
@@ -520,11 +358,7 @@ static const keysym_t ukbd_keydesc_us[] = {
     ((230) | 0xe000), 0xf10f, 0xf108, 0xf109,
     ((231) | 0xe000), 0xf111,
 };
-
-
-
 static const keysym_t ukbd_keydesc_de[] = {
-
     ((16) | 0xe000), 0x6d, 0x4d, 0xb5,
     ((20) | 0xe000), 0x71, 0x51, 0x40,
     ((28) | 0xe000), 0x7a,
@@ -551,16 +385,12 @@ static const keysym_t ukbd_keydesc_de[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x7c, 0xa6,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_de_nodead[] = {
-
     ((46) | 0xe000), 0x27, 0x60,
     ((48) | 0xe000), 0x2b, 0x2a, 0x7e,
     ((53) | 0xe000), 0x5e, 0xb0,
 };
-
 static const keysym_t ukbd_keydesc_dk[] = {
-
     ((31) | 0xe000), 0x32, 0x22, 0x40,
     ((32) | 0xe000), 0x33, 0x23, 0xa3,
     ((33) | 0xe000), 0x34, 0xa4, 0x24,
@@ -584,15 +414,11 @@ static const keysym_t ukbd_keydesc_dk[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x5c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_dk_nodead[] = {
-
     ((46) | 0xe000), 0x27, 0x60, 0x7c,
     ((48) | 0xe000), 0xa8, 0x5e, 0x7e,
 };
-
 static const keysym_t ukbd_keydesc_sv[] = {
-
     ((45) | 0xe000), 0x2b, 0x3f, 0x5c,
     ((48) | 0xe000), 0x0308,0x0302,0x0303,
     ((51) | 0xe000), 0xf6,
@@ -601,15 +427,11 @@ static const keysym_t ukbd_keydesc_sv[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x7c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_sv_nodead[] = {
-
     ((46) | 0xe000), 0x27, 0x60, 0x7c,
     ((48) | 0xe000), 0xa8, 0x5e, 0x7e,
 };
-
 static const keysym_t ukbd_keydesc_no[] = {
-
     ((46) | 0xe000), 0x5c, 0x0300, 0x0301,
     ((48) | 0xe000), 0x0308,0x0302,0x0303,
     ((51) | 0xe000), 0xf8,
@@ -617,15 +439,11 @@ static const keysym_t ukbd_keydesc_no[] = {
     ((53) | 0xe000), 0x7c, 0xb6,
     ((100) | 0xe000), 0x3c, 0x3e,
 };
-
 static const keysym_t ukbd_keydesc_no_nodead[] = {
-
     ((46) | 0xe000), 0x5c, 0x60, 0xb4,
     ((48) | 0xe000), 0xa8, 0x5e, 0x7e,
 };
-
 static const keysym_t ukbd_keydesc_fr[] = {
-
     ((4) | 0xe000), 0x71,
     ((16) | 0xe000), 0x2c, 0x3f,
     ((20) | 0xe000), 0x61,
@@ -656,7 +474,6 @@ static const keysym_t ukbd_keydesc_fr[] = {
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_fr_apple[] = {
     ((5) | 0xe000), 0x62, 0x42, 0xdf,
     ((8) | 0xe000), 0x65, 0x45, 0xea, 0xca,
@@ -697,14 +514,7 @@ static const keysym_t ukbd_keydesc_fr_apple[] = {
     ((103) | 0xe000), 0xf23d,
     ((231) | 0xe000), 0xf10a, 0xf109,
 };
-
-
-
-
-
 static const keysym_t ukbd_keydesc_fr_dvorak_bepo[] = {
-
-
     ((4) | 0xe000), 0x61, 0x41, 0xe6, 0xc6,
     ((5) | 0xe000), 0x6b, 0x4b, 0x7e,
     ((6) | 0xe000), 0x78, 0x58, 0x7d,
@@ -757,9 +567,7 @@ static const keysym_t ukbd_keydesc_fr_dvorak_bepo[] = {
     ((100) | 0xe000), 0xe8, 0xc8, 0x2f,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_it[] = {
-
     ((31) | 0xe000), 0x32, 0x22, 0xb2,
     ((32) | 0xe000), 0x33, 0xa3, 0xb3,
     ((34) | 0xe000), 0x35, 0x25,
@@ -783,9 +591,7 @@ static const keysym_t ukbd_keydesc_it[] = {
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_uk[] = {
-
     ((30) | 0xe000), 0x31, 0x21, 0xb1, 0xa1,
     ((31) | 0xe000), 0x32, 0x22, 0xb2, 0xa2,
     ((32) | 0xe000), 0x33, 0xa3, 0xb3,
@@ -804,9 +610,7 @@ static const keysym_t ukbd_keydesc_uk[] = {
     ((53) | 0xe000), 0x60, 0x60, 0xe0, 0xe0,
     ((100) | 0xe000), 0x5c, 0x7c, 0xdc,
 };
-
 static const keysym_t ukbd_keydesc_jp[] = {
-
     ((31) | 0xe000), 0x32, 0x22,
     ((35) | 0xe000), 0x36, 0x26,
     ((36) | 0xe000), 0x37, 0x27,
@@ -828,9 +632,7 @@ static const keysym_t ukbd_keydesc_jp[] = {
     ((138) | 0xe000), 0xf115,
     ((139) | 0xe000), 0xf116,
 };
-
 static const keysym_t ukbd_keydesc_es[] = {
-
     ((30) | 0xe000), 0x31, 0x21, 0x7c,
     ((31) | 0xe000), 0x32, 0x22, 0x40,
     ((32) | 0xe000), 0x33, 0xb7,0x23,
@@ -855,9 +657,7 @@ static const keysym_t ukbd_keydesc_es[] = {
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_lt[] = {
-
     ((8) | 0xe000), 0x65, 0x45, 0xa4,
     ((9) | 0xe000), 0x0161, 0x0160,
     ((20) | 0xe000), 0x0105, 0x0104,
@@ -888,9 +688,7 @@ static const keysym_t ukbd_keydesc_lt[] = {
     ((56) | 0xe000), 0x0119, 0x0118, 0x5c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_be[] = {
-
     ((4) | 0xe000), 0x71,
     ((16) | 0xe000), 0x2c, 0x3f,
     ((20) | 0xe000), 0x61,
@@ -921,10 +719,7 @@ static const keysym_t ukbd_keydesc_be[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x5c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
-
 static const keysym_t ukbd_keydesc_us_dvorak[] = {
-
     ((5) | 0xe000), 0x78,
     ((6) | 0xe000), 0x6a,
     ((7) | 0xe000), 0x65,
@@ -959,15 +754,11 @@ static const keysym_t ukbd_keydesc_us_dvorak[] = {
     ((55) | 0xe000), 0x76,
     ((56) | 0xe000), 0x7a,
 };
-
 static const keysym_t ukbd_keydesc_swapctrlcaps[] = {
-
     ((57) | 0xe000), 0xf10e, 0xf103,
     ((224) | 0xe000), 0xf105,
 };
-
 static const keysym_t ukbd_keydesc_iopener[] = {
-
     ((58) | 0xe000), 0xf420,0x1b,
     ((59) | 0xe000), 0xf400, 0xf300,
     ((60) | 0xe000), 0xf401, 0xf301,
@@ -981,9 +772,7 @@ static const keysym_t ukbd_keydesc_iopener[] = {
     ((68) | 0xe000), 0xf409, 0xf309,
     ((69) | 0xe000), 0xf30a,
 };
-
 static const keysym_t ukbd_keydesc_ru[] = {
-
     ((4) | 0xe000), 0x61, 0x41, 0x0444, 0x0424,
     ((5) | 0xe000), 0x62, 0x42, 0x0438, 0x0418,
     ((6) | 0xe000), 0x63, 0x43, 0x0441, 0x0421,
@@ -1021,9 +810,7 @@ static const keysym_t ukbd_keydesc_ru[] = {
     ((56) | 0xe000), 0x2f, 0x3f, 0x0451, 0x0401,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_ua[] = {
-
     ((4) | 0xe000), 0x61, 0x41, 0x0444, 0x0424,
     ((5) | 0xe000), 0x62, 0x42, 0x0438, 0x0418,
     ((6) | 0xe000), 0x63, 0x43, 0x0441, 0x0421,
@@ -1066,9 +853,7 @@ static const keysym_t ukbd_keydesc_ua[] = {
     ((56) | 0xe000), 0x2f, 0x3f, 0x0451, 0x0401,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_sg[] = {
-
     ((8) | 0xe000), 0x65, 0x45, 0xa4,
     ((28) | 0xe000), 0x7a,
     ((29) | 0xe000), 0x79,
@@ -1096,23 +881,17 @@ static const keysym_t ukbd_keydesc_sg[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x5c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_sg_nodead[] = {
-
     ((45) | 0xe000), 0x27, 0x3f, 0xb4,
     ((46) | 0xe000), 0x5e, 0x60, 0x7e,
     ((48) | 0xe000), 0xa8, 0x21, 0x5d,
 };
-
 static const keysym_t ukbd_keydesc_sf[] = {
-
     ((47) | 0xe000), 0xe8, 0xfc, 0x5b,
     ((51) | 0xe000), 0xe9, 0xf6,
     ((52) | 0xe000), 0xe0, 0xe4, 0x7b,
 };
-
 static const keysym_t ukbd_keydesc_pt[] = {
-
     ((31) | 0xe000), 0x32, 0x22, 0x40,
     ((32) | 0xe000), 0x33, 0x23, 0xa3,
     ((35) | 0xe000), 0x36, 0x26,
@@ -1135,17 +914,13 @@ static const keysym_t ukbd_keydesc_pt[] = {
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_pt_apple[] = {
-
     ((46) | 0xe000), 0x2b, 0x2a,
     ((47) | 0xe000), 0xba, 0xaa,
     ((50) | 0xe000), 0x5c, 0x7c,
     ((52) | 0xe000), 0x0303, 0x0302
 };
-
 static const keysym_t ukbd_keydesc_la[] = {
-
     ((20) | 0xe000), 0x71, 0x51, 0x40,
     ((30) | 0xe000), 0x31, 0x21,
     ((31) | 0xe000), 0x32, 0x22,
@@ -1170,9 +945,7 @@ static const keysym_t ukbd_keydesc_la[] = {
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_br[] = {
-
     ((30) | 0xe000), 0x31, 0x21, 0xb9,
     ((31) | 0xe000), 0x32, 0x40, 0xb2,
     ((32) | 0xe000), 0x33, 0x23, 0xb3,
@@ -1192,9 +965,7 @@ static const keysym_t ukbd_keydesc_br[] = {
     ((100) | 0xe000), 0x5c, 0x7c,
     ((135) | 0xe000), 0x2f, 0x3f, 0xb0,
 };
-
 static const keysym_t ukbd_keydesc_tr[] = {
-
     ((12) | 0xe000), 0x0131, 0x49,
     ((20) | 0xe000), 0x71, 0x51, 0x40,
     ((31) | 0xe000), 0x32, 0x27, 0xa3,
@@ -1221,17 +992,13 @@ static const keysym_t ukbd_keydesc_tr[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x7c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_tr_nodead[] = {
-
     ((47) | 0xe000), 0x011f, 0x011e,
     ((49) | 0xe000), 0x2c, 0x3b, 0x60,
     ((50) | 0xe000), 0x2c, 0x3b, 0x60,
     ((51) | 0xe000), 0x015f, 0x015e, 0x27,
 };
-
 static const keysym_t ukbd_keydesc_pl[] = {
-
     ((4) | 0xe000), 0x61, 0x41, 0x0105, 0x0104,
     ((6) | 0xe000), 0x63, 0x43, 0x0107, 0x0106,
     ((8) | 0xe000), 0x65, 0x45, 0x0119, 0x0118,
@@ -1243,9 +1010,7 @@ static const keysym_t ukbd_keydesc_pl[] = {
     ((29) | 0xe000), 0x7a, 0x5a, 0x017c,0x017b,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_hu[] = {
-
     ((5) | 0xe000), 0x62, 0x42, 0x7b,
     ((6) | 0xe000), 0x63, 0x43, 0x26,
     ((9) | 0xe000), 0x66, 0x46, 0x5b,
@@ -1284,10 +1049,8 @@ static const keysym_t ukbd_keydesc_hu[] = {
     ((100) | 0xe000), 0xed, 0xcd, 0x3c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_si[]=
 {
-
     ((5) | 0xe000), 0x62, 0x42, 0x7b,
     ((9) | 0xe000), 0x66, 0x46, 0x5b,
     ((10) | 0xe000), 0x67, 0x47, 0x5d,
@@ -1325,9 +1088,7 @@ static const keysym_t ukbd_keydesc_si[]=
     ((100) | 0xe000), 0x3c, 0x3e,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_cf[] = {
-
     ((16) | 0xe000), 0x6d, 0x4d, 0xb5,
     ((18) | 0xe000), 0x6f, 0x4f, 0xa7,
     ((19) | 0xe000), 0x70, 0x50, 0xb6,
@@ -1356,17 +1117,13 @@ static const keysym_t ukbd_keydesc_cf[] = {
     ((100) | 0xe000), 0xab,0xbb,0xb0,
     ((230) | 0xe000), 0xf10a,0xf109,
 };
-
 static const keysym_t ukbd_keydesc_cf_nodead[] = {
-
     ((47) | 0xe000), 0x5e,0x5e,0x5b,
     ((48) | 0xe000), 0xb8, 0xa8, 0x5d,
     ((52) | 0xe000), 0x60, 0x60, 0x7b,
     ((56) | 0xe000), 0xe9, 0xc9, 0xb4,
 };
-
 static const keysym_t ukbd_keydesc_lv[] = {
-
     ((4) | 0xe000), 0x61, 0x41, 0x0101, 0x0100,
     ((6) | 0xe000), 0x63, 0x43, 0x010d, 0x010c,
     ((8) | 0xe000), 0x65, 0x45, 0x0113, 0x0112,
@@ -1381,9 +1138,7 @@ static const keysym_t ukbd_keydesc_lv[] = {
     ((29) | 0xe000), 0x7a, 0x5a, 0x017e, 0x017d,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_nl[] = {
-
     ((6) | 0xe000), 0x63, 0x43, 0xa2,
     ((16) | 0xe000), 0x6d, 0x4d, 0xb5,
     ((21) | 0xe000), 0x72, 0x52, 0xb6,
@@ -1415,17 +1170,12 @@ static const keysym_t ukbd_keydesc_nl[] = {
     ((100) | 0xe000), 0x5d,0x5b, 0xa6,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_nl_nodead[] = {
-
     ((46) | 0xe000), 0xb0, 0x7e, 0xb8,
     ((47) | 0xe000), 0x22, 0x5e,
     ((52) | 0xe000), 0x27, 0x60,
 };
-
 static const keysym_t ukbd_keydesc_is[] = {
-
-
     ((8) | 0xe000), 0x65, 0x45,
     ((20) | 0xe000), 0x71, 0x51, 0x40,
     ((31) | 0xe000), 0x32, 0x22,
@@ -1449,14 +1199,10 @@ static const keysym_t ukbd_keydesc_is[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x7c,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_is_nodead[] = {
-
     ((52) | 0xe000), 0xb4, 0xa8, 0x5e,
 };
-
 static const keysym_t ukbd_keydesc_ee[] = {
-
     ((22) | 0xe000), 0x73, 0x53, 0x0161, 0x0160,
     ((29) | 0xe000), 0x7a, 0x5a, 0x017e, 0x017d,
     ((31) | 0xe000), 0x32, 0x22, 0x40,
@@ -1482,22 +1228,13 @@ static const keysym_t ukbd_keydesc_ee[] = {
     ((100) | 0xe000), 0x3c, 0x3e, 0x7c, 0xa6,
     ((230) | 0xe000), 0xf10a, 0xf109,
 };
-
 static const keysym_t ukbd_keydesc_ee_nodead[] = {
-
     ((46) | 0xe000), 0x27, 0x60,
     ((52) | 0xe000), 0xe4, 0xc4, 0x5e,
     ((53) | 0xe000), 0x02c7, 0x7e,
 };
-
-
-
-
-
-
 const struct wscons_keydesc ukbd_keydesctab[] = {
  { 0x0200, 0, sizeof(ukbd_keydesc_us)/sizeof(keysym_t), ukbd_keydesc_us },
-
  { 0x0300, 0x0200, sizeof(ukbd_keydesc_de)/sizeof(keysym_t), ukbd_keydesc_de },
  { 0x0300 | 0x00000001, 0x0300, sizeof(ukbd_keydesc_de_nodead)/sizeof(keysym_t), ukbd_keydesc_de_nodead },
  { 0x0600, 0x0200, sizeof(ukbd_keydesc_fr)/sizeof(keysym_t), ukbd_keydesc_fr },
@@ -1519,14 +1256,10 @@ const struct wscons_keydesc ukbd_keydesctab[] = {
  { 0x0800 | 0x00000008, 0x0800, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
  { 0x0600 | 0x00000008, 0x0600, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
  { 0x0600 | 0x00010000 | 0x00000008, 0x0600 | 0x00010000, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
-
  { 0x0600 | 0x00000010 | 0x00000008, 0x0600 | 0x00000010, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
-
  { 0x0d00 | 0x00000008, 0x0d00, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
  { 0x0200 | 0x00000010 | 0x00000008, 0x0200 | 0x00000010, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
-
  { 0x0200 | 0x00000040 | 0x00000008, 0x0200 | 0x00000040, sizeof(ukbd_keydesc_swapctrlcaps)/sizeof(keysym_t), ukbd_keydesc_swapctrlcaps },
-
  { 0x0b00, 0x0200, sizeof(ukbd_keydesc_es)/sizeof(keysym_t), ukbd_keydesc_es },
  { 0x0d00, 0x0200, sizeof(ukbd_keydesc_be)/sizeof(keysym_t), ukbd_keydesc_be },
  { 0x0e00, 0x0200, sizeof(ukbd_keydesc_ru)/sizeof(keysym_t), ukbd_keydesc_ru },
@@ -1554,6 +1287,5 @@ const struct wscons_keydesc ukbd_keydesctab[] = {
  { 0x1c00 | 0x00000001, 0x1c00, sizeof(ukbd_keydesc_is_nodead)/sizeof(keysym_t), ukbd_keydesc_is_nodead },
  { 0x1d00, 0x0200, sizeof(ukbd_keydesc_ee)/sizeof(keysym_t), ukbd_keydesc_ee },
  { 0x1d00 | 0x00000001, 0x1d00, sizeof(ukbd_keydesc_ee_nodead)/sizeof(keysym_t), ukbd_keydesc_ee_nodead },
-
  {0, 0, 0, 0}
 };

@@ -1,29 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
-# 27 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -32,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -42,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -52,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -120,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -177,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -185,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -193,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -292,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -334,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -343,21 +202,8 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 28 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -366,65 +212,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -442,18 +270,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -470,7 +293,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -480,35 +302,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -518,47 +333,28 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -566,89 +362,49 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 296 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -658,8 +414,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -700,13 +454,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -736,23 +488,12 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdint.h" 1
-# 71 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdint.h"
 typedef __int_least8_t int_least8_t;
 typedef __uint_least8_t uint_least8_t;
 typedef __int_least16_t int_least16_t;
@@ -761,8 +502,6 @@ typedef __int_least32_t int_least32_t;
 typedef __uint_least32_t uint_least32_t;
 typedef __int_least64_t int_least64_t;
 typedef __uint_least64_t uint_least64_t;
-
-
 typedef __int_fast8_t int_fast8_t;
 typedef __uint_fast8_t uint_fast8_t;
 typedef __int_fast16_t int_fast16_t;
@@ -771,65 +510,43 @@ typedef __int_fast32_t int_fast32_t;
 typedef __uint_fast32_t uint_fast32_t;
 typedef __int_fast64_t int_fast64_t;
 typedef __uint_fast64_t uint_fast64_t;
-
-
-
-
 typedef __intptr_t intptr_t;
-
-
 typedef __uintptr_t uintptr_t;
-
-
 typedef __intmax_t intmax_t;
 typedef __uintmax_t uintmax_t;
-# 30 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.h" 1
-# 33 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.h"
 typedef struct aes_ctx {
  uint32_t sk[60];
  uint32_t sk_exp[120];
-
  unsigned num_rounds;
 } AES_CTX;
-
 int AES_Setkey(AES_CTX *, const uint8_t *, int);
 void AES_Encrypt(AES_CTX *, const uint8_t *, uint8_t *);
 void AES_Decrypt(AES_CTX *, const uint8_t *, uint8_t *);
 void AES_Encrypt_ECB(AES_CTX *, const uint8_t *, uint8_t *, size_t);
 void AES_Decrypt_ECB(AES_CTX *, const uint8_t *, uint8_t *, size_t);
-
 int AES_KeySetup_Encrypt(uint32_t *, const uint8_t *, int);
 int AES_KeySetup_Decrypt(uint32_t *, const uint8_t *, int);
-# 32 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c" 2
-
 static inline void
 enc32le(void *dst, uint32_t x)
 {
  unsigned char *buf = dst;
-
  buf[0] = (unsigned char)x;
  buf[1] = (unsigned char)(x >> 8);
  buf[2] = (unsigned char)(x >> 16);
  buf[3] = (unsigned char)(x >> 24);
 }
-
 static inline uint32_t
 dec32le(const void *src)
 {
  const unsigned char *buf = src;
-
  return (uint32_t)buf[0]
   | ((uint32_t)buf[1] << 8)
   | ((uint32_t)buf[2] << 16)
   | ((uint32_t)buf[3] << 24);
 }
-# 93 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
 static void
 aes_ct_bitslice_Sbox(uint32_t *q)
 {
-# 106 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
  uint32_t x0, x1, x2, x3, x4, x5, x6, x7;
  uint32_t y1, y2, y3, y4, y5, y6, y7, y8, y9;
  uint32_t y10, y11, y12, y13, y14, y15, y16, y17, y18, y19;
@@ -844,7 +561,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  uint32_t t50, t51, t52, t53, t54, t55, t56, t57, t58, t59;
  uint32_t t60, t61, t62, t63, t64, t65, t66, t67;
  uint32_t s0, s1, s2, s3, s4, s5, s6, s7;
-
  x0 = q[7];
  x1 = q[6];
  x2 = q[5];
@@ -853,10 +569,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  x5 = q[2];
  x6 = q[1];
  x7 = q[0];
-
-
-
-
  y14 = x3 ^ x5;
  y13 = x0 ^ x6;
  y9 = x0 ^ x3;
@@ -880,10 +592,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  y16 = t0 ^ y11;
  y21 = y13 ^ y16;
  y18 = x0 ^ y16;
-
-
-
-
  t2 = y12 & y15;
  t3 = y3 & y6;
  t4 = t3 ^ t2;
@@ -907,7 +615,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  t22 = t18 ^ y19;
  t23 = t19 ^ y21;
  t24 = t20 ^ y18;
-
  t25 = t21 ^ t22;
  t26 = t21 & t23;
  t27 = t24 ^ t26;
@@ -924,7 +631,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  t38 = t27 ^ t36;
  t39 = t29 & t38;
  t40 = t25 ^ t39;
-
  t41 = t40 ^ t37;
  t42 = t29 ^ t33;
  t43 = t29 ^ t40;
@@ -948,10 +654,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  z15 = t42 & y9;
  z16 = t45 & y14;
  z17 = t41 & y8;
-
-
-
-
  t46 = z15 ^ z16;
  t47 = z10 ^ z11;
  t48 = z5 ^ z13;
@@ -982,7 +684,6 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  s5 = t47 ^ t65;
  s1 = t64 ^ ~s3;
  s2 = t55 ^ ~t67;
-
  q[7] = s0;
  q[6] = s1;
  q[5] = s2;
@@ -992,33 +693,27 @@ aes_ct_bitslice_Sbox(uint32_t *q)
  q[1] = s6;
  q[0] = s7;
 }
-# 277 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
 static void
 aes_ct_ortho(uint32_t *q)
 {
-# 292 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
  do { uint32_t a, b; a = (q[0]); b = (q[1]); (q[0]) = (a & (uint32_t)0x55555555) | ((b & (uint32_t)0x55555555) << (1)); (q[1]) = ((a & (uint32_t)0xAAAAAAAA) >> (1)) | (b & (uint32_t)0xAAAAAAAA); } while (0);
  do { uint32_t a, b; a = (q[2]); b = (q[3]); (q[2]) = (a & (uint32_t)0x55555555) | ((b & (uint32_t)0x55555555) << (1)); (q[3]) = ((a & (uint32_t)0xAAAAAAAA) >> (1)) | (b & (uint32_t)0xAAAAAAAA); } while (0);
  do { uint32_t a, b; a = (q[4]); b = (q[5]); (q[4]) = (a & (uint32_t)0x55555555) | ((b & (uint32_t)0x55555555) << (1)); (q[5]) = ((a & (uint32_t)0xAAAAAAAA) >> (1)) | (b & (uint32_t)0xAAAAAAAA); } while (0);
  do { uint32_t a, b; a = (q[6]); b = (q[7]); (q[6]) = (a & (uint32_t)0x55555555) | ((b & (uint32_t)0x55555555) << (1)); (q[7]) = ((a & (uint32_t)0xAAAAAAAA) >> (1)) | (b & (uint32_t)0xAAAAAAAA); } while (0);
-
  do { uint32_t a, b; a = (q[0]); b = (q[2]); (q[0]) = (a & (uint32_t)0x33333333) | ((b & (uint32_t)0x33333333) << (2)); (q[2]) = ((a & (uint32_t)0xCCCCCCCC) >> (2)) | (b & (uint32_t)0xCCCCCCCC); } while (0);
  do { uint32_t a, b; a = (q[1]); b = (q[3]); (q[1]) = (a & (uint32_t)0x33333333) | ((b & (uint32_t)0x33333333) << (2)); (q[3]) = ((a & (uint32_t)0xCCCCCCCC) >> (2)) | (b & (uint32_t)0xCCCCCCCC); } while (0);
  do { uint32_t a, b; a = (q[4]); b = (q[6]); (q[4]) = (a & (uint32_t)0x33333333) | ((b & (uint32_t)0x33333333) << (2)); (q[6]) = ((a & (uint32_t)0xCCCCCCCC) >> (2)) | (b & (uint32_t)0xCCCCCCCC); } while (0);
  do { uint32_t a, b; a = (q[5]); b = (q[7]); (q[5]) = (a & (uint32_t)0x33333333) | ((b & (uint32_t)0x33333333) << (2)); (q[7]) = ((a & (uint32_t)0xCCCCCCCC) >> (2)) | (b & (uint32_t)0xCCCCCCCC); } while (0);
-
  do { uint32_t a, b; a = (q[0]); b = (q[4]); (q[0]) = (a & (uint32_t)0x0F0F0F0F) | ((b & (uint32_t)0x0F0F0F0F) << (4)); (q[4]) = ((a & (uint32_t)0xF0F0F0F0) >> (4)) | (b & (uint32_t)0xF0F0F0F0); } while (0);
  do { uint32_t a, b; a = (q[1]); b = (q[5]); (q[1]) = (a & (uint32_t)0x0F0F0F0F) | ((b & (uint32_t)0x0F0F0F0F) << (4)); (q[5]) = ((a & (uint32_t)0xF0F0F0F0) >> (4)) | (b & (uint32_t)0xF0F0F0F0); } while (0);
  do { uint32_t a, b; a = (q[2]); b = (q[6]); (q[2]) = (a & (uint32_t)0x0F0F0F0F) | ((b & (uint32_t)0x0F0F0F0F) << (4)); (q[6]) = ((a & (uint32_t)0xF0F0F0F0) >> (4)) | (b & (uint32_t)0xF0F0F0F0); } while (0);
  do { uint32_t a, b; a = (q[3]); b = (q[7]); (q[3]) = (a & (uint32_t)0x0F0F0F0F) | ((b & (uint32_t)0x0F0F0F0F) << (4)); (q[7]) = ((a & (uint32_t)0xF0F0F0F0) >> (4)) | (b & (uint32_t)0xF0F0F0F0); } while (0);
 }
-
 static inline uint32_t
 sub_word(uint32_t x)
 {
  uint32_t q[8];
  int i;
-
  for (i = 0; i < 8; i ++) {
   q[i] = x;
  }
@@ -1027,23 +722,15 @@ sub_word(uint32_t x)
  aes_ct_ortho(q);
  return q[0];
 }
-
 static const unsigned char Rcon[] = {
  0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
 };
-
-
-
-
-
-
 static unsigned
 aes_keysched_base(uint32_t *skey, const void *key, size_t key_len)
 {
  unsigned num_rounds;
  int i, j, k, nk, nkf;
  uint32_t tmp;
-
  switch (key_len) {
  case 16:
   num_rounds = 10;
@@ -1080,23 +767,14 @@ aes_keysched_base(uint32_t *skey, const void *key, size_t key_len)
  }
  return num_rounds;
 }
-
-
-
-
-
-
-
 unsigned
 aes_ct_keysched(uint32_t *comp_skey, const void *key, size_t key_len)
 {
  uint32_t skey[60];
  unsigned u, num_rounds;
-
  num_rounds = aes_keysched_base(skey, key, key_len);
  for (u = 0; u <= num_rounds; u ++) {
   uint32_t q[8];
-
   q[0] = q[1] = skey[(u << 2) + 0];
   q[2] = q[3] = skey[(u << 2) + 1];
   q[4] = q[5] = skey[(u << 2) + 2];
@@ -1113,22 +791,14 @@ aes_ct_keysched(uint32_t *comp_skey, const void *key, size_t key_len)
  }
  return num_rounds;
 }
-
-
-
-
-
-
 void
 aes_ct_skey_expand(uint32_t *skey,
  unsigned num_rounds, const uint32_t *comp_skey)
 {
  unsigned u, v, n;
-
  n = (num_rounds + 1) << 2;
  for (u = 0, v = 0; u < n; u ++, v += 2) {
   uint32_t x, y;
-
   x = y = comp_skey[u];
   x &= 0x55555555;
   skey[v + 0] = x | (x << 1);
@@ -1136,7 +806,6 @@ aes_ct_skey_expand(uint32_t *skey,
   skey[v + 1] = y | (y >> 1);
  }
 }
-
 static inline void
 add_round_key(uint32_t *q, const uint32_t *sk)
 {
@@ -1149,15 +818,12 @@ add_round_key(uint32_t *q, const uint32_t *sk)
  q[6] ^= sk[6];
  q[7] ^= sk[7];
 }
-
 static inline void
 shift_rows(uint32_t *q)
 {
  int i;
-
  for (i = 0; i < 8; i ++) {
   uint32_t x;
-
   x = q[i];
   q[i] = (x & 0x000000FF)
    | ((x & 0x0000FC00) >> 2) | ((x & 0x00000300) << 6)
@@ -1165,19 +831,16 @@ shift_rows(uint32_t *q)
    | ((x & 0xC0000000) >> 6) | ((x & 0x3F000000) << 2);
  }
 }
-
 static inline uint32_t
 rotr16(uint32_t x)
 {
  return (x << 16) | (x >> 16);
 }
-
 static inline void
 mix_columns(uint32_t *q)
 {
  uint32_t q0, q1, q2, q3, q4, q5, q6, q7;
  uint32_t r0, r1, r2, r3, r4, r5, r6, r7;
-
  q0 = q[0];
  q1 = q[1];
  q2 = q[2];
@@ -1194,7 +857,6 @@ mix_columns(uint32_t *q)
  r5 = (q5 >> 8) | (q5 << 24);
  r6 = (q6 >> 8) | (q6 << 24);
  r7 = (q7 >> 8) | (q7 << 24);
-
  q[0] = q7 ^ r7 ^ r0 ^ rotr16(q0 ^ r0);
  q[1] = q0 ^ r0 ^ q7 ^ r7 ^ r1 ^ rotr16(q1 ^ r1);
  q[2] = q1 ^ r1 ^ r2 ^ rotr16(q2 ^ r2);
@@ -1204,18 +866,11 @@ mix_columns(uint32_t *q)
  q[6] = q5 ^ r5 ^ r6 ^ rotr16(q6 ^ r6);
  q[7] = q6 ^ r6 ^ r7 ^ rotr16(q7 ^ r7);
 }
-
-
-
-
-
-
 void
 aes_ct_bitslice_encrypt(unsigned num_rounds,
  const uint32_t *skey, uint32_t *q)
 {
  unsigned u;
-
  add_round_key(q, skey);
  for (u = 1; u < num_rounds; u ++) {
   aes_ct_bitslice_Sbox(q);
@@ -1227,16 +882,10 @@ aes_ct_bitslice_encrypt(unsigned num_rounds,
  shift_rows(q);
  add_round_key(q, skey + (num_rounds << 3));
 }
-
-
-
-
 void
 aes_ct_bitslice_invSbox(uint32_t *q)
 {
-# 547 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/aes.c"
  uint32_t q0, q1, q2, q3, q4, q5, q6, q7;
-
  q0 = ~q[0];
  q1 = ~q[1];
  q2 = q[2];
@@ -1253,9 +902,7 @@ aes_ct_bitslice_invSbox(uint32_t *q)
  q[2] = q4 ^ q7 ^ q1;
  q[1] = q3 ^ q6 ^ q0;
  q[0] = q2 ^ q5 ^ q7;
-
  aes_ct_bitslice_Sbox(q);
-
  q0 = ~q[0];
  q1 = ~q[1];
  q2 = q[2];
@@ -1273,15 +920,12 @@ aes_ct_bitslice_invSbox(uint32_t *q)
  q[1] = q3 ^ q6 ^ q0;
  q[0] = q2 ^ q5 ^ q7;
 }
-
 static inline void
 inv_shift_rows(uint32_t *q)
 {
  int i;
-
  for (i = 0; i < 8; i ++) {
   uint32_t x;
-
   x = q[i];
   q[i] = (x & 0x000000FF)
    | ((x & 0x00003F00) << 2) | ((x & 0x0000C000) >> 6)
@@ -1289,13 +933,11 @@ inv_shift_rows(uint32_t *q)
    | ((x & 0x03000000) << 6) | ((x & 0xFC000000) >> 2);
  }
 }
-
 static void
 inv_mix_columns(uint32_t *q)
 {
  uint32_t q0, q1, q2, q3, q4, q5, q6, q7;
  uint32_t r0, r1, r2, r3, r4, r5, r6, r7;
-
  q0 = q[0];
  q1 = q[1];
  q2 = q[2];
@@ -1312,7 +954,6 @@ inv_mix_columns(uint32_t *q)
  r5 = (q5 >> 8) | (q5 << 24);
  r6 = (q6 >> 8) | (q6 << 24);
  r7 = (q7 >> 8) | (q7 << 24);
-
  q[0] = q5 ^ q6 ^ q7 ^ r0 ^ r5 ^ r7 ^ rotr16(q0 ^ q5 ^ q6 ^ r0 ^ r5);
  q[1] = q0 ^ q5 ^ r0 ^ r1 ^ r5 ^ r6 ^ r7 ^ rotr16(q1 ^ q5 ^ q7 ^ r1 ^ r5 ^ r6);
  q[2] = q0 ^ q1 ^ q6 ^ r1 ^ r2 ^ r6 ^ r7 ^ rotr16(q0 ^ q2 ^ q6 ^ r2 ^ r6 ^ r7);
@@ -1322,18 +963,11 @@ inv_mix_columns(uint32_t *q)
  q[6] = q3 ^ q4 ^ q5 ^ q7 ^ r3 ^ r5 ^ r6 ^ r7 ^ rotr16(q3 ^ q4 ^ q6 ^ q7 ^ r3 ^ r6 ^ r7);
  q[7] = q4 ^ q5 ^ q6 ^ r4 ^ r6 ^ r7 ^ rotr16(q4 ^ q5 ^ q7 ^ r4 ^ r7);
 }
-
-
-
-
-
-
 void
 aes_ct_bitslice_decrypt(unsigned num_rounds,
  const uint32_t *skey, uint32_t *q)
 {
  unsigned u;
-
  add_round_key(q, skey + (num_rounds << 3));
  for (u = num_rounds - 1; u > 0; u --) {
   inv_shift_rows(q);
@@ -1345,8 +979,6 @@ aes_ct_bitslice_decrypt(unsigned num_rounds,
  aes_ct_bitslice_invSbox(q);
  add_round_key(q, skey);
 }
-
-
 int
 AES_Setkey(AES_CTX *ctx, const uint8_t *key, int len)
 {
@@ -1356,14 +988,12 @@ AES_Setkey(AES_CTX *ctx, const uint8_t *key, int len)
  aes_ct_skey_expand(ctx->sk_exp, ctx->num_rounds, ctx->sk);
  return 0;
 }
-
 void
 AES_Encrypt_ECB(AES_CTX *ctx, const uint8_t *src,
  uint8_t *dst, size_t num_blocks)
 {
  while (num_blocks > 0) {
   uint32_t q[8];
-
   q[0] = dec32le(src);
   q[2] = dec32le(src + 4);
   q[4] = dec32le(src + 8);
@@ -1399,14 +1029,12 @@ AES_Encrypt_ECB(AES_CTX *ctx, const uint8_t *src,
   }
  }
 }
-
 void
 AES_Decrypt_ECB(AES_CTX *ctx, const uint8_t *src,
  uint8_t *dst, size_t num_blocks)
 {
  while (num_blocks > 0) {
   uint32_t q[8];
-
   q[0] = dec32le(src);
   q[2] = dec32le(src + 4);
   q[4] = dec32le(src + 8);
@@ -1442,32 +1070,27 @@ AES_Decrypt_ECB(AES_CTX *ctx, const uint8_t *src,
   }
  }
 }
-
 void
 AES_Encrypt(AES_CTX *ctx, const uint8_t *src, uint8_t *dst)
 {
  AES_Encrypt_ECB(ctx, src, dst, 1);
 }
-
 void
 AES_Decrypt(AES_CTX *ctx, const uint8_t *src, uint8_t *dst)
 {
  AES_Decrypt_ECB(ctx, src, dst, 1);
 }
-
 int
 AES_KeySetup_Encrypt(uint32_t *skey, const uint8_t *key, int len)
 {
  unsigned r, u;
  uint32_t tkey[60];
-
  r = aes_keysched_base(tkey, key, len);
  if (r == 0) {
   return 0;
  }
  for (u = 0; u < ((r + 1) << 2); u ++) {
   uint32_t w;
-
   w = tkey[u];
   skey[u] = (w << 24)
    | ((w & 0x0000FF00) << 8)
@@ -1476,81 +1099,47 @@ AES_KeySetup_Encrypt(uint32_t *skey, const uint8_t *key, int len)
  }
  return r;
 }
-
-
-
-
-
 static inline uint32_t
 redgf256(uint32_t x)
 {
  uint32_t h;
-
  h = x >> 8;
  return (x ^ h ^ (h << 1) ^ (h << 3) ^ (h << 4)) & 0xFF;
 }
-
-
-
-
 static inline uint32_t
 mul9(uint32_t x)
 {
  return redgf256(x ^ (x << 3));
 }
-
-
-
-
 static inline uint32_t
 mulb(uint32_t x)
 {
  return redgf256(x ^ (x << 1) ^ (x << 3));
 }
-
-
-
-
 static inline uint32_t
 muld(uint32_t x)
 {
  return redgf256(x ^ (x << 2) ^ (x << 3));
 }
-
-
-
-
 static inline uint32_t
 mule(uint32_t x)
 {
  return redgf256((x << 1) ^ (x << 2) ^ (x << 3));
 }
-
 int
 AES_KeySetup_Decrypt(uint32_t *skey, const uint8_t *key, int len)
 {
  unsigned r, u;
  uint32_t tkey[60];
-
-
-
-
-
  r = AES_KeySetup_Encrypt(tkey, key, len);
  if (r == 0) {
   return 0;
  }
-
-
-
-
-
  __builtin_memcpy((skey + (r << 2)), (tkey), (4 * sizeof(uint32_t)));
  __builtin_memcpy((skey), (tkey + (r << 2)), (4 * sizeof(uint32_t)));
  for (u = 4; u < (r << 2); u ++) {
   uint32_t sk, sk0, sk1, sk2, sk3;
   uint32_t tk, tk0, tk1, tk2, tk3;
-
   sk = tkey[u];
   sk0 = sk >> 24;
   sk1 = (sk >> 16) & 0xFF;
@@ -1563,6 +1152,5 @@ AES_KeySetup_Decrypt(uint32_t *skey, const uint8_t *key, int len)
   tk = (tk0 << 24) ^ (tk1 << 16) ^ (tk2 << 8) ^ tk3;
   skey[((r - (u >> 2)) << 2) + (u & 3)] = tk;
  }
-
  return r;
 }

@@ -1,33 +1,6 @@
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/cdefs.h" 1
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/cdefs.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 1
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 1
-# 36 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 1
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef struct label_t {
  long val[2];
 } label_t;
-# 60 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef signed char __int8_t;
 typedef unsigned char __uint8_t;
 typedef short __int16_t;
@@ -36,8 +9,6 @@ typedef int __int32_t;
 typedef unsigned int __uint32_t;
 typedef long long __int64_t;
 typedef unsigned long long __uint64_t;
-
-
 typedef __int8_t __int_least8_t;
 typedef __uint8_t __uint_least8_t;
 typedef __int16_t __int_least16_t;
@@ -46,8 +17,6 @@ typedef __int32_t __int_least32_t;
 typedef __uint32_t __uint_least32_t;
 typedef __int64_t __int_least64_t;
 typedef __uint64_t __uint_least64_t;
-
-
 typedef __int32_t __int_fast8_t;
 typedef __uint32_t __uint_fast8_t;
 typedef __int32_t __int_fast16_t;
@@ -56,45 +25,26 @@ typedef __int32_t __int_fast32_t;
 typedef __uint32_t __uint_fast32_t;
 typedef __int64_t __int_fast64_t;
 typedef __uint64_t __uint_fast64_t;
-# 102 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/_types.h"
 typedef long __intptr_t;
 typedef unsigned long __uintptr_t;
-
-
 typedef __int64_t __intmax_t;
 typedef __uint64_t __uintmax_t;
-
-
 typedef long __register_t;
-
-
 typedef unsigned long __vaddr_t;
 typedef unsigned long __paddr_t;
 typedef unsigned long __vsize_t;
 typedef unsigned long __psize_t;
-
-
 typedef double __double_t;
 typedef float __float_t;
 typedef long __ptrdiff_t;
 typedef unsigned long __size_t;
 typedef long __ssize_t;
-
 typedef __builtin_va_list __va_list;
-
-
-
-
-
-
 typedef int __wchar_t;
-
 typedef int __wint_t;
 typedef int __rune_t;
 typedef void * __wctrans_t;
 typedef void * __wctype_t;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_types.h" 2
-
 typedef __int64_t __blkcnt_t;
 typedef __int32_t __blksize_t;
 typedef __int64_t __clock_t;
@@ -124,56 +74,37 @@ typedef __int64_t __time_t;
 typedef __int32_t __timer_t;
 typedef __uint32_t __uid_t;
 typedef __uint32_t __useconds_t;
-
-
-
-
-
 typedef union {
  char __mbstate8[128];
  __int64_t __mbstateL;
 } __mbstate_t;
-# 37 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h" 1
-# 12 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/machine/endian.h"
 static inline __uint16_t
 __mswap16(volatile const __uint16_t *m)
 {
  __uint16_t v;
-
  __asm("lduha [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint32_t
 __mswap32(volatile const __uint32_t *m)
 {
  __uint32_t v;
-
  __asm("lduwa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline __uint64_t
 __mswap64(volatile const __uint64_t *m)
 {
  __uint64_t v;
-
  __asm("ldxa [%1] %2, %0 ! %3"
      : "=r" (v)
      : "r" (m), "n" (0x88), "m" (*m));
-
  return (v);
 }
-
 static inline void
 __swapm16(volatile __uint16_t *m, __uint16_t v)
 {
@@ -181,7 +112,6 @@ __swapm16(volatile __uint16_t *m, __uint16_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm32(volatile __uint32_t *m, __uint32_t v)
 {
@@ -189,7 +119,6 @@ __swapm32(volatile __uint32_t *m, __uint32_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-
 static inline void
 __swapm64(volatile __uint64_t *m, __uint64_t v)
 {
@@ -197,84 +126,34 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_endian.h" 2
-# 42 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/endian.h" 2
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h" 2
-
-
-
-
-
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long u_long;
-
 typedef unsigned char unchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-
 typedef __cpuid_t cpuid_t;
 typedef __register_t register_t;
-# 75 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 typedef __int8_t int8_t;
-
-
-
-
 typedef __uint8_t uint8_t;
-
-
-
-
 typedef __int16_t int16_t;
-
-
-
-
 typedef __uint16_t uint16_t;
-
-
-
-
 typedef __int32_t int32_t;
-
-
-
-
 typedef __uint32_t uint32_t;
-
-
-
-
 typedef __int64_t int64_t;
-
-
-
-
 typedef __uint64_t uint64_t;
-
-
-
 typedef __uint8_t u_int8_t;
 typedef __uint16_t u_int16_t;
 typedef __uint32_t u_int32_t;
 typedef __uint64_t u_int64_t;
-
-
 typedef __int64_t quad_t;
 typedef __uint64_t u_quad_t;
-
-
-
 typedef __vaddr_t vaddr_t;
 typedef __paddr_t paddr_t;
 typedef __vsize_t vsize_t;
 typedef __psize_t psize_t;
-
-
-
 typedef __blkcnt_t blkcnt_t;
 typedef __blksize_t blksize_t;
 typedef char * caddr_t;
@@ -296,34 +175,11 @@ typedef __useconds_t useconds_t;
 typedef __suseconds_t suseconds_t;
 typedef __fsblkcnt_t fsblkcnt_t;
 typedef __fsfilcnt_t fsfilcnt_t;
-
-
-
-
-
-
 typedef __clock_t clock_t;
-
-
-
-
 typedef __clockid_t clockid_t;
-
-
-
-
 typedef __pid_t pid_t;
-
-
-
-
 typedef __size_t size_t;
-
-
-
-
 typedef __ssize_t ssize_t;
-
 
 
 
@@ -338,7 +194,6 @@ typedef __timer_t timer_t;
 
 
 typedef __off_t off_t;
-# 223 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/types.h"
 struct proc;
 struct pgrp;
 struct ucred;
@@ -347,66 +202,41 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h" 2
-
-
-
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
 };
-
-
-
-
 struct timespec {
  time_t tv_sec;
  long tv_nsec;
 };
-# 70 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/select.h"
 typedef uint32_t __fd_mask;
-
-
-
 typedef struct fd_set {
  __fd_mask fds_bits[(((1024) + ((((unsigned)(sizeof(__fd_mask) * 8))) - 1)) / (((unsigned)(sizeof(__fd_mask) * 8))))];
 } fd_set;
-
 static __inline void
 __fd_set(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] |= (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline void
 __fd_clr(int fd, fd_set *p)
 {
  p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] &= ~(1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8))));
 }
-
-
 static __inline int
 __fd_isset(int fd, const fd_set *p)
 {
  return (p->fds_bits[fd / ((unsigned)(sizeof(__fd_mask) * 8))] & (1U << (fd % ((unsigned)(sizeof(__fd_mask) * 8)))));
 }
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-# 72 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct timezone {
  int tz_minuteswest;
  int tz_dsttime;
 };
-# 144 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 struct itimerval {
  struct timeval it_interval;
  struct timeval it_value;
 };
-
-
-
-
-
 struct clockinfo {
  int hz;
  int tick;
@@ -414,112 +244,81 @@ struct clockinfo {
  int stathz;
  int profhz;
 };
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h" 1
-# 55 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_time.h"
 struct itimerspec {
  struct timespec it_interval;
  struct timespec it_value;
 };
-# 164 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h" 2
-
-
 struct bintime {
  time_t sec;
  uint64_t frac;
 };
-
 static __inline void
 bintime_addx(struct bintime *bt, uint64_t x)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += x;
  if (u > bt->frac)
   bt->sec++;
 }
-
 static __inline void
 bintime_add(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac += bt2->frac;
  if (u > bt->frac)
   bt->sec++;
  bt->sec += bt2->sec;
 }
-
 static __inline void
 bintime_sub(struct bintime *bt, struct bintime *bt2)
 {
  uint64_t u;
-
  u = bt->frac;
  bt->frac -= bt2->frac;
  if (u < bt->frac)
   bt->sec--;
  bt->sec -= bt2->sec;
 }
-# 220 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 static __inline void
 bintime2timespec(struct bintime *bt, struct timespec *ts)
 {
-
  ts->tv_sec = bt->sec;
  ts->tv_nsec = (long)(((uint64_t)1000000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timespec2bintime(struct timespec *ts, struct bintime *bt)
 {
-
  bt->sec = ts->tv_sec;
-
  bt->frac = (uint64_t)ts->tv_nsec * (uint64_t)18446744073ULL;
 }
-
 static __inline void
 bintime2timeval(struct bintime *bt, struct timeval *tv)
 {
-
  tv->tv_sec = bt->sec;
  tv->tv_usec = (long)(((uint64_t)1000000 * (uint32_t)(bt->frac >> 32)) >> 32);
 }
-
 static __inline void
 timeval2bintime(struct timeval *tv, struct bintime *bt)
 {
-
  bt->sec = (time_t)tv->tv_sec;
-
  bt->frac = (uint64_t)tv->tv_usec * (uint64_t)18446744073709ULL;
 }
-
 extern volatile time_t time_second;
 extern volatile time_t time_uptime;
-# 278 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/time.h"
 void bintime(struct bintime *);
 void nanotime(struct timespec *);
 void microtime(struct timeval *);
-
 void getnanotime(struct timespec *);
 void getmicrotime(struct timeval *);
-
 void binuptime(struct bintime *);
 void nanouptime(struct timespec *);
 void microuptime(struct timeval *);
-
 void getnanouptime(struct timespec *);
 void getmicrouptime(struct timeval *);
-
 struct proc;
 int clock_gettime(struct proc *, clockid_t, struct timespec *);
-
 int timespecfix(struct timespec *);
 int itimerfix(struct timeval *);
 int itimerdecr(struct itimerval *itp, int usec);
@@ -527,10 +326,6 @@ void itimerround(struct timeval *);
 int settime(struct timespec *);
 int ratecheck(struct timeval *, const struct timeval *);
 int ppsratecheck(struct timeval *, int *, int);
-
-
-
-
 struct clock_ymdhms {
         u_short dt_year;
         u_char dt_mon;
@@ -540,24 +335,10 @@ struct clock_ymdhms {
         u_char dt_min;
         u_char dt_sec;
 };
-
 time_t clock_ymdhms_to_secs(struct clock_ymdhms *);
 void clock_secs_to_ymdhms(time_t, struct clock_ymdhms *);
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 1
-# 43 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 1
-# 38 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_null.h" 1
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/queue.h" 2
-# 44 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h" 1
-# 29 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __builtin_va_list __gnuc_va_list;
-# 41 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/stdarg.h"
 typedef __gnuc_va_list va_list;
-# 45 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 73 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int securelevel;
 extern const char *panicstr;
 extern const char version[];
@@ -566,65 +347,47 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
-
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
 extern int nchrdev;
-
 extern int selwait;
 extern int maxmem;
 extern int physmem;
-
 extern dev_t dumpdev;
 extern long dumplo;
-
 extern dev_t rootdev;
 extern u_char bootduid[8];
 extern u_char rootduid[8];
 extern struct vnode *rootvp;
-
 extern dev_t swapdev;
 extern struct vnode *swapdev_vp;
-
 struct proc;
 struct process;
-
-
 typedef int sy_call_t(struct proc *, void *, register_t *);
-
 extern struct sysent {
  short sy_narg;
  short sy_argsize;
  int sy_flags;
  sy_call_t *sy_call;
 } sysent[];
-# 131 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 extern int boothowto;
-
 extern void (*v_putc)(int);
-
-
-
-
 int nullop(void *);
 int enodev(void);
 int enosys(void);
 int enoioctl(void);
 int enxio(void);
 int eopnotsupp(void *);
-
 struct vnodeopv_desc;
 void vfs_opv_init_explicit(struct vnodeopv_desc *);
 void vfs_opv_init_default(struct vnodeopv_desc *);
 void vfs_op_init(void);
-
 int seltrue(dev_t dev, int which, struct proc *);
 int selfalse(dev_t dev, int which, struct proc *);
 void *hashinit(int, int, int, u_long *);
 void hashfree(void *, int, int);
 int sys_nosys(struct proc *, void *, register_t *);
-
 void panic(const char *, ...)
     __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
 void __assert(const char *, const char *, int, const char *)
@@ -642,18 +405,13 @@ int snprintf(char *buf, size_t, const char *, ...)
 struct tty;
 void ttyprintf(struct tty *, const char *, ...)
     __attribute__((__format__(__kprintf__,2,3)));
-
 void splassert_fail(int, int, const char *);
 extern int splassert_ctl;
-
 void assertwaitok(void);
-
 void tablefull(const char *);
-
 int kcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
-
 void bcopy(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)))
   __attribute__ ((__bounded__(__buffer__,2,3)));
@@ -670,7 +428,6 @@ void *memmove(void *, const void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 void *memset(void *, int, size_t)
   __attribute__ ((__bounded__(__buffer__,1,3)));
-
 int copystr(const void *, void *, size_t, size_t *)
   __attribute__ ((__bounded__(__string__,2,3)));
 int copyinstr(const void *, void *, size_t, size_t *)
@@ -680,35 +437,28 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
-
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
-
 struct timeval;
 struct timespec;
 int tvtohz(const struct timeval *);
 int tstohz(const struct timespec *);
 void realitexpire(void *);
-
 struct clockframe;
 void hardclock(struct clockframe *);
 void softclock(void *);
 void statclock(struct clockframe *);
-
 void initclocks(void);
 void inittodr(time_t);
 void resettodr(void);
 void cpu_initclocks(void);
-
 void startprofclock(struct process *);
 void stopprofclock(struct process *);
 void setstatclockrate(int);
-
 void start_periodic_resettodr(void);
 void stop_periodic_resettodr(void);
-
 struct sleep_state;
 void sleep_setup(struct sleep_state *, const volatile void *, int,
      const char *);
@@ -718,47 +468,28 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
-
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
 void wakeup(const volatile void *);
-
 int tsleep(const volatile void *, int, const char *, int);
 int msleep(const volatile void *, struct mutex *, int, const char*, int);
 int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
 void yield(void);
-
 void wdog_register(int (*)(void *, int), void *);
 void wdog_shutdown(void *);
-
-
-
-
-
-
 struct hook_desc {
  struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
  void (*hd_fn)(void *);
  void *hd_arg;
 };
 struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-
 extern struct hook_desc_head startuphook_list;
-
 void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
 void hook_disestablish(struct hook_desc_head *, void *);
 void dohooks(struct hook_desc_head *, int);
-# 290 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 struct uio;
 int uiomove(void *, size_t, struct uio *);
-
-
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 1
-# 57 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h" 1
-# 51 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/_lock.h"
 enum lock_class_index {
  LO_CLASS_KERNEL_LOCK,
  LO_CLASS_SCHED_LOCK,
@@ -766,89 +497,49 @@ enum lock_class_index {
  LO_CLASS_RWLOCK,
  LO_CLASS_RRWLOCK
 };
-
 struct lock_object {
  struct lock_type *lo_type;
  const char *lo_name;
  struct witness *lo_witness;
  uint32_t lo_flags;
 };
-
 struct lock_type {
  const char *lt_name;
 };
-# 58 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h" 2
-
 struct proc;
-
 struct rwlock {
  volatile unsigned long rwl_owner;
  const char *rwl_name;
-
-
-
 };
-# 127 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 struct rrwlock {
  struct rwlock rrwl_lock;
  uint32_t rrwl_wcnt;
 };
-
-
-
 void _rw_init_flags(struct rwlock *, const char *, int, struct lock_type *);
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/rwlock.h"
 void _rw_enter_read(struct rwlock * );
 void _rw_enter_write(struct rwlock * );
 void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
-
-
-
-
-
-
-
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
-
-
-
-
-
-
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
 int rw_status(struct rwlock *);
-
-
-
-
 void _rrw_init_flags(struct rrwlock *, char *, int, struct lock_type *);
 int _rrw_enter(struct rrwlock *, int );
 void _rrw_exit(struct rrwlock * );
 int rrw_status(struct rrwlock *);
-# 296 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-
 extern struct rwlock netlock;
-# 324 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 __attribute__((returns_twice)) int setjmp(label_t *);
 __attribute__((__noreturn__)) void longjmp(label_t *);
-
-
 void consinit(void);
-
 void cpu_startup(void);
 void cpu_configure(void);
 void diskconf(void);
-
 int nfs_mountroot(void);
 int dk_mountroot(void);
 extern int (*mountroot)(void);
-
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h" 1
-# 46 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 static __inline int imax(int, int);
 static __inline int imin(int, int);
 static __inline u_int max(u_int, u_int);
@@ -858,8 +549,6 @@ static __inline long lmin(long, long);
 static __inline u_long ulmax(u_long, u_long);
 static __inline u_long ulmin(u_long, u_long);
 static __inline int abs(int);
-
-
 static __inline int
 imax(int a, int b)
 {
@@ -900,13 +589,11 @@ ulmin(u_long a, u_long b)
 {
  return (a < b ? a : b);
 }
-
 static __inline int
 abs(int j)
 {
  return(j < 0 ? -j : j);
 }
-# 161 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../lib/libkern/libkern.h"
 void __assert(const char *, const char *, int, const char *)
      __attribute__ ((__noreturn__));
 int bcmp(const void *, const void *, size_t);
@@ -936,23 +623,12 @@ int getsn(char *, int);
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
-# 339 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h" 2
-# 354 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/systm.h"
 void db_enter(void);
-
-
-
 void user_config(void);
-
-
-
 void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-# 39 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c" 2
-# 1 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.h" 1
-# 54 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.h"
 typedef struct _SHA2_CTX {
  union {
   u_int32_t st32[8];
@@ -962,34 +638,25 @@ typedef struct _SHA2_CTX {
  u_int8_t buffer[128];
 } SHA2_CTX;
 
-
 void SHA256Init(SHA2_CTX *);
 void SHA256Update(SHA2_CTX *, const void *, size_t)
  __attribute__((__bounded__(__string__,2,3)));
 void SHA256Final(u_int8_t[32], SHA2_CTX *)
  __attribute__((__bounded__(__minbytes__,1,32)));
-
 void SHA384Init(SHA2_CTX *);
 void SHA384Update(SHA2_CTX *, const void *, size_t)
  __attribute__((__bounded__(__string__,2,3)));
 void SHA384Final(u_int8_t[48], SHA2_CTX *)
  __attribute__((__bounded__(__minbytes__,1,48)));
-
 void SHA512Init(SHA2_CTX *);
 void SHA512Update(SHA2_CTX *, const void *, size_t)
  __attribute__((__bounded__(__string__,2,3)));
 void SHA512Final(u_int8_t[64], SHA2_CTX *)
  __attribute__((__bounded__(__minbytes__,1,64)));
 
-# 40 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c" 2
-# 148 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
 void SHA512Last(SHA2_CTX *);
 void SHA256Transform(u_int32_t *, const u_int8_t *);
 void SHA512Transform(u_int64_t *, const u_int8_t *);
-
-
-
-
 const static u_int32_t K256[64] = {
  0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL,
  0x3956c25bUL, 0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL,
@@ -1008,8 +675,6 @@ const static u_int32_t K256[64] = {
  0x748f82eeUL, 0x78a5636fUL, 0x84c87814UL, 0x8cc70208UL,
  0x90befffaUL, 0xa4506cebUL, 0xbef9a3f7UL, 0xc67178f2UL
 };
-
-
 const static u_int32_t sha256_initial_hash_value[8] = {
  0x6a09e667UL,
  0xbb67ae85UL,
@@ -1020,8 +685,6 @@ const static u_int32_t sha256_initial_hash_value[8] = {
  0x1f83d9abUL,
  0x5be0cd19UL
 };
-
-
 const static u_int64_t K512[80] = {
  0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL,
  0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
@@ -1064,8 +727,6 @@ const static u_int64_t K512[80] = {
  0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL,
  0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
 };
-
-
 const static u_int64_t sha384_initial_hash_value[8] = {
  0xcbbb9d5dc1059ed8ULL,
  0x629a292a367cd507ULL,
@@ -1076,8 +737,6 @@ const static u_int64_t sha384_initial_hash_value[8] = {
  0xdb0c2e0d64f98fa7ULL,
  0x47b5481dbefa4fa4ULL
 };
-
-
 const static u_int64_t sha512_initial_hash_value[8] = {
  0x6a09e667f3bcc908ULL,
  0xbb67ae8584caa73bULL,
@@ -1088,26 +747,19 @@ const static u_int64_t sha512_initial_hash_value[8] = {
  0x1f83d9abfb41bd6bULL,
  0x5be0cd19137e2179ULL
 };
-
-
-
 void
 SHA256Init(SHA2_CTX *context)
 {
  __builtin_memcpy((context->state.st32), (sha256_initial_hash_value), (32));
-
  __builtin_memset((context->buffer), (0), (64));
  context->bitcount[0] = 0;
 }
-# 349 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
 void
 SHA256Transform(u_int32_t *state, const u_int8_t *data)
 {
  u_int32_t a, b, c, d, e, f, g, h, s0, s1;
  u_int32_t T1, T2, W256[16];
  int j;
-
-
  a = state[0];
  b = state[1];
  c = state[2];
@@ -1116,13 +768,11 @@ SHA256Transform(u_int32_t *state, const u_int8_t *data)
  f = state[5];
  g = state[6];
  h = state[7];
-
  j = 0;
  do {
   W256[j] = (u_int32_t)data[3] | ((u_int32_t)data[2] << 8) |
       ((u_int32_t)data[1] << 16) | ((u_int32_t)data[0] << 24);
   data += 4;
-
   T1 = h + (((((e)) >> (6)) | (((e)) << (32 - (6)))) ^ ((((e)) >> (11)) | (((e)) << (32 - (11)))) ^ ((((e)) >> (25)) | (((e)) << (32 - (25))))) + (((e) & (f)) ^ ((~(e)) & (g))) + K256[j] + W256[j];
   T2 = (((((a)) >> (2)) | (((a)) << (32 - (2)))) ^ ((((a)) >> (13)) | (((a)) << (32 - (13)))) ^ ((((a)) >> (22)) | (((a)) << (32 - (22))))) + (((a) & (b)) ^ ((a) & (c)) ^ ((b) & (c)));
   h = g;
@@ -1133,18 +783,13 @@ SHA256Transform(u_int32_t *state, const u_int8_t *data)
   c = b;
   b = a;
   a = T1 + T2;
-
   j++;
  } while (j < 16);
-
  do {
-
   s0 = W256[(j+1)&0x0f];
   s0 = (((((s0)) >> (7)) | (((s0)) << (32 - (7)))) ^ ((((s0)) >> (18)) | (((s0)) << (32 - (18)))) ^ (((s0)) >> (3)));
   s1 = W256[(j+14)&0x0f];
   s1 = (((((s1)) >> (17)) | (((s1)) << (32 - (17)))) ^ ((((s1)) >> (19)) | (((s1)) << (32 - (19)))) ^ (((s1)) >> (10)));
-
-
   T1 = h + (((((e)) >> (6)) | (((e)) << (32 - (6)))) ^ ((((e)) >> (11)) | (((e)) << (32 - (11)))) ^ ((((e)) >> (25)) | (((e)) << (32 - (25))))) + (((e) & (f)) ^ ((~(e)) & (g))) + K256[j] +
        (W256[j&0x0f] += s1 + W256[(j+9)&0x0f] + s0);
   T2 = (((((a)) >> (2)) | (((a)) << (32 - (2)))) ^ ((((a)) >> (13)) | (((a)) << (32 - (13)))) ^ ((((a)) >> (22)) | (((a)) << (32 - (22))))) + (((a) & (b)) ^ ((a) & (c)) ^ ((b) & (c)));
@@ -1156,11 +801,8 @@ SHA256Transform(u_int32_t *state, const u_int8_t *data)
   c = b;
   b = a;
   a = T1 + T2;
-
   j++;
  } while (j < 64);
-
-
  state[0] += a;
  state[1] += b;
  state[2] += c;
@@ -1169,128 +811,82 @@ SHA256Transform(u_int32_t *state, const u_int8_t *data)
  state[5] += f;
  state[6] += g;
  state[7] += h;
-
-
  a = b = c = d = e = f = g = h = T1 = T2 = 0;
 }
-
-
-
 void
 SHA256Update(SHA2_CTX *context, const void *dataptr, size_t len)
 {
  const uint8_t *data = dataptr;
  size_t freespace, usedspace;
-
-
  if (len == 0)
   return;
-
  usedspace = (context->bitcount[0] >> 3) % 64;
  if (usedspace > 0) {
-
   freespace = 64 - usedspace;
-
   if (len >= freespace) {
-
    __builtin_memcpy((&context->buffer[usedspace]), (data), (freespace));
    context->bitcount[0] += freespace << 3;
    len -= freespace;
    data += freespace;
    SHA256Transform(context->state.st32, context->buffer);
   } else {
-
    __builtin_memcpy((&context->buffer[usedspace]), (data), (len));
    context->bitcount[0] += len << 3;
-
    usedspace = freespace = 0;
    return;
   }
  }
  while (len >= 64) {
-
   SHA256Transform(context->state.st32, data);
   context->bitcount[0] += 64 << 3;
   len -= 64;
   data += 64;
  }
  if (len > 0) {
-
   __builtin_memcpy((context->buffer), (data), (len));
   context->bitcount[0] += len << 3;
  }
-
  usedspace = freespace = 0;
 }
-
 void
 SHA256Final(u_int8_t digest[], SHA2_CTX *context)
 {
  unsigned int usedspace;
-
  usedspace = (context->bitcount[0] >> 3) % 64;
-
-
-
-
  if (usedspace > 0) {
-
   context->buffer[usedspace++] = 0x80;
-
   if (usedspace <= (64 - 8)) {
-
    __builtin_memset((&context->buffer[usedspace]), (0), ((64 - 8) - usedspace));
-
   } else {
    if (usedspace < 64) {
     __builtin_memset((&context->buffer[usedspace]), (0), (64 - usedspace));
-
    }
-
    SHA256Transform(context->state.st32, context->buffer);
-
-
    __builtin_memset((context->buffer), (0), ((64 - 8)));
-
   }
  } else {
-
   __builtin_memset((context->buffer), (0), ((64 - 8)));
-
-
   *context->buffer = 0x80;
  }
-
  *(u_int64_t *)&context->buffer[(64 - 8)] = context->bitcount[0];
-
-
  SHA256Transform(context->state.st32, context->buffer);
-# 524 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
  __builtin_memcpy((digest), (context->state.st32), (32));
-
  explicit_bzero(context, sizeof(*context));
  usedspace = 0;
 }
-
-
-
 void
 SHA512Init(SHA2_CTX *context)
 {
  __builtin_memcpy((context->state.st64), (sha512_initial_hash_value), (64));
-
  __builtin_memset((context->buffer), (0), (128));
  context->bitcount[0] = context->bitcount[1] = 0;
 }
-# 627 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
 void
 SHA512Transform(u_int64_t *state, const u_int8_t *data)
 {
  u_int64_t a, b, c, d, e, f, g, h, s0, s1;
  u_int64_t T1, T2, W512[16];
  int j;
-
-
  a = state[0];
  b = state[1];
  c = state[2];
@@ -1299,7 +895,6 @@ SHA512Transform(u_int64_t *state, const u_int8_t *data)
  f = state[5];
  g = state[6];
  h = state[7];
-
  j = 0;
  do {
   W512[j] = (u_int64_t)data[7] | ((u_int64_t)data[6] << 8) |
@@ -1307,7 +902,6 @@ SHA512Transform(u_int64_t *state, const u_int8_t *data)
       ((u_int64_t)data[3] << 32) | ((u_int64_t)data[2] << 40) |
       ((u_int64_t)data[1] << 48) | ((u_int64_t)data[0] << 56);
   data += 8;
-
   T1 = h + (((((e)) >> (14)) | (((e)) << (64 - (14)))) ^ ((((e)) >> (18)) | (((e)) << (64 - (18)))) ^ ((((e)) >> (41)) | (((e)) << (64 - (41))))) + (((e) & (f)) ^ ((~(e)) & (g))) + K512[j] + W512[j];
   T2 = (((((a)) >> (28)) | (((a)) << (64 - (28)))) ^ ((((a)) >> (34)) | (((a)) << (64 - (34)))) ^ ((((a)) >> (39)) | (((a)) << (64 - (39))))) + (((a) & (b)) ^ ((a) & (c)) ^ ((b) & (c)));
   h = g;
@@ -1318,18 +912,13 @@ SHA512Transform(u_int64_t *state, const u_int8_t *data)
   c = b;
   b = a;
   a = T1 + T2;
-
   j++;
  } while (j < 16);
-
  do {
-
   s0 = W512[(j+1)&0x0f];
   s0 = (((((s0)) >> (1)) | (((s0)) << (64 - (1)))) ^ ((((s0)) >> (8)) | (((s0)) << (64 - (8)))) ^ (((s0)) >> (7)));
   s1 = W512[(j+14)&0x0f];
   s1 = (((((s1)) >> (19)) | (((s1)) << (64 - (19)))) ^ ((((s1)) >> (61)) | (((s1)) << (64 - (61)))) ^ (((s1)) >> (6)));
-
-
   T1 = h + (((((e)) >> (14)) | (((e)) << (64 - (14)))) ^ ((((e)) >> (18)) | (((e)) << (64 - (18)))) ^ ((((e)) >> (41)) | (((e)) << (64 - (41))))) + (((e) & (f)) ^ ((~(e)) & (g))) + K512[j] +
        (W512[j&0x0f] += s1 + W512[(j+9)&0x0f] + s0);
   T2 = (((((a)) >> (28)) | (((a)) << (64 - (28)))) ^ ((((a)) >> (34)) | (((a)) << (64 - (34)))) ^ ((((a)) >> (39)) | (((a)) << (64 - (39))))) + (((a) & (b)) ^ ((a) & (c)) ^ ((b) & (c)));
@@ -1341,11 +930,8 @@ SHA512Transform(u_int64_t *state, const u_int8_t *data)
   c = b;
   b = a;
   a = T1 + T2;
-
   j++;
  } while (j < 80);
-
-
  state[0] += a;
  state[1] += b;
  state[2] += c;
@@ -1354,141 +940,90 @@ SHA512Transform(u_int64_t *state, const u_int8_t *data)
  state[5] += f;
  state[6] += g;
  state[7] += h;
-
-
  a = b = c = d = e = f = g = h = T1 = T2 = 0;
 }
-
-
-
 void
 SHA512Update(SHA2_CTX *context, const void *dataptr, size_t len)
 {
  const uint8_t *data = dataptr;
  size_t freespace, usedspace;
-
-
  if (len == 0)
   return;
-
  usedspace = (context->bitcount[0] >> 3) % 128;
  if (usedspace > 0) {
-
   freespace = 128 - usedspace;
-
   if (len >= freespace) {
-
    __builtin_memcpy((&context->buffer[usedspace]), (data), (freespace));
    { (context->bitcount)[0] += (u_int64_t)(freespace << 3); if ((context->bitcount)[0] < (freespace << 3)) { (context->bitcount)[1]++; } };
    len -= freespace;
    data += freespace;
    SHA512Transform(context->state.st64, context->buffer);
   } else {
-
    __builtin_memcpy((&context->buffer[usedspace]), (data), (len));
    { (context->bitcount)[0] += (u_int64_t)(len << 3); if ((context->bitcount)[0] < (len << 3)) { (context->bitcount)[1]++; } };
-
    usedspace = freespace = 0;
    return;
   }
  }
  while (len >= 128) {
-
   SHA512Transform(context->state.st64, data);
   { (context->bitcount)[0] += (u_int64_t)(128 << 3); if ((context->bitcount)[0] < (128 << 3)) { (context->bitcount)[1]++; } };
   len -= 128;
   data += 128;
  }
  if (len > 0) {
-
   __builtin_memcpy((context->buffer), (data), (len));
   { (context->bitcount)[0] += (u_int64_t)(len << 3); if ((context->bitcount)[0] < (len << 3)) { (context->bitcount)[1]++; } };
  }
-
  usedspace = freespace = 0;
 }
-
 void
 SHA512Last(SHA2_CTX *context)
 {
  unsigned int usedspace;
-
  usedspace = (context->bitcount[0] >> 3) % 128;
-
-
-
-
-
  if (usedspace > 0) {
-
   context->buffer[usedspace++] = 0x80;
-
   if (usedspace <= (128 - 16)) {
-
    __builtin_memset((&context->buffer[usedspace]), (0), ((128 - 16) - usedspace));
-
   } else {
    if (usedspace < 128) {
     __builtin_memset((&context->buffer[usedspace]), (0), (128 - usedspace));
-
    }
-
    SHA512Transform(context->state.st64, context->buffer);
-
-
    __builtin_memset((context->buffer), (0), (128 - 2));
   }
  } else {
-
   __builtin_memset((context->buffer), (0), ((128 - 16)));
-
-
   *context->buffer = 0x80;
  }
-
  *(u_int64_t *)&context->buffer[(128 - 16)] = context->bitcount[1];
  *(u_int64_t *)&context->buffer[(128 - 16)+8] = context->bitcount[0];
-
-
  SHA512Transform(context->state.st64, context->buffer);
 }
-
 void
 SHA512Final(u_int8_t digest[], SHA2_CTX *context)
 {
-
  SHA512Last(context);
-# 813 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
  __builtin_memcpy((digest), (context->state.st64), (64));
-
-
  explicit_bzero(context, sizeof(*context));
 }
-
-
-
 void
 SHA384Init(SHA2_CTX *context)
 {
  __builtin_memcpy((context->state.st64), (sha384_initial_hash_value), (64));
-
  __builtin_memset((context->buffer), (0), (128));
  context->bitcount[0] = context->bitcount[1] = 0;
 }
-
 void
 SHA384Update(SHA2_CTX *context, const void *data, size_t len)
 {
  SHA512Update(context, data, len);
 }
-
 void
 SHA384Final(u_int8_t digest[], SHA2_CTX *context)
 {
-
  SHA512Last(context);
-# 852 "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../crypto/sha2.c"
  __builtin_memcpy((digest), (context->state.st64), (48));
-
  explicit_bzero(context, sizeof(*context));
 }
