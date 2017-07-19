@@ -1572,8 +1572,8 @@ extern int filt_seltrue(struct knote *kn, long hint);
 extern int seltrue_kqfilter(dev_t, struct knote *);
 extern void klist_invalidate(struct klist *);
 struct selinfo {
- pid_t si_seltid;
  struct klist si_note;
+ pid_t si_seltid;
  short si_flags;
 };
 struct proc;
@@ -3734,6 +3734,10 @@ wsdisplay_cfg_ioctl(struct wsdisplay_softc *sc, u_long cmd, caddr_t data,
   return (wsdisplay_switch((void *)sc, *(int *)data, 1));
  case ((unsigned long)0x80000000 | ((sizeof(struct wsdisplay_font) & 0x1fff) << 16) | ((('W')) << 8) | ((77))):
   if (!sc->sc_accessops->load_font)
+   return (22);
+  if (((struct wsdisplay_font *)data)->fontheight > 64 || ((struct wsdisplay_font *)data)->stride > 8)
+   return (22);
+  if (((struct wsdisplay_font *)data)->numchars > 65536)
    return (22);
   fontsz = ((struct wsdisplay_font *)data)->fontheight * ((struct wsdisplay_font *)data)->stride * ((struct wsdisplay_font *)data)->numchars;
   if (fontsz > (512*1024))

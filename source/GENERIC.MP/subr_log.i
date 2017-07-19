@@ -1268,8 +1268,8 @@ extern int filt_seltrue(struct knote *kn, long hint);
 extern int seltrue_kqfilter(dev_t, struct knote *);
 extern void klist_invalidate(struct klist *);
 struct selinfo {
- pid_t si_seltid;
  struct klist si_note;
+ pid_t si_seltid;
  short si_flags;
 };
 struct proc;
@@ -4624,6 +4624,8 @@ dosendsyslog(struct proc *p, const char *buf, size_t nbyte, int flags,
  struct uio auio;
  size_t i, len;
  int error;
+ if (nbyte > 8192)
+  nbyte = 8192;
  fp = syslogf;
  if (fp)
   do { (fp)->f_count++; } while (0);

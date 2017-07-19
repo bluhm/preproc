@@ -1488,8 +1488,8 @@ extern int filt_seltrue(struct knote *kn, long hint);
 extern int seltrue_kqfilter(dev_t, struct knote *);
 extern void klist_invalidate(struct klist *);
 struct selinfo {
- pid_t si_seltid;
  struct klist si_note;
+ pid_t si_seltid;
  short si_flags;
 };
 struct proc;
