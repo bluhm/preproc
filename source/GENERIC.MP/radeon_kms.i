@@ -7386,7 +7386,12 @@ struct drm_dmamem {
  int nsegs;
  bus_dma_segment_t segs[1];
 };
-typedef struct drm_dmamem drm_dma_handle_t;
+typedef struct drm_dma_handle {
+ struct drm_dmamem *mem;
+ dma_addr_t busaddr;
+ void *vaddr;
+ size_t size;
+} drm_dma_handle_t;
 struct drm_pending_event {
  struct drm_event *event;
  struct list_head link;
@@ -7605,6 +7610,9 @@ struct drm_local_map *drm_getsarea(struct drm_device *);
 struct drm_dmamem *drm_dmamem_alloc(bus_dma_tag_t, bus_size_t, bus_size_t,
         int, bus_size_t, int, int);
 void drm_dmamem_free(bus_dma_tag_t, struct drm_dmamem *);
+extern struct drm_dma_handle *drm_pci_alloc(struct drm_device *dev, size_t size,
+         size_t align);
+extern void drm_pci_free(struct drm_device *dev, struct drm_dma_handle * dmah);
 const struct drm_pcidev *drm_find_description(int , int ,
         const struct drm_pcidev *);
 int drm_order(unsigned long);
@@ -8576,6 +8584,7 @@ struct wsdisplay_accessops {
  int (*getchar)(void *, int, int, struct wsdisplay_charcell *);
  void (*burn_screen)(void *, u_int, u_int);
  void (*pollc)(void *, int);
+ void (*enter_ddb)(void *, void *);
 };
 struct wsscreen_list {
  int nscreens;
@@ -8622,6 +8631,7 @@ int wsdisplay_cfg_ioctl(struct wsdisplay_softc *sc,
         u_long cmd, caddr_t data,
         int flag, struct proc *p);
 void wsdisplay_switchtoconsole(void);
+void wsdisplay_enter_ddb(void);
 void wsdisplay_suspend(void);
 void wsdisplay_resume(void);
 const struct wsscreen_descr *
@@ -12172,6 +12182,7 @@ void radeondrm_free_screen(void *, void *);
 int radeondrm_show_screen(void *, void *, int,
     void (*)(void *, int, int), void *);
 void radeondrm_doswitch(void *);
+void radeondrm_enter_ddb(void *, void *);
 void radeondrm_setcolor(void *, u_int, u_int8_t, u_int8_t, u_int8_t);
 struct wsscreen_descr radeondrm_stdscreen = {
  "std",
@@ -12193,6 +12204,7 @@ struct wsdisplay_accessops radeondrm_accessops = {
  .alloc_screen = radeondrm_alloc_screen,
  .free_screen = radeondrm_free_screen,
  .show_screen = radeondrm_show_screen,
+ .enter_ddb = radeondrm_enter_ddb,
  .getchar = rasops_getchar,
  .load_font = rasops_load_font,
  .list_font = rasops_list_font,
@@ -12272,6 +12284,17 @@ radeondrm_doswitch(void *v)
  drm_fb_helper_restore_fbdev_mode_unlocked((void *)rdev->mode_info.rfbdev);
  if (rdev->switchcb)
   (rdev->switchcb)(rdev->switchcbarg, 0, 0);
+}
+void
+radeondrm_enter_ddb(void *v, void *cookie)
+{
+ struct rasops_info *ri = v;
+ struct radeon_device *rdev = ri->ri_hw;
+ struct drm_fb_helper *fb_helper = (void *)rdev->mode_info.rfbdev;
+ if (cookie == ri->ri_active)
+  return;
+ rasops_show_screen(ri, cookie, 0, ((void *)0), ((void *)0));
+ drm_fb_helper_debug_enter(fb_helper->fbdev);
 }
 void
 radeondrm_setcolor(void *v, u_int index, u_int8_t r, u_int8_t g, u_int8_t b)
@@ -12515,7 +12538,7 @@ int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
     value64 = r600_get_gpu_clock(rdev);
    }
    if (copyout(&value64, value_ptr64, sizeof(value64))) {
-    printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 881);
+    printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 897);
     return -14;
    }
    return 0;
@@ -12526,7 +12549,7 @@ int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
  }
  value_ptr = (uint32_t *)((unsigned long)info->value);
  if (copyin(value_ptr, &value, sizeof(value))) {
-  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 893);
+  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 909);
   return -14;
  }
  switch (info->request) {
@@ -12702,7 +12725,7 @@ int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file *filp)
   return -22;
  }
  if (copyout(&value, value_ptr, sizeof(uint32_t))) {
-  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1081);
+  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1097);
   return -14;
  }
  return 0;

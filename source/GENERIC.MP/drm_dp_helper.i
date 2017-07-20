@@ -7482,7 +7482,12 @@ struct drm_dmamem {
  int nsegs;
  bus_dma_segment_t segs[1];
 };
-typedef struct drm_dmamem drm_dma_handle_t;
+typedef struct drm_dma_handle {
+ struct drm_dmamem *mem;
+ dma_addr_t busaddr;
+ void *vaddr;
+ size_t size;
+} drm_dma_handle_t;
 struct drm_pending_event {
  struct drm_event *event;
  struct list_head link;
@@ -7701,6 +7706,9 @@ struct drm_local_map *drm_getsarea(struct drm_device *);
 struct drm_dmamem *drm_dmamem_alloc(bus_dma_tag_t, bus_size_t, bus_size_t,
         int, bus_size_t, int, int);
 void drm_dmamem_free(bus_dma_tag_t, struct drm_dmamem *);
+extern struct drm_dma_handle *drm_pci_alloc(struct drm_device *dev, size_t size,
+         size_t align);
+extern void drm_pci_free(struct drm_device *dev, struct drm_dma_handle * dmah);
 const struct drm_pcidev *drm_find_description(int , int ,
         const struct drm_pcidev *);
 int drm_order(unsigned long);

@@ -3867,6 +3867,8 @@ u_int32_t urndis_ctrl_handle_query(struct urndis_softc *,
     const struct rndis_comp_hdr *, void **, size_t *);
 u_int32_t urndis_ctrl_handle_reset(struct urndis_softc *,
     const struct rndis_comp_hdr *);
+u_int32_t urndis_ctrl_handle_status(struct urndis_softc *,
+    const struct rndis_comp_hdr *);
 u_int32_t urndis_ctrl_init(struct urndis_softc *);
 u_int32_t urndis_ctrl_halt(struct urndis_softc *);
 u_int32_t urndis_ctrl_query(struct urndis_softc *, u_int32_t, void *, size_t,
@@ -3974,6 +3976,9 @@ urndis_ctrl_handle(struct urndis_softc *sc, struct rndis_comp_hdr *hdr,
   case 0x80000005:
    rval = __extension__({ __uint32_t __swap32gen_x = (hdr->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
    break;
+  case 0x00000007:
+   rval = urndis_ctrl_handle_status(sc, hdr);
+   break;
   default:
    printf("%s: ctrl message error: unknown event 0x%x\n",
        ((sc)->sc_dev.dv_xname), __extension__({ __uint32_t __swap32gen_x = (hdr->rm_type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
@@ -4078,6 +4083,26 @@ urndis_ctrl_handle_reset(struct urndis_softc *sc,
        ((sc)->sc_dev.dv_xname));
    return rval;
   }
+ }
+ return rval;
+}
+u_int32_t
+urndis_ctrl_handle_status(struct urndis_softc *sc,
+    const struct rndis_comp_hdr *hdr)
+{
+ const struct rndis_status_msg *msg;
+ u_int32_t rval;
+ msg = (struct rndis_status_msg *)hdr;
+ rval = __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ;
+ switch (rval) {
+  case 0x4001000BL:
+  case 0x4001000CL:
+  case 0x40020006:
+   rval = 0x00000000L;
+   break;
+  default:
+   printf("%s: status 0x%x\n", ((sc)->sc_dev.dv_xname), rval);
  }
  return rval;
 }

@@ -2643,7 +2643,6 @@ struct midi_softc {
  int wchan;
  struct selinfo rsel;
  struct selinfo wsel;
- struct proc *async;
  struct timeout timeo;
  struct midi_buffer inbuf;
  struct midi_buffer outbuf;
@@ -2699,8 +2698,6 @@ midi_iintr(void *addr, int data)
    wakeup(&sc->rchan);
   }
   selwakeup(&sc->rsel);
-  if (sc->async)
-   psignal(sc->async, 23);
  }
 }
 int
@@ -2789,8 +2786,6 @@ midi_out_stop(struct midi_softc *sc)
   wakeup(&sc->wchan);
  }
  selwakeup(&sc->wsel);
- if (sc->async)
-  psignal(sc->async, 23);
 }
 void
 midi_out_do(struct midi_softc *sc)
@@ -2974,20 +2969,9 @@ midiioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  switch(cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((126))):
   break;
- case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((125))):
-  if (*(int *)addr) {
-   if (sc->async) {
-    error = 16;
-    goto done;
-   }
-   sc->async = p;
-  } else
-   sc->async = 0;
-  break;
  default:
   error = 25;
  }
-done:
  device_unref(&sc->dev);
  return error;
 }
@@ -3008,7 +2992,6 @@ midiopen(dev_t dev, int flags, int mode, struct proc *p)
  do { (&sc->outbuf)->start = (&sc->outbuf)->used = 0; } while(0);
  sc->isbusy = 0;
  sc->rchan = sc->wchan = 0;
- sc->async = 0;
  sc->flags = flags;
  error = sc->hw_if->open(sc->hw_hdl, flags, midi_iintr, midi_ointr, sc);
  if (error)

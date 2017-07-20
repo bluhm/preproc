@@ -3922,7 +3922,7 @@ sys_ptrace(struct proc *p, void *v, register_t *retval)
  struct fpreg64 *fpregs;
  register_t wcookie;
  int error, write;
- int temp;
+ int temp = 0;
  int req = ((uap)->req.be.datum);
  pid_t pid = ((uap)->pid.be.datum);
  caddr_t addr = ((uap)->addr.be.datum);

@@ -8038,7 +8038,8 @@ swofp_action_output_controller(struct switch_softc *sc, struct mbuf *m0,
  }
  if ((sizeof(*pin) + match_len) >= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
   (void) m_clget((m), (0x0002), (1 << 11));
-  if (m == ((void *)0)) {
+  if ((m->m_hdr.mh_flags & 0x0001) == 0) {
+   m_freem(m);
    m_freem(m0);
    return (55);
   }
@@ -9171,8 +9172,10 @@ swofp_send_flow_removed(struct switch_softc *sc, struct swofp_flow_entry *swfe,
   return (55);
  if ((sizeof(*ofr) + match_len) >= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
   (void) m_clget((m), (0x0001), (1 << 11));
-  if (m == ((void *)0))
+  if ((m->m_hdr.mh_flags & 0x0001) == 0) {
+   m_freem(m);
    return (55);
+  }
  }
  ofr = ((struct ofp_flow_removed *)((m)->m_hdr.mh_data));
  ofr->fr_oh.oh_version = 0x04;
@@ -9743,10 +9746,13 @@ swofp_mpmsg_reply_create(struct ofp_multipart *req, struct swofp_mpmsg *swmp)
  hdr->m_hdr.mh_len = hdr->M_dat.MH.MH_pkthdr.len = sizeof(*omp);
  swmp->swmp_hdr = hdr;
  body = m_gethdr((0x0002), (1));
- if (body != ((void *)0))
-  (void) m_clget((body), (0x0002), (1 << 11));
  if (body == ((void *)0))
   goto error;
+ (void) m_clget((body), (0x0002), (1 << 11));
+ if ((body->m_hdr.mh_flags & 0x0001) == 0) {
+  m_freem(body);
+  goto error;
+ }
  body->m_hdr.mh_len = body->M_dat.MH.MH_pkthdr.len = 0;
  ml_enqueue(&swmp->swmp_body, body);
  return (0);
@@ -9760,16 +9766,19 @@ swofp_mpmsg_put(struct swofp_mpmsg *swmp, caddr_t data, size_t len)
 {
  struct mbuf *m, *n;
  int error;
- ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5704, "swmp->swmp_hdr != NULL"));
+ ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5710, "swmp->swmp_hdr != NULL"));
  m = swmp->swmp_body.ml_tail;
  if (m == ((void *)0))
   return (55);
  if (m->M_dat.MH.MH_pkthdr.len + len > 0xffef) {
   n = m_gethdr((0x0002), (1));
-  if (n != ((void *)0))
-   (void) m_clget((n), (0x0002), (1 << 11));
   if (n == ((void *)0))
    return (55);
+  (void) m_clget((n), (0x0002), (1 << 11));
+  if ((n->m_hdr.mh_flags & 0x0001) == 0) {
+   m_freem(n);
+   return (55);
+  }
   n->m_hdr.mh_len = n->M_dat.MH.MH_pkthdr.len = 0;
   ml_enqueue(&swmp->swmp_body, n);
   m = n;
@@ -9783,16 +9792,19 @@ swofp_mpmsg_m_put(struct swofp_mpmsg *swmp, struct mbuf *msg)
 {
  struct mbuf *m, *n;
  int len;
- ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5738, "swmp->swmp_hdr != NULL"));
+ ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5747, "swmp->swmp_hdr != NULL"));
  m = swmp->swmp_body.ml_tail;
  if (m == ((void *)0))
   return (55);
  if (m->M_dat.MH.MH_pkthdr.len + msg->M_dat.MH.MH_pkthdr.len > 0xffef) {
   n = m_gethdr((0x0002), (1));
-  if (n != ((void *)0))
-   (void) m_clget((n), (0x0002), (1 << 11));
   if (n == ((void *)0))
    return (55);
+  (void) m_clget((n), (0x0002), (1 << 11));
+  if ((n->m_hdr.mh_flags & 0x0001) == 0) {
+   m_freem(n);
+   return (55);
+  }
   n->m_hdr.mh_len = n->M_dat.MH.MH_pkthdr.len = 0;
   ml_enqueue(&swmp->swmp_body, n);
   m = n;
@@ -9837,7 +9849,7 @@ swofp_multipart_reply(struct switch_softc *sc, struct swofp_mpmsg *swmp)
  struct ofp_multipart *omp;
  struct mbuf *hdr, *body;
  int len, error = 0;
- ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5807, "swmp->swmp_hdr != NULL"));
+ ((swmp->swmp_hdr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/switchofp.c", 5819, "swmp->swmp_hdr != NULL"));
  omp = ((struct ofp_multipart *)((swmp->swmp_hdr)->m_hdr.mh_data));
  while ((body = ml_dequeue(&swmp->swmp_body)) != ((void *)0)) {
   omp->mp_oh.oh_length = ((__uint16_t)(sizeof(*omp) + body->M_dat.MH.MH_pkthdr.len));
@@ -10315,10 +10327,13 @@ swofp_mp_recv_table_features(struct switch_softc *sc, struct mbuf *m)
   goto error;
  for((swft) = ((&ofs->swofs_table_list)->tqh_first); (swft) != ((void *)0); (swft) = ((swft)->swft_table_next.tqe_next)) {
   n = m_gethdr((0x0002), (1));
-  if (n != ((void *)0))
-   (void) m_clget((n), (0x0002), (1 << 11));
   if (n == ((void *)0))
    goto error;
+  (void) m_clget((n), (0x0002), (1 << 11));
+  if ((n->m_hdr.mh_flags & 0x0001) == 0) {
+   m_freem(n);
+   goto error;
+  }
   n->m_hdr.mh_len = n->M_dat.MH.MH_pkthdr.len = sizeof(*tblf);
   tblf = ((struct ofp_table_features *)((n)->m_hdr.mh_data));
   __builtin_memset((tblf), (0), (sizeof(*tblf)));

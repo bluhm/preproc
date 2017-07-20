@@ -2937,8 +2937,6 @@ struct ieee80211_nodereq {
  u_int8_t nr_tstamp[8];
  u_int16_t nr_intval;
  u_int16_t nr_capinfo;
- u_int16_t nr_fhdwell;
- u_int8_t nr_fhindex;
  u_int8_t nr_erp;
  u_int8_t nr_pwrsave;
  u_int16_t nr_associd;
@@ -3534,6 +3532,8 @@ ieee80211_node2req(struct ieee80211com *ic, const struct ieee80211_node *ni,
     struct ieee80211_nodereq *nr)
 {
  uint8_t rssi;
+ __builtin_memset((nr), (0), (sizeof(*nr)));
+ strlcpy(nr->nr_ifname, ic->ic_ac.ac_if.if_xname, sizeof(nr->nr_ifname));
  __builtin_memcpy((nr->nr_macaddr), (ni->ni_macaddr), (6));
  __builtin_memcpy((nr->nr_bssid), (ni->ni_bssid), (6));
  nr->nr_nwid_len = ni->ni_esslen;

@@ -2687,6 +2687,7 @@ struct wsdisplay_accessops {
  int (*getchar)(void *, int, int, struct wsdisplay_charcell *);
  void (*burn_screen)(void *, u_int, u_int);
  void (*pollc)(void *, int);
+ void (*enter_ddb)(void *, void *);
 };
 struct wsscreen_list {
  int nscreens;
@@ -2733,6 +2734,7 @@ int wsdisplay_cfg_ioctl(struct wsdisplay_softc *sc,
         u_long cmd, caddr_t data,
         int flag, struct proc *p);
 void wsdisplay_switchtoconsole(void);
+void wsdisplay_enter_ddb(void);
 void wsdisplay_suspend(void);
 void wsdisplay_resume(void);
 const struct wsscreen_descr *
@@ -4243,6 +4245,24 @@ wsdisplay_switchtoconsole(void)
    return;
   (*sc->sc_accessops->show_screen)(sc->sc_accesscookie,
       scr->scr_dconf->emulcookie, 0, ((void *)0), ((void *)0));
+ }
+}
+void
+wsdisplay_enter_ddb(void)
+{
+ struct wsdisplay_softc *sc;
+ struct wsscreen *scr;
+ if (wsdisplay_console_device != ((void *)0) && cn_tab == &wsdisplay_cons) {
+  sc = wsdisplay_console_device;
+  if ((scr = sc->sc_scr[0]) == ((void *)0))
+   return;
+  if (sc->sc_accessops->enter_ddb) {
+   (*sc->sc_accessops->enter_ddb)(sc->sc_accesscookie,
+       scr->scr_dconf->emulcookie);
+  } else {
+   (*sc->sc_accessops->show_screen)(sc->sc_accesscookie,
+       scr->scr_dconf->emulcookie, 0, ((void *)0), ((void *)0));
+  }
  }
 }
 void

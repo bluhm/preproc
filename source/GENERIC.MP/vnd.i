@@ -3054,7 +3054,8 @@ vndgetdisklabel(dev_t dev, struct vnd_softc *sc, struct disklabel *lp,
  lp->d_nsectors = sc->sc_nsectors;
  lp->d_ntracks = sc->sc_ntracks;
  lp->d_secpercyl = lp->d_ntracks * lp->d_nsectors;
- lp->d_ncylinders = sc->sc_size / lp->d_secpercyl;
+ if (lp->d_secpercyl)
+  lp->d_ncylinders = sc->sc_size / lp->d_secpercyl;
  strncpy(lp->d_typename, "vnd device", sizeof(lp->d_typename));
  lp->d_type = 12;
  strncpy(lp->d_packname, "fictitious", sizeof(lp->d_packname));
@@ -3190,6 +3191,7 @@ vndioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   if (sc->sc_flags & 0x0001)
    return (16);
   if (vio->vnd_secsize > 0xffffffffU ||
+      vio->vnd_secsize == 0 ||
       vio->vnd_ntracks > 0xffffffffU ||
       vio->vnd_nsectors > 0xffffffffU)
    return (22);

@@ -2876,8 +2876,6 @@ struct ieee80211_nodereq {
  u_int8_t nr_tstamp[8];
  u_int16_t nr_intval;
  u_int16_t nr_capinfo;
- u_int16_t nr_fhdwell;
- u_int8_t nr_fhindex;
  u_int8_t nr_erp;
  u_int8_t nr_pwrsave;
  u_int16_t nr_associd;

@@ -5041,8 +5041,6 @@ struct ieee80211_nodereq {
  u_int8_t nr_tstamp[8];
  u_int16_t nr_intval;
  u_int16_t nr_capinfo;
- u_int16_t nr_fhdwell;
- u_int8_t nr_fhindex;
  u_int8_t nr_erp;
  u_int8_t nr_pwrsave;
  u_int16_t nr_associd;
@@ -6045,9 +6043,19 @@ ieee80211_end_scan(struct ifnet *ifp)
   else if ((ic->ic_caps & 0x00008000) &&
       (((selbs->ni_chan)->ic_flags & 0x0100) != 0) &&
       (((ni->ni_chan)->ic_flags & 0x0080) != 0) &&
-      selbs->ni_rssi >= (ic->ic_max_rssi - (ic->ic_max_rssi / 4)))
-   continue;
-  else if (ni->ni_rssi > selbs->ni_rssi)
+      ni->ni_rssi > selbs->ni_rssi) {
+       uint8_t min_rssi = 0, max_rssi = ic->ic_max_rssi;
+   if (max_rssi) {
+    if (ni->ni_rssi > max_rssi / 3)
+     min_rssi = ni->ni_rssi - (max_rssi / 3);
+   } else {
+    if (ni->ni_rssi > 10)
+         min_rssi = ni->ni_rssi - 10;
+   }
+   if (selbs->ni_rssi >= min_rssi)
+    continue;
+  }
+  if (ni->ni_rssi > selbs->ni_rssi)
    selbs = ni;
  }
  if (selbs == ((void *)0))
@@ -6936,7 +6944,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 1994, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2008, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

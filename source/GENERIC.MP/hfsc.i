@@ -3871,7 +3871,9 @@ struct hfsc_class {
  struct hfsc_class *cl_siblings;
  struct hfsc_class *cl_children;
  struct hfsc_classq cl_q;
- struct altq_pktattr *cl_pktattr;
+ const struct pfq_ops *cl_qops;
+ void *cl_qdata;
+ void *cl_cookie;
  u_int64_t cl_total;
  u_int64_t cl_cumul;
  u_int64_t cl_d;
@@ -3982,13 +3984,51 @@ void *hfsc_pf_alloc(struct ifnet *);
 int hfsc_pf_addqueue(void *, struct pf_queuespec *);
 void hfsc_pf_free(void *);
 int hfsc_pf_qstats(struct pf_queuespec *, void *, int *);
+unsigned int hfsc_pf_qlength(void *);
+struct mbuf * hfsc_pf_enqueue(void *, struct mbuf *);
+struct mbuf * hfsc_pf_deq_begin(void *, void **, struct mbuf_list *);
+void hfsc_pf_deq_commit(void *, struct mbuf *, void *);
+void hfsc_pf_purge(void *, struct mbuf_list *);
 const struct pfq_ops hfsc_pf_ops = {
  hfsc_pf_alloc,
  hfsc_pf_addqueue,
  hfsc_pf_free,
- hfsc_pf_qstats
+ hfsc_pf_qstats,
+ hfsc_pf_qlength,
+ hfsc_pf_enqueue,
+ hfsc_pf_deq_begin,
+ hfsc_pf_deq_commit,
+ hfsc_pf_purge
 };
 const struct pfq_ops * const pfq_hfsc_ops = &hfsc_pf_ops;
+static inline unsigned int
+hfsc_class_qlength(struct hfsc_class *cl)
+{
+ if (cl->cl_qops != ((void *)0))
+  return cl->cl_qops->pfq_qlength(cl->cl_qdata);
+ return 0;
+}
+static inline struct mbuf *
+hfsc_class_enqueue(struct hfsc_class *cl, struct mbuf *m)
+{
+ return cl->cl_qops->pfq_enqueue(cl->cl_qdata, m);
+}
+static inline struct mbuf *
+hfsc_class_deq_begin(struct hfsc_class *cl, struct mbuf_list *ml)
+{
+ return cl->cl_qops->pfq_deq_begin(cl->cl_qdata, &cl->cl_cookie, ml);
+}
+static inline void
+hfsc_class_deq_commit(struct hfsc_class *cl, struct mbuf *m)
+{
+ return cl->cl_qops->pfq_deq_commit(cl->cl_qdata, m, cl->cl_cookie);
+}
+static inline void
+hfsc_class_purge(struct hfsc_class *cl, struct mbuf_list *ml)
+{
+ if (cl->cl_qops != ((void *)0))
+  return cl->cl_qops->pfq_purge(cl->cl_qdata, ml);
+}
 u_int64_t
 hfsc_microuptime(void)
 {
@@ -4028,7 +4068,7 @@ void *
 hfsc_pf_alloc(struct ifnet *ifp)
 {
  struct hfsc_if *hif;
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 346, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 396, "ifp != NULL"));
  hif = malloc(sizeof(*hif), 2, 0x0001 | 0x0008);
  do { (&hif->hif_eligible)->tqh_first = ((void *)0); (&hif->hif_eligible)->tqh_last = &(&hif->hif_eligible)->tqh_first; } while (0);
  hif->hif_class_tbl = mallocarray(64, sizeof(void *),
@@ -4043,7 +4083,8 @@ hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
  struct hfsc_if *hif = arg;
  struct hfsc_class *cl, *parent;
  struct hfsc_sc rtsc, lssc, ulsc;
- ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 366, "hif != NULL"));
+ int error = 0;
+ ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 417, "hif != NULL"));
  if (q->parent_qid == 0 && hif->hif_rootclass == ((void *)0)) {
   parent = hfsc_class_create(hif, ((void *)0), ((void *)0), ((void *)0), ((void *)0),
       0, 0, 0x10000 | q->qid);
@@ -4074,6 +4115,29 @@ hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
      parent, q->qlimit, q->flags, q->qid);
  if (cl == ((void *)0))
   return (12);
+ if (parent == ((void *)0))
+  return (0);
+ cl->cl_qops = pf_queue_manager(q);
+ if (cl->cl_qops == ((void *)0) || cl->cl_rsc != ((void *)0)) {
+  cl->cl_qops = pfq_hfsc_ops;
+  cl->cl_qdata = &cl->cl_q;
+ } else {
+  cl->cl_qdata = cl->cl_qops->pfq_alloc(q->kif->pfik_ifp);
+  if (cl->cl_qdata == ((void *)0)) {
+   cl->cl_qops = ((void *)0);
+   hfsc_class_destroy(hif, cl);
+   return (12);
+  }
+  error = cl->cl_qops->pfq_addqueue(cl->cl_qdata, q);
+  if (error) {
+   cl->cl_qops->pfq_free(cl->cl_qdata);
+   cl->cl_qops = ((void *)0);
+   hfsc_class_destroy(hif, cl);
+   return (error);
+  }
+ }
+ ((cl->cl_qops != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 482, "cl->cl_qops != NULL"));
+ ((cl->cl_qdata != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 483, "cl->cl_qdata != NULL"));
  return (0);
 }
 int
@@ -4105,8 +4169,41 @@ hfsc_pf_qstats(struct pf_queuespec *q, void *ubuf, int *nbytes)
 void
 hfsc_pf_free(void *arg)
 {
- struct hfsc_if *hif = arg;
- hfsc_free(0, hif);
+ hfsc_free(0, arg);
+}
+unsigned int
+hfsc_pf_qlength(void *arg)
+{
+ struct hfsc_classq *cq = arg;
+ return ((&cq->q)->ml_len);
+}
+struct mbuf *
+hfsc_pf_enqueue(void *arg, struct mbuf *m)
+{
+ struct hfsc_classq *cq = arg;
+ if (((&cq->q)->ml_len) >= cq->qlimit)
+  return (m);
+ ml_enqueue(&cq->q, m);
+ m->M_dat.MH.MH_pkthdr.pf.prio = 8 - 1;
+ return (((void *)0));
+}
+struct mbuf *
+hfsc_pf_deq_begin(void *arg, void **cookiep, struct mbuf_list *free_ml)
+{
+ struct hfsc_classq *cq = arg;
+ return ((&cq->q)->ml_head);
+}
+void
+hfsc_pf_deq_commit(void *arg, struct mbuf *m, void *cookie)
+{
+ struct hfsc_classq *cq = arg;
+ ml_dequeue(&cq->q);
+}
+void
+hfsc_pf_purge(void *arg, struct mbuf_list *ml)
+{
+ struct hfsc_classq *cq = arg;
+ ml_enlist(ml, &cq->q);
 }
 unsigned int
 hfsc_idx(unsigned int nqueues, const struct mbuf *m)
@@ -4117,8 +4214,8 @@ void *
 hfsc_alloc(unsigned int idx, void *q)
 {
  struct hfsc_if *hif = q;
- ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 466, "idx == 0"));
- ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 467, "hif != NULL"));
+ ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 589, "idx == 0"));
+ ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 590, "hif != NULL"));
  timeout_add(&hif->hif_defer, 1);
  return (hif);
 }
@@ -4128,8 +4225,8 @@ hfsc_free(unsigned int idx, void *q)
  struct hfsc_if *hif = q;
  struct hfsc_class *cl;
  int i, restart;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 480, "_kernel_lock_held()"));
- ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 481, "idx == 0"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 603, "_kernel_lock_held()"));
+ ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 604, "idx == 0"));
  timeout_del(&hif->hif_defer);
  do {
   restart = 0;
@@ -4239,7 +4336,7 @@ hfsc_class_destroy(struct hfsc_if *hif, struct hfsc_class *cl)
  if (cl->cl_children != ((void *)0))
   return (16);
  s = _splraise(6);
- ((((&cl->cl_q.q)->ml_len == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 620, "ml_empty(&cl->cl_q.q)"));
+ ((hfsc_class_qlength(cl) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 743, "hfsc_class_qlength(cl) == 0"));
  if (cl->cl_parent != ((void *)0)) {
   struct hfsc_class *p = cl->cl_parent->cl_children;
   if (p == cl)
@@ -4258,11 +4355,13 @@ hfsc_class_destroy(struct hfsc_if *hif, struct hfsc_class *cl)
   }
  hif->hif_classes--;
  _splx(s);
- (((((&cl->cl_actc)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 644, "TAILQ_EMPTY(&cl->cl_actc)"));
+ (((((&cl->cl_actc)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 767, "TAILQ_EMPTY(&cl->cl_actc)"));
  if (cl == hif->hif_rootclass)
   hif->hif_rootclass = ((void *)0);
  if (cl == hif->hif_defaultclass)
   hif->hif_defaultclass = ((void *)0);
+ if (cl->cl_qops && cl->cl_qops != pfq_hfsc_ops)
+  cl->cl_qops->pfq_free(cl->cl_qdata);
  if (cl->cl_usc != ((void *)0))
   pool_put(&hfsc_internal_sc_pl, cl->cl_usc);
  if (cl->cl_fsc != ((void *)0))
@@ -4293,26 +4392,24 @@ hfsc_enq(struct ifqueue *ifq, struct mbuf *m)
 {
  struct hfsc_if *hif = ifq->ifq_q;
  struct hfsc_class *cl;
+ struct mbuf *dm;
  if ((cl = hfsc_clh2cph(hif, m->M_dat.MH.MH_pkthdr.pf.qid)) == ((void *)0) ||
      cl->cl_children != ((void *)0)) {
   cl = hif->hif_defaultclass;
   if (cl == ((void *)0))
    return (m);
-  cl->cl_pktattr = ((void *)0);
  }
- if (((&cl->cl_q.q)->ml_len) >= cl->cl_q.qlimit) {
-  do { (&cl->cl_stats.drop_cnt)->packets++; (&cl->cl_stats.drop_cnt)->bytes += m->M_dat.MH.MH_pkthdr.len; } while (0);
-  return (m);
- }
- ml_enqueue(&cl->cl_q.q, m);
- m->M_dat.MH.MH_pkthdr.pf.prio = 8 - 1;
- if (((&cl->cl_q.q)->ml_len) == 1)
+ dm = hfsc_class_enqueue(cl, m);
+ if (dm != m && hfsc_class_qlength(cl) == 1)
   hfsc_set_active(hif, cl, m->M_dat.MH.MH_pkthdr.len);
- return (((void *)0));
+ if (dm != ((void *)0))
+  do { (&cl->cl_stats.drop_cnt)->packets++; (&cl->cl_stats.drop_cnt)->bytes += dm->M_dat.MH.MH_pkthdr.len; } while (0);
+ return (dm);
 }
 struct mbuf *
 hfsc_deq_begin(struct ifqueue *ifq, void **cookiep)
 {
+ struct mbuf_list free_ml = { ((void *)0), ((void *)0), 0 };
  struct hfsc_if *hif = ifq->ifq_q;
  struct hfsc_class *cl, *tcl;
  struct mbuf *m;
@@ -4333,8 +4430,12 @@ hfsc_deq_begin(struct ifqueue *ifq, void **cookiep)
   if (cl == ((void *)0))
    return (((void *)0));
  }
- m = ((&cl->cl_q.q)->ml_head);
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 760, "m != NULL"));
+ m = hfsc_class_deq_begin(cl, &free_ml);
+ ifq_mfreeml(ifq, &free_ml);
+ if (m == ((void *)0)) {
+  hfsc_set_passive(hif, cl);
+  return (((void *)0));
+ }
  hif->hif_microtime = cur_time;
  *cookiep = cl;
  return (m);
@@ -4342,6 +4443,7 @@ hfsc_deq_begin(struct ifqueue *ifq, void **cookiep)
 void
 hfsc_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
 {
+ struct mbuf_list free_ml = { ((void *)0), ((void *)0), 0 };
  struct hfsc_if *hif = ifq->ifq_q;
  struct hfsc_class *cl = cookie;
  struct mbuf *m0;
@@ -4349,15 +4451,15 @@ hfsc_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
  u_int64_t cur_time = hif->hif_microtime;
  if (cl->cl_rsc != ((void *)0))
   realtime = (cl->cl_e <= cur_time);
- m0 = ml_dequeue(&cl->cl_q.q);
- ((m == m0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 781, "m == m0"));
+ hfsc_class_deq_commit(cl, m);
  do { (&cl->cl_stats.xmit_cnt)->packets++; (&cl->cl_stats.xmit_cnt)->bytes += m->M_dat.MH.MH_pkthdr.len; } while (0);
  hfsc_update_vf(cl, m->M_dat.MH.MH_pkthdr.len, cur_time);
  if (realtime)
   cl->cl_cumul += m->M_dat.MH.MH_pkthdr.len;
- if (((&cl->cl_q.q)->ml_len) > 0) {
+ if (hfsc_class_qlength(cl) > 0) {
   if (cl->cl_rsc != ((void *)0)) {
-   m0 = ((&cl->cl_q.q)->ml_head);
+   m0 = hfsc_class_deq_begin(cl, &free_ml);
+   ifq_mfreeml(ifq, &free_ml);
    next_len = m0->M_dat.MH.MH_pkthdr.len;
    if (realtime)
     hfsc_update_ed(hif, cl, next_len);
@@ -4374,8 +4476,8 @@ hfsc_deferred(void *arg)
  struct ifnet *ifp = arg;
  struct ifqueue *ifq = &ifp->if_snd;
  struct hfsc_if *hif;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 813, "_kernel_lock_held()"));
- ((((ifq)->ifq_ops == ifq_hfsc_ops)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 814, "HFSC_ENABLED(ifq)"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 949, "_kernel_lock_held()"));
+ ((((ifq)->ifq_ops == ifq_hfsc_ops)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 950, "HFSC_ENABLED(ifq)"));
  if (!(((ifq)->ifq_len) == 0))
   ifq_start(ifq);
  hif = ifq->ifq_q;
@@ -4384,12 +4486,7 @@ hfsc_deferred(void *arg)
 void
 hfsc_cl_purge(struct hfsc_if *hif, struct hfsc_class *cl, struct mbuf_list *ml)
 {
- struct mbuf *m;
- if (((&cl->cl_q.q)->ml_len == 0))
-  return;
- for ((m) = ((&cl->cl_q.q)->ml_head); (m) != ((void *)0); (m) = ((m)->m_hdr.mh_nextpkt))
-  do { (&cl->cl_stats.drop_cnt)->packets++; (&cl->cl_stats.drop_cnt)->bytes += m->M_dat.MH.MH_pkthdr.len; } while (0);
- ml_enlist(ml, &cl->cl_q.q);
+ hfsc_class_purge(cl, ml);
  hfsc_update_vf(cl, 0, 0);
  hfsc_set_passive(hif, cl);
 }
@@ -4505,8 +4602,9 @@ void
 hfsc_update_vf(struct hfsc_class *cl, int len, u_int64_t cur_time)
 {
  u_int64_t f, myf_bound, delta;
- int go_passive;
- go_passive = ((&cl->cl_q.q)->ml_len == 0);
+ int go_passive = 0;
+ if (hfsc_class_qlength(cl) == 0)
+  go_passive = 1;
  for (; cl->cl_parent != ((void *)0); cl = cl->cl_parent) {
   cl->cl_total += len;
   if (cl->cl_fsc == ((void *)0) || cl->cl_nactive == 0)
@@ -4872,7 +4970,7 @@ hfsc_getclstats(struct hfsc_class_stats *sp, struct hfsc_class *cl)
  sp->vtadj = cl->cl_vtadj;
  sp->cur_time = hfsc_microuptime();
  sp->machclk_freq = (1000000 << 8);
- sp->qlength = ((&cl->cl_q.q)->ml_len);
+ sp->qlength = hfsc_class_qlength(cl);
  sp->qlimit = cl->cl_q.qlimit;
  sp->xmit_cnt = cl->cl_stats.xmit_cnt;
  sp->drop_cnt = cl->cl_stats.drop_cnt;

@@ -3508,8 +3508,10 @@ bp_getfile(struct sockaddr_in *bpsin, char *key, struct sockaddr_in *md_sin,
  if (m == ((void *)0))
   return (12);
  m->m_hdr.mh_next = xdr_string_encode(key, strlen(key));
- if (m->m_hdr.mh_next == ((void *)0))
+ if (m->m_hdr.mh_next == ((void *)0)) {
+  m_freem(m);
   return (12);
+ }
  error = krpc_call(bpsin, 100026, 1,
    2, &m, ((void *)0), retries);
  if (error)

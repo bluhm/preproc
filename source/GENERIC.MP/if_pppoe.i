@@ -2939,7 +2939,9 @@ static void pppoe_dispatch_disc_pkt(struct mbuf *m, int off)
    if (errortag && len) {
     n = m_pulldown(m, off, len,
         &noff);
-    if (n) {
+    if (n == ((void *)0)) {
+     m = ((void *)0);
+    } else {
      u_int8_t *et = ((caddr_t)((n)->m_hdr.mh_data)) + noff;
      while (len--)
       addlog("%c", *et++);
@@ -3047,7 +3049,7 @@ static void
 pppoe_disc_input(struct mbuf *m)
 {
  if (!(((&pppoe_softc_list)->lh_first) == ((void *)0))) {
-  ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 648, "m->m_flags & M_PKTHDR"));
+  ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 650, "m->m_flags & M_PKTHDR"));
   pppoe_dispatch_disc_pkt(m, 0);
  } else
   m_freem(m);
@@ -3060,7 +3062,7 @@ pppoe_data_input(struct mbuf *m)
  u_int16_t session, plen;
  if ((((&pppoe_softc_list)->lh_first) == ((void *)0)))
   goto drop;
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 667, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 669, "m->m_flags & M_PKTHDR"));
  m_adj(m, sizeof(struct ether_header));
  if (m->M_dat.MH.MH_pkthdr.len <= sizeof(struct pppoehdr)) {
   printf("pppoe (data): dropping too short packet: %d bytes\n",

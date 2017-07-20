@@ -6733,12 +6733,12 @@ pf_create_queues(void)
    continue;
   qif = malloc(sizeof(*qif), 127, 0x0001);
   qif->ifp = ifp;
-  if ((q->flags & 0x0001) && !(q->flags & 0x1000)) {
-   qif->ifqops = ifq_fqcodel_ops;
-   qif->pfqops = pfq_fqcodel_ops;
-  } else {
+  if (q->flags & 0x0002) {
    qif->ifqops = ifq_hfsc_ops;
    qif->pfqops = pfq_hfsc_ops;
+  } else {
+   qif->ifqops = ifq_fqcodel_ops;
+   qif->pfqops = pfq_fqcodel_ops;
   }
   qif->disc = qif->pfqops->pfq_alloc(ifp);
   qif->next = list;
@@ -7139,7 +7139,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   __builtin_bcopy((qs), (&pq->queue), (sizeof(pq->queue)));
   if ((qs->flags & 0x0001) && qs->parent_qid == 0 &&
-      !(qs->flags & 0x1000))
+      !(qs->flags & 0x0002))
    error = pfq_fqcodel_ops->pfq_qstats(qs, pq->buf,
        &nbytes);
   else

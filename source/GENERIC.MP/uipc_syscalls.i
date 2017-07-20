@@ -4890,14 +4890,14 @@ recvit(struct proc *p, int s, struct msghdr *mp, caddr_t namelenp,
      i = len;
     }
     error = copyout(((caddr_t)((m)->m_hdr.mh_data)), cp, i);
+    if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0) && error == 0 && i)
+     ktrstruct(p, "cmsghdr", ((char *)((m)->m_hdr.mh_data)), i);
     if (m->m_hdr.mh_next)
      i = (((unsigned long)(i) + 0xf) & ~0xf);
     cp += i;
     len -= i;
     if (error != 0 || len <= 0)
      break;
-    if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0) && i)
-     ktrstruct(p, "cmsghdr", ((char *)((m)->m_hdr.mh_data)), i);
    } while ((m = m->m_hdr.mh_next) != ((void *)0));
    len = cp - (caddr_t)mp->msg_control;
   }
