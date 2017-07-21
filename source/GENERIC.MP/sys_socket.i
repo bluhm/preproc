@@ -2806,14 +2806,13 @@ soo_stat(struct file *fp, struct stat *ub, struct proc *p)
  int s;
  __builtin_memset((ub), (0), (sizeof (*ub)));
  ub->st_mode = 0140000;
- if ((so->so_state & 0x020) == 0 ||
-     so->so_rcv.sb_cc != 0)
+ s = solock(so);
+ if ((so->so_state & 0x020) == 0 || so->so_rcv.sb_cc != 0)
   ub->st_mode |= 0000400 | 0000040 | 0000004;
  if ((so->so_state & 0x010) == 0)
   ub->st_mode |= 0000200 | 0000020 | 0000002;
  ub->st_uid = so->so_euid;
  ub->st_gid = so->so_egid;
- s = solock(so);
  (void) ((*so->so_proto->pr_usrreq)(so, 12,
      (struct mbuf *)ub, ((void *)0), ((void *)0), p));
  sounlock(s);

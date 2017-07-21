@@ -2932,7 +2932,7 @@ Case2:
     goto ReFault;
    }
    if (!(((ufi.entry)->etype & 0x20) != 0))
-    return (13);
+    return (5);
    uobjpage = ((struct vm_page *) -1L);
    promote = 1;
   }

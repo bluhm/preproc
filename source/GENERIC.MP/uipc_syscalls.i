@@ -5073,7 +5073,8 @@ sockargs(struct mbuf **mp, const void *buf, size_t buflen, int type)
  struct sockaddr *sa;
  struct mbuf *m;
  int error;
- if (buflen > (type == 3 ? 0xff : (1 << 11)))
+ if ((buflen > (type == 3 ? 0xff : (1 << 11))) ||
+     (type == 3 && buflen < __builtin_offsetof(struct sockaddr, sa_data)))
   return (22);
  m = m_get(0x0001, type);
  if (buflen > (256 - sizeof(struct m_hdr))) {

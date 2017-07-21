@@ -4638,6 +4638,7 @@ restart:
    *retval = ((struct pipe *)fp->f_data)->pipe_pgid;
    break;
   }
+  tmp = 0;
   error = (*fp->f_ops->fo_ioctl)
    (fp, ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((119))), (caddr_t)&tmp, p);
   *retval = -tmp;
@@ -4981,8 +4982,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 903, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 904, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 904, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 905, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {

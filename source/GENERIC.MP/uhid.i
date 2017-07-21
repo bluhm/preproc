@@ -3305,7 +3305,6 @@ struct uhid_softc {
  u_char *sc_obuf;
  struct clist sc_q;
  struct selinfo sc_rsel;
- struct process *sc_async;
  u_char sc_state;
  int sc_refcnt;
 };
@@ -3386,10 +3385,6 @@ uhid_intr(struct uhidev *addr, void *data, u_int len)
   wakeup(&sc->sc_q);
  }
  selwakeup(&sc->sc_rsel);
- if (sc->sc_async != ((void *)0)) {
-  ;
-  ptsignal((sc->sc_async)->ps_mainproc, (23), SPROCESS);
- }
 }
 int
 uhidopen(dev_t dev, int flag, int mode, struct proc *p)
@@ -3409,7 +3404,6 @@ uhidopen(dev_t dev, int flag, int mode, struct proc *p)
   return (error);
  clalloc(&sc->sc_q, 1020, 0);
  sc->sc_obuf = malloc(sc->sc_hdev.sc_osize, 102, 0x0001);
- sc->sc_async = ((void *)0);
  return (0);
 }
 int
@@ -3420,7 +3414,6 @@ uhidclose(dev_t dev, int flag, int mode, struct proc *p)
  ;
  clfree(&sc->sc_q);
  free(sc->sc_obuf, 102, sc->sc_hdev.sc_osize);
- sc->sc_async = ((void *)0);
  uhidev_close(&sc->sc_hdev);
  return (0);
 }
@@ -3516,21 +3509,6 @@ uhid_do_ioctl(struct uhid_softc *sc, u_long cmd, caddr_t addr,
   return (5);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((126))):
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((125))):
-  if (*(int *)addr) {
-   if (sc->sc_async != ((void *)0))
-    return (16);
-   sc->sc_async = p->p_p;
-   ;
-  } else
-   sc->sc_async = ((void *)0);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((118))):
-  if (sc->sc_async == ((void *)0))
-   return (22);
-  if (*(int *)addr != sc->sc_async->ps_pgrp->pg_id)
-   return (1);
   break;
  case ((unsigned long)0x40000000 | ((sizeof(struct usb_device_info) & 0x1fff) << 16) | ((('U')) << 8) | ((112))):
   usbd_fill_deviceinfo(sc->sc_hdev.sc_udev,

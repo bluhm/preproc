@@ -4275,7 +4275,6 @@ ure_init(void *xsc)
  int s, i;
  s = _splraise(6);
  ure_stop(sc);
- ure_reset(sc);
  if (ure_rx_list_init(sc) == 55) {
   printf("%s: rx list init failed\n", sc->ure_dev.dv_xname);
   _splx(s);
@@ -4286,8 +4285,10 @@ ure_init(void *xsc)
   _splx(s);
   return;
  }
+ ure_write_1(sc, 0xe81c, 0x0100, 0xc0);
  ure_write_mem(sc, 0xc000, 0x0100 | 0x3f,
      sc->ure_ac.ac_enaddr, 8);
+ ure_write_1(sc, 0xe81c, 0x0100, 0x00);
  ure_write_2(sc, 0xc0b4, 0x0100,
      ure_read_2(sc, 0xc0b4, 0x0100) &
      ~0x0001);
@@ -4443,8 +4444,8 @@ ure_rtl8152_init(struct ure_softc *sc)
      0x0001 | 0x0002 | 0x0004 |
      0x0008);
  ure_write_2(sc, 0xd406, 0x0000,
-     ure_read_2(sc, 0xd406, 0x0000) |
-     0x0010);
+     ure_read_2(sc, 0xd406, 0x0000) &
+     ~0x0010);
  ure_ocp_reg_write(sc, 0x2010, 0x0200 | 0x0100 |
      0x0010);
  usbd_delay_ms(sc->ure_udev, 20);
@@ -4566,8 +4567,8 @@ ure_rtl8153_init(struct ure_softc *sc)
  usbd_delay_ms(sc->ure_udev, 20);
  ure_init_fifo(sc);
  ure_write_2(sc, 0xd406, 0x0000,
-     ure_read_2(sc, 0xd406, 0x0000) |
-     0x0010);
+     ure_read_2(sc, 0xd406, 0x0000) &
+     ~0x0010);
  val = ure_read_2(sc, 0xb460, 0x0000);
  if (!(sc->ure_chip & (0x04 | 0x08)))
   val |= 0x0001;
@@ -4932,7 +4933,7 @@ ure_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
    ifp->if_data.ifi_ierrors++;
    goto done;
   }
-  buf += pktlen;
+  buf += ((((pktlen)+((8)-1))/(8))*(8));
   __builtin_memcpy((&rxhdr), (buf), (sizeof(rxhdr)));
   total_len -= sizeof(rxhdr);
   pktlen = __mswap32(&rxhdr.ure_pktlen) & 0x7fff;
@@ -4942,7 +4943,7 @@ ure_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
    ifp->if_data.ifi_ierrors++;
    goto done;
   }
-  total_len -= pktlen;
+  total_len -= ((((pktlen)+((8)-1))/(8))*(8));
   buf += sizeof(rxhdr);
   m = m_devget(buf, pktlen, 2);
   if (m == ((void *)0)) {
