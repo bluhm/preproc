@@ -5103,6 +5103,7 @@ rsu_newstate_cb(struct rsu_softc *sc, void *arg)
   _splx(s);
   return;
  case IEEE80211_S_AUTH:
+  ic->ic_bss->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
   error = rsu_join_bss(sc, ic->ic_bss);
   if (error != 0) {
    printf("%s: could not send join command\n",
@@ -5112,6 +5113,8 @@ rsu_newstate_cb(struct rsu_softc *sc, void *arg)
    return;
   }
   ic->ic_state = cmd->state;
+  if (ic->ic_flags & 0x00200000)
+   ic->ic_bss->ni_rsn_supp_state = RSNA_SUPP_PTKSTART;
   _splx(s);
   return;
  case IEEE80211_S_ASSOC:
@@ -5285,14 +5288,15 @@ rsu_event_survey(struct rsu_softc *sc, uint8_t *buf, int len)
  struct ieee80211_frame *wh;
  struct ndis_wlan_bssid_ex *bss;
  struct mbuf *m;
- int pktlen;
+ uint32_t pktlen, ieslen;
  if (__builtin_expect(((len < sizeof(*bss)) != 0), 0))
   return;
  bss = (struct ndis_wlan_bssid_ex *)buf;
- if (__builtin_expect(((len < sizeof(*bss) + __extension__({ __uint32_t __swap32gen_x = (bss->ieslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) != 0), 0))
+ ieslen = __extension__({ __uint32_t __swap32gen_x = (bss->ieslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ if (ieslen > len - sizeof(*bss))
   return;
  ;
- pktlen = sizeof(*wh) + __extension__({ __uint32_t __swap32gen_x = (bss->ieslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ pktlen = sizeof(*wh) + ieslen;
  if (__builtin_expect(((pktlen > (1 << 11)) != 0), 0))
   return;
  m = m_gethdr((0x0002), (1));
@@ -5314,7 +5318,7 @@ rsu_event_survey(struct rsu_softc *sc, uint8_t *buf, int len)
  __builtin_memcpy((wh->i_addr2), (bss->macaddr), (6));
  __builtin_memcpy((wh->i_addr3), (bss->macaddr), (6));
  *(uint16_t *)wh->i_seq = 0;
- __builtin_memcpy((&wh[1]), ((uint8_t *)&bss[1]), (__extension__({ __uint32_t __swap32gen_x = (bss->ieslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+ __builtin_memcpy((&wh[1]), ((uint8_t *)&bss[1]), (ieslen));
  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = pktlen;
  ni = ieee80211_find_rxnode(ic, wh);
  rxi.rxi_flags = 0;
@@ -5344,6 +5348,7 @@ rsu_event_join_bss(struct rsu_softc *sc, uint8_t *buf, int len)
  ni->ni_associd = __extension__({ __uint32_t __swap32gen_x = (rsp->associd); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) | 0xc000;
  if (ic->ic_flags & 0x00000100)
   ni->ni_flags |= (0x0010 | 0x0008);
+ ic->ic_state = IEEE80211_S_ASSOC;
  (((ic)->ic_newstate)((ic), (IEEE80211_S_RUN), (0x10)));
 }
 void
@@ -5404,6 +5409,8 @@ rsu_rx_multi_event(struct rsu_softc *sc, uint8_t *buf, int len)
   cmd = (struct r92s_fw_cmd_hdr *)buf;
   cmdsz = __extension__({ __uint16_t __swap16gen_x = (cmd->len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
   if (__builtin_expect(((len < sizeof(*cmd) + cmdsz) != 0), 0))
+   break;
+  if (cmdsz > len)
    break;
   rsu_rx_event(sc, cmd->code, (uint8_t *)&cmd[1], cmdsz);
   if (!(cmd->seq & 0x80))
@@ -5508,8 +5515,8 @@ rsu_rx_frame(struct rsu_softc *sc, uint8_t *buf, int pktlen)
    tap->wr_rate = 0x80 | (rate - 12);
   }
   tap->wr_dbm_antsignal = rssi;
-  tap->wr_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_ibss_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wr_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_ibss_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wr_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wr_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_rxtap_len;
   mb.m_hdr.mh_next = m;
@@ -5559,6 +5566,7 @@ rsu_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
  struct rsu_rx_data *data = priv;
  struct rsu_softc *sc = data->sc;
  struct r92s_rx_stat *stat;
+ struct ifnet *ifp = &sc->sc_ic.ic_ac.ac_if;
  int len;
  if (__builtin_expect(((status != USBD_NORMAL_COMPLETION) != 0), 0)) {
   ;
@@ -5571,6 +5579,12 @@ rsu_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
  usbd_get_xfer_status(xfer, ((void *)0), ((void *)0), &len, ((void *)0));
  if (__builtin_expect(((len < sizeof(*stat)) != 0), 0)) {
   ;
+  ifp->if_data.ifi_ierrors++;
+  goto resubmit;
+ }
+ if (len > (8 * 1024)) {
+  ;
+  ifp->if_data.ifi_ierrors++;
   goto resubmit;
  }
  stat = (struct r92s_rx_stat *)data->buf;

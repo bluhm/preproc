@@ -3754,7 +3754,10 @@ ugen_do_ioctl(struct ugen_softc *sc, int endpt, u_long cmd, caddr_t addr,
     ur->ucr_request.bmRequestType & 0x80 ?
     UIO_READ : UIO_WRITE;
    uio.uio_procp = p;
-   ptr = malloc(len, 127, 0x0001);
+   if ((ptr = malloc(len, 127, 0x0002)) == ((void *)0)) {
+    error = 12;
+    goto ret;
+   }
    if (uio.uio_rw == UIO_WRITE) {
     error = uiomove(ptr, len, &uio);
     if (error)

@@ -6192,6 +6192,11 @@ run_rx_frame(struct run_softc *sc, uint8_t *buf, int dmalen)
   ;
   return;
  }
+ if (len > (1 << 11)) {
+  ;
+  ifp->if_data.ifi_ierrors++;
+  return;
+ }
  rxd = (struct rt2870_rxd *)(buf + dmalen);
  flags = __extension__({ __uint32_t __swap32gen_x = (rxd->flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
  if (__builtin_expect(((flags & ((1 << 8) | (1 << 9))) != 0), 0)) {

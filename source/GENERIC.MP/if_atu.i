@@ -6196,12 +6196,24 @@ atu_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
   goto done;
  }
  usbd_get_xfer_status(xfer, ((void *)0), ((void *)0), &len, ((void *)0));
- if (len <= 1) {
+ if (len < sizeof(struct atu_rx_hdr)) {
   ;
+  ic->ic_stats.is_rx_tooshort++;
+  ifp->if_data.ifi_ierrors++;
   goto done;
  }
  h = (struct atu_rx_hdr *)c->atu_buf;
- len = ((h->length)[0] | ((h->length)[1] << 8)) - 4;
+ len = ((h->length)[0] | ((h->length)[1] << 8));
+ if (len < (sizeof(struct ieee80211_frame_min) + 4)) {
+  ic->ic_stats.is_rx_tooshort++;
+  ifp->if_data.ifi_ierrors++;
+  goto done;
+ }
+ if (len > (sizeof(struct atu_rx_hdr) + sizeof(struct ieee80211_frame_addr4) + 2312 + 4)) {
+  ifp->if_data.ifi_ierrors++;
+  goto done;
+ }
+ len -= 4;
  m = c->atu_mbuf;
  __builtin_memcpy((((char *)((m)->m_hdr.mh_data))), (c->atu_buf + sizeof(struct atu_rx_hdr)), (len));
  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = len;

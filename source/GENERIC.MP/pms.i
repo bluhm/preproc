@@ -3191,11 +3191,13 @@ pms_enable_synaptics(struct pms_softc *sc)
   if (wsmouse_configure(sc->sc_wsmousedev, synaptics_params,
       (sizeof((synaptics_params)) / sizeof((synaptics_params)[0]))))
    goto err;
-  printf("%s: Synaptics %s, firmware %d.%d\n", ((sc)->sc_dev.dv_xname),
+  printf("%s: Synaptics %s, firmware %d.%d, 0x%x 0x%x\n",
+      ((sc)->sc_dev.dv_xname),
       (syn->ext_capabilities & (1 << 20) ?
    "clickpad" : "touchpad"),
       ((syn->identify) & 0x0f),
-      (((syn->identify) >> 16) & 0xff));
+      (((syn->identify) >> 16) & 0xff),
+      syn->model, syn->ext_model);
  }
  mode = (1 << 7) | (1 << 6);
  if (((syn->identify) & 0x0f) >= 4)
