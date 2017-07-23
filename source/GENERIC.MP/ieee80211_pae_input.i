@@ -3579,7 +3579,7 @@ ieee80211_eapol_key_input(struct ieee80211com *ic, struct mbuf *m,
  struct ether_header *eh;
  struct ieee80211_eapol_key *key;
  u_int16_t info, desc;
- int totlen;
+ int totlen, bodylen, paylen;
  ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  eh = ((struct ether_header *)((m)->m_hdr.mh_data));
  if ((*(eh->ether_dhost) & 0x01)) {
@@ -3603,10 +3603,12 @@ ieee80211_eapol_key_input(struct ieee80211com *ic, struct mbuf *m,
      (ni->ni_rsnprotos == (1 << 1) &&
       key->desc != 254))
   goto done;
- if (m->M_dat.MH.MH_pkthdr.len < 4 + ((u_int16_t) ((((const u_int8_t *)(key->len))[0] << 8) | (((const u_int8_t *)(key->len))[1]))))
-  goto done;
- totlen = sizeof(*key) + ((u_int16_t) ((((const u_int8_t *)(key->paylen))[0] << 8) | (((const u_int8_t *)(key->paylen))[1])));
+ bodylen = ((u_int16_t) ((((const u_int8_t *)(key->len))[0] << 8) | (((const u_int8_t *)(key->len))[1])));
+ totlen = 4 + bodylen;
  if (m->M_dat.MH.MH_pkthdr.len < totlen || totlen > (1 << 11))
+  goto done;
+ paylen = ((u_int16_t) ((((const u_int8_t *)(key->paylen))[0] << 8) | (((const u_int8_t *)(key->paylen))[1])));
+ if (paylen > totlen - sizeof(*key))
   goto done;
  info = ((u_int16_t) ((((const u_int8_t *)(key->info))[0] << 8) | (((const u_int8_t *)(key->info))[1])));
  desc = info & 0x7;

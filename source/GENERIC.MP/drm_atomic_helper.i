@@ -4389,7 +4389,7 @@ timespec_sub(struct timespec t1, struct timespec t2)
  do { (&diff)->tv_sec = (&t1)->tv_sec - (&t2)->tv_sec; (&diff)->tv_nsec = (&t1)->tv_nsec - (&t2)->tv_nsec; if ((&diff)->tv_nsec < 0) { (&diff)->tv_sec--; (&diff)->tv_nsec += 1000000000L; } } while (0);
  return diff;
 }
-extern int ticks;
+extern volatile unsigned long jiffies;
 static inline unsigned long
 round_jiffies_up(unsigned long j)
 {
@@ -4415,7 +4415,7 @@ timespec_to_ns(const struct timespec *ts)
 {
  return ((ts->tv_sec * 1000000000L) + ts->tv_nsec);
 }
-static inline int
+static inline unsigned long
 timespec_to_jiffies(const struct timespec *ts)
 {
  long long to_ticks;
@@ -4907,7 +4907,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1644, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4948,7 +4948,7 @@ cpu_relax(void)
  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  if (cold) {
   delay(tick);
-  ticks++;
+  jiffies++;
  }
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
@@ -7349,7 +7349,6 @@ struct fb_cmap;
 struct fb_fillrect;
 struct fb_copyarea;
 struct fb_image;
-extern int ticks;
 extern struct cfdriver drm_cd;
 static inline _Bool
 drm_can_sleep(void)
@@ -8748,7 +8747,7 @@ drm_atomic_helper_wait_for_vblanks(struct drm_device *dev,
  for ((i) = 0; (i) < (old_state)->dev->mode_config.num_crtc && ((crtc) = (old_state)->crtcs[i], (old_crtc_state) = (old_state)->crtc_states[i], 1); (i)++) if (old_crtc_state) {
   if (!old_crtc_state->enable)
    continue;
-  ret = ({ long __ret = (((int64_t)(50)) * hz / 1000); if (!(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic_helper.c", 990, "!cold")); ((void)_atomic_add_int_nv((&(dev->vblank[i].queue).count), 1)); sleep_setup(&sls, &dev->vblank[i].queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(dev->vblank[i].queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) { __ret = 1; break; } } while (__ret > 0 && !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret; });
+  ret = ({ long __ret = (((uint64_t)(50)) * hz / 1000); if (!(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic_helper.c", 990, "!cold")); ((void)_atomic_add_int_nv((&(dev->vblank[i].queue).count), 1)); sleep_setup(&sls, &dev->vblank[i].queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(dev->vblank[i].queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) { __ret = 1; break; } } while (__ret > 0 && !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret; });
   drm_crtc_vblank_put(crtc);
  }
 }

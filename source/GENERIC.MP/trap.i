@@ -3354,13 +3354,10 @@ data_access_fault(struct trapframe64 *tf, unsigned type, vaddr_t pc,
  p->p_addr->u_pcb.pcb_onfault = ((void *)0);
  rv = uvm_fault(&vm->vm_map, (vaddr_t)va, 0, access_type);
  p->p_addr->u_pcb.pcb_onfault = (void *)onfault;
- if ((caddr_t)va >= vm->vm_maxsaddr) {
-  if (rv == 0)
-   uvm_grow(p, va);
-  else if (rv == 13)
-   rv = 14;
- }
+ if (rv == 0 && (caddr_t)va >= vm->vm_maxsaddr)
+  uvm_grow(p, va);
  if (rv != 0) {
+  int signal, sicode;
   if (tstate & (0x004<<8)) {
 kfault:
    onfault = (long)p->p_addr->u_pcb.pcb_onfault;
@@ -3378,14 +3375,21 @@ kfault:
    sv.sival_ptr = (void *)va;
   else
    sv.sival_ptr = (void *)sfva;
+  signal = 11;
+  sicode = 1;
   if (rv == 12) {
    printf("UVM: pid %d (%s), uid %d killed: out of swap\n",
        p->p_p->ps_pid, p->p_p->ps_comm,
        p->p_ucred ? (int)p->p_ucred->cr_uid : -1);
-   trapsignal(p, 9, access_type, 1, sv);
-  } else {
-   trapsignal(p, 11, access_type, 1, sv);
+   signal = 9;
   }
+  if (rv == 13)
+   sicode = 2;
+  if (rv == 5) {
+   signal = 10;
+   sicode = 3;
+  }
+  trapsignal(p, signal, access_type, sicode, sv);
  }
  if ((tstate & (0x004<<8)) == 0) {
   _kernel_unlock();
@@ -3435,7 +3439,7 @@ data_access_error(struct trapframe64 *tf, unsigned type, vaddr_t afva,
   tf->tf_npc = onfault + 4;
   return;
  }
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 953);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 959);
  trapsignal(p, 11, 0x01 | 0x02, 1, sv);
  _kernel_unlock();
 out:
@@ -3467,21 +3471,26 @@ text_access_fault(struct trapframe64 *tf, unsigned type, vaddr_t pc,
   panic("kernel text_access_fault: pc=%lx va=%lx", pc, va);
  } else
   p->p_md.md_tf = tf;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1000);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1006);
  vm = p->p_vmspace;
  rv = uvm_fault(&vm->vm_map, va, 0, access_type);
- if ((caddr_t)va >= vm->vm_maxsaddr) {
-  if (rv == 0)
-   uvm_grow(p, va);
-  else if (rv == 13)
-   rv = 14;
- }
+ if (rv == 0 && (caddr_t)va >= vm->vm_maxsaddr)
+  uvm_grow(p, va);
  if (rv != 0) {
+  int signal, sicode;
   if (tstate & (0x004<<8)) {
    (void) _splraise(15);
    panic("kernel text fault: pc=%llx", (unsigned long long)pc);
   }
-  trapsignal(p, 11, access_type, 1, sv);
+  signal = 11;
+  sicode = 1;
+  if (rv == 13)
+   sicode = 2;
+  if (rv == 5) {
+   signal = 10;
+   sicode = 3;
+  }
+  trapsignal(p, signal, access_type, sicode, sv);
  }
  _kernel_unlock();
  if ((tstate & (0x004<<8)) == 0) {
@@ -3511,7 +3520,7 @@ text_access_error(struct trapframe64 *tf, unsigned type, vaddr_t pc,
          type, sfsr, pc, afsr, afva, tf);
   if (tstate & (0x004<<8))
    panic("text_access_error: kernel memory error");
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1076);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1090);
   trapsignal(p, 10, 0, 1, sv);
   _kernel_unlock();
  }
@@ -3525,22 +3534,28 @@ text_access_error(struct trapframe64 *tf, unsigned type, vaddr_t pc,
       sfsr, "\20\31NF\20TM\16VAT\15VAD\14NFO\13ASI\12A\11NF\10PRIV\7E\6NUCLEUS\5SECONDCTX\4PRIV\3W\2OW\1FV");
  } else
   p->p_md.md_tf = tf;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1096);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1110);
  vm = p->p_vmspace;
  rv = uvm_fault(&vm->vm_map, va, 0, access_type);
- if ((caddr_t)va >= vm->vm_maxsaddr) {
-  if (rv == 0)
-   uvm_grow(p, va);
-  else if (rv == 13)
-   rv = 14;
+ if (rv == 0 && (caddr_t)va >= vm->vm_maxsaddr) {
+  uvm_grow(p, va);
  }
  if (rv != 0) {
+  int signal, sicode;
   if (tstate & (0x004<<8)) {
    (void) _splraise(15);
    panic("kernel text error: pc=%lx sfsr=%lb", pc,
        sfsr, "\20\31NF\20TM\16VAT\15VAD\14NFO\13ASI\12A\11NF\10PRIV\7E\6NUCLEUS\5SECONDCTX\4PRIV\3W\2OW\1FV");
   }
-  trapsignal(p, 11, access_type, 1, sv);
+  signal = 11;
+  sicode = 1;
+  if (rv == 13)
+   sicode = 2;
+  if (rv == 5) {
+   signal = 10;
+   sicode = 3;
+  }
+  trapsignal(p, signal, access_type, sicode, sv);
  }
  _kernel_unlock();
 out:

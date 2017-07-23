@@ -4389,7 +4389,7 @@ timespec_sub(struct timespec t1, struct timespec t2)
  do { (&diff)->tv_sec = (&t1)->tv_sec - (&t2)->tv_sec; (&diff)->tv_nsec = (&t1)->tv_nsec - (&t2)->tv_nsec; if ((&diff)->tv_nsec < 0) { (&diff)->tv_sec--; (&diff)->tv_nsec += 1000000000L; } } while (0);
  return diff;
 }
-extern int ticks;
+extern volatile unsigned long jiffies;
 static inline unsigned long
 round_jiffies_up(unsigned long j)
 {
@@ -4415,7 +4415,7 @@ timespec_to_ns(const struct timespec *ts)
 {
  return ((ts->tv_sec * 1000000000L) + ts->tv_nsec);
 }
-static inline int
+static inline unsigned long
 timespec_to_jiffies(const struct timespec *ts)
 {
  long long to_ticks;
@@ -4907,7 +4907,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1644, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4948,7 +4948,7 @@ cpu_relax(void)
  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  if (cold) {
   delay(tick);
-  ticks++;
+  jiffies++;
  }
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
@@ -7349,7 +7349,6 @@ struct fb_cmap;
 struct fb_fillrect;
 struct fb_copyarea;
 struct fb_image;
-extern int ticks;
 extern struct cfdriver drm_cd;
 static inline _Bool
 drm_can_sleep(void)
@@ -15289,7 +15288,7 @@ static void radeon_sync_with_vblank(struct radeon_device *rdev)
  if (rdev->pm.active_crtcs) {
   rdev->pm.vblank_sync = 0;
   tsleep(&rdev->irq.vblank_queue, 22, "rdnsvb",
-   (((int64_t)(200)) * hz / 1000));
+   (((uint64_t)(200)) * hz / 1000));
  }
 }
 static void radeon_set_power_state(struct radeon_device *rdev)
@@ -15482,7 +15481,7 @@ void radeon_pm_resume(struct radeon_device *rdev)
      && rdev->pm.dynpm_state == DYNPM_STATE_SUSPENDED) {
   rdev->pm.dynpm_state = DYNPM_STATE_ACTIVE;
   schedule_delayed_work(&rdev->pm.dynpm_idle_work,
-          (((int64_t)(100)) * hz / 1000));
+          (((uint64_t)(100)) * hz / 1000));
  }
  _rw_exit_write(&rdev->pm.mutex );
  radeon_pm_compute_clocks(rdev);
@@ -15592,11 +15591,11 @@ void radeon_pm_compute_clocks(struct radeon_device *rdev)
      (rdev)->asic->pm.get_dynpm_state((rdev));
      radeon_pm_set_clocks(rdev);
      schedule_delayed_work(&rdev->pm.dynpm_idle_work,
-             (((int64_t)(100)) * hz / 1000));
+             (((uint64_t)(100)) * hz / 1000));
     } else if (rdev->pm.dynpm_state == DYNPM_STATE_PAUSED) {
      rdev->pm.dynpm_state = DYNPM_STATE_ACTIVE;
      schedule_delayed_work(&rdev->pm.dynpm_idle_work,
-             (((int64_t)(100)) * hz / 1000));
+             (((uint64_t)(100)) * hz / 1000));
      do { } while( 0);
     }
    } else {
@@ -15661,8 +15660,8 @@ static void radeon_dynpm_idle_work_handler(struct work_struct *work)
        rdev->pm.dynpm_can_upclock) {
     rdev->pm.dynpm_planned_action =
      DYNPM_ACTION_UPCLOCK;
-    rdev->pm.dynpm_action_timeout = ticks +
-    (((int64_t)(200)) * hz / 1000);
+    rdev->pm.dynpm_action_timeout = jiffies +
+    (((uint64_t)(200)) * hz / 1000);
    }
   } else if (not_processed == 0) {
    if (rdev->pm.dynpm_planned_action == DYNPM_ACTION_UPCLOCK) {
@@ -15671,17 +15670,17 @@ static void radeon_dynpm_idle_work_handler(struct work_struct *work)
        rdev->pm.dynpm_can_downclock) {
     rdev->pm.dynpm_planned_action =
      DYNPM_ACTION_DOWNCLOCK;
-    rdev->pm.dynpm_action_timeout = ticks +
-    (((int64_t)(200)) * hz / 1000);
+    rdev->pm.dynpm_action_timeout = jiffies +
+    (((uint64_t)(200)) * hz / 1000);
    }
   }
   if (rdev->pm.dynpm_planned_action != DYNPM_ACTION_NONE &&
-      ticks > rdev->pm.dynpm_action_timeout) {
+      jiffies > rdev->pm.dynpm_action_timeout) {
    (rdev)->asic->pm.get_dynpm_state((rdev));
    radeon_pm_set_clocks(rdev);
   }
   schedule_delayed_work(&rdev->pm.dynpm_idle_work,
-          (((int64_t)(100)) * hz / 1000));
+          (((uint64_t)(100)) * hz / 1000));
  }
  _rw_exit_write(&rdev->pm.mutex );
  ttm_bo_unlock_delayed_workqueue(&rdev->mman.bdev, resched);

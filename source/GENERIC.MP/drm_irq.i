@@ -4389,7 +4389,7 @@ timespec_sub(struct timespec t1, struct timespec t2)
  do { (&diff)->tv_sec = (&t1)->tv_sec - (&t2)->tv_sec; (&diff)->tv_nsec = (&t1)->tv_nsec - (&t2)->tv_nsec; if ((&diff)->tv_nsec < 0) { (&diff)->tv_sec--; (&diff)->tv_nsec += 1000000000L; } } while (0);
  return diff;
 }
-extern int ticks;
+extern volatile unsigned long jiffies;
 static inline unsigned long
 round_jiffies_up(unsigned long j)
 {
@@ -4415,7 +4415,7 @@ timespec_to_ns(const struct timespec *ts)
 {
  return ((ts->tv_sec * 1000000000L) + ts->tv_nsec);
 }
-static inline int
+static inline unsigned long
 timespec_to_jiffies(const struct timespec *ts)
 {
  long long to_ticks;
@@ -4907,7 +4907,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1644, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4948,7 +4948,7 @@ cpu_relax(void)
  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  if (cold) {
   delay(tick);
-  ticks++;
+  jiffies++;
  }
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
@@ -7349,7 +7349,6 @@ struct fb_cmap;
 struct fb_fillrect;
 struct fb_copyarea;
 struct fb_image;
-extern int ticks;
 extern struct cfdriver drm_cd;
 static inline _Bool
 drm_can_sleep(void)
@@ -8338,7 +8337,7 @@ void drm_vblank_put(struct drm_device *dev, unsigned int pipe)
   else if (dev->vblank_disable_immediate || drm_vblank_offdelay < 0)
    vblank_disable_fn((unsigned long)vblank);
   else
-   timeout_add((&vblank->disable_timer), (ticks + ((drm_vblank_offdelay * hz)/1000) - ticks));
+   timeout_add((&vblank->disable_timer), (jiffies + ((drm_vblank_offdelay * hz)/1000) - jiffies));
  }
 }
 ;
@@ -8358,7 +8357,7 @@ void drm_wait_one_vblank(struct drm_device *dev, unsigned int pipe)
  if (({ int __ret = !!(ret); if (__ret) printf("vblank not available on crtc %i, ret=%i\n", pipe, ret); __builtin_expect(!!(__ret), 0); }))
   return;
  last = drm_vblank_count(dev, pipe);
- ret = ({ long __ret = (((int64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1341, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(last != drm_vblank_count(dev, pipe))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (last != drm_vblank_count(dev, pipe))) { __ret = 1; break; } } while (__ret > 0 && !(last != drm_vblank_count(dev, pipe))); __ret; });
+ ret = ({ long __ret = (((uint64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1341, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(last != drm_vblank_count(dev, pipe))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (last != drm_vblank_count(dev, pipe))) { __ret = 1; break; } } while (__ret > 0 && !(last != drm_vblank_count(dev, pipe))); __ret; });
  ({ int __ret = !!(ret == 0); if (__ret) printf("vblank wait timed out on crtc %i\n", pipe); __builtin_expect(!!(__ret), 0); });
  drm_vblank_put(dev, pipe);
 }

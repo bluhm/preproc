@@ -4389,7 +4389,7 @@ timespec_sub(struct timespec t1, struct timespec t2)
  do { (&diff)->tv_sec = (&t1)->tv_sec - (&t2)->tv_sec; (&diff)->tv_nsec = (&t1)->tv_nsec - (&t2)->tv_nsec; if ((&diff)->tv_nsec < 0) { (&diff)->tv_sec--; (&diff)->tv_nsec += 1000000000L; } } while (0);
  return diff;
 }
-extern int ticks;
+extern volatile unsigned long jiffies;
 static inline unsigned long
 round_jiffies_up(unsigned long j)
 {
@@ -4415,7 +4415,7 @@ timespec_to_ns(const struct timespec *ts)
 {
  return ((ts->tv_sec * 1000000000L) + ts->tv_nsec);
 }
-static inline int
+static inline unsigned long
 timespec_to_jiffies(const struct timespec *ts)
 {
  long long to_ticks;
@@ -4907,7 +4907,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1644, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4948,7 +4948,7 @@ cpu_relax(void)
  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  if (cold) {
   delay(tick);
-  ticks++;
+  jiffies++;
  }
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
@@ -7349,7 +7349,6 @@ struct fb_cmap;
 struct fb_fillrect;
 struct fb_copyarea;
 struct fb_image;
-extern int ticks;
 extern struct cfdriver drm_cd;
 static inline _Bool
 drm_can_sleep(void)
@@ -11545,7 +11544,7 @@ void radeon_fence_process(struct radeon_device *rdev, int ring)
   }
  } while (atomic64_xchg(&rdev->fence_drv[ring].last_seq, seq) > seq);
  if (wake) {
-  rdev->fence_drv[ring].last_activity = ticks;
+  rdev->fence_drv[ring].last_activity = jiffies;
   wakeup(&rdev->fence_queue);
  }
 }
@@ -11593,7 +11592,7 @@ static int radeon_fence_wait_seq(struct radeon_device *rdev, u64 target_seq,
   if (!rdev->ring[ring].ready) {
    return -16;
   }
-  timeout = ticks - (hz / 2);
+  timeout = jiffies - (hz / 2);
   if (((long)(timeout) - (long)(rdev->fence_drv[ring].last_activity) < 0)) {
    timeout = rdev->fence_drv[ring].last_activity - timeout;
   } else {
@@ -11640,7 +11639,7 @@ static int radeon_fence_wait_seq(struct radeon_device *rdev, u64 target_seq,
    if ((rdev)->asic->ring[(ring)].is_lockup((rdev), (&rdev->ring[ring]))) {
     printf("drm:pid%d:%s *WARNING* " "GPU lockup (waiting for 0x%016llx last fence id 0x%016llx)\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , target_seq, seq);
     for (i = 0; i < 5; ++i) {
-     rdev->fence_drv[i].last_activity = ticks;
+     rdev->fence_drv[i].last_activity = jiffies;
     }
     rdev->ring[ring].ready = 0;
     if (lock_ring) {
@@ -11702,7 +11701,7 @@ static int radeon_fence_wait_any_seq(struct radeon_device *rdev,
   return -2;
  }
  while (!radeon_fence_any_seq_signaled(rdev, target_seq)) {
-  timeout = ticks - (hz / 2);
+  timeout = jiffies - (hz / 2);
   if (((long)(timeout) - (long)(last_activity) < 0)) {
    timeout = last_activity - timeout;
   } else {
@@ -11754,7 +11753,7 @@ static int radeon_fence_wait_any_seq(struct radeon_device *rdev,
    if ((rdev)->asic->ring[(ring)].is_lockup((rdev), (&rdev->ring[ring]))) {
     printf("drm:pid%d:%s *WARNING* " "GPU lockup (waiting for 0x%016llx)\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , target_seq[ring]);
     for (i = 0; i < 5; ++i) {
-     rdev->fence_drv[i].last_activity = ticks;
+     rdev->fence_drv[i].last_activity = jiffies;
     }
     rdev->ring[ring].ready = 0;
     _rw_exit_write(&rdev->ring_lock );
@@ -11901,7 +11900,7 @@ static void radeon_fence_driver_init_ring(struct radeon_device *rdev, int ring)
  for (i = 0; i < 5; ++i)
   rdev->fence_drv[ring].sync_seq[i] = 0;
  (*(&rdev->fence_drv[ring].last_seq) = (0));
- rdev->fence_drv[ring].last_activity = ticks;
+ rdev->fence_drv[ring].last_activity = jiffies;
  rdev->fence_drv[ring].initialized = 0;
 }
 int radeon_fence_driver_init(struct radeon_device *rdev)

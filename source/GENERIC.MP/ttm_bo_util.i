@@ -4378,7 +4378,7 @@ timespec_sub(struct timespec t1, struct timespec t2)
  do { (&diff)->tv_sec = (&t1)->tv_sec - (&t2)->tv_sec; (&diff)->tv_nsec = (&t1)->tv_nsec - (&t2)->tv_nsec; if ((&diff)->tv_nsec < 0) { (&diff)->tv_sec--; (&diff)->tv_nsec += 1000000000L; } } while (0);
  return diff;
 }
-extern int ticks;
+extern volatile unsigned long jiffies;
 static inline unsigned long
 round_jiffies_up(unsigned long j)
 {
@@ -4404,7 +4404,7 @@ timespec_to_ns(const struct timespec *ts)
 {
  return ((ts->tv_sec * 1000000000L) + ts->tv_nsec);
 }
-static inline int
+static inline unsigned long
 timespec_to_jiffies(const struct timespec *ts)
 {
  long long to_ticks;
@@ -4896,7 +4896,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1645, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1644, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4937,7 +4937,7 @@ cpu_relax(void)
  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  if (cold) {
   delay(tick);
-  ticks++;
+  jiffies++;
  }
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
@@ -7338,7 +7338,6 @@ struct fb_cmap;
 struct fb_fillrect;
 struct fb_copyarea;
 struct fb_image;
-extern int ticks;
 extern struct cfdriver drm_cd;
 static inline _Bool
 drm_can_sleep(void)

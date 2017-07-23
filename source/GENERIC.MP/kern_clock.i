@@ -2079,6 +2079,7 @@ int ticks;
 static int psdiv, pscnt;
 int psratio;
 void *softclock_si;
+volatile unsigned long jiffies;
 void
 initclocks(void)
 {
@@ -2087,6 +2088,7 @@ initclocks(void)
  if (softclock_si == ((void *)0))
   panic("initclocks: unable to register softclock intr");
  ticks = 0x7fffffff - (15 * 60 * hz);
+ jiffies = 0xffffffffffffffffUL - (10 * 60 * hz);
  psdiv = pscnt = 1;
  cpu_initclocks();
  i = stathz ? stathz : hz;
@@ -2125,6 +2127,7 @@ hardclock(struct clockframe *frame)
   return;
  tc_ticktock();
  ticks++;
+ jiffies++;
  if (timeout_hardclock_update())
   softintr_schedule(softclock_si);
 }

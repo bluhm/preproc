@@ -4514,7 +4514,9 @@ justcleanup:
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
   switch (ostate) {
   case IEEE80211_S_INIT:
-   ;
+   panic("invalid transition %s -> %s",
+       ieee80211_state_name[ostate],
+       ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_SCAN:
    ((*(ic)->ic_send_mgmt)(ic, ni, 0xb0, 1, 0));
@@ -4547,7 +4549,9 @@ justcleanup:
   case IEEE80211_S_INIT:
   case IEEE80211_S_SCAN:
   case IEEE80211_S_ASSOC:
-   ;
+   panic("invalid transition %s -> %s",
+       ieee80211_state_name[ostate],
+       ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_AUTH:
    ((*(ic)->ic_send_mgmt)(ic, ni, 0x00, 0, 0));
@@ -4562,7 +4566,9 @@ justcleanup:
   case IEEE80211_S_INIT:
   case IEEE80211_S_AUTH:
   case IEEE80211_S_RUN:
-   ;
+   panic("invalid transition %s -> %s",
+       ieee80211_state_name[ostate],
+       ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_SCAN:
   case IEEE80211_S_ASSOC:
