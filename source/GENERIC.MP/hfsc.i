@@ -2716,7 +2716,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);
@@ -4486,7 +4485,11 @@ hfsc_deferred(void *arg)
 void
 hfsc_cl_purge(struct hfsc_if *hif, struct hfsc_class *cl, struct mbuf_list *ml)
 {
- hfsc_class_purge(cl, ml);
+ struct mbuf_list ml2 = { ((void *)0), ((void *)0), 0 };
+ hfsc_class_purge(cl, &ml2);
+ if (((&ml2)->ml_len == 0))
+  return;
+ ml_enlist(ml, &ml2);
  hfsc_update_vf(cl, 0, 0);
  hfsc_set_passive(hif, cl);
 }

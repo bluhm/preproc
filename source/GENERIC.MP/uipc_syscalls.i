@@ -4211,7 +4211,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);
@@ -4471,39 +4470,35 @@ sys_connect(struct proc *p, void *v, register_t *retval)
  if ((error = getsock(p, ((uap)->s.be.datum), &fp)) != 0)
   return (error);
  so = fp->f_data;
+ s = solock(so);
  if (so->so_state & 0x004) {
-  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
-  return (37);
+  error = 37;
+  goto out;
  }
  error = sockargs(&nam, ((uap)->name.be.datum), ((uap)->namelen.be.datum),
      3);
  if (error)
-  goto bad;
+  goto out;
  error = pledge_socket(p, so->so_proto->pr_domain->dom_family,
      so->so_state);
  if (error)
-  goto bad;
+  goto out;
  if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
   ktrstruct((p), "sockaddr", (((caddr_t)((nam)->m_hdr.mh_data))), (((uap)->namelen.be.datum)));
  if (isdnssocket(so)) {
   u_int namelen = nam->m_hdr.mh_len;
   error = dns_portcheck(p, so, ((void *)((nam)->m_hdr.mh_data)), &namelen);
-  if (error) {
-   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
-   m_freem(nam);
-   return (error);
-  }
+  if (error)
+   goto out;
   nam->m_hdr.mh_len = namelen;
  }
  error = soconnect(so, nam);
  if (error)
   goto bad;
  if ((so->so_state & 0x100) && (so->so_state & 0x004)) {
-  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
-  m_freem(nam);
-  return (36);
+  error = 36;
+  goto out;
  }
- s = solock(so);
  while ((so->so_state & 0x004) && so->so_error == 0) {
   error = sosleep(so, &so->so_timeo, 24 | 0x100,
       "netcon2", 0);
@@ -4517,10 +4512,11 @@ sys_connect(struct proc *p, void *v, register_t *retval)
   error = so->so_error;
   so->so_error = 0;
  }
- sounlock(s);
 bad:
  if (!interrupted)
   so->so_state &= ~0x004;
+out:
+ sounlock(s);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  m_freem(nam);
  if (error == -1)
@@ -4534,7 +4530,7 @@ sys_socketpair(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  struct file *fp1, *fp2;
  struct socket *so1, *so2;
- int type, cloexec, nonblock, fflag, error, sv[2];
+ int s, type, cloexec, nonblock, fflag, error, sv[2];
  type = ((uap)->type.be.datum) & ~(0x8000 | 0x4000);
  cloexec = (((uap)->type.be.datum) & 0x8000) ? 0x01 : 0;
  nonblock = ((uap)->type.be.datum) & 0x4000;
@@ -4545,10 +4541,16 @@ sys_socketpair(struct proc *p, void *v, register_t *retval)
  error = socreate(((uap)->domain.be.datum), &so2, type, ((uap)->protocol.be.datum));
  if (error)
   goto free1;
- if ((error = soconnect2(so1, so2)) != 0)
+ s = solock(so1);
+ error = soconnect2(so1, so2);
+ sounlock(s);
+ if (error != 0)
   goto free2;
  if ((((uap)->type.be.datum) & 0x000F) == 2) {
-   if ((error = soconnect2(so2, so1)) != 0)
+  s = solock(so2);
+  error = soconnect2(so2, so1);
+  sounlock(s);
+  if (error != 0)
    goto free2;
  }
  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);

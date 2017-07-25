@@ -2075,7 +2075,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);

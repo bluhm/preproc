@@ -4069,10 +4069,12 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
    goto bad;
   }
  } else {
-  error = soconnect(so, nmp->nm_nam);
-  if (error)
-   goto bad;
   s = solock(so);
+  error = soconnect(so, nmp->nm_nam);
+  if (error) {
+   sounlock(s);
+   goto bad;
+  }
   while ((so->so_state & 0x004) && so->so_error == 0) {
    sosleep(so, &so->so_timeo, 24, "nfscon", 2 * hz);
    if ((so->so_state & 0x004) &&

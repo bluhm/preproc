@@ -2529,7 +2529,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);
@@ -4040,6 +4039,7 @@ struct mbuf *
 fqcodel_deq_begin(struct fqcodel *fqc, void **cookiep,
     struct mbuf_list *free_ml)
 {
+ struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
  struct flowq *fq;
  struct flow *flow;
  struct mbuf *m;
@@ -4049,10 +4049,11 @@ fqcodel_deq_begin(struct fqcodel *fqc, void **cookiep,
  codel_gettime(&now);
  for (flow = first_flow(fqc, &fq); flow != ((void *)0);
       flow = next_flow(fqc, flow, &fq)) {
-  m = codel_dequeue(&flow->cd, &fqc->cparams, now, free_ml,
+  m = codel_dequeue(&flow->cd, &fqc->cparams, now, &ml,
       &fqc->drop_cnt.packets, &fqc->drop_cnt.bytes);
-  ((fqc->qlength >= ((free_ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/fq_codel.c", 659, "fqc->qlength >= ml_len(free_ml)"));
-  fqc->qlength -= ((free_ml)->ml_len);
+  ((fqc->qlength >= ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/fq_codel.c", 660, "fqc->qlength >= ml_len(&ml)"));
+  fqc->qlength -= ((&ml)->ml_len);
+  ml_enlist(free_ml, &ml);
   if (m != ((void *)0)) {
    flow->deficit -= m->M_dat.MH.MH_pkthdr.len;
    ;
@@ -4066,7 +4067,7 @@ void
 fqcodel_deq_commit(struct fqcodel *fqc, struct mbuf *m, void *cookie)
 {
  struct flow *flow = cookie;
- ((fqc->qlength > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/fq_codel.c", 679, "fqc->qlength > 0"));
+ ((fqc->qlength > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/fq_codel.c", 682, "fqc->qlength > 0"));
  fqc->qlength--;
  fqc->xmit_cnt.packets++;
  fqc->xmit_cnt.bytes += m->M_dat.MH.MH_pkthdr.len;

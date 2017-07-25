@@ -2806,7 +2806,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);
@@ -3667,339 +3666,6 @@ struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
 void mpls_input(struct mbuf *);
-struct m_tag;
-struct radix_node {
- struct radix_mask *rn_mklist;
- struct radix_node *rn_p;
- short rn_b;
- char rn_bmask;
- u_char rn_flags;
- union {
-  struct {
-   caddr_t rn_Key;
-   caddr_t rn_Mask;
-   struct radix_node *rn_Dupedkey;
-  } rn_leaf;
-  struct {
-   int rn_Off;
-   struct radix_node *rn_L;
-   struct radix_node *rn_R;
-  } rn_node;
- } rn_u;
-};
-struct radix_mask {
- short rm_b;
- char rm_unused;
- u_char rm_flags;
- struct radix_mask *rm_mklist;
- union {
-  caddr_t rmu_mask;
-  struct radix_node *rmu_leaf;
- } rm_rmu;
- int rm_refs;
-};
-struct radix_node_head {
- struct radix_node *rnh_treetop;
- int rnh_addrsize;
- int rnh_pktsize;
- struct radix_node rnh_nodes[3];
- u_int rnh_rtableid;
-};
-void rn_init(unsigned int);
-int rn_inithead(void **, int);
-int rn_walktree(struct radix_node_head *,
-     int (*)(struct radix_node *, void *, u_int), void *);
-struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
-       struct radix_node [2], u_int8_t);
-struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
-       struct radix_node *);
-struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
-struct radix_node *rn_match(void *, struct radix_node_head *);
-union sockaddr_union {
- struct sockaddr sa;
- struct sockaddr_in sin;
- struct sockaddr_in6 sin6;
-};
-struct sockaddr_encap {
- u_int8_t sen_len;
- u_int8_t sen_family;
- u_int16_t sen_type;
- union {
-  struct {
-   u_int8_t Direction;
-   struct in_addr Src;
-   struct in_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip4;
-  struct {
-   u_int8_t Direction;
-   struct in6_addr Src;
-   struct in6_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip6;
-  struct ipsec_policy *PolicyHead;
- } Sen;
-};
-struct ipsec_id {
- u_int16_t type;
- int16_t len;
-};
-struct ipsec_ids {
- struct rb_entry id_node_id;
- struct rb_entry id_node_flow;
- struct ipsec_id *id_local;
- struct ipsec_id *id_remote;
- u_int32_t id_flow;
- int id_refcount;
- struct timeout id_timeout;
-};
-struct ipsec_ids_flows { struct rb_tree rbh_root; };
-struct ipsec_ids_tree { struct rb_tree rbh_root; };
-struct ipsec_acquire {
- union sockaddr_union ipa_addr;
- u_int32_t ipa_seq;
- struct sockaddr_encap ipa_info;
- struct sockaddr_encap ipa_mask;
- struct timeout ipa_timeout;
- struct ipsec_policy *ipa_policy;
- struct inpcb *ipa_pcb;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_ipo_next;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_next;
-};
-struct ipsec_policy {
- struct radix_node ipo_nodes[2];
- struct sockaddr_encap ipo_addr;
- struct sockaddr_encap ipo_mask;
- union sockaddr_union ipo_src;
- union sockaddr_union ipo_dst;
- u_int64_t ipo_last_searched;
- u_int8_t ipo_flags;
- u_int8_t ipo_type;
- u_int8_t ipo_sproto;
- u_int ipo_rdomain;
- int ipo_ref_count;
- struct tdb *ipo_tdb;
- struct ipsec_ids *ipo_ids;
- struct ipo_acquires_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipo_acquires;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_tdb_next;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_list;
-};
-struct tdb {
- struct tdb *tdb_hnext;
- struct tdb *tdb_dnext;
- struct tdb *tdb_snext;
- struct tdb *tdb_inext;
- struct tdb *tdb_onext;
- struct xformsw *tdb_xform;
- struct enc_xform *tdb_encalgxform;
- struct auth_hash *tdb_authalgxform;
- struct comp_algo *tdb_compalgxform;
- u_int32_t tdb_flags;
- struct timeout tdb_timer_tmo;
- struct timeout tdb_first_tmo;
- struct timeout tdb_stimer_tmo;
- struct timeout tdb_sfirst_tmo;
- u_int32_t tdb_seq;
- u_int32_t tdb_exp_allocations;
- u_int32_t tdb_soft_allocations;
- u_int32_t tdb_cur_allocations;
- u_int64_t tdb_exp_bytes;
- u_int64_t tdb_soft_bytes;
- u_int64_t tdb_cur_bytes;
- u_int64_t tdb_exp_timeout;
- u_int64_t tdb_soft_timeout;
- u_int64_t tdb_established;
- u_int64_t tdb_first_use;
- u_int64_t tdb_soft_first_use;
- u_int64_t tdb_exp_first_use;
- u_int64_t tdb_last_used;
- u_int64_t tdb_last_marked;
- u_int64_t tdb_cryptoid;
- u_int32_t tdb_spi;
- u_int16_t tdb_amxkeylen;
- u_int16_t tdb_emxkeylen;
- u_int16_t tdb_ivlen;
- u_int8_t tdb_sproto;
- u_int8_t tdb_wnd;
- u_int8_t tdb_satype;
- u_int8_t tdb_updates;
- union sockaddr_union tdb_dst;
- union sockaddr_union tdb_src;
- u_int8_t *tdb_amxkey;
- u_int8_t *tdb_emxkey;
- u_int64_t tdb_rpl;
- u_int32_t tdb_seen[((((2100+32)) + ((32) - 1)) / (32))];
- u_int8_t tdb_iv[4];
- struct ipsec_ids *tdb_ids;
- int tdb_ids_swapped;
- u_int32_t tdb_mtu;
- u_int64_t tdb_mtutimeout;
- u_int16_t tdb_udpencap_port;
- u_int16_t tdb_tag;
- u_int32_t tdb_tap;
- u_int tdb_rdomain;
- struct sockaddr_encap tdb_filter;
- struct sockaddr_encap tdb_filtermask;
- struct tdb_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } tdb_policy_head;
- struct { struct tdb *tqe_next; struct tdb **tqe_prev; } tdb_sync_entry;
-};
-struct tdb_ident {
- u_int32_t spi;
- union sockaddr_union dst;
- u_int8_t proto;
- u_int rdomain;
-};
-struct tdb_crypto {
- u_int32_t tc_spi;
- union sockaddr_union tc_dst;
- u_int8_t tc_proto;
- int tc_protoff;
- int tc_skip;
- u_int tc_rdomain;
-};
-struct ipsecinit {
- u_int8_t *ii_enckey;
- u_int8_t *ii_authkey;
- u_int16_t ii_enckeylen;
- u_int16_t ii_authkeylen;
- u_int8_t ii_encalg;
- u_int8_t ii_authalg;
- u_int8_t ii_compalg;
-};
-struct xformsw {
- u_short xf_type;
- u_short xf_flags;
- char *xf_name;
- int (*xf_attach)(void);
- int (*xf_init)(struct tdb *, struct xformsw *, struct ipsecinit *);
- int (*xf_zeroize)(struct tdb *);
- int (*xf_input)(struct mbuf *, struct tdb *, int, int);
- int (*xf_output)(struct mbuf *, struct tdb *, struct mbuf **,
-     int, int);
-};
-extern int ipsec_in_use;
-extern u_int64_t ipsec_last_added;
-extern int ipsec_policy_pool_initialized;
-extern int ipsec_keep_invalid;
-extern int ipsec_require_pfs;
-extern int ipsec_expire_acquire;
-extern int ipsec_soft_allocations;
-extern int ipsec_exp_allocations;
-extern int ipsec_soft_bytes;
-extern int ipsec_exp_bytes;
-extern int ipsec_soft_timeout;
-extern int ipsec_exp_timeout;
-extern int ipsec_soft_first_use;
-extern int ipsec_exp_first_use;
-extern char ipsec_def_enc[];
-extern char ipsec_def_auth[];
-extern char ipsec_def_comp[];
-extern struct enc_xform enc_xform_des;
-extern struct enc_xform enc_xform_3des;
-extern struct enc_xform enc_xform_blf;
-extern struct enc_xform enc_xform_cast5;
-extern struct auth_hash auth_hash_hmac_md5_96;
-extern struct auth_hash auth_hash_hmac_sha1_96;
-extern struct auth_hash auth_hash_hmac_ripemd_160_96;
-extern struct comp_algo comp_algo_deflate;
-extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
-struct radix_node_head *spd_table_add(unsigned int);
-struct radix_node_head *spd_table_get(unsigned int);
-uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t, int *);
-struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
-struct tdb *gettdbbydst(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrc(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrcdst(u_int, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t);
-void puttdb(struct tdb *);
-void tdb_delete(struct tdb *);
-struct tdb *tdb_alloc(u_int);
-void tdb_free(struct tdb *);
-int tdb_init(struct tdb *, u_int16_t, struct ipsecinit *);
-void tdb_unlink(struct tdb *);
-int tdb_walk(u_int, int (*)(struct tdb *, void *, int), void *);
-int ipe4_attach(void);
-int ipe4_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipe4_zeroize(struct tdb *);
-int ipe4_input(struct mbuf *, struct tdb *, int, int);
-int ah_attach(void);
-int ah_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ah_zeroize(struct tdb *);
-int ah_input(struct mbuf *, struct tdb *, int, int);
-int ah_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ah_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ah4_input(struct mbuf **, int *, int, int);
-void ah4_ctlinput(int, struct sockaddr *, u_int, void *);
-void udpencap_ctlinput(int, struct sockaddr *, u_int, void *);
-int ah6_input(struct mbuf **, int *, int, int);
-int esp_attach(void);
-int esp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int esp_zeroize(struct tdb *);
-int esp_input(struct mbuf *, struct tdb *, int, int);
-int esp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int esp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int esp4_input(struct mbuf **, int *, int, int);
-void esp4_ctlinput(int, struct sockaddr *, u_int, void *);
-int esp6_input(struct mbuf **, int *, int, int);
-int ipcomp_attach(void);
-int ipcomp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipcomp_zeroize(struct tdb *);
-int ipcomp_input(struct mbuf *, struct tdb *, int, int);
-int ipcomp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ipcomp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ipcomp4_input(struct mbuf **, int *, int, int);
-int ipcomp6_input(struct mbuf **, int *, int, int);
-int tcp_signature_tdb_attach(void);
-int tcp_signature_tdb_init(struct tdb *, struct xformsw *,
-     struct ipsecinit *);
-int tcp_signature_tdb_zeroize(struct tdb *);
-int tcp_signature_tdb_input(struct mbuf *, struct tdb *, int, int);
-int tcp_signature_tdb_output(struct mbuf *, struct tdb *, struct mbuf **,
-   int, int);
-int checkreplaywindow(struct tdb *, u_int32_t, u_int32_t *, int);
-int ipsp_process_packet(struct mbuf *, struct tdb *, int, int);
-int ipsp_process_done(struct mbuf *, struct tdb *);
-struct tdb *ipsp_spd_lookup(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, u_int32_t);
-struct tdb *ipsp_spd_inp(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, struct ipsec_policy *);
-int ipsp_is_unspecified(union sockaddr_union);
-int ipsp_aux_match(struct tdb *, struct ipsec_ids *,
-     struct sockaddr_encap *, struct sockaddr_encap *);
-int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
-void ipsp_ids_free(struct ipsec_ids *);
-int ipsec_common_input(struct mbuf *, int, int, int, int, int);
-void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
-int ipsec_delete_policy(struct ipsec_policy *);
-ssize_t ipsec_hdrsz(struct tdb *);
-void ipsec_adjust_mtu(struct mbuf *, u_int32_t);
-struct ipsec_acquire *ipsec_get_acquire(u_int32_t);
-int ipsec_forward_check(struct mbuf *, int, int);
-int ipsec_local_check(struct mbuf *, int, int, int);
-struct enchdr {
- u_int32_t af;
- u_int32_t spi;
- u_int32_t flags;
-};
-struct enc_softc {
- struct ifnet sc_if;
- u_int sc_unit;
- struct ifaddr sc_ifa;
-};
-struct ifnet *enc_getif(u_int, u_int);
-struct ifaddr *enc_getifa(u_int, u_int);
 static uint32_t rt_hashjitter;
 extern unsigned int rtmap_limit;
 struct cpumem * rtcounters;
@@ -4015,8 +3681,6 @@ void rtflushclone(unsigned int, struct rtentry *);
 int rt_ifa_purge_walker(struct rtentry *, void *, unsigned int);
 struct rtentry *rt_match(struct sockaddr *, uint32_t *, int, unsigned int);
 struct sockaddr *rt_plentosa(sa_family_t, int, struct sockaddr_in6 *);
-struct ifaddr *ifa_ifwithroute(int, struct sockaddr *, struct sockaddr *,
-      u_int);
 void db_print_sa(struct sockaddr *);
 void db_print_ifa(struct ifaddr *);
 int db_show_rtentry(struct rtentry *, void *, unsigned int);
@@ -4044,8 +3708,8 @@ rtisvalid(struct rtentry *rt)
  if (!((rt->rt_flags) & (0x1)))
   return (0);
  if (((rt->rt_flags) & (0x2))) {
-  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 218, "rt->rt_gwroute != NULL"));
-  ((!((rt->RT_gw._nh->rt_flags) & (0x2))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 219, "!ISSET(rt->rt_gwroute->rt_flags, RTF_GATEWAY)"));
+  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 210, "rt->rt_gwroute != NULL"));
+  ((!((rt->RT_gw._nh->rt_flags) & (0x2))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 211, "!ISSET(rt->rt_gwroute->rt_flags, RTF_GATEWAY)"));
   if (!((rt->RT_gw._nh->rt_flags) & (0x1)))
    return (0);
  }
@@ -4064,7 +3728,7 @@ rt_match(struct sockaddr *dst, uint32_t *src, int flags, unsigned int tableid)
    rt0 = rt;
    __builtin_memset((&info), (0), (sizeof(info)));
    info.rti_info[0] = dst;
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 254);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 246);
    error = rtrequest(0xb, &info,
        rt->rt_priority - 1, &rt, tableid);
    if (error) {
@@ -4143,7 +3807,7 @@ rt_setgwroute(struct rtentry *rt, u_int rtableid)
 {
  struct rtentry *nhrt;
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
- ((((rt->rt_flags) & (0x2))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 388, "ISSET(rt->rt_flags, RTF_GATEWAY)"));
+ ((((rt->rt_flags) & (0x2))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 380, "ISSET(rt->rt_flags, RTF_GATEWAY)"));
  nhrt = rt_match(rt->rt_gateway, ((void *)0), 1, rtable_l2(rtableid));
  if (nhrt == ((void *)0))
   return (2);
@@ -4156,7 +3820,7 @@ rt_setgwroute(struct rtentry *rt, u_int rtableid)
   return (51);
  }
  rt_putgwroute(rt);
- ((rt->RT_gw._nh == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 412, "rt->rt_gwroute == NULL"));
+ ((rt->RT_gw._nh == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 404, "rt->rt_gwroute == NULL"));
  if (!((rt->rt_rmx.rmx_locks) & (0x1)) && (rt->rt_rmx.rmx_mtu > nhrt->rt_rmx.rmx_mtu))
   rt->rt_rmx.rmx_mtu = nhrt->rt_rmx.rmx_mtu;
  nhrt->rt_flags |= 0x20000;
@@ -4171,8 +3835,8 @@ rt_putgwroute(struct rtentry *rt)
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
  if (!((rt->rt_flags) & (0x2)) || nhrt == ((void *)0))
   return;
- ((((nhrt->rt_flags) & (0x20000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 448, "ISSET(nhrt->rt_flags, RTF_CACHED)"));
- ((nhrt->RT_gw._ref > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 449, "nhrt->rt_cachecnt > 0"));
+ ((((nhrt->rt_flags) & (0x20000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 440, "ISSET(nhrt->rt_flags, RTF_CACHED)"));
+ ((nhrt->RT_gw._ref > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 441, "nhrt->rt_cachecnt > 0"));
  --nhrt->RT_gw._ref;
  if (nhrt->RT_gw._ref == 0)
   nhrt->rt_flags &= ~0x20000;
@@ -4192,14 +3856,14 @@ rtfree(struct rtentry *rt)
   return;
  refcnt = (int)_atomic_sub_int_nv((&rt->rt_refcnt), 1);
  if (refcnt <= 0) {
-  ((!((rt->rt_flags) & (0x1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 475, "!ISSET(rt->rt_flags, RTF_UP)"));
-  ((!(0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 476, "!RT_ROOT(rt)"));
+  ((!((rt->rt_flags) & (0x1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 467, "!ISSET(rt->rt_flags, RTF_UP)"));
+  ((!(0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 468, "!RT_ROOT(rt)"));
   ((void)_atomic_sub_int_nv((&rttrash), 1));
   if (refcnt < 0) {
    printf("rtfree: %p not freed (neg refs)\n", rt);
    return;
   }
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 483);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 475);
   rt_timer_remove_all(rt);
   ifafree(rt->rt_ifa);
   rtlabel_unref(rt->rt_labelid);
@@ -4299,7 +3963,7 @@ out:
  info.rti_info[0] = dst;
  info.rti_info[1] = gateway;
  info.rti_info[6] = src;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 625);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 617);
  rtm_miss(0x6, &info, flags, prio, ifidx, error, rdomain);
  _kernel_unlock();
 }
@@ -4310,7 +3974,7 @@ rtdeletemsg(struct rtentry *rt, struct ifnet *ifp, u_int tableid)
  struct rt_addrinfo info;
  unsigned int ifidx;
  struct sockaddr_in6 sa_mask;
- ((rt->rt_ifidx == ifp->if_index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 641, "rt->rt_ifidx == ifp->if_index"));
+ ((rt->rt_ifidx == ifp->if_index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 633, "rt->rt_ifidx == ifp->if_index"));
  __builtin_bzero(((caddr_t)&info), (sizeof(info)));
  info.rti_info[0] = ((rt)->rt_dest);
  if (!((rt->rt_flags) & (0x4)))
@@ -4319,7 +3983,7 @@ rtdeletemsg(struct rtentry *rt, struct ifnet *ifp, u_int tableid)
  info.rti_flags = rt->rt_flags;
  ifidx = rt->rt_ifidx;
  error = rtrequest_delete(&info, rt->rt_priority, ifp, &rt, tableid);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 656);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 648);
  rtm_miss(0x2, &info, info.rti_flags, rt->rt_priority, ifidx,
      error, tableid);
  _kernel_unlock();
@@ -4363,81 +4027,6 @@ rtflushclone(unsigned int rtableid, struct rtentry *parent)
   panic("rtflushclone: called with a non-cloning route");
  rtable_walk(rtableid, ((parent)->rt_dest)->sa_family, rtflushclone1, parent);
 }
-struct ifaddr *
-ifa_ifwithroute(int flags, struct sockaddr *dst, struct sockaddr *gateway,
-    u_int rtableid)
-{
- struct ifaddr *ifa;
- if ((flags & 0x2) == 0) {
-  ifa = ((void *)0);
-  if (flags & 0x4)
-   ifa = ifa_ifwithdstaddr(dst, rtableid);
-  if (ifa == ((void *)0))
-   ifa = ifa_ifwithaddr(gateway, rtableid);
- } else {
-  ifa = ifa_ifwithdstaddr(gateway, rtableid);
- }
- if (ifa == ((void *)0)) {
-  if (gateway->sa_family == 18) {
-   struct sockaddr_dl *sdl = satosdl(gateway);
-   struct ifnet *ifp = if_get(sdl->sdl_index);
-   if (ifp != ((void *)0))
-    ifa = ifaof_ifpforaddr(dst, ifp);
-   if_put(ifp);
-  } else {
-   struct rtentry *rt;
-   rt = rtalloc(gateway, 1, rtable_l2(rtableid));
-   if (rt != ((void *)0))
-    ifa = rt->rt_ifa;
-   rtfree(rt);
-  }
- }
- if (ifa == ((void *)0))
-  return (((void *)0));
- if (ifa->ifa_addr->sa_family != dst->sa_family) {
-  struct ifaddr *oifa = ifa;
-  ifa = ifaof_ifpforaddr(dst, ifa->ifa_ifp);
-  if (ifa == ((void *)0))
-   ifa = oifa;
- }
- return (ifa);
-}
-int
-rt_getifa(struct rt_addrinfo *info, u_int rtid)
-{
- struct ifnet *ifp = ((void *)0);
- if (info->rti_info[4] != ((void *)0)) {
-  struct sockaddr_dl *sdl;
-  sdl = satosdl(info->rti_info[4]);
-  ifp = if_get(sdl->sdl_index);
- }
- if (info->rti_info[0] &&
-     info->rti_info[0]->sa_family == 30)
-  info->rti_ifa = enc_getifa(rtid, 0);
- if (info->rti_ifa == ((void *)0) && info->rti_info[5] != ((void *)0))
-  info->rti_ifa = ifa_ifwithaddr(info->rti_info[5], rtid);
- if (info->rti_ifa == ((void *)0)) {
-  struct sockaddr *sa;
-  if ((sa = info->rti_info[5]) == ((void *)0))
-   if ((sa = info->rti_info[1]) == ((void *)0))
-    sa = info->rti_info[0];
-  if (sa != ((void *)0) && ifp != ((void *)0))
-   info->rti_ifa = ifaof_ifpforaddr(sa, ifp);
-  else if (info->rti_info[0] != ((void *)0) &&
-      info->rti_info[1] != ((void *)0))
-   info->rti_ifa = ifa_ifwithroute(info->rti_flags,
-       info->rti_info[0],
-       info->rti_info[1],
-       rtid);
-  else if (sa != ((void *)0))
-   info->rti_ifa = ifa_ifwithroute(info->rti_flags,
-       sa, sa, rtid);
- }
- if_put(ifp);
- if (info->rti_ifa == ((void *)0))
-  return (51);
- return (0);
-}
 int
 rtrequest_delete(struct rt_addrinfo *info, u_int8_t prio, struct ifnet *ifp,
     struct rtentry **ret_nrt, u_int tableid)
@@ -4472,7 +4061,7 @@ rtrequest_delete(struct rt_addrinfo *info, u_int8_t prio, struct ifnet *ifp,
  rtfree(rt->rt_parent);
  rt->rt_parent = ((void *)0);
  rt->rt_flags &= ~0x1;
- ((ifp->if_index == rt->rt_ifidx) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 889, "ifp->if_index == rt->rt_ifidx"));
+ ((ifp->if_index == rt->rt_ifidx) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 767, "ifp->if_index == rt->rt_ifidx"));
  ifp->if_rtrequest(ifp, 0x2, rt);
  ((void)_atomic_add_int_nv((&rttrash), 1));
  if (ret_nrt != ((void *)0))
@@ -4506,7 +4095,7 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
    return (22);
   if ((rt->rt_flags & 0x100) == 0)
    return (22);
-  ((rt->rt_ifa->ifa_ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 932, "rt->rt_ifa->ifa_ifp != NULL"));
+  ((rt->rt_ifa->ifa_ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 810, "rt->rt_ifa->ifa_ifp != NULL"));
   info->rti_ifa = rt->rt_ifa;
   info->rti_flags = rt->rt_flags | (0x10000|0x4);
   info->rti_flags &= ~(0x100|0x800000|0x800);
@@ -4514,8 +4103,8 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
   info->rti_info[10] =
       rtlabel_id2sa(rt->rt_labelid, &sa_rl2);
  case 0x1:
-  if (info->rti_ifa == ((void *)0) && (error = rt_getifa(info, tableid)))
-   return (error);
+  if (info->rti_ifa == ((void *)0))
+   return (22);
   ifa = info->rti_ifa;
   ifp = ifa->ifa_ifp;
   if (prio == 0)
@@ -4596,7 +4185,7 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
    if (((crt->rt_flags) & (0x10000))) {
     struct ifnet *cifp;
     cifp = if_get(crt->rt_ifidx);
-    ((cifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1060, "cifp != NULL"));
+    ((cifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 938, "cifp != NULL"));
     rtdeletemsg(crt, cifp, tableid);
     if_put(cifp);
     error = rtable_insert(tableid, ndst,
@@ -4647,7 +4236,7 @@ struct rtentry *
 rt_getll(struct rtentry *rt)
 {
  if (((rt->rt_flags) & (0x2))) {
-  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1124, "rt->rt_gwroute != NULL"));
+  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1002, "rt->rt_gwroute != NULL"));
   return (rt->RT_gw._nh);
  }
  return (rt);
@@ -4809,7 +4398,7 @@ rt_ifa_purge(struct ifaddr *ifa)
  struct ifnet *ifp = ifa->ifa_ifp;
  unsigned int rtableid;
  int i;
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1361, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1239, "ifp != NULL"));
  for (rtableid = 0; rtableid < rtmap_limit; rtableid++) {
   if (rtable_l2(rtableid) != ifp->if_data.ifi_rdomain)
    continue;
@@ -5085,7 +4674,7 @@ rt_plentosa(sa_family_t af, int plen, struct sockaddr_in6 *sa_mask)
 {
  struct sockaddr_in *sin = (struct sockaddr_in *)sa_mask;
  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa_mask;
- ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1751, "plen >= 0 || plen == -1"));
+ ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1629, "plen >= 0 || plen == -1"));
  if (plen == -1)
   return (((void *)0));
  __builtin_memset((sa_mask), (0), (sizeof(*sa_mask)));

@@ -2682,7 +2682,6 @@ struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
 struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
 void rtref(struct rtentry *);
 void rtfree(struct rtentry *);
-int rt_getifa(struct rt_addrinfo *, u_int);
 int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
 int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
 void rt_ifa_purge(struct ifaddr *);
@@ -2720,12 +2719,15 @@ soo_ioctl(struct file *fp, u_long cmd, caddr_t data, struct proc *p)
  int s, error = 0;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((126))):
+  s = solock(so);
   if (*(int *)data)
    so->so_state |= 0x100;
   else
    so->so_state &= ~0x100;
-  return (0);
+  sounlock(s);
+  break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((125))):
+  s = solock(so);
   if (*(int *)data) {
    so->so_state |= 0x200;
    so->so_rcv.sb_flags |= 0x10;
@@ -2735,34 +2737,37 @@ soo_ioctl(struct file *fp, u_long cmd, caddr_t data, struct proc *p)
    so->so_rcv.sb_flags &= ~0x10;
    so->so_snd.sb_flags &= ~0x10;
   }
-  return (0);
+  sounlock(s);
+  break;
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((127))):
   *(int *)data = so->so_rcv.sb_datacc;
-  return (0);
+  break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('s')) << 8) | ((8))):
   so->so_pgid = *(int *)data;
   so->so_siguid = p->p_ucred->cr_ruid;
   so->so_sigeuid = p->p_ucred->cr_uid;
-  return (0);
+  break;
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('s')) << 8) | ((9))):
   *(int *)data = so->so_pgid;
-  return (0);
+  break;
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('s')) << 8) | ((7))):
   *(int *)data = (so->so_state&0x040) != 0;
-  return (0);
+  break;
+ default:
+  if ((((cmd) >> 8) & 0xff) == 'i') {
+   do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+   error = ifioctl(so, cmd, data, p);
+   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
+  if ((((cmd) >> 8) & 0xff) == 'r')
+   return (45);
+  s = solock(so);
+  error = ((*so->so_proto->pr_usrreq)(so, 11,
+      (struct mbuf *)cmd, (struct mbuf *)data, ((void *)0), p));
+  sounlock(s);
+  break;
  }
- if ((((cmd) >> 8) & 0xff) == 'i') {
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
-  error = ifioctl(so, cmd, data, p);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
-  return (error);
- }
- if ((((cmd) >> 8) & 0xff) == 'r')
-  return (45);
- s = solock(so);
- error = ((*so->so_proto->pr_usrreq)(so, 11,
-     (struct mbuf *)cmd, (struct mbuf *)data, (struct mbuf *)((void *)0), p));
- sounlock(s);
  return (error);
 }
 int

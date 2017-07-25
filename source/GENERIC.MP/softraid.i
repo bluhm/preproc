@@ -5477,7 +5477,7 @@ sr_boot_assembly(struct sr_softc *sc)
    continue;
   }
   sdk = malloc(sizeof(struct sr_disk), 2,
-      0x0002 | 0x0004 | 0x0008);
+      0x0002 | 0x0008);
   if (sdk == ((void *)0))
    goto unwind;
   sdk->sdk_devno = dk->dk_devno;
@@ -5507,7 +5507,7 @@ sr_boot_assembly(struct sr_softc *sc)
   }
   if (bv == ((void *)0)) {
    bv = malloc(sizeof(struct sr_boot_volume),
-       2, 0x0002 | 0x0004 | 0x0008);
+       2, 0x0002 | 0x0008);
    if (bv == ((void *)0)) {
     printf("%s: failed to allocate boot volume\n",
         ((sc)->sc_dev.dv_xname));
@@ -5549,13 +5549,13 @@ sr_boot_assembly(struct sr_softc *sc)
   bv->sbv_chunks_found++;
  }
  devs = mallocarray(1024, sizeof(dev_t), 2,
-     0x0002 | 0x0004);
+     0x0002);
  if (devs == ((void *)0)) {
   printf("%s: failed to allocate device array\n", ((sc)->sc_dev.dv_xname));
   goto unwind;
  }
  ondisk = mallocarray(1024, sizeof(u_int64_t), 2,
-     0x0002 | 0x0004);
+     0x0002);
  if (ondisk == ((void *)0)) {
   printf("%s: failed to allocate ondisk array\n", ((sc)->sc_dev.dv_xname));
   goto unwind;
@@ -5565,7 +5565,7 @@ sr_boot_assembly(struct sr_softc *sc)
       bv->sbv_chunk_no != 1)
    continue;
   hotspare = malloc(sizeof(struct sr_chunk), 2,
-      0x0002 | 0x0004 | 0x0008);
+      0x0002 | 0x0008);
   if (hotspare == ((void *)0)) {
    printf("%s: failed to allocate hotspare\n",
        ((sc)->sc_dev.dv_xname));

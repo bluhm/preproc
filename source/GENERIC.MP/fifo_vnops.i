@@ -2476,7 +2476,7 @@ fifo_open(void *v)
  struct fifoinfo *fip;
  struct proc *p = ap->a_p;
  struct socket *rso, *wso;
- int error;
+ int s, error;
  if ((fip = vp->v_un.vu_fifoinfo) == ((void *)0)) {
   fip = malloc(sizeof(*fip), 25, 0x0001);
   vp->v_un.vu_fifoinfo = fip;
@@ -2493,7 +2493,9 @@ fifo_open(void *v)
    return (error);
   }
   fip->fi_writesock = wso;
+  s = solock(wso);
   if ((error = soconnect2(wso, rso)) != 0) {
+   sounlock(s);
    (void)soclose(wso);
    (void)soclose(rso);
    free(fip, 25, sizeof *fip);
@@ -2503,11 +2505,15 @@ fifo_open(void *v)
   fip->fi_readers = fip->fi_writers = 0;
   wso->so_state |= 0x010;
   wso->so_snd.sb_lowat = 512;
+ } else {
+  rso = fip->fi_readsock;
+  wso = fip->fi_writesock;
+  s = solock(wso);
  }
  if (ap->a_mode & 0x0001) {
   fip->fi_readers++;
   if (fip->fi_readers == 1) {
-   fip->fi_writesock->so_state &= ~0x010;
+   wso->so_state &= ~0x010;
    if (fip->fi_writers > 0)
     wakeup(&fip->fi_writers);
   }
@@ -2516,14 +2522,16 @@ fifo_open(void *v)
   fip->fi_writers++;
   if ((ap->a_mode & 0x0004) && fip->fi_readers == 0) {
    error = 6;
+   sounlock(s);
    goto bad;
   }
   if (fip->fi_writers == 1) {
-   fip->fi_readsock->so_state &= ~(0x020|0x800);
+   rso->so_state &= ~(0x020|0x800);
    if (fip->fi_readers > 0)
     wakeup(&fip->fi_readers);
   }
  }
+ sounlock(s);
  if ((ap->a_mode & 0x0004) == 0) {
   if ((ap->a_mode & 0x0001) && fip->fi_writers == 0) {
    VOP_UNLOCK(vp, p);
