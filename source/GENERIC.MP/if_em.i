@@ -5143,6 +5143,7 @@ void
 em_update_link_status(struct em_softc *sc)
 {
  struct ifnet *ifp = &sc->sc_ac.ac_if;
+ u_char link_state;
  if (bus_space_read_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, ((&sc->hw)->mac_type >= em_82543 ? 0x00008 : 0x00008)) & 0x00000002) {
   if (sc->link_active == 0) {
    em_get_speed_and_duplex(&sc->hw,
@@ -5162,11 +5163,10 @@ em_update_link_status(struct em_softc *sc)
    sc->smartspeed = 0;
    ifp->if_data.ifi_baudrate = ((((sc->link_speed) * 1000ULL) * 1000ULL));
   }
-  if (!((ifp->if_data.ifi_link_state) >= 4 || (ifp->if_data.ifi_link_state) == 0)) {
-   if (sc->link_duplex == 2)
-    ifp->if_data.ifi_link_state = 6;
-   else
-    ifp->if_data.ifi_link_state = 5;
+  link_state = (sc->link_duplex == 2) ?
+      6 : 5;
+  if (ifp->if_data.ifi_link_state != link_state) {
+   ifp->if_data.ifi_link_state = link_state;
    if_link_state_change(ifp);
   }
  } else {
