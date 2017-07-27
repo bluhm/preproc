@@ -3010,7 +3010,7 @@ int
 wstpad_configure(struct wsmouseinput *input)
 {
  struct wstpad *tp;
- int width, height, diag, h_res, v_res, h_unit, v_unit;
+ int width, height, diag, ratio, h_res, v_res, h_unit, v_unit;
  width = abs(input->hw.x_max - input->hw.x_min);
  height = abs(input->hw.y_max - input->hw.y_min);
  if (width == 0 || height == 0)
@@ -3042,12 +3042,11 @@ wstpad_configure(struct wsmouseinput *input)
    tp->features &= ~(1 << 3);
    tp->features |= (1 << 4);
   }
-  tp->params.bottom_edge = (tp->features &
-      (1 << 0)) ? (4096 / 16) : 0;
+  tp->params.left_edge = 0;
+  tp->params.right_edge = 0;
+  tp->params.bottom_edge = 0;
   tp->params.top_edge = 0;
-  tp->params.left_edge = (4096 / 16);
-  tp->params.right_edge = (4096 / 16);
-  tp->params.center_width = (4096 / 8);
+  tp->params.center_width = 0;
   tp->tap.maxtime.tv_nsec = 180 * 1000000;
   tp->tap.clicktime = 180;
   tp->tap.locktime = 0;
@@ -3055,19 +3054,31 @@ wstpad_configure(struct wsmouseinput *input)
   tp->scroll.vdist = 5 * v_unit;
   tp->tap.maxdist = 3 * h_unit;
  }
- tp->edge.left = input->hw.x_min +
-     width * tp->params.left_edge / 4096;
- tp->edge.right = input->hw.x_max -
-     width * tp->params.right_edge / 4096;
- tp->edge.bottom = input->hw.y_min +
-     height * tp->params.bottom_edge / 4096;
- tp->edge.top = input->hw.y_max -
-     height * tp->params.top_edge / 4096;
+ if ((ratio = tp->params.left_edge) == 0
+     && (tp->features & (1 << 4))
+     && (tp->features & (1 << 6)))
+  ratio = (4096 / 16);
+ tp->edge.left = input->hw.x_min + width * ratio / 4096;
+ if ((ratio = tp->params.right_edge) == 0
+     && (tp->features & (1 << 4))
+     && !(tp->features & (1 << 6)))
+  ratio = (4096 / 16);
+ tp->edge.right = input->hw.x_max - width * ratio / 4096;
+ if ((ratio = tp->params.bottom_edge) == 0
+     && ((tp->features & (1 << 0))
+     || ((tp->features & (1 << 4))
+     && (tp->features & (1 << 5)))))
+  ratio = (4096 / 16);
+ tp->edge.bottom = input->hw.y_min + height * ratio / 4096;
+ if ((ratio = tp->params.top_edge) == 0
+     && (tp->features & (1 << 2)))
+  ratio = (4096 / 16);
+ tp->edge.top = input->hw.y_max - height * ratio / 4096;
+ if ((ratio = abs(tp->params.center_width)) == 0)
+  ratio = (4096 / 8);
  tp->edge.center = (input->hw.x_min + input->hw.x_max) / 2;
- tp->edge.center_left = tp->edge.center -
-     width * tp->params.center_width / 8192;
- tp->edge.center_right = tp->edge.center +
-     width * tp->params.center_width / 8192;
+ tp->edge.center_left = tp->edge.center - width * ratio / 8192;
+ tp->edge.center_right = tp->edge.center + width * ratio / 8192;
  tp->edge.middle = (input->hw.y_max - input->hw.y_min) / 2;
  tp->freeze = ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
  tp->handlers = 0;

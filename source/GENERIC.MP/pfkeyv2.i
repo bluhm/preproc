@@ -4749,39 +4749,39 @@ int
 pfkeyv2_attach(struct socket *so, int proto)
 {
  struct rawcb *rp;
- struct keycb *pk;
+ struct keycb *kp;
  int error;
  if ((so->so_state & 0x080) == 0)
   return 13;
- pk = malloc(sizeof(struct keycb), 4, 0x0001 | 0x0008);
- rp = &pk->rcb;
+ kp = malloc(sizeof(struct keycb), 4, 0x0001 | 0x0008);
+ rp = &kp->rcb;
  so->so_pcb = rp;
  error = raw_attach(so, proto);
  if (error) {
-  free(pk, 4, sizeof(struct keycb));
+  free(kp, 4, sizeof(struct keycb));
   return (error);
  }
  so->so_options |= 0x0040;
  soisconnected(so);
  rp->rcb_faddr = &pfkey_addr;
- pk->pid = (__curcpu->ci_self)->ci_curproc->p_p->ps_pid;
- pk->rdomain = rtable_l2((__curcpu->ci_self)->ci_curproc->p_p->ps_rtableid);
- do { if (((pk)->kcb_list.le_next = (&pfkeyv2_sockets)->lh_first) != ((void *)0)) (&pfkeyv2_sockets)->lh_first->kcb_list.le_prev = &(pk)->kcb_list.le_next; (&pfkeyv2_sockets)->lh_first = (pk); (pk)->kcb_list.le_prev = &(&pfkeyv2_sockets)->lh_first; } while (0);
+ kp->pid = (__curcpu->ci_self)->ci_curproc->p_p->ps_pid;
+ kp->rdomain = rtable_l2((__curcpu->ci_self)->ci_curproc->p_p->ps_rtableid);
+ do { if (((kp)->kcb_list.le_next = (&pfkeyv2_sockets)->lh_first) != ((void *)0)) (&pfkeyv2_sockets)->lh_first->kcb_list.le_prev = &(kp)->kcb_list.le_next; (&pfkeyv2_sockets)->lh_first = (kp); (kp)->kcb_list.le_prev = &(&pfkeyv2_sockets)->lh_first; } while (0);
  return (0);
 }
 int
 pfkeyv2_detach(struct socket *so, struct proc *p)
 {
- struct keycb *pk;
- pk = ((struct keycb *)(so)->so_pcb);
- if (pk == ((void *)0))
+ struct keycb *kp;
+ kp = ((struct keycb *)(so)->so_pcb);
+ if (kp == ((void *)0))
   return 57;
- do { if ((pk)->kcb_list.le_next != ((void *)0)) (pk)->kcb_list.le_next->kcb_list.le_prev = (pk)->kcb_list.le_prev; *(pk)->kcb_list.le_prev = (pk)->kcb_list.le_next; ((pk)->kcb_list.le_prev) = ((void *)-1); ((pk)->kcb_list.le_next) = ((void *)-1); } while (0);
- if (pk->flags & 1)
+ do { if ((kp)->kcb_list.le_next != ((void *)0)) (kp)->kcb_list.le_next->kcb_list.le_prev = (kp)->kcb_list.le_prev; *(kp)->kcb_list.le_prev = (kp)->kcb_list.le_next; ((kp)->kcb_list.le_prev) = ((void *)-1); ((kp)->kcb_list.le_next) = ((void *)-1); } while (0);
+ if (kp->flags & 1)
   nregistered--;
- if (pk->flags & 2)
+ if (kp->flags & 2)
   npromisc--;
- raw_detach(&pk->rcb);
+ raw_detach(&kp->rcb);
  return (0);
 }
 int
@@ -5250,7 +5250,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  struct ipsec_acquire *ipa;
  struct radix_node_head *rnh;
  struct radix_node *rn = ((void *)0);
- struct keycb *pk, *bpk = ((void *)0);
+ struct keycb *kp, *bkp;
  void *freeme = ((void *)0), *bckptr = ((void *)0);
  void *headers[35 + 1];
  union sockaddr_union *sunionp;
@@ -5263,12 +5263,12 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  u_int rdomain;
  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
  __builtin_bzero((headers), (sizeof(headers)));
- pk = ((struct keycb *)(so)->so_pcb);
- if (!pk) {
+ kp = ((struct keycb *)(so)->so_pcb);
+ if (!kp) {
   rval = 22;
   goto ret;
  }
- rdomain = pk->rdomain;
+ rdomain = kp->rdomain;
  if (npromisc) {
   struct mbuf *packet;
   if (!(freeme = malloc(sizeof(struct sadb_msg) + len, 74,
@@ -5287,10 +5287,10 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   if ((rval = pfdatatopacket(freeme,
       sizeof(struct sadb_msg) + len, &packet)) != 0)
    goto ret;
-  for((bpk) = ((&pfkeyv2_sockets)->lh_first); (bpk)!= ((void *)0); (bpk) = ((bpk)->kcb_list.le_next)) {
-   if ((bpk->flags & 2) &&
-       (bpk->rdomain == rdomain))
-    pfkey_sendup(bpk, packet, 1);
+  for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
+   if ((bkp->flags & 2) &&
+       (bkp->rdomain == rdomain))
+    pfkey_sendup(bkp, packet, 1);
   }
   m_freem(packet);
   explicit_bzero(freeme, sizeof(struct sadb_msg) + len);
@@ -5586,8 +5586,8 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    mode = 1;
   break;
  case 7:
-  if (!(pk->flags & 1)) {
-   pk->flags |= 1;
+  if (!(kp->flags & 1)) {
+   kp->flags |= 1;
    nregistered++;
   }
   i = sizeof(struct sadb_supported) + sizeof(ealgs);
@@ -5607,7 +5607,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    rval = 12;
    goto ret;
   }
-  pk->registration |= (1 << ((struct sadb_msg *)message)->sadb_msg_satype);
+  kp->registration |= (1 << ((struct sadb_msg *)message)->sadb_msg_satype);
   ssup = (struct sadb_supported *) freeme;
   ssup->sadb_supported_len = i / sizeof(uint64_t);
   {
@@ -5858,28 +5858,28 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    struct mbuf *packet;
    if ((rval = pfdatatopacket(message, len, &packet)) != 0)
     goto ret;
-   for((bpk) = ((&pfkeyv2_sockets)->lh_first); (bpk)!= ((void *)0); (bpk) = ((bpk)->kcb_list.le_next))
-    if ((bpk != pk) &&
-        (bpk->rdomain == rdomain) &&
+   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next))
+    if ((bkp != kp) &&
+        (bkp->rdomain == rdomain) &&
         (!smsg->sadb_msg_seq ||
-        (smsg->sadb_msg_seq == pk->pid)))
-     pfkey_sendup(bpk, packet, 1);
+        (smsg->sadb_msg_seq == kp->pid)))
+     pfkey_sendup(bkp, packet, 1);
    m_freem(packet);
   } else {
    if (len != sizeof(struct sadb_msg)) {
     rval = 22;
     goto ret;
    }
-   i = (pk->flags &
+   i = (kp->flags &
        2) ? 1 : 0;
    j = smsg->sadb_msg_satype ? 1 : 0;
    if (i ^ j) {
     if (j) {
-     pk->flags |=
+     kp->flags |=
          2;
      npromisc++;
     } else {
-     pk->flags &=
+     kp->flags &=
          ~2;
      npromisc--;
     }
