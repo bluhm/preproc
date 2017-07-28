@@ -4268,9 +4268,9 @@ bpfwrite(dev_t dev, struct uio *uio, int ioflag)
  m->M_dat.MH.MH_pkthdr.pf.prio = ifp->if_llprio;
  if (d->bd_hdrcmplt && dst.ss_family == 0)
   dst.ss_family = 31;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  error = ifp->if_output(ifp, m, sstosa(&dst), ((void *)0));
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 out:
  bpf_put(d);
  return (error);

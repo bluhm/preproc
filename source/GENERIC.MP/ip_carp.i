@@ -5133,9 +5133,9 @@ carp_clone_destroy(struct ifnet *ifp)
 {
  struct carp_softc *sc = ifp->if_softc;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  carpdetach(sc);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  ether_ifdetach(ifp);
  if_detach(ifp);
  carp_destroy_vhosts(ifp->if_softc);
@@ -5256,9 +5256,9 @@ void
 carp_timer_ad(void *v)
 {
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  carp_send_ad(v);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 carp_send_ad(struct carp_vhost_entry *vhe)
@@ -5271,7 +5271,7 @@ carp_send_ad(struct carp_vhost_entry *vhe)
  int error, len, advbase, advskew;
  struct ifaddr *ifa;
  struct sockaddr sa;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (sc->sc_ac.ac_if.if_carp_ptr.carp_d == ((void *)0)) {
   sc->sc_ac.ac_if.if_data.ifi_oerrors++;
   return;
@@ -5645,15 +5645,15 @@ void
 carp_timer_down(void *v)
 {
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  carp_master_down(v);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 carp_master_down(struct carp_vhost_entry *vhe)
 {
  struct carp_softc *sc = vhe->parent_sc;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  switch (vhe->state) {
  case INIT:
   printf("%s: master_down event in INIT state\n",

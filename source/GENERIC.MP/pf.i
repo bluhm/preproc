@@ -8113,7 +8113,7 @@ pf_purge_thread(void *v)
  int nloops = 0, s;
  for (;;) {
   tsleep(pf_purge_thread, 32, "pftm", 1 * hz);
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   (void)(0);
   pf_purge_expired_states(1 + (pf_status.states
       / pf_default_rule.timeout[PFTM_INTERVAL]));
@@ -8126,7 +8126,7 @@ pf_purge_thread(void *v)
    pf_purge_expired_fragments();
    nloops = 0;
   }
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
  }
 }
 int32_t

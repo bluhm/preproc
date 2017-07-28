@@ -5905,7 +5905,7 @@ void
 if_attachsetup(struct ifnet *ifp)
 {
  unsigned long ifidx;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  do { (&ifp->if_groups)->tqh_first = ((void *)0); (&ifp->if_groups)->tqh_last = &(&ifp->if_groups)->tqh_first; } while (0);
  if_addgroup(ifp, "all");
  if_attachdomain(ifp);
@@ -5970,20 +5970,20 @@ if_attachhead(struct ifnet *ifp)
 {
  int s;
  if_attach_common(ifp);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if (((ifp)->if_list.tqe_next = (&ifnet)->tqh_first) != ((void *)0)) (&ifnet)->tqh_first->if_list.tqe_prev = &(ifp)->if_list.tqe_next; else (&ifnet)->tqh_last = &(ifp)->if_list.tqe_next; (&ifnet)->tqh_first = (ifp); (ifp)->if_list.tqe_prev = &(&ifnet)->tqh_first; } while (0);
  if_attachsetup(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 if_attach(struct ifnet *ifp)
 {
  int s;
  if_attach_common(ifp);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { (ifp)->if_list.tqe_next = ((void *)0); (ifp)->if_list.tqe_prev = (&ifnet)->tqh_last; *(&ifnet)->tqh_last = (ifp); (&ifnet)->tqh_last = &(ifp)->if_list.tqe_next; } while (0);
  if_attachsetup(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 if_attach_queues(struct ifnet *ifp, unsigned int nqs)
@@ -6237,7 +6237,7 @@ if_input_process(void *xifidx)
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 902);
   locked = 1;
  }
- do { _rw_enter_write(&netlock ); s2 = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s2 = 2; } while (0);
  s = _splraise(6);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   for ((ifih) = srp_enter((&sr), &(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_follow((&sr), &(ifih)->ifih_next.se_next)) {
@@ -6249,7 +6249,7 @@ if_input_process(void *xifidx)
    m_freem(m);
  }
  _splx(s);
- do { _splx(s2); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s2; _rw_exit_write(&netlock ); } while (0);
  if (locked)
   _kernel_unlock();
 out:
@@ -6261,12 +6261,12 @@ if_netisr(void *unused)
  int n, t = 0;
  int s;
  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 952);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  while ((n = netisr) != 0) {
   if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) {
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    yield();
-   do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+   do { _rw_enter_write(&netlock ); s = 2; } while (0);
   }
   atomic_clearbits_int(&netisr, n);
   if (n & (1 << 18))
@@ -6289,18 +6289,18 @@ if_netisr(void *unused)
  }
  if (t & (1 << 5))
   pfsyncintr();
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  _kernel_unlock();
 }
 void
 if_deactivate(struct ifnet *ifp)
 {
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  dohooks(ifp->if_detachhooks, 0x01 | 0x02);
  if (ifp->if_carp_ptr.carp_s && ifp->if_data.ifi_type != 0xf7)
   carp_ifdetach(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 if_detach(struct ifnet *ifp)
@@ -6312,7 +6312,7 @@ if_detach(struct ifnet *ifp)
  if_deactivate(ifp);
  ifq_clr_oactive(&ifp->if_snd);
  if_idxmap_remove(ifp);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  s2 = _splraise(6);
  ifp->if_qstart = if_detached_qstart;
  ifp->if_ioctl = if_detached_ioctl;
@@ -6356,7 +6356,7 @@ if_detach(struct ifnet *ifp)
  }
  rtm_ifannounce(ifp, 1);
  _splx(s2);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  for (i = 0; i < ifp->if_nifqs; i++)
   ifq_destroy(ifp->if_ifqs[i]);
  if (ifp->if_ifqs != ifp->if_snd._ifq_ptr._ifq_ifqs) {
@@ -6392,7 +6392,7 @@ if_clone_create(const char *name, int rdomain)
  struct if_clone *ifc;
  struct ifnet *ifp;
  int unit, ret;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifc = if_clone_lookup(name, &unit);
  if (ifc == ((void *)0))
   return (22);
@@ -6414,7 +6414,7 @@ if_clone_destroy(const char *name)
  struct if_clone *ifc;
  struct ifnet *ifp;
  int ret;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifc = if_clone_lookup(name, ((void *)0));
  if (ifc == ((void *)0))
   return (22);
@@ -6643,7 +6643,7 @@ if_downall(void)
  struct ifreq ifrq;
  struct ifnet *ifp;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if ((ifp->if_flags & 0x1) == 0)
    continue;
@@ -6654,12 +6654,12 @@ if_downall(void)
        (caddr_t)&ifrq);
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 if_down(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp->if_flags &= ~0x1;
  getmicrotime(&ifp->if_data.ifi_lastchange);
  do { (void)ifq_purge(&ifp->if_snd); } while ( 0);
@@ -6668,7 +6668,7 @@ if_down(struct ifnet *ifp)
 void
 if_up(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp->if_flags |= 0x1;
  getmicrotime(&ifp->if_data.ifi_lastchange);
  if (ifp->if_index == rtable_loindex(ifp->if_data.ifi_rdomain))
@@ -6682,18 +6682,18 @@ if_linkstate_task(void *xifidx)
  struct ifnet *ifp;
  int s;
  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1590);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  ifp = if_get(ifidx);
  if (ifp != ((void *)0))
   if_linkstate(ifp);
  if_put(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  _kernel_unlock();
 }
 void
 if_linkstate(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  rtm_ifchg(ifp);
  rt_if_track(ifp);
  dohooks(ifp->if_linkstatehooks, 0);

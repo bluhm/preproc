@@ -6593,7 +6593,7 @@ udp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
 {
  struct inpcb *inp;
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (req == 11) {
   if ((so->so_proto->pr_domain->dom_family) == 24)
    return (in6_control(so, (u_long)m, (caddr_t)addr,

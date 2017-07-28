@@ -5866,7 +5866,7 @@ rip6_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
 {
  struct inpcb *in6p = ((struct inpcb *)(so)->so_pcb);
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (req == 11)
   return (in6_control(so, (u_long)m, (caddr_t)nam,
       (struct ifnet *)control));

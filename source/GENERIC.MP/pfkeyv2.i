@@ -4825,7 +4825,7 @@ pfkey_sendup(struct keycb *kp, struct mbuf *packet, int more)
 {
  struct socket *so = kp->rcb.rcb_socket;
  struct mbuf *packet2;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (more) {
   if (!(packet2 = m_dup_pkt(packet, 0, 0x0002)))
    return (12);
@@ -5261,7 +5261,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  struct sadb_supported *ssup;
  struct sadb_ident *sid, *did;
  u_int rdomain;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  __builtin_bzero((headers), (sizeof(headers)));
  kp = ((struct keycb *)(so)->so_pcb);
  if (!kp) {
@@ -5911,7 +5911,7 @@ ret:
  }
  rval = pfkeyv2_sendmessage(headers, mode, so, 0, 0, rdomain);
 realret:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (freeme)
   free(freeme, 74, 0);
  explicit_bzero(message, len);
@@ -6283,7 +6283,7 @@ pfkeyv2_ipo_walk(u_int rdomain, int (*walker)(struct ipsec_policy *, void *),
 {
  int rval = 0;
  struct ipsec_policy *ipo;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ipo) = ((&ipsec_policy_head)->tqh_first); (ipo) != ((void *)0); (ipo) = ((ipo)->ipo_list.tqe_next)) {
   if (ipo->ipo_rdomain != rdomain)
    continue;
@@ -6351,7 +6351,7 @@ pfkeyv2_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  struct pfkeyv2_sysctl_walk w;
  int error = 22;
  u_int rdomain;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (new)
   return (1);
  if (namelen < 1)

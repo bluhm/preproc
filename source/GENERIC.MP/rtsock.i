@@ -4308,7 +4308,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
  struct sockaddr_mpls *psa_mpls;
  int plen, newgate = 0, error = 0;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  switch (rtm->rtm_type) {
  case 0x1:
   if (info->rti_info[1] == ((void *)0)) {
@@ -4484,7 +4484,7 @@ change:
    error = 3;
   break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  *prt = rt;
  return (error);
 }
@@ -5009,7 +5009,7 @@ sysctl_rtable(int *name, u_int namelen, void *where, size_t *given, void *new,
  struct walkarg w;
  struct rt_tableinfo tableinfo;
  u_int tableid = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (new)
   return (1);
  if (namelen < 3 || namelen > 4)

@@ -3309,7 +3309,7 @@ in6_ifattach_linklocal(struct ifnet *ifp, struct in6_addr *ifid)
  struct in6_aliasreq ifra;
  struct in6_ifaddr *ia6;
  int error, flags;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  __builtin_bzero((&ifra), (sizeof(ifra)));
  strncpy(ifra.ifra_name, ifp->if_xname, sizeof(ifra.ifra_name));
  ifra.ifra_ifrau.ifrau_addr.sin6_family = 24;

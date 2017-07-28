@@ -4004,9 +4004,9 @@ tunopen(dev_t dev, int flag, int mode, struct proc *p)
   char xname[16];
   int s, error;
   snprintf(xname, sizeof(xname), "%s%d", "tun", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   error = if_clone_create(xname, rdomain);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   if (error != 0)
    return (error);
   if ((tp = tun_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0))
@@ -4024,9 +4024,9 @@ tapopen(dev_t dev, int flag, int mode, struct proc *p)
   char xname[16];
   int s, error;
   snprintf(xname, sizeof(xname), "%s%d", "tap", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   error = if_clone_create(xname, rdomain);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   if (error != 0)
    return (error);
   if ((tp = tap_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0))
@@ -4078,9 +4078,9 @@ tun_dev_close(struct tun_softc *tp, int flag, int mode, struct proc *p)
  do { (void)ifq_purge(&ifp->if_snd); } while ( 0);
  ;
  if (!(tp->tun_flags & 0x0400)) {
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   error = if_clone_destroy(ifp->if_xname);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
  } else {
   tp->tun_pgid = 0;
   selwakeup(&tp->tun_rsel);
@@ -4484,7 +4484,7 @@ tun_dev_write(struct tun_softc *tp, struct uio *uio, int ioflag)
  top->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  ifp->if_data.ifi_ipackets++;
  ifp->if_data.ifi_ibytes += top->M_dat.MH.MH_pkthdr.len;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  switch (((__uint32_t)(*th))) {
  case 2:
   ipv4_input(ifp, top);
@@ -4497,7 +4497,7 @@ tun_dev_write(struct tun_softc *tp, struct uio *uio, int ioflag)
   error = 47;
   break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int

@@ -3490,9 +3490,9 @@ switchopen(dev_t dev, int flags, int mode, struct proc *p)
  unsigned int rdomain = rtable_l2(p->p_p->ps_rtableid);
  if ((sc = switch_dev2sc(dev)) == ((void *)0)) {
   snprintf(name, sizeof(name), "switch%d", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   rv = if_clone_create(name, rdomain);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   if (rv != 0)
    return (rv);
   if ((sc = switch_dev2sc(dev)) == ((void *)0))

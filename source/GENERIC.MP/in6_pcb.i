@@ -4489,7 +4489,7 @@ in6_pcbnotify(struct inpcbtable *head, struct sockaddr_in6 *dst,
  struct sockaddr_in6 sa6_src;
  int errno, nmatch = 0;
  u_int32_t flowinfo;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if ((unsigned)cmd >= 21)
   return (0);
  if (((*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)))

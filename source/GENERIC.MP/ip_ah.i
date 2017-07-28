@@ -5220,7 +5220,7 @@ ah_input_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5233,7 +5233,7 @@ ah_input_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5286,7 +5286,7 @@ ah_input_cb(struct cryptop *crp)
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
   ahstat.ahs_hdrops++;
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   m_freem(m);
   ;
   return;
@@ -5315,10 +5315,10 @@ ah_input_cb(struct cryptop *crp)
    m->M_dat.MH.MH_pkthdr.len -= rplen + ahx->authsize;
   }
  ipsec_common_input_cb(m, tdb, skip, protoff);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  if (crp != ((void *)0))
   crypto_freereq(crp);
@@ -5510,7 +5510,7 @@ ah_output_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5522,7 +5522,7 @@ ah_output_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5536,10 +5536,10 @@ ah_output_cb(struct cryptop *crp)
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
   ahstat.ahs_outfail++;
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }

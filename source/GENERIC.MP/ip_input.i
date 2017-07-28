@@ -6348,7 +6348,7 @@ in_ouraddr(struct mbuf *m, struct ifnet *ifp, struct rtentry **prt)
    return (0);
   if (ifp->if_data.ifi_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid))
    return (0);
-  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
   for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
    if (ifa->ifa_addr->sa_family != 2)
     continue;
@@ -6508,7 +6508,7 @@ void
 ip_slowtimo(void)
 {
  struct ipq *fp, *nfp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for (fp = ((&ipq)->lh_first); fp != ((void *)0); fp = nfp) {
   nfp = ((fp)->ipq_q.le_next);
   if (--fp->ipq_ttl == 0) {
@@ -6913,7 +6913,7 @@ ip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  int error;
  extern int ip_mrtproto;
  extern struct mrtstat mrtstat;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1 && name[0] != 30)
   return (20);
  switch (name[0]) {
@@ -7061,11 +7061,11 @@ ip_send_dispatch(void *xmq)
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1815);
   locked = 1;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip_output(m, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), 0);
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (locked)
   _kernel_unlock();
 }

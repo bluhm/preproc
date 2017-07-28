@@ -3766,7 +3766,7 @@ nd6_na_input(struct mbuf *m, int off, int icmp6len)
  struct sockaddr_dl *sdl;
  union nd_opts ndopts;
  char addr[46], addr0[46];
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
  if (ifp == ((void *)0))
   goto freeit;
@@ -4091,7 +4091,7 @@ nd6_dad_start(struct ifaddr *ifa)
  struct in6_ifaddr *ia6 = ifatoia6(ifa);
  struct dadq *dp;
  char addr[46];
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!dad_init) {
   do { (&dadq)->tqh_first = ((void *)0); (&dadq)->tqh_last = &(&dadq)->tqh_first; } while (0);
   dad_init++;
@@ -4149,7 +4149,7 @@ nd6_dad_timer(void *xifa)
  struct dadq *dp;
  char addr[46];
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (ia6 == ((void *)0)) {
   log(3, "%s: called with null parameter\n", __func__);
   goto done;
@@ -4208,7 +4208,7 @@ nd6_dad_timer(void *xifa)
   }
  }
 done:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 nd6_dad_duplicated(struct dadq *dp)

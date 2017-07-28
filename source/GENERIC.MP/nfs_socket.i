@@ -4647,7 +4647,7 @@ nfs_timer(void *arg)
  struct mbuf *m;
  struct socket *so;
  int timeo, s, error;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for((rep) = ((&nmp->nm_reqsq)->tqh_first); (rep) != ((void *)0); (rep) = ((rep)->r_chain.tqe_next)) {
   if (rep->r_mrep || (rep->r_flags & 0x04))
    continue;
@@ -4716,7 +4716,7 @@ nfs_timer(void *arg)
    }
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  timeout_add(&nmp->nm_rtimeout, nfs_ticks);
 }
 int

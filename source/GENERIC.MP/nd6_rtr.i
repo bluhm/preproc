@@ -3400,7 +3400,7 @@ nd6_ra_input(struct mbuf *m, int off, int icmp6len)
 void
 rt6_flush(struct in6_addr *gateway, struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!(((gateway)->__u6_addr.__u6_addr8[0] == 0xfe) && (((gateway)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80)))
   return;
  gateway->__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifp->if_index));

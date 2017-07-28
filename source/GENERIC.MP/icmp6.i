@@ -6705,7 +6705,7 @@ void
 icmp6_mtudisc_timeout(struct rtentry *rt, struct rttimer *r)
 {
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp = if_get(rt->rt_ifidx);
  if (ifp == ((void *)0))
   return;
@@ -6721,7 +6721,7 @@ void
 icmp6_redirect_timeout(struct rtentry *rt, struct rttimer *r)
 {
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp = if_get(rt->rt_ifidx);
  if (ifp == ((void *)0))
   return;

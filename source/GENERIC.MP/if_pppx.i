@@ -4598,11 +4598,11 @@ pppxread(dev_t dev, struct uio *uio, int ioflag)
  while ((m0 = mq_dequeue(&pxd->pxd_svcq)) == ((void *)0)) {
   if (((ioflag) & (0x10)))
    return (35);
-  do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+  do { _rw_enter_write(&netlock ); s = 2; } while (0);
   pxd->pxd_waiting = 1;
   error = rwsleep(pxd, &netlock,
       (22 + 1)|0x100, "pppxread", 0);
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   if (error != 0) {
    return (error);
   }
@@ -4704,7 +4704,7 @@ pppxioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
 {
  struct pppx_dev *pxd = pppx_dev2pxd(dev);
  int s, error = 0;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('p')) << 8) | ((1))):
   break;
@@ -4741,7 +4741,7 @@ pppxioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   error = 25;
   break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int
@@ -5099,7 +5099,7 @@ pppx_if_destroy(struct pppx_dev *pxd, struct pppx_if *pxi)
 {
  struct ifnet *ifp;
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  session = &pxi->pxi_session;
  ifp = &pxi->pxi_if;
  do { if ((session)->id_chain.le_next != ((void *)0)) (session)->id_chain.le_next->id_chain.le_prev = (session)->id_chain.le_prev; *(session)->id_chain.le_prev = (session)->id_chain.le_next; ((session)->id_chain.le_prev) = ((void *)-1); ((session)->id_chain.le_next) = ((void *)-1); } while (0);
@@ -5149,7 +5149,7 @@ pppx_if_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
  struct pppx_hdr *th;
  int error = 0;
  int proto;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!((ifp->if_flags) & (0x1))) {
   m_freem(m);
   error = 50;

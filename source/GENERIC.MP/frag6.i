@@ -3533,7 +3533,7 @@ void
 frag6_slowtimo(void)
 {
  struct ip6q *q6, *nq6;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 608); panic("ip6q_lock"); } } while (0);
  for ((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0) && ((nq6) = ((q6)->ip6q_queue.tqe_next), 1); (q6) = (nq6))
   if (--q6->ip6q_ttl == 0) {

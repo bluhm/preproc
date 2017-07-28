@@ -5603,7 +5603,7 @@ sppp_keepalive(void *dummy)
  struct sppp *sp;
  int s, sl;
  struct timeval tv;
- do { _rw_enter_write(&netlock ); sl = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); sl = 2; } while (0);
  s = _splraise(6);
  getmicrouptime(&tv);
  for (sp=spppq; sp; sp=sp->pp_next) {
@@ -5639,7 +5639,7 @@ sppp_keepalive(void *dummy)
   }
  }
  _splx(s);
- do { _splx(sl); _rw_exit_write(&netlock ); } while (0);
+ do { (void)sl; _rw_exit_write(&netlock ); } while (0);
  timeout_add_sec(&keepalive_ch, 10);
 }
 void
@@ -5715,7 +5715,7 @@ sppp_set_ip_addrs(void *arg1)
  if ((sp->ipcp.flags & 8) &&
      (sp->ipcp.flags & 1))
   hisaddr = sp->ipcp.req_hisaddr;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  si = 0;
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next))
  {
@@ -5751,7 +5751,7 @@ sppp_set_ip_addrs(void *arg1)
   sppp_update_gw(ifp);
  }
 out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_clear_ip_addrs(void *arg1)
@@ -5764,7 +5764,7 @@ sppp_clear_ip_addrs(void *arg1)
  struct sockaddr_in *dest;
  u_int32_t remote;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (sp->ipcp.flags & 8)
   remote = sp->ipcp.saved_hisaddr;
  else
@@ -5796,7 +5796,7 @@ sppp_clear_ip_addrs(void *arg1)
   sppp_update_gw(ifp);
  }
 out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_get_ip6_addrs(struct sppp *sp, struct in6_addr *src, struct in6_addr *dst,
@@ -5832,7 +5832,7 @@ sppp_update_ip6_addr(void *arg)
  struct in6_addr mask = in6mask128;
  struct in6_ifaddr *ia6;
  int s, error;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  ia6 = in6ifa_ifpforlinklocal(ifp, 0);
  if (ia6 == ((void *)0)) {
   goto out;
@@ -5858,7 +5858,7 @@ sppp_update_ip6_addr(void *arg)
       (ifp)->if_xname, error);
  }
 out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_set_ip6_addr(struct sppp *sp, const struct in6_addr *src,

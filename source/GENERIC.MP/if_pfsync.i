@@ -6695,7 +6695,7 @@ void
 pfsync_update_net_tdb(struct pfsync_tdb *pt)
 {
  struct tdb *tdb;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (((__uint32_t)(pt->spi)) <= 255 ||
      (pt->dst.sa.sa_family != 2 &&
       pt->dst.sa.sa_family != 24))
@@ -7066,7 +7066,7 @@ void
 pfsync_insert_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (((st->rule.ptr->rule_flag) & (0x0010)) ||
      st->key[PF_SK_WIRE]->proto == 240) {
   ((st->state_flags) |= (0x0008));
@@ -7085,7 +7085,7 @@ pfsync_defer(struct pf_state *st, struct mbuf *m)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!sc->sc_defer ||
      ((st->state_flags) & (0x0008)) ||
      m->m_hdr.mh_flags & (0x0100|0x0200))
@@ -7114,7 +7114,7 @@ pfsync_undefer(struct pfsync_deferral *pd, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pf_pdesc pdesc;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  do { if (((pd)->pd_entry.tqe_next) != ((void *)0)) (pd)->pd_entry.tqe_next->pd_entry.tqe_prev = (pd)->pd_entry.tqe_prev; else (&sc->sc_deferrals)->tqh_last = (pd)->pd_entry.tqe_prev; *(pd)->pd_entry.tqe_prev = (pd)->pd_entry.tqe_next; ((pd)->pd_entry.tqe_prev) = ((void *)-1); ((pd)->pd_entry.tqe_next) = ((void *)-1); } while (0);
  sc->sc_deferred--;
  ((pd->pd_st->state_flags) &= ~(0x0010));
@@ -7160,16 +7160,16 @@ void
 pfsync_defer_tmo(void *arg)
 {
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  pfsync_undefer(arg, 0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_deferred(struct pf_state *st, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((pd) = ((&sc->sc_deferrals)->tqh_first); (pd) != ((void *)0); (pd) = ((pd)->pd_entry.tqe_next)) {
    if (pd->pd_st == st) {
    if (timeout_del(&pd->pd_tmo))
@@ -7184,7 +7184,7 @@ pfsync_update_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int sync = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7314,7 +7314,7 @@ void
 pfsync_delete_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7350,7 +7350,7 @@ pfsync_clear_states(u_int32_t creatorid, const char *ifname)
   struct pfsync_subheader subh;
   struct pfsync_clr clr;
  } __attribute__((__packed__)) r;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  __builtin_bzero((&r), (sizeof(r)));
@@ -7464,7 +7464,7 @@ pfsync_bulk_update(void *arg)
  struct pf_state *st;
  int i = 0;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  st = sc->sc_bulk_next;
  for (;;) {
   if (st->sync_state == 0xff &&
@@ -7489,7 +7489,7 @@ pfsync_bulk_update(void *arg)
    break;
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_bulk_status(u_int8_t status)
@@ -7513,7 +7513,7 @@ pfsync_bulk_fail(void *arg)
 {
  struct pfsync_softc *sc = arg;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (sc->sc_bulk_tries++ < 12) {
   timeout_add_sec(&sc->sc_bulkfail_tmo, 5);
   pfsync_request_update(0, 0);
@@ -7534,7 +7534,7 @@ pfsync_bulk_fail(void *arg)
   sc->sc_link_demoted = 0;
   do { if (pf_status.debug >= (3)) { log(3, "pfsync: "); addlog("failed to receive bulk update"); addlog("\n"); } } while (0);
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_send_plus(void *plus, size_t pluslen)
@@ -7570,9 +7570,9 @@ void
 pfsync_timeout(void *arg)
 {
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  pfsync_sendout();
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsyncintr(void)

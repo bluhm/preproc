@@ -5855,9 +5855,9 @@ pflow_clone_create(struct if_clone *ifc, int unit)
  if_attach(ifp);
  if_alloc_sadl(ifp);
  task_set(&pflowif->sc_outputtask, pflow_output_process, pflowif);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { (pflowif)->sc_next.sle_next = (&pflowif_list)->slh_first; (&pflowif_list)->slh_first = (pflowif); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -5885,9 +5885,9 @@ pflow_clone_destroy(struct ifnet *ifp)
  if (sc->sc_flowsrc != ((void *)0))
   free(sc->sc_flowsrc, 2, sc->sc_flowsrc->sa_len);
  if_detach(ifp);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if ((&pflowif_list)->slh_first == (sc)) { do { ((&pflowif_list))->slh_first = ((&pflowif_list))->slh_first->sc_next.sle_next; } while (0); } else { struct pflow_softc *curelm = (&pflowif_list)->slh_first; while (curelm->sc_next.sle_next != (sc)) curelm = curelm->sc_next.sle_next; curelm->sc_next.sle_next = curelm->sc_next.sle_next->sc_next.sle_next; } ((sc)->sc_next.sle_next) = ((void *)-1); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  free(sc, 2, sizeof(*sc));
  return (error);
 }

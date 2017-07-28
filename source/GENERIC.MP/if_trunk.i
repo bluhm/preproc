@@ -2848,14 +2848,14 @@ trunk_clone_destroy(struct ifnet *ifp)
  struct trunk_port *tp;
  int s, error;
  trunk_ether_purgemulti(tr);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  while ((tp = ((&tr->tr_ports)->slh_first)) != ((void *)0)) {
   if ((error = trunk_port_destroy(tp)) != 0) {
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    return (error);
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  ifmedia_delete_instance(&tr->tr_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
  if_detach(ifp);

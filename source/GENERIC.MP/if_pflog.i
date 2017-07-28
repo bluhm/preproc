@@ -4557,7 +4557,7 @@ pflogifs_resize(size_t n)
 {
  struct ifnet **p;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (n > 0xffffffffffffffffUL / sizeof(*p))
   return (22);
  if (n == 0)
@@ -4601,13 +4601,13 @@ pflog_clone_create(struct if_clone *ifc, int unit)
  if_attach(ifp);
  if_alloc_sadl(ifp);
  bpfattach(&pflogif->sc_if.if_bpf, ifp, 117, sizeof(struct pfloghdr));
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (unit + 1 > npflogifs && pflogifs_resize(unit + 1) != 0) {
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   return (12);
  }
  pflogifs[unit] = ifp;
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -4615,13 +4615,13 @@ pflog_clone_destroy(struct ifnet *ifp)
 {
  struct pflog_softc *pflogif = ifp->if_softc;
  int s, i;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  pflogifs[pflogif->sc_unit] = ((void *)0);
  for (i = npflogifs; i > 0 && pflogifs[i - 1] == ((void *)0); i--)
   ;
  if (i < npflogifs)
   pflogifs_resize(i);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(pflogif, 2, 0);
  return (0);

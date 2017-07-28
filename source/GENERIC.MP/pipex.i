@@ -5401,7 +5401,7 @@ int
 pipex_ioctl(struct pipex_iface_context *pipex_iface, u_long cmd, caddr_t data)
 {
  int s, pipexmode, ret = 0;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('p')) << 8) | ((1))):
   pipexmode = *(int *)data;
@@ -5437,7 +5437,7 @@ pipex_ioctl(struct pipex_iface_context *pipex_iface, u_long cmd, caddr_t data)
   ret = 25;
   break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (ret);
 }
  int
@@ -5561,7 +5561,7 @@ pipex_add_session(struct pipex_session_req *req,
    return (22);
   }
  }
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!((session->ip_address.sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
   if (pipex_lookup_by_ip_address(session->ip_address.sin_addr)
       != ((void *)0)) {
@@ -5600,7 +5600,7 @@ pipex_add_session(struct pipex_session_req *req,
 int
 pipex_notify_close_session(struct pipex_session *session)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  session->state = 0x0002;
  session->stat.idle_time = 0;
  do { if (((session)->state_list.le_next = (&pipex_close_wait_list)->lh_first) != ((void *)0)) (&pipex_close_wait_list)->lh_first->state_list.le_prev = &(session)->state_list.le_next; (&pipex_close_wait_list)->lh_first = (session); (session)->state_list.le_prev = &(&pipex_close_wait_list)->lh_first; } while (0);
@@ -5610,7 +5610,7 @@ int
 pipex_notify_close_session_all(void)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((session) = ((&pipex_session_list)->lh_first); (session)!= ((void *)0); (session) = ((session)->session_list.le_next))
   if (session->state == 0x0001)
    pipex_notify_close_session(session);
@@ -5620,7 +5620,7 @@ pipex_notify_close_session_all(void)
 pipex_close_session(struct pipex_session_close_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0))
@@ -5635,7 +5635,7 @@ pipex_close_session(struct pipex_session_close_req *req)
 pipex_config_session(struct pipex_session_config_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0))
@@ -5647,7 +5647,7 @@ pipex_config_session(struct pipex_session_config_req *req)
 pipex_get_stat(struct pipex_session_stat_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0)) {
@@ -5660,7 +5660,7 @@ pipex_get_stat(struct pipex_session_stat_req *req)
 pipex_get_closed(struct pipex_session_list_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  __builtin_bzero((req), (sizeof(*req)));
  while (!(((&pipex_close_wait_list)->lh_first) == ((void *)0))) {
   session = ((&pipex_close_wait_list)->lh_first);
@@ -5679,7 +5679,7 @@ pipex_get_closed(struct pipex_session_list_req *req)
 pipex_destroy_session(struct pipex_session *session)
 {
  struct radix_node *rn;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!((session->ip_address.sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
   rn = rn_delete(&session->ip_address, &session->ip_netmask,
       pipex_rd_head4, (struct radix_node *)session);
@@ -5807,7 +5807,7 @@ pipex_timer(void *ignored_arg)
  struct pipex_session *session;
  struct pipex_session *session_next;
  timeout_add_sec(&pipex_timer_ch, pipex_prune);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for (session = ((&pipex_session_list)->lh_first); session;
      session = session_next) {
   session_next = ((session)->session_list.le_next);
@@ -5837,7 +5837,7 @@ pipex_timer(void *ignored_arg)
    break;
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 struct mbuf *
 pipex_output(struct mbuf *m0, int af, int off,
@@ -6367,9 +6367,9 @@ pipex_pptp_input(struct mbuf *m0, struct pipex_session *session)
   ackp = cp;
   do { (ack) = *(cp)++ << 8; (ack) |= *(cp)++; (ack) <<= 8; (ack) |= *(cp)++; (ack) <<= 8; (ack) |= *(cp)++; } while (0);
   if (ack + 1 == pptp_session->snd_una) {
-  } else if (((int)((ack) - (pptp_session->snd_una)) < 0)) {
+  } else if (((int32_t)((ack) - (pptp_session->snd_una)) < 0)) {
    rewind = 1;
-  } else if (((int)((ack) - (pptp_session->snd_nxt)) > 0)) {
+  } else if (((int32_t)((ack) - (pptp_session->snd_nxt)) > 0)) {
    reason = "ack for unknown sequence";
    goto out_seq;
   } else
@@ -6378,13 +6378,13 @@ pipex_pptp_input(struct mbuf *m0, struct pipex_session *session)
  if (!has_seq) {
   goto not_ours;
  }
- if (((int)((seq) - (pptp_session->rcv_nxt)) < 0)) {
+ if (((int32_t)((seq) - (pptp_session->rcv_nxt)) < 0)) {
   rewind = 1;
-  if (((int)((seq) - (pptp_session->rcv_nxt - 64)) < 0)) {
+  if (((int32_t)((seq) - (pptp_session->rcv_nxt - 64)) < 0)) {
    reason = "out of sequence";
    goto out_seq;
   }
- } else if (((int)((seq) - (pptp_session->rcv_nxt + pptp_session->maxwinsz)) >= 0)) {
+ } else if (((int32_t)((seq) - (pptp_session->rcv_nxt + pptp_session->maxwinsz)) >= 0)) {
   pipex_session_log(session, 7,
       "received packet caused window overflow. seq=%u(%u-%u)"
       "may lost %d packets.", seq, pptp_session->rcv_nxt,
@@ -6521,7 +6521,7 @@ pipex_pptp_userland_output(struct mbuf *m0, struct pipex_session *session)
   do { (val32) = *(cp)++ << 8; (val32) |= *(cp)++; (val32) <<= 8; (val32) |= *(cp)++; (val32) <<= 8; (val32) |= *(cp)++; } while (0);
   val32 += session->proto.pptp.rcv_gap;
   do { *(cp0)++ = (u_char) ((val32) >> 24); *(cp0)++ = (u_char) ((val32) >> 16); *(cp0)++ = (u_char) ((val32) >> 8); *(cp0)++ = (u_char) (val32); } while (0);
-  if (((int)((val32) - (session->proto.pptp.rcv_acked)) > 0))
+  if (((int32_t)((val32) - (session->proto.pptp.rcv_acked)) > 0))
    session->proto.pptp.rcv_acked = val32;
  }
  return (m0);
@@ -6694,12 +6694,12 @@ pipex_l2tp_input(struct mbuf *m0, int off0, struct pipex_session *session,
   nrp = cp;
   do { (nr) = *(cp)++ << 8; (nr) |= *(cp)++; } while (0);
   nr++;
-  if (((int)((nr) - (l2tp_session->ns_una)) > 0) &&
-      ((int)((nr) - (l2tp_session->ns_nxt)) <= 0))
+  if (((int16_t)((nr) - (l2tp_session->ns_una)) > 0) &&
+      ((int16_t)((nr) - (l2tp_session->ns_nxt)) <= 0))
    l2tp_session->ns_una = nr;
-  if (((int)((ns) - (l2tp_session->nr_nxt)) < 0)) {
+  if (((int16_t)((ns) - (l2tp_session->nr_nxt)) < 0)) {
    rewind = 1;
-   if (((int)((ns) - (l2tp_session->nr_nxt - 64)) < 0))
+   if (((int16_t)((ns) - (l2tp_session->nr_nxt - 64)) < 0))
     goto out_seq;
   }
   ns++;
@@ -6816,7 +6816,7 @@ pipex_l2tp_userland_output(struct mbuf *m0, struct pipex_session *session)
   session->proto.l2tp.ns_nxt++;
   nr += session->proto.l2tp.nr_gap;
   seq->nr = ((__uint16_t)(nr));
-  if (((int)((nr) - (session->proto.l2tp.nr_acked)) > 0))
+  if (((int16_t)((nr) - (session->proto.l2tp.nr_acked)) > 0))
    session->proto.l2tp.nr_acked = nr;
  return (m0);
 }

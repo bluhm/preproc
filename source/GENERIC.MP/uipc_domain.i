@@ -1984,10 +1984,10 @@ net_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  protocol = name[1];
  for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
   if (pr->pr_protocol == protocol && pr->pr_sysctl) {
-   do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+   do { _rw_enter_write(&netlock ); s = 2; } while (0);
    error = (*pr->pr_sysctl)(name + 2, namelen - 2,
        oldp, oldlenp, newp, newlen);
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    return (error);
   }
  return (42);
@@ -1998,7 +1998,7 @@ pfctlinput(int cmd, struct sockaddr *sa)
  struct domain *dp;
  struct protosw *pr;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_ctlinput)
@@ -2012,13 +2012,13 @@ pfslowtimo(void *arg)
  struct domain *dp;
  struct protosw *pr;
  int i, s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_slowtimo)
     (*pr->pr_slowtimo)();
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 500);
 }
 void
@@ -2028,12 +2028,12 @@ pffasttimo(void *arg)
  struct domain *dp;
  struct protosw *pr;
  int i, s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_fasttimo)
     (*pr->pr_fasttimo)();
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 200);
 }

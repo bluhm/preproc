@@ -4963,7 +4963,7 @@ reserve_spi(u_int rdomain, u_int32_t sspi, u_int32_t tspi,
  struct tdb *tdbp, *exists;
  u_int32_t spi;
  int nums;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (sproto != 108 &&
      (tspi < sspi || tspi <= 255)) {
   (*errval) = 22;
@@ -5028,7 +5028,7 @@ gettdb(u_int rdomain, u_int32_t spi, union sockaddr_union *dst, u_int8_t proto)
 {
  u_int32_t hashval;
  struct tdb *tdbp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbh == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, spi, dst, proto);
@@ -5163,7 +5163,7 @@ tdb_walk(u_int rdomain, int (*walker)(struct tdb *, void *, int), void *arg)
 {
  int i, rval = 0;
  struct tdb *tdbp, *next;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbh == ((void *)0))
   return 2;
  for (i = 0; i <= tdb_hashmask; i++)
@@ -5185,11 +5185,11 @@ tdb_timeout(void *v)
  int s;
  if (!(tdb->tdb_flags & 0x00002))
   return;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (!(tdb->tdb_flags & 0x00010))
   pfkeyv2_expire(tdb, 3);
  tdb_delete(tdb);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_firstuse(void *v)
@@ -5198,11 +5198,11 @@ tdb_firstuse(void *v)
  int s;
  if (!(tdb->tdb_flags & 0x00400))
   return;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tdb->tdb_first_use != 0)
   pfkeyv2_expire(tdb, 3);
  tdb_delete(tdb);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_soft_timeout(void *v)
@@ -5211,10 +5211,10 @@ tdb_soft_timeout(void *v)
  int s;
  if (!(tdb->tdb_flags & 0x00080))
   return;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  pfkeyv2_expire(tdb, 4);
  tdb->tdb_flags &= ~0x00080;
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_soft_firstuse(void *v)
@@ -5223,11 +5223,11 @@ tdb_soft_firstuse(void *v)
  int s;
  if (!(tdb->tdb_flags & 0x00400))
   return;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tdb->tdb_first_use != 0)
   pfkeyv2_expire(tdb, 4);
  tdb->tdb_flags &= ~0x00400;
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_rehash(void)
@@ -5235,7 +5235,7 @@ tdb_rehash(void)
  struct tdb **new_tdbh, **new_tdbdst, **new_srcaddr, *tdbp, *tdbnp;
  u_int i, old_hashmask = tdb_hashmask;
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  tdb_hashmask = (tdb_hashmask << 1) | 1;
  arc4random_buf(&tdbkey, sizeof(tdbkey));
  new_tdbh = mallocarray(tdb_hashmask + 1, sizeof(struct tdb *), 75,
@@ -5281,7 +5281,7 @@ void
 puttdb(struct tdb *tdbp)
 {
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbh == ((void *)0)) {
   arc4random_buf(&tdbkey, sizeof(tdbkey));
   tdbh = mallocarray(tdb_hashmask + 1, sizeof(struct tdb *),
@@ -5317,7 +5317,7 @@ tdb_unlink(struct tdb *tdbp)
 {
  struct tdb *tdbpp;
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbh == ((void *)0))
   return;
  hashval = tdb_hash(tdbp->tdb_rdomain, tdbp->tdb_spi,
@@ -5368,7 +5368,7 @@ tdb_unlink(struct tdb *tdbp)
 void
 tdb_delete(struct tdb *tdbp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  tdb_unlink(tdbp);
  tdb_free(tdbp);
 }
@@ -5502,13 +5502,13 @@ ipsp_ids_timeout(void *arg)
  int s;
  ;
  ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 999, "ids->id_refcount == 0"));
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  ipsec_ids_tree_RBT_REMOVE(&ipsec_ids_tree, ids);
  ipsec_ids_flows_RBT_REMOVE(&ipsec_ids_flows, ids);
  free(ids->id_local, 110, 0);
  free(ids->id_remote, 110, 0);
  free(ids, 110, 0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 ipsp_ids_free(struct ipsec_ids *ids)

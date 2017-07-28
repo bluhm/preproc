@@ -2697,7 +2697,7 @@ pppoe_clone_create(struct if_clone *ifc, int unit)
  if_alloc_sadl(&sc->sc_sppp.pp_if);
  sppp_attach(&sc->sc_sppp.pp_if);
  bpfattach(&sc->sc_sppp.pp_if.if_bpf, &sc->sc_sppp.pp_if, 51, 0);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
 retry:
  unique = arc4random();
  for((tmpsc) = ((&pppoe_softc_list)->lh_first); (tmpsc)!= ((void *)0); (tmpsc) = ((tmpsc)->sc_list.le_next))
@@ -2705,7 +2705,7 @@ retry:
    goto retry;
  sc->sc_unique = unique;
  do { if (((sc)->sc_list.le_next = (&pppoe_softc_list)->lh_first) != ((void *)0)) (&pppoe_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&pppoe_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&pppoe_softc_list)->lh_first; } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -2713,9 +2713,9 @@ pppoe_clone_destroy(struct ifnet *ifp)
 {
  struct pppoe_softc *sc = ifp->if_softc;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  timeout_del(&sc->sc_timeout);
  sppp_detach(&sc->sc_sppp.pp_if);
  if_detach(ifp);
@@ -2778,7 +2778,7 @@ void
 pppoeintr(void)
 {
  struct mbuf *m;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  while ((m = mq_dequeue(&(&pppoediscinq)->ni_q)) != ((void *)0))
   pppoe_disc_input(m);
  while ((m = mq_dequeue(&(&pppoeinq)->ni_q)) != ((void *)0))
@@ -3348,7 +3348,7 @@ pppoe_timeout(void *arg)
  struct pppoe_softc *sc = (struct pppoe_softc *)arg;
  int s, x, retry_wait, err;
  ((sc->sc_sppp.pp_if.if_flags & 0x4) ? printf ("%s: timeout\n", sc->sc_sppp.pp_if.if_xname) : 0);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  switch (sc->sc_state) {
  case 1:
   retry_wait = (hz*5) * (1 + sc->sc_padi_retried);
@@ -3399,7 +3399,7 @@ pppoe_timeout(void *arg)
  default:
   break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 static int
 pppoe_connect(struct pppoe_softc *sc)

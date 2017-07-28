@@ -3180,9 +3180,9 @@ ppp_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->sc_if);
  if_alloc_sadl(&sc->sc_if);
  bpfattach(&sc->sc_bpf, &sc->sc_if, 9, 4);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if (((sc)->sc_list.le_next = (&ppp_softc_list)->lh_first) != ((void *)0)) (&ppp_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&ppp_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&ppp_softc_list)->lh_first; } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -3192,9 +3192,9 @@ ppp_clone_destroy(struct ifnet *ifp)
  int s;
  if (sc->sc_devp != ((void *)0))
   return (16);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, 0);
  return (0);
@@ -3204,11 +3204,11 @@ pppalloc(pid_t pid)
 {
  int i, s;
  struct ppp_softc *sc;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for((sc) = ((&ppp_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_list.le_next)) {
   if (sc->sc_xfer == pid) {
    sc->sc_xfer = 0;
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    return sc;
   }
  }
@@ -3216,7 +3216,7 @@ pppalloc(pid_t pid)
   if (sc->sc_devp == ((void *)0))
    break;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (sc == ((void *)0))
   return ((void *)0);
  sc->sc_flags = 0;
@@ -3239,7 +3239,7 @@ pppdealloc(struct ppp_softc *sc)
 {
  struct ppp_pkt *pkt;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if_down(&sc->sc_if);
  sc->sc_if.if_flags &= ~0x40;
  sc->sc_devp = ((void *)0);
@@ -3267,7 +3267,7 @@ pppdealloc(struct ppp_softc *sc)
   free(sc->sc_comp, 2, 0);
   sc->sc_comp = 0;
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 int
 pppioctl(struct ppp_softc *sc, u_long cmd, caddr_t data, int flag,
@@ -3742,7 +3742,7 @@ pppintr(void)
  int s;
  struct ppp_pkt *pkt;
  struct mbuf *m;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((sc) = ((&ppp_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_list.le_next)) {
   if (!(sc->sc_flags & 0x10000000) &&
       (!(((&sc->sc_if.if_snd)->ifq_len) == 0))) {

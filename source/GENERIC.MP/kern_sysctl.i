@@ -9342,7 +9342,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
    extern struct inpcbtable rawin6pcbtable;
    struct inpcb *inp;
    int s;
-   do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+   do { _rw_enter_write(&netlock ); s = 2; } while (0);
    for((inp) = ((&tcbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for((inp) = ((&udbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
@@ -9351,7 +9351,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for((inp) = ((&rawin6pcbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
   }
   fp = ((&filehead)->lh_first);
   while (fp != ((void *)0) && fp->f_count == 0)

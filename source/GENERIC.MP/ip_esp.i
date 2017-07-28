@@ -5144,7 +5144,7 @@ esp_input_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5157,7 +5157,7 @@ esp_input_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5210,7 +5210,7 @@ esp_input_cb(struct cryptop *crp)
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
   espstat.esps_hdrops++;
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
   return;
@@ -5238,14 +5238,14 @@ esp_input_cb(struct cryptop *crp)
  m_copydata(m, m->M_dat.MH.MH_pkthdr.len - 3, 3, lastthree);
  if (lastthree[1] + 2 > m->M_dat.MH.MH_pkthdr.len - skip) {
   espstat.esps_badilen++;
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
   return;
  }
  if ((lastthree[1] != lastthree[0]) && (lastthree[1] != 0)) {
   espstat.esps_badenc++;
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
   return;
@@ -5253,10 +5253,10 @@ esp_input_cb(struct cryptop *crp)
  m_adj(m, -(lastthree[1] + 2));
  m_copyback(m, protoff, sizeof(u_int8_t), lastthree + 2, 0x0002);
  ipsec_common_input_cb(m, tdb, skip, protoff);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }
@@ -5453,7 +5453,7 @@ esp_output_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5465,7 +5465,7 @@ esp_output_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5478,10 +5478,10 @@ esp_output_cb(struct cryptop *crp)
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
   espstat.esps_outfail++;
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }

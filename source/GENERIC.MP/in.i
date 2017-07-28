@@ -2993,7 +2993,7 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  struct sockaddr_in oldaddr;
  int error;
  int newifaddr;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
   if (ifa->ifa_addr->sa_family == 2) {
    ia = ifatoia(ifa);
@@ -3280,7 +3280,7 @@ in_ifinit(struct ifnet *ifp, struct in_ifaddr *ia, struct sockaddr_in *sin,
  u_int32_t i = sin->sin_addr.s_addr;
  struct sockaddr_in oldaddr;
  int error = 0, rterror;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!newaddr) {
   rt_ifa_dellocal(&ia->ia_ifa);
   ifa_del(ifp, &ia->ia_ifa);
@@ -3345,7 +3345,7 @@ in_purgeaddr(struct ifaddr *ifa)
  struct ifnet *ifp = ifa->ifa_ifp;
  struct in_ifaddr *ia = ifatoia(ifa);
  extern int ifatrash;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  in_ifscrub(ifp, ia);
  rt_ifa_dellocal(&ia->ia_ifa);
  rt_ifa_purge(&ia->ia_ifa);
@@ -3414,7 +3414,7 @@ in_addmulti(struct in_addr *ap, struct ifnet *ifp)
 {
  struct in_multi *inm;
  struct ifreq ifr;
- do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (*ap).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
+ do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (*ap).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
  if (inm != ((void *)0)) {
   ++inm->inm_ifma.ifma_refcnt;
  } else {
@@ -3445,7 +3445,7 @@ in_delmulti(struct in_multi *inm)
 {
  struct ifreq ifr;
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (--inm->inm_ifma.ifma_refcnt == 0) {
   igmp_leavegroup(inm);
   ifp = if_get(inm->inm_ifma.ifma_ifidx);
@@ -3467,7 +3467,7 @@ in_hasmulti(struct in_addr *ap, struct ifnet *ifp)
 {
  struct in_multi *inm;
  int joined;
- do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (*ap).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
+ do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (*ap).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
  joined = (inm != ((void *)0));
  return (joined);
 }

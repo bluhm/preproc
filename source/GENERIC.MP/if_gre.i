@@ -4100,9 +4100,9 @@ gre_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->sc_if);
  if_alloc_sadl(&sc->sc_if);
  bpfattach(&sc->sc_if.if_bpf, &sc->sc_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if (((sc)->sc_list.le_next = (&gre_softc_list)->lh_first) != ((void *)0)) (&gre_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&gre_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&gre_softc_list)->lh_first; } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -4112,9 +4112,9 @@ gre_clone_destroy(struct ifnet *ifp)
  int s;
  timeout_del(&sc->sc_ka_snd);
  timeout_del(&sc->sc_ka_hold);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
  return (0);
@@ -4495,9 +4495,9 @@ gre_send_keepalive(void *arg)
  __builtin_bzero((gh), (sizeof(*gh)));
  __builtin_bzero((&dst), (sizeof(dst)));
  dst.sa_family = 2;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  gre_output(&sc->sc_if, m, &dst, ((void *)0));
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 gre_recv_keepalive(struct gre_softc *sc)

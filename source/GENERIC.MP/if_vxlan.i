@@ -5414,9 +5414,9 @@ vxlan_clone_destroy(struct ifnet *ifp)
 {
  struct vxlan_softc *sc = ifp->if_softc;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  vxlan_multicast_cleanup(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  vxlan_enable--;
  do { if ((sc)->sc_entry.le_next != ((void *)0)) (sc)->sc_entry.le_next->sc_entry.le_prev = (sc)->sc_entry.le_prev; *(sc)->sc_entry.le_prev = (sc)->sc_entry.le_next; ((sc)->sc_entry.le_prev) = ((void *)-1); ((sc)->sc_entry.le_next) = ((void *)-1); } while (0);
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));

@@ -5632,8 +5632,11 @@ divert6_packet(struct mbuf *m, int dir, u_int16_t divert_port)
    div6stat_inc(div6s_fullsock);
    m_freem(m);
    return (0);
-  } else
+  } else {
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_divert.c", 231);
    sorwakeup(inp->inp_socket);
+   _kernel_unlock();
+  }
  }
  if (sa == ((void *)0)) {
   div6stat_inc(div6s_noport);
@@ -5647,7 +5650,7 @@ divert6_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (req == 11) {
   return (in6_control(so, (u_long)m, (caddr_t)addr,
       (struct ifnet *)control));

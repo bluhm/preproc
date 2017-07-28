@@ -3075,11 +3075,11 @@ igmp_input_if(struct ifnet *ifp, struct mbuf **mp, int *offp, int proto, int af)
    return 257;
   }
   if ((ip->ip_src.s_addr & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xff000000))))) == 0) {
-   do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+   do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
    if (ia)
     ip->ip_src.s_addr = ia->ia_net;
   }
-  do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (igmp->igmp_group).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
+  do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (igmp->igmp_group).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
   if (inm != ((void *)0)) {
    inm->inm_timer = 0;
    igmpstat_inc(igps_rcv_ourreports);
@@ -3100,7 +3100,7 @@ igmp_input_if(struct ifnet *ifp, struct mbuf **mp, int *offp, int proto, int af)
   }
   break;
  case 0x16:
-  do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+  do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
   if (ia && ip->ip_src.s_addr == ia->ia_addr.sin_addr.s_addr)
    break;
   igmpstat_inc(igps_rcv_reports);
@@ -3116,7 +3116,7 @@ igmp_input_if(struct ifnet *ifp, struct mbuf **mp, int *offp, int proto, int af)
    if (ia)
     ip->ip_src.s_addr = ia->ia_net;
   }
-  do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (igmp->igmp_group).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
+  do { struct ifmaddr *ifma; (inm) = ((void *)0); do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 2 && ifmatoinm(ifma)->inm_sin.sin_addr.s_addr == (igmp->igmp_group).s_addr) { (inm) = ifmatoinm(ifma); break; } } while ( 0);
   if (inm != ((void *)0)) {
    inm->inm_timer = 0;
    igmpstat_inc(igps_rcv_ourreports);
@@ -3181,7 +3181,7 @@ void
 igmp_fasttimo(void)
 {
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!igmp_timers_are_running)
   return;
  igmp_timers_are_running = 0;
@@ -3193,7 +3193,7 @@ igmp_checktimer(struct ifnet *ifp)
 {
  struct in_multi *inm;
  struct ifmaddr *ifma;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ifma) = ((&ifp->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) {
   if (ifma->ifma_addr->sa_family != 2)
    continue;
@@ -3218,7 +3218,7 @@ void
 igmp_slowtimo(void)
 {
  struct router_info *rti;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for (rti = rti_head; rti != 0; rti = rti->rti_next) {
   if (rti->rti_type == 1 &&
       ++rti->rti_age >= 540) {

@@ -2755,9 +2755,9 @@ soo_ioctl(struct file *fp, u_long cmd, caddr_t data, struct proc *p)
   break;
  default:
   if ((((cmd) >> 8) & 0xff) == 'i') {
-   do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+   do { _rw_enter_write(&netlock ); s = 2; } while (0);
    error = ifioctl(so, cmd, data, p);
-   do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+   do { (void)s; _rw_exit_write(&netlock ); } while (0);
    return (error);
   }
   if ((((cmd) >> 8) & 0xff) == 'r')

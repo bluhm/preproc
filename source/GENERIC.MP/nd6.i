@@ -4084,12 +4084,12 @@ nd6_llinfo_timer(void *arg)
  struct sockaddr_in6 *dst;
  struct ifnet *ifp;
  struct nd_ifinfo *ndi = ((void *)0);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  ln = (struct llinfo_nd6 *)arg;
  if ((rt = ln->ln_rt) == ((void *)0))
   panic("ln->ln_rt == NULL");
  if ((ifp = if_get(rt->rt_ifidx)) == ((void *)0)) {
-  do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+  do { (void)s; _rw_exit_write(&netlock ); } while (0);
   return;
  }
  ndi = (((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
@@ -4159,14 +4159,14 @@ nd6_llinfo_timer(void *arg)
   break;
  }
  if_put(ifp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 nd6_timer_work(void *null)
 {
  struct ifnet *ifp;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  timeout_add_sec(&nd6_timer_ch, nd6_prune);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   struct ifaddr *ifa, *nifa;
@@ -4184,7 +4184,7 @@ nd6_timer_work(void *null)
    }
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 nd6_timer(void *ignored_arg)
@@ -4195,7 +4195,7 @@ void
 nd6_purge(struct ifnet *ifp)
 {
  struct llinfo_nd6 *ln, *nln;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for ((ln) = ((&nd6_list)->tqh_first); (ln) != ((void *)0) && ((nln) = ((ln)->ln_list.tqe_next), 1); (ln) = (nln)) {
   struct rtentry *rt;
   struct sockaddr_dl *sdl;
@@ -4304,7 +4304,7 @@ nd6_free(struct rtentry *rt, int gc)
  struct llinfo_nd6 *ln = (struct llinfo_nd6 *)rt->rt_llinfo, *next;
  struct in6_addr in6 = satosin6(((rt)->rt_dest))->sin6_addr;
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  ifp = if_get(rt->rt_ifidx);
  if (!ip6_forwarding) {
   if (ln->ln_router) {
@@ -4481,7 +4481,7 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
  struct in6_nbrinfo *nbi = (struct in6_nbrinfo *)data;
  struct rtentry *rt;
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
   ndi->ndi = *(((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
@@ -4661,7 +4661,7 @@ nd6_slowtimo(void *ignored_arg)
  struct nd_ifinfo *nd6if;
  struct ifnet *ifp;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  timeout_add_sec(&nd6_slowtimo_ch, (60 * 60));
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   nd6if = (((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
@@ -4671,7 +4671,7 @@ nd6_slowtimo(void *ignored_arg)
    nd6if->reachable = (((512 * (nd6if->basereachable >> 10)) + (arc4random() & ((1536 - 512) * (nd6if->basereachable >> 10)))) /1000);
   }
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 int
 nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,

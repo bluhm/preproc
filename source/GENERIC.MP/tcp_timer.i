@@ -4206,18 +4206,18 @@ tcp_delack(void *arg)
 {
  struct tcpcb *tp = arg;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tp->t_flags & 0x00200000)
   goto out;
  tp->t_flags |= 0x0001;
  (void) tcp_output(tp);
  out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tcp_slowtimo(void)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  tcp_maxidle = 8 * tcp_keepintvl;
  tcp_iss += (1*1024*1024)/2;
  tcp_now++;
@@ -4251,7 +4251,7 @@ tcp_timer_rexmt(void *arg)
  struct tcpcb *tp = arg;
  uint32_t rto;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tp->t_flags & 0x00200000)
   goto out;
  if ((tp->t_flags & 0x00400000) && tp->t_inpcb &&
@@ -4341,7 +4341,7 @@ tcp_timer_rexmt(void *arg)
  }
  (void) tcp_output(tp);
  out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tcp_timer_persist(void *arg)
@@ -4349,7 +4349,7 @@ tcp_timer_persist(void *arg)
  struct tcpcb *tp = arg;
  uint32_t rto;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if ((tp->t_flags & 0x00200000) ||
             ((&(tp)->t_timer[(0)])->to_flags & 2)) {
   goto out;
@@ -4370,14 +4370,14 @@ tcp_timer_persist(void *arg)
  (void) tcp_output(tp);
  tp->t_force = 0;
  out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tcp_timer_keep(void *arg)
 {
  struct tcpcb *tp = arg;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tp->t_flags & 0x00200000)
   goto out;
  tcpstat_inc(tcps_keeptimeo);
@@ -4396,19 +4396,19 @@ tcp_timer_keep(void *arg)
  } else
   timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
  out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return;
  dropit:
  tcpstat_inc(tcps_keepdrops);
  tp = tcp_drop(tp, 60);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 tcp_timer_2msl(void *arg)
 {
  struct tcpcb *tp = arg;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  if (tp->t_flags & 0x00200000)
   goto out;
  tcp_timer_freesack(tp);
@@ -4418,5 +4418,5 @@ tcp_timer_2msl(void *arg)
  else
   tp = tcp_close(tp);
  out:
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }

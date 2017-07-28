@@ -3831,7 +3831,7 @@ in6_update_ifa(struct ifnet *ifp, struct in6_aliasreq *ifra,
  struct in6_multi_mship *imm;
  struct rtentry *rt;
  char addr[46];
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (ifp == ((void *)0) || ifra == ((void *)0))
   return (22);
  if ((ifp->if_flags & 0x10) != 0 &&
@@ -4070,7 +4070,7 @@ in6_unlink_ifa(struct in6_ifaddr *ia6, struct ifnet *ifp)
  struct ifaddr *ifa = &ia6->ia_ifa;
  extern int ifatrash;
  int plen;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  plen = in6_mask2len(&ia6->ia_prefixmask.sin6_addr, ((void *)0));
  if ((ifp->if_flags & 0x8) == 0 && plen != 128) {
   rt_ifa_del(ifa, 0x100 | 0x800000,
@@ -4238,7 +4238,7 @@ in6_ifinit(struct ifnet *ifp, struct in6_ifaddr *ia6, int newhost)
 {
  int error = 0, plen, ifacount = 0;
  struct ifaddr *ifa;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
   if (ifa->ifa_addr->sa_family != 24)
    continue;
@@ -4269,7 +4269,7 @@ in6_addmulti(struct in6_addr *maddr6, struct ifnet *ifp, int *errorp)
 {
  struct in6_ifreq ifr;
  struct in6_multi *in6m;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  *errorp = 0;
  do { struct ifmaddr *ifma; (in6m) = ((void *)0); for((ifma) = ((&(ifp)->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) if (ifma->ifma_addr->sa_family == 24 && (__builtin_memcmp((&(&ifmatoin6m(ifma)->in6m_sin.sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&(*maddr6))->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0)) { (in6m) = ifmatoin6m(ifma); break; } } while ( 0);
  if (in6m != ((void *)0)) {
@@ -4306,7 +4306,7 @@ in6_delmulti(struct in6_multi *in6m)
 {
  struct in6_ifreq ifr;
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (--in6m->in6m_ifma.ifma_refcnt == 0) {
   mld6_stop_listening(in6m);
   ifp = if_get(in6m->in6m_ifma.ifma_ifidx);

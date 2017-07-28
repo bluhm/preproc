@@ -5308,7 +5308,7 @@ void
 bstp_notify_rtage(struct bstp_port *bp, int pending)
 {
  int age = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  switch (bp->bp_protover) {
  case 0x00:
   age = bp->bp_desg_fdelay / (1 * 256);

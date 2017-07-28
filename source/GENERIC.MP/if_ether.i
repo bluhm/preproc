@@ -2964,14 +2964,14 @@ arptimer(void *arg)
  struct timeout *to = (struct timeout *)arg;
  struct llinfo_arp *la, *nla;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  timeout_add_sec(to, arpt_prune);
  for ((la) = ((&arp_list)->lh_first); (la) && ((nla) = ((la)->la_list.le_next), 1); (la) = (nla)) {
   struct rtentry *rt = la->la_rt;
   if (rt->rt_rmx.rmx_expire && rt->rt_rmx.rmx_expire <= time_uptime)
    arptfree(rt);
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
 arp_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)

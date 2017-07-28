@@ -6633,7 +6633,7 @@ ip6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  extern int ip6_mrtproto;
  extern struct mrt6stat mrt6stat;
  int error;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1 && name[0] != 51)
   return (20);
  switch (name[0]) {
@@ -6688,11 +6688,11 @@ ip6_send_dispatch(void *xmq)
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1464);
   locked = 1;
  }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip6_output(m, ((void *)0), ((void *)0), 0x04, ((void *)0), ((void *)0));
  }
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (locked)
   _kernel_unlock();
 }

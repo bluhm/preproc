@@ -3341,15 +3341,15 @@ nfs_boot_init(struct nfs_diskless *nd, struct proc *procp)
      ireq.ifr_name);
  if ((error = socreate(2, &so, 2, 0)) != 0)
   panic("nfs_boot: socreate, error=%d", error);
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  error = ifioctl(so, (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))), (caddr_t)&ireq, procp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (error)
   panic("nfs_boot: GIFFLAGS, error=%d", error);
  ireq.ifr_ifru.ifru_flags |= 0x1;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  error = ifioctl(so, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))), (caddr_t)&ireq, procp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (error)
   panic("nfs_boot: SIFFLAGS, error=%d", error);
  if ((error = revarpwhoami(&my_ip, ifp)) != 0)
@@ -3362,9 +3362,9 @@ nfs_boot_init(struct nfs_diskless *nd, struct proc *procp)
  sin->sin_len = sizeof(*sin);
  sin->sin_family = 2;
  sin->sin_addr.s_addr = my_ip.s_addr;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  error = ifioctl(so, ((unsigned long)0x80000000 | ((sizeof(struct ifaliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((26))), (caddr_t)&ifra, procp);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if (error)
   panic("nfs_boot: set if addr, error=%d", error);
  soclose(so);

@@ -7060,7 +7060,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   default:
    return (13);
   }
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  (void)(0);
  switch (cmd) {
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('D')) << 8) | ((1))):
@@ -7986,6 +7986,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     error = 14;
     goto fail;
    }
+   if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
+       sizeof(ioe->anchor)) {
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 63;
+    goto fail;
+   }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
     __builtin_bzero((table), (sizeof(*table)));
@@ -8036,6 +8043,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     error = 14;
     goto fail;
    }
+   if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
+       sizeof(ioe->anchor)) {
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 63;
+    goto fail;
+   }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
     __builtin_bzero((table), (sizeof(*table)));
@@ -8081,6 +8095,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     error = 14;
     goto fail;
    }
+   if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
+       sizeof(ioe->anchor)) {
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 63;
+    goto fail;
+   }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
     rs = pf_find_ruleset(ioe->anchor);
@@ -8120,6 +8141,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    goto fail;
+   }
+   if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
+       sizeof(ioe->anchor)) {
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 63;
     goto fail;
    }
    switch (ioe->type) {
@@ -8291,7 +8319,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
  }
 fail:
  (void)(0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 void

@@ -4821,7 +4821,7 @@ void
 pfi_kifaddr_update(void *v)
 {
  struct pfi_kif *kif = (struct pfi_kif *)v;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__); do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0); } while (0);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  pfi_update++;
  pfi_kif_update(kif);
 }

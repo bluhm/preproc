@@ -4768,9 +4768,9 @@ gif_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->gif_if);
  if_alloc_sadl(&sc->gif_if);
  bpfattach(&sc->gif_if.if_bpf, &sc->gif_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if (((sc)->gif_list.le_next = (&gif_softc_list)->lh_first) != ((void *)0)) (&gif_softc_list)->lh_first->gif_list.le_prev = &(sc)->gif_list.le_next; (&gif_softc_list)->lh_first = (sc); (sc)->gif_list.le_prev = &(&gif_softc_list)->lh_first; } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -4778,9 +4778,9 @@ gif_clone_destroy(struct ifnet *ifp)
 {
  struct gif_softc *sc = ifp->if_softc;
  int s;
- do { _rw_enter_write(&netlock ); s = _splraise(2); } while (0);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
  do { if ((sc)->gif_list.le_next != ((void *)0)) (sc)->gif_list.le_next->gif_list.le_prev = (sc)->gif_list.le_prev; *(sc)->gif_list.le_prev = (sc)->gif_list.le_next; ((sc)->gif_list.le_prev) = ((void *)-1); ((sc)->gif_list.le_next) = ((void *)-1); } while (0);
- do { _splx(s); _rw_exit_write(&netlock ); } while (0);
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  if (sc->gif_psrc)
   free((caddr_t)sc->gif_psrc, 9, 0);
