@@ -3995,14 +3995,17 @@ vfs_getcwd_scandir(struct vnode **lvpp, struct vnode **uvpp, char **bpp,
  }
  uvp = *uvpp;
  if (bufp == ((void *)0)) {
-  vrele(lvp);
-  *lvpp = ((void *)0);
-  return (0);
+  error = 0;
+  goto out;
  }
  fileno = va.va_fileid;
  dirbuflen = (1 << 9);
  if (dirbuflen < va.va_blocksize)
   dirbuflen = va.va_blocksize;
+ if (dirbuflen > 0xfffff) {
+  error = 22;
+  goto out;
+ }
  dirbuf = malloc(dirbuflen, 127, 0x0001);
  off = 0;
  do {
@@ -4033,12 +4036,17 @@ vfs_getcwd_scandir(struct vnode **lvpp, struct vnode **uvpp, char **bpp,
        len -= reclen) {
    dp = (struct dirent *)cpos;
    reclen = dp->d_reclen;
-   if (reclen < ((__builtin_offsetof(struct dirent, d_name) + (1) + 1 + 7) &~ 7)) {
+   if (reclen < ((__builtin_offsetof(struct dirent, d_name) + (1) + 1 + 7) &~ 7) || reclen > len) {
     error = 22;
     goto out;
    }
    if (dp->d_fileno == fileno) {
     char *bp = *bpp;
+    if (__builtin_offsetof(struct dirent, d_name) +
+        dp->d_namlen > reclen) {
+     error = 22;
+     goto out;
+    }
     bp -= dp->d_namlen;
     if (bp <= bufp) {
      error = 34;

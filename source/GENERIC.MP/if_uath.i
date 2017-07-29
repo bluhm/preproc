@@ -5718,7 +5718,7 @@ uath_alloc_rx_data_list(struct uath_softc *sc)
    error = 12;
    goto fail;
   }
-  (void) m_clget((data->m), (0x0002), (1 << 11));
+  m_clget((data->m), (0x0002), (sc->rxbufsz));
   if (!(data->m->m_hdr.mh_flags & 0x0001)) {
    printf("%s: could not allocate rx mbuf cluster\n",
        sc->sc_dev.dv_xname);
@@ -6171,7 +6171,7 @@ uath_data_rxeof(struct usbd_xfer *xfer, void *priv,
   ifp->if_data.ifi_ierrors++;
   goto skip;
  }
- (void) m_clget((mnew), (0x0002), (1 << 11));
+ m_clget((mnew), (0x0002), (sc->rxbufsz));
  if (!(mnew->m_hdr.mh_flags & 0x0001)) {
   printf("%s: could not allocate rx mbuf cluster\n",
       sc->sc_dev.dv_xname);

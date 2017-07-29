@@ -3167,7 +3167,7 @@ void rtm_bfd(struct bfd_config *);
 void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
-void rtm_send(struct rtentry *, int, u_int);
+void rtm_send(struct rtentry *, int, int, unsigned int);
 void rtm_addr(struct rtentry *, int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
@@ -4756,7 +4756,7 @@ again:
  return (len);
 }
 void
-rtm_send(struct rtentry *rt, int cmd, u_int rtableid)
+rtm_send(struct rtentry *rt, int cmd, int error, unsigned int rtableid)
 {
  struct rt_addrinfo info;
  struct ifnet *ifp;
@@ -4773,7 +4773,7 @@ rtm_send(struct rtentry *rt, int cmd, u_int rtableid)
   info.rti_info[4] = sdltosa(ifp->if_sadl);
   info.rti_info[5] = rt->rt_ifa->ifa_addr;
  }
- rtm_miss(cmd, &info, rt->rt_flags, rt->rt_priority, rt->rt_ifidx, 0,
+ rtm_miss(cmd, &info, rt->rt_flags, rt->rt_priority, rt->rt_ifidx, error,
      rtableid);
  if_put(ifp);
 }
