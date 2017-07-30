@@ -3629,8 +3629,7 @@ usbioctl(dev_t devt, u_long cmd, caddr_t data, int flag, struct proc *p)
    }
   }
  ret:
-  if (ptr)
-   free(ptr, 127, len);
+  free(ptr, 127, len);
   return (error);
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct usb_device_info) & 0x1fff) << 16) | ((('U')) << 8) | ((4))):
