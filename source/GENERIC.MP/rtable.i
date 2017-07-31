@@ -1967,7 +1967,7 @@ rtable_match(unsigned int rtableid, struct sockaddr *dst, uint32_t *src)
  if ((hash = rt_hash(rt, dst, src)) != -1) {
   struct rtentry *mrt;
   int threshold, npaths = 0;
-  ((hash <= 0xffff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 596, "hash <= 0xffff"));
+  ((hash <= 0xffff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 436, "hash <= 0xffff"));
   for ((mrt) = srp_enter((&sr), &(&an->an_pointer.an__rtlist)->sl_head); (mrt) != ((void *)0); (mrt) = srp_follow((&sr), &(mrt)->rt_next.se_next)) {
    if (mrt->rt_priority == rt->rt_priority)
     npaths++;
@@ -2051,8 +2051,8 @@ rtable_insert(unsigned int rtableid, struct sockaddr *dst,
   }
   an = prev;
   mrt = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head);
-  ((mrt != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 717, "mrt != NULL"));
-  (((rt->rt_flags & 0x40000) || mrt->rt_priority != prio) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 718, "(rt->rt_flags & RTF_MPATH) || mrt->rt_priority != prio"));
+  ((mrt != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 551, "mrt != NULL"));
+  (((rt->rt_flags & 0x40000) || mrt->rt_priority != prio) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 552, "(rt->rt_flags & RTF_MPATH) || mrt->rt_priority != prio"));
   if (rt->rt_flags & 0x40000) {
    rt->rt_flags &= ~0x40000;
    for ((mrt) = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head); (mrt) != ((void *)0); (mrt) = srp_get_locked(&((mrt))->rt_next.se_next)) {
@@ -2097,7 +2097,7 @@ rtable_delete(unsigned int rtableid, struct sockaddr *dst,
  for ((mrt) = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head); (mrt) != ((void *)0); (mrt) = srp_get_locked(&((mrt))->rt_next.se_next))
   npaths++;
  if (npaths > 1) {
-  ((rt->rt_refcnt >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 792, "rt->rt_refcnt >= 1"));
+  ((rt->rt_refcnt >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 620, "rt->rt_refcnt >= 1"));
   do { struct srp *ref; struct rtentry *c, *n; ref = &(&an->an_pointer.an__rtlist)->sl_head; while ((c = srp_get_locked(ref)) != (rt)) ref = &c->rt_next.se_next; n = srp_get_locked(&(c)->rt_next.se_next); if (n != ((void *)0)) (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&rt_rc)->srpl_gc, ref, n); srp_update_locked(&(&rt_rc)->srpl_gc, &c->rt_next.se_next, ((void *)0)); } while (0);
   mrt = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head);
   if (npaths == 2)
@@ -2106,7 +2106,7 @@ rtable_delete(unsigned int rtableid, struct sockaddr *dst,
  }
  if (art_delete(ar, an, addr, plen) == ((void *)0))
   panic("art_delete failed to find node %p", an);
- ((rt->rt_refcnt >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 807, "rt->rt_refcnt >= 1"));
+ ((rt->rt_refcnt >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtable.c", 634, "rt->rt_refcnt >= 1"));
  do { struct srp *ref; struct rtentry *c, *n; ref = &(&an->an_pointer.an__rtlist)->sl_head; while ((c = srp_get_locked(ref)) != (rt)) ref = &c->rt_next.se_next; n = srp_get_locked(&(c)->rt_next.se_next); if (n != ((void *)0)) (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&rt_rc)->srpl_gc, ref, n); srp_update_locked(&(&rt_rc)->srpl_gc, &c->rt_next.se_next, ((void *)0)); } while (0);
  art_put(an);
 leave:

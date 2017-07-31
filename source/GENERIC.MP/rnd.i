@@ -3791,7 +3791,7 @@ struct rand_event {
 u_int rnd_event_idx;
 struct timeout rnd_timeout;
 static u_int32_t entropy_pool[2048];
-static const u_int32_t entropy_pool0[2048] __attribute__((section(".openbsd.randomdata")));
+u_int32_t entropy_pool0[2048] __attribute__((section(".openbsd.randomdata")));
 u_int entropy_add_ptr;
 u_char entropy_input_rotate;
 void dequeue_randomness(void *);
@@ -3910,7 +3910,7 @@ struct timeout arc4_timeout;
 struct task arc4_task = {{ ((void *)0), ((void *)0) }, (arc4_init), (((void *)0)), 0 };
 static chacha_ctx rs;
 static u_char rs_buf[(16*64)];
-static const u_char rs_buf0[(16*64)] __attribute__((section(".openbsd.randomdata")));
+u_char rs_buf0[(16*64)] __attribute__((section(".openbsd.randomdata")));
 static size_t rs_have;
 static size_t rs_count;
 void

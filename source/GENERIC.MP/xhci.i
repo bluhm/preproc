@@ -4687,7 +4687,7 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
   else
    flags |= (2 << 16);
  }
- trb0->trb_paddr = (uint64_t)*((uint64_t *)&xfer->request);
+ __builtin_memcpy((&trb0->trb_paddr), (&xfer->request), (sizeof(trb0->trb_paddr)));
  trb0->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
  trb0->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
