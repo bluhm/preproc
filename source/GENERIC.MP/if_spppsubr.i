@@ -3220,9 +3220,11 @@ sppp_output(struct ifnet *ifp, struct mbuf *m,
  rv = if_enqueue(ifp, m);
  if (rv != 0) {
   ifp->if_data.ifi_oerrors++;
+  _splx(s);
   return (rv);
  }
  ifp->if_data.ifi_obytes += sp->pp_framebytes;
+ _splx(s);
  return (0);
 }
 void

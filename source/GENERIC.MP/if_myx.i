@@ -4130,17 +4130,6 @@ myx_attach(struct device *parent, struct device *self, void *aux)
      pci_intr_string(pa->pa_pc, sc->sc_ih),
      part[0] == '\0' ? "(unknown)" : part,
      ether_sprintf(sc->sc_ac.ac_enaddr));
- if (myx_mcl_pool == ((void *)0)) {
-  myx_mcl_pool = malloc(sizeof(*myx_mcl_pool), 2,
-      0x0001);
-  if (myx_mcl_pool == ((void *)0)) {
-   printf("%s: unable to allocate mcl pool\n",
-       ((sc)->sc_dev.dv_xname));
-   goto unmap;
-  }
-  m_pool_init(myx_mcl_pool, (9400 - (2 + ((6 * 2) + 2) + 4)), 4096,
-      "myxmcl");
- }
  if (myx_pcie_dc(sc, pa) != 0)
   printf("%s: unable to configure PCI Express\n", ((sc)->sc_dev.dv_xname));
  config_mountroot(self, myx_attachhook);
@@ -4273,6 +4262,13 @@ myx_attachhook(struct device *self)
  struct myx_softc *sc = (struct myx_softc *)self;
  struct ifnet *ifp = &sc->sc_ac.ac_if;
  struct myx_cmd mc;
+ if (myx_mcl_pool == ((void *)0)) {
+  myx_mcl_pool = malloc(sizeof(*myx_mcl_pool), 2,
+      0x0001);
+  m_pool_init(myx_mcl_pool, (9400 - (2 + ((6 * 2) + 2) + 4)), 4096,
+      "myxmcl");
+  pool_cache_init(myx_mcl_pool);
+ }
  if (myx_dmamem_alloc(sc, &sc->sc_cmddma, 64,
      64) != 0) {
   printf("%s: failed to allocate command DMA memory\n",
@@ -5147,7 +5143,7 @@ myx_intr(void *arg)
   } else {
    data = sts->ms_linkstate;
    if (data != 0xffffffff) {
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_myx.c", 1640);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_myx.c", 1636);
     myx_link_state(sc, data);
     _kernel_unlock();
    }
