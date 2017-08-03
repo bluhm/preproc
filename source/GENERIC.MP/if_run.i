@@ -4535,6 +4535,7 @@ static const struct usb_devno run_devs[] = {
  { 0x07aa, 0x0041 },
  { 0x129b, 0x1828 },
  { 0x2001, 0x3c1b },
+ { 0x2001, 0x3c25 },
  { 0x2001, 0x3c15 },
  { 0x2001, 0x3c1a },
  { 0x2001, 0x3c1f },
@@ -5230,7 +5231,7 @@ run_write_region_1(struct run_softc *sc, uint16_t reg64, const uint8_t *buf,
     int len)
 {
  int i, error = 0;
- (((len & 1) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_run.c", 960, "(len & 1) == 0"));
+ (((len & 1) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_run.c", 961, "(len & 1) == 0"));
  for (i = 0; i < len && error == 0; i += 2)
   error = run_write_2(sc, reg64 + i, buf[i] | buf[i + 1] << 8);
  return error;
@@ -5850,7 +5851,7 @@ run_do_async(struct run_softc *sc, void (*cb)(struct run_softc *, void *),
  s = splraise(2);
  cmd = &ring->cmd[ring->cur];
  cmd->cb = cb;
- ((len <= sizeof (cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_run.c", 1753, "len <= sizeof (cmd->data)"));
+ ((len <= sizeof (cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_run.c", 1754, "len <= sizeof (cmd->data)"));
  __builtin_memcpy((cmd->data), (arg), (len));
  ring->cur = (ring->cur + 1) % 32;
  if (++ring->queued == 1)

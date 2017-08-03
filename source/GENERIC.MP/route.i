@@ -4040,11 +4040,6 @@ rtrequest_delete(struct rt_addrinfo *info, u_int8_t prio, struct ifnet *ifp,
   rtfree(rt);
   return (3);
  }
- if ((rt->rt_flags & 0x40000) &&
-     info->rti_info[1] == ((void *)0)) {
-  rtfree(rt);
-  return (3);
- }
  error = rtable_delete(tableid, info->rti_info[0],
      info->rti_info[2], rt);
  if (error != 0) {
@@ -4057,7 +4052,7 @@ rtrequest_delete(struct rt_addrinfo *info, u_int8_t prio, struct ifnet *ifp,
  rtfree(rt->rt_parent);
  rt->rt_parent = ((void *)0);
  rt->rt_flags &= ~0x1;
- ((ifp->if_index == rt->rt_ifidx) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 759, "ifp->if_index == rt->rt_ifidx"));
+ ((ifp->if_index == rt->rt_ifidx) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 749, "ifp->if_index == rt->rt_ifidx"));
  ifp->if_rtrequest(ifp, 0x2, rt);
  ((void)_atomic_add_int_nv((&rttrash), 1));
  if (ret_nrt != ((void *)0))
@@ -4091,7 +4086,7 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
    return (22);
   if ((rt->rt_flags & 0x100) == 0)
    return (22);
-  ((rt->rt_ifa->ifa_ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 802, "rt->rt_ifa->ifa_ifp != NULL"));
+  ((rt->rt_ifa->ifa_ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 792, "rt->rt_ifa->ifa_ifp != NULL"));
   info->rti_ifa = rt->rt_ifa;
   info->rti_flags = rt->rt_flags | (0x10000|0x4);
   info->rti_flags &= ~(0x100|0x800000|0x800);
@@ -4181,7 +4176,7 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
    if (((crt->rt_flags) & (0x10000))) {
     struct ifnet *cifp;
     cifp = if_get(crt->rt_ifidx);
-    ((cifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 928, "cifp != NULL"));
+    ((cifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 918, "cifp != NULL"));
     rtdeletemsg(crt, cifp, tableid);
     if_put(cifp);
     error = rtable_insert(tableid, ndst,
@@ -4232,7 +4227,7 @@ struct rtentry *
 rt_getll(struct rtentry *rt)
 {
  if (((rt->rt_flags) & (0x2))) {
-  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 992, "rt->rt_gwroute != NULL"));
+  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 982, "rt->rt_gwroute != NULL"));
   return (rt->RT_gw._nh);
  }
  return (rt);
@@ -4394,7 +4389,7 @@ rt_ifa_purge(struct ifaddr *ifa)
  struct ifnet *ifp = ifa->ifa_ifp;
  unsigned int rtableid;
  int i;
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1229, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1219, "ifp != NULL"));
  for (rtableid = 0; rtableid < rtmap_limit; rtableid++) {
   if (rtable_l2(rtableid) != ifp->if_data.ifi_rdomain)
    continue;
@@ -4670,7 +4665,7 @@ rt_plentosa(sa_family_t af, int plen, struct sockaddr_in6 *sa_mask)
 {
  struct sockaddr_in *sin = (struct sockaddr_in *)sa_mask;
  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa_mask;
- ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1617, "plen >= 0 || plen == -1"));
+ ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1607, "plen >= 0 || plen == -1"));
  if (plen == -1)
   return (((void *)0));
  __builtin_memset((sa_mask), (0), (sizeof(*sa_mask)));

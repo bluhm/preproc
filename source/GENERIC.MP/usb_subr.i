@@ -5295,6 +5295,10 @@ const struct usb_known_product usb_known_products[] = {
      "DWA-162 Wireless Adapter",
  },
  {
+     0x2001, 0x3c25,
+     "DWA-130 rev F1",
+ },
+ {
      0x2001, 0x4000,
      "10Mbps Ethernet",
  },
