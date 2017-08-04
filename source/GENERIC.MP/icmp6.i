@@ -6195,7 +6195,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
  struct sockaddr_in6 sa6_src, sa6_dst;
  extern char _ctassert[(sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr) <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? 1 : -1 ] __attribute__((__unused__));
  if (off < sizeof(struct ip6_hdr)) {
-  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1070); } while (0);
+  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1055); } while (0);
   goto bad;
  }
  if (off > sizeof(struct ip6_hdr)) {
