@@ -4013,6 +4013,13 @@ const struct puc_device_description puc_devs[] = {
      }
  },
  {
+     { 0x125b, 0x9100, 0, 0 },
+     { 0xffff, 0xffff, 0, 0 },
+     {
+  { (0x80 | (0)), 0x10, 0x0000 },
+     }
+ },
+ {
      { 0x9710, 0x9820, 0, 0 },
      { 0xffff, 0xffff, 0, 0 },
      {

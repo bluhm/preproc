@@ -5973,6 +5973,31 @@ ieee80211_match_bss(struct ieee80211com *ic, struct ieee80211_node *ni)
       !(ni->ni_rsncaps & 0x0080))
    fail |= 0x40;
  }
+ if (ic->ic_ac.ac_if.if_flags & 0x4) {
+  printf(" %c %s%c", fail ? '-' : '+',
+      ether_sprintf(ni->ni_bssid),
+      fail & 0x20 ? '!' : ' ');
+  printf(" %3d%c", ieee80211_chan2ieee(ic, ni->ni_chan),
+   fail & 0x01 ? '!' : ' ');
+  printf(" %+4d", ni->ni_rssi);
+  printf(" %2dM%c", (rate & 0x7f) / 2,
+      fail & 0x08 ? '!' : ' ');
+  printf(" %4s%c",
+      (ni->ni_capinfo & 0x0001) ? "ess" :
+      (ni->ni_capinfo & 0x0002) ? "ibss" :
+      "????",
+      fail & 0x02 ? '!' : ' ');
+  printf(" %7s%c ",
+      (ni->ni_capinfo & 0x0010) ?
+      "privacy" : "no",
+      fail & 0x04 ? '!' : ' ');
+  printf(" %3s%c ",
+      (ic->ic_flags & 0x00200000) ?
+      "rsn" : "no",
+      fail & 0x40 ? '!' : ' ');
+  ieee80211_print_essid(ni->ni_essid, ni->ni_esslen);
+  printf("%s\n", fail & 0x10 ? "!" : "");
+ }
  return fail;
 }
 void
@@ -6943,7 +6968,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2008, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2006, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

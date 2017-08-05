@@ -4414,7 +4414,9 @@ ieee80211_newstate(struct ieee80211com *ic, enum ieee80211_state nstate,
  u_int rate;
  int s;
  ostate = ic->ic_state;
- ;
+ if (ifp->if_flags & 0x4)
+  printf("%s: %s -> %s\n", ifp->if_xname,
+      ieee80211_state_name[ostate], ieee80211_state_name[nstate]);
  ic->ic_state = nstate;
  ni = ic->ic_bss;
  ieee80211_set_link_state(ic, 2);
@@ -4514,9 +4516,10 @@ justcleanup:
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
   switch (ostate) {
   case IEEE80211_S_INIT:
-   panic("invalid transition %s -> %s",
-       ieee80211_state_name[ostate],
-       ieee80211_state_name[nstate]);
+   if (ifp->if_flags & 0x4)
+    printf("%s: invalid transition %s -> %s",
+        ifp->if_xname, ieee80211_state_name[ostate],
+        ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_SCAN:
    ((*(ic)->ic_send_mgmt)(ic, ni, 0xb0, 1, 0));
@@ -4549,9 +4552,10 @@ justcleanup:
   case IEEE80211_S_INIT:
   case IEEE80211_S_SCAN:
   case IEEE80211_S_ASSOC:
-   panic("invalid transition %s -> %s",
-       ieee80211_state_name[ostate],
-       ieee80211_state_name[nstate]);
+   if (ifp->if_flags & 0x4)
+    printf("%s: invalid transition %s -> %s",
+        ifp->if_xname, ieee80211_state_name[ostate],
+        ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_AUTH:
    ((*(ic)->ic_send_mgmt)(ic, ni, 0x00, 0, 0));
@@ -4566,9 +4570,10 @@ justcleanup:
   case IEEE80211_S_INIT:
   case IEEE80211_S_AUTH:
   case IEEE80211_S_RUN:
-   panic("invalid transition %s -> %s",
-       ieee80211_state_name[ostate],
-       ieee80211_state_name[nstate]);
+   if (ifp->if_flags & 0x4)
+    printf("%s: invalid transition %s -> %s",
+        ifp->if_xname, ieee80211_state_name[ostate],
+        ieee80211_state_name[nstate]);
    break;
   case IEEE80211_S_SCAN:
   case IEEE80211_S_ASSOC:

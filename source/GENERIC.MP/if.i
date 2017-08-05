@@ -6845,7 +6845,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  struct if_afreq *ifar;
  char ifdescrbuf[64];
  char ifrtlabelbuf[32];
- int s, error = 0;
+ int s, error = 0, oif_xflags;
  size_t bytesdone;
  short oif_flags;
  const char *label;
@@ -6879,20 +6879,25 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   ifar = (struct if_afreq *)data;
   if ((ifp = ifunit(ifar->ifar_name)) == ((void *)0))
    return (6);
+  oif_flags = ifp->if_flags;
+  oif_xflags = ifp->if_xflags;
   switch (ifar->ifar_af) {
   case 2:
    if (cmd == ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))))
     in_ifdetach(ifp);
-   return (0);
+   break;
   case 24:
    if (cmd == ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((171))))
     error = in6_ifattach(ifp);
    else
     in6_ifdetach(ifp);
-   return (error);
+   break;
   default:
    return (47);
   }
+  if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)
+   rtm_ifchg(ifp);
+  return (error);
  }
  ifp = ifunit(ifr->ifr_name);
  if (ifp == 0)

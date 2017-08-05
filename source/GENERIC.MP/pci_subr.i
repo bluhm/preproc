@@ -4372,6 +4372,10 @@ static const struct pci_known_product pci_known_products[] = {
      "AX88140A/88141",
  },
  {
+     0x125b, 0x9100,
+     "AX99100",
+ },
+ {
      0x1b21, 0x0611,
      "ASM1061 SATA",
  },

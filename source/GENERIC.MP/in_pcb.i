@@ -6349,13 +6349,21 @@ in_pcbconnect(struct inpcb *inp, struct mbuf *nam)
  if (error)
   return (error);
  if (in_pcbhashlookup(inp->inp_table, sin->sin_addr, sin->sin_port,
-     *ina, inp->inp_lport, inp->inp_rtableid) != 0)
+     *ina, inp->inp_lport, inp->inp_rtableid) != ((void *)0))
   return (48);
  ((inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 539, "inp->inp_laddr.s_addr == INADDR_ANY || inp->inp_lport"));
  if (inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
-  if (inp->inp_lport == 0 &&
-      in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc) == 49)
-   return (49);
+  if (inp->inp_lport == 0) {
+   error = in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc);
+   if (error)
+    return (error);
+   if (in_pcbhashlookup(inp->inp_table, sin->sin_addr,
+       sin->sin_port, *ina, inp->inp_lport,
+       inp->inp_rtableid) != ((void *)0)) {
+    inp->inp_lport = 0;
+    return (48);
+   }
+  }
   inp->inp_laddru.iau_a4u.inaddr = *ina;
  }
  inp->inp_faddru.iau_a4u.inaddr = sin->sin_addr;
@@ -6476,7 +6484,7 @@ in_losing(struct inpcb *inp)
   info.rti_info[0] = &inp->inp_ru.ru_route.ro_dst;
   info.rti_info[1] = rt->rt_gateway;
   info.rti_info[2] = rt_plen2mask(rt, &sa_mask);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 720);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 728);
   rtm_miss(0x5, &info, rt->rt_flags, rt->rt_priority,
       rt->rt_ifidx, 0, inp->inp_rtableid);
   _kernel_unlock();

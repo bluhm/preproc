@@ -4460,14 +4460,22 @@ in6_pcbconnect(struct inpcb *inp, struct mbuf *nam)
  inp->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = (u_int8_t)in6_selecthlim(inp);
  if (in6_pcbhashlookup(inp->inp_table, &sin6->sin6_addr, sin6->sin6_port,
      ((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) ? in6a : &inp->inp_laddru.iau_addr6,
-     inp->inp_lport, inp->inp_rtableid)) {
+     inp->inp_lport, inp->inp_rtableid) != ((void *)0)) {
   return (48);
  }
  ((((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_pcb.c", 291, "IN6_IS_ADDR_UNSPECIFIED(&inp->inp_laddr6) || inp->inp_lport"));
  if (((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0))) {
-  if (inp->inp_lport == 0 &&
-      in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc) == 49)
-   return (49);
+  if (inp->inp_lport == 0) {
+   error = in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc);
+   if (error)
+    return (error);
+   if (in6_pcbhashlookup(inp->inp_table, &sin6->sin6_addr,
+       sin6->sin6_port, in6a, inp->inp_lport,
+       inp->inp_rtableid) != ((void *)0)) {
+    inp->inp_lport = 0;
+    return (48);
+   }
+  }
   inp->inp_laddru.iau_addr6 = *in6a;
  }
  inp->inp_faddru.iau_addr6 = sin6->sin6_addr;

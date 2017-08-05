@@ -6685,7 +6685,7 @@ ip6_send_dispatch(void *xmq)
   return;
  extern int ipsec_in_use;
  if (ipsec_in_use) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1464);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1462);
   locked = 1;
  }
  do { _rw_enter_write(&netlock ); s = 2; } while (0);

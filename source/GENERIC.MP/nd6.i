@@ -3924,7 +3924,7 @@ void nd6_slowtimo(void *);
 void nd6_timer_work(void *);
 void nd6_timer(void *);
 void nd6_invalidate(struct rtentry *);
-struct llinfo_nd6 *nd6_free(struct rtentry *, int);
+void nd6_free(struct rtentry *);
 void nd6_llinfo_timer(void *);
 struct timeout nd6_slowtimo_ch;
 struct timeout nd6_timer_ch;
@@ -4117,7 +4117,7 @@ nd6_llinfo_timer(void *arg)
      ln->ln_hold = ((void *)0);
     }
    }
-   (void)nd6_free(rt, 0);
+   nd6_free(rt);
    ln = ((void *)0);
   }
   break;
@@ -4130,7 +4130,7 @@ nd6_llinfo_timer(void *arg)
  case 2:
  case -3:
   if (!((ln)->ln_rt->rt_rmx.rmx_expire == 0)) {
-   (void)nd6_free(rt, 1);
+   nd6_free(rt);
    ln = ((void *)0);
   }
   break;
@@ -4153,7 +4153,7 @@ nd6_llinfo_timer(void *arg)
    nd6_ns_output(ifp, &dst->sin6_addr,
        &dst->sin6_addr, ln, 0);
   } else {
-   (void)nd6_free(rt, 0);
+   nd6_free(rt);
    ln = ((void *)0);
   }
   break;
@@ -4204,7 +4204,7 @@ nd6_purge(struct ifnet *ifp)
       rt->rt_gateway->sa_family == 18) {
    sdl = satosdl(rt->rt_gateway);
    if (sdl->sdl_index == ifp->if_index)
-    nln = nd6_free(rt, 0);
+    nd6_free(rt);
   }
  }
 }
@@ -4298,10 +4298,10 @@ nd6_invalidate(struct rtentry *rt)
  ln->ln_state = 0;
  ln->ln_asked = 0;
 }
-struct llinfo_nd6 *
-nd6_free(struct rtentry *rt, int gc)
+void
+nd6_free(struct rtentry *rt)
 {
- struct llinfo_nd6 *ln = (struct llinfo_nd6 *)rt->rt_llinfo, *next;
+ struct llinfo_nd6 *ln = (struct llinfo_nd6 *)rt->rt_llinfo;
  struct in6_addr in6 = satosin6(((rt)->rt_dest))->sin6_addr;
  struct ifnet *ifp;
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
@@ -4311,12 +4311,10 @@ nd6_free(struct rtentry *rt, int gc)
    rt6_flush(&in6, ifp);
   }
  }
- next = ((ln)->ln_list.tqe_next);
  nd6_invalidate(rt);
  if (!((rt->rt_flags) & (0x800|0x20000)))
   rtdeletemsg(rt, ifp, ifp->if_data.ifi_rdomain);
  if_put(ifp);
- return (next);
 }
 void
 nd6_nud_hint(struct rtentry *rt)
@@ -4423,7 +4421,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 908, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 900, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
@@ -4571,7 +4569,7 @@ nd6_cache_lladdr(struct ifnet *ifp, struct in6_addr *from, char *lladdr,
   return;
  if ((rt->rt_flags & (0x2 | 0x400)) != 0x400) {
 fail:
-  (void)nd6_free(rt, 0);
+  nd6_free(rt);
   rtfree(rt);
   return;
  }
@@ -4704,7 +4702,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1351, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1343, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

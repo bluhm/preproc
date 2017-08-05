@@ -7058,7 +7058,7 @@ ip_send_dispatch(void *xmq)
   return;
  extern int ipsec_in_use;
  if (ipsec_in_use) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1815);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1814);
   locked = 1;
  }
  do { _rw_enter_write(&netlock ); s = 2; } while (0);

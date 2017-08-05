@@ -4028,18 +4028,11 @@ void ieee80211_recv_bar(struct ieee80211com *, struct mbuf *,
      struct ieee80211_node *);
 void ieee80211_bar_tid(struct ieee80211com *, struct ieee80211_node *,
      u_int8_t, u_int16_t);
-void ieee80211_input_print(struct ieee80211com *, struct ifnet *,
-     struct ieee80211_frame *, struct ieee80211_rxinfo *);
-void ieee80211_input_print_task(void *);
-struct ieee80211printmsg {
- struct task task;
- char text[512];
-};
 u_int
 ieee80211_get_hdrlen(const struct ieee80211_frame *wh)
 {
  u_int size = sizeof(*wh);
- ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 146, "ieee80211_has_seq(wh)"));
+ ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 138, "ieee80211_has_seq(wh)"));
  if (ieee80211_has_addr4(wh))
   size += 6;
  if (ieee80211_has_qos(wh))
@@ -4047,47 +4040,6 @@ ieee80211_get_hdrlen(const struct ieee80211_frame *wh)
  if (ieee80211_has_htc(wh))
   size += sizeof(u_int32_t);
  return size;
-}
-void
-ieee80211_input_print_task(void *arg1)
-{
- struct ieee80211printmsg *msg = arg1;
- printf("%s", msg->text);
- free(msg, 2, sizeof *msg);
-}
-void
-ieee80211_input_print(struct ieee80211com *ic, struct ifnet *ifp,
-    struct ieee80211_frame *wh, struct ieee80211_rxinfo *rxi)
-{
- int doprint;
- struct ieee80211printmsg *msg;
- u_int8_t subtype = wh->i_fc[0] & 0xf0;
- doprint = 0;
- switch (subtype) {
- case 0x80:
-  if (ic->ic_state == IEEE80211_S_SCAN)
-   doprint = 1;
-  break;
- case 0x40:
-  if (ic->ic_opmode == IEEE80211_M_IBSS)
-   doprint = 1;
-  break;
- default:
-  doprint = 1;
-  break;
- }
- if (!doprint)
-  return;
- msg = malloc(sizeof(*msg), 2, 0x0002);
- if (msg == ((void *)0))
-  return;
- snprintf(msg->text, sizeof(msg->text),
-     "%s: received %s from %s rssi %d mode %s\n", ifp->if_xname,
-     ieee80211_mgt_subtype_name[subtype >> 4],
-     ether_sprintf(wh->i_addr2), rxi->rxi_rssi,
-     ieee80211_phymode_name[ic->ic_curmode]);
- task_set(&msg->task, ieee80211_input_print_task, msg);
- task_add(systq, &msg->task);
 }
 void
 ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
@@ -4098,7 +4050,7 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
  u_int16_t *orxseq, nrxseq, qos;
  u_int8_t dir, type, subtype, tid;
  int hdrlen, hasqos;
- ((ni != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 236, "ni != NULL"));
+ ((ni != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 169, "ni != NULL"));
  if (ic->ic_opmode == IEEE80211_M_MONITOR)
   goto out;
  if (m->m_hdr.mh_len < sizeof(struct ieee80211_frame_min)) {
@@ -4320,8 +4272,6 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
       (wh->i_fc[1] & 0x40)) {
    goto out;
   }
-  if (ifp->if_flags & 0x4)
-   ieee80211_input_print(ic, ifp, wh, rxi);
   if (bpf_mtap(ic->ic_rawbpf, m, 1) != 0) {
    m_freem(m);
    return;
@@ -4492,7 +4442,7 @@ ieee80211_input_ba_seq(struct ieee80211com *ic, struct ieee80211_node *ni,
  while (i++ < ba->ba_winsize) {
   if (ba->ba_buf[ba->ba_head].m != ((void *)0)) {
    wh = ((struct ieee80211_frame *)((ba->ba_buf[ba->ba_head].m)->m_hdr.mh_data));
-   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 788, "ieee80211_has_seq(wh)"));
+   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 719, "ieee80211_has_seq(wh)"));
    seq = __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)wh->i_seq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) >>
        4;
    if (!((((u_int16_t)(seq) - (u_int16_t)(max_seq)) & 0xfff) > 2048))
