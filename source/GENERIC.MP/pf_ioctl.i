@@ -5928,7 +5928,6 @@ extern int pf_tbladdr_setup(struct pf_ruleset *,
 extern void pf_tbladdr_remove(struct pf_addr_wrap *);
 extern void pf_tbladdr_copyout(struct pf_addr_wrap *);
 extern void pf_calc_skip_steps(struct pf_rulequeue *);
-extern void pf_purge_thread(void *);
 extern void pf_purge_expired_src_nodes();
 extern void pf_purge_expired_states(u_int32_t);
 extern void pf_purge_expired_rules();
@@ -6203,6 +6202,10 @@ struct pf_pdesc {
   struct nd_neighbor_solicit nd_ns;
  } hdr;
 };
+extern struct task pf_purge_task;
+extern struct timeout pf_purge_to;
+extern void pf_purge_timeout(void *);
+extern void pf_purge(void *);
 struct pfsync_header {
  u_int8_t version;
  u_int8_t _pad;
@@ -6434,13 +6437,6 @@ pfattach(int num)
  pf_status.debug = 3;
  pf_status.reass = 0x01;
  pf_status.hostid = arc4random();
- kthread_create_deferred(pf_thread_create, ((void *)0));
-}
-void
-pf_thread_create(void *v)
-{
- if (kthread_create(pf_purge_thread, ((void *)0), ((void *)0), "pfpurge"))
-  panic("pfpurge thread");
 }
 int
 pfopen(dev_t dev, int flags, int fmt, struct proc *p)
@@ -6507,7 +6503,7 @@ pf_purge_rule(struct pf_rule *rule)
 {
  u_int32_t nr = 0;
  struct pf_ruleset *ruleset;
- (((rule != ((void *)0)) && (rule->ruleset != ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 321, "(rule != NULL) && (rule->ruleset != NULL)"));
+ (((rule != ((void *)0)) && (rule->ruleset != ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 311, "(rule != NULL) && (rule->ruleset != NULL)"));
  ruleset = rule->ruleset;
  pf_rm_rule(ruleset->rules.active.ptr, rule);
  ruleset->rules.active.rcount--;
@@ -6748,7 +6744,7 @@ pf_create_queues(void)
   if (ifp == ((void *)0))
    continue;
   qif = pf_ifp2q(list, ifp);
-  ((qif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 630, "qif != NULL"));
+  ((qif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 620, "qif != NULL"));
   error = qif->pfqops->pfq_addqueue(qif->disc, q);
   if (error != 0)
    goto error;
@@ -7073,6 +7069,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     pf_status.stateid = time_second;
     pf_status.stateid = pf_status.stateid << 32;
    }
+   timeout_add(&pf_purge_to, 1 * hz);
    pf_create_queues();
    do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("pf: started"); addlog("\n"); } } while (0);
   }
@@ -8190,7 +8187,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
        pf_default_rule_new.timeout[i];
    if (pf_default_rule.timeout[i] == PFTM_INTERVAL &&
        pf_default_rule.timeout[i] < old)
-    wakeup(pf_purge_thread);
+    task_add(softnettq, &pf_purge_task);
   }
   pfi_xcommit();
   pf_trans_set_commit();

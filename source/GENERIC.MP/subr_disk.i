@@ -4346,7 +4346,7 @@ duid_format(u_char *duid)
 {
  static char duid_str[17];
  snprintf(duid_str, sizeof(duid_str),
-     "%02hx%02hx%02hx%02hx%02hx%02hx%02hx%02hx",
+     "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
      duid[0], duid[1], duid[2], duid[3],
      duid[4], duid[5], duid[6], duid[7]);
  return (duid_str);

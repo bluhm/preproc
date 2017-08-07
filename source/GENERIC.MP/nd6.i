@@ -3284,7 +3284,7 @@ struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
 void in6_delmulti(struct in6_multi *);
 int in6_hasmulti(struct in6_addr *, struct ifnet *);
 struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
-int in6_leavegroup(struct in6_multi_mship *);
+void in6_leavegroup(struct in6_multi_mship *);
 int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
 int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
 int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,
@@ -3921,14 +3921,14 @@ struct pool nd6_pool;
 int nd6_inuse, nd6_allocated;
 int nd6_recalc_reachtm_interval = (60 * 120);
 void nd6_slowtimo(void *);
-void nd6_timer_work(void *);
-void nd6_timer(void *);
+void nd6_expire(void *);
+void nd6_expire_timer(void *);
 void nd6_invalidate(struct rtentry *);
 void nd6_free(struct rtentry *);
 void nd6_llinfo_timer(void *);
 struct timeout nd6_slowtimo_ch;
-struct timeout nd6_timer_ch;
-struct task nd6_timer_task;
+struct timeout nd6_expire_timeout;
+struct task nd6_expire_task;
 void
 nd6_init(void)
 {
@@ -3940,12 +3940,12 @@ nd6_init(void)
  do { (&nd6_list)->tqh_first = ((void *)0); (&nd6_list)->tqh_last = &(&nd6_list)->tqh_first; } while (0);
  pool_init(&nd6_pool, sizeof(struct llinfo_nd6), 0,
      2, 0, "nd6", ((void *)0));
- task_set(&nd6_timer_task, nd6_timer_work, ((void *)0));
+ task_set(&nd6_expire_task, nd6_expire, ((void *)0));
  nd6_init_done = 1;
  timeout_set_proc(&nd6_slowtimo_ch, nd6_slowtimo, ((void *)0));
  timeout_add_sec(&nd6_slowtimo_ch, (60 * 60));
- timeout_set(&nd6_timer_ch, nd6_timer, ((void *)0));
- timeout_add_sec(&nd6_timer_ch, nd6_prune);
+ timeout_set(&nd6_expire_timeout, nd6_expire_timer, ((void *)0));
+ timeout_add_sec(&nd6_expire_timeout, nd6_prune);
 }
 struct nd_ifinfo *
 nd6_ifattach(struct ifnet *ifp)
@@ -4162,12 +4162,13 @@ nd6_llinfo_timer(void *arg)
  do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
-nd6_timer_work(void *null)
+nd6_expire(void *unused)
 {
  struct ifnet *ifp;
  int s;
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 429);
  do { _rw_enter_write(&netlock ); s = 2; } while (0);
- timeout_add_sec(&nd6_timer_ch, nd6_prune);
+ timeout_add_sec(&nd6_expire_timeout, nd6_prune);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   struct ifaddr *ifa, *nifa;
   struct in6_ifaddr *ia6;
@@ -4185,11 +4186,12 @@ nd6_timer_work(void *null)
   }
  }
  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ _kernel_unlock();
 }
 void
-nd6_timer(void *ignored_arg)
+nd6_expire_timer(void *unused)
 {
- task_add(systq, &nd6_timer_task);
+ task_add(softnettq, &nd6_expire_task);
 }
 void
 nd6_purge(struct ifnet *ifp)
@@ -4421,7 +4423,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 900, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 894, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
@@ -4702,7 +4704,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1343, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1337, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

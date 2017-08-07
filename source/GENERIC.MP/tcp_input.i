@@ -5404,7 +5404,6 @@ extern int pf_tbladdr_setup(struct pf_ruleset *,
 extern void pf_tbladdr_remove(struct pf_addr_wrap *);
 extern void pf_tbladdr_copyout(struct pf_addr_wrap *);
 extern void pf_calc_skip_steps(struct pf_rulequeue *);
-extern void pf_purge_thread(void *);
 extern void pf_purge_expired_src_nodes();
 extern void pf_purge_expired_states(u_int32_t);
 extern void pf_purge_expired_rules();
@@ -5759,7 +5758,7 @@ struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
 void in6_delmulti(struct in6_multi *);
 int in6_hasmulti(struct in6_addr *, struct ifnet *);
 struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
-int in6_leavegroup(struct in6_multi_mship *);
+void in6_leavegroup(struct in6_multi_mship *);
 int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
 int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
 int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,

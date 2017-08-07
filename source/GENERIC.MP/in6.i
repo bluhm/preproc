@@ -2964,7 +2964,7 @@ struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
 void in6_delmulti(struct in6_multi *);
 int in6_hasmulti(struct in6_addr *, struct ifnet *);
 struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
-int in6_leavegroup(struct in6_multi_mship *);
+void in6_leavegroup(struct in6_multi_mship *);
 int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
 int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
 int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,
@@ -4347,13 +4347,12 @@ in6_joingroup(struct ifnet *ifp, struct in6_addr *addr, int *errorp)
  }
  return imm;
 }
-int
+void
 in6_leavegroup(struct in6_multi_mship *imm)
 {
  if (imm->i6mm_maddr)
   in6_delmulti(imm->i6mm_maddr);
  free(imm, 54, sizeof(*imm));
- return 0;
 }
 struct in6_ifaddr *
 in6ifa_ifpforlinklocal(struct ifnet *ifp, int ignoreflags)

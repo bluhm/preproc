@@ -3702,7 +3702,6 @@ extern int pf_tbladdr_setup(struct pf_ruleset *,
 extern void pf_tbladdr_remove(struct pf_addr_wrap *);
 extern void pf_tbladdr_copyout(struct pf_addr_wrap *);
 extern void pf_calc_skip_steps(struct pf_rulequeue *);
-extern void pf_purge_thread(void *);
 extern void pf_purge_expired_src_nodes();
 extern void pf_purge_expired_states(u_int32_t);
 extern void pf_purge_expired_rules();
@@ -3977,6 +3976,10 @@ struct pf_pdesc {
   struct nd_neighbor_solicit nd_ns;
  } hdr;
 };
+extern struct task pf_purge_task;
+extern struct timeout pf_purge_to;
+extern void pf_purge_timeout(void *);
+extern void pf_purge(void *);
 typedef struct pool pool_t;
 struct pf_osfp_list { struct pf_os_fingerprint *slh_first; } pf_osfp_list;
 pool_t pf_osfp_entry_pl;

@@ -5974,7 +5974,6 @@ extern int pf_tbladdr_setup(struct pf_ruleset *,
 extern void pf_tbladdr_remove(struct pf_addr_wrap *);
 extern void pf_tbladdr_copyout(struct pf_addr_wrap *);
 extern void pf_calc_skip_steps(struct pf_rulequeue *);
-extern void pf_purge_thread(void *);
 extern void pf_purge_expired_src_nodes();
 extern void pf_purge_expired_states(u_int32_t);
 extern void pf_purge_expired_rules();
@@ -6249,6 +6248,10 @@ struct pf_pdesc {
   struct nd_neighbor_solicit nd_ns;
  } hdr;
 };
+extern struct task pf_purge_task;
+extern struct timeout pf_purge_to;
+extern void pf_purge_timeout(void *);
+extern void pf_purge(void *);
 struct pfloghdr {
  u_int8_t length;
  sa_family_t af;
@@ -7212,6 +7215,9 @@ SHA2_CTX pf_tcp_secret_ctx;
 u_char pf_tcp_secret[16];
 int pf_tcp_secret_init;
 int pf_tcp_iss_off;
+int pf_npurge;
+struct task pf_purge_task = {{ ((void *)0), ((void *)0) }, (pf_purge), (&pf_npurge), 0 };
+struct timeout pf_purge_to = { { ((void *)0), ((void *)0) }, (pf_purge_timeout), (((void *)0)), 0, 4 };
 enum pf_test_status {
  PF_TEST_FAIL = -1,
  PF_TEST_OK,
@@ -7666,7 +7672,7 @@ pf_state_key_attach(struct pf_state_key *sk, struct pf_state *s, int idx)
  struct pf_state_item *si;
  struct pf_state_key *cur;
  struct pf_state *olds = ((void *)0);
- ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 678, "s->key[idx] == NULL"));
+ ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 682, "s->key[idx] == NULL"));
  if ((cur = pf_state_tree_RB_INSERT(&pf_statetbl, sk)) != ((void *)0)) {
   for((si) = ((&cur->states)->tqh_first); (si) != ((void *)0); (si) = ((si)->entry.tqe_next))
    if (si->s->kif == s->kif &&
@@ -8103,31 +8109,37 @@ pf_purge_expired_rules(void)
   return;
  while ((r = ((&pf_rule_gcl)->slh_first)) != ((void *)0)) {
   do { if ((&pf_rule_gcl)->slh_first == (r)) { do { ((&pf_rule_gcl))->slh_first = ((&pf_rule_gcl))->slh_first->gcle.sle_next; } while (0); } else { struct pf_rule *curelm = (&pf_rule_gcl)->slh_first; while (curelm->gcle.sle_next != (r)) curelm = curelm->gcle.sle_next; curelm->gcle.sle_next = curelm->gcle.sle_next->gcle.sle_next; } ((r)->gcle.sle_next) = ((void *)-1); } while (0);
-  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1197, "r->rule_flag & PFRULE_EXPIRED"));
+  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1201, "r->rule_flag & PFRULE_EXPIRED"));
   pf_purge_rule(r);
  }
 }
 void
-pf_purge_thread(void *v)
+pf_purge_timeout(void *unused)
 {
- int nloops = 0, s;
- for (;;) {
-  tsleep(pf_purge_thread, 32, "pftm", 1 * hz);
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
-  (void)(0);
-  pf_purge_expired_states(1 + (pf_status.states
-      / pf_default_rule.timeout[PFTM_INTERVAL]));
-  if (++nloops >= pf_default_rule.timeout[PFTM_INTERVAL]) {
-   pf_purge_expired_src_nodes(0);
-   pf_purge_expired_rules();
-  }
-  (void)(0);
-  if (nloops >= pf_default_rule.timeout[PFTM_INTERVAL]) {
-   pf_purge_expired_fragments();
-   nloops = 0;
-  }
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ task_add(softnettq, &pf_purge_task);
+}
+void
+pf_purge(void *xnloops)
+{
+ int *nloops = xnloops;
+ int s;
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1218);
+ do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ (void)(0);
+ pf_purge_expired_states(1 + (pf_status.states
+     / pf_default_rule.timeout[PFTM_INTERVAL]));
+ if (++(*nloops) >= pf_default_rule.timeout[PFTM_INTERVAL]) {
+  pf_purge_expired_src_nodes(0);
+  pf_purge_expired_rules();
  }
+ (void)(0);
+ if ((*nloops) >= pf_default_rule.timeout[PFTM_INTERVAL]) {
+  pf_purge_expired_fragments();
+  *nloops = 0;
+ }
+ do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ _kernel_unlock();
+ timeout_add(&pf_purge_to, 1 * hz);
 }
 int32_t
 pf_state_expires(const struct pf_state *state)
@@ -8138,8 +8150,8 @@ pf_state_expires(const struct pf_state *state)
  u_int32_t states;
  if (state->timeout == PFTM_PURGE)
   return (0);
- ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1247, "state->timeout != PFTM_UNLINKED"));
- ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1248, "state->timeout < PFTM_MAX"));
+ ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1258, "state->timeout != PFTM_UNLINKED"));
+ ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1259, "state->timeout < PFTM_MAX"));
  timeout = state->rule.ptr->timeout[state->timeout];
  if (!timeout)
   timeout = pf_default_rule.timeout[state->timeout];
@@ -8233,7 +8245,7 @@ pf_free_state(struct pf_state *cur)
  (void)(0);
  if (pfsync_state_in_use(cur))
   return;
- ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1367, "cur->timeout == PFTM_UNLINKED"));
+ ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1378, "cur->timeout == PFTM_UNLINKED"));
  if (--cur->rule.ptr->states_cur == 0 &&
      cur->rule.ptr->src_nodes == 0)
   pf_rm_rule(((void *)0), cur->rule.ptr);
@@ -12604,7 +12616,7 @@ pf_inp_lookup(struct mbuf *m)
  else
   inp = m->M_dat.MH.MH_pkthdr.pf.statekey->inp;
  if (inp && inp->inp_pf_sk)
-  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7068, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
+  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7079, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
  return (inp);
 }
 void
@@ -12632,7 +12644,7 @@ pf_inp_unlink(struct inpcb *inp)
 void
 pf_state_key_link(struct pf_state_key *sk, struct pf_state_key *pkt_sk)
 {
- (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7111, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
+ (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7122, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
  pkt_sk->reverse = pf_state_key_ref(sk);
  sk->reverse = pf_state_key_ref(pkt_sk);
 }
@@ -12658,9 +12670,9 @@ void
 pf_state_key_unref(struct pf_state_key *sk)
 {
  if ((sk != ((void *)0)) && refcnt_rele(&(sk->refcnt))) {
-  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7147, "!pf_state_key_isvalid(sk)"));
-  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7149, "sk->reverse == NULL"));
-  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7151, "sk->inp == NULL"));
+  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7158, "!pf_state_key_isvalid(sk)"));
+  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7160, "sk->reverse == NULL"));
+  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7162, "sk->inp == NULL"));
   pool_put(&pf_state_key_pl, sk);
  }
 }
