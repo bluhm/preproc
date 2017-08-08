@@ -3690,7 +3690,7 @@ vgafb_ioctl(v, cmd, data, flags, p)
  struct pcisel *sel;
  switch (cmd) {
  case ((unsigned long)0x40000000 | ((sizeof(u_int) & 0x1fff) << 16) | ((('W')) << 8) | ((64))):
-  *(u_int *)data = 0;
+  *(u_int *)data = 8;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(u_int) & 0x1fff) << 16) | ((('W')) << 8) | ((76))):
   sc->sc_mode = *(u_int *)data;
