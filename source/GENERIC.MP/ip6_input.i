@@ -4487,7 +4487,6 @@ struct llinfo_nd6 {
  short ln_router;
  struct timeout ln_timer_ch;
 };
-extern int nd6_prune;
 extern int nd6_delay;
 extern int nd6_umaxtries;
 extern int nd6_mmaxtries;
@@ -4540,6 +4539,7 @@ void nd6_ra_input(struct mbuf *, int, int);
 void nd6_rs_input(struct mbuf *, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
+void nd6_expire_timer_update(struct in6_ifaddr *);
 struct mbuf;
 struct sockaddr;
 struct socket;
@@ -5795,7 +5795,7 @@ int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
 int carp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int carp_lsdrop(struct mbuf *, sa_family_t, u_int32_t *,
        u_int32_t *, int);
-struct niqueue ip6intrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((256)), 0 }, (24) };
+struct niqueue ip6intrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((2048)), 0 }, (24) };
 struct cpumem *ip6counters;
 int ip6_ours(struct mbuf **, int *, int, int);
 int ip6_local(struct mbuf **, int *, int, int);

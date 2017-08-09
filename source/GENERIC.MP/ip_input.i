@@ -5923,7 +5923,7 @@ struct rttimer_queue *ip_mtudisc_timeout_q = ((void *)0);
 int ip_maxqueue = 300;
 int ip_frags = 0;
 int *ipctl_vars[41] = { ((void *)0), &ipforwarding, &ipsendredirects, &ip_defttl, ((void *)0), ((void *)0), &ip_directedbcast, &ipport_firstauto, &ipport_lastauto, &ipport_hifirstauto, &ipport_hilastauto, &ip_maxqueue, &encdebug, ((void *)0), &ipsec_expire_acquire, &ipsec_keep_invalid, &ipsec_require_pfs, &ipsec_soft_allocations, &ipsec_exp_allocations, &ipsec_soft_bytes, &ipsec_exp_bytes, &ipsec_exp_timeout, &ipsec_soft_timeout, &ipsec_soft_first_use, &ipsec_exp_first_use, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ipmforwarding, &ipmultipath, ((void *)0), ((void *)0), ((void *)0), &la_hold_total, ((void *)0), ((void *)0), &arpt_keep, &arpt_down, };
-struct niqueue ipintrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((256)), 0 }, (2) };
+struct niqueue ipintrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((2048)), 0 }, (2) };
 struct pool ipqent_pool;
 struct pool ipq_pool;
 struct cpumem *ipcounters;

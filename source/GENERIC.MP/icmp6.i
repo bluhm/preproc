@@ -4333,7 +4333,6 @@ struct llinfo_nd6 {
  short ln_router;
  struct timeout ln_timer_ch;
 };
-extern int nd6_prune;
 extern int nd6_delay;
 extern int nd6_umaxtries;
 extern int nd6_mmaxtries;
@@ -4386,6 +4385,7 @@ void nd6_ra_input(struct mbuf *, int, int);
 void nd6_rs_input(struct mbuf *, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
+void nd6_expire_timer_update(struct in6_ifaddr *);
 struct mbuf;
 struct sockaddr;
 struct socket;
@@ -6729,7 +6729,7 @@ icmp6_redirect_timeout(struct rtentry *rt, struct rttimer *r)
  }
  if_put(ifp);
 }
-int *icmpv6ctl_vars[19] = { ((void *)0), ((void *)0), ((void *)0), &icmp6_redirtimeout, ((void *)0), ((void *)0), &nd6_prune, ((void *)0), &nd6_delay, &nd6_umaxtries, &nd6_mmaxtries, ((void *)0), ((void *)0), ((void *)0), &icmp6errppslim, &nd6_maxnudhint, &icmp6_mtudisc_hiwat, &icmp6_mtudisc_lowat, &nd6_debug, };
+int *icmpv6ctl_vars[19] = { ((void *)0), ((void *)0), ((void *)0), &icmp6_redirtimeout, ((void *)0), ((void *)0), ((void *)0), ((void *)0), &nd6_delay, &nd6_umaxtries, &nd6_mmaxtries, ((void *)0), ((void *)0), ((void *)0), &icmp6errppslim, &nd6_maxnudhint, &icmp6_mtudisc_hiwat, &icmp6_mtudisc_lowat, &nd6_debug, };
 int
 icmp6_sysctl_icmp6stat(void *oldp, size_t *oldlenp, void *newp)
 {

@@ -1751,6 +1751,26 @@ void log(int, const char *, ...)
 int addlog(const char *, ...)
     __attribute__((__format__(__kprintf__,1,2)));
 void logwakeup(void);
+typedef __int_least8_t int_least8_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least64_t uint_least64_t;
+typedef __int_fast8_t int_fast8_t;
+typedef __uint_fast8_t uint_fast8_t;
+typedef __int_fast16_t int_fast16_t;
+typedef __uint_fast16_t uint_fast16_t;
+typedef __int_fast32_t int_fast32_t;
+typedef __uint_fast32_t uint_fast32_t;
+typedef __int_fast64_t int_fast64_t;
+typedef __uint_fast64_t uint_fast64_t;
+typedef __intptr_t intptr_t;
+typedef __uintptr_t uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 struct taskq;
 struct task {
  struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
@@ -3634,7 +3654,6 @@ struct llinfo_nd6 {
  short ln_router;
  struct timeout ln_timer_ch;
 };
-extern int nd6_prune;
 extern int nd6_delay;
 extern int nd6_umaxtries;
 extern int nd6_mmaxtries;
@@ -3687,6 +3706,7 @@ void nd6_ra_input(struct mbuf *, int, int);
 void nd6_rs_input(struct mbuf *, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
+void nd6_expire_timer_update(struct in6_ifaddr *);
 struct icmp6_hdr {
  u_int8_t icmp6_type;
  u_int8_t icmp6_code;
@@ -3908,7 +3928,7 @@ struct ip6ctlparam;
 void icmp6_mtudisc_update(struct ip6ctlparam *, int);
 void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
 extern int icmp6_redirtimeout;
-int nd6_prune = 1;
+time_t nd6_expire_time = -1;
 int nd6_delay = 5;
 int nd6_umaxtries = 3;
 int nd6_mmaxtries = 3;
@@ -3945,7 +3965,6 @@ nd6_init(void)
  timeout_set_proc(&nd6_slowtimo_ch, nd6_slowtimo, ((void *)0));
  timeout_add_sec(&nd6_slowtimo_ch, (60 * 60));
  timeout_set(&nd6_expire_timeout, nd6_expire_timer, ((void *)0));
- timeout_add_sec(&nd6_expire_timeout, nd6_prune);
 }
 struct nd_ifinfo *
 nd6_ifattach(struct ifnet *ifp)
@@ -4162,13 +4181,36 @@ nd6_llinfo_timer(void *arg)
  do { (void)s; _rw_exit_write(&netlock ); } while (0);
 }
 void
+nd6_expire_timer_update(struct in6_ifaddr *ia6)
+{
+ time_t expire_time = 0x7fffffffffffffffLL;
+ int secs;
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 425, "_kernel_lock_held()"));
+ if (ia6->ia6_lifetime.ia6t_vltime != 0xffffffff)
+  expire_time = ia6->ia6_lifetime.ia6t_expire;
+ if (!(ia6->ia6_flags & 0x10) &&
+     ia6->ia6_lifetime.ia6t_pltime != 0xffffffff &&
+     expire_time > ia6->ia6_lifetime.ia6t_preferred)
+  expire_time = ia6->ia6_lifetime.ia6t_preferred;
+ if (expire_time == 0x7fffffffffffffffLL)
+  return;
+ expire_time++;
+ if (!((&nd6_expire_timeout)->to_flags & 2) || nd6_expire_time >
+     expire_time) {
+  secs = expire_time - time_uptime;
+  if ( secs < 0)
+   secs = 0;
+  timeout_add_sec(&nd6_expire_timeout, secs);
+  nd6_expire_time = expire_time;
+ }
+}
+void
 nd6_expire(void *unused)
 {
  struct ifnet *ifp;
  int s;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 429);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 466);
  do { _rw_enter_write(&netlock ); s = 2; } while (0);
- timeout_add_sec(&nd6_expire_timeout, nd6_prune);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   struct ifaddr *ifa, *nifa;
   struct in6_ifaddr *ia6;
@@ -4178,10 +4220,10 @@ nd6_expire(void *unused)
    ia6 = ifatoia6(ifa);
    if (((ia6)->ia6_lifetime.ia6t_vltime != 0xffffffff && (u_int32_t)((time_uptime - (ia6)->ia6_updatetime)) > (ia6)->ia6_lifetime.ia6t_vltime)) {
     in6_purgeaddr(&ia6->ia_ifa);
-   } else if (((ia6)->ia6_lifetime.ia6t_pltime != 0xffffffff && (u_int32_t)((time_uptime - (ia6)->ia6_updatetime)) > (ia6)->ia6_lifetime.ia6t_pltime)) {
-    ia6->ia6_flags |= 0x10;
    } else {
-    ia6->ia6_flags &= ~0x10;
+    if (((ia6)->ia6_lifetime.ia6t_pltime != 0xffffffff && (u_int32_t)((time_uptime - (ia6)->ia6_updatetime)) > (ia6)->ia6_lifetime.ia6t_pltime))
+     ia6->ia6_flags |= 0x10;
+    nd6_expire_timer_update(ia6);
    }
   }
  }
@@ -4423,7 +4465,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 894, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 925, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
@@ -4704,7 +4746,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1337, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1368, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

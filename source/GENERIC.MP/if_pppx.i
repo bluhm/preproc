@@ -3974,7 +3974,6 @@ struct llinfo_nd6 {
  short ln_router;
  struct timeout ln_timer_ch;
 };
-extern int nd6_prune;
 extern int nd6_delay;
 extern int nd6_umaxtries;
 extern int nd6_mmaxtries;
@@ -4027,6 +4026,7 @@ void nd6_ra_input(struct mbuf *, int, int);
 void nd6_rs_input(struct mbuf *, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
+void nd6_expire_timer_update(struct in6_ifaddr *);
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
 struct bpf_program {
