@@ -2768,7 +2768,7 @@ krpc_call(struct sockaddr_in *sa, u_int prog, u_int vers, u_int func,
  struct rpc_call *call;
  struct rpc_reply *reply;
  struct uio auio;
- int error, rcvflg, timo, secs, len;
+ int s, error, rcvflg, timo, secs, len;
  static u_int32_t xid = 0;
  char addr[16];
  int *ip;
@@ -2784,7 +2784,10 @@ krpc_call(struct sockaddr_in *sa, u_int prog, u_int vers, u_int func,
  tv.tv_usec = 0;
  __builtin_memcpy((((struct timeval *)((m)->m_hdr.mh_data))), (&tv), (sizeof tv));
  m->m_hdr.mh_len = sizeof(tv);
- if ((error = sosetopt(so, 0xffff, 0x1006, m)))
+ s = solock(so);
+ error = sosetopt(so, 0xffff, 0x1006, m);
+ sounlock(s);
+ if (error)
   goto out;
  if (from_p) {
   int32_t *on;
@@ -2792,14 +2795,19 @@ krpc_call(struct sockaddr_in *sa, u_int prog, u_int vers, u_int func,
   on = ((int32_t *)((m)->m_hdr.mh_data));
   m->m_hdr.mh_len = sizeof(*on);
   *on = 1;
-  if ((error = sosetopt(so, 0xffff, 0x0020, m)))
+  s = solock(so);
+  error = sosetopt(so, 0xffff, 0x0020, m);
+  sounlock(s);
+  if (error)
    goto out;
  }
  mopt = m_get((0x0001), (4));
  mopt->m_hdr.mh_len = sizeof(int);
  ip = ((int *)((mopt)->m_hdr.mh_data));
  *ip = 2;
+ s = solock(so);
  error = sosetopt(so, 0, 19, mopt);
+ sounlock(s);
  if (error)
   goto out;
  m = m_get((0x0001), (3));
@@ -2819,7 +2827,9 @@ krpc_call(struct sockaddr_in *sa, u_int prog, u_int vers, u_int func,
  mopt->m_hdr.mh_len = sizeof(int);
  ip = ((int *)((mopt)->m_hdr.mh_data));
  *ip = 0;
+ s = solock(so);
  error = sosetopt(so, 0, 19, mopt);
+ sounlock(s);
  if (error)
   goto out;
  nam = m_get(0x0001, 3);

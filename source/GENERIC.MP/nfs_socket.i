@@ -4041,7 +4041,9 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   mopt->m_hdr.mh_len = sizeof(int);
   ip = ((int *)((mopt)->m_hdr.mh_data));
   *ip = 2;
+  s = solock(so);
   error = sosetopt(so, 0, 19, mopt);
+  sounlock(s);
   if (error)
    goto bad;
   m = m_get((0x0001), (3));
@@ -4059,7 +4061,9 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   mopt->m_hdr.mh_len = sizeof(int);
   ip = ((int *)((mopt)->m_hdr.mh_data));
   *ip = 0;
+  s = solock(so);
   error = sosetopt(so, 0, 19, mopt);
+  sounlock(s);
   if (error)
    goto bad;
  }
@@ -4093,6 +4097,7 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   }
   sounlock(s);
  }
+ s = solock(so);
  so->so_rcv.sb_timeo = (5 * hz);
  if (nmp->nm_flag & (0x00000001 | 0x00000040))
   so->so_snd.sb_timeo = (5 * hz);
@@ -4126,7 +4131,6 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   rcvreserve = (nmp->nm_rsize + 404 +
       sizeof (u_int32_t)) * 2;
  }
- s = solock(so);
  error = soreserve(so, sndreserve, rcvreserve);
  sounlock(s);
  if (error)

@@ -2980,12 +2980,8 @@ struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
  u_int32_t retrans;
- u_int32_t flags;
  int recalctm;
  u_int8_t initialized;
- u_int8_t randomseed0[8];
- u_int8_t randomseed1[8];
- u_int8_t randomid[8];
 };
 struct in6_nbrinfo {
  char ifname[16];
@@ -3294,7 +3290,6 @@ void icmp6_mtudisc_update(struct ip6ctlparam *, int);
 void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
 extern int icmp6_redirtimeout;
 int rt6_deleteroute(struct rtentry *, void *, unsigned int);
-extern int nd6_recalc_reachtm_interval;
 void
 nd6_rs_input(struct mbuf *m, int off, int icmp6len)
 {

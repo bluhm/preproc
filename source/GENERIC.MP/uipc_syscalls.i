@@ -4933,7 +4933,8 @@ sys_setsockopt(struct proc *p, void *v, register_t *retval)
  struct sys_setsockopt_args *uap = v;
  struct file *fp;
  struct mbuf *m = ((void *)0);
- int error;
+ struct socket *so;
+ int s, error;
  if ((error = getsock(p, ((uap)->s.be.datum), &fp)) != 0)
   return (error);
  error = pledge_sockopt(p, 1, ((uap)->level.be.datum), ((uap)->name.be.datum));
@@ -4963,7 +4964,10 @@ sys_setsockopt(struct proc *p, void *v, register_t *retval)
   }
   m->m_hdr.mh_len = ((uap)->valsize.be.datum);
  }
- error = sosetopt(fp->f_data, ((uap)->level.be.datum), ((uap)->name.be.datum), m);
+ so = fp->f_data;
+ s = solock(so);
+ error = sosetopt(so, ((uap)->level.be.datum), ((uap)->name.be.datum), m);
+ sounlock(s);
  m = ((void *)0);
 bad:
  m_freem(m);
@@ -4977,7 +4981,8 @@ sys_getsockopt(struct proc *p, void *v, register_t *retval)
  struct file *fp;
  struct mbuf *m = ((void *)0);
  socklen_t valsize;
- int error;
+ struct socket *so;
+ int s, error;
  if ((error = getsock(p, ((uap)->s.be.datum), &fp)) != 0)
   return (error);
  error = pledge_sockopt(p, 0, ((uap)->level.be.datum), ((uap)->name.be.datum));
@@ -4990,9 +4995,11 @@ sys_getsockopt(struct proc *p, void *v, register_t *retval)
    goto out;
  } else
   valsize = 0;
- if ((error = sogetopt(fp->f_data, ((uap)->level.be.datum),
-     ((uap)->name.be.datum), &m)) == 0 && ((uap)->val.be.datum) && valsize &&
-     m != ((void *)0)) {
+ so = fp->f_data;
+ s = solock(so);
+ error = sogetopt(so, ((uap)->level.be.datum), ((uap)->name.be.datum), &m);
+ sounlock(s);
+ if (error == 0 && ((uap)->val.be.datum) && valsize && m != ((void *)0)) {
   if (valsize > m->m_hdr.mh_len)
    valsize = m->m_hdr.mh_len;
   error = copyout(((caddr_t)((m)->m_hdr.mh_data)), ((uap)->val.be.datum), valsize);

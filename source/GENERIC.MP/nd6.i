@@ -3615,12 +3615,8 @@ struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
  u_int32_t retrans;
- u_int32_t flags;
  int recalctm;
  u_int8_t initialized;
- u_int8_t randomseed0[8];
- u_int8_t randomseed1[8];
- u_int8_t randomid[8];
 };
 struct in6_nbrinfo {
  char ifname[16];
@@ -3975,7 +3971,6 @@ nd6_ifattach(struct ifnet *ifp)
  nd->basereachable = 30000;
  nd->reachable = (((512 * (nd->basereachable >> 10)) + (arc4random() & ((1536 - 512) * (nd->basereachable >> 10)))) /1000);
  nd->retrans = 1000;
- nd->flags = (0x1 | 0x2);
  return nd;
 }
 void
@@ -4154,15 +4149,12 @@ nd6_llinfo_timer(void *arg)
   }
   break;
  case 3:
-  if (ndi && (ndi->flags & 0x1) != 0) {
+  if (ndi) {
    ln->ln_asked = 1;
    ln->ln_state = 4;
    nd6_llinfo_settimer(ln, ndi->retrans / 1000);
    nd6_ns_output(ifp, &dst->sin6_addr,
        &dst->sin6_addr, ln, 0);
-  } else {
-   ln->ln_state = 2;
-   nd6_llinfo_settimer(ln, nd6_gctimer);
   }
   break;
  case 4:
@@ -4185,7 +4177,7 @@ nd6_expire_timer_update(struct in6_ifaddr *ia6)
 {
  time_t expire_time = 0x7fffffffffffffffLL;
  int secs;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 425, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 421, "_kernel_lock_held()"));
  if (ia6->ia6_lifetime.ia6t_vltime != 0xffffffff)
   expire_time = ia6->ia6_lifetime.ia6t_expire;
  if (!(ia6->ia6_flags & 0x10) &&
@@ -4209,7 +4201,7 @@ nd6_expire(void *unused)
 {
  struct ifnet *ifp;
  int s;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 466);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 462);
  do { _rw_enter_write(&netlock ); s = 2; } while (0);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   struct ifaddr *ifa, *nifa;
@@ -4465,7 +4457,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 925, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 921, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
    nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
@@ -4527,12 +4519,9 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
   ndi->ndi = *(((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
-  __builtin_memset((&ndi->ndi.randomseed0), (0), (sizeof ndi->ndi.randomseed0));
-  __builtin_memset((&ndi->ndi.randomseed1), (0), (sizeof ndi->ndi.randomseed1));
-  __builtin_memset((&ndi->ndi.randomid), (0), (sizeof ndi->ndi.randomid));
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((87))):
-  (((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo)->flags = ndi->ndi.flags;
+  error = 91;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((77))):
   error = 91;
@@ -4746,7 +4735,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1368, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1361, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

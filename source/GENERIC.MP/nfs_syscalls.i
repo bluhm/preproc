@@ -5293,8 +5293,8 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
   siz = (404 + (64 * 1024));
  s = solock(so);
  error = soreserve(so, siz, siz);
- sounlock(s);
  if (error) {
+  sounlock(s);
   m_freem(mynam);
   return (error);
  }
@@ -5315,11 +5315,11 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
  so->so_rcv.sb_timeo = 0;
  so->so_snd.sb_flags &= ~0x40;
  so->so_snd.sb_timeo = 0;
+ sounlock(s);
  if (tslp)
   slp = tslp;
  else {
-  slp = malloc(sizeof(*slp), 50,
-      0x0001|0x0008);
+  slp = malloc(sizeof(*slp), 50, 0x0001|0x0008);
   do { (slp)->ns_chain.tqe_next = ((void *)0); (slp)->ns_chain.tqe_prev = (&nfssvc_sockhead)->tqh_last; *(&nfssvc_sockhead)->tqh_last = (slp); (&nfssvc_sockhead)->tqh_last = &(slp)->ns_chain.tqe_next; } while (0);
  }
  slp->ns_so = so;

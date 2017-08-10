@@ -2676,12 +2676,8 @@ struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
  u_int32_t retrans;
- u_int32_t flags;
  int recalctm;
  u_int8_t initialized;
- u_int8_t randomseed0[8];
- u_int8_t randomseed1[8];
- u_int8_t randomid[8];
 };
 struct in6_nbrinfo {
  char ifname[16];
