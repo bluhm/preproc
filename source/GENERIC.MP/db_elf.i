@@ -2234,7 +2234,7 @@ typedef int db_strategy_t;
 typedef void (db_forall_func_t)(Elf64_Sym *, char *, char *, int, void *);
 extern unsigned int db_maxoff;
 int db_eqname(char *, char *, int);
-int db_value_of_name(char *, db_expr_t *);
+Elf64_Sym * db_symbol_by_name(char *, db_expr_t *);
 Elf64_Sym * db_search_symbol(db_addr_t, db_strategy_t, db_expr_t *);
 void db_symbol_values(Elf64_Sym *, char **, db_expr_t *);
 void db_printsym(db_expr_t, db_strategy_t, int (*)(const char *, ...));
@@ -2519,13 +2519,13 @@ db_elf_sym_forall(db_forall_func_t db_forall_func, void *arg)
        strtab + symp->st_name, suffix, 0, arg);
   }
 }
-int
-db_value_of_name(char *name, db_expr_t *valuep)
+Elf64_Sym *
+db_symbol_by_name(char *name, db_expr_t *valuep)
 {
  Elf64_Sym *sym;
  sym = db_elf_sym_lookup(name);
  if (sym == ((void *)0))
-     return (0);
+     return (((void *)0));
  db_symbol_values(sym, &name, valuep);
- return (1);
+ return (sym);
 }

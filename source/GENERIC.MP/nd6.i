@@ -4504,7 +4504,8 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   pool_put(&nd6_pool, ln);
   break;
  case 0x11:
-  nd6_invalidate(rt);
+  if (!((rt->rt_flags) & (0x200000)))
+   nd6_invalidate(rt);
   break;
  }
 }
@@ -4735,7 +4736,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1361, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1362, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

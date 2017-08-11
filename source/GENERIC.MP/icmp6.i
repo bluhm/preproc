@@ -6667,6 +6667,11 @@ icmp6_mtudisc_clone(struct sockaddr *dst, u_int rtableid)
   rtfree(rt);
   return (((void *)0));
  }
+ if (((rt->rt_flags) & (0x200000)) ||
+     (((rt->rt_flags) & (0x400)) && rt->rt_rmx.rmx_expire == 0)) {
+  rtfree(rt);
+  return (((void *)0));
+ }
  if ((rt->rt_flags & 0x4) == 0) {
   struct rtentry *nrt;
   struct rt_addrinfo info;

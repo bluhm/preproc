@@ -7145,8 +7145,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   ifp->if_llprio = ifr->ifr_ifru.ifru_metric;
   break;
  default:
-  if (so->so_proto == 0)
-   return (45);
   error = ((*so->so_proto->pr_usrreq)(so, 11,
    (struct mbuf *) cmd, (struct mbuf *) data,
    (struct mbuf *) ifp, p));

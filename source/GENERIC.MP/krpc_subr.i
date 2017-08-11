@@ -2817,7 +2817,9 @@ krpc_call(struct sockaddr_in *sa, u_int prog, u_int vers, u_int func,
  sin->sin_family = 2;
  sin->sin_addr.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
  sin->sin_port = ((__uint16_t)(0));
+ s = solock(so);
  error = sobind(so, m, &proc0);
+ sounlock(s);
  m_freem(m);
  if (error) {
   printf("bind failed\n");

@@ -5693,12 +5693,14 @@ vxlan_sockaddr_cmp(struct sockaddr *srcsa, struct sockaddr *dstsa)
   dst4 = satosin(dstsa);
   if (src4->sin_addr.s_addr == dst4->sin_addr.s_addr)
    return (0);
+  break;
  case 24:
   src6 = satosin6(srcsa);
   dst6 = satosin6(dstsa);
   if ((__builtin_memcmp((&(&src6->sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
       src6->sin6_scope_id == dst6->sin6_scope_id)
    return (0);
+  break;
  }
  return (1);
 }

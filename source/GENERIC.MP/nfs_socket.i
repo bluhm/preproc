@@ -4053,7 +4053,9 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   sin->sin_family = 2;
   sin->sin_addr.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
   sin->sin_port = ((__uint16_t)(0));
+  s = solock(so);
   error = sobind(so, m, &proc0);
+  sounlock(s);
   m_freem(m);
   if (error)
    goto bad;

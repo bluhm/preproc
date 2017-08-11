@@ -6008,11 +6008,14 @@ pflow_set(struct pflow_softc *sc, struct pflowreq *pflowr)
     return (error);
    if (pflowvalidsockaddr(sc->sc_flowsrc, 1)) {
     struct mbuf *m;
+    int s;
     m = m_get((0x0001), (3));
     m->m_hdr.mh_len = sc->sc_flowsrc->sa_len;
     sa = ((struct sockaddr *)((m)->m_hdr.mh_data));
     __builtin_memcpy((sa), (sc->sc_flowsrc), (sc->sc_flowsrc->sa_len));
+    s = solock(so);
     error = sobind(so, m, p);
+    sounlock(s);
     m_freem(m);
     if (error) {
      soclose(so);

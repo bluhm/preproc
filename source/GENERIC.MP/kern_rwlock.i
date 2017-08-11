@@ -1786,6 +1786,8 @@ retry:
  while (__builtin_expect(((((o = rwl->rwl_owner) & op->check) != 0) != 0), 0)) {
   unsigned long set = o | op->wait_set;
   int do_sleep;
+  if (panicstr)
+   return (0);
   rw_enter_diag(rwl, flags);
   if (flags & 0x0040UL)
    return (16);
@@ -1899,7 +1901,7 @@ _rrw_exit(struct rrwlock *rrwl )
 {
  if (((struct proc *)((&rrwl->rrwl_lock)->rwl_owner & ~0x07UL)) ==
      (struct proc *)(((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL)) {
-  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 388, "rrwl->rrwl_wcnt > 0"));
+  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 392, "rrwl->rrwl_wcnt > 0"));
   rrwl->rrwl_wcnt--;
   if (rrwl->rrwl_wcnt != 0) {
    (void)0;

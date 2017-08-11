@@ -3386,10 +3386,9 @@ socreate(int dom, struct socket **aso, int type, int proto)
 int
 sobind(struct socket *so, struct mbuf *nam, struct proc *p)
 {
- int s, error;
- s = solock(so);
+ int error;
+ soassertlocked(so);
  error = (*so->so_proto->pr_usrreq)(so, 2, ((void *)0), nam, ((void *)0), p);
- sounlock(s);
  return (error);
 }
 int
@@ -4467,7 +4466,7 @@ sosetopt(struct socket *so, int level, int optname, struct mbuf *m0)
  struct mbuf *m = m0;
  soassertlocked(so);
  if (level != 0xffff) {
-  if (so->so_proto && so->so_proto->pr_ctloutput) {
+  if (so->so_proto->pr_ctloutput) {
    error = (*so->so_proto->pr_ctloutput)(1, so,
        level, optname, m0);
    return (error);
@@ -4593,7 +4592,7 @@ sosetopt(struct socket *so, int level, int optname, struct mbuf *m0)
    break;
       }
   case 0x1021:
-   if (so->so_proto && so->so_proto->pr_domain &&
+   if (so->so_proto->pr_domain &&
        so->so_proto->pr_domain->dom_protosw &&
        so->so_proto->pr_ctloutput) {
     struct domain *dom = so->so_proto->pr_domain;
@@ -4623,7 +4622,7 @@ sosetopt(struct socket *so, int level, int optname, struct mbuf *m0)
    error = 42;
    break;
   }
-  if (error == 0 && so->so_proto && so->so_proto->pr_ctloutput) {
+  if (error == 0 && so->so_proto->pr_ctloutput) {
    (*so->so_proto->pr_ctloutput)(1, so,
        level, optname, m0);
    m = ((void *)0);
@@ -4641,7 +4640,7 @@ sogetopt(struct socket *so, int level, int optname, struct mbuf **mp)
  struct mbuf *m;
  soassertlocked(so);
  if (level != 0xffff) {
-  if (so->so_proto && so->so_proto->pr_ctloutput) {
+  if (so->so_proto->pr_ctloutput) {
    m = m_get(0x0001, 4);
    m->m_hdr.mh_len = 0;
    error = (*so->so_proto->pr_ctloutput)(0, so,
@@ -4712,7 +4711,7 @@ sogetopt(struct socket *so, int level, int optname, struct mbuf **mp)
    break;
       }
   case 0x1021:
-   if (so->so_proto && so->so_proto->pr_domain &&
+   if (so->so_proto->pr_domain &&
        so->so_proto->pr_domain->dom_protosw &&
        so->so_proto->pr_ctloutput) {
     struct domain *dom = so->so_proto->pr_domain;

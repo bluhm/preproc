@@ -4616,24 +4616,6 @@ struct cryptocap {
  int (*cc_process) (struct cryptop *);
  int (*cc_freesession) (u_int64_t);
 };
-struct session_op {
- u_int32_t cipher;
- u_int32_t mac;
- u_int32_t keylen;
- caddr_t key;
- int mackeylen;
- caddr_t mackey;
- u_int32_t ses;
-};
-struct crypt_op {
- u_int32_t ses;
- u_int16_t op;
- u_int16_t flags;
- u_int len;
- caddr_t src, dst;
- caddr_t mac;
- caddr_t iv;
-};
 int crypto_newsession(u_int64_t *, struct cryptoini *, int);
 int crypto_freesession(u_int64_t);
 int crypto_dispatch(struct cryptop *);

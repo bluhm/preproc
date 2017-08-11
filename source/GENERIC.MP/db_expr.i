@@ -2166,7 +2166,7 @@ typedef int db_strategy_t;
 typedef void (db_forall_func_t)(Elf64_Sym *, char *, char *, int, void *);
 extern unsigned int db_maxoff;
 int db_eqname(char *, char *, int);
-int db_value_of_name(char *, db_expr_t *);
+Elf64_Sym * db_symbol_by_name(char *, db_expr_t *);
 Elf64_Sym * db_search_symbol(db_addr_t, db_strategy_t, db_expr_t *);
 void db_symbol_values(Elf64_Sym *, char **, db_expr_t *);
 void db_printsym(db_expr_t, db_strategy_t, int (*)(const char *, ...));
@@ -2217,7 +2217,7 @@ db_term(db_expr_t *valuep)
  int t;
  t = db_read_token();
  if (t == 3) {
-     if (!db_value_of_name(db_tok_string, valuep)) {
+     if (db_symbol_by_name(db_tok_string, valuep) == ((void *)0)) {
   db_error("Symbol not found\n");
      }
      return (1);

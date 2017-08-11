@@ -2923,7 +2923,7 @@ typedef int db_strategy_t;
 typedef void (db_forall_func_t)(Elf64_Sym *, char *, char *, int, void *);
 extern unsigned int db_maxoff;
 int db_eqname(char *, char *, int);
-int db_value_of_name(char *, db_expr_t *);
+Elf64_Sym * db_symbol_by_name(char *, db_expr_t *);
 Elf64_Sym * db_search_symbol(db_addr_t, db_strategy_t, db_expr_t *);
 void db_symbol_values(Elf64_Sym *, char **, db_expr_t *);
 void db_printsym(db_expr_t, db_strategy_t, int (*)(const char *, ...));
@@ -2972,7 +2972,7 @@ void OF_sym2val(cells)
  symbol = (char *)(u_long)args->symbol;
  if (obp_symbol_debug)
   prom_printf("looking up symbol %s\r\n", symbol);
- args->result = (db_value_of_name(symbol, &value) == 1) ? 0 : -1;
+ args->result = (db_symbol_by_name(symbol, &value) != ((void *)0)) ? 0 : -1;
  if (obp_symbol_debug)
   prom_printf("%s is %lx\r\n", symbol, value);
  args->value = (cell_t)(value);

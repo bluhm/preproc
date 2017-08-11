@@ -4458,7 +4458,6 @@ mpii_load_xs(struct mpii_ccb *ccb)
  for (i = 0; i < dmap->dm_nsegs; i++, nsge++) {
   if (nsge == csge) {
    nsge++;
-   sge->sg_hdr |= __extension__({ __uint32_t __swap32gen_x = ((0x1<<31)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
    io->chain_offset = ((caddr_t)csge - (caddr_t)io) / 4;
    len = (dmap->dm_nsegs - i) * sizeof(*sge);
    csge->sg_hdr = __extension__({ __uint32_t __swap32gen_x = ((0x3<<28) | (0x1<<25) | len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
@@ -5215,7 +5214,7 @@ mpii_event_process(struct mpii_softc *sc, struct mpii_rcb *rcb)
   };
   if (cold)
    break;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1967);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1966);
   dev = mpii_find_dev(sc, __mswap16(&evd->vol_dev_handle));
   _kernel_unlock();
   if (dev == ((void *)0))
@@ -5241,7 +5240,7 @@ mpii_event_process(struct mpii_softc *sc, struct mpii_rcb *rcb)
   struct mpii_evt_ir_status *evs =
       (struct mpii_evt_ir_status *)(enp + 1);
   struct mpii_device *dev;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1996);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1995);
   dev = mpii_find_dev(sc, __mswap16(&evs->vol_dev_handle));
   _kernel_unlock();
   if (dev != ((void *)0) &&
@@ -5673,7 +5672,7 @@ mpii_put_ccb(void *cookie, void *io)
  __mtx_enter(&sc->sc_ccb_free_mtx);
  do { if (((ccb)->ccb_link.sqe_next = (&sc->sc_ccb_free)->sqh_first) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(ccb)->ccb_link.sqe_next; (&sc->sc_ccb_free)->sqh_first = (ccb); } while (0);
  __mtx_leave(&sc->sc_ccb_free_mtx);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2591);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2590);
 }
 void *
 mpii_get_ccb(void *cookie)
@@ -5688,7 +5687,7 @@ mpii_get_ccb(void *cookie)
   ccb->ccb_state = MPII_CCB_READY;
  }
  __mtx_leave(&sc->sc_ccb_free_mtx);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2610);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2609);
  ;
  return (ccb);
 }
@@ -5918,10 +5917,10 @@ mpii_scsi_cmd(struct scsi_xfer *xs)
   timeout_add_msec(&xs->stimeout, xs->timeout);
   mpii_start(sc, ccb);
  }
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2931);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2930);
  return;
 done:
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2935);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2934);
  scsi_done(xs);
 }
 void
@@ -6064,7 +6063,7 @@ mpii_scsi_cmd_done(struct mpii_ccb *ccb)
  ;
  mpii_push_reply(sc, ccb->ccb_rcb);
 done:
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 3129);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 3128);
  scsi_done(xs);
  _kernel_unlock();
 }

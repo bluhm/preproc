@@ -2955,6 +2955,8 @@ fuseioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
  struct fuse_d *fd;
  int error = 0;
  fd = fuse_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
+ if (fd == ((void *)0))
+  return (6);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct fb_ioctl_xch) & 0x1fff) << 16) | ((('F')) << 8) | ((0))):
   ioexch = (struct fb_ioctl_xch *)addr;

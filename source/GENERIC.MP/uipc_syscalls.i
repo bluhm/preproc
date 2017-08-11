@@ -4324,7 +4324,7 @@ sys_bind(struct proc *p, void *v, register_t *retval)
  struct file *fp;
  struct mbuf *nam;
  struct socket *so;
- int error;
+ int s, error;
  if ((error = getsock(p, ((uap)->s.be.datum), &fp)) != 0)
   return (error);
  so = fp->f_data;
@@ -4338,7 +4338,9 @@ sys_bind(struct proc *p, void *v, register_t *retval)
   goto out;
  if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
   ktrstruct((p), "sockaddr", (((caddr_t)((nam)->m_hdr.mh_data))), (((uap)->namelen.be.datum)));
+ s = solock(so);
  error = sobind(so, nam, p);
+ sounlock(s);
  m_freem(nam);
 out:
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
