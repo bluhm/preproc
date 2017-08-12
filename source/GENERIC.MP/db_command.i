@@ -3229,6 +3229,9 @@ int db_elf_line_at_pc(Elf64_Sym *, char **, int *, db_expr_t);
 void db_elf_sym_forall(db_forall_func_t db_forall_func, void *);
 _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
+struct ctf_type;
+int db_ctf_func_numargs(Elf64_Sym *);
+const struct ctf_type *db_ctf_type_by_name(char *);
 struct db_variable {
  char *name;
  long *valuep;
@@ -3680,7 +3683,8 @@ struct db_command db_boot_cmds[] = {
 };
 struct db_command db_command_table[] = {
  { "machine", ((void *)0), 0, ((void *)0)},
- { "print", db_print_cmd, 0, ((void *)0) },
+ { "print", db_ctf_pprint_cmd, 0x1, ((void *)0) },
+ { "p", db_ctf_pprint_cmd, 0x1, ((void *)0) },
  { "examine", db_examine_cmd, 0x100, ((void *)0) },
  { "x", db_examine_cmd, 0x100, ((void *)0) },
  { "search", db_search_cmd, 0x1|0x100, ((void *)0) },

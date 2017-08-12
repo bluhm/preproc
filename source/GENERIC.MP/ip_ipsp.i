@@ -2180,6 +2180,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2239,6 +2240,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -5181,52 +5183,48 @@ void
 tdb_timeout(void *v)
 {
  struct tdb *tdb = v;
- int s;
  if (!(tdb->tdb_flags & 0x00002))
   return;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (!(tdb->tdb_flags & 0x00010))
   pfkeyv2_expire(tdb, 3);
  tdb_delete(tdb);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_firstuse(void *v)
 {
  struct tdb *tdb = v;
- int s;
  if (!(tdb->tdb_flags & 0x00400))
   return;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (tdb->tdb_first_use != 0)
   pfkeyv2_expire(tdb, 3);
  tdb_delete(tdb);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_soft_timeout(void *v)
 {
  struct tdb *tdb = v;
- int s;
  if (!(tdb->tdb_flags & 0x00080))
   return;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  pfkeyv2_expire(tdb, 4);
  tdb->tdb_flags &= ~0x00080;
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_soft_firstuse(void *v)
 {
  struct tdb *tdb = v;
- int s;
  if (!(tdb->tdb_flags & 0x00400))
   return;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (tdb->tdb_first_use != 0)
   pfkeyv2_expire(tdb, 4);
  tdb->tdb_flags &= ~0x00400;
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 tdb_rehash(void)
@@ -5498,22 +5496,21 @@ void
 ipsp_ids_timeout(void *arg)
 {
  struct ipsec_ids *ids = arg;
- int s;
  ;
- ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 999, "ids->id_refcount == 0"));
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 994, "ids->id_refcount == 0"));
+ do { _rw_enter_write(&netlock ); } while (0);
  ipsec_ids_tree_RBT_REMOVE(&ipsec_ids_tree, ids);
  ipsec_ids_flows_RBT_REMOVE(&ipsec_ids_flows, ids);
  free(ids->id_local, 110, 0);
  free(ids->id_remote, 110, 0);
  free(ids, 110, 0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 ipsp_ids_free(struct ipsec_ids *ids)
 {
  ;
- ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1019, "ids->id_refcount > 0"));
+ ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1014, "ids->id_refcount > 0"));
  if (--ids->id_refcount == 0)
   timeout_add_sec(&ids->id_timeout, ipsec_ids_idle);
 }

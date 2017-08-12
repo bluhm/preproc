@@ -2957,6 +2957,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -3016,6 +3017,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4587,18 +4589,17 @@ pppxread(dev_t dev, struct uio *uio, int ioflag)
  struct pppx_dev *pxd = pppx_dev2pxd(dev);
  struct mbuf *m, *m0;
  int error = 0;
- int s;
  size_t len;
  if (!pxd)
   return (6);
  while ((m0 = mq_dequeue(&pxd->pxd_svcq)) == ((void *)0)) {
   if (((ioflag) & (0x10)))
    return (35);
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
   pxd->pxd_waiting = 1;
   error = rwsleep(pxd, &netlock,
       (22 + 1)|0x100, "pppxread", 0);
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (error != 0) {
    return (error);
   }
@@ -4699,8 +4700,8 @@ int
 pppxioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
 {
  struct pppx_dev *pxd = pppx_dev2pxd(dev);
- int s, error = 0;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ int error = 0;
+ do { _rw_enter_write(&netlock ); } while (0);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('p')) << 8) | ((1))):
   break;
@@ -4737,7 +4738,7 @@ pppxioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   error = 25;
   break;
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int

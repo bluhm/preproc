@@ -2381,6 +2381,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2440,6 +2441,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -5066,7 +5068,7 @@ ath_hal_attach(u_int16_t device, void *arg, bus_space_tag_t st,
  } else if (hal->ah_radio == AR5K_AR5112) {
   hal->ah_gain.g_step_idx = ar5112_gain_opt.go_default;
   hal->ah_gain.g_step =
-      &ar5111_gain_opt.go_step[hal->ah_gain.g_step_idx];
+      &ar5112_gain_opt.go_step[hal->ah_gain.g_step_idx];
   hal->ah_gain.g_low = 20;
   hal->ah_gain.g_high = 85;
   hal->ah_gain.g_active = 1;

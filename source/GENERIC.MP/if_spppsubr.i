@@ -2459,6 +2459,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2518,6 +2519,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -3043,9 +3045,9 @@ sppp_input(struct ifnet *ifp, struct mbuf *m)
  struct sppp *sp = (struct sppp *)ifp;
  struct timeval tv;
  int debug = ifp->if_flags & 0x4;
+ getmicrouptime(&tv);
  if (ifp->if_flags & 0x1) {
   ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len + sp->pp_framebytes;
-  getmicrouptime(&tv);
   sp->pp_last_receive = tv.tv_sec;
  }
  if (m->M_dat.MH.MH_pkthdr.len <= sizeof (struct ppp_header)) {
@@ -3179,11 +3181,13 @@ sppp_output(struct ifnet *ifp, struct mbuf *m,
  }
  if (dst->sa_family == 2) {
   struct ip *ip = ((void *)0);
-  if(ip && ip->ip_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
+  if (m->m_hdr.mh_len >= sizeof(struct ip))
+   ip = ((struct ip *)((m)->m_hdr.mh_data));
+  if (ip && ip->ip_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
    u_int8_t proto = ip->ip_p;
    m_freem(m);
    _splx(s);
-   if(proto == 6)
+   if (proto == 6)
     return (49);
    else
     return (0);
@@ -5603,9 +5607,9 @@ void
 sppp_keepalive(void *dummy)
 {
  struct sppp *sp;
- int s, sl;
+ int s;
  struct timeval tv;
- do { _rw_enter_write(&netlock ); sl = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  s = _splraise(6);
  getmicrouptime(&tv);
  for (sp=spppq; sp; sp=sp->pp_next) {
@@ -5641,7 +5645,7 @@ sppp_keepalive(void *dummy)
   }
  }
  _splx(s);
- do { (void)sl; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  timeout_add_sec(&keepalive_ch, 10);
 }
 void
@@ -5709,7 +5713,6 @@ sppp_set_ip_addrs(void *arg1)
  struct ifaddr *ifa;
  struct sockaddr_in *si;
  struct sockaddr_in *dest;
- int s;
  sppp_get_ip_addrs(sp, &myaddr, &hisaddr, ((void *)0));
  if ((sp->ipcp.flags & 2) &&
      (sp->ipcp.flags & 4))
@@ -5717,7 +5720,7 @@ sppp_set_ip_addrs(void *arg1)
  if ((sp->ipcp.flags & 8) &&
      (sp->ipcp.flags & 1))
   hisaddr = sp->ipcp.req_hisaddr;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  si = 0;
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next))
  {
@@ -5753,7 +5756,7 @@ sppp_set_ip_addrs(void *arg1)
   sppp_update_gw(ifp);
  }
 out:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_clear_ip_addrs(void *arg1)
@@ -5765,8 +5768,7 @@ sppp_clear_ip_addrs(void *arg1)
  struct sockaddr_in *si;
  struct sockaddr_in *dest;
  u_int32_t remote;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (sp->ipcp.flags & 8)
   remote = sp->ipcp.saved_hisaddr;
  else
@@ -5798,7 +5800,7 @@ sppp_clear_ip_addrs(void *arg1)
   sppp_update_gw(ifp);
  }
 out:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_get_ip6_addrs(struct sppp *sp, struct in6_addr *src, struct in6_addr *dst,
@@ -5833,8 +5835,8 @@ sppp_update_ip6_addr(void *arg)
  struct in6_aliasreq *ifra = &sp->ipv6cp.req_ifid;
  struct in6_addr mask = in6mask128;
  struct in6_ifaddr *ia6;
- int s, error;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ int error;
+ do { _rw_enter_write(&netlock ); } while (0);
  ia6 = in6ifa_ifpforlinklocal(ifp, 0);
  if (ia6 == ((void *)0)) {
   goto out;
@@ -5860,7 +5862,7 @@ sppp_update_ip6_addr(void *arg)
       (ifp)->if_xname, error);
  }
 out:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 sppp_set_ip6_addr(struct sppp *sp, const struct in6_addr *src,

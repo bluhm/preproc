@@ -2846,6 +2846,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2905,6 +2906,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -7721,8 +7723,7 @@ void
 syn_cache_timer(void *arg)
 {
  struct syn_cache *sc = arg;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (sc->sc_flags & 0x0004)
   goto out;
  if (__builtin_expect(((sc->sc_rxtshift == 12) != 0), 0)) {
@@ -7736,13 +7737,13 @@ syn_cache_timer(void *arg)
  sc->sc_rxtshift++;
  do { do { ((sc)->sc_rxtcur) = (( 3*2) * tcp_backoff[(sc)->sc_rxtshift]); if (((sc)->sc_rxtcur) < (( 1*2))) ((sc)->sc_rxtcur) = (( 1*2)); else if (((sc)->sc_rxtcur) > (( 64*2))) ((sc)->sc_rxtcur) = (( 64*2)); } while ( 0); if (!((&(sc)->sc_timer)->to_flags & 4)) timeout_set_proc(&(sc)->sc_timer, syn_cache_timer, (sc)); timeout_add(&(sc)->sc_timer, (sc)->sc_rxtcur * (hz / 2)); } while ( 0);
  out:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return;
  dropit:
  tcpstat_inc(tcps_sc_timed_out);
  syn_cache_rm(sc);
  syn_cache_put(sc);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 syn_cache_reaper(void *arg)

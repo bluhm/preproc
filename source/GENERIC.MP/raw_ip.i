@@ -2644,6 +2644,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2703,6 +2704,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -5450,15 +5452,9 @@ rip_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   break;
  case 2:
      {
-  struct sockaddr_in *addr = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
-  if (nam->m_hdr.mh_len != sizeof(*addr)) {
-   error = 22;
+  struct sockaddr_in *addr;
+  if ((error = in_nam2sin(nam, &addr)))
    break;
-  }
-  if (addr->sin_family != 2) {
-   error = 49;
-   break;
-  }
   if (!((so->so_options & 0x1000) ||
       addr->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) ||
       addr->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xffffffff)))) ||
@@ -5472,15 +5468,9 @@ rip_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
      }
  case 4:
      {
-  struct sockaddr_in *addr = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
-  if (nam->m_hdr.mh_len != sizeof(*addr)) {
-   error = 22;
+  struct sockaddr_in *addr;
+  if ((error = in_nam2sin(nam, &addr)))
    break;
-  }
-  if (addr->sin_family != 2) {
-   error = 47;
-   break;
-  }
   inp->inp_faddru.iau_a4u.inaddr = addr->sin_addr;
   soisconnected(so);
   break;
@@ -5504,12 +5494,14 @@ rip_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    }
    dst.sin_addr = inp->inp_faddru.iau_a4u.inaddr;
   } else {
+   struct sockaddr_in *addr;
    if (nam == ((void *)0)) {
     error = 57;
     break;
    }
-   dst.sin_addr =
-       ((struct sockaddr_in *)((nam)->m_hdr.mh_data))->sin_addr;
+   if ((error = in_nam2sin(nam, &addr)))
+    break;
+   dst.sin_addr = addr->sin_addr;
   }
   error = rip_output(m, so, sintosa(&dst), ((void *)0));
   m = ((void *)0);

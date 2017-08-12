@@ -2045,7 +2045,7 @@ enc_clone_create(struct if_clone *ifc, int unit)
  struct ifnet *ifp;
  struct ifnet **new;
  size_t newlen;
- int s, error;
+ int error;
  if (unit > 4096)
   return (22);
  if ((sc = malloc(sizeof(struct enc_softc),
@@ -2070,10 +2070,10 @@ enc_clone_create(struct if_clone *ifc, int unit)
  sc->sc_ifa.ifa_addr = sdltosa(ifp->if_sadl);
  sc->sc_ifa.ifa_netmask = ((void *)0);
  bpfattach(&ifp->if_bpf, ifp, 13, 12);
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  error = enc_setif(ifp, 0);
  if (error != 0) {
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   if_detach(ifp);
   free(sc, 2, 0);
   return (error);
@@ -2081,7 +2081,7 @@ enc_clone_create(struct if_clone *ifc, int unit)
  if (unit == 0 || unit > enc_max_unit) {
   if ((new = mallocarray(unit + 1, sizeof(struct ifnet *),
       2, 0x0002|0x0008)) == ((void *)0)) {
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    return (55);
   }
   newlen = sizeof(struct ifnet *) * (unit + 1);
@@ -2093,20 +2093,19 @@ enc_clone_create(struct if_clone *ifc, int unit)
   enc_max_unit = unit;
  }
  enc_allifps[unit] = ifp;
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
 enc_clone_destroy(struct ifnet *ifp)
 {
  struct enc_softc *sc = ifp->if_softc;
- int s;
  if (sc->sc_unit == 0)
   return (1);
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  enc_allifps[sc->sc_unit] = ((void *)0);
  enc_unsetif(ifp);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, 0);
  return (0);

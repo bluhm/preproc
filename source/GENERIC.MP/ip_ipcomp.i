@@ -2061,6 +2061,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2120,6 +2121,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -3462,7 +3464,7 @@ ipcomp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
 void
 ipcomp_input_cb(struct cryptop *crp)
 {
- int s, skip, protoff, roff, hlen = 4, clen;
+ int skip, protoff, roff, hlen = 4, clen;
  u_int8_t nproto;
  struct mbuf *m, *m1, *mo;
  struct tdb_crypto *tc;
@@ -3480,7 +3482,7 @@ ipcomp_input_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -3506,7 +3508,7 @@ ipcomp_input_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -3553,10 +3555,10 @@ ipcomp_input_cb(struct cryptop *crp)
  crypto_freereq(crp);
  m_copyback(m, protoff, sizeof(u_int8_t), &nproto, 0x0002);
  ipsec_common_input_cb(m, tdb, skip, protoff);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return;
 baddone:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }
@@ -3676,7 +3678,7 @@ ipcomp_output_cb(struct cryptop *crp)
  struct tdb_crypto *tc;
  struct tdb *tdb;
  struct mbuf *m, *mo;
- int s, skip, rlen, roff;
+ int skip, rlen, roff;
  u_int16_t cpi;
  struct ip *ip;
  struct ip6_hdr *ip6;
@@ -3692,7 +3694,7 @@ ipcomp_output_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -3704,7 +3706,7 @@ ipcomp_output_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -3718,7 +3720,7 @@ ipcomp_output_cb(struct cryptop *crp)
   crypto_freereq(crp);
   if (ipsp_process_done(m, tdb))
    ipcompstat.ipcomps_outfail++;
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   return;
  }
  mo = m_makespace(m, skip, 4, &roff);
@@ -3751,10 +3753,10 @@ ipcomp_output_cb(struct cryptop *crp)
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
   ipcompstat.ipcomps_outfail++;
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return;
 baddone:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }

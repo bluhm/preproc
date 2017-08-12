@@ -6521,6 +6521,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -6580,6 +6581,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -9341,8 +9343,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
    extern struct inpcbtable rawcbtable;
    extern struct inpcbtable rawin6pcbtable;
    struct inpcb *inp;
-   int s;
-   do { _rw_enter_write(&netlock ); s = 2; } while (0);
+   do { _rw_enter_write(&netlock ); } while (0);
    for((inp) = ((&tcbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for((inp) = ((&udbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
@@ -9351,7 +9352,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for((inp) = ((&rawin6pcbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next))
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
   }
   fp = ((&filehead)->lh_first);
   while (fp != ((void *)0) && fp->f_count == 0)
@@ -9907,8 +9908,8 @@ sysctl_proc_vmmap(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   goto done;
  if (len == 0)
   goto done;
- ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2067, "len <= oldlen"));
- (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2068, "(len % sizeof(struct kinfo_vmentry)) == 0"));
+ ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2066, "len <= oldlen"));
+ (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2067, "(len % sizeof(struct kinfo_vmentry)) == 0"));
  error = copyout(kve, oldp, len);
 done:
  *oldlenp = len;

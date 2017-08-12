@@ -3263,6 +3263,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -3322,6 +3323,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4002,11 +4004,11 @@ tunopen(dev_t dev, int flag, int mode, struct proc *p)
  unsigned int rdomain = rtable_l2(p->p_p->ps_rtableid);
  if ((tp = tun_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0)) {
   char xname[16];
-  int s, error;
+  int error;
   snprintf(xname, sizeof(xname), "%s%d", "tun", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
   error = if_clone_create(xname, rdomain);
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (error != 0)
    return (error);
   if ((tp = tun_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0))
@@ -4022,11 +4024,11 @@ tapopen(dev_t dev, int flag, int mode, struct proc *p)
  unsigned int rdomain = rtable_l2(p->p_p->ps_rtableid);
  if ((tp = tap_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0)) {
   char xname[16];
-  int s, error;
+  int error;
   snprintf(xname, sizeof(xname), "%s%d", "tap", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
   error = if_clone_create(xname, rdomain);
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (error != 0)
    return (error);
   if ((tp = tap_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)))) == ((void *)0))
@@ -4069,7 +4071,7 @@ tapclose(dev_t dev, int flag, int mode, struct proc *p)
 int
 tun_dev_close(struct tun_softc *tp, int flag, int mode, struct proc *p)
 {
- int s, error = 0;
+ int error = 0;
  struct ifnet *ifp;
  ifp = &tp->arpcom.ac_if;
  tp->tun_flags &= ~(0x0001|0x0100|0x0080);
@@ -4078,9 +4080,9 @@ tun_dev_close(struct tun_softc *tp, int flag, int mode, struct proc *p)
  do { (void)ifq_purge(&ifp->if_snd); } while ( 0);
  ;
  if (!(tp->tun_flags & 0x0400)) {
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
   error = if_clone_destroy(ifp->if_xname);
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
  } else {
   tp->tun_pgid = 0;
   selwakeup(&tp->tun_rsel);
@@ -4410,7 +4412,7 @@ tun_dev_write(struct tun_softc *tp, struct uio *uio, int ioflag)
  struct ifnet *ifp;
  u_int32_t *th;
  struct mbuf *top, **mp, *m;
- int error = 0, tlen, s;
+ int error = 0, tlen;
  size_t mlen;
  ifp = &tp->arpcom.ac_if;
  ;
@@ -4484,7 +4486,7 @@ tun_dev_write(struct tun_softc *tp, struct uio *uio, int ioflag)
  top->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  ifp->if_data.ifi_ipackets++;
  ifp->if_data.ifi_ibytes += top->M_dat.MH.MH_pkthdr.len;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  switch (((__uint32_t)(*th))) {
  case 2:
   ipv4_input(ifp, top);
@@ -4497,7 +4499,7 @@ tun_dev_write(struct tun_softc *tp, struct uio *uio, int ioflag)
   error = 47;
   break;
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int

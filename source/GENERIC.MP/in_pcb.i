@@ -3149,6 +3149,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -3208,6 +3209,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -6193,11 +6195,8 @@ in_pcbbind(struct inpcb *inp, struct mbuf *nam, struct proc *p)
   wild |= 4;
   if (nam) {
    struct sockaddr_in6 *sin6;
-   sin6 = ((struct sockaddr_in6 *)((nam)->m_hdr.mh_data));
-   if (nam->m_hdr.mh_len != sizeof(struct sockaddr_in6))
-    return (22);
-   if (sin6->sin6_family != 24)
-    return (47);
+   if ((error = in6_nam2sin6(nam, &sin6)))
+    return (error);
    if ((error = in6_pcbaddrisavail(inp, sin6, wild, p)))
     return (error);
    laddr = &sin6->sin6_addr;
@@ -6209,11 +6208,8 @@ in_pcbbind(struct inpcb *inp, struct mbuf *nam, struct proc *p)
    return (22);
   if (nam) {
    struct sockaddr_in *sin;
-   sin = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
-   if (nam->m_hdr.mh_len != sizeof(*sin))
-    return (22);
-   if (sin->sin_family != 2)
-    return (47);
+   if ((error = in_nam2sin(nam, &sin)))
+    return (error);
    if ((error = in_pcbaddrisavail(inp, sin, wild, p)))
     return (error);
    laddr = &sin->sin_addr;
@@ -6332,16 +6328,14 @@ int
 in_pcbconnect(struct inpcb *inp, struct mbuf *nam)
 {
  struct in_addr *ina = ((void *)0);
- struct sockaddr_in *sin = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
+ struct sockaddr_in *sin;
  int error;
  if ((inp->inp_socket->so_proto->pr_domain->dom_family) == 24)
   return (in6_pcbconnect(inp, nam));
  if ((inp->inp_flags & 0x100) != 0)
   panic("IPv6 pcb passed into in_pcbconnect");
- if (nam->m_hdr.mh_len != sizeof(*sin))
-  return (22);
- if (sin->sin_family != 2)
-  return (47);
+ if ((error = in_nam2sin(nam, &sin)))
+  return (error);
  if (sin->sin_port == 0)
   return (49);
  error = in_pcbselsrc(&ina, sin, inp);
@@ -6350,7 +6344,7 @@ in_pcbconnect(struct inpcb *inp, struct mbuf *nam)
  if (in_pcbhashlookup(inp->inp_table, sin->sin_addr, sin->sin_port,
      *ina, inp->inp_lport, inp->inp_rtableid) != ((void *)0))
   return (48);
- ((inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 539, "inp->inp_laddr.s_addr == INADDR_ANY || inp->inp_lport"));
+ ((inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 530, "inp->inp_laddr.s_addr == INADDR_ANY || inp->inp_lport"));
  if (inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
   if (inp->inp_lport == 0) {
    error = in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc);
@@ -6483,7 +6477,7 @@ in_losing(struct inpcb *inp)
   info.rti_info[0] = &inp->inp_ru.ru_route.ro_dst;
   info.rti_info[1] = rt->rt_gateway;
   info.rti_info[2] = rt_plen2mask(rt, &sa_mask);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 728);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 719);
   rtm_miss(0x5, &info, rt->rt_flags, rt->rt_priority,
       rt->rt_ifidx, 0, inp->inp_rtableid);
   _kernel_unlock();

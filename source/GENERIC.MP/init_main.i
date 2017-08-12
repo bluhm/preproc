@@ -6309,6 +6309,7 @@ main(void *framep)
   panic("fork zerothread");
  cpu_boot_secondary_processors();
  config_process_deferred_mountroot();
+ db_ctf_init();
  start_init_exec = 1;
  wakeup((void *)&start_init_exec);
  pool_gc_pages(((void *)0));

@@ -2061,6 +2061,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2120,6 +2121,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -5182,7 +5184,7 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
 void
 ah_input_cb(struct cryptop *crp)
 {
- int s, roff, rplen, skip, protoff;
+ int roff, rplen, skip, protoff;
  unsigned char calc[64];
  struct mbuf *m1, *m0, *m;
  struct auth_hash *ahx;
@@ -5201,7 +5203,7 @@ ah_input_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5214,7 +5216,7 @@ ah_input_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5267,7 +5269,7 @@ ah_input_cb(struct cryptop *crp)
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
   ahstat.ahs_hdrops++;
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   m_freem(m);
   ;
   return;
@@ -5296,10 +5298,10 @@ ah_input_cb(struct cryptop *crp)
    m->M_dat.MH.MH_pkthdr.len -= rplen + ahx->authsize;
   }
  ipsec_common_input_cb(m, tdb, skip, protoff);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  if (crp != ((void *)0))
   crypto_freereq(crp);
@@ -5479,7 +5481,6 @@ ah_output_cb(struct cryptop *crp)
  struct tdb *tdb;
  struct mbuf *m;
  caddr_t ptr;
- int s;
  tc = (struct tdb_crypto *) crp->crp_opaque;
  skip = tc->tc_skip;
  ptr = (caddr_t) (tc + 1);
@@ -5491,7 +5492,7 @@ ah_output_cb(struct cryptop *crp)
   ;
   return;
  }
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
@@ -5503,7 +5504,7 @@ ah_output_cb(struct cryptop *crp)
   if (crp->crp_etype == 35) {
    if (tdb->tdb_cryptoid != 0)
     tdb->tdb_cryptoid = crp->crp_sid;
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    crypto_dispatch(crp);
    return;
   }
@@ -5517,10 +5518,10 @@ ah_output_cb(struct cryptop *crp)
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
   ahstat.ahs_outfail++;
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  m_freem(m);
  crypto_freereq(crp);
 }

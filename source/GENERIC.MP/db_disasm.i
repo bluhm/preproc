@@ -2302,6 +2302,9 @@ int db_elf_line_at_pc(Elf64_Sym *, char **, int *, db_expr_t);
 void db_elf_sym_forall(db_forall_func_t db_forall_func, void *);
 _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
+struct ctf_type;
+int db_ctf_func_numargs(Elf64_Sym *);
+const struct ctf_type *db_ctf_type_by_name(char *);
 void db_stack_trace_print(db_expr_t, int, db_expr_t, char *,
     int (*)(const char *, ...));
 db_addr_t db_disasm(db_addr_t, boolean_t);

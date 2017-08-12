@@ -2236,6 +2236,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2295,6 +2296,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -3490,9 +3492,9 @@ switchopen(dev_t dev, int flags, int mode, struct proc *p)
  unsigned int rdomain = rtable_l2(p->p_p->ps_rtableid);
  if ((sc = switch_dev2sc(dev)) == ((void *)0)) {
   snprintf(name, sizeof(name), "switch%d", ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
   rv = if_clone_create(name, rdomain);
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (rv != 0)
    return (rv);
   if ((sc = switch_dev2sc(dev)) == ((void *)0))

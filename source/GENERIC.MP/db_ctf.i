@@ -202,6 +202,26 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
+typedef __int_least8_t int_least8_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least64_t uint_least64_t;
+typedef __int_fast8_t int_fast8_t;
+typedef __uint_fast8_t uint_fast8_t;
+typedef __int_fast16_t int_fast16_t;
+typedef __uint_fast16_t uint_fast16_t;
+typedef __int_fast32_t int_fast32_t;
+typedef __uint_fast32_t uint_fast32_t;
+typedef __int_fast64_t int_fast64_t;
+typedef __uint_fast64_t uint_fast64_t;
+typedef __intptr_t intptr_t;
+typedef __uintptr_t uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
@@ -527,6 +547,11 @@ typedef struct sigaltstack {
 typedef struct sigcontext ucontext_t;
 extern void delay(unsigned int);
 extern int cputyp;
+
+
+
+
+
 extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
@@ -967,425 +992,6 @@ int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
-struct mdproc {
- struct trapframe64 *md_tf;
- struct fpstate64 *md_fpstate;
- volatile int md_astpending;
-};
-struct kevent {
- __uintptr_t ident;
- short filter;
- u_short flags;
- u_int fflags;
- __int64_t data;
- void *udata;
-};
-struct knote;
-struct klist { struct knote *slh_first; };
-struct filterops {
- int f_isfd;
- int (*f_attach)(struct knote *kn);
- void (*f_detach)(struct knote *kn);
- int (*f_event)(struct knote *kn, long hint);
-};
-struct knote {
- struct { struct knote *sle_next; } kn_link;
- struct { struct knote *sle_next; } kn_selnext;
- struct { struct knote *tqe_next; struct knote **tqe_prev; } kn_tqe;
- struct kqueue *kn_kq;
- struct kevent kn_kevent;
- int kn_status;
- int kn_sfflags;
- __int64_t kn_sdata;
- union {
-  struct file *p_fp;
-  struct process *p_process;
- } kn_ptr;
- const struct filterops *kn_fop;
- void *kn_hook;
-};
-struct proc;
-extern void knote(struct klist *list, long hint);
-extern void knote_activate(struct knote *);
-extern void knote_remove(struct proc *p, struct klist *list);
-extern void knote_fdclose(struct proc *p, int fd);
-extern void knote_processexit(struct proc *);
-extern int kqueue_register(struct kqueue *kq,
-      struct kevent *kev, struct proc *p);
-extern int filt_seltrue(struct knote *kn, long hint);
-extern int seltrue_kqfilter(dev_t, struct knote *);
-extern void klist_invalidate(struct klist *);
-struct selinfo {
- struct klist si_note;
- pid_t si_seltid;
- short si_flags;
-};
-struct proc;
-void selrecord(struct proc *selector, struct selinfo *);
-void selwakeup(struct selinfo *);
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
-static inline unsigned int
-_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
-{
- __asm volatile("cas [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline unsigned long
-_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline void *
-_atomic_cas_ptr(volatile void *p, void *e, void *n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*(volatile unsigned long *)p)
-     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
- return (n);
-}
-static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
-static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-static inline void *
-_atomic_swap_ptr(volatile void *p, void *v)
-{
- void *e, *r;
- r = *(void **)p;
- do {
-  e = r;
-  r = _atomic_cas_ptr((p), (e), (v));
- } while (r != e);
- return (r);
-}
-static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static __inline void
-atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e | v));
- } while (r != e);
-}
-static __inline void
-atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e & ~v));
- } while (r != e);
-}
-struct process;
-struct session {
- int s_count;
- struct process *s_leader;
- struct vnode *s_ttyvp;
- struct tty *s_ttyp;
- char s_login[32];
- pid_t s_verauthppid;
- uid_t s_verauthuid;
- struct timeout s_verauthto;
-};
-void zapverauth( void *);
-struct pgrp {
- struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
- struct { struct process *lh_first; } pg_members;
- struct session *pg_session;
- pid_t pg_id;
- int pg_jobc;
-};
-struct exec_package;
-struct proc;
-struct ps_strings;
-struct uvm_object;
-struct whitepaths;
-union sigval;
-struct emul {
- char e_name[8];
- int *e_errno;
- void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
- int e_nosys;
- int e_nsysent;
- struct sysent *e_sysent;
- char **e_syscallnames;
- int e_arglen;
- void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
-        void *, void *);
- void (*e_setregs)(struct proc *, struct exec_package *,
-      u_long, register_t *);
- int (*e_fixup)(struct proc *, struct exec_package *);
- int (*e_coredump)(struct proc *, void *cookie);
- char *e_sigcode;
- char *e_esigcode;
- char *e_esigret;
- int e_flags;
- struct uvm_object *e_sigobject;
-};
-struct tusage {
- struct timespec tu_runtime;
- uint64_t tu_uticks;
- uint64_t tu_sticks;
- uint64_t tu_iticks;
-};
-struct process {
- struct proc *ps_mainproc;
- struct ucred *ps_ucred;
- struct { struct process *le_next; struct process **le_prev; } ps_list;
- struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
- struct { struct process *le_next; struct process **le_prev; } ps_pglist;
- struct process *ps_pptr;
- struct { struct process *le_next; struct process **le_prev; } ps_sibling;
- struct { struct process *lh_first; } ps_children;
- struct { struct process *le_next; struct process **le_prev; } ps_hash;
- struct sigacts *ps_sigacts;
- struct vnode *ps_textvp;
- struct filedesc *ps_fd;
- struct vmspace *ps_vmspace;
- pid_t ps_pid;
- struct klist ps_klist;
- int ps_flags;
- struct proc *ps_single;
- int ps_singlecount;
- int ps_traceflag;
- struct vnode *ps_tracevp;
- struct ucred *ps_tracecred;
- pid_t ps_oppid;
- int ps_ptmask;
- struct ptrace_state *ps_ptstat;
- struct rusage *ps_ru;
- struct tusage ps_tu;
- struct rusage ps_cru;
- struct itimerval ps_timer[3];
- u_int64_t ps_wxcounter;
- struct plimit *ps_limit;
- struct pgrp *ps_pgrp;
- struct emul *ps_emul;
- char ps_comm[16 +1];
- vaddr_t ps_strings;
- vaddr_t ps_stackgap;
- vaddr_t ps_sigcode;
- vaddr_t ps_sigcoderet;
- u_long ps_sigcookie;
- u_int ps_rtableid;
- char ps_nice;
- struct uprof {
-  caddr_t pr_base;
-  size_t pr_size;
-  u_long pr_off;
-  u_int pr_scale;
- } ps_prof;
- u_short ps_acflag;
- uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
- int64_t ps_kbind_cookie;
- u_long ps_kbind_addr;
- int ps_refcnt;
- struct timespec ps_start;
- struct timeout ps_realit_to;
-};
-struct lock_list_entry;
-struct proc {
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
- struct { struct proc *le_next; struct proc **le_prev; } p_list;
- struct process *p_p;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
- struct futex *p_futex;
- struct filedesc *p_fd;
- struct vmspace *p_vmspace;
- int p_flag;
- u_char p_spare;
- char p_stat;
- char p_pad1[1];
- u_char p_descfd;
- pid_t p_tid;
- struct { struct proc *le_next; struct proc **le_prev; } p_hash;
- int p_dupfd;
- long p_thrslpid;
- u_int p_estcpu;
- int p_cpticks;
- const volatile void *p_wchan;
- struct timeout p_sleep_to;
- const char *p_wmesg;
- fixpt_t p_pctcpu;
- u_int p_slptime;
- u_int p_uticks;
- u_int p_sticks;
- u_int p_iticks;
- struct cpu_info * volatile p_cpu;
- struct rusage p_ru;
- struct tusage p_tu;
- struct timespec p_rtime;
- int p_siglist;
- sigset_t p_sigmask;
- u_char p_priority;
- u_char p_usrpri;
- int p_pledge_syscall;
- struct ucred *p_ucred;
- struct sigaltstack p_sigstk;
- u_long p_prof_addr;
- u_long p_prof_ticks;
- struct user *p_addr;
- struct mdproc p_md;
- sigset_t p_oldmask;
- int p_sisig;
- union sigval p_sigval;
- long p_sitrapno;
- int p_sicode;
- u_short p_xstat;
- struct lock_list_entry *p_sleeplocks;
-};
-struct uidinfo {
- struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
- uid_t ui_uid;
- long ui_proccnt;
- long ui_lockcnt;
-};
-struct uidinfo *uid_find(uid_t);
-extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
-extern u_long tidhash;
-extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
-extern u_long pidhash;
-extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
-extern u_long pgrphash;
-extern struct proc proc0;
-extern struct process process0;
-extern int nprocesses, maxprocess;
-extern int nthreads, maxthread;
-extern int randompid;
-struct proclist { struct proc *lh_first; };
-struct processlist { struct process *lh_first; };
-extern struct processlist allprocess;
-extern struct processlist zombprocess;
-extern struct proclist allproc;
-extern struct process *initprocess;
-extern struct proc *reaperproc;
-extern struct proc *syncerproc;
-extern struct pool process_pool;
-extern struct pool proc_pool;
-extern struct pool rusage_pool;
-extern struct pool ucred_pool;
-extern struct pool session_pool;
-extern struct pool pgrp_pool;
-void freepid(pid_t);
-struct process *prfind(pid_t);
-struct process *zombiefind(pid_t);
-struct proc *tfind(pid_t);
-struct pgrp *pgfind(pid_t);
-void proc_printit(struct proc *p, const char *modif,
-    int (*pr)(const char *, ...));
-int chgproccnt(uid_t uid, int diff);
-int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
-void fixjobc(struct process *, struct pgrp *, int);
-int inferior(struct process *, struct process *);
-void leavepgrp(struct process *);
-void preempt(void);
-void pgdelete(struct pgrp *);
-void procinit(void);
-void resetpriority(struct proc *);
-void setrunnable(struct proc *);
-void endtsleep(void *);
-void unsleep(struct proc *);
-void reaper(void);
-void exit1(struct proc *, int, int);
-void exit2(struct proc *);
-int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
-     register_t *);
-void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
-     void *_tcb, void (*_func)(void *), void *_arg);
-void cpu_exit(struct proc *);
-void process_initialize(struct process *, struct proc *);
-int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
-     void *_arg, register_t *_retval, struct proc **_newprocp);
-int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
-     pid_t *_tidptr, register_t *_retval);
-int groupmember(gid_t, struct ucred *);
-void dorefreshcreds(struct process *, struct proc *);
-void dosigsuspend(struct proc *, sigset_t);
-static inline void
-refreshcreds(struct proc *p)
-{
- struct process *pr = p->p_p;
- if (pr->ps_ucred != p->p_ucred)
-  dorefreshcreds(pr, p);
-}
-enum single_thread_mode {
- SINGLE_SUSPEND,
- SINGLE_PTRACE,
- SINGLE_UNWIND,
- SINGLE_EXIT
-};
-int single_thread_set(struct proc *, enum single_thread_mode, int);
-void single_thread_wait(struct process *);
-void single_thread_clear(struct proc *, int);
-int single_thread_check(struct proc *, int);
-void child_return(void *);
-int proc_cansugid(struct proc *);
-struct sleep_state {
- int sls_s;
- int sls_catch;
- int sls_do_sleep;
- int sls_sig;
-};
-void proc_trampoline_mp(void);
-struct cpuset {
- int cs_set[(((256) - 1)/32 + 1)];
-};
-void cpuset_init_cpu(struct cpu_info *);
-void cpuset_clear(struct cpuset *);
-void cpuset_add(struct cpuset *, struct cpu_info *);
-void cpuset_del(struct cpuset *, struct cpu_info *);
-int cpuset_isset(struct cpuset *, struct cpu_info *);
-void cpuset_add_all(struct cpuset *);
-void cpuset_copy(struct cpuset *, struct cpuset *);
-void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
-void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
-void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
-struct cpu_info *cpuset_first(struct cpuset *);
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
@@ -1638,37 +1244,90 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct pcb {
- u_int64_t pcb_sp;
- u_int64_t pcb_pc;
- caddr_t pcb_onfault;
- short pcb_pstate;
- char pcb_nsaved;
- char pcb_cwp;
- char pcb_pil;
- const char *lastcall;
- u_int64_t pcb_wcookie;
- struct rwindow64 pcb_rw[8];
- u_int64_t pcb_rwsp[8];
+struct ps_strings {
+ char **ps_argvstr;
+ int ps_nargvstr;
+ char **ps_envstr;
+ int ps_nenvstr;
 };
-struct plimit {
- struct rlimit pl_rlimit[9];
- int p_refcnt;
+struct proc;
+struct exec_package;
+typedef int (*exec_makecmds_fcn)(struct proc *, struct exec_package *);
+struct execsw {
+ u_int es_hdrsz;
+ exec_makecmds_fcn es_check;
+ struct emul *es_emul;
 };
-void addupc_intr(struct proc *, u_long);
-void addupc_task(struct proc *, u_long, u_int);
-void tuagg_unlocked(struct process *, struct proc *);
-void tuagg(struct process *, struct proc *);
-struct tusage;
-void calctsru(struct tusage *, struct timespec *, struct timespec *,
-     struct timespec *);
-void calcru(struct tusage *, struct timeval *, struct timeval *,
-     struct timeval *);
-struct plimit *limcopy(struct plimit *);
-void limfree(struct plimit *);
-void ruadd(struct rusage *, struct rusage *);
-struct user {
- struct pcb u_pcb;
+struct exec_vmcmd {
+ int (*ev_proc)(struct proc *p, struct exec_vmcmd *cmd);
+ u_long ev_len;
+ u_long ev_addr;
+ struct vnode *ev_vp;
+ u_long ev_offset;
+ u_int ev_prot;
+ int ev_flags;
+};
+struct exec_vmcmd_set {
+ u_int evs_cnt;
+ u_int evs_used;
+ struct exec_vmcmd *evs_cmds;
+ struct exec_vmcmd evs_start[8];
+};
+struct exec_package {
+ char *ep_name;
+ void *ep_hdr;
+ u_int ep_hdrlen;
+ u_int ep_hdrvalid;
+ struct nameidata *ep_ndp;
+ struct exec_vmcmd_set ep_vmcmds;
+ struct vnode *ep_vp;
+ struct vattr *ep_vap;
+ u_long ep_taddr;
+ u_long ep_tsize;
+ u_long ep_daddr;
+ u_long ep_dsize;
+ u_long ep_maxsaddr;
+ u_long ep_minsaddr;
+ u_long ep_ssize;
+ u_long ep_entry;
+ u_int ep_flags;
+ char **ep_fa;
+ int ep_fd;
+ struct emul *ep_emul;
+ void *ep_emul_arg;
+ size_t ep_emul_argsize;
+ void *ep_emul_argp;
+ char *ep_interp;
+};
+int exec_makecmds(struct proc *, struct exec_package *);
+int exec_runcmds(struct proc *, struct exec_package *);
+void vmcmdset_extend(struct exec_vmcmd_set *);
+void kill_vmcmds(struct exec_vmcmd_set *evsp);
+int vmcmd_map_pagedvn(struct proc *, struct exec_vmcmd *);
+int vmcmd_map_readvn(struct proc *, struct exec_vmcmd *);
+int vmcmd_map_zero(struct proc *, struct exec_vmcmd *);
+int vmcmd_randomize(struct proc *, struct exec_vmcmd *);
+void *copyargs(struct exec_package *,
+        struct ps_strings *,
+        void *, void *);
+void setregs(struct proc *, struct exec_package *,
+        u_long, register_t *);
+int check_exec(struct proc *, struct exec_package *);
+int exec_setup_stack(struct proc *, struct exec_package *);
+int exec_process_vmcmds(struct proc *, struct exec_package *);
+extern struct execsw execsw[];
+extern int nexecs;
+extern int exec_maxhdrsz;
+extern int stackgap_random;
+struct exec {
+ u_int32_t a_midmag;
+ u_int32_t a_text;
+ u_int32_t a_data;
+ u_int32_t a_bss;
+ u_int32_t a_syms;
+ u_int32_t a_entry;
+ u_int32_t a_trsize;
+ u_int32_t a_drsize;
 };
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
@@ -1747,6 +1406,15 @@ extern void sp_tlb_flush_pte(vaddr_t addr, int ctx);
 extern void sp_tlb_flush_ctx(int ctx);
 void smp_tlb_flush_pte(vaddr_t, int);
 void smp_tlb_flush_ctx(int);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 struct page_size_map {
  u_int64_t mask;
  u_int64_t code;
@@ -2340,36 +2008,58 @@ void db_startcpu(struct cpu_info *);
 void db_stopcpu(struct cpu_info *);
 extern struct mutex ddb_mp_mutex;
 void db_register_xir(void (*)(void *, int), void *);
-db_expr_t db_get_value(db_addr_t, size_t, int);
-void db_put_value(db_addr_t, size_t, db_expr_t);
-void db_read_bytes(db_addr_t, size_t, char *);
-void db_write_bytes(db_addr_t, size_t, char *);
-struct db_stack_trace {
- unsigned int st_count;
- db_addr_t st_pc[19];
+void ddb_init(void);
+void db_examine_cmd(db_expr_t, int, db_expr_t, char *);
+void db_print_cmd(db_expr_t, int, db_expr_t, char *);
+void db_search_cmd(db_expr_t, boolean_t, db_expr_t, char *);
+void db_print_loc_and_inst(db_addr_t);
+size_t db_strlcpy(char *, const char *, size_t);
+int db_expression(db_expr_t *);
+void db_hangman(db_expr_t, int, db_expr_t, char *);
+int db_readline(char *, int);
+void db_trap(int, int);
+void db_prof_init(void);
+int db_prof_enable(void);
+void db_prof_disable(void);
+void db_ctf_init(void);
+struct db_command;
+void db_error(char *);
+void db_skip_to_eol(void);
+void db_command_loop(void);
+void db_command(struct db_command **, struct db_command *);
+void db_machine_commands_install(struct db_command *);
+extern db_addr_t db_dot, db_last_addr, db_prev, db_next;
+struct db_command {
+ char *name;
+ void (*fcn)(db_expr_t, int, db_expr_t, char *);
+ int flag;
+ struct db_command *more;
 };
-void db_print_stack_trace(struct db_stack_trace *);
-void db_save_stack_trace(struct db_stack_trace *);
-typedef __int_least8_t int_least8_t;
-typedef __uint_least8_t uint_least8_t;
-typedef __int_least16_t int_least16_t;
-typedef __uint_least16_t uint_least16_t;
-typedef __int_least32_t int_least32_t;
-typedef __uint_least32_t uint_least32_t;
-typedef __int_least64_t int_least64_t;
-typedef __uint_least64_t uint_least64_t;
-typedef __int_fast8_t int_fast8_t;
-typedef __uint_fast8_t uint_fast8_t;
-typedef __int_fast16_t int_fast16_t;
-typedef __uint_fast16_t uint_fast16_t;
-typedef __int_fast32_t int_fast32_t;
-typedef __uint_fast32_t uint_fast32_t;
-typedef __int_fast64_t int_fast64_t;
-typedef __uint_fast64_t uint_fast64_t;
-typedef __intptr_t intptr_t;
-typedef __uintptr_t uintptr_t;
-typedef __intmax_t intmax_t;
-typedef __uintmax_t uintmax_t;
+typedef struct {
+ const char *name;
+ char *start;
+ char *end;
+ char *private;
+} db_symtab_t;
+char *db_elf_find_strtab(db_symtab_t *);
+const char *db_elf_find_section(db_symtab_t *, size_t *, const char *);
+int db_read_line(void);
+void db_unread_token(int);
+int db_read_token(void);
+void db_flush_lex(void);
+int db_lex(void);
+extern db_expr_t db_tok_number;
+extern char db_tok_string[120];
+void db_force_whitespace(void);
+void db_putchar(int);
+int db_print_position(void);
+int db_printf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+int db_vprintf(const char *, va_list)
+    __attribute__((__format__(__kprintf__,1,0)));
+void db_end_line(int);
+char *db_format(char *, size_t, long, int, int, int);
+void db_stack_dump(void);
 typedef __uint8_t Elf_Byte;
 typedef __uint32_t Elf32_Addr;
 typedef __uint32_t Elf32_Off;
@@ -2601,382 +2291,596 @@ _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
 struct ctf_type;
 int db_ctf_func_numargs(Elf64_Sym *);
 const struct ctf_type *db_ctf_type_by_name(char *);
-void db_stack_trace_print(db_expr_t, int, db_expr_t, char *,
-    int (*)(const char *, ...));
-db_addr_t db_disasm(db_addr_t, boolean_t);
-void db_show_all_procs(db_expr_t, int, db_expr_t, char *);
-void db_show_callout(db_expr_t, int, db_expr_t, char *);
-struct mount;
-void vfs_buf_print(void *, int, int (*)(const char *, ...));
-void vfs_vnode_print(void *, int, int (*)(const char *, ...));
-void vfs_mount_print(struct mount *, int, int (*)(const char *, ...));
-void db_show_all_pools(db_expr_t, int, db_expr_t, char *);
-void m_print(void *, int (*)(const char *, ...));
-void so_print(void *, int (*)(const char *, ...));
-void db_show_all_nfsreqs(db_expr_t, int, db_expr_t, char *);
-void nfs_request_print(void *, int, int (*)(const char *, ...));
-void db_show_all_nfsnodes(db_expr_t, int, db_expr_t, char *);
-void nfs_node_print(void *, int, int (*)(const char *, ...));
-struct worklist;
-void worklist_print(struct worklist *, int, int (*)(const char *, ...));
-void softdep_print(struct buf *, int, int (*)(const char *, ...));
-void db_machine_init(void);
-void db_force_whitespace(void);
-void db_putchar(int);
-int db_print_position(void);
-int db_printf(const char *, ...)
-    __attribute__((__format__(__kprintf__,1,2)));
-int db_vprintf(const char *, va_list)
-    __attribute__((__format__(__kprintf__,1,0)));
-void db_end_line(int);
-char *db_format(char *, size_t, long, int, int, int);
-void db_stack_dump(void);
-void db_dump_fpstate(db_expr_t, int, db_expr_t, char *);
-void db_dump_window(db_expr_t, int, db_expr_t, char *);
-void db_dump_stack(db_expr_t, int, db_expr_t, char *);
-void db_dump_trap(db_expr_t, int, db_expr_t, char *);
-void db_dump_ts(db_expr_t, int, db_expr_t, char *);
-void db_print_window(u_int64_t);
+struct ctf_header {
+ uint16_t cth_magic;
+ uint8_t cth_version;
+ uint8_t cth_flags;
+ uint32_t cth_parlabel;
+ uint32_t cth_parname;
+ uint32_t cth_lbloff;
+ uint32_t cth_objtoff;
+ uint32_t cth_funcoff;
+ uint32_t cth_typeoff;
+ uint32_t cth_stroff;
+ uint32_t cth_strlen;
+};
+struct ctf_lblent {
+ uint32_t ctl_label;
+ uint32_t ctl_typeidx;
+};
+struct ctf_stype {
+ uint32_t cts_name;
+ uint16_t cts_info;
+ union {
+  uint16_t _size;
+  uint16_t _type;
+ } _ST;
+};
+struct ctf_type {
+ struct ctf_stype _ctt_stype;
+ uint32_t ctt_lsizehi;
+ uint32_t ctt_lsizelo;
+};
+struct ctf_array {
+ uint16_t cta_contents;
+ uint16_t cta_index;
+ uint32_t cta_nelems;
+};
+struct ctf_member {
+ uint32_t ctm_name;
+ uint16_t ctm_type;
+ uint16_t ctm_offset;
+};
+struct ctf_lmember {
+ struct ctf_member _ctlm_member;
+ uint32_t ctlm_offsethi;
+ uint32_t ctlm_offsetlo;
+};
+struct ctf_enum {
+ uint32_t cte_name;
+ int cte_value;
+};
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+struct kmem_freelist;
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
+typedef unsigned char Byte;
+typedef unsigned int uInt;
+typedef unsigned long uLong;
+   typedef Byte Bytef;
+typedef char charf;
+typedef int intf;
+typedef uInt uIntf;
+typedef uLong uLongf;
+   typedef void const *voidpc;
+   typedef void *voidpf;
+   typedef void *voidp;
+struct __tfork {
+ void *tf_tcb;
+ pid_t *tf_tid;
+ void *tf_stack;
+};
+struct __kbind {
+ void *kb_addr;
+ size_t kb_size;
+};
+typedef voidpf (*alloc_func) (voidpf opaque, uInt items, uInt size);
+typedef void (*free_func) (voidpf opaque, voidpf address);
+struct internal_state;
+typedef struct z_stream_s {
+    Bytef *next_in;
+    uInt avail_in;
+    off_t total_in;
+    Bytef *next_out;
+    uInt avail_out;
+    off_t total_out;
+    char *msg;
+    struct internal_state *state;
+    alloc_func zalloc;
+    free_func zfree;
+    voidpf opaque;
+    int data_type;
+    uLong adler;
+    uLong reserved;
+} z_stream;
+typedef z_stream *z_streamp;
+typedef struct gz_header_s {
+    int text;
+    uLong time;
+    int xflags;
+    int os;
+    Bytef *extra;
+    uInt extra_len;
+    uInt extra_max;
+    Bytef *name;
+    uInt name_max;
+    Bytef *comment;
+    uInt comm_max;
+    int hcrc;
+    int done;
+} gz_header;
+typedef gz_header *gz_headerp;
+extern const char * zlibVersion (void);
+extern int deflate (z_streamp strm, int flush);
+extern int deflateEnd (z_streamp strm);
+extern int inflate (z_streamp strm, int flush);
+extern int inflateEnd (z_streamp strm);
+extern int deflateSetDictionary (z_streamp strm, const Bytef *dictionary, uInt dictLength);
+extern int deflateCopy (z_streamp dest, z_streamp source);
+extern int deflateReset (z_streamp strm);
+extern int deflateParams (z_streamp strm, int level, int strategy);
+extern int deflateTune (z_streamp strm, int good_length, int max_lazy, int nice_length, int max_chain);
+extern uLong deflateBound (z_streamp strm, uLong sourceLen);
+extern int deflatePrime (z_streamp strm, int bits, int value);
+extern int deflateSetHeader (z_streamp strm, gz_headerp head);
+extern int inflateSetDictionary (z_streamp strm, const Bytef *dictionary, uInt dictLength);
+extern int inflateSync (z_streamp strm);
+extern int inflateCopy (z_streamp dest, z_streamp source);
+extern int inflateReset (z_streamp strm);
+extern int inflatePrime (z_streamp strm, int bits, int value);
+extern int inflateGetHeader (z_streamp strm, gz_headerp head);
+typedef unsigned (*in_func) (void *, unsigned char * *);
+typedef int (*out_func) (void *, unsigned char *, unsigned);
+extern int inflateBack (z_streamp strm, in_func in, void *in_desc, out_func out, void *out_desc);
+extern int inflateBackEnd (z_streamp strm);
+extern uLong zlibCompileFlags (void);
+extern int compress (Bytef *dest, uLongf *destLen, const Bytef *source, uLong sourceLen);
+extern int compress2 (Bytef *dest, uLongf *destLen, const Bytef *source, uLong sourceLen, int level);
+extern uLong compressBound (uLong sourceLen);
+extern int uncompress (Bytef *dest, uLongf *destLen, const Bytef *source, uLong sourceLen);
+typedef voidp gzFile;
+extern gzFile gzopen (const char *path, const char *mode);
+extern gzFile gzdopen (int fd, const char *mode);
+extern int gzsetparams (gzFile file, int level, int strategy);
+extern int gzread (gzFile file, voidp buf, unsigned len);
+extern int gzwrite (gzFile file, voidpc buf, unsigned len);
+extern int gzprintf (gzFile file, const char *format, ...);
+extern int gzputs (gzFile file, const char *s);
+extern char * gzgets (gzFile file, char *buf, int len);
+extern int gzputc (gzFile file, int c);
+extern int gzgetc (gzFile file);
+extern int gzungetc (int c, gzFile file);
+extern int gzflush (gzFile file, int flush);
+extern off_t gzseek (gzFile file, off_t offset, int whence);
+extern int gzrewind (gzFile file);
+extern off_t gztell (gzFile file);
+extern int gzeof (gzFile file);
+extern int gzdirect (gzFile file);
+extern int gzclose (gzFile file);
+extern const char * gzerror (gzFile file, int *errnum);
+extern void gzclearerr (gzFile file);
+extern uLong adler32 (uLong adler, const Bytef *buf, uInt len);
+extern uLong adler32_combine (uLong adler1, uLong adler2, off_t len2);
+extern uLong crc32 (uLong crc, const Bytef *buf, uInt len);
+extern uLong crc32_combine (uLong crc1, uLong crc2, off_t len2);
+extern int deflateInit_ (z_streamp strm, int level, const char *version, int stream_size);
+extern int inflateInit_ (z_streamp strm, const char *version, int stream_size);
+extern int deflateInit2_ (z_streamp strm, int level, int method, int windowBits, int memLevel, int strategy, const char *version, int stream_size);
+extern int inflateInit2_ (z_streamp strm, int windowBits, const char *version, int stream_size);
+extern int inflateBackInit_ (z_streamp strm, int windowBits, unsigned char *window, const char *version, int stream_size);
+    struct internal_state {int dummy;};
+extern const char * zError (int);
+extern int inflateSyncPoint (z_streamp z);
+extern const uLongf * get_crc_table (void);
+extern db_symtab_t db_symtab;
+struct ddb_ctf {
+ struct ctf_header *cth;
+ const char *rawctf;
+        size_t rawctflen;
+ const char *data;
+ size_t dlen;
+ char *strtab;
+ uint32_t ctf_found;
+};
+struct ddb_ctf db_ctf;
+static const char *db_ctf_off2name(uint32_t);
+static Elf64_Sym *db_ctf_idx2sym(size_t *, uint8_t);
+static char *db_ctf_decompress(const char *, size_t, off_t);
+const struct ctf_type *db_ctf_type_by_symbol(Elf64_Sym *);
+const struct ctf_type *db_ctf_type_by_index(uint16_t);
+void db_ctf_pprint_struct(const struct ctf_type *, vaddr_t);
+void db_ctf_pprint_ptr(const struct ctf_type *, vaddr_t);
 void
-db_stack_trace_print(db_expr_t addr, int have_addr, db_expr_t count,
-    char *modif, int (*pr)(const char *, ...))
+db_ctf_init(void)
 {
- vaddr_t frame;
- boolean_t kernel_only = 1;
- boolean_t trace_thread = 0;
- char c, *cp = modif;
- while ((c = *cp++) != 0) {
-  if (c == 't')
-   trace_thread = 1;
-  if (c == 'u')
-   kernel_only = 0;
- }
- if (!have_addr)
-  frame = (vaddr_t)(&ddb_regs.ddb_tf)->tf_out[6];
- else {
-  if (trace_thread) {
-   struct proc *p;
-   struct user *u;
-   (*pr)("trace: pid %d ", (int)addr);
-   p = tfind(addr);
-   if (p == ((void *)0)) {
-    (*pr)("not found\n");
-    return;
-   }
-   u = p->p_addr;
-   frame = (vaddr_t)u->u_pcb.pcb_sp;
-   (*pr)("at %p\n", frame);
-  } else {
-   frame = (vaddr_t)addr;
-  }
- }
- if ((frame & 1) == 0) {
-  db_printf("WARNING: corrupt frame at %lx\n", frame);
+ db_symtab_t *stab = &db_symtab;
+ size_t rawctflen;
+ db_ctf.ctf_found = 0;
+ if (stab->private == ((void *)0))
+  return;
+ db_ctf.strtab = db_elf_find_strtab(stab);
+ if (db_ctf.strtab == ((void *)0))
+  return;
+ db_ctf.rawctf = db_elf_find_section(stab, &rawctflen, ".SUNW_ctf");
+ if (db_ctf.rawctf == ((void *)0))
+  return;
+ db_ctf.rawctflen = rawctflen;
+ db_ctf.cth = (struct ctf_header *)db_ctf.rawctf;
+ db_ctf.dlen = db_ctf.cth->cth_stroff + db_ctf.cth->cth_strlen;
+ if ((db_ctf.cth->cth_flags & (1 << 0)) == 0) {
+  printf("unsupported non-compressed CTF section\n");
   return;
  }
- while (count--) {
-  int i;
-  db_expr_t offset;
-  char *name;
-  db_addr_t pc;
-  struct frame64 *f64;
-  f64 = (struct frame64 *)(frame + (2048-1));
-  pc = (db_addr_t)probeget((paddr_t)(u_long)&(f64->fr_pc), 0x80, sizeof(f64->fr_pc));
-  frame = probeget((paddr_t)(u_long)&(f64->fr_fp), 0x80, sizeof(f64->fr_fp));
-  if (kernel_only) {
-   if (pc < 0x001000000 || pc >= 0x0e0000000)
-    break;
-   if (frame < 0x001000000)
-    break;
-  } else {
-   if (frame == 0 || frame == (vaddr_t)-1)
-    break;
-  }
-  db_symbol_values(db_search_symbol(pc,0,&offset),&name,0);
-  if (name == ((void *)0))
-   name = "?";
-  (*pr)("%s(", name);
-  if ((frame & 1) == 0) {
-   db_printf(")\nWARNING: corrupt frame at %lx\n", frame);
-   break;
-  }
-  f64 = (struct frame64 *)(frame + (2048-1));
-  for (i = 0; i < 5; i++)
-   (*pr)("%lx, ", (long)probeget((paddr_t)(u_long)&(f64->fr_arg[i]), 0x80, sizeof(f64->fr_arg[i])));
-  (*pr)("%lx) at ", (long)probeget((paddr_t)(u_long)&(f64->fr_arg[i]), 0x80, sizeof(f64->fr_arg[i])));
-  db_printsym(pc, 2, pr);
-  (*pr)("\n");
- }
-}
-void
-db_dump_window(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
-{
- int i;
- u_int64_t frame = (&ddb_regs.ddb_tf)->tf_out[6];
- if (!have_addr)
-  addr = 0;
- for (i = 0; i < addr && frame; i++) {
-  if ((frame & 1) == 0)
-   break;
-  frame = ((struct frame64 *)(frame + (2048-1)))->fr_fp;
- }
- if ((frame & 1) == 0) {
-  db_printf("WARNING: corrupt frame at %llx\n", frame);
+ db_ctf.data = db_ctf_decompress(db_ctf.rawctf + sizeof(*db_ctf.cth),
+     db_ctf.rawctflen - sizeof(*db_ctf.cth), db_ctf.dlen);
+ if (db_ctf.data == ((void *)0))
   return;
- }
- db_printf("Window %lx ", addr);
- db_print_window(frame);
+ db_ctf.ctf_found = 1;
 }
-void
-db_print_window(u_int64_t frame)
+Elf64_Sym *
+db_ctf_idx2sym(size_t *idx, uint8_t type)
 {
- struct frame64 *f = (struct frame64 *)(frame + (2048-1));
- db_printf("frame64 %p locals, ins:\n", f);
- if (1) {
-  db_printf("%llx %llx %llx %llx ",
-     (unsigned long long)f->fr_local[0],
-     (unsigned long long)f->fr_local[1],
-     (unsigned long long)f->fr_local[2],
-     (unsigned long long)f->fr_local[3]);
-  db_printf("%llx %llx %llx %llx\n",
-     (unsigned long long)f->fr_local[4],
-     (unsigned long long)f->fr_local[5],
-     (unsigned long long)f->fr_local[6],
-     (unsigned long long)f->fr_local[7]);
-  db_printf("%llx %llx %llx %llx ",
-     (unsigned long long)f->fr_arg[0],
-     (unsigned long long)f->fr_arg[1],
-     (unsigned long long)f->fr_arg[2],
-     (unsigned long long)f->fr_arg[3]);
-  db_printf("%llx %llx %llx=sp %llx=pc:",
-     (unsigned long long)f->fr_arg[4],
-     (unsigned long long)f->fr_arg[5],
-     (unsigned long long)f->fr_fp,
-     (unsigned long long)f->fr_pc);
-  db_printsym(f->fr_pc, 2, db_printf);
-  db_printf("\n");
+ Elf64_Sym *symp, *symtab_start, *symtab_end;
+ size_t i = *idx + 1;
+ symtab_start = ((Elf64_Sym *)((&db_symtab)->start));
+ symtab_end = ((Elf64_Sym *)((&db_symtab)->end));
+ for (symp = &symtab_start[i]; symp < symtab_end; i++, symp++) {
+  if ((((unsigned int) symp->st_info) & 0xf) != type)
+   continue;
+  *idx = i;
+  return symp;
+ }
+ return ((void *)0);
+}
+int
+db_ctf_func_numargs(Elf64_Sym *st)
+{
+ Elf64_Sym *symp;
+ uint16_t *fstart, *fend;
+ uint16_t *fsp, kind, vlen;
+ size_t i, idx = 0;
+ if (!db_ctf.ctf_found || st == ((void *)0))
+  return -1;
+ fstart = (uint16_t *)(db_ctf.data + db_ctf.cth->cth_funcoff);
+ fend = (uint16_t *)(db_ctf.data + db_ctf.cth->cth_typeoff);
+ fsp = fstart;
+ while (fsp < fend) {
+  symp = db_ctf_idx2sym(&idx, 2);
+  if (symp == ((void *)0))
+   break;
+  kind = (((*fsp) & 0xf800) >> 11);
+  vlen = (((*fsp) & 0x03ff));
+  fsp++;
+  if (kind == 0 && vlen == 0)
+   continue;
+  fsp++;
+  for (i = 0; i < vlen; i++)
+   fsp++;
+  if (symp == st)
+   return vlen;
+ }
+ return -1;
+}
+uint32_t
+db_ctf_type_len(const struct ctf_type *ctt)
+{
+ uint16_t kind, vlen, i;
+ uint32_t tlen;
+ uint64_t size;
+ kind = (((ctt->_ctt_stype.cts_info) & 0xf800) >> 11);
+ vlen = (((ctt->_ctt_stype.cts_info) & 0x03ff));
+ if (ctt->_ctt_stype._ST._size <= 0xfffe) {
+  size = ctt->_ctt_stype._ST._size;
+  tlen = sizeof(struct ctf_stype);
  } else {
-  struct frame64 fr;
-  if (copyin(f, &fr, sizeof(fr)))
-   return;
-  f = &fr;
-  db_printf("%llx %llx %llx %llx ",
-     (unsigned long long)f->fr_local[0],
-     (unsigned long long)f->fr_local[1],
-     (unsigned long long)f->fr_local[2],
-     (unsigned long long)f->fr_local[3]);
-  db_printf("%llx %llx %llx %llx\n",
-     (unsigned long long)f->fr_local[4],
-     (unsigned long long)f->fr_local[5],
-     (unsigned long long)f->fr_local[6],
-     (unsigned long long)f->fr_local[7]);
-  db_printf("%llx %llx %llx %llx ",
-     (unsigned long long)f->fr_arg[0],
-     (unsigned long long)f->fr_arg[1],
-     (unsigned long long)f->fr_arg[2],
-     (unsigned long long)f->fr_arg[3]);
-  db_printf("%llx %llx %llx=sp %llx=pc",
-     (unsigned long long)f->fr_arg[4],
-     (unsigned long long)f->fr_arg[5],
-     (unsigned long long)f->fr_fp,
-     (unsigned long long)f->fr_pc);
-  db_printf("\n");
+  size = (((uint64_t)(ctt)->ctt_lsizehi) << 32 | (ctt)->ctt_lsizelo);
+  tlen = sizeof(struct ctf_type);
  }
+ switch (kind) {
+ case 0:
+ case 9:
+  break;
+ case 1:
+  tlen += sizeof(uint32_t);
+  break;
+ case 2:
+  tlen += sizeof(uint32_t);
+  break;
+ case 4:
+  tlen += sizeof(struct ctf_array);
+  break;
+ case 5:
+  tlen += (vlen + (vlen & 1)) * sizeof(uint16_t);
+  break;
+ case 6:
+ case 7:
+  if (size < 8192) {
+   for (i = 0; i < vlen; i++) {
+    tlen += sizeof(struct ctf_member);
+   }
+  } else {
+   for (i = 0; i < vlen; i++) {
+    tlen += sizeof(struct ctf_lmember);
+   }
+  }
+  break;
+ case 8:
+  for (i = 0; i < vlen; i++) {
+   tlen += sizeof(struct ctf_enum);
+  }
+  break;
+ case 3:
+ case 10:
+ case 11:
+ case 12:
+ case 13:
+  break;
+ default:
+  return 0;
+ }
+ return tlen;
 }
-void
-db_dump_stack(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
+const struct ctf_type *
+db_ctf_type_by_symbol(Elf64_Sym *st)
 {
- int i;
- u_int64_t frame, oldframe;
- boolean_t kernel_only = 1;
- char c, *cp = modif;
- while ((c = *cp++) != 0)
-  if (c == 'u')
-   kernel_only = 0;
- if (count == -1)
-  count = 65535;
- if (!have_addr)
-  frame = (&ddb_regs.ddb_tf)->tf_out[6];
- else
-  frame = addr;
- oldframe = 0;
- for (i = 0; i < count && frame; i++) {
-  if (oldframe == frame) {
-   db_printf("WARNING: stack loop at %llx\n", frame);
+ Elf64_Sym *symp;
+ uint32_t objtoff = db_ctf.cth->cth_objtoff;
+ uint16_t *dsp;
+ size_t idx = 0;
+ if (!db_ctf.ctf_found || st == ((void *)0))
+  return ((void *)0);
+ while (objtoff < db_ctf.cth->cth_funcoff) {
+  dsp = (uint16_t *)(db_ctf.data + objtoff);
+  symp = db_ctf_idx2sym(&idx, 1);
+  if (symp == ((void *)0))
+   break;
+  if (symp == st)
+   return db_ctf_type_by_index(*dsp);
+  objtoff += sizeof(*dsp);
+ }
+ return ((void *)0);
+}
+const struct ctf_type *
+db_ctf_type_by_index(uint16_t index)
+{
+ uint32_t offset = db_ctf.cth->cth_typeoff;
+ uint16_t idx = 1;
+ if (!db_ctf.ctf_found)
+  return ((void *)0);
+ while (offset < db_ctf.cth->cth_stroff) {
+  const struct ctf_type *ctt;
+  uint32_t toff;
+  ctt = (struct ctf_type *)(db_ctf.data + offset);
+  if (idx == index)
+   return ctt;
+  toff = db_ctf_type_len(ctt);
+  if (toff == 0) {
+   db_printf("incorrect type at offset %u", offset);
    break;
   }
-  oldframe = frame;
-  if ((frame & 1) == 0) {
-   db_printf("WARNING: corrupt stack at %llx\n", frame);
-   break;
+  offset += toff;
+  idx++;
+ }
+ return ((void *)0);
+}
+void
+db_ctf_pprintf(const struct ctf_type *ctt, vaddr_t addr)
+{
+ const struct ctf_type *ref;
+ uint16_t kind;
+ kind = (((ctt->_ctt_stype.cts_info) & 0xf800) >> 11);
+ switch (kind) {
+ case 2:
+ case 8:
+ case 4:
+ case 5:
+  db_printf("%lu", *((unsigned long *)addr));
+  break;
+ case 1:
+  db_printf("%d", *((int *)addr));
+  break;
+ case 6:
+ case 7:
+  db_ctf_pprint_struct(ctt, addr);
+  break;
+ case 3:
+  db_ctf_pprint_ptr(ctt, addr);
+  break;
+ case 10:
+ case 11:
+ case 12:
+ case 13:
+  ref = db_ctf_type_by_index(ctt->_ctt_stype._ST._type);
+  db_ctf_pprintf(ref, addr);
+  break;
+ case 0:
+ case 9:
+ default:
+  break;
+ }
+}
+void
+db_ctf_pprint_struct(const struct ctf_type *ctt, vaddr_t addr)
+{
+ const char *name, *p = (const char *)ctt;
+ const struct ctf_type *ref;
+ uint32_t toff;
+ uint64_t size;
+ uint16_t i, vlen;
+ vlen = (((ctt->_ctt_stype.cts_info) & 0x03ff));
+ if (ctt->_ctt_stype._ST._size <= 0xfffe) {
+  size = ctt->_ctt_stype._ST._size;
+  toff = sizeof(struct ctf_stype);
+ } else {
+  size = (((uint64_t)(ctt)->ctt_lsizehi) << 32 | (ctt)->ctt_lsizelo);
+  toff = sizeof(struct ctf_type);
+ }
+ db_printf("{");
+ if (size < 8192) {
+  for (i = 0; i < vlen; i++) {
+   struct ctf_member *ctm;
+   ctm = (struct ctf_member *)(p + toff);
+   toff += sizeof(struct ctf_member);
+   name = db_ctf_off2name(ctm->ctm_name);
+   if (name != ((void *)0))
+    db_printf("%s = ", name);
+   ref = db_ctf_type_by_index(ctm->ctm_type);
+   db_ctf_pprintf(ref, addr + ctm->ctm_offset / 8);
+   if (i < vlen - 1)
+    db_printf(", ");
   }
-  frame += (2048-1);
-  if (!1
-      && kernel_only) break;
-  db_printf("Window %x ", i);
-  db_print_window(frame - (2048-1));
-  if (!1) {
-   copyin(&((struct frame64 *)frame)->fr_fp, &frame,
-       sizeof(frame));
-  } else
-   frame = ((struct frame64 *)frame)->fr_fp;
+ } else {
+  for (i = 0; i < vlen; i++) {
+   struct ctf_lmember *ctlm;
+   ctlm = (struct ctf_lmember *)(p + toff);
+   toff += sizeof(struct ctf_lmember);
+   name = db_ctf_off2name(ctlm->_ctlm_member.ctm_name);
+   if (name != ((void *)0))
+    db_printf("%s = ", name);
+   ref = db_ctf_type_by_index(ctlm->_ctlm_member.ctm_type);
+   db_ctf_pprintf(ref, addr +
+       (((uint64_t)(ctlm)->ctlm_offsethi) << 32 | (ctlm)->ctlm_offsetlo) / 8);
+   if (i < vlen - 1)
+    db_printf(", ");
+  }
  }
+ db_printf("}");
 }
 void
-db_dump_trap(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
+db_ctf_pprint_ptr(const struct ctf_type *ctt, vaddr_t addr)
 {
- struct trapframe64 *tf;
- tf = &ddb_regs.ddb_tf;
- {
-  register char c, *cp = modif;
-  while ((c = *cp++) != 0)
-   if (c == 'u')
-    tf = (__curcpu->ci_self)->ci_curproc->p_md.md_tf;
+ const char *name, *modif = "";
+ const struct ctf_type *ref;
+ uint16_t kind;
+ ref = db_ctf_type_by_index(ctt->_ctt_stype._ST._type);
+ kind = (((ref->_ctt_stype.cts_info) & 0xf800) >> 11);
+ switch (kind) {
+ case 11:
+  modif = "volatile ";
+  ref = db_ctf_type_by_index(ref->_ctt_stype._ST._type);
+  break;
+ case 12:
+  modif = "const ";
+  ref = db_ctf_type_by_index(ref->_ctt_stype._ST._type);
+  break;
+ case 6:
+  modif = "struct ";
+  break;
+ case 7:
+  modif = "union ";
+  break;
+ default:
+  break;
  }
- if (have_addr)
-  tf = (struct trapframe64 *)addr;
- db_printf("Trapframe %p:\ttstate: %llx\tpc: %llx\tnpc: %llx\n",
-    tf, (unsigned long long)tf->tf_tstate,
-    (unsigned long long)tf->tf_pc,
-    (unsigned long long)tf->tf_npc);
- db_printf("y: %x\tpil: %d\toldpil: %d\tfault: %llx\tkstack: %llx\ttt: %x\nGlobals:\n",
-    (int)tf->tf_y, (int)tf->tf_pil, (int)tf->tf_oldpil,
-    (unsigned long long)tf->tf_fault,
-    (unsigned long long)tf->tf_kstack, (int)tf->tf_tt);
- db_printf("%016llx %016llx %016llx %016llx\n",
-    (unsigned long long)tf->tf_global[0],
-    (unsigned long long)tf->tf_global[1],
-    (unsigned long long)tf->tf_global[2],
-    (unsigned long long)tf->tf_global[3]);
- db_printf("%016llx %016llx %016llx %016llx\nouts:\n",
-    (unsigned long long)tf->tf_global[4],
-    (unsigned long long)tf->tf_global[5],
-    (unsigned long long)tf->tf_global[6],
-    (unsigned long long)tf->tf_global[7]);
- db_printf("%016llx %016llx %016llx %016llx\n",
-    (unsigned long long)tf->tf_out[0],
-    (unsigned long long)tf->tf_out[1],
-    (unsigned long long)tf->tf_out[2],
-    (unsigned long long)tf->tf_out[3]);
- db_printf("%016llx %016llx %016llx %016llx\nlocals:\n",
-    (unsigned long long)tf->tf_out[4],
-    (unsigned long long)tf->tf_out[5],
-    (unsigned long long)tf->tf_out[6],
-    (unsigned long long)tf->tf_out[7]);
- db_printf("%016llx %016llx %016llx %016llx\n",
-    (unsigned long long)tf->tf_local[0],
-    (unsigned long long)tf->tf_local[1],
-    (unsigned long long)tf->tf_local[2],
-    (unsigned long long)tf->tf_local[3]);
- db_printf("%016llx %016llx %016llx %016llx\nins:\n",
-    (unsigned long long)tf->tf_local[4],
-    (unsigned long long)tf->tf_local[5],
-    (unsigned long long)tf->tf_local[6],
-    (unsigned long long)tf->tf_local[7]);
- db_printf("%016llx %016llx %016llx %016llx\n",
-    (unsigned long long)tf->tf_in[0],
-    (unsigned long long)tf->tf_in[1],
-    (unsigned long long)tf->tf_in[2],
-    (unsigned long long)tf->tf_in[3]);
- db_printf("%016llx %016llx %016llx %016llx\n",
-    (unsigned long long)tf->tf_in[4],
-    (unsigned long long)tf->tf_in[5],
-    (unsigned long long)tf->tf_in[6],
-    (unsigned long long)tf->tf_in[7]);
+ name = db_ctf_off2name(ref->_ctt_stype.cts_name);
+ if (name != ((void *)0))
+  db_printf("(%s%s *)", modif, name);
+ db_printf("0x%lx", addr);
+}
+static const char *
+db_ctf_off2name(uint32_t offset)
+{
+ const char *name;
+ if (((offset) >> 31) != 0)
+  return "external";
+ if (((offset) & 0x7fffffff) >= db_ctf.cth->cth_strlen)
+  return "exceeds strlab";
+ if (db_ctf.cth->cth_stroff + ((offset) & 0x7fffffff) >= db_ctf.dlen)
+  return "invalid";
+ name = db_ctf.data + db_ctf.cth->cth_stroff + ((offset) & 0x7fffffff);
+ if (*name == '\0')
+  return ((void *)0);
+ return name;
+}
+static char *
+db_ctf_decompress(const char *buf, size_t size, off_t len)
+{
+ z_stream stream;
+ char *data;
+ int error;
+ data = malloc(len, 127, 0x0001|0x0008|0x0004);
+ if (data == ((void *)0))
+  return ((void *)0);
+ __builtin_memset((&stream), (0), (sizeof(stream)));
+ stream.next_in = (void *)buf;
+ stream.avail_in = size;
+ stream.next_out = data;
+ stream.avail_out = len;
+ if ((error = inflateInit_((&stream), "1.2.3", sizeof(z_stream))) != 0) {
+  db_printf("zlib inflateInit failed: %s", zError(error));
+  goto exit;
+ }
+ if ((error = inflate(&stream, 4)) != 1) {
+  db_printf("zlib inflate failed: %s", zError(error));
+  inflateEnd(&stream);
+  goto exit;
+ }
+ if ((error = inflateEnd(&stream)) != 0) {
+  db_printf("zlib inflateEnd failed: %s", zError(error));
+  goto exit;
+ }
+ if (stream.total_out != len) {
+  db_printf("decompression failed: %llu != %llu",
+      stream.total_out, len);
+  goto exit;
+ }
+ return data;
+exit:
+ free(data, 2, sizeof(*data));
+ return ((void *)0);
 }
 void
-db_dump_fpstate(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
+db_ctf_pprint_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
 {
- struct fpstate64 *fpstate64;
- fpstate64 = &ddb_regs.ddb_fpstate;
- if (have_addr)
-  fpstate64 = (struct fpstate64 *)addr;
- db_printf("fpstate %p: fsr = %llx gsr = %lx\nfpregs:\n",
-  fpstate64, (unsigned long long)fpstate64->fs_fsr,
-  (unsigned long)fpstate64->fs_gsr);
- db_printf(" 0: %08x %08x %08x %08x %08x %08x %08x %08x\n",
-  (unsigned int)fpstate64->fs_regs[0],
-  (unsigned int)fpstate64->fs_regs[1],
-  (unsigned int)fpstate64->fs_regs[2],
-  (unsigned int)fpstate64->fs_regs[3],
-  (unsigned int)fpstate64->fs_regs[4],
-  (unsigned int)fpstate64->fs_regs[5],
-  (unsigned int)fpstate64->fs_regs[6],
-  (unsigned int)fpstate64->fs_regs[7]);
- db_printf(" 8: %08x %08x %08x %08x %08x %08x %08x %08x\n",
-  (unsigned int)fpstate64->fs_regs[8],
-  (unsigned int)fpstate64->fs_regs[9],
-  (unsigned int)fpstate64->fs_regs[10],
-  (unsigned int)fpstate64->fs_regs[11],
-  (unsigned int)fpstate64->fs_regs[12],
-  (unsigned int)fpstate64->fs_regs[13],
-  (unsigned int)fpstate64->fs_regs[14],
-  (unsigned int)fpstate64->fs_regs[15]);
- db_printf("16: %08x %08x %08x %08x %08x %08x %08x %08x\n",
-  (unsigned int)fpstate64->fs_regs[16],
-  (unsigned int)fpstate64->fs_regs[17],
-  (unsigned int)fpstate64->fs_regs[18],
-  (unsigned int)fpstate64->fs_regs[19],
-  (unsigned int)fpstate64->fs_regs[20],
-  (unsigned int)fpstate64->fs_regs[21],
-  (unsigned int)fpstate64->fs_regs[22],
-  (unsigned int)fpstate64->fs_regs[23]);
- db_printf("24: %08x %08x %08x %08x %08x %08x %08x %08x\n",
-  (unsigned int)fpstate64->fs_regs[24],
-  (unsigned int)fpstate64->fs_regs[25],
-  (unsigned int)fpstate64->fs_regs[26],
-  (unsigned int)fpstate64->fs_regs[27],
-  (unsigned int)fpstate64->fs_regs[28],
-  (unsigned int)fpstate64->fs_regs[29],
-  (unsigned int)fpstate64->fs_regs[30],
-  (unsigned int)fpstate64->fs_regs[31]);
- db_printf("32: %08x%08x %08x%08x %08x%08x %08x%08x\n",
-  (unsigned int)fpstate64->fs_regs[32],
-  (unsigned int)fpstate64->fs_regs[33],
-  (unsigned int)fpstate64->fs_regs[34],
-  (unsigned int)fpstate64->fs_regs[35],
-  (unsigned int)fpstate64->fs_regs[36],
-  (unsigned int)fpstate64->fs_regs[37],
-  (unsigned int)fpstate64->fs_regs[38],
-  (unsigned int)fpstate64->fs_regs[39]);
- db_printf("40: %08x%08x %08x%08x %08x%08x %08x%08x\n",
-  (unsigned int)fpstate64->fs_regs[40],
-  (unsigned int)fpstate64->fs_regs[41],
-  (unsigned int)fpstate64->fs_regs[42],
-  (unsigned int)fpstate64->fs_regs[43],
-  (unsigned int)fpstate64->fs_regs[44],
-  (unsigned int)fpstate64->fs_regs[45],
-  (unsigned int)fpstate64->fs_regs[46],
-  (unsigned int)fpstate64->fs_regs[47]);
- db_printf("48: %08x%08x %08x%08x %08x%08x %08x%08x\n",
-  (unsigned int)fpstate64->fs_regs[48],
-  (unsigned int)fpstate64->fs_regs[49],
-  (unsigned int)fpstate64->fs_regs[50],
-  (unsigned int)fpstate64->fs_regs[51],
-  (unsigned int)fpstate64->fs_regs[52],
-  (unsigned int)fpstate64->fs_regs[53],
-  (unsigned int)fpstate64->fs_regs[54],
-  (unsigned int)fpstate64->fs_regs[55]);
- db_printf("56: %08x%08x %08x%08x %08x%08x %08x%08x\n",
-  (unsigned int)fpstate64->fs_regs[56],
-  (unsigned int)fpstate64->fs_regs[57],
-  (unsigned int)fpstate64->fs_regs[58],
-  (unsigned int)fpstate64->fs_regs[59],
-  (unsigned int)fpstate64->fs_regs[60],
-  (unsigned int)fpstate64->fs_regs[61],
-  (unsigned int)fpstate64->fs_regs[62],
-  (unsigned int)fpstate64->fs_regs[63]);
-}
-void
-db_dump_ts(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
-{
- struct trapstate *ts;
- int i, tl;
- ts = &ddb_regs.ddb_ts[0];
- tl = ddb_regs.ddb_tl;
- for (i = 0; i < tl; i++) {
-  printf("%d tt=%lx tstate=%lx tpc=%p tnpc=%p\n",
-         i+1, (long)ts[i].tt, (u_long)ts[i].tstate,
-         (void *)(u_long)ts[i].tpc, (void *)(u_long)ts[i].tnpc);
+ Elf64_Sym *st;
+ const struct ctf_type *ctt;
+ int t;
+ t = db_read_token();
+ if (t != 3) {
+  db_printf("Bad symbol name\n");
+  db_flush_lex();
+  return;
  }
+ if ((st = db_symbol_by_name(db_tok_string, &addr)) == ((void *)0)) {
+  db_printf("Symbol not found %s\n", db_tok_string);
+  db_flush_lex();
+  return;
+ }
+ if ((ctt = db_ctf_type_by_symbol(st)) == ((void *)0)) {
+         modif[0] = '\0';
+  db_print_cmd(addr, 0, 0, modif);
+  db_flush_lex();
+  return;
+ }
+ db_printf("%s:\t", db_tok_string);
+ db_ctf_pprintf(ctt, addr);
+ db_printf("\n");
 }

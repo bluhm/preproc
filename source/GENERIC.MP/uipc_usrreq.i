@@ -3001,6 +3001,7 @@ struct unp_deferral {
 void unp_discard(struct fdpass *, int);
 void unp_mark(struct fdpass *, int);
 void unp_scan(struct mbuf *, void (*)(struct fdpass *, int));
+int unp_nam2sun(struct mbuf *, struct sockaddr_un **, size_t *);
 struct { struct unp_deferral *slh_first; } unp_deferred = { ((void *)0) };
 struct task unp_gc_task = {{ ((void *)0), ((void *)0) }, (unp_gc), (((void *)0)), 0 };
 struct sockaddr sun_noname = { sizeof(sun_noname), 1 };
@@ -3246,7 +3247,7 @@ unp_detach(struct unpcb *unp)
 int
 unp_bind(struct unpcb *unp, struct mbuf *nam, struct proc *p)
 {
- struct sockaddr_un *soun = ((struct sockaddr_un *)((nam)->m_hdr.mh_data));
+ struct sockaddr_un *soun;
  struct mbuf *nam2;
  struct vnode *vp;
  struct vattr vattr;
@@ -3255,15 +3256,8 @@ unp_bind(struct unpcb *unp, struct mbuf *nam, struct proc *p)
  size_t pathlen;
  if (unp->unp_vnode != ((void *)0))
   return (22);
- if (soun->sun_len > sizeof(struct sockaddr_un) ||
-     soun->sun_len < __builtin_offsetof(struct sockaddr_un, sun_path))
-  return (22);
- if (soun->sun_family != 1)
-  return (47);
- pathlen = strnlen(soun->sun_path, soun->sun_len -
-     __builtin_offsetof(struct sockaddr_un, sun_path));
- if (pathlen == sizeof(soun->sun_path))
-  return (22);
+ if ((error = unp_nam2sun(nam, &soun, &pathlen)))
+  return (error);
  nam2 = m_getclr(0x0001, 3);
  nam2->m_hdr.mh_len = sizeof(struct sockaddr_un);
  __builtin_memcpy((((struct sockaddr_un *)((nam2)->m_hdr.mh_data))), (soun), (__builtin_offsetof(struct sockaddr_un, sun_path) + pathlen));
@@ -3308,20 +3302,14 @@ unp_bind(struct unpcb *unp, struct mbuf *nam, struct proc *p)
 int
 unp_connect(struct socket *so, struct mbuf *nam, struct proc *p)
 {
- struct sockaddr_un *soun = ((struct sockaddr_un *)((nam)->m_hdr.mh_data));
+ struct sockaddr_un *soun;
  struct vnode *vp;
  struct socket *so2, *so3;
  struct unpcb *unp, *unp2, *unp3;
  struct nameidata nd;
  int error;
- if (soun->sun_family != 1)
-  return (47);
- if (nam->m_hdr.mh_len < sizeof(struct sockaddr_un))
-  *(((caddr_t)((nam)->m_hdr.mh_data)) + nam->m_hdr.mh_len) = 0;
- else if (nam->m_hdr.mh_len > sizeof(struct sockaddr_un))
-  return (22);
- else if (memchr(soun->sun_path, '\0', sizeof(soun->sun_path)) == ((void *)0))
-  return (22);
+ if ((error = unp_nam2sun(nam, &soun, ((void *)0))))
+  return (error);
  ndinitat(&nd, 0, 0x0040 | 0x0004, UIO_SYSSPACE, -100, soun->sun_path, p);
  nd.ni_pledge = 0x0000000000000100ULL;
  if ((error = namei(&nd)) != 0)
@@ -3744,4 +3732,33 @@ unp_discard(struct fdpass *rp, int nfds)
  __builtin_memset((rp), (0), (sizeof(*rp) * nfds));
  do { (defer)->ud_link.sle_next = (&unp_deferred)->slh_first; (&unp_deferred)->slh_first = (defer); } while (0);
  task_add(systq, &unp_gc_task);
+}
+int
+unp_nam2sun(struct mbuf *nam, struct sockaddr_un **sun, size_t *pathlen)
+{
+ struct sockaddr *sa = ((struct sockaddr *)((nam)->m_hdr.mh_data));
+ size_t size, len;
+ if (nam->m_hdr.mh_len < __builtin_offsetof(struct sockaddr, sa_data))
+  return 22;
+ if (sa->sa_family != 1)
+  return 47;
+ if (sa->sa_len != nam->m_hdr.mh_len)
+  return 22;
+ if (sa->sa_len > sizeof(struct sockaddr_un))
+  return 22;
+ *sun = (struct sockaddr_un *)sa;
+ size = (*sun)->sun_len - __builtin_offsetof(struct sockaddr_un, sun_path);
+ len = strnlen((*sun)->sun_path, size);
+ if (len == sizeof((*sun)->sun_path))
+  return 22;
+ if (len == size) {
+  if (m_trailingspace(nam) == 0)
+   return 22;
+  nam->m_hdr.mh_len++;
+  (*sun)->sun_len++;
+  (*sun)->sun_path[len] = '\0';
+ }
+ if (pathlen != ((void *)0))
+  *pathlen = len;
+ return 0;
 }

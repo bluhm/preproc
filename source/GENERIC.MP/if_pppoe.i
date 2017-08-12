@@ -2087,6 +2087,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2146,6 +2147,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -2671,7 +2673,6 @@ pppoe_clone_create(struct if_clone *ifc, int unit)
 {
  struct pppoe_softc *sc, *tmpsc;
  u_int32_t unique;
- int s;
         sc = malloc(sizeof(*sc), 2, 0x0001|0x0004|0x0008);
         if (sc == ((void *)0))
                 return (12);
@@ -2697,7 +2698,7 @@ pppoe_clone_create(struct if_clone *ifc, int unit)
  if_alloc_sadl(&sc->sc_sppp.pp_if);
  sppp_attach(&sc->sc_sppp.pp_if);
  bpfattach(&sc->sc_sppp.pp_if.if_bpf, &sc->sc_sppp.pp_if, 51, 0);
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
 retry:
  unique = arc4random();
  for((tmpsc) = ((&pppoe_softc_list)->lh_first); (tmpsc)!= ((void *)0); (tmpsc) = ((tmpsc)->sc_list.le_next))
@@ -2705,17 +2706,16 @@ retry:
    goto retry;
  sc->sc_unique = unique;
  do { if (((sc)->sc_list.le_next = (&pppoe_softc_list)->lh_first) != ((void *)0)) (&pppoe_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&pppoe_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&pppoe_softc_list)->lh_first; } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
 pppoe_clone_destroy(struct ifnet *ifp)
 {
  struct pppoe_softc *sc = ifp->if_softc;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  timeout_del(&sc->sc_timeout);
  sppp_detach(&sc->sc_sppp.pp_if);
  if_detach(ifp);
@@ -3049,7 +3049,7 @@ static void
 pppoe_disc_input(struct mbuf *m)
 {
  if (!(((&pppoe_softc_list)->lh_first) == ((void *)0))) {
-  ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 650, "m->m_flags & M_PKTHDR"));
+  ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 648, "m->m_flags & M_PKTHDR"));
   pppoe_dispatch_disc_pkt(m, 0);
  } else
   m_freem(m);
@@ -3062,7 +3062,7 @@ pppoe_data_input(struct mbuf *m)
  u_int16_t session, plen;
  if ((((&pppoe_softc_list)->lh_first) == ((void *)0)))
   goto drop;
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 669, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pppoe.c", 667, "m->m_flags & M_PKTHDR"));
  m_adj(m, sizeof(struct ether_header));
  if (m->M_dat.MH.MH_pkthdr.len <= sizeof(struct pppoehdr)) {
   printf("pppoe (data): dropping too short packet: %d bytes\n",
@@ -3346,9 +3346,9 @@ static void
 pppoe_timeout(void *arg)
 {
  struct pppoe_softc *sc = (struct pppoe_softc *)arg;
- int s, x, retry_wait, err;
+ int x, retry_wait, err;
  ((sc->sc_sppp.pp_if.if_flags & 0x4) ? printf ("%s: timeout\n", sc->sc_sppp.pp_if.if_xname) : 0);
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  switch (sc->sc_state) {
  case 1:
   retry_wait = (hz*5) * (1 + sc->sc_padi_retried);
@@ -3399,7 +3399,7 @@ pppoe_timeout(void *arg)
  default:
   break;
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 static int
 pppoe_connect(struct pppoe_softc *sc)

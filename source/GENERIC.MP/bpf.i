@@ -3522,6 +3522,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -3581,6 +3582,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4234,7 +4236,7 @@ bpfwrite(dev_t dev, struct uio *uio, int ioflag)
  struct mbuf *m;
  struct bpf_program *bf;
  struct bpf_insn *fcode = ((void *)0);
- int error, s;
+ int error;
  struct sockaddr_storage dst;
  u_int dlt;
  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 587, "_kernel_lock_held()"));
@@ -4268,9 +4270,9 @@ bpfwrite(dev_t dev, struct uio *uio, int ioflag)
  m->M_dat.MH.MH_pkthdr.pf.prio = ifp->if_llprio;
  if (d->bd_hdrcmplt && dst.ss_family == 0)
   dst.ss_family = 31;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  error = ifp->if_output(ifp, m, sstosa(&dst), ((void *)0));
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 out:
  bpf_put(d);
  return (error);

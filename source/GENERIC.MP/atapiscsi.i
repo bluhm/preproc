@@ -4446,6 +4446,8 @@ wdc_atapi_pio_intr(struct channel_softc *chp, struct wdc_xfer *xfer,
    wdc_atapi_intr_data(chp, xfer, timeout, ret);
    return;
   }
+  wdc_atapi_intr_complete(chp, xfer, timeout, ret);
+  return;
  case as_completed:
   if ((chp->ch_status & 0x08) ||
       (ireason & 3) != 3) {

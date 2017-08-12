@@ -2180,6 +2180,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2239,6 +2240,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4066,7 +4068,6 @@ int
 gre_clone_create(struct if_clone *ifc, int unit)
 {
  struct gre_softc *sc;
- int s;
  sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
  if (!sc)
   return (12);
@@ -4099,21 +4100,20 @@ gre_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->sc_if);
  if_alloc_sadl(&sc->sc_if);
  bpfattach(&sc->sc_if.if_bpf, &sc->sc_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  do { if (((sc)->sc_list.le_next = (&gre_softc_list)->lh_first) != ((void *)0)) (&gre_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&gre_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&gre_softc_list)->lh_first; } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
 gre_clone_destroy(struct ifnet *ifp)
 {
  struct gre_softc *sc = ifp->if_softc;
- int s;
  timeout_del(&sc->sc_ka_snd);
  timeout_del(&sc->sc_ka_hold);
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
  return (0);
@@ -4461,7 +4461,6 @@ gre_send_keepalive(void *arg)
  struct ip *ip;
  struct gre_h *gh;
  struct sockaddr dst;
- int s;
  if (sc->sc_ka_timout)
   timeout_add_sec(&sc->sc_ka_snd, sc->sc_ka_timout);
  if (sc->g_proto != 47)
@@ -4494,9 +4493,9 @@ gre_send_keepalive(void *arg)
  __builtin_bzero((gh), (sizeof(*gh)));
  __builtin_bzero((&dst), (sizeof(dst)));
  dst.sa_family = 2;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  gre_output(&sc->sc_if, m, &dst, ((void *)0));
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 gre_recv_keepalive(struct gre_softc *sc)

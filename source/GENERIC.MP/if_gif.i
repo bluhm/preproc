@@ -2387,6 +2387,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2446,6 +2447,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4748,7 +4750,6 @@ int
 gif_clone_create(struct if_clone *ifc, int unit)
 {
  struct gif_softc *sc;
- int s;
  sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
  if (!sc)
   return (12);
@@ -4767,19 +4768,18 @@ gif_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->gif_if);
  if_alloc_sadl(&sc->gif_if);
  bpfattach(&sc->gif_if.if_bpf, &sc->gif_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  do { if (((sc)->gif_list.le_next = (&gif_softc_list)->lh_first) != ((void *)0)) (&gif_softc_list)->lh_first->gif_list.le_prev = &(sc)->gif_list.le_next; (&gif_softc_list)->lh_first = (sc); (sc)->gif_list.le_prev = &(&gif_softc_list)->lh_first; } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
 gif_clone_destroy(struct ifnet *ifp)
 {
  struct gif_softc *sc = ifp->if_softc;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  do { if ((sc)->gif_list.le_next != ((void *)0)) (sc)->gif_list.le_next->gif_list.le_prev = (sc)->gif_list.le_prev; *(sc)->gif_list.le_prev = (sc)->gif_list.le_next; ((sc)->gif_list.le_prev) = ((void *)-1); ((sc)->gif_list.le_next) = ((void *)-1); } while (0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  if (sc->gif_psrc)
   free((caddr_t)sc->gif_psrc, 9, 0);

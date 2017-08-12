@@ -2189,11 +2189,11 @@ socantrcvmore(struct socket *so)
 int
 solock(struct socket *so)
 {
- int s;
+ int s = 0;
  if ((so->so_proto->pr_domain->dom_family != 1) &&
      (so->so_proto->pr_domain->dom_family != 17) &&
      (so->so_proto->pr_domain->dom_family != 30))
-  do { _rw_enter_write(&netlock ); s = 2; } while (0);
+  do { _rw_enter_write(&netlock ); } while (0);
  else
   s = -42;
  return (s);
@@ -2202,7 +2202,7 @@ void
 sounlock(int s)
 {
  if (s != -42)
-  do { (void)s; _rw_exit_write(&netlock ); } while (0);
+  do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 soassertlocked(struct socket *so)

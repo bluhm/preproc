@@ -1958,7 +1958,7 @@ net_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
 {
  struct domain *dp;
  struct protosw *pr;
- int s, error, family, protocol;
+ int error, family, protocol;
  if (namelen < 2)
   return (21);
  family = name[0];
@@ -1984,10 +1984,10 @@ net_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  protocol = name[1];
  for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
   if (pr->pr_protocol == protocol && pr->pr_sysctl) {
-   do { _rw_enter_write(&netlock ); s = 2; } while (0);
+   do { _rw_enter_write(&netlock ); } while (0);
    error = (*pr->pr_sysctl)(name + 2, namelen - 2,
        oldp, oldlenp, newp, newlen);
-   do { (void)s; _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
    return (error);
   }
  return (42);
@@ -2011,14 +2011,14 @@ pfslowtimo(void *arg)
  struct timeout *to = (struct timeout *)arg;
  struct domain *dp;
  struct protosw *pr;
- int i, s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ int i;
+ do { _rw_enter_write(&netlock ); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_slowtimo)
     (*pr->pr_slowtimo)();
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 500);
 }
 void
@@ -2027,13 +2027,13 @@ pffasttimo(void *arg)
  struct timeout *to = (struct timeout *)arg;
  struct domain *dp;
  struct protosw *pr;
- int i, s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ int i;
+ do { _rw_enter_write(&netlock ); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_fasttimo)
     (*pr->pr_fasttimo)();
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 200);
 }

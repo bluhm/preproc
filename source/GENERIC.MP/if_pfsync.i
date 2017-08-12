@@ -2478,6 +2478,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2537,6 +2538,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -7158,10 +7160,9 @@ pfsync_undefer(struct pfsync_deferral *pd, int drop)
 void
 pfsync_defer_tmo(void *arg)
 {
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  pfsync_undefer(arg, 0);
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_deferred(struct pf_state *st, int drop)
@@ -7365,7 +7366,7 @@ pfsync_q_ins(struct pf_state *st, int q)
 {
  struct pfsync_softc *sc = pfsyncif;
  size_t nlen = pfsync_qs[q].len;
- ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2068, "st->sync_state == PFSYNC_S_NONE"));
+ ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2066, "st->sync_state == PFSYNC_S_NONE"));
  if ((((&sc->sc_qs[q])->tqh_first) == ((void *)0)))
   nlen += sizeof(struct pfsync_subheader);
  if (sc->sc_len + nlen > sc->sc_if.if_data.ifi_mtu) {
@@ -7381,7 +7382,7 @@ pfsync_q_del(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int q = st->sync_state;
- ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2094, "st->sync_state != PFSYNC_S_NONE"));
+ ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2092, "st->sync_state != PFSYNC_S_NONE"));
  sc->sc_len -= pfsync_qs[q].len;
  do { if (((st)->sync_list.tqe_next) != ((void *)0)) (st)->sync_list.tqe_next->sync_list.tqe_prev = (st)->sync_list.tqe_prev; else (&sc->sc_qs[q])->tqh_last = (st)->sync_list.tqe_prev; *(st)->sync_list.tqe_prev = (st)->sync_list.tqe_next; ((st)->sync_list.tqe_prev) = ((void *)-1); ((st)->sync_list.tqe_next) = ((void *)-1); } while (0);
  st->sync_state = 0xff;
@@ -7462,8 +7463,7 @@ pfsync_bulk_update(void *arg)
  struct pfsync_softc *sc = arg;
  struct pf_state *st;
  int i = 0;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  st = sc->sc_bulk_next;
  for (;;) {
   if (st->sync_state == 0xff &&
@@ -7488,7 +7488,7 @@ pfsync_bulk_update(void *arg)
    break;
   }
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_bulk_status(u_int8_t status)
@@ -7511,8 +7511,7 @@ void
 pfsync_bulk_fail(void *arg)
 {
  struct pfsync_softc *sc = arg;
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (sc->sc_bulk_tries++ < 12) {
   timeout_add_sec(&sc->sc_bulkfail_tmo, 5);
   pfsync_request_update(0, 0);
@@ -7533,7 +7532,7 @@ pfsync_bulk_fail(void *arg)
   sc->sc_link_demoted = 0;
   do { if (pf_status.debug >= (3)) { log(3, "pfsync: "); addlog("failed to receive bulk update"); addlog("\n"); } } while (0);
  }
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsync_send_plus(void *plus, size_t pluslen)
@@ -7568,10 +7567,9 @@ pfsync_state_in_use(struct pf_state *st)
 void
 pfsync_timeout(void *arg)
 {
- int s;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  pfsync_sendout();
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 pfsyncintr(void)

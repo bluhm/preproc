@@ -2674,6 +2674,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2733,6 +2734,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4195,15 +4197,9 @@ udp6_output(struct inpcb *in6p, struct mbuf *m, struct mbuf *addr6,
  } else
   optp = in6p->inp_outputopts6;
  if (addr6) {
-  struct sockaddr_in6 *sin6 = ((struct sockaddr_in6 *)((addr6)->m_hdr.mh_data));
-  if (addr6->m_hdr.mh_len != sizeof(*sin6)) {
-   error = 22;
+  struct sockaddr_in6 *sin6;
+  if ((error = in6_nam2sin6(addr6, &sin6)))
    goto release;
-  }
-  if (sin6->sin6_family != 24) {
-   error = 47;
-   goto release;
-  }
   if (sin6->sin6_port == 0) {
    error = 49;
    goto release;

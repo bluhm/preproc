@@ -2967,6 +2967,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -3026,6 +3027,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -4437,14 +4439,11 @@ int
 in6_pcbconnect(struct inpcb *inp, struct mbuf *nam)
 {
  struct in6_addr *in6a = ((void *)0);
- struct sockaddr_in6 *sin6 = ((struct sockaddr_in6 *)((nam)->m_hdr.mh_data));
- int error = 0;
+ struct sockaddr_in6 *sin6;
+ int error;
  struct sockaddr_in6 tmp;
- (void)&in6a;
- if (nam->m_hdr.mh_len != sizeof(*sin6))
-  return (22);
- if (sin6->sin6_family != 24)
-  return (47);
+ if ((error = in6_nam2sin6(nam, &sin6)))
+  return (error);
  if (sin6->sin6_port == 0)
   return (49);
  if (((*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[8]) == ((__uint32_t)(0x0000ffff)))))
@@ -4463,7 +4462,7 @@ in6_pcbconnect(struct inpcb *inp, struct mbuf *nam)
      inp->inp_lport, inp->inp_rtableid) != ((void *)0)) {
   return (48);
  }
- ((((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_pcb.c", 291, "IN6_IS_ADDR_UNSPECIFIED(&inp->inp_laddr6) || inp->inp_lport"));
+ ((((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_pcb.c", 287, "IN6_IS_ADDR_UNSPECIFIED(&inp->inp_laddr6) || inp->inp_lport"));
  if (((*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&inp->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0))) {
   if (inp->inp_lport == 0) {
    error = in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc);

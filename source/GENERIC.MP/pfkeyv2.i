@@ -2696,6 +2696,7 @@ int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
+int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
 int in6_embedscope(struct in6_addr *, const struct sockaddr_in6 *,
      struct inpcb *);
@@ -2755,6 +2756,7 @@ void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
+int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
 char *inet_ntoa(struct in_addr);
 int inet_nat64(int, const void *, void *, const void *, u_int8_t);
 int inet_nat46(int, const void *, void *, const void *, u_int8_t);
@@ -5242,7 +5244,7 @@ pfkeyv2_get_proto_alg(u_int8_t satype, u_int8_t *sproto, int *alg)
 int
 pfkeyv2_send(struct socket *so, void *message, int len)
 {
- int i, j, s, rval = 0, mode = 3;
+ int i, j, rval = 0, mode = 3;
  int delflag = 0;
  struct sockaddr_encap encapdst, encapnetmask;
  struct ipsec_policy *ipo, *tmpipo;
@@ -5260,7 +5262,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  struct sadb_supported *ssup;
  struct sadb_ident *sid, *did;
  u_int rdomain;
- do { _rw_enter_write(&netlock ); s = 2; } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  __builtin_bzero((headers), (sizeof(headers)));
  kp = ((struct keycb *)(so)->so_pcb);
  if (!kp) {
@@ -5910,7 +5912,7 @@ ret:
  }
  rval = pfkeyv2_sendmessage(headers, mode, so, 0, 0, rdomain);
 realret:
- do { (void)s; _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  if (freeme)
   free(freeme, 74, 0);
  explicit_bzero(message, len);
