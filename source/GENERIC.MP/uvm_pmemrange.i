@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3217,7 +3218,7 @@ uvm_pmr_getpages(psize_t count, paddr_t start, paddr_t end, paddr_t align,
  else
   memtype_init = 0;
  desperate = 0;
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
 retry:
  fcount = 0;
  fnsegs = 0;
@@ -3308,22 +3309,22 @@ fail:
   ((flags & 0x0010) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pmemrange.c", 1016, "flags & UVM_PLA_FAILOK"));
  } else
   wakeup(&uvm.pagedaemon);
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
  return 12;
 out:
  uvmexp.free -= fcount;
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
  fnsegs = 0;
  fcount = 0;
  diag_prev = ((void *)0);
  for((found) = ((result)->tqh_first); (found) != ((void *)0); (found) = ((found)->pageq.tqe_next)) {
   atomic_clearbits_int(&found->pg_flags, 0x3f000000);
   if (found->pg_flags & 0x00000100) {
-   __mtx_enter(&uvm.fpageqlock);
+   __mtx_enter(&uvm.fpageqlock );
    uvmexp.zeropages--;
    if (uvmexp.zeropages < (uvmexp.free / 8))
     wakeup(&uvmexp.zeropages);
-   __mtx_leave(&uvm.fpageqlock);
+   __mtx_leave(&uvm.fpageqlock );
   }
   if (flags & 0x0004) {
    if (found->pg_flags & 0x00000100)
@@ -3373,7 +3374,7 @@ uvm_pmr_freepages(struct vm_page *pg, psize_t count)
   atomic_setbits_int(&pg[i].pg_flags, 0x00010000);
   atomic_clearbits_int(&pg[i].pg_flags, 0x00000100);
  }
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  for (i = count; i > 0; i -= pmr_count) {
   pmr = uvm_pmemrange_find(((((pg)->phys_addr)) >> 13));
   ((pmr != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pmemrange.c", 1128, "pmr != NULL"));
@@ -3387,7 +3388,7 @@ uvm_pmr_freepages(struct vm_page *pg, psize_t count)
  if (uvmexp.zeropages < (uvmexp.free / 8))
   wakeup(&uvmexp.zeropages);
  uvm_wakeup_pla(((firstpg)->phys_addr), ((paddr_t)(count) << 13));
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
 }
 void
 uvm_pmr_freepageq(struct pglist *pgl)
@@ -3405,7 +3406,7 @@ uvm_pmr_freepageq(struct pglist *pgl)
   atomic_setbits_int(&pg->pg_flags, 0x00010000);
   atomic_clearbits_int(&pg->pg_flags, 0x00000100);
  }
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  while (!(((pgl)->tqh_first) == ((void *)0))) {
   pstart = ((((pgl)->tqh_first))->phys_addr);
   plen = uvm_pmr_remove_1strange(pgl, 0, ((void *)0), 0);
@@ -3415,7 +3416,7 @@ uvm_pmr_freepageq(struct pglist *pgl)
  wakeup(&uvmexp.free);
  if (uvmexp.zeropages < (uvmexp.free / 8))
   wakeup(&uvmexp.zeropages);
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
  return;
 }
 struct uvm_pmemrange *
@@ -3443,21 +3444,21 @@ uvm_pmr_split(paddr_t pageno)
  struct uvm_pmemrange *pmr, *drain;
  struct vm_page *rebuild, *prev, *next;
  psize_t prev_sz;
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  pmr = uvm_pmemrange_find(pageno);
  if (pmr == ((void *)0) || !(pmr->low < pageno)) {
-  __mtx_leave(&uvm.fpageqlock);
+  __mtx_leave(&uvm.fpageqlock );
   return;
  }
  ((pmr->low < pageno) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pmemrange.c", 1336, "pmr->low < pageno"));
  ((pmr->high > pageno) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pmemrange.c", 1337, "pmr->high > pageno"));
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
  drain = uvm_pmr_allocpmr();
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  pmr = uvm_pmemrange_find(pageno);
  if (pmr == ((void *)0) || !(pmr->low < pageno)) {
   printf("uvm_pmr_split: lost one pmr\n");
-  __mtx_leave(&uvm.fpageqlock);
+  __mtx_leave(&uvm.fpageqlock );
   return;
  }
  drain->low = pageno;
@@ -3500,7 +3501,7 @@ uvm_pmr_split(paddr_t pageno)
  do {} while (0);
  uvm_pmemrange_addr_RBT_INSERT(&uvm.pmr_control.addr, drain);
  uvm_pmemrange_use_insert(&uvm.pmr_control.use, drain);
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
 }
 void
 uvm_pmr_use_inc(paddr_t low, paddr_t high)
@@ -3513,7 +3514,7 @@ uvm_pmr_use_inc(paddr_t low, paddr_t high)
  uvm_pmr_split(low);
  uvm_pmr_split(high);
  sz = 0;
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  for ((pmr) = uvm_pmemrange_addr_RBT_MIN((&uvm.pmr_control.addr)); (pmr) != ((void *)0); (pmr) = uvm_pmemrange_addr_RBT_NEXT((pmr))) {
   if ((((low) == 0 || (pmr->low) >= (low)) && ((high) == 0 || (pmr->high) <= (high)))) {
    do { if (((pmr)->pmr_use.tqe_next) != ((void *)0)) (pmr)->pmr_use.tqe_next->pmr_use.tqe_prev = (pmr)->pmr_use.tqe_prev; else (&uvm.pmr_control.use)->tqh_last = (pmr)->pmr_use.tqe_prev; *(pmr)->pmr_use.tqe_prev = (pmr)->pmr_use.tqe_next; ((pmr)->pmr_use.tqe_prev) = ((void *)-1); ((pmr)->pmr_use.tqe_next) = ((void *)-1); } while (0);
@@ -3523,7 +3524,7 @@ uvm_pmr_use_inc(paddr_t low, paddr_t high)
   }
   do {} while (0);
  }
- __mtx_leave(&uvm.fpageqlock);
+ __mtx_leave(&uvm.fpageqlock );
  ((sz >= high - low) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pmemrange.c", 1453, "sz >= high - low"));
 }
 struct uvm_pmemrange *
@@ -3774,12 +3775,12 @@ uvm_wait_pla(paddr_t low, paddr_t high, paddr_t size, int failok)
  struct uvm_pmalloc pma;
  const char *wmsg = "pmrwait";
  if ((__curcpu->ci_self)->ci_curproc == uvm.pagedaemon_proc) {
-  __mtx_leave(&uvm.fpageqlock);
+  __mtx_leave(&uvm.fpageqlock );
   if (bufbackoff(((void *)0), ((size) >> 13)) == 0) {
-   __mtx_enter(&uvm.fpageqlock);
+   __mtx_enter(&uvm.fpageqlock );
    return 0;
   }
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   printf("pagedaemon: wait_pla deadlock detected!\n");
   msleep(&uvmexp.free, &uvm.fpageqlock, 4, wmsg, hz >> 3);
   return 0;
@@ -3833,23 +3834,23 @@ uvm_pagezero_thread(void *arg)
  _kernel_unlock();
  do { (&pgl)->tqh_first = ((void *)0); (&pgl)->tqh_last = &(&pgl)->tqh_first; } while (0);
  for (;;) {
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   while (uvmexp.zeropages >= (uvmexp.free / 8) ||
       (count = uvm_pmr_get1page(16, 0,
        &pgl, 0, 0, 1)) == 0) {
    msleep(&uvmexp.zeropages, &uvm.fpageqlock, 127,
        "pgzero", 0);
   }
-  __mtx_leave(&uvm.fpageqlock);
+  __mtx_leave(&uvm.fpageqlock );
   for((pg) = ((&pgl)->tqh_first); (pg) != ((void *)0); (pg) = ((pg)->pageq.tqe_next)) {
    uvm_pagezero(pg);
    atomic_setbits_int(&pg->pg_flags, 0x00000100);
   }
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   while (!(((&pgl)->tqh_first) == ((void *)0)))
    uvm_pmr_remove_1strange(&pgl, 0, ((void *)0), 0);
   uvmexp.zeropages += count;
-   __mtx_leave(&uvm.fpageqlock);
+   __mtx_leave(&uvm.fpageqlock );
   yield();
  }
 }

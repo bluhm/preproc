@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4045,7 +4046,7 @@ mpi_attach(struct mpi_softc *sc)
  switch (sc->sc_porttype) {
  case 0x30:
   do { (&sc->sc_evt_scan_queue)->sqh_first = ((void *)0); (&sc->sc_evt_scan_queue)->sqh_last = &(&sc->sc_evt_scan_queue)->sqh_first; } while (0);
-  __mtx_init((&sc->sc_evt_scan_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+  do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_evt_scan_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
   scsi_ioh_set(&sc->sc_evt_scan_handler, &sc->sc_iopool,
       mpi_evt_sas_detach, sc);
  case 0x10:
@@ -4575,7 +4576,7 @@ mpi_alloc_ccbs(struct mpi_softc *sc)
  u_int8_t *cmd;
  int i;
  { ((&sc->sc_ccb_free)->slh_first) = ((void *)0); };
- __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  sc->sc_ccbs = mallocarray(sc->sc_maxcmds, sizeof(struct mpi_ccb),
      2, 0x0001 | 0x0004 | 0x0008);
  if (sc->sc_ccbs == ((void *)0)) {
@@ -4624,13 +4625,13 @@ mpi_get_ccb(void *xsc)
 {
  struct mpi_softc *sc = xsc;
  struct mpi_ccb *ccb;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  ccb = ((&sc->sc_ccb_free)->slh_first);
  if (ccb != ((void *)0)) {
   do { (&sc->sc_ccb_free)->slh_first = (&sc->sc_ccb_free)->slh_first->ccb_link.sle_next; } while (0);
   ccb->ccb_state = MPI_CCB_READY;
  }
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
  ;
  return (ccb);
 }
@@ -4646,9 +4647,9 @@ mpi_put_ccb(void *xsc, void *io)
  ccb->ccb_cookie = ((void *)0);
  ccb->ccb_done = ((void *)0);
  __builtin_memset((ccb->ccb_cmd), (0), (512));
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  do { (ccb)->ccb_link.sle_next = (&sc->sc_ccb_free)->slh_first; (&sc->sc_ccb_free)->slh_first = (ccb); } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
 }
 int
 mpi_alloc_replies(struct mpi_softc *sc)
@@ -4748,20 +4749,20 @@ mpi_wait(struct mpi_softc *sc, struct mpi_ccb *ccb)
  ccb->ccb_done = mpi_wait_done;
  ccb->ccb_cookie = &cookie;
  mpi_start(sc, ccb);
- __mtx_enter(&cookie);
+ __mtx_enter(&cookie );
  while (ccb->ccb_cookie != ((void *)0))
   msleep(ccb, &cookie, 16, "mpiwait", 0);
- __mtx_leave(&cookie);
+ __mtx_leave(&cookie );
  done(ccb);
 }
 void
 mpi_wait_done(struct mpi_ccb *ccb)
 {
  struct mutex *cookie = ccb->ccb_cookie;
- __mtx_enter(cookie);
+ __mtx_enter(cookie );
  ccb->ccb_cookie = ((void *)0);
  wakeup_n((ccb), 1);
- __mtx_leave(cookie);
+ __mtx_leave(cookie );
 }
 void
 mpi_scsi_cmd(struct scsi_xfer *xs)
@@ -5406,7 +5407,7 @@ mpi_eventnotify(struct mpi_softc *sc)
  }
  sc->sc_evt_ccb = ccb;
  do { (&sc->sc_evt_ack_queue)->sqh_first = ((void *)0); (&sc->sc_evt_ack_queue)->sqh_last = &(&sc->sc_evt_ack_queue)->sqh_first; } while (0);
- __mtx_init((&sc->sc_evt_ack_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_evt_ack_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  scsi_ioh_set(&sc->sc_evt_ack_handler, &sc->sc_iopool,
      mpi_eventack, sc);
  ccb->ccb_done = mpi_eventnotify_done;
@@ -5458,9 +5459,9 @@ mpi_eventnotify_free(struct mpi_softc *sc, struct mpi_rcb *rcb)
 {
  struct mpi_msg_event_reply *enp = rcb->rcb_reply;
  if (enp->ack_required) {
-  __mtx_enter(&sc->sc_evt_ack_mtx);
+  __mtx_enter(&sc->sc_evt_ack_mtx );
   do { (rcb)->rcb_link.sqe_next = ((void *)0); *(&sc->sc_evt_ack_queue)->sqh_last = (rcb); (&sc->sc_evt_ack_queue)->sqh_last = &(rcb)->rcb_link.sqe_next; } while (0);
-  __mtx_leave(&sc->sc_evt_ack_mtx);
+  __mtx_leave(&sc->sc_evt_ack_mtx );
   scsi_ioh_add(&sc->sc_evt_ack_handler);
  } else
   mpi_push_reply(sc, rcb);
@@ -5489,9 +5490,9 @@ mpi_evt_sas(struct mpi_softc *sc, struct mpi_rcb *rcb)
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/mpi.c", 2387);
   scsi_activate(sc->sc_scsibus, ch->target, -1, 1);
   _kernel_unlock();
-  __mtx_enter(&sc->sc_evt_scan_mtx);
+  __mtx_enter(&sc->sc_evt_scan_mtx );
   do { (rcb)->rcb_link.sqe_next = ((void *)0); *(&sc->sc_evt_scan_queue)->sqh_last = (rcb); (&sc->sc_evt_scan_queue)->sqh_last = &(rcb)->rcb_link.sqe_next; } while (0);
-  __mtx_leave(&sc->sc_evt_scan_mtx);
+  __mtx_leave(&sc->sc_evt_scan_mtx );
   scsi_ioh_add(&sc->sc_evt_scan_handler);
   return (1);
  case 0x05:
@@ -5515,13 +5516,13 @@ mpi_evt_sas_detach(void *cookie, void *io)
  struct mpi_evt_sas_change *ch;
  struct mpi_msg_scsi_task_request *str;
  ;
- __mtx_enter(&sc->sc_evt_scan_mtx);
+ __mtx_enter(&sc->sc_evt_scan_mtx );
  rcb = ((&sc->sc_evt_scan_queue)->sqh_first);
  if (rcb != ((void *)0)) {
   next = ((rcb)->rcb_link.sqe_next);
   do { if (((&sc->sc_evt_scan_queue)->sqh_first = (&sc->sc_evt_scan_queue)->sqh_first->rcb_link.sqe_next) == ((void *)0)) (&sc->sc_evt_scan_queue)->sqh_last = &(&sc->sc_evt_scan_queue)->sqh_first; } while (0);
  }
- __mtx_leave(&sc->sc_evt_scan_mtx);
+ __mtx_leave(&sc->sc_evt_scan_mtx );
  if (rcb == ((void *)0)) {
   scsi_io_put(&sc->sc_iopool, ccb);
   return;
@@ -5604,13 +5605,13 @@ mpi_eventack(void *cookie, void *io)
  struct mpi_msg_event_reply *enp;
  struct mpi_msg_eventack_request *eaq;
  ;
- __mtx_enter(&sc->sc_evt_ack_mtx);
+ __mtx_enter(&sc->sc_evt_ack_mtx );
  rcb = ((&sc->sc_evt_ack_queue)->sqh_first);
  if (rcb != ((void *)0)) {
   next = ((rcb)->rcb_link.sqe_next);
   do { if (((&sc->sc_evt_ack_queue)->sqh_first = (&sc->sc_evt_ack_queue)->sqh_first->rcb_link.sqe_next) == ((void *)0)) (&sc->sc_evt_ack_queue)->sqh_last = &(&sc->sc_evt_ack_queue)->sqh_first; } while (0);
  }
- __mtx_leave(&sc->sc_evt_ack_mtx);
+ __mtx_leave(&sc->sc_evt_ack_mtx );
  if (rcb == ((void *)0)) {
   scsi_io_put(&sc->sc_iopool, ccb);
   return;

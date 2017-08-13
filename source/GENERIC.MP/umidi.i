@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3234,10 +3235,10 @@ in_intr(struct usbd_xfer *xfer, void *priv, usbd_status status)
   if (cn < ep->num_jacks && (jack = ep->jacks[cn]) &&
       jack->binded && jack->opened && jack->u.in.intr) {
        evlen = packet_length[((unsigned char)(buf[0])&0x0F)];
-   __mtx_enter(&audio_lock);
+   __mtx_enter(&audio_lock );
    for (i=0; i<evlen; i++)
     (*jack->u.in.intr)(jack->arg, buf[i+1]);
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
   }
   buf += 4;
   remain -= 4;
@@ -3264,10 +3265,10 @@ out_intr(struct usbd_xfer *xfer, void *priv, usbd_status status)
   do { if (((&ep->intrq)->sqh_first = (&ep->intrq)->sqh_first->intrq_entry.sqe_next) == ((void *)0)) (&ep->intrq)->sqh_last = &(&ep->intrq)->sqh_first; } while (0);
   ep->pending--;
   j->intr = 0;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   if (j->opened && j->u.out.intr)
    (*j->u.out.intr)(j->arg);
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
  }
 }
 static const unsigned int umidi_evlen[] = { 4, 4, 4, 4, 3, 3, 4 };

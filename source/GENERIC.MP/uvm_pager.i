@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2454,7 +2455,7 @@ uvm_pager_init(void)
 {
  int lcv;
  uvm_pseg_init(&psegs[0]);
- __mtx_init((&uvm_pseg_lck), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&uvm_pseg_lck), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0);
  do { (&uvm.aio_done)->tqh_first = ((void *)0); (&uvm.aio_done)->tqh_last = &(&uvm.aio_done)->tqh_first; } while (0);
  for (lcv = 0 ; lcv < sizeof(uvmpagerops)/sizeof(struct uvm_pagerops *);
      lcv++) {
@@ -2474,7 +2475,7 @@ uvm_pseg_get(int flags)
 {
  int i;
  struct uvm_pseg *pseg;
- __mtx_enter(&uvm_pseg_lck);
+ __mtx_enter(&uvm_pseg_lck );
 pager_seg_restart:
  for (pseg = &psegs[0]; pseg != &psegs[((16 * 1024 * 1024) / 16 / (64 * 1024))]; pseg++) {
   if (((pseg)->use == (1 << 16) - 1))
@@ -2491,7 +2492,7 @@ pager_seg_restart:
   for (; i < 16; i++) {
    if (!(((pseg)->use & (1 << (i))) != 0)) {
     pseg->use |= 1 << i;
-    __mtx_leave(&uvm_pseg_lck);
+    __mtx_leave(&uvm_pseg_lck );
     return pseg->start + i * (64 * 1024);
    }
   }
@@ -2501,7 +2502,7 @@ pager_seg_fail:
   msleep(&psegs, &uvm_pseg_lck, 4, "pagerseg", 0);
   goto pager_seg_restart;
  }
- __mtx_leave(&uvm_pseg_lck);
+ __mtx_leave(&uvm_pseg_lck );
  return 0;
 }
 void
@@ -2519,7 +2520,7 @@ uvm_pseg_release(vaddr_t segaddr)
  id = (segaddr - pseg->start) / (64 * 1024);
  ((id >= 0 && id < 16) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pager.c", 199, "id >= 0 && id < MAX_PAGER_SEGS"));
  ((void)0);
- __mtx_enter(&uvm_pseg_lck);
+ __mtx_enter(&uvm_pseg_lck );
  (((((pseg)->use & (1 << (id))) != 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_pager.c", 206, "UVM_PSEG_INUSE(pseg, id)"));
  pseg->use &= ~(1 << id);
  wakeup(&psegs);
@@ -2527,7 +2528,7 @@ uvm_pseg_release(vaddr_t segaddr)
   va = pseg->start;
   pseg->start = 0;
  }
- __mtx_leave(&uvm_pseg_lck);
+ __mtx_leave(&uvm_pseg_lck );
  if (va)
   uvm_km_free(kernel_map, va, 16 * (64 * 1024));
 }
@@ -2657,7 +2658,7 @@ uvm_pager_put(struct uvm_object *uobj, struct vm_page *pg,
  } else {
   swblk = start;
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
 ReTry:
  if (uobj) {
   result = uobj->pgops->pgo_put(uobj, ppsp, *npages, flags);
@@ -2748,10 +2749,10 @@ uvm_aio_biodone(struct buf *bp)
 {
  do { if (splassert_ctl > 0) { splassert_check(5, __func__); } } while (0);
  bp->b_iodone = uvm_aio_aiodone;
- __mtx_enter(&uvm.aiodoned_lock);
+ __mtx_enter(&uvm.aiodoned_lock );
  do { (bp)->b_freelist.tqe_next = ((void *)0); (bp)->b_freelist.tqe_prev = (&uvm.aio_done)->tqh_last; *(&uvm.aio_done)->tqh_last = (bp); (&uvm.aio_done)->tqh_last = &(bp)->b_freelist.tqe_next; } while (0);
  wakeup(&uvm.aiodoned);
- __mtx_leave(&uvm.aiodoned_lock);
+ __mtx_leave(&uvm.aiodoned_lock );
 }
 void
 uvm_aio_aiodone(struct buf *bp)

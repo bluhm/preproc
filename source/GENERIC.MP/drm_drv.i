@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5079,14 +5080,16 @@ PTR_ERR_OR_ZERO(const void *ptr)
 typedef struct rwlock rwlock_t;
 typedef struct mutex spinlock_t;
 static inline void
-spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_enter(mtxp);
+ __mtx_enter(mtxp );
 }
 static inline void
-spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_leave(mtxp);
+ __mtx_leave(mtxp );
 }
 struct wait_queue_head {
  struct mutex lock;
@@ -5096,7 +5099,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -5107,28 +5110,29 @@ static inline void
 init_completion(struct completion *x)
 {
  x->done = 0;
- __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
 }
 static inline u_long
-wait_for_completion_interruptible_timeout(struct completion *x, u_long timo)
+_wait_for_completion_interruptible_timeout(struct completion *x, u_long timo
+    )
 {
  int ret;
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  while (x->done == 0) {
   ret = msleep(x, &x->wait.lock, 0x100, "wfcit", timo);
   if (ret) {
-   __mtx_leave(&x->wait.lock);
+   __mtx_leave(&x->wait.lock );
    return (ret == 35) ? 0 : -ret;
   }
  }
  return 1;
 }
 static inline void
-complete_all(struct completion *x)
+_complete_all(struct completion *x )
 {
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  x->done = 1;
- __mtx_leave(&x->wait.lock);
+ __mtx_leave(&x->wait.lock );
  wakeup(x);
 }
 struct workqueue_struct;
@@ -5759,7 +5763,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1697, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -7100,7 +7104,7 @@ ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
 }
 static inline void
 ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
@@ -7108,28 +7112,28 @@ ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
 static inline _Bool
 ww_mutex_is_locked(struct ww_mutex *lock) {
  _Bool res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 ww_mutex_trylock(struct ww_mutex *lock) {
  int res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired == 0) {
   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
   lock->acquired = 1;
   lock->owner = (__curcpu->ci_self)->ci_curproc;
   res = 1;
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
  int err;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  for (;;) {
   if (lock->acquired == 0) {
    ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
@@ -7159,7 +7163,7 @@ __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _
    }
   }
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return err;
 }
 static inline int
@@ -7180,13 +7184,13 @@ ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *c
 }
 static inline void
 ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 219, "lock->owner == curproc"));
  ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->acquired == 1"));
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  wakeup(lock);
 }
 static inline void
@@ -8935,8 +8939,8 @@ drm_attach(struct device *parent, struct device *self, void *aux)
  dev->pdev->tag = da->tag;
  dev->pdev->pci = (struct pci_softc *)parent->dv_parent;
  _rw_init_flags(&dev->struct_mutex, "drmdevlk", 0, ((void *)0));
- __mtx_init((&dev->event_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
- __mtx_init((&dev->quiesce_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&dev->event_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&dev->quiesce_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  do { (&dev->files)->sph_root = ((void *)0); } while (0);
  INIT_LIST_HEAD(&dev->vblank_event_list);
  if (drm_core_check_feature(dev, 0x1)) {
@@ -8989,21 +8993,21 @@ drm_detach(struct device *self, int flags)
 void
 drm_quiesce(struct drm_device *dev)
 {
- __mtx_enter(&dev->quiesce_mtx);
+ __mtx_enter(&dev->quiesce_mtx );
  dev->quiesce = 1;
  while (dev->quiesce_count > 0) {
   msleep(&dev->quiesce_count, &dev->quiesce_mtx,
       22, "drmqui", 0);
  }
- __mtx_leave(&dev->quiesce_mtx);
+ __mtx_leave(&dev->quiesce_mtx );
 }
 void
 drm_wakeup(struct drm_device *dev)
 {
- __mtx_enter(&dev->quiesce_mtx);
+ __mtx_enter(&dev->quiesce_mtx );
  dev->quiesce = 0;
  wakeup(&dev->quiesce);
- __mtx_leave(&dev->quiesce_mtx);
+ __mtx_leave(&dev->quiesce_mtx );
 }
 int
 drm_activate(struct device *self, int act)
@@ -9166,7 +9170,7 @@ drmclose(dev_t kdev, int flags, int fmt, struct proc *p)
  if (dev->driver->preclose != ((void *)0))
   dev->driver->preclose(dev, file_priv);
  do { } while( 0);
- __mtx_enter(&dev->event_lock);
+ __mtx_enter(&dev->event_lock );
  for (v = ({ __typeof( ((__typeof(*v) *)0)->base.link ) *__mptr = ((&dev->vblank_event_list)->next); (__typeof(*v) *)( (char *)__mptr - __builtin_offsetof(__typeof(*v), base.link) );}), vt = ({ __typeof( ((__typeof(*v) *)0)->base.link ) *__mptr = (v->base.link.next); (__typeof(*v) *)( (char *)__mptr - __builtin_offsetof(__typeof(*v), base.link) );}); &v->base.link != (&dev->vblank_event_list); v = vt, vt = ({ __typeof( ((__typeof(*vt) *)0)->base.link ) *__mptr = (vt->base.link.next); (__typeof(*vt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*vt), base.link) );}))
   if (v->base.file_priv == file_priv) {
    list_del(&v->base.link);
@@ -9177,7 +9181,7 @@ drmclose(dev_t kdev, int flags, int fmt, struct proc *p)
   list_del(&e->link);
   e->destroy(e);
  }
- __mtx_leave(&dev->event_lock);
+ __mtx_leave(&dev->event_lock );
  if (dev->driver->driver_features & 0x2000)
   drm_fb_release(file_priv);
  if (dev->driver->driver_features & 0x1000)
@@ -9268,19 +9272,19 @@ drmioctl(dev_t kdev, u_long cmd, caddr_t data, int flags, struct proc *p)
  int error;
  if (dev == ((void *)0))
   return 19;
- __mtx_enter(&dev->quiesce_mtx);
+ __mtx_enter(&dev->quiesce_mtx );
  while (dev->quiesce)
   msleep(&dev->quiesce, &dev->quiesce_mtx, 22, "drmioc", 0);
  dev->quiesce_count++;
- __mtx_leave(&dev->quiesce_mtx);
+ __mtx_leave(&dev->quiesce_mtx );
  error = -drm_do_ioctl(dev, ((int32_t)((kdev) & 0xff) | (((kdev) & 0xffff0000) >> 8)), cmd, data);
  if (error < 0 && error != -1 && error != -2)
   printf("%s: cmd 0x%lx errno %d\n", __func__, cmd, error);
- __mtx_enter(&dev->quiesce_mtx);
+ __mtx_enter(&dev->quiesce_mtx );
  dev->quiesce_count--;
  if (dev->quiesce)
   wakeup(&dev->quiesce_count);
- __mtx_leave(&dev->quiesce_mtx);
+ __mtx_leave(&dev->quiesce_mtx );
  return (error);
 }
 int
@@ -9297,17 +9301,17 @@ drmread(dev_t kdev, struct uio *uio, int ioflag)
  _rw_exit_write(&dev->struct_mutex );
  if (file_priv == ((void *)0))
   return (6);
- __mtx_enter(&dev->event_lock);
+ __mtx_enter(&dev->event_lock );
  while (error == 0 && list_empty(&file_priv->event_list)) {
   if (ioflag & 0x10) {
-   __mtx_leave(&dev->event_lock);
+   __mtx_leave(&dev->event_lock );
    return (35);
   }
   error = msleep(&file_priv->event_wait, &dev->event_lock,
       32 | 0x100, "drmread", 0);
  }
  if (error) {
-  __mtx_leave(&dev->event_lock);
+  __mtx_leave(&dev->event_lock );
   return (error);
  }
  while (drm_dequeue_event(dev, file_priv, uio->uio_resid, &ev)) {
@@ -9316,7 +9320,7 @@ drmread(dev_t kdev, struct uio *uio, int ioflag)
   ev->destroy(ev);
   if (error)
    break;
-  __mtx_enter(&dev->event_lock);
+  __mtx_enter(&dev->event_lock );
  }
  do { if ((&dev->event_lock)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&dev->event_lock), __func__); } while (0);
  return (error);
@@ -9339,7 +9343,7 @@ drm_dequeue_event(struct drm_device *dev, struct drm_file *file_priv,
  *out = e;
  gotone = 1;
 out:
- __mtx_leave(&dev->event_lock);
+ __mtx_leave(&dev->event_lock );
  return (gotone);
 }
 int
@@ -9355,14 +9359,14 @@ drmpoll(dev_t kdev, int events, struct proc *p)
  _rw_exit_write(&dev->struct_mutex );
  if (file_priv == ((void *)0))
   return (0x0008);
- __mtx_enter(&dev->event_lock);
+ __mtx_enter(&dev->event_lock );
  if (events & (0x0001 | 0x0040)) {
   if (!list_empty(&file_priv->event_list))
    revents |= events & (0x0001 | 0x0040);
   else
    selrecord(p, &file_priv->rsel);
  }
- __mtx_leave(&dev->event_lock);
+ __mtx_leave(&dev->event_lock );
  return (revents);
 }
 paddr_t

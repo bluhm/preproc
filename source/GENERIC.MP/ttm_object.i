@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4227,14 +4228,16 @@ PTR_ERR_OR_ZERO(const void *ptr)
 typedef struct rwlock rwlock_t;
 typedef struct mutex spinlock_t;
 static inline void
-spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_enter(mtxp);
+ __mtx_enter(mtxp );
 }
 static inline void
-spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_leave(mtxp);
+ __mtx_leave(mtxp );
 }
 struct wait_queue_head {
  struct mutex lock;
@@ -4244,7 +4247,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4255,28 +4258,29 @@ static inline void
 init_completion(struct completion *x)
 {
  x->done = 0;
- __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
 }
 static inline u_long
-wait_for_completion_interruptible_timeout(struct completion *x, u_long timo)
+_wait_for_completion_interruptible_timeout(struct completion *x, u_long timo
+    )
 {
  int ret;
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  while (x->done == 0) {
   ret = msleep(x, &x->wait.lock, 0x100, "wfcit", timo);
   if (ret) {
-   __mtx_leave(&x->wait.lock);
+   __mtx_leave(&x->wait.lock );
    return (ret == 35) ? 0 : -ret;
   }
  }
  return 1;
 }
 static inline void
-complete_all(struct completion *x)
+_complete_all(struct completion *x )
 {
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  x->done = 1;
- __mtx_leave(&x->wait.lock);
+ __mtx_leave(&x->wait.lock );
  wakeup(x);
 }
 struct workqueue_struct;
@@ -4907,7 +4911,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1697, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -6248,7 +6252,7 @@ ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
 }
 static inline void
 ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
@@ -6256,28 +6260,28 @@ ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
 static inline _Bool
 ww_mutex_is_locked(struct ww_mutex *lock) {
  _Bool res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 ww_mutex_trylock(struct ww_mutex *lock) {
  int res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired == 0) {
   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
   lock->acquired = 1;
   lock->owner = (__curcpu->ci_self)->ci_curproc;
   res = 1;
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
  int err;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  for (;;) {
   if (lock->acquired == 0) {
    ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
@@ -6307,7 +6311,7 @@ __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _
    }
   }
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return err;
 }
 static inline int
@@ -6328,13 +6332,13 @@ ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *c
 }
 static inline void
 ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 219, "lock->owner == curproc"));
  ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->acquired == 1"));
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  wakeup(lock);
 }
 static inline void
@@ -7850,22 +7854,22 @@ static inline void ttm_mem_init_shrink(struct ttm_mem_shrink *shrink,
 static inline int ttm_mem_register_shrink(struct ttm_mem_global *glob,
        struct ttm_mem_shrink *shrink)
 {
- __mtx_enter(&glob->lock);
+ __mtx_enter(&glob->lock );
  if (glob->shrink != ((void *)0)) {
-  __mtx_leave(&glob->lock);
+  __mtx_leave(&glob->lock );
   return -16;
  }
  glob->shrink = shrink;
- __mtx_leave(&glob->lock);
+ __mtx_leave(&glob->lock );
  return 0;
 }
 static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
           struct ttm_mem_shrink *shrink)
 {
- __mtx_enter(&glob->lock);
+ __mtx_enter(&glob->lock );
  ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 137, "!(glob->shrink != shrink)"));
  glob->shrink = ((void *)0);
- __mtx_leave(&glob->lock);
+ __mtx_leave(&glob->lock );
 }
 extern int ttm_mem_global_init(struct ttm_mem_global *glob);
 extern void ttm_mem_global_release(struct ttm_mem_global *glob);
@@ -7991,11 +7995,11 @@ int ttm_base_object_init(struct ttm_object_file *tfile,
  base->ref_obj_release = ref_obj_release;
  base->object_type = object_type;
  kref_init(&base->refcount);
- __mtx_enter(&tdev->object_lock);
+ __mtx_enter(&tdev->object_lock );
  ret = drm_ht_just_insert_please(&tdev->object_hash,
          &base->hash,
          (unsigned long)base, 31, 0, 0);
- __mtx_leave(&tdev->object_lock);
+ __mtx_leave(&tdev->object_lock );
  if (__builtin_expect(!!(ret != 0), 0))
   goto out_err0;
  ret = ttm_ref_object_add(tfile, base, TTM_REF_USAGE, ((void *)0));
@@ -8004,9 +8008,9 @@ int ttm_base_object_init(struct ttm_object_file *tfile,
  ttm_base_object_unref(&base);
  return 0;
 out_err1:
- __mtx_enter(&tdev->object_lock);
+ __mtx_enter(&tdev->object_lock );
  (void)drm_ht_remove_item(&tdev->object_hash, &base->hash);
- __mtx_leave(&tdev->object_lock);
+ __mtx_leave(&tdev->object_lock );
 out_err0:
  return ret;
 }
@@ -8016,9 +8020,9 @@ static void ttm_release_base(struct kref *kref)
  struct ttm_base_object *base =
      ({ __typeof( ((struct ttm_base_object *)0)->refcount ) *__mptr = (kref); (struct ttm_base_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_base_object, refcount) );});
  struct ttm_object_device *tdev = base->tfile->tdev;
- __mtx_enter(&tdev->object_lock);
+ __mtx_enter(&tdev->object_lock );
  (void)drm_ht_remove_item(&tdev->object_hash, &base->hash);
- __mtx_leave(&tdev->object_lock);
+ __mtx_leave(&tdev->object_lock );
  if (base->refcount_release) {
   ttm_object_file_unref(&base->tfile);
   base->refcount_release(&base);
@@ -8038,13 +8042,13 @@ struct ttm_base_object *ttm_base_object_lookup(struct ttm_object_file *tfile,
  struct ttm_base_object *base;
  struct drm_hash_item *hash;
  int ret;
- __mtx_enter(&tdev->object_lock);
+ __mtx_enter(&tdev->object_lock );
  ret = drm_ht_find_item(&tdev->object_hash, key, &hash);
  if (__builtin_expect(!!(ret == 0), 1)) {
   base = ({ __typeof( ((struct ttm_base_object *)0)->hash ) *__mptr = (hash); (struct ttm_base_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_base_object, hash) );});
   ret = kref_get_unless_zero(&base->refcount) ? 0 : -22;
  }
- __mtx_leave(&tdev->object_lock);
+ __mtx_leave(&tdev->object_lock );
  if (__builtin_expect(!!(ret != 0), 0))
   return ((void *)0);
  if (tfile != base->tfile && !base->shareable) {
@@ -8202,7 +8206,7 @@ struct ttm_object_device *ttm_object_device_init(struct ttm_mem_global
  if (__builtin_expect(!!(tdev == ((void *)0)), 0))
   return ((void *)0);
  tdev->mem_glob = mem_glob;
- __mtx_init((&tdev->object_lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&tdev->object_lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  (*(&tdev->object_count) = (0));
  ret = drm_ht_create(&tdev->object_hash, hash_order);
  if (__builtin_expect(!!(ret == 0), 1))
@@ -8215,9 +8219,9 @@ void ttm_object_device_release(struct ttm_object_device **p_tdev)
 {
  struct ttm_object_device *tdev = *p_tdev;
  *p_tdev = ((void *)0);
- __mtx_enter(&tdev->object_lock);
+ __mtx_enter(&tdev->object_lock );
  drm_ht_remove(&tdev->object_hash);
- __mtx_leave(&tdev->object_lock);
+ __mtx_leave(&tdev->object_lock );
  kfree(tdev);
 }
 ;

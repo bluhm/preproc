@@ -527,6 +527,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3280,9 +3281,9 @@ emuxki_pmem_alloc(struct emuxki_softc *sc, size_t size, int type, int flags)
     for (j = 0; j < numblocks; j++)
      ptb[i + j] =
          __extension__({ __uint32_t __swap32gen_x = ((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-    __mtx_enter(&audio_lock);
+    __mtx_enter(&audio_lock );
     do { if (((mem)->next.le_next = (&(sc->mem))->lh_first) != ((void *)0)) (&(sc->mem))->lh_first->next.le_prev = &(mem)->next.le_next; (&(sc->mem))->lh_first = (mem); (mem)->next.le_prev = &(&(sc->mem))->lh_first; } while (0);
-    __mtx_leave(&audio_lock);
+    __mtx_leave(&audio_lock );
     return (((void *)((mem->dmamem)->kaddr)));
    } else
     i += j;
@@ -3296,9 +3297,9 @@ emuxki_rmem_alloc(struct emuxki_softc *sc, size_t size, int type, int flags)
  mem = emuxki_mem_new(sc, 0xFFFF, size, type, flags);
  if (mem == ((void *)0))
   return (((void *)0));
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { if (((mem)->next.le_next = (&(sc->mem))->lh_first) != ((void *)0)) (&(sc->mem))->lh_first->next.le_prev = &(mem)->next.le_next; (&(sc->mem))->lh_first = (mem); (mem)->next.le_prev = &(&(sc->mem))->lh_first; } while (0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (((void *)((mem->dmamem)->kaddr)));
 }
 void
@@ -3455,7 +3456,7 @@ emuxki_channel_commit_parms(struct emuxki_channel *chan)
  start = chan->loop.start +
   (voice->stereo ? 28 : 30) * (voice->b16 + 1);
  mapval = ((sc->silentpage)->segs[0].ds_addr) << 1 | 0x00001fff;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  emuxki_write(sc, chano, (((1) << 24) | ((15) << 16) | (0x00)), voice->stereo);
  emuxki_channel_commit_fx(chan);
  emuxki_write(sc, chano, 0x08,
@@ -3498,7 +3499,7 @@ emuxki_channel_commit_parms(struct emuxki_channel *chan)
  emuxki_write(sc, chano, 0x1a,
   (chan->pitch.envelope_amount << 8) |
   chan->filter.envelope_amount);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 void
 emuxki_channel_start(struct emuxki_channel *chan)
@@ -3639,10 +3640,10 @@ struct emuxki_voice *
 emuxki_voice_new(struct emuxki_softc *sc, u_int8_t use)
 {
  struct emuxki_voice *voice;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  voice = sc->lvoice;
  sc->lvoice = ((void *)0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  if (!voice) {
   if (!(voice = malloc(sizeof(*voice), 2, 0x0001)))
    return (((void *)0));
@@ -3667,9 +3668,9 @@ emuxki_voice_new(struct emuxki_softc *sc, u_int8_t use)
  voice->inthparam = ((void *)0);
  voice->use = use;
 skip_initialize:
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { if (((voice)->next.le_next = ((&sc->voices))->lh_first) != ((void *)0)) ((&sc->voices))->lh_first->next.le_prev = &(voice)->next.le_next; ((&sc->voices))->lh_first = (voice); (voice)->next.le_prev = &((&sc->voices))->lh_first; } while (0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (voice);
 }
 void
@@ -3679,11 +3680,11 @@ emuxki_voice_delete(struct emuxki_voice *voice)
  struct emuxki_voice *lvoice;
  if (voice->state & (1 << 0))
   emuxki_voice_halt(voice);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { if ((voice)->next.le_next != ((void *)0)) (voice)->next.le_next->next.le_prev = (voice)->next.le_prev; *(voice)->next.le_prev = (voice)->next.le_next; ((voice)->next.le_prev) = ((void *)-1); ((voice)->next.le_next) = ((void *)-1); } while (0);
  lvoice = sc->lvoice;
  sc->lvoice = voice;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  if (lvoice) {
   emuxki_voice_dataloc_destroy(lvoice);
   free(lvoice, 2, 0);
@@ -3819,13 +3820,13 @@ emuxki_voice_set_bufparms(struct emuxki_voice *voice, void *ptr,
    if (idx < 0) {
     return (22);
    }
-   __mtx_enter(&audio_lock);
+   __mtx_enter(&audio_lock );
    emuxki_write(voice->sc, 0,
        emuxki_recsrc_szreg[voice->dataloc.source], idx);
    emuxki_write(voice->sc, 0,
        emuxki_recsrc_bufaddrreg[voice->dataloc.source],
        ((mem->dmamem)->segs[0].ds_addr));
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
    voice->timerate = (u_int32_t) 48000 * blksize /
        (voice->sample_rate * sample_size);
    if (voice->timerate < 5) {
@@ -3954,7 +3955,7 @@ emuxki_voice_start(struct emuxki_voice *voice,
       void (*inth) (void *), void *inthparam)
 {
  u_int32_t val;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  voice->inth = inth;
  voice->inthparam = inthparam;
  if (voice->use & (1 << 0)) {
@@ -3990,12 +3991,12 @@ emuxki_voice_start(struct emuxki_voice *voice,
  }
  voice->state |= (1 << 0);
  emuxki_resched_timer(voice->sc);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 void
 emuxki_voice_halt(struct emuxki_voice *voice)
 {
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (voice->use & (1 << 0)) {
   emuxki_channel_stop(voice->dataloc.chan[0]);
   if (voice->stereo)
@@ -4018,7 +4019,7 @@ emuxki_voice_halt(struct emuxki_voice *voice)
  }
  voice->state &= ~(1 << 0);
  emuxki_resched_timer(voice->sc);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 int
 emuxki_intr(void *arg)
@@ -4026,7 +4027,7 @@ emuxki_intr(void *arg)
  struct emuxki_softc *sc = arg;
  u_int32_t ipr, curblk, us = 0;
  struct emuxki_voice *voice;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  while ((ipr = bus_space_read_4(sc->sc_iot, sc->sc_ioh, 0x08))) {
   if (ipr & 0x00000200) {
    for((voice) = ((&sc->voices)->lh_first); (voice)!= ((void *)0); (voice) = ((voice)->next.le_next)) {
@@ -4048,7 +4049,7 @@ emuxki_intr(void *arg)
   }
   bus_space_write_4(sc->sc_iot, sc->sc_ioh, 0x08, ipr);
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (us);
 }
 int
@@ -4192,7 +4193,7 @@ emuxki_freem(void *addr, void *ptr, int type)
  for((mem) = ((&sc->mem)->lh_first); (mem)!= ((void *)0); (mem) = ((mem)->next.le_next)) {
   if (((void *)((mem->dmamem)->kaddr)) != ptr)
    continue;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   if (mem->ptbidx != 0xFFFF) {
    numblocks = ((mem->dmamem)->size) / 4096;
    if (((mem->dmamem)->size) % 4096)
@@ -4202,7 +4203,7 @@ emuxki_freem(void *addr, void *ptr, int type)
         __extension__({ __uint32_t __swap32gen_x = (silentpage | (mem->ptbidx + i)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
   }
   do { if ((mem)->next.le_next != ((void *)0)) (mem)->next.le_next->next.le_prev = (mem)->next.le_prev; *(mem)->next.le_prev = (mem)->next.le_next; ((mem)->next.le_prev) = ((void *)-1); ((mem)->next.le_next) = ((void *)-1); } while (0);
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   emuxki_mem_delete(mem, type);
   break;
  }
@@ -4296,20 +4297,20 @@ int
 emuxki_ac97_read(void *arg, u_int8_t reg64, u_int16_t *val)
 {
  struct emuxki_softc *sc = arg;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bus_space_write_1(sc->sc_iot, sc->sc_ioh, 0x1e, reg64);
  *val = bus_space_read_2(sc->sc_iot, sc->sc_ioh, 0x1c);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
 emuxki_ac97_write(void *arg, u_int8_t reg64, u_int16_t val)
 {
  struct emuxki_softc *sc = arg;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bus_space_write_1(sc->sc_iot, sc->sc_ioh, 0x1e, reg64);
  bus_space_write_2(sc->sc_iot, sc->sc_ioh, 0x1c, val);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 void

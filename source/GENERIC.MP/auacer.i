@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2827,9 +2828,9 @@ auacer_halt_output(void *v)
 {
  struct auacer_softc *sc = v;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  auacer_halt(sc, &sc->sc_pcmo);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -2954,7 +2955,7 @@ auacer_intr(void *v)
 {
  struct auacer_softc *sc = v;
  int ret, intrs;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  intrs = bus_space_read_4(sc->iot, sc->aud_ioh, 0x18);
  ;
  ret = 0;
@@ -2962,7 +2963,7 @@ auacer_intr(void *v)
   auacer_upd_chan(sc, &sc->sc_pcmo);
   ret++;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return ret != 0;
 }
 static void
@@ -3009,10 +3010,10 @@ auacer_trigger_output(void *v, void *start, void *end, int blksize,
   return (22);
  }
  size = (char *)end - (char *)start;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  auacer_setup_chan(sc, &sc->sc_pcmo, ((p)->map->dm_segs[0].ds_addr), size, blksize,
      intr, arg);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int

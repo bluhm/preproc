@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5508,9 +5509,9 @@ utvfu_audio_decode(struct utvfu_softc *sc, int len)
    chunk -= n;
    ncopied += n;
    if (ncopied >= sc->sc_audio.blksize) {
-    __mtx_enter(&audio_lock);
+    __mtx_enter(&audio_lock );
     (*sc->sc_audio.intr)(sc->sc_audio.intr_arg);
-    __mtx_leave(&audio_lock);
+    __mtx_leave(&audio_lock );
     ncopied -= sc->sc_audio.blksize;
    }
    if (dst > sc->sc_audio.end)

@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4095,7 +4096,7 @@ ppp_ifstart(struct ifnet *ifp)
 void
 ppp_pkt_list_init(struct ppp_pkt_list *pl, u_int limit)
 {
- __mtx_init((&pl->pl_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&pl->pl_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  pl->pl_head = pl->pl_tail = ((void *)0);
  pl->pl_count = 0;
  pl->pl_limit = limit;
@@ -4104,7 +4105,7 @@ int
 ppp_pkt_enqueue(struct ppp_pkt_list *pl, struct ppp_pkt *pkt)
 {
  int drop = 0;
- __mtx_enter(&pl->pl_mtx);
+ __mtx_enter(&pl->pl_mtx );
  if (pl->pl_count < pl->pl_limit) {
   if (pl->pl_tail == ((void *)0))
    pl->pl_head = pl->pl_tail = pkt;
@@ -4116,7 +4117,7 @@ ppp_pkt_enqueue(struct ppp_pkt_list *pl, struct ppp_pkt *pkt)
   pl->pl_count++;
  } else
   drop = 1;
- __mtx_leave(&pl->pl_mtx);
+ __mtx_leave(&pl->pl_mtx );
  if (drop)
   ppp_pkt_free(pkt);
  return (drop);
@@ -4125,7 +4126,7 @@ struct ppp_pkt *
 ppp_pkt_dequeue(struct ppp_pkt_list *pl)
 {
  struct ppp_pkt *pkt;
- __mtx_enter(&pl->pl_mtx);
+ __mtx_enter(&pl->pl_mtx );
  pkt = pl->pl_head;
  if (pkt != ((void *)0)) {
   pl->pl_head = ((pkt)->p_hdr.ph_pkt);
@@ -4133,7 +4134,7 @@ ppp_pkt_dequeue(struct ppp_pkt_list *pl)
    pl->pl_tail = ((void *)0);
   pl->pl_count--;
  }
- __mtx_leave(&pl->pl_mtx);
+ __mtx_leave(&pl->pl_mtx );
  return (pkt);
 }
 struct mbuf *

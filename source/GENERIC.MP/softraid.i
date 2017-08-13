@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -6115,7 +6116,7 @@ sr_wu_alloc(struct sr_discipline *sd, int wu_size)
  ;
  no_wu = sd->sd_max_wu;
  sd->sd_wu_pending = no_wu;
- __mtx_init((&sd->sd_wu_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sd->sd_wu_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  do { (&sd->sd_wu)->tqh_first = ((void *)0); (&sd->sd_wu)->tqh_last = &(&sd->sd_wu)->tqh_first; } while (0);
  do { (&sd->sd_wu_freeq)->tqh_first = ((void *)0); (&sd->sd_wu_freeq)->tqh_last = &(&sd->sd_wu_freeq)->tqh_first; } while (0);
  do { (&sd->sd_wu_pendq)->tqh_first = ((void *)0); (&sd->sd_wu_pendq)->tqh_last = &(&sd->sd_wu_pendq)->tqh_first; } while (0);
@@ -6151,13 +6152,13 @@ sr_wu_get(void *xsd)
 {
  struct sr_discipline *sd = (struct sr_discipline *)xsd;
  struct sr_workunit *wu;
- __mtx_enter(&sd->sd_wu_mtx);
+ __mtx_enter(&sd->sd_wu_mtx );
  wu = ((&sd->sd_wu_freeq)->tqh_first);
  if (wu) {
   do { if (((wu)->swu_link.tqe_next) != ((void *)0)) (wu)->swu_link.tqe_next->swu_link.tqe_prev = (wu)->swu_link.tqe_prev; else (&sd->sd_wu_freeq)->tqh_last = (wu)->swu_link.tqe_prev; *(wu)->swu_link.tqe_prev = (wu)->swu_link.tqe_next; ((wu)->swu_link.tqe_prev) = ((void *)-1); ((wu)->swu_link.tqe_next) = ((void *)-1); } while (0);
   sd->sd_wu_pending++;
  }
- __mtx_leave(&sd->sd_wu_mtx);
+ __mtx_leave(&sd->sd_wu_mtx );
  ;
  return (wu);
 }
@@ -6169,10 +6170,10 @@ sr_wu_put(void *xsd, void *xwu)
  ;
  sr_wu_release_ccbs(wu);
  sr_wu_init(sd, wu);
- __mtx_enter(&sd->sd_wu_mtx);
+ __mtx_enter(&sd->sd_wu_mtx );
  do { (wu)->swu_link.tqe_next = ((void *)0); (wu)->swu_link.tqe_prev = (&sd->sd_wu_freeq)->tqh_last; *(&sd->sd_wu_freeq)->tqh_last = (wu); (&sd->sd_wu_freeq)->tqh_last = &(wu)->swu_link.tqe_next; } while (0);
  sd->sd_wu_pending--;
- __mtx_leave(&sd->sd_wu_mtx);
+ __mtx_leave(&sd->sd_wu_mtx );
 }
 void
 sr_wu_init(struct sr_discipline *sd, struct sr_workunit *wu)

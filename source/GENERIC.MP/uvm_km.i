@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2486,9 +2487,9 @@ uvm_km_pgremove(struct uvm_object *uobj, vaddr_t start, vaddr_t end)
   }
   slot = uao_dropswap(uobj, curoff >> 13);
   if (pp != ((void *)0)) {
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pagefree(pp);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
   } else if (slot != 0) {
    uvmexp.swpgonly--;
   }
@@ -2685,7 +2686,7 @@ uvm_km_page_init(void)
  int i;
  int len, bulk;
  vaddr_t addr;
- __mtx_init((&uvm_km_pages.mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&uvm_km_pages.mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0);
  if (!uvm_km_pages.lowat) {
   uvm_km_pages.lowat = physmem / 256;
   lowat_min = physmem < ((16 * 1024 * 1024) >> 13) ? 32 : 128;
@@ -2738,7 +2739,7 @@ uvm_km_thread(void *arg)
  struct uvm_km_free_page *fp = ((void *)0);
  _kernel_unlock();
  for (;;) {
-  __mtx_enter(&uvm_km_pages.mtx);
+  __mtx_enter(&uvm_km_pages.mtx );
   if (uvm_km_pages.free >= uvm_km_pages.lowat &&
       uvm_km_pages.freelist == ((void *)0)) {
    msleep(&uvm_km_pages.km_proc, &uvm_km_pages.mtx,
@@ -2748,7 +2749,7 @@ uvm_km_thread(void *arg)
   fp = uvm_km_pages.freelist;
   uvm_km_pages.freelist = ((void *)0);
   uvm_km_pages.freelistlen = 0;
-  __mtx_leave(&uvm_km_pages.mtx);
+  __mtx_leave(&uvm_km_pages.mtx );
   if (allocmore) {
    flags = ((0x01 | 0x02) | ((0x01 | 0x02) << 8) | ((2) << 4) | ((1) << 12) | (fp != ((void *)0) ? 0x0100000 : 0));
    __builtin_memset((pg), (0), (sizeof(pg)));
@@ -2761,7 +2762,7 @@ uvm_km_thread(void *arg)
     }
     flags = ((0x01 | 0x02) | ((0x01 | 0x02) << 8) | ((2) << 4) | ((1) << 12) | (0x0100000));
    }
-   __mtx_enter(&uvm_km_pages.mtx);
+   __mtx_enter(&uvm_km_pages.mtx );
    for (i = 0; i < (sizeof((pg)) / sizeof((pg)[0])); i++) {
     if (uvm_km_pages.free ==
         (sizeof((uvm_km_pages.page)) / sizeof((uvm_km_pages.page)[0])))
@@ -2771,7 +2772,7 @@ uvm_km_thread(void *arg)
          = pg[i];
    }
    wakeup(&uvm_km_pages.free);
-   __mtx_leave(&uvm_km_pages.mtx);
+   __mtx_leave(&uvm_km_pages.mtx );
    for (; i < (sizeof((pg)) / sizeof((pg)[0])); i++) {
     if (pg[i] != 0) {
      uvm_unmap(kernel_map,
@@ -2794,12 +2795,12 @@ uvm_km_doputpage(struct uvm_km_free_page *fp)
  pg = uvm_atopg(va);
  pmap_kremove(va, (1 << 13));
  ;
- __mtx_enter(&uvm_km_pages.mtx);
+ __mtx_enter(&uvm_km_pages.mtx );
  if (uvm_km_pages.free < uvm_km_pages.hiwat) {
   uvm_km_pages.page[uvm_km_pages.free++] = va;
   freeva = 0;
  }
- __mtx_leave(&uvm_km_pages.mtx);
+ __mtx_leave(&uvm_km_pages.mtx );
  if (freeva)
   uvm_unmap(kernel_map, va, va + (1 << 13));
  uvm_pagefree(pg);
@@ -2845,10 +2846,10 @@ alloc_va:
  }
  if (kv->kv_singlepage) {
   ((sz == (1 << 13)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_km.c", 876, "sz == PAGE_SIZE"));
-  __mtx_enter(&uvm_km_pages.mtx);
+  __mtx_enter(&uvm_km_pages.mtx );
   while (uvm_km_pages.free == 0) {
    if (kd->kd_waitok == 0) {
-    __mtx_leave(&uvm_km_pages.mtx);
+    __mtx_leave(&uvm_km_pages.mtx );
     uvm_pglistfree(&pgl);
     return ((void *)0);
    }
@@ -2862,7 +2863,7 @@ alloc_va:
     *kd->kd_slowdown = 1;
    wakeup(&uvm_km_pages.km_proc);
   }
-  __mtx_leave(&uvm_km_pages.mtx);
+  __mtx_leave(&uvm_km_pages.mtx );
  } else {
   struct uvm_object *uobj = ((void *)0);
   if (kd->kd_trylock)
@@ -2907,12 +2908,12 @@ km_free(void *v, size_t sz, const struct kmem_va_mode *kv,
   goto free_va;
  if (kv->kv_singlepage) {
   struct uvm_km_free_page *fp = v;
-  __mtx_enter(&uvm_km_pages.mtx);
+  __mtx_enter(&uvm_km_pages.mtx );
   fp->next = uvm_km_pages.freelist;
   uvm_km_pages.freelist = fp;
   if (uvm_km_pages.freelistlen++ > 16)
    wakeup(&uvm_km_pages.km_proc);
-  __mtx_leave(&uvm_km_pages.mtx);
+  __mtx_leave(&uvm_km_pages.mtx );
   return;
  }
  if (kp->kp_pageable) {

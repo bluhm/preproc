@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2836,11 +2837,11 @@ cmpci_intr(void *handle)
  struct cmpci_channel *chan;
  uint32_t intrstat;
  uint16_t hwpos;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  intrstat = bus_space_read_4(sc->sc_iot, sc->sc_ioh,
      0x10);
  if (!(intrstat & 0x80000000)) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   return 0;
  }
  delay(10);
@@ -2892,7 +2893,7 @@ cmpci_intr(void *handle)
  if (intrstat & 0x00000002)
   cmpci_reg_set_4(sc, 0x0c,
       0x00020000);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 1;
 }
 int
@@ -3091,7 +3092,7 @@ cmpci_halt_output(void *handle)
 {
  struct cmpci_softc *sc = handle;
  uint32_t reg_intr, reg_enable, reg_reset;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (sc->sc_play_channel == 1) {
   sc->sc_ch1.intr = ((void *)0);
   reg_intr = 0x00020000;
@@ -3108,21 +3109,21 @@ cmpci_halt_output(void *handle)
  cmpci_reg_set_4(sc, 0x00, reg_reset);
  delay(10);
  cmpci_reg_clear_4(sc, 0x00, reg_reset);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
 cmpci_halt_input(void *handle)
 {
  struct cmpci_softc *sc = handle;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  sc->sc_ch1.intr = ((void *)0);
  cmpci_reg_clear_4(sc, 0x0c, 0x00020000);
  cmpci_reg_clear_4(sc, 0x00, 0x00020000);
  cmpci_reg_set_4(sc, 0x00, 0x00080000);
  delay(10);
  cmpci_reg_clear_4(sc, 0x00, 0x00080000);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3975,11 +3976,11 @@ cmpci_trigger_output(void *handle, void *start, void *end, int blksize,
  length = (chan->blksize + chan->bps - 1) / chan->bps - 1;
  bus_space_write_2(sc->sc_iot, sc->sc_ioh, reg_dma_samples, length);
  delay(10);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  cmpci_reg_clear_4(sc, 0x00, reg_dir);
  cmpci_reg_set_4(sc, 0x0c, reg_intr_enable);
  cmpci_reg_set_4(sc, 0x00, reg_enable);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -4010,10 +4011,10 @@ cmpci_trigger_input(void *handle, void *start, void *end, int blksize,
  bus_space_write_2(sc->sc_iot, sc->sc_ioh, 0x8E,
      (chan->blksize + chan->bps - 1) / chan->bps - 1);
  delay(10);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  cmpci_reg_set_4(sc, 0x00, 0x00000002);
  cmpci_reg_set_4(sc, 0x0c, 0x00020000);
  cmpci_reg_set_4(sc, 0x00, 0x00020000);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }

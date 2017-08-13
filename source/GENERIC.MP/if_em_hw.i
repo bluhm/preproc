@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4562,6 +4563,8 @@ static int32_t em_init_lcd_from_nvm(struct em_hw *);
 static int32_t em_phy_no_cable_workaround(struct em_hw *);
 static void em_init_rx_addrs(struct em_hw *);
 static void em_initialize_hardware_bits(struct em_hw *);
+static void em_toggle_lanphypc_pch_lpt(struct em_hw *);
+static int em_disable_ulp_lpt_lp(struct em_hw *hw, _Bool force);
 static boolean_t em_is_onboard_nvm_eeprom(struct em_hw *);
 static int32_t em_kumeran_lock_loss_workaround(struct em_hw *);
 static int32_t em_mng_enable_host_if(struct em_hw *);
@@ -5450,6 +5453,127 @@ em_initialize_hardware_bits(struct em_hw *hw)
   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x03840 : 0x03840), reg_tarc0);
  }
 }
+static void
+em_toggle_lanphypc_pch_lpt(struct em_hw *hw)
+{
+ uint32_t mac_reg;
+ ;;
+ mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x0003C : 0x0003C));
+ mac_reg &= ~0x0C000000;
+ mac_reg |= 0x08000000;
+ bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x0003C : 0x0003C), mac_reg);
+ mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000));
+ mac_reg |= 0x00010000;
+ mac_reg &= ~0x00020000;
+ bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000), mac_reg);
+ bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00008 : 0x00008));
+ delay(1000*(1));
+ mac_reg &= ~0x00010000;
+ bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000), mac_reg);
+ bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00008 : 0x00008));
+ if (hw->mac_type < em_pch_lpt) {
+  delay(1000*(50));
+ } else {
+  uint16_t count = 20;
+  do {
+   delay(1000*(5));
+  } while (!(bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018)) &
+      0x00000004) && count--);
+  delay(1000*(30));
+ }
+}
+static int
+em_disable_ulp_lpt_lp(struct em_hw *hw, _Bool force)
+{
+ int ret_val = 0;
+ uint32_t mac_reg;
+ uint16_t phy_reg;
+ int i = 0;
+ if ((hw->mac_type < em_pch_lpt) ||
+     (hw->device_id == 0x153A) ||
+     (hw->device_id == 0x153B) ||
+     (hw->device_id == 0x15A0) ||
+     (hw->device_id == 0x15A1))
+  return 0;
+ if (bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54)) & 0x00008000) {
+  if (force) {
+   mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50));
+   mac_reg &= ~0x00000800;
+   mac_reg |= 0x00001000;
+   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50), mac_reg);
+  }
+  while (bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54)) & 0x00000400) {
+   if (i++ == 30) {
+    ret_val = -2;
+    goto out;
+   }
+   delay(1000*(10));
+  }
+  ;
+  if (force) {
+   mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50));
+   mac_reg &= ~0x00001000;
+   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50), mac_reg);
+  } else {
+   mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50));
+   mac_reg &= ~0x00000800;
+   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B50 : 0x05B50), mac_reg);
+  }
+  goto out;
+ }
+ ret_val = em_get_software_flag(hw);
+ if (ret_val)
+  goto out;
+ if (force)
+  em_toggle_lanphypc_pch_lpt(hw);
+ ret_val = em_read_phy_reg(hw, (((769) << 5) | ((23) & 0x1F)), &phy_reg);
+ if (ret_val) {
+  mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018));
+  mac_reg |= 0x00000800;
+  bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018), mac_reg);
+  delay(1000*(50));
+  ret_val = em_read_phy_reg(hw, (((769) << 5) | ((23) & 0x1F)), &phy_reg);
+  if (ret_val)
+   goto release;
+ }
+ phy_reg &= ~0x0001;
+ em_write_phy_reg(hw, (((769) << 5) | ((23) & 0x1F)), phy_reg);
+ mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018));
+ mac_reg &= ~0x00000800;
+ bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018), mac_reg);
+ ret_val = em_read_phy_reg(hw, (((770) << 5) | ((17) & 0x1F)), &phy_reg);
+ if (ret_val)
+  goto release;
+ phy_reg |= 0x4000;
+ em_write_phy_reg(hw, (((770) << 5) | ((17) & 0x1F)), phy_reg);
+ ret_val = em_read_phy_reg(hw, (((779) << 5) | ((16) & 0x1F)), &phy_reg);
+ if (ret_val)
+  goto release;
+ phy_reg &= ~(0x0004 |
+       0x0010 |
+       0x0100 |
+       0x0040 |
+       0x0020 |
+       0x0400 |
+       0x0800 |
+       0x1000);
+ em_write_phy_reg(hw, (((779) << 5) | ((16) & 0x1F)), phy_reg);
+ phy_reg |= 0x0001;
+ em_write_phy_reg(hw, (((779) << 5) | ((16) & 0x1F)), phy_reg);
+ mac_reg = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0xe4UL : 0xe4UL));
+ mac_reg &= ~0x00000020;
+ bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0xe4UL : 0xe4UL), mac_reg);
+release:
+ em_release_software_flag(hw);
+ if (force) {
+  em_phy_reset(hw);
+  delay(1000*(50));
+ }
+out:
+ if (ret_val)
+  ;
+ return ret_val;
+}
 int32_t
 em_init_hw(struct em_hw *hw)
 {
@@ -5488,6 +5612,7 @@ em_init_hw(struct em_hw *hw)
   }
   if (hw->mac_type == em_pch2lan)
    em_gate_hw_phy_config_ich8lan(hw, 1);
+  em_disable_ulp_lpt_lp(hw, 1);
   em_phy_reset(hw);
   if (hw->mac_type == em_pch2lan &&
    (fwsm & 0x00008000) == 0)

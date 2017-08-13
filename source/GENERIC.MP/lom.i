@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2971,7 +2972,7 @@ lom_attach(struct device *parent, struct device *self, void *aux)
   return;
  }
  do { (&sc->sc_queue)->tqh_first = ((void *)0); (&sc->sc_queue)->tqh_last = &(&sc->sc_queue)->tqh_first; } while (0);
- __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  config2 = config3 = 0;
  if (sc->sc_type < 2) {
   timeout_set(&sc->sc_state_to, lom1_process_queue, sc);
@@ -3072,14 +3073,14 @@ void
 lom_dequeue_cmd(struct lom_softc *sc, struct lom_cmd *lc)
 {
  struct lom_cmd *lcp;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  for((lcp) = ((&sc->sc_queue)->tqh_first); (lcp) != ((void *)0); (lcp) = ((lcp)->lc_next.tqe_next)) {
   if (lcp == lc) {
    do { if (((lc)->lc_next.tqe_next) != ((void *)0)) (lc)->lc_next.tqe_next->lc_next.tqe_prev = (lc)->lc_next.tqe_prev; else (&sc->sc_queue)->tqh_last = (lc)->lc_next.tqe_prev; *(lc)->lc_next.tqe_prev = (lc)->lc_next.tqe_next; ((lc)->lc_next.tqe_prev) = ((void *)-1); ((lc)->lc_next.tqe_next) = ((void *)-1); } while (0);
    break;
   }
  }
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
 }
 int
 lom1_read(struct lom_softc *sc, uint8_t reg64, uint8_t *val)
@@ -3166,21 +3167,21 @@ lom1_write_polled(struct lom_softc *sc, uint8_t reg64, uint8_t val)
 void
 lom1_queue_cmd(struct lom_softc *sc, struct lom_cmd *lc)
 {
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  do { (lc)->lc_next.tqe_next = ((void *)0); (lc)->lc_next.tqe_prev = (&sc->sc_queue)->tqh_last; *(&sc->sc_queue)->tqh_last = (lc); (&sc->sc_queue)->tqh_last = &(lc)->lc_next.tqe_next; } while (0);
  if (sc->sc_state == 0) {
   sc->sc_state = 1;
   lom1_process_queue_locked(sc);
  }
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
 }
 void
 lom1_process_queue(void *arg)
 {
  struct lom_softc *sc = arg;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  lom1_process_queue_locked(sc);
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
 }
 void
 lom1_process_queue_locked(struct lom_softc *sc)
@@ -3331,7 +3332,7 @@ void
 lom2_queue_cmd(struct lom_softc *sc, struct lom_cmd *lc)
 {
  uint8_t str;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  do { (lc)->lc_next.tqe_next = ((void *)0); (lc)->lc_next.tqe_prev = (&sc->sc_queue)->tqh_last; *(&sc->sc_queue)->tqh_last = (lc); (&sc->sc_queue)->tqh_last = &(lc)->lc_next.tqe_next; } while (0);
  if (sc->sc_state == 0) {
   str = bus_space_read_1(sc->sc_iot, sc->sc_ioh, 0x01);
@@ -3341,7 +3342,7 @@ lom2_queue_cmd(struct lom_softc *sc, struct lom_cmd *lc)
    sc->sc_state = 2;
   }
  }
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
 }
 int
 lom2_intr(void *arg)
@@ -3349,19 +3350,19 @@ lom2_intr(void *arg)
  struct lom_softc *sc = arg;
  struct lom_cmd *lc;
  uint8_t str, obr;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  str = bus_space_read_1(sc->sc_iot, sc->sc_ioh, 0x01);
  obr = bus_space_read_1(sc->sc_iot, sc->sc_ioh, 0x00);
  lc = ((&sc->sc_queue)->tqh_first);
  if (lc == ((void *)0)) {
-  __mtx_leave(&sc->sc_queue_mtx);
+  __mtx_leave(&sc->sc_queue_mtx );
   return (0);
  }
  if (lc->lc_cmd & 0x80) {
   bus_space_write_1(sc->sc_iot, sc->sc_ioh,
       0x00, lc->lc_data);
   lc->lc_cmd &= ~0x80;
-  __mtx_leave(&sc->sc_queue_mtx);
+  __mtx_leave(&sc->sc_queue_mtx );
   return (1);
  }
  ((sc->sc_state = 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/lom.c", 791, "sc->sc_state = LOM_STATE_DATA"));
@@ -3377,7 +3378,7 @@ lom2_intr(void *arg)
    sc->sc_state = 2;
   }
  }
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
  return (1);
 }
 int

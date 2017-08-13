@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2222,7 +2223,7 @@ udv_attach(dev_t device, vm_prot_t accessprot, voff_t off, vsize_t size)
   off += (1 << 13); size -= (1 << 13);
  }
  for (;;) {
-  __mtx_enter(&udv_lock);
+  __mtx_enter(&udv_lock );
   for((lcv) = ((&udv_list)->lh_first); (lcv)!= ((void *)0); (lcv) = ((lcv)->u_list.le_next)) {
    if (device == lcv->u_device)
     break;
@@ -2235,24 +2236,24 @@ udv_attach(dev_t device, vm_prot_t accessprot, voff_t off, vsize_t size)
     continue;
    }
    lcv->u_flags |= 0x1;
-   __mtx_leave(&udv_lock);
+   __mtx_leave(&udv_lock );
    lcv->u_obj.uo_refs++;
-   __mtx_enter(&udv_lock);
+   __mtx_enter(&udv_lock );
    if (lcv->u_flags & 0x2)
     wakeup(lcv);
    lcv->u_flags &= ~(0x2|0x1);
-   __mtx_leave(&udv_lock);
+   __mtx_leave(&udv_lock );
    return(&lcv->u_obj);
   }
-  __mtx_leave(&udv_lock);
+  __mtx_leave(&udv_lock );
   udv = malloc(sizeof(*udv), 127, 0x0001);
-  __mtx_enter(&udv_lock);
+  __mtx_enter(&udv_lock );
   for((lcv) = ((&udv_list)->lh_first); (lcv)!= ((void *)0); (lcv) = ((lcv)->u_list.le_next)) {
    if (device == lcv->u_device)
     break;
   }
   if (lcv) {
-   __mtx_leave(&udv_lock);
+   __mtx_leave(&udv_lock );
    free(udv, 127, sizeof(*udv));
    continue;
   }
@@ -2260,7 +2261,7 @@ udv_attach(dev_t device, vm_prot_t accessprot, voff_t off, vsize_t size)
   udv->u_flags = 0;
   udv->u_device = device;
   do { if (((udv)->u_list.le_next = (&udv_list)->lh_first) != ((void *)0)) (&udv_list)->lh_first->u_list.le_prev = &(udv)->u_list.le_next; (&udv_list)->lh_first = (udv); (udv)->u_list.le_prev = &(&udv_list)->lh_first; } while (0);
-  __mtx_leave(&udv_lock);
+  __mtx_leave(&udv_lock );
   return(&udv->u_obj);
  }
 }
@@ -2279,7 +2280,7 @@ again:
   return;
  }
  ((uobj->uo_npages == 0 && uvm_objtree_RBT_EMPTY(&uobj->memt)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_device.c", 236, "uobj->uo_npages == 0 && RBT_EMPTY(uvm_objtree, &uobj->memt)"));
- __mtx_enter(&udv_lock);
+ __mtx_enter(&udv_lock );
  if (udv->u_flags & 0x1) {
   udv->u_flags |= 0x2;
   msleep(udv, &udv_lock, 4 | 0x200, "udv_detach", 0);
@@ -2288,7 +2289,7 @@ again:
  do { if ((udv)->u_list.le_next != ((void *)0)) (udv)->u_list.le_next->u_list.le_prev = (udv)->u_list.le_prev; *(udv)->u_list.le_prev = (udv)->u_list.le_next; ((udv)->u_list.le_prev) = ((void *)-1); ((udv)->u_list.le_next) = ((void *)-1); } while (0);
  if (udv->u_flags & 0x2)
   wakeup(udv);
- __mtx_leave(&udv_lock);
+ __mtx_leave(&udv_lock );
  free(udv, 127, sizeof(*udv));
 }
 static boolean_t

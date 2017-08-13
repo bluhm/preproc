@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5777,18 +5778,24 @@ urtwn_open_pipes(struct urtwn_softc *sc)
  uint8_t rx_no;
  usb_interface_descriptor_t *id;
  usb_endpoint_descriptor_t *ed;
- int i, error;
+ int i, error, nrx = 0;
  id = usbd_get_interface_descriptor(sc->sc_iface);
  for (i = 0; i < id->bNumEndpoints; i++) {
   ed = usbd_interface2endpoint_descriptor(sc->sc_iface, i);
   if (ed == ((void *)0) || ((ed->bmAttributes) & 0x03) != 0x02)
    continue;
-  if (((ed->bEndpointAddress) & 0x80) == 0x80)
+  if (((ed->bEndpointAddress) & 0x80) == 0x80) {
    rx_no = ed->bEndpointAddress;
-  else {
+   nrx++;
+  } else {
    epaddr[sc->ntx] = ed->bEndpointAddress;
    sc->ntx++;
   }
+ }
+ if (nrx == 0) {
+  printf("%s: %d: invalid number of Rx bulk pipes\n",
+      sc->sc_dev.dv_xname, nrx);
+  return (5);
  }
  ;
  if (sc->ntx == 0 || sc->ntx > 3) {
@@ -5938,7 +5945,7 @@ urtwn_do_async(struct urtwn_softc *sc,
  s = splraise(2);
  cmd = &ring->cmd[ring->cur];
  cmd->cb = cb;
- ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 721, "len <= sizeof(cmd->data)"));
+ ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 727, "len <= sizeof(cmd->data)"));
  __builtin_memcpy((cmd->data), (arg), (len));
  ring->cur = (ring->cur + 1) % 32;
  if (++ring->queued == 1)

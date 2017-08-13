@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3257,16 +3258,16 @@ udf_hashlookup(struct umount *ump, udfino_t id, int flags, struct vnode **vpp)
  int error;
  *vpp = ((void *)0);
 loop:
- __mtx_enter(&ump->um_hashmtx);
+ __mtx_enter(&ump->um_hashmtx );
  lh = &ump->um_hashtbl[SipHash((&ump->um_hashkey), 2, 4, (&id), (sizeof(id))) &
      ump->um_hashsz];
  if (lh == ((void *)0)) {
-  __mtx_leave(&ump->um_hashmtx);
+  __mtx_leave(&ump->um_hashmtx );
   return (2);
  }
  for((up) = ((lh)->lh_first); (up)!= ((void *)0); (up) = ((up)->u_le.le_next)) {
   if (up->u_ino == id) {
-   __mtx_leave(&ump->um_hashmtx);
+   __mtx_leave(&ump->um_hashmtx );
    error = vget(up->u_vnode, flags, p);
    if (error == 2)
     goto loop;
@@ -3276,7 +3277,7 @@ loop:
    return (0);
   }
  }
- __mtx_leave(&ump->um_hashmtx);
+ __mtx_leave(&ump->um_hashmtx );
  return (0);
 }
 int
@@ -3287,12 +3288,12 @@ udf_hashins(struct unode *up)
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  ump = up->u_ump;
  vn_lock(up->u_vnode, 0x0001UL | 0x2000UL, p);
- __mtx_enter(&ump->um_hashmtx);
+ __mtx_enter(&ump->um_hashmtx );
  lh = &ump->um_hashtbl[SipHash((&ump->um_hashkey), 2, 4, (&up->u_ino), (sizeof(up->u_ino))) & ump->um_hashsz];
  if (lh == ((void *)0))
   panic("hash entry is NULL, up->u_ino = %d", up->u_ino);
  do { if (((up)->u_le.le_next = (lh)->lh_first) != ((void *)0)) (lh)->lh_first->u_le.le_prev = &(up)->u_le.le_next; (lh)->lh_first = (up); (up)->u_le.le_prev = &(lh)->lh_first; } while (0);
- __mtx_leave(&ump->um_hashmtx);
+ __mtx_leave(&ump->um_hashmtx );
  return (0);
 }
 int
@@ -3301,12 +3302,12 @@ udf_hashrem(struct unode *up)
  struct umount *ump;
  struct udf_hash_lh *lh;
  ump = up->u_ump;
- __mtx_enter(&ump->um_hashmtx);
+ __mtx_enter(&ump->um_hashmtx );
  lh = &ump->um_hashtbl[SipHash((&ump->um_hashkey), 2, 4, (&up->u_ino), (sizeof(up->u_ino))) & ump->um_hashsz];
  if (lh == ((void *)0))
   panic("hash entry is NULL, up->u_ino = %d", up->u_ino);
  do { if ((up)->u_le.le_next != ((void *)0)) (up)->u_le.le_next->u_le.le_prev = (up)->u_le.le_prev; *(up)->u_le.le_prev = (up)->u_le.le_next; ((up)->u_le.le_prev) = ((void *)-1); ((up)->u_le.le_next) = ((void *)-1); } while (0);
- __mtx_leave(&ump->um_hashmtx);
+ __mtx_leave(&ump->um_hashmtx );
  return (0);
 }
 int

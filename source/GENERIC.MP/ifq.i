@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2367,7 +2368,7 @@ ifq_serialize(struct ifqueue *ifq, struct task *t)
  struct task work;
  if (((t->t_flags) & (0x1)))
   return;
- __mtx_enter(&ifq->ifq_task_mtx);
+ __mtx_enter(&ifq->ifq_task_mtx );
  if (!((t->t_flags) & (0x1))) {
   ((t->t_flags) |= (0x1));
   do { (t)->t_entry.tqe_next = ((void *)0); (t)->t_entry.tqe_prev = (&ifq->ifq_task_list)->tqh_last; *(&ifq->ifq_task_list)->tqh_last = (t); (&ifq->ifq_task_list)->tqh_last = &(t)->t_entry.tqe_next; } while (0);
@@ -2378,13 +2379,13 @@ ifq_serialize(struct ifqueue *ifq, struct task *t)
    do { if (((t)->t_entry.tqe_next) != ((void *)0)) (t)->t_entry.tqe_next->t_entry.tqe_prev = (t)->t_entry.tqe_prev; else (&ifq->ifq_task_list)->tqh_last = (t)->t_entry.tqe_prev; *(t)->t_entry.tqe_prev = (t)->t_entry.tqe_next; ((t)->t_entry.tqe_prev) = ((void *)-1); ((t)->t_entry.tqe_next) = ((void *)-1); } while (0);
    ((t->t_flags) &= ~(0x1));
    work = *t;
-   __mtx_leave(&ifq->ifq_task_mtx);
+   __mtx_leave(&ifq->ifq_task_mtx );
    (*work.t_func)(work.t_arg);
-   __mtx_enter(&ifq->ifq_task_mtx);
+   __mtx_enter(&ifq->ifq_task_mtx );
   }
   ifq->ifq_serializer = ((void *)0);
  }
- __mtx_leave(&ifq->ifq_task_mtx);
+ __mtx_leave(&ifq->ifq_task_mtx );
 }
 int
 ifq_is_serialized(struct ifqueue *ifq)
@@ -2436,7 +2437,7 @@ ifq_init(struct ifqueue *ifq, struct ifnet *ifp, unsigned int idx)
 {
  ifq->ifq_if = ifp;
  ifq->_ifq_ptr._ifq_softc = ((void *)0);
- __mtx_init((&ifq->ifq_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&ifq->ifq_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  ifq->ifq_qdrops = 0;
  ifq->ifq_ops = &priq_ops;
  ifq->ifq_q = priq_ops.ifqop_alloc(idx, ((void *)0));
@@ -2447,7 +2448,7 @@ ifq_init(struct ifqueue *ifq, struct ifnet *ifp, unsigned int idx)
  ifq->ifq_qdrops = 0;
  ifq->ifq_errors = 0;
  ifq->ifq_mcasts = 0;
- __mtx_init((&ifq->ifq_task_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&ifq->ifq_task_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  do { (&ifq->ifq_task_list)->tqh_first = ((void *)0); (&ifq->ifq_task_list)->tqh_last = &(&ifq->ifq_task_list)->tqh_first; } while (0);
  ifq->ifq_serializer = ((void *)0);
  task_set(&ifq->ifq_start, ifq_start_task, ifq);
@@ -2465,7 +2466,7 @@ ifq_attach(struct ifqueue *ifq, const struct ifq_ops *newops, void *opsarg)
  const struct ifq_ops *oldops;
  void *newq, *oldq;
  newq = newops->ifqop_alloc(ifq->ifq_idx, opsarg);
- __mtx_enter(&ifq->ifq_mtx);
+ __mtx_enter(&ifq->ifq_mtx );
  ifq->ifq_ops->ifqop_purge(ifq, &ml);
  ifq->ifq_len = 0;
  oldops = ifq->ifq_ops;
@@ -2480,7 +2481,7 @@ ifq_attach(struct ifqueue *ifq, const struct ifq_ops *newops, void *opsarg)
   } else
    ifq->ifq_len++;
  }
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
  oldops->ifqop_free(ifq->ifq_idx, oldq);
  ml_purge(&free_ml);
 }
@@ -2496,7 +2497,7 @@ int
 ifq_enqueue(struct ifqueue *ifq, struct mbuf *m)
 {
  struct mbuf *dm;
- __mtx_enter(&ifq->ifq_mtx);
+ __mtx_enter(&ifq->ifq_mtx );
  dm = ifq->ifq_ops->ifqop_enq(ifq, m);
  if (dm != m) {
   ifq->ifq_packets++;
@@ -2508,7 +2509,7 @@ ifq_enqueue(struct ifqueue *ifq, struct mbuf *m)
   ifq->ifq_len++;
  else
   ifq->ifq_qdrops++;
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
  if (dm != ((void *)0))
   m_freem(dm);
  return (dm == m ? 55 : 0);
@@ -2516,7 +2517,7 @@ ifq_enqueue(struct ifqueue *ifq, struct mbuf *m)
 static inline void
 ifq_deq_enter(struct ifqueue *ifq)
 {
- __mtx_enter(&ifq->ifq_mtx);
+ __mtx_enter(&ifq->ifq_mtx );
 }
 static inline void
 ifq_deq_leave(struct ifqueue *ifq)
@@ -2524,7 +2525,7 @@ ifq_deq_leave(struct ifqueue *ifq)
  struct mbuf_list ml;
  ml = ifq->ifq_free;
  ml_init(&ifq->ifq_free);
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
  if (!((&ml)->ml_len == 0))
   ml_purge(&ml);
 }
@@ -2573,12 +2574,12 @@ ifq_purge(struct ifqueue *ifq)
 {
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
  unsigned int rv;
- __mtx_enter(&ifq->ifq_mtx);
+ __mtx_enter(&ifq->ifq_mtx );
  ifq->ifq_ops->ifqop_purge(ifq, &ml);
  rv = ifq->ifq_len;
  ifq->ifq_len = 0;
  ifq->ifq_qdrops += rv;
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
  ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 363, "rv == ml_len(&ml)"));
  ml_purge(&ml);
  return (rv);
@@ -2586,17 +2587,17 @@ ifq_purge(struct ifqueue *ifq)
 void *
 ifq_q_enter(struct ifqueue *ifq, const struct ifq_ops *ops)
 {
- __mtx_enter(&ifq->ifq_mtx);
+ __mtx_enter(&ifq->ifq_mtx );
  if (ifq->ifq_ops == ops)
   return (ifq->ifq_q);
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
  return (((void *)0));
 }
 void
 ifq_q_leave(struct ifqueue *ifq, void *q)
 {
  ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 385, "q == ifq->ifq_q"));
- __mtx_leave(&ifq->ifq_mtx);
+ __mtx_leave(&ifq->ifq_mtx );
 }
 void
 ifq_mfreem(struct ifqueue *ifq, struct mbuf *m)

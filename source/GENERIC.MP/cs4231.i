@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3202,7 +3203,7 @@ cs4231_commit_settings(void *vsc)
  fs = sc->sc_speed_bits | (sc->sc_format_bits << 5);
  if (sc->sc_channels == 2)
   fs |= 0x10;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  r = cs4231_read(sc, 0x09) | 0x08;
  bus_space_write_1((sc)->sc_bustag, (sc)->sc_regs, (0x00) << 2, (0x40));
  bus_space_write_1((sc)->sc_bustag, (sc)->sc_regs, (0x00) << 2, (0x40 | 0x09));
@@ -3239,7 +3240,7 @@ cs4231_commit_settings(void *vsc)
  if (tries == 0)
   printf("%s: timeout waiting for autocalibration\n",
       sc->sc_dev.dv_xname);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  sc->sc_need_commit = 0;
  return (0);
 }
@@ -3247,24 +3248,24 @@ int
 cs4231_halt_output(void *vsc)
 {
  struct cs4231_softc *sc = (struct cs4231_softc *)vsc;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0010, bus_space_read_4(sc->sc_bustag, sc->sc_regs, 0x0010) & ~(0x00100000 | 0x00080000 | 0x00040000 | 0x00010000 | 0x00000008 | 0x00001000));
  cs4231_write(sc, 0x09,
      cs4231_read(sc, 0x09) & (~0x01));
  sc->sc_playback.cs_locked = 0;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
 cs4231_halt_input(void *vsc)
 {
  struct cs4231_softc *sc = (struct cs4231_softc *)vsc;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0010, (~( 0x00000080 | 0x00800000 | 0x00400000 | 0x00200000 | 0x00100000 | 0x00008000 | 0x00001000 | 0x00000200 | 0x00000100 ) ));
  cs4231_write(sc, 0x09,
      cs4231_read(sc, 0x09) & (~0x02));
  sc->sc_capture.cs_locked = 0;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -3813,7 +3814,7 @@ cs4231_intr(void *vsc)
  u_int8_t reg64, status;
  struct cs_dma *p;
  int r = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  csr = bus_space_read_4(sc->sc_bustag, sc->sc_regs, 0x0010);
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0010, csr);
  if ((csr & 0x00010000) && (csr & 0x00100000)) {
@@ -3888,7 +3889,7 @@ cs4231_intr(void *vsc)
  if ((csr & 0x00000100) && (csr & 0x00000200)) {
   r = 1;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (r);
 }
 void *
@@ -3977,7 +3978,7 @@ cs4231_trigger_output(void *vsc, void *start, void *end, int blksize,
  if (n > chan->cs_blksz)
   n = chan->cs_blksz;
  chan->cs_cnt = n;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  csr = bus_space_read_4(sc->sc_bustag, sc->sc_regs, 0x0010);
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0038, (u_long)p->dmamap->dm_segs[0].ds_addr);
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x003c, (u_long)n);
@@ -3989,7 +3990,7 @@ cs4231_trigger_output(void *vsc, void *start, void *end, int blksize,
   cs4231_write(sc, 0x09,
       cs4231_read(sc, 0x09) | 0x01);
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -4023,7 +4024,7 @@ cs4231_trigger_input(void *vsc, void *start, void *end, int blksize,
  if (n > chan->cs_blksz)
   n = chan->cs_blksz;
  chan->cs_cnt = n;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0028, p->dmamap->dm_segs[0].ds_addr);
  bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x002c, (u_long)n);
  csr = bus_space_read_4(sc->sc_bustag, sc->sc_regs, 0x0010);
@@ -4053,6 +4054,6 @@ cs4231_trigger_input(void *vsc, void *start, void *end, int blksize,
   bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x0028, nextaddr);
   bus_space_write_4(sc->sc_bustag, sc->sc_regs, 0x002c, togo);
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }

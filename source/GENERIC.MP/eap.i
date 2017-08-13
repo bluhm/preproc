@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2668,7 +2669,7 @@ eap1371_ready_codec(struct eap_softc *sc, u_int8_t a, u_int32_t wd)
  if (to == 5000)
   printf("%s: eap1371_ready_codec timeout 1\n",
       sc->sc_dev.dv_xname);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  src = eap1371_src_wait(sc) & (0x00400000 | 0x00200000 | 0x00100000 | 0x00080000);
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x10), (src | 0x00010000));
  for (to = 0; to < 5000; to++) {
@@ -2692,7 +2693,7 @@ eap1371_ready_codec(struct eap_softc *sc, u_int8_t a, u_int32_t wd)
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x14), (wd));
  eap1371_src_wait(sc);
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x10), (src));
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 int
 eap1371_read_codec(void *sc_, u_int8_t a, u_int16_t *d)
@@ -2937,13 +2938,13 @@ eap1371_reset_codec(void *sc_)
 {
  struct eap_softc *sc = sc_;
  u_int32_t icsc;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  icsc = bus_space_read_4((sc)->iot, (sc)->ioh, (0x00));
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc | 0x00004000));
  delay(20);
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc & ~0x00004000));
  delay(1);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return;
 }
 int
@@ -2951,10 +2952,10 @@ eap_intr(void *p)
 {
  struct eap_softc *sc = p;
  u_int32_t intr, sic;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  intr = bus_space_read_4((sc)->iot, (sc)->ioh, (0x04));
  if (!(intr & 0x80000000)) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   return (0);
  }
  sic = bus_space_read_4((sc)->iot, (sc)->ioh, (0x20));
@@ -2987,7 +2988,7 @@ eap_intr(void *p)
     sc->sc_ointr(sc->sc_arg);
   }
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (1);
 }
 int
@@ -3133,7 +3134,7 @@ eap_trigger_output(
  ;
  sc->sc_pintr = intr;
  sc->sc_parg = arg;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  sic = bus_space_read_4((sc)->iot, (sc)->ioh, (0x20));
  sic &= ~(0x00000008 | 0x00000004 | 0x003f0000);
  sic |= ((0) << 16) | ((param->precision / 8) << 19);
@@ -3151,7 +3152,7 @@ eap_trigger_output(
  for (p = sc->sc_dmas; p && ((void *)((p)->addr)) != start; p = p->next)
   ;
  if (!p) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   printf("eap_trigger_output: bad addr %p\n", start);
   return (22);
  }
@@ -3165,7 +3166,7 @@ eap_trigger_output(
  icsc = bus_space_read_4((sc)->iot, (sc)->ioh, (0x00));
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc | 0x00000020));
  ;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -3188,7 +3189,7 @@ eap_trigger_input(
  ;
  sc->sc_rintr = intr;
  sc->sc_rarg = arg;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  sic = bus_space_read_4((sc)->iot, (sc)->ioh, (0x20));
  sic &= ~(0x00000020 | 0x00000010);
  sampshift = 0;
@@ -3205,7 +3206,7 @@ eap_trigger_input(
  for (p = sc->sc_dmas; p && ((void *)((p)->addr)) != start; p = p->next)
   ;
  if (!p) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   printf("eap_trigger_input: bad addr %p\n", start);
   return (22);
  }
@@ -3219,7 +3220,7 @@ eap_trigger_input(
  icsc = bus_space_read_4((sc)->iot, (sc)->ioh, (0x00));
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc | 0x00000010));
  ;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -3228,11 +3229,11 @@ eap_halt_output(void *addr)
  struct eap_softc *sc = addr;
  u_int32_t icsc;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  icsc = bus_space_read_4((sc)->iot, (sc)->ioh, (0x00));
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc & ~0x00000020));
  sc->sc_prun = 0;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -3241,11 +3242,11 @@ eap_halt_input(void *addr)
  struct eap_softc *sc = addr;
  u_int32_t icsc;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  icsc = bus_space_read_4((sc)->iot, (sc)->ioh, (0x00));
  bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (icsc & ~0x00000010));
  sc->sc_rrun = 0;
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int

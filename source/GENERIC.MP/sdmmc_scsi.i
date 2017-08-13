@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3734,7 +3735,7 @@ sdmmc_alloc_ccbs(struct sdmmc_scsi_softc *scbus, int nccbs)
  scbus->sc_nccbs = nccbs;
  do { (&scbus->sc_ccb_freeq)->tqh_first = ((void *)0); (&scbus->sc_ccb_freeq)->tqh_last = &(&scbus->sc_ccb_freeq)->tqh_first; } while (0);
  do { (&scbus->sc_ccb_runq)->tqh_first = ((void *)0); (&scbus->sc_ccb_runq)->tqh_last = &(&scbus->sc_ccb_runq)->tqh_first; } while (0);
- __mtx_init((&scbus->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&scbus->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  scsi_iopool_init(&scbus->sc_iopool, scbus, sdmmc_ccb_alloc,
      sdmmc_ccb_free);
  for (i = 0; i < nccbs; i++) {
@@ -3761,13 +3762,13 @@ sdmmc_ccb_alloc(void *xscbus)
 {
  struct sdmmc_scsi_softc *scbus = xscbus;
  struct sdmmc_ccb *ccb;
- __mtx_enter(&scbus->sc_ccb_mtx);
+ __mtx_enter(&scbus->sc_ccb_mtx );
  ccb = ((&scbus->sc_ccb_freeq)->tqh_first);
  if (ccb != ((void *)0)) {
   do { if (((ccb)->ccb_link.tqe_next) != ((void *)0)) (ccb)->ccb_link.tqe_next->ccb_link.tqe_prev = (ccb)->ccb_link.tqe_prev; else (&scbus->sc_ccb_freeq)->tqh_last = (ccb)->ccb_link.tqe_prev; *(ccb)->ccb_link.tqe_prev = (ccb)->ccb_link.tqe_next; ((ccb)->ccb_link.tqe_prev) = ((void *)-1); ((ccb)->ccb_link.tqe_next) = ((void *)-1); } while (0);
   ccb->ccb_state = SDMMC_CCB_READY;
  }
- __mtx_leave(&scbus->sc_ccb_mtx);
+ __mtx_leave(&scbus->sc_ccb_mtx );
  return ccb;
 }
 void
@@ -3783,9 +3784,9 @@ sdmmc_ccb_free(void *xscbus, void *xccb)
  ccb->ccb_state = SDMMC_CCB_FREE;
  ccb->ccb_flags = 0;
  ccb->ccb_xs = ((void *)0);
- __mtx_enter(&scbus->sc_ccb_mtx);
+ __mtx_enter(&scbus->sc_ccb_mtx );
  do { (ccb)->ccb_link.tqe_next = ((void *)0); (ccb)->ccb_link.tqe_prev = (&scbus->sc_ccb_freeq)->tqh_last; *(&scbus->sc_ccb_freeq)->tqh_last = (ccb); (&scbus->sc_ccb_freeq)->tqh_last = &(ccb)->ccb_link.tqe_next; } while (0);
- __mtx_leave(&scbus->sc_ccb_mtx);
+ __mtx_leave(&scbus->sc_ccb_mtx );
 }
 static void
 sdmmc_scsi_decode_rw(struct scsi_xfer *xs, u_int32_t *blocknop,

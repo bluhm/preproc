@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -1918,7 +1919,7 @@ bufq_init(struct bufq *bq, int type)
    hi = 2;
   low = hi / 2;
  }
- __mtx_init((&bq->bufq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&bq->bufq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  bq->bufq_hi = hi;
  bq->bufq_low = low;
  bq->bufq_type = type;
@@ -1927,12 +1928,12 @@ bufq_init(struct bufq *bq, int type)
  if (bq->bufq_data == ((void *)0)) {
   panic("bufq init fail");
  }
- __mtx_enter(&bufqs_mtx);
+ __mtx_enter(&bufqs_mtx );
  while (bufqs_stop) {
   msleep(&bufqs_stop, &bufqs_mtx, 16, "bqinit", 0);
  }
  do { (bq)->bufq_entries.sle_next = (&bufqs)->slh_first; (&bufqs)->slh_first = (bq); } while (0);
- __mtx_leave(&bufqs_mtx);
+ __mtx_leave(&bufqs_mtx );
  return (0);
 }
 int
@@ -1943,15 +1944,15 @@ bufq_switch(struct bufq *bq, int type)
  int otype;
  struct buf *bp;
  int ret;
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  ret = (bq->bufq_type == type);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
  if (ret)
   return (0);
  data = bufq_impls[type].impl_create();
  if (data == ((void *)0))
   return (12);
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  if (bq->bufq_type != type) {
   odata = bq->bufq_data;
   otype = bq->bufq_type;
@@ -1964,7 +1965,7 @@ bufq_switch(struct bufq *bq, int type)
   otype = type;
   odata = data;
  }
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
  bufq_impls[otype].impl_destroy(odata);
  return (0);
 }
@@ -1974,48 +1975,48 @@ bufq_destroy(struct bufq *bq)
  bufq_drain(bq);
  bq->bufq_impl->impl_destroy(bq->bufq_data);
  bq->bufq_data = ((void *)0);
- __mtx_enter(&bufqs_mtx);
+ __mtx_enter(&bufqs_mtx );
  while (bufqs_stop) {
   msleep(&bufqs_stop, &bufqs_mtx, 16, "bqdest", 0);
  }
  do { if ((&bufqs)->slh_first == (bq)) { do { ((&bufqs))->slh_first = ((&bufqs))->slh_first->bufq_entries.sle_next; } while (0); } else { struct bufq *curelm = (&bufqs)->slh_first; while (curelm->bufq_entries.sle_next != (bq)) curelm = curelm->bufq_entries.sle_next; curelm->bufq_entries.sle_next = curelm->bufq_entries.sle_next->bufq_entries.sle_next; } ((bq)->bufq_entries.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&bufqs_mtx);
+ __mtx_leave(&bufqs_mtx );
 }
 void
 bufq_queue(struct bufq *bq, struct buf *bp)
 {
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  while (bq->bufq_stop) {
   msleep(&bq->bufq_stop, &bq->bufq_mtx, 16, "bqqueue", 0);
  }
  bp->b_bq = bq;
  bq->bufq_outstanding++;
  bq->bufq_impl->impl_queue(bq->bufq_data, bp);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
 }
 struct buf *
 bufq_dequeue(struct bufq *bq)
 {
  struct buf *bp;
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  bp = bq->bufq_impl->impl_dequeue(bq->bufq_data);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
  return (bp);
 }
 void
 bufq_requeue(struct bufq *bq, struct buf *bp)
 {
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  bq->bufq_impl->impl_requeue(bq->bufq_data, bp);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
 }
 int
 bufq_peek(struct bufq *bq)
 {
  int rv;
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  rv = bq->bufq_impl->impl_peek(bq->bufq_data);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
  return (rv);
 }
 void
@@ -2036,60 +2037,60 @@ bufq_wait(struct bufq *bq)
 {
  if (bq->bufq_hi) {
   assertwaitok();
-  __mtx_enter(&bq->bufq_mtx);
+  __mtx_enter(&bq->bufq_mtx );
   while (bq->bufq_outstanding >= bq->bufq_hi) {
    bq->bufq_waiting++;
    msleep(&bq->bufq_waiting, &bq->bufq_mtx,
        16, "bqwait", 0);
    bq->bufq_waiting--;
   }
-  __mtx_leave(&bq->bufq_mtx);
+  __mtx_leave(&bq->bufq_mtx );
  }
 }
 void
 bufq_done(struct bufq *bq, struct buf *bp)
 {
- __mtx_enter(&bq->bufq_mtx);
+ __mtx_enter(&bq->bufq_mtx );
  ((bq->bufq_outstanding > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_bufq.c", 259, "bq->bufq_outstanding > 0"));
  bq->bufq_outstanding--;
  if (bq->bufq_stop && bq->bufq_outstanding == 0)
   wakeup(&bq->bufq_outstanding);
  if (bq->bufq_waiting && bq->bufq_outstanding < bq->bufq_low)
   wakeup(&bq->bufq_waiting);
- __mtx_leave(&bq->bufq_mtx);
+ __mtx_leave(&bq->bufq_mtx );
  bp->b_bq = ((void *)0);
 }
 void
 bufq_quiesce(void)
 {
  struct bufq *bq;
- __mtx_enter(&bufqs_mtx);
+ __mtx_enter(&bufqs_mtx );
  bufqs_stop = 1;
- __mtx_leave(&bufqs_mtx);
+ __mtx_leave(&bufqs_mtx );
  for((bq) = ((&bufqs)->slh_first); (bq) != ((void *)0); (bq) = ((bq)->bufq_entries.sle_next)) {
-  __mtx_enter(&bq->bufq_mtx);
+  __mtx_enter(&bq->bufq_mtx );
   bq->bufq_stop = 1;
   while (bq->bufq_outstanding) {
    msleep(&bq->bufq_outstanding, &bq->bufq_mtx,
        16, "bqquies", 0);
   }
-  __mtx_leave(&bq->bufq_mtx);
+  __mtx_leave(&bq->bufq_mtx );
  }
 }
 void
 bufq_restart(void)
 {
  struct bufq *bq;
- __mtx_enter(&bufqs_mtx);
+ __mtx_enter(&bufqs_mtx );
  for((bq) = ((&bufqs)->slh_first); (bq) != ((void *)0); (bq) = ((bq)->bufq_entries.sle_next)) {
-  __mtx_enter(&bq->bufq_mtx);
+  __mtx_enter(&bq->bufq_mtx );
   bq->bufq_stop = 0;
   wakeup(&bq->bufq_stop);
-  __mtx_leave(&bq->bufq_mtx);
+  __mtx_leave(&bq->bufq_mtx );
  }
  bufqs_stop = 0;
  wakeup(&bufqs_stop);
- __mtx_leave(&bufqs_mtx);
+ __mtx_leave(&bufqs_mtx );
 }
 void *
 bufq_fifo_create(void)

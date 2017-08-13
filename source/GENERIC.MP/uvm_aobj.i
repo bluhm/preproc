@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2699,9 +2700,9 @@ uao_create(vsize_t size, int flags)
   }
  }
  uvm_objinit(&aobj->u_obj, &aobj_pager, refs);
- __mtx_enter(&uao_list_lock);
+ __mtx_enter(&uao_list_lock );
  do { if (((aobj)->u_list.le_next = (&uao_list)->lh_first) != ((void *)0)) (&uao_list)->lh_first->u_list.le_prev = &(aobj)->u_list.le_next; (&uao_list)->lh_first = (aobj); (aobj)->u_list.le_prev = &(&uao_list)->lh_first; } while (0);
- __mtx_leave(&uao_list_lock);
+ __mtx_leave(&uao_list_lock );
  return(&aobj->u_obj);
 }
 void
@@ -2745,23 +2746,23 @@ uao_detach_locked(struct uvm_object *uobj)
  if (uobj->uo_refs) {
   return;
  }
- __mtx_enter(&uao_list_lock);
+ __mtx_enter(&uao_list_lock );
  do { if ((aobj)->u_list.le_next != ((void *)0)) (aobj)->u_list.le_next->u_list.le_prev = (aobj)->u_list.le_prev; *(aobj)->u_list.le_prev = (aobj)->u_list.le_next; ((aobj)->u_list.le_prev) = ((void *)-1); ((aobj)->u_list.le_next) = ((void *)-1); } while (0);
- __mtx_leave(&uao_list_lock);
- __mtx_enter(&uvm.pageqlock);
+ __mtx_leave(&uao_list_lock );
+ __mtx_enter(&uvm.pageqlock );
  while((pg = uvm_objtree_RBT_ROOT(&uobj->memt)) != ((void *)0)) {
   if (pg->pg_flags & 0x00000001) {
    atomic_setbits_int(&pg->pg_flags, 0x00000002);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    do { tsleep(pg, 4|(0 ? 0x100 : 0), "uao_det", 0); } while (0);
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    continue;
   }
   pmap_page_protect(pg, 0x00);
   uao_dropswap(&aobj->u_obj, pg->offset >> 13);
   uvm_pagefree(pg);
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  uao_free(aobj);
 }
 boolean_t
@@ -2807,10 +2808,10 @@ uao_flush(struct uvm_object *uobj, voff_t start, voff_t stop, int flags)
  deactivate_it:
    if (pp->wire_count != 0)
     continue;
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    pmap_page_protect(pp, 0x00);
    uvm_pagedeactivate(pp);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    continue;
   case 0x008:
    if (uobj->uo_refs > 1)
@@ -2819,9 +2820,9 @@ uao_flush(struct uvm_object *uobj, voff_t start, voff_t stop, int flags)
     continue;
    pmap_page_protect(pp, 0x00);
    uao_dropswap(uobj, pp->offset >> 13);
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pagefree(pp);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    continue;
   default:
    panic("uao_flush: weird flags");
@@ -2920,9 +2921,9 @@ uao_get(struct uvm_object *uobj, voff_t offset, struct vm_page **pps,
     atomic_clearbits_int(&ptmp->pg_flags,
         0x00000002|0x00000001);
     ;
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     uvm_pagefree(ptmp);
-    __mtx_leave(&uvm.pageqlock);
+    __mtx_leave(&uvm.pageqlock );
     return (rv);
    }
   }
@@ -2946,13 +2947,13 @@ boolean_t
 uao_swap_off(int startslot, int endslot)
 {
  struct uvm_aobj *aobj, *nextaobj, *prevaobj = ((void *)0);
- __mtx_enter(&uao_list_lock);
+ __mtx_enter(&uao_list_lock );
  for (aobj = ((&uao_list)->lh_first);
       aobj != ((void *)0);
       aobj = nextaobj) {
   boolean_t rv;
   uao_reference_locked(&aobj->u_obj);
-  __mtx_leave(&uao_list_lock);
+  __mtx_leave(&uao_list_lock );
   if (prevaobj) {
    uao_detach_locked(&prevaobj->u_obj);
    prevaobj = ((void *)0);
@@ -2962,11 +2963,11 @@ uao_swap_off(int startslot, int endslot)
    uao_detach_locked(&aobj->u_obj);
    return rv;
   }
-  __mtx_enter(&uao_list_lock);
+  __mtx_enter(&uao_list_lock );
   nextaobj = ((aobj)->u_list.le_next);
   prevaobj = aobj;
  }
- __mtx_leave(&uao_list_lock);
+ __mtx_leave(&uao_list_lock );
  if (prevaobj) {
   uao_detach_locked(&prevaobj->u_obj);
  }
@@ -3036,9 +3037,9 @@ uao_pagein_page(struct uvm_aobj *aobj, int pageidx)
  atomic_clearbits_int(&pg->pg_flags, 0x00000001|0x00000008|0x00000040);
  ;
  pmap_clear_reference(pg);
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  uvm_pagedeactivate(pg);
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  return 0;
 }
 void

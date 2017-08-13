@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5250,9 +5251,9 @@ uaudio_chan_ptransfer(struct chan *ch)
   ch->transferred += n;
   if (ch->transferred >= ch->blksize) {
    ;
-   __mtx_enter(&audio_lock);
+   __mtx_enter(&audio_lock );
    ch->intr(ch->arg);
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
    ch->transferred -= ch->blksize;
   }
  }
@@ -5395,9 +5396,9 @@ uaudio_chan_rintr(struct usbd_xfer *xfer, void *priv,
    ch->transferred += n;
    if (ch->transferred >= ch->blksize) {
     ;
-    __mtx_enter(&audio_lock);
+    __mtx_enter(&audio_lock );
     ch->intr(ch->arg);
-    __mtx_leave(&audio_lock);
+    __mtx_leave(&audio_lock );
     ch->transferred -= ch->blksize;
    }
    if (count < n)

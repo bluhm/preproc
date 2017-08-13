@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -6391,9 +6392,9 @@ if_clone_create(const char *name, int rdomain)
   return (22);
  if (ifunit(name) != ((void *)0))
   return (17);
- _rw_exit_write(&netlock );
+ do { _rw_exit_write(&netlock ); } while (0);
  ret = (*ifc->ifc_create)(ifc, unit);
- _rw_enter_write(&netlock );
+ do { _rw_enter_write(&netlock ); } while (0);
  if (ret != 0 || (ifp = ifunit(name)) == ((void *)0))
   return (ret);
  if_addgroup(ifp, ifc->ifc_name);
@@ -6422,9 +6423,9 @@ if_clone_destroy(const char *name)
   if_down(ifp);
   _splx(s);
  }
- _rw_exit_write(&netlock );
+ do { _rw_exit_write(&netlock ); } while (0);
  ret = (*ifc->ifc_destroy)(ifp);
- _rw_enter_write(&netlock );
+ do { _rw_enter_write(&netlock ); } while (0);
  return (ret);
 }
 struct if_clone *
@@ -7230,12 +7231,12 @@ if_getdata(struct ifnet *ifp, struct if_data *data)
  uint64_t oqdrops = 0;
  for (i = 0; i < ifp->if_nifqs; i++) {
   ifq = ifp->if_ifqs[i];
-  __mtx_enter(&ifq->ifq_mtx);
+  __mtx_enter(&ifq->ifq_mtx );
   opackets += ifq->ifq_packets;
   obytes += ifq->ifq_bytes;
   oqdrops += ifq->ifq_qdrops;
   omcasts += ifq->ifq_mcasts;
-  __mtx_leave(&ifq->ifq_mtx);
+  __mtx_leave(&ifq->ifq_mtx );
  }
  *data = ifp->if_data;
  data->ifi_opackets += opackets;

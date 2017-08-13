@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2503,12 +2504,12 @@ uvmfault_anonflush(struct vm_anon **anons, int n)
    continue;
   pg = anons[lcv]->an_page;
   if (pg && (pg->pg_flags & 0x00000001) == 0) {
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    if (pg->wire_count == 0) {
     pmap_page_protect(pg, 0x00);
     uvm_pagedeactivate(pg);
    }
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
   }
  }
 }
@@ -2609,18 +2610,18 @@ uvmfault_anonget(struct uvm_faultinfo *ufi, struct vm_amap *amap,
     anon->an_page = ((void *)0);
     uvm_swap_markbad(anon->an_swslot, 1);
     anon->an_swslot = (-1);
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     uvm_pagefree(pg);
-    __mtx_leave(&uvm.pageqlock);
+    __mtx_leave(&uvm.pageqlock );
     if (locked)
      uvmfault_unlockall(ufi, amap, ((void *)0),
          anon);
     return (4);
    }
    pmap_clear_modify(pg);
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pageactivate(pg);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
   }
   if (!locked)
    return (7);
@@ -2766,9 +2767,9 @@ ReFault:
   anon = anons[lcv];
   if (anon->an_page &&
       (anon->an_page->pg_flags & (0x00000020|0x00000001)) == 0) {
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pageactivate(anon->an_page);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    uvmexp.fltnamap++;
    (void) pmap_enter(ufi.orig_map->pmap, currva,
        ((anon->an_page)->phys_addr),
@@ -2812,9 +2813,9 @@ ReFault:
      uobjpage = pages[lcv];
      continue;
     }
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     uvm_pageactivate(pages[lcv]);
-    __mtx_leave(&uvm.pageqlock);
+    __mtx_leave(&uvm.pageqlock );
     uvmexp.fltnomap++;
     (void) pmap_enter(ufi.orig_map->pmap, currva,
         ((pages[lcv])->phys_addr),
@@ -2893,7 +2894,7 @@ ReFault:
   uvm_wait("flt_pmfail1");
   goto ReFault;
  }
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  if (fault_type == ((vm_fault_t) 0x2)) {
   uvm_pagewire(pg);
   atomic_clearbits_int(&pg->pg_flags, 0x00000008);
@@ -2901,7 +2902,7 @@ ReFault:
  } else {
   uvm_pageactivate(pg);
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  uvmfault_unlockall(&ufi, amap, ((void *)0), oanon);
  ;
  return (0);
@@ -2944,9 +2945,9 @@ Case2:
    locked = 0;
   }
   if (locked == 0 && uobjpage != ((struct vm_page *) -1L)) {
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pageactivate(uobjpage);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    if (uobjpage->pg_flags & 0x00000002)
     wakeup(uobjpage);
    atomic_clearbits_int(&uobjpage->pg_flags,
@@ -2970,9 +2971,9 @@ Case2:
   }
   if (anon == ((void *)0) || pg == ((void *)0)) {
    if (uobjpage != ((struct vm_page *) -1L)) {
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     uvm_pageactivate(uobjpage);
-    __mtx_leave(&uvm.pageqlock);
+    __mtx_leave(&uvm.pageqlock );
     if (uobjpage->pg_flags & 0x00000002)
      wakeup(uobjpage);
     atomic_clearbits_int(&uobjpage->pg_flags,
@@ -3006,9 +3007,9 @@ Case2:
    atomic_clearbits_int(&uobjpage->pg_flags,
        0x00000001|0x00000002);
    ;
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pageactivate(uobjpage);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    uobj = ((void *)0);
   } else {
    uvmexp.flt_przero++;
@@ -3041,7 +3042,7 @@ Case2:
   uvm_wait("flt_pmfail2");
   goto ReFault;
  }
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  if (fault_type == ((vm_fault_t) 0x2)) {
   uvm_pagewire(pg);
   if (pg->pg_flags & 0x00200000) {
@@ -3051,7 +3052,7 @@ Case2:
  } else {
   uvm_pageactivate(pg);
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  if (pg->pg_flags & 0x00000002)
   wakeup(pg);
  atomic_clearbits_int(&pg->pg_flags, 0x00000001|0x00000040|0x00000002);
@@ -3092,7 +3093,7 @@ uvm_fault_unwire_locked(vm_map_t map, vaddr_t start, vaddr_t end)
  paddr_t pa;
  struct vm_page *pg;
  (((map->flags & 0x02) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1329, "(map->flags & VM_MAP_INTRSAFE) == 0"));
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  ((start >= ((map)->min_offset) && end <= ((map)->max_offset)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1340, "start >= vm_map_min(map) && end <= vm_map_max(map)"));
  if (uvm_map_lookup_entry(map, start, &entry) == 0)
   panic("uvm_fault_unwire_locked: address not in map");
@@ -3111,7 +3112,7 @@ uvm_fault_unwire_locked(vm_map_t map, vaddr_t start, vaddr_t end)
   if (pg)
    uvm_pageunwire(pg);
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
 }
 void
 uvmfault_unlockmaps(struct uvm_faultinfo *ufi, boolean_t write_locked)

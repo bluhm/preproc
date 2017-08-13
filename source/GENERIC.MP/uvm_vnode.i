@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3569,7 +3570,7 @@ uvn_flush(struct uvm_object *uobj, voff_t start, voff_t stop, int flags)
   }
  }
  ppsp = ((void *)0);
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  for (curoff = start; curoff < stop; curoff += (1 << 13)) {
   if ((pp = uvm_pagelookup(uobj, curoff)) == ((void *)0))
    continue;
@@ -3600,9 +3601,9 @@ uvn_flush(struct uvm_object *uobj, voff_t start, voff_t stop, int flags)
     if (pp->pg_flags & 0x00000001) {
      atomic_setbits_int(&pp->pg_flags,
          0x00000002);
-     __mtx_leave(&uvm.pageqlock);
+     __mtx_leave(&uvm.pageqlock );
      do { tsleep(pp, 4|(0 ? 0x100 : 0), "uvn_flsh", 0); } while (0);
-     __mtx_enter(&uvm.pageqlock);
+     __mtx_enter(&uvm.pageqlock );
      curoff -= (1 << 13);
      continue;
     } else {
@@ -3622,7 +3623,7 @@ ReTry:
   npages = sizeof(pps) / sizeof(struct vm_page *);
   result = uvm_pager_put(uobj, pp, &ppsp, &npages,
       flags | 0x020, start, stop);
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_enter(&uvm.pageqlock );
   if (result == 5) {
    if (flags & 0x002)
  panic("uvn_flush: PGO_SYNCIO return 'try again' error (impossible)");
@@ -3672,7 +3673,7 @@ ReTry:
    }
   }
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  if (need_iosync) {
   while (uvn->u_nio != 0) {
    uvn->u_flags |= 0x080;
@@ -3773,9 +3774,9 @@ uvn_get(struct uvm_object *uobj, voff_t offset, struct vm_page **pps,
    atomic_clearbits_int(&ptmp->pg_flags,
        0x00000002|0x00000001);
    ;
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvm_pagefree(ptmp);
-   __mtx_leave(&uvm.pageqlock);
+   __mtx_leave(&uvm.pageqlock );
    return(result);
   }
   atomic_clearbits_int(&ptmp->pg_flags, 0x00000040);
@@ -3835,7 +3836,7 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
  if (result == 0) {
   int netlocked = (rw_status(&netlock) == 0x0001UL);
   if (netlocked)
-   _rw_exit_write(&netlock );
+   do { _rw_exit_write(&netlock ); } while (0);
   if (rw == UIO_READ)
    result = VOP_READ(vn, &uio, 0, (__curcpu->ci_self)->ci_curproc->p_ucred);
   else
@@ -3843,7 +3844,7 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
        (flags & 0x080) ? 0x40 : 0,
        (__curcpu->ci_self)->ci_curproc->p_ucred);
   if (netlocked)
-   _rw_enter_write(&netlock );
+   do { _rw_enter_write(&netlock ); } while (0);
   if ((uvn->u_flags & 0x040) == 0)
    VOP_UNLOCK(vn, (__curcpu->ci_self)->ci_curproc);
  }

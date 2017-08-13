@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -28766,7 +28767,7 @@ qle_get_port_name_list(struct qle_softc *sc, u_int32_t match)
      sc->sc_mbox[1], 0x02);
  i = 0;
  l = ((void *)(sc->sc_scratch)->qdm_kva);
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  while (i * sizeof(*l) < sc->sc_mbox[1]) {
   u_int16_t loopid;
   u_int32_t loc;
@@ -28802,7 +28803,7 @@ qle_get_port_name_list(struct qle_softc *sc, u_int32_t match)
   }
   i++;
  }
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  return (0);
 }
 int
@@ -28821,7 +28822,7 @@ qle_add_loop_port(struct qle_softc *sc, struct qle_fc_port *port)
  port->node_name = ((__uint64_t)(pdb->node_name));
  port->portid = (pdb->port_id[0] << 16) | (pdb->port_id[1] << 8) |
      pdb->port_id[2];
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  disp = qle_classify_port(sc, port->location, port->port_name,
      port->node_name, &pport);
  switch (disp) {
@@ -28839,7 +28840,7 @@ qle_add_loop_port(struct qle_softc *sc, struct qle_fc_port *port)
   free(port, 2, sizeof *port);
   break;
  }
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  switch (disp) {
  case QLE_PORT_DISP_CHANGED:
  case QLE_PORT_DISP_MOVED:
@@ -28869,10 +28870,10 @@ qle_add_fabric_port(struct qle_softc *sc, struct qle_fc_port *port)
       (pdb->port_id[1] << 8) | pdb->port_id[2];
   port->location = (port->portid | (2 << 24));
  }
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  do { (port)->update.tqe_next = ((void *)0); (port)->update.tqe_prev = (&sc->sc_ports_new)->tqh_last; *(&sc->sc_ports_new)->tqh_last = (port); (&sc->sc_ports_new)->tqh_last = &(port)->update.tqe_next; } while (0);
  sc->sc_targets[port->loopid] = port;
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  ;
  return (0);
 }
@@ -28885,7 +28886,7 @@ qle_add_logged_in_port(struct qle_softc *sc, u_int16_t loopid,
  u_int64_t node_name, port_name;
  int flags, ret;
  ret = qle_get_port_db(sc, loopid, sc->sc_scratch);
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  if (ret != 0) {
   printf("%s: loop id %d used, but can't see what's using it\n",
       ((sc)->sc_dev.dv_xname), loopid);
@@ -28903,7 +28904,7 @@ qle_add_logged_in_port(struct qle_softc *sc, u_int16_t loopid,
    if ((port->node_name == node_name) &&
        (port->port_name == port_name) &&
        (port->portid == portid)) {
-    __mtx_leave(&sc->sc_port_mtx);
+    __mtx_leave(&sc->sc_port_mtx );
     ;
     return (0);
    }
@@ -28911,7 +28912,7 @@ qle_add_logged_in_port(struct qle_softc *sc, u_int16_t loopid,
  }
  port = malloc(sizeof(*port), 2, 0x0008 | 0x0002);
  if (port == ((void *)0)) {
-  __mtx_leave(&sc->sc_port_mtx);
+  __mtx_leave(&sc->sc_port_mtx );
   printf("%s: failed to allocate a port structure\n",
       ((sc)->sc_dev.dv_xname));
   return (1);
@@ -28924,7 +28925,7 @@ qle_add_logged_in_port(struct qle_softc *sc, u_int16_t loopid,
  port->flags = flags;
  do { (port)->ports.tqe_next = ((void *)0); (port)->ports.tqe_prev = (&sc->sc_ports)->tqh_last; *(&sc->sc_ports)->tqh_last = (port); (&sc->sc_ports)->tqh_last = &(port)->ports.tqe_next; } while (0);
  sc->sc_targets[port->loopid] = port;
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  ;
  return (0);
 }
@@ -29099,16 +29100,16 @@ qle_handle_intr(struct qle_softc *sc, u_int16_t isr, u_int16_t info)
   qle_write(sc, 0x028, sc->sc_last_resp_id);
   break;
  case 1:
-  __mtx_enter(&sc->sc_mbox_mtx);
+  __mtx_enter(&sc->sc_mbox_mtx );
   if (sc->sc_mbox_pending) {
    for (i = 0; i < (sizeof((sc->sc_mbox)) / sizeof((sc->sc_mbox)[0])); i++) {
     sc->sc_mbox[i] = qle_read_mbox(sc, i);
    }
    sc->sc_mbox_pending = 2;
    wakeup(sc->sc_mbox);
-   __mtx_leave(&sc->sc_mbox_mtx);
+   __mtx_leave(&sc->sc_mbox_mtx );
   } else {
-   __mtx_leave(&sc->sc_mbox_mtx);
+   __mtx_leave(&sc->sc_mbox_mtx );
    ;
   }
   break;
@@ -29133,12 +29134,12 @@ qle_scsi_probe(struct scsi_link *link)
 {
  struct qle_softc *sc = link->adapter_softc;
  int rv = 0;
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  if (sc->sc_targets[link->target] == ((void *)0))
   rv = 6;
  else if (!((sc->sc_targets[link->target]->flags) & (1)))
   rv = 6;
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  return (rv);
 }
 void
@@ -29164,11 +29165,11 @@ qle_scsi_cmd(struct scsi_xfer *xs)
   return;
  }
  portid = 0xffffffff;
- __mtx_enter(&sc->sc_port_mtx);
+ __mtx_enter(&sc->sc_port_mtx );
  if (sc->sc_targets[xs->sc_link->target] != ((void *)0)) {
   portid = sc->sc_targets[xs->sc_link->target]->portid;
  }
- __mtx_leave(&sc->sc_port_mtx);
+ __mtx_leave(&sc->sc_port_mtx );
  if (portid == 0xffffffff) {
   xs->error = 2;
   scsi_done(xs);
@@ -29190,7 +29191,7 @@ qle_scsi_cmd(struct scsi_xfer *xs)
       (xs->flags & 0x00800) ? 0x01 :
       0x04);
  }
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  if (sc->sc_marker_required) {
   req = sc->sc_next_req_id++;
   if (sc->sc_next_req_id == sc->sc_maxcmds)
@@ -29217,7 +29218,7 @@ qle_scsi_cmd(struct scsi_xfer *xs)
      64, 0x01);
  qle_write(sc, 0x01C, sc->sc_next_req_id);
  if (!((xs->flags) & (0x00002))) {
-  __mtx_leave(&sc->sc_queue_mtx);
+  __mtx_leave(&sc->sc_queue_mtx );
   return;
  }
  done = 0;
@@ -29247,7 +29248,7 @@ qle_scsi_cmd(struct scsi_xfer *xs)
   qle_write(sc, 0x028, sc->sc_last_resp_id);
   qle_clear_isr(sc, isr);
  } while (done == 0);
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
  while ((ccb = ((&list)->sqh_first)) != ((void *)0)) {
   do { if (((&list)->sqh_first = (&list)->sqh_first->ccb_link.sqe_next) == ((void *)0)) (&list)->sqh_last = &(&list)->sqh_first; } while (0);
   scsi_done(ccb->ccb_xs);
@@ -29305,7 +29306,7 @@ qle_mbox(struct qle_softc *sc, int maskin)
  }
  qle_host_cmd(sc, 0x5);
  if (sc->sc_scsibus != ((void *)0)) {
-  __mtx_enter(&sc->sc_mbox_mtx);
+  __mtx_enter(&sc->sc_mbox_mtx );
   sc->sc_mbox_pending = 1;
   while (sc->sc_mbox_pending == 1) {
    msleep(sc->sc_mbox, &sc->sc_mbox_mtx, 16,
@@ -29313,7 +29314,7 @@ qle_mbox(struct qle_softc *sc, int maskin)
   }
   result = sc->sc_mbox[0];
   sc->sc_mbox_pending = 0;
-  __mtx_leave(&sc->sc_mbox_mtx);
+  __mtx_leave(&sc->sc_mbox_mtx );
   return (result == 0x4000 ? 0 : result);
  }
  for (i = 0; i < 400000 && result == 0; i++) {
@@ -29556,7 +29557,7 @@ qle_ct_pass_through(struct qle_softc *sc, u_int32_t port_handle,
  u_int16_t req;
  u_int64_t offset;
  int rv;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  req = sc->sc_next_req_id++;
  if (sc->sc_next_req_id == sc->sc_maxcmds)
   sc->sc_next_req_id = 0;
@@ -29579,7 +29580,7 @@ qle_ct_pass_through(struct qle_softc *sc, u_int32_t port_handle,
      0x01 | 0x04);
  qle_write(sc, 0x01C, sc->sc_next_req_id);
  sc->sc_fabric_pending = 1;
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
  rv = 0;
  while (sc->sc_fabric_pending == 1) {
   if (sc->sc_scsibus == ((void *)0)) {
@@ -29659,7 +29660,7 @@ qle_fabric_plogx(struct qle_softc *sc, struct qle_fc_port *port, int flags,
  u_int16_t req;
  u_int64_t offset;
  int rv;
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  req = sc->sc_next_req_id++;
  if (sc->sc_next_req_id == sc->sc_maxcmds)
   sc->sc_next_req_id = 0;
@@ -29679,7 +29680,7 @@ qle_fabric_plogx(struct qle_softc *sc, struct qle_fc_port *port, int flags,
  qle_dump_iocb(sc, iocb);
  qle_write(sc, 0x01C, sc->sc_next_req_id);
  sc->sc_fabric_pending = 1;
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
  rv = 0;
  while (sc->sc_fabric_pending == 1) {
   if (sc->sc_scsibus == ((void *)0)) {
@@ -29708,9 +29709,9 @@ qle_fabric_plogi(struct qle_softc *sc, struct qle_fc_port *port)
  loopid = 0;
 retry:
  if (port->loopid == 0) {
-  __mtx_enter(&sc->sc_port_mtx);
+  __mtx_enter(&sc->sc_port_mtx );
   loopid = qle_get_loop_id(sc, loopid);
-  __mtx_leave(&sc->sc_port_mtx);
+  __mtx_leave(&sc->sc_port_mtx );
   if (loopid == -1) {
    printf("%s: ran out of loop ids\n", ((sc)->sc_dev.dv_xname));
    return (1);
@@ -29765,7 +29766,7 @@ qle_do_update(void *xsc)
   if (sc->sc_update_tasks & 0x00000001) {
    struct { struct qle_fc_port *tqh_first; struct qle_fc_port **tqh_last; } detach;
    ;
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    qle_clear_port_lists(sc);
    do { (&detach)->tqh_first = ((void *)0); (&detach)->tqh_last = &(&detach)->tqh_first; } while (0);
    while (!(((&sc->sc_ports)->tqh_first) == ((void *)0))) {
@@ -29773,7 +29774,7 @@ qle_do_update(void *xsc)
     do { if (((port)->ports.tqe_next) != ((void *)0)) (port)->ports.tqe_next->ports.tqe_prev = (port)->ports.tqe_prev; else (&sc->sc_ports)->tqh_last = (port)->ports.tqe_prev; *(port)->ports.tqe_prev = (port)->ports.tqe_next; ((port)->ports.tqe_prev) = ((void *)-1); ((port)->ports.tqe_next) = ((void *)-1); } while (0);
     do { (port)->ports.tqe_next = ((void *)0); (port)->ports.tqe_prev = (&detach)->tqh_last; *(&detach)->tqh_last = (port); (&detach)->tqh_last = &(port)->ports.tqe_next; } while (0);
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    while (!(((&detach)->tqh_first) == ((void *)0))) {
     port = ((&detach)->tqh_first);
     do { if (((port)->ports.tqe_next) != ((void *)0)) (port)->ports.tqe_next->ports.tqe_prev = (port)->ports.tqe_prev; else (&detach)->tqh_last = (port)->ports.tqe_prev; *(port)->ports.tqe_prev = (port)->ports.tqe_next; ((port)->ports.tqe_prev) = ((void *)-1); ((port)->ports.tqe_next) = ((void *)-1); } while (0);
@@ -29805,12 +29806,12 @@ qle_do_update(void *xsc)
   }
   if (sc->sc_update_tasks & 0x00000008) {
    ;
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    qle_clear_port_lists(sc);
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    qle_get_port_name_list(sc, (1 << 24) |
        (2 << 24));
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    for((port) = ((&sc->sc_ports)->tqh_first); (port) != ((void *)0); (port) = ((port)->ports.tqe_next)) {
     do { (port)->update.tqe_next = ((void *)0); (port)->update.tqe_prev = (&sc->sc_ports_gone)->tqh_last; *(&sc->sc_ports_gone)->tqh_last = (port); (&sc->sc_ports_gone)->tqh_last = &(port)->update.tqe_next; } while (0);
     if (port->location & (2 << 24)) {
@@ -29829,18 +29830,18 @@ qle_do_update(void *xsc)
      do { if (((port)->update.tqe_next) != ((void *)0)) (port)->update.tqe_next->update.tqe_prev = (port)->update.tqe_prev; else (&sc->sc_ports_gone)->tqh_last = (port)->update.tqe_prev; *(port)->update.tqe_prev = (port)->update.tqe_next; ((port)->update.tqe_prev) = ((void *)-1); ((port)->update.tqe_next) = ((void *)-1); } while (0);
     fport->location = 0;
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    qle_update_start(sc, 0x00000010);
    qle_update_done(sc, 0x00000008);
    continue;
   }
   if (sc->sc_update_tasks & 0x00000010) {
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    fport = ((&sc->sc_ports_found)->tqh_first);
    if (fport != ((void *)0)) {
     do { if (((fport)->update.tqe_next) != ((void *)0)) (fport)->update.tqe_next->update.tqe_prev = (fport)->update.tqe_prev; else (&sc->sc_ports_found)->tqh_last = (fport)->update.tqe_prev; *(fport)->update.tqe_prev = (fport)->update.tqe_next; ((fport)->update.tqe_prev) = ((void *)-1); ((fport)->update.tqe_next) = ((void *)-1); } while (0);
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    if (fport == ((void *)0)) {
     ;
     qle_update_done(sc,
@@ -29872,7 +29873,7 @@ qle_do_update(void *xsc)
    fport = qle_next_fabric_port(sc, &firstport, &lastport);
    if (fport != ((void *)0)) {
     int disp;
-    __mtx_enter(&sc->sc_port_mtx);
+    __mtx_enter(&sc->sc_port_mtx );
     disp = qle_classify_port(sc, fport->location,
         fport->port_name, fport->node_name, &port);
     switch (disp) {
@@ -29891,7 +29892,7 @@ qle_do_update(void *xsc)
      free(fport, 2, sizeof *port);
      break;
     }
-    __mtx_leave(&sc->sc_port_mtx);
+    __mtx_leave(&sc->sc_port_mtx );
    }
    if (lastport == 0xffffffff) {
     ;
@@ -29903,12 +29904,12 @@ qle_do_update(void *xsc)
    continue;
   }
   if (sc->sc_update_tasks & 0x00000080) {
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    port = ((&sc->sc_ports_found)->tqh_first);
    if (port != ((void *)0)) {
     do { if (((port)->update.tqe_next) != ((void *)0)) (port)->update.tqe_next->update.tqe_prev = (port)->update.tqe_prev; else (&sc->sc_ports_found)->tqh_last = (port)->update.tqe_prev; *(port)->update.tqe_prev = (port)->update.tqe_next; ((port)->update.tqe_prev) = ((void *)-1); ((port)->update.tqe_next) = ((void *)-1); } while (0);
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    if (port != ((void *)0)) {
     ;
     if (qle_fabric_plogi(sc, port) == 0) {
@@ -29940,14 +29941,14 @@ qle_do_update(void *xsc)
    continue;
   }
   if (sc->sc_update_tasks & 0x00000200) {
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    port = ((&sc->sc_ports_gone)->tqh_first);
    if (port != ((void *)0)) {
     sc->sc_targets[port->loopid] = ((void *)0);
     do { if (((port)->update.tqe_next) != ((void *)0)) (port)->update.tqe_next->update.tqe_prev = (port)->update.tqe_prev; else (&sc->sc_ports_gone)->tqh_last = (port)->update.tqe_prev; *(port)->update.tqe_prev = (port)->update.tqe_next; ((port)->update.tqe_prev) = ((void *)-1); ((port)->update.tqe_next) = ((void *)-1); } while (0);
     do { if (((port)->ports.tqe_next) != ((void *)0)) (port)->ports.tqe_next->ports.tqe_prev = (port)->ports.tqe_prev; else (&sc->sc_ports)->tqh_last = (port)->ports.tqe_prev; *(port)->ports.tqe_prev = (port)->ports.tqe_next; ((port)->ports.tqe_prev) = ((void *)-1); ((port)->ports.tqe_next) = ((void *)-1); } while (0);
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    if (port != ((void *)0)) {
     ;
     if (sc->sc_scsibus != ((void *)0))
@@ -29964,13 +29965,13 @@ qle_do_update(void *xsc)
    continue;
   }
   if (sc->sc_update_tasks & 0x00000400) {
-   __mtx_enter(&sc->sc_port_mtx);
+   __mtx_enter(&sc->sc_port_mtx );
    port = ((&sc->sc_ports_new)->tqh_first);
    if (port != ((void *)0)) {
     do { if (((port)->update.tqe_next) != ((void *)0)) (port)->update.tqe_next->update.tqe_prev = (port)->update.tqe_prev; else (&sc->sc_ports_new)->tqh_last = (port)->update.tqe_prev; *(port)->update.tqe_prev = (port)->update.tqe_next; ((port)->update.tqe_prev) = ((void *)-1); ((port)->update.tqe_next) = ((void *)-1); } while (0);
     do { (port)->ports.tqe_next = ((void *)0); (port)->ports.tqe_prev = (&sc->sc_ports)->tqh_last; *(&sc->sc_ports)->tqh_last = (port); (&sc->sc_ports)->tqh_last = &(port)->ports.tqe_next; } while (0);
    }
-   __mtx_leave(&sc->sc_port_mtx);
+   __mtx_leave(&sc->sc_port_mtx );
    if (port != ((void *)0)) {
     if (sc->sc_scsibus != ((void *)0))
      scsi_probe_target(sc->sc_scsibus,
@@ -30312,10 +30313,10 @@ qle_alloc_ccbs(struct qle_softc *sc)
  u_int8_t *cmd;
  int i;
  do { (&sc->sc_ccb_free)->sqh_first = ((void *)0); (&sc->sc_ccb_free)->sqh_last = &(&sc->sc_ccb_free)->sqh_first; } while (0);
- __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&sc->sc_port_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&sc->sc_mbox_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_port_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_mbox_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  sc->sc_ccbs = mallocarray(sc->sc_maxcmds, sizeof(struct qle_ccb),
      2, 0x0001 | 0x0004 | 0x0008);
  if (sc->sc_ccbs == ((void *)0)) {
@@ -30405,12 +30406,12 @@ qle_get_ccb(void *xsc)
 {
  struct qle_softc *sc = xsc;
  struct qle_ccb *ccb;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  ccb = ((&sc->sc_ccb_free)->sqh_first);
  if (ccb != ((void *)0)) {
   do { if (((&sc->sc_ccb_free)->sqh_first = (&sc->sc_ccb_free)->sqh_first->ccb_link.sqe_next) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(&sc->sc_ccb_free)->sqh_first; } while (0);
  }
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
  return (ccb);
 }
 void
@@ -30419,7 +30420,7 @@ qle_put_ccb(void *xsc, void *io)
  struct qle_softc *sc = xsc;
  struct qle_ccb *ccb = io;
  ccb->ccb_xs = ((void *)0);
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  do { if (((ccb)->ccb_link.sqe_next = (&sc->sc_ccb_free)->sqh_first) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(ccb)->ccb_link.sqe_next; (&sc->sc_ccb_free)->sqh_first = (ccb); } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
 }

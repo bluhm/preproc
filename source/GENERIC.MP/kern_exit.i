@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4135,6 +4136,12 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
+struct sys_fktrace_args {
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
+ union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
+};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -4683,6 +4690,7 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
+int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -5429,9 +5437,9 @@ struct proclist deadproc = { ((void *)0) };
 void
 exit2(struct proc *p)
 {
- __mtx_enter(&deadproc_mutex);
+ __mtx_enter(&deadproc_mutex );
  do { if (((p)->p_hash.le_next = (&deadproc)->lh_first) != ((void *)0)) (&deadproc)->lh_first->p_hash.le_prev = &(p)->p_hash.le_next; (&deadproc)->lh_first = (p); (p)->p_hash.le_prev = &(&deadproc)->lh_first; } while (0);
- __mtx_leave(&deadproc_mutex);
+ __mtx_leave(&deadproc_mutex );
  wakeup(&deadproc);
 }
 void
@@ -5448,11 +5456,11 @@ reaper(void)
  _kernel_unlock();
  ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 422, "__mp_lock_held(&sched_lock) == 0"));
  for (;;) {
-  __mtx_enter(&deadproc_mutex);
+  __mtx_enter(&deadproc_mutex );
   while ((p = ((&deadproc)->lh_first)) == ((void *)0))
    msleep(&deadproc, &deadproc_mutex, 4, "reaper", 0);
   do { if ((p)->p_hash.le_next != ((void *)0)) (p)->p_hash.le_next->p_hash.le_prev = (p)->p_hash.le_prev; *(p)->p_hash.le_prev = (p)->p_hash.le_next; ((p)->p_hash.le_prev) = ((void *)-1); ((p)->p_hash.le_next) = ((void *)-1); } while (0);
-  __mtx_leave(&deadproc_mutex);
+  __mtx_leave(&deadproc_mutex );
   (void)0;
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 435);
   uvm_uarea_free(p);

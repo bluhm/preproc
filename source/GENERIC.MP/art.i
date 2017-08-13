@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2026,10 +2027,10 @@ art_table_put(struct art_root *ar, struct art_table *at)
   ((at->at_level == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/art.c", 802, "at->at_level == 0"));
   srp_swap_locked(&ar->ar_root, ((void *)0));
  }
- __mtx_enter(&art_table_gc_mtx);
+ __mtx_enter(&art_table_gc_mtx );
  at->at_parent = art_table_gc_list;
  art_table_gc_list = at;
- __mtx_leave(&art_table_gc_mtx);
+ __mtx_leave(&art_table_gc_mtx );
  task_add(systqmp, &art_table_gc_task);
  return (parent);
 }
@@ -2037,10 +2038,10 @@ void
 art_table_gc(void *null)
 {
  struct art_table *at, *next;
- __mtx_enter(&art_table_gc_mtx);
+ __mtx_enter(&art_table_gc_mtx );
  at = art_table_gc_list;
  art_table_gc_list = ((void *)0);
- __mtx_leave(&art_table_gc_mtx);
+ __mtx_leave(&art_table_gc_mtx );
  while (at != ((void *)0)) {
   next = at->at_parent;
   if (at->at_level == 0)
@@ -2117,20 +2118,20 @@ void
 art_put(struct art_node *an)
 {
  (((srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/art.c", 941, "SRPL_EMPTY_LOCKED(&an->an_rtlist)"));
- __mtx_enter(&art_node_gc_mtx);
+ __mtx_enter(&art_node_gc_mtx );
  an->an_pointer.an__gc = art_node_gc_list;
  art_node_gc_list = an;
- __mtx_leave(&art_node_gc_mtx);
+ __mtx_leave(&art_node_gc_mtx );
  task_add(systqmp, &art_node_gc_task);
 }
 void
 art_gc(void *null)
 {
  struct art_node *an, *next;
- __mtx_enter(&art_node_gc_mtx);
+ __mtx_enter(&art_node_gc_mtx );
  an = art_node_gc_list;
  art_node_gc_list = ((void *)0);
- __mtx_leave(&art_node_gc_mtx);
+ __mtx_leave(&art_node_gc_mtx );
  while (an != ((void *)0)) {
   next = an->an_pointer.an__gc;
   srp_finalize(an, "artnfini");

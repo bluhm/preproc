@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3855,7 +3856,7 @@ iommu_init(char *name, struct iommu_state *is, int tsbsize, u_int32_t iovabase)
  is->is_dvmamap = extent_create(name,
      is->is_dvmabase, (u_long)is->is_dvmaend + 1,
      2, ((void *)0), 0, 0x0008);
- __mtx_init((&is->is_mtx), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&is->is_mtx), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15)))); } while (0);
  if (strncmp(name, "pyro", 4) == 0)
   is->is_ptsb |= is->is_tsbsize;
  else
@@ -3896,7 +3897,7 @@ strbuf_reset(struct strbuf_ctl *sb)
   if (pmap_extract((&kernel_pmap_),
       (vaddr_t)sb->sb_flush, &sb->sb_flushpa) == 0)
    sb->sb_flush = ((void *)0);
-  __mtx_init((&sb->sb_mtx), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))));
+  do { (void)(((void *)0)); (void)(0); __mtx_init((&sb->sb_mtx), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15)))); } while (0);
  }
 }
 void
@@ -3993,7 +3994,7 @@ iommu_strbuf_flush_done(struct iommu_map_state *ims)
  if (sb == ((void *)0)) {
   panic("iommu_strbuf_flush_done: invalid flush buffer");
  }
- __mtx_enter(&sb->sb_mtx);
+ __mtx_enter(&sb->sb_mtx );
  (__builtin_constant_p(0x14) ? ({ if((0x14) == 0x80 || (sizeof(u_int64_t) == 1 && (0x14) == 0x88)) *((volatile u_int64_t *)(sf->sbf_flushpa)) = (0); else __asm volatile("stxa" " %0, [%1] " "(0x14)" : : "r" ((0)), "r" ((volatile u_int64_t *)(sf->sbf_flushpa)) : "memory"); }) : stxa_nc((sf->sbf_flushpa), 0x14, (0)));
  __asm volatile("membar " "#StoreStore" ::: "memory");
  bus_space_write_8(sb->sb_bustag, sb->sb_sb,
@@ -4007,7 +4008,7 @@ iommu_strbuf_flush_done(struct iommu_map_state *ims)
    flush = (__builtin_constant_p(0x14) ? ({ u_int64_t __rldxu_int64_t; if(0x14 == 0x80 || (sizeof(u_int64_t) == 1 && 0x14 == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)(sf->sbf_flushpa)); else __asm volatile("ldxa" " [%1] " "0x14" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)(sf->sbf_flushpa)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc((sf->sbf_flushpa), 0x14));
    if (flush) {
     ;
-    __mtx_leave(&sb->sb_mtx);
+    __mtx_leave(&sb->sb_mtx );
     return (0);
    }
   }
@@ -4118,7 +4119,7 @@ iommu_dvmamap_load(bus_dma_tag_t t, bus_dma_tag_t t0, bus_dmamap_t map,
   }
  }
  sgsize = ims->ims_map.ipm_pagecnt * (1 << 13);
- __mtx_enter(&is->is_mtx);
+ __mtx_enter(&is->is_mtx );
  if (flags & 0x0040) {
   sgstart = (((is->is_dvmamap->ex_start)>(0xff000000))?(is->is_dvmamap->ex_start):(0xff000000));
   sgend = (((is->is_dvmamap->ex_end)<(0xffffffff))?(is->is_dvmamap->ex_end):(0xffffffff));
@@ -4129,7 +4130,7 @@ iommu_dvmamap_load(bus_dma_tag_t t, bus_dma_tag_t t0, bus_dmamap_t map,
  err = extent_alloc_subregion_with_descr(is->is_dvmamap, sgstart, sgend,
      sgsize, align, 0, (sgsize > boundary) ? 0 : boundary,
      0x0000 | 0x0040, &ims->ims_er, (u_long *)&dvmaddr);
- __mtx_leave(&is->is_mtx);
+ __mtx_leave(&is->is_mtx );
  if (err != 0) {
   iommu_iomap_clear_pages(ims);
   return (err);
@@ -4240,7 +4241,7 @@ iommu_dvmamap_load_raw(bus_dma_tag_t t, bus_dma_tag_t t0, bus_dmamap_t map,
   }
  }
  sgsize = ims->ims_map.ipm_pagecnt * (1 << 13);
- __mtx_enter(&is->is_mtx);
+ __mtx_enter(&is->is_mtx );
  if (flags & 0x0040) {
   sgstart = (((is->is_dvmamap->ex_start)>(0xff000000))?(is->is_dvmamap->ex_start):(0xff000000));
   sgend = (((is->is_dvmamap->ex_end)<(0xffffffff))?(is->is_dvmamap->ex_end):(0xffffffff));
@@ -4251,7 +4252,7 @@ iommu_dvmamap_load_raw(bus_dma_tag_t t, bus_dma_tag_t t0, bus_dmamap_t map,
  err = extent_alloc_subregion_with_descr(is->is_dvmamap, sgstart, sgend,
      sgsize, align, 0, (sgsize > boundary) ? 0 : boundary,
      0x0000 | 0x0040, &ims->ims_er, (u_long *)&dvmaddr);
- __mtx_leave(&is->is_mtx);
+ __mtx_leave(&is->is_mtx );
  if (err != 0) {
   iommu_iomap_clear_pages(ims);
   return (err);
@@ -4404,11 +4405,11 @@ iommu_dvmamap_unload(bus_dma_tag_t t, bus_dma_tag_t t0, bus_dmamap_t map)
  bus_dmamap_unload(t->_parent, map);
  map->dm_mapsize = 0;
  map->dm_nsegs = 0;
- __mtx_enter(&is->is_mtx);
+ __mtx_enter(&is->is_mtx );
  error = extent_free(is->is_dvmamap, dvmaddr, sgsize, 0x0000);
  map->_dm_dvmastart = 0;
  map->_dm_dvmasize = 0;
- __mtx_leave(&is->is_mtx);
+ __mtx_leave(&is->is_mtx );
  if (error != 0)
   printf("warning: %ld of DVMA space lost\n", sgsize);
 }

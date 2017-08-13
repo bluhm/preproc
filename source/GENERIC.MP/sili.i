@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2821,7 +2822,7 @@ sili_ccb_alloc(struct sili_port *sp)
  struct sili_prb *prb;
  int i;
  do { (&sp->sp_free_ccbs)->tqh_first = ((void *)0); (&sp->sp_free_ccbs)->tqh_last = &(&sp->sp_free_ccbs)->tqh_first; } while (0);
- __mtx_init((&sp->sp_free_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sp->sp_free_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  do { (&sp->sp_active_ccbs)->tqh_first = ((void *)0); (&sp->sp_active_ccbs)->tqh_last = &(&sp->sp_active_ccbs)->tqh_first; } while (0);
  do { (&sp->sp_deferred_ccbs)->tqh_first = ((void *)0); (&sp->sp_deferred_ccbs)->tqh_last = &(&sp->sp_deferred_ccbs)->tqh_first; } while (0);
  sp->sp_ccbs = mallocarray(31, sizeof(struct sili_ccb),
@@ -2876,14 +2877,14 @@ sili_get_ccb(struct sili_port *sp)
  if (sp->sp_pmp_error_recovery != 0) {
   return (((void *)0));
  }
- __mtx_enter(&sp->sp_free_ccb_mtx);
+ __mtx_enter(&sp->sp_free_ccb_mtx );
  ccb = ((&sp->sp_free_ccbs)->tqh_first);
  if (ccb != ((void *)0)) {
   ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/sili.c", 877, "ccb->ccb_xa.state == ATA_S_PUT"));
   do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&sp->sp_free_ccbs)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
   ccb->ccb_xa.state = 0;
  }
- __mtx_leave(&sp->sp_free_ccb_mtx);
+ __mtx_leave(&sp->sp_free_ccb_mtx );
  return (ccb);
 }
 void
@@ -2898,9 +2899,9 @@ sili_put_ccb(struct sili_ccb *ccb)
       ccb->ccb_xa.tag);
  }
  ccb->ccb_xa.state = 6;
- __mtx_enter(&sp->sp_free_ccb_mtx);
+ __mtx_enter(&sp->sp_free_ccb_mtx );
  do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&sp->sp_free_ccbs)->tqh_last; *(&sp->sp_free_ccbs)->tqh_last = (ccb); (&sp->sp_free_ccbs)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
- __mtx_leave(&sp->sp_free_ccb_mtx);
+ __mtx_leave(&sp->sp_free_ccb_mtx );
 }
 struct sili_dmamem *
 sili_dmamem_alloc(struct sili_softc *sc, bus_size_t size, bus_size_t align)

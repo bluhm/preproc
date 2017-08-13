@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2241,9 +2242,9 @@ mpath_cmd(struct scsi_xfer *xs)
  if (d == ((void *)0))
   panic("mpath_cmd issued against nonexistant device");
  if (((xs->flags) & (0x00002))) {
-  __mtx_enter(&d->d_mtx);
+  __mtx_enter(&d->d_mtx );
   p = mpath_next_path(d);
-  __mtx_leave(&d->d_mtx);
+  __mtx_leave(&d->d_mtx );
   if (p == ((void *)0)) {
    mpath_xs_stuffup(xs);
    return;
@@ -2269,10 +2270,10 @@ mpath_cmd(struct scsi_xfer *xs)
   scsi_done(xs);
   return;
  }
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  do { (xs)->xfer_list.sqe_next = ((void *)0); *(&d->d_xfers)->sqh_last = (xs); (&d->d_xfers)->sqh_last = &(xs)->xfer_list.sqe_next; } while (0);
  p = mpath_next_path(d);
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  if (p != ((void *)0))
   scsi_xsh_add(&p->p_xsh);
 }
@@ -2284,14 +2285,14 @@ mpath_start(struct mpath_path *p, struct scsi_xfer *mxs)
  int addxsh = 0;
  if (((p->p_link->state) & ((1<<1))) || d == ((void *)0))
   goto fail;
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  xs = ((&d->d_xfers)->sqh_first);
  if (xs != ((void *)0)) {
   do { if (((&d->d_xfers)->sqh_first = (&d->d_xfers)->sqh_first->xfer_list.sqe_next) == ((void *)0)) (&d->d_xfers)->sqh_last = &(&d->d_xfers)->sqh_first; } while (0);
   if (!(((&d->d_xfers)->sqh_first) == ((void *)0)))
    addxsh = 1;
  }
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  if (xs == ((void *)0))
   goto fail;
  __builtin_memcpy((mxs->cmd), (xs->cmd), (xs->cmdlen));
@@ -2322,10 +2323,10 @@ mpath_done(struct scsi_xfer *mxs)
  switch (mxs->error) {
  case 3:
  case 8:
-  __mtx_enter(&d->d_mtx);
+  __mtx_enter(&d->d_mtx );
   do { if (((xs)->xfer_list.sqe_next = (&d->d_xfers)->sqh_first) == ((void *)0)) (&d->d_xfers)->sqh_last = &(xs)->xfer_list.sqe_next; (&d->d_xfers)->sqh_first = (xs); } while (0);
   p = mpath_next_path(d);
-  __mtx_leave(&d->d_mtx);
+  __mtx_leave(&d->d_mtx );
   scsi_xs_put(mxs);
   if (p != ((void *)0))
    scsi_xsh_add(&p->p_xsh);
@@ -2333,10 +2334,10 @@ mpath_done(struct scsi_xfer *mxs)
  case 1:
   switch (d->d_ops->op_checksense(mxs)) {
   case 1:
-   __mtx_enter(&d->d_mtx);
+   __mtx_enter(&d->d_mtx );
    do { if (((xs)->xfer_list.sqe_next = (&d->d_xfers)->sqh_first) == ((void *)0)) (&d->d_xfers)->sqh_last = &(xs)->xfer_list.sqe_next; (&d->d_xfers)->sqh_first = (xs); } while (0);
    p = mpath_next_path(d);
-   __mtx_leave(&d->d_mtx);
+   __mtx_leave(&d->d_mtx );
    scsi_xs_put(mxs);
    mpath_failover(d);
    return;
@@ -2365,9 +2366,9 @@ void
 mpath_failover_start(void *xd)
 {
  struct mpath_dev *d = xd;
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  d->d_failover_iter = ((&d->d_groups)->tqh_first);
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  mpath_failover_check(d);
 }
 void
@@ -2387,14 +2388,14 @@ mpath_path_status(struct mpath_path *p, int status)
 {
  struct mpath_group *g = p->p_group;
  struct mpath_dev *d = g->g_dev;
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  if (status == 0) {
   do { if (((g)->g_entry.tqe_next) != ((void *)0)) (g)->g_entry.tqe_next->g_entry.tqe_prev = (g)->g_entry.tqe_prev; else (&d->d_groups)->tqh_last = (g)->g_entry.tqe_prev; *(g)->g_entry.tqe_prev = (g)->g_entry.tqe_next; ((g)->g_entry.tqe_prev) = ((void *)-1); ((g)->g_entry.tqe_next) = ((void *)-1); } while (0);
   do { if (((g)->g_entry.tqe_next = (&d->d_groups)->tqh_first) != ((void *)0)) (&d->d_groups)->tqh_first->g_entry.tqe_prev = &(g)->g_entry.tqe_next; else (&d->d_groups)->tqh_last = &(g)->g_entry.tqe_next; (&d->d_groups)->tqh_first = (g); (g)->g_entry.tqe_prev = &(&d->d_groups)->tqh_first; } while (0);
   d->d_next_path = p;
  } else
   d->d_failover_iter = ((d->d_failover_iter)->g_entry.tqe_next);
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  if (status == 0) {
   scsi_xsh_add(&p->p_xsh);
   if (!scsi_pending_finish(&d->d_mtx, &d->d_failover))
@@ -2411,13 +2412,13 @@ mpath_minphys(struct buf *bp, struct scsi_link *link)
  struct mpath_path *p;
  if (d == ((void *)0))
   panic("mpath_minphys against nonexistant device");
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  for((g) = ((&d->d_groups)->tqh_first); (g) != ((void *)0); (g) = ((g)->g_entry.tqe_next)) {
   for((p) = ((&g->g_paths)->tqh_first); (p) != ((void *)0); (p) = ((p)->p_entry.tqe_next)) {
    p->p_link->adapter->scsi_minphys(bp, p->p_link);
   }
  }
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
 }
 int
 mpath_path_probe(struct scsi_link *link)
@@ -2462,7 +2463,7 @@ mpath_path_attach(struct mpath_path *p, u_int g_id, const struct mpath_ops *ops)
   d = malloc(sizeof(*d), 2, 0x0001 | 0x0004 | 0x0008);
   if (d == ((void *)0))
    return (12);
-  __mtx_init((&d->d_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+  do { (void)(((void *)0)); (void)(0); __mtx_init((&d->d_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
   do { (&d->d_groups)->tqh_first = ((void *)0); (&d->d_groups)->tqh_last = &(&d->d_groups)->tqh_first; } while (0);
   do { (&d->d_xfers)->sqh_first = ((void *)0); (&d->d_xfers)->sqh_last = &(&d->d_xfers)->sqh_first; } while (0);
   d->d_id = devid_copy(link->id);
@@ -2491,18 +2492,18 @@ mpath_path_attach(struct mpath_path *p, u_int g_id, const struct mpath_ops *ops)
   do { (&g->g_paths)->tqh_first = ((void *)0); (&g->g_paths)->tqh_last = &(&g->g_paths)->tqh_first; } while (0);
   g->g_dev = d;
   g->g_id = g_id;
-  __mtx_enter(&d->d_mtx);
+  __mtx_enter(&d->d_mtx );
   do { (g)->g_entry.tqe_next = ((void *)0); (g)->g_entry.tqe_prev = (&d->d_groups)->tqh_last; *(&d->d_groups)->tqh_last = (g); (&d->d_groups)->tqh_last = &(g)->g_entry.tqe_next; } while (0);
-  __mtx_leave(&d->d_mtx);
+  __mtx_leave(&d->d_mtx );
  }
  p->p_group = g;
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  do { (p)->p_entry.tqe_next = ((void *)0); (p)->p_entry.tqe_prev = (&g->g_paths)->tqh_last; *(&g->g_paths)->tqh_last = (p); (&g->g_paths)->tqh_last = &(p)->p_entry.tqe_next; } while (0);
  if (!(((&d->d_xfers)->sqh_first) == ((void *)0)))
   addxsh = 1;
  if (d->d_next_path == ((void *)0))
   d->d_next_path = p;
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  if (newdev)
   scsi_probe_target(mpath->sc_scsibus, target);
  else if (addxsh)
@@ -2519,7 +2520,7 @@ mpath_path_detach(struct mpath_path *p)
   panic("mpath: detaching a path from a nonexistant bus");
  d = g->g_dev;
  p->p_group = ((void *)0);
- __mtx_enter(&d->d_mtx);
+ __mtx_enter(&d->d_mtx );
  do { if (((p)->p_entry.tqe_next) != ((void *)0)) (p)->p_entry.tqe_next->p_entry.tqe_prev = (p)->p_entry.tqe_prev; else (&g->g_paths)->tqh_last = (p)->p_entry.tqe_prev; *(p)->p_entry.tqe_prev = (p)->p_entry.tqe_next; ((p)->p_entry.tqe_prev) = ((void *)-1); ((p)->p_entry.tqe_next) = ((void *)-1); } while (0);
  if (d->d_next_path == p)
   d->d_next_path = ((&g->g_paths)->tqh_first);
@@ -2529,7 +2530,7 @@ mpath_path_detach(struct mpath_path *p)
   g = ((void *)0);
  if (!(((&d->d_xfers)->sqh_first) == ((void *)0)))
   np = d->d_next_path;
- __mtx_leave(&d->d_mtx);
+ __mtx_leave(&d->d_mtx );
  if (g != ((void *)0))
   free(g, 2, sizeof(*g));
  scsi_xsh_del(&p->p_xsh);

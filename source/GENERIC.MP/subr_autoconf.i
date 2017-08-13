@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -1604,12 +1605,12 @@ config_attach(struct device *parent, void *match, void *aux, cfprint_t print)
  struct device *dev;
  struct cfdriver *cd;
  struct cfattach *ca;
- __mtx_enter(&autoconf_attdet_mtx);
+ __mtx_enter(&autoconf_attdet_mtx );
  while (autoconf_attdet < 0)
   msleep(&autoconf_attdet, &autoconf_attdet_mtx,
       32, "autoconf", 0);
  autoconf_attdet++;
- __mtx_leave(&autoconf_attdet_mtx);
+ __mtx_leave(&autoconf_attdet_mtx );
  if (parent && parent->dv_cfdata->cf_driver->cd_indirect) {
   dev = match;
   cf = dev->dv_cfdata;
@@ -1651,10 +1652,10 @@ config_attach(struct device *parent, void *match, void *aux, cfprint_t print)
  config_process_deferred_children(dev);
  if (!cold)
   hotplug_device_attach(cd->cd_class, dev->dv_xname);
- __mtx_enter(&autoconf_attdet_mtx);
+ __mtx_enter(&autoconf_attdet_mtx );
  if (--autoconf_attdet == 0)
   wakeup(&autoconf_attdet);
- __mtx_leave(&autoconf_attdet_mtx);
+ __mtx_leave(&autoconf_attdet_mtx );
  return (dev);
 }
 struct device *
@@ -1720,12 +1721,12 @@ config_detach(struct device *dev, int flags)
  int rv = 0, i;
  struct device *d;
  char devname[16];
- __mtx_enter(&autoconf_attdet_mtx);
+ __mtx_enter(&autoconf_attdet_mtx );
  while (autoconf_attdet > 0)
   msleep(&autoconf_attdet, &autoconf_attdet_mtx,
       32, "autoconf", 0);
  autoconf_attdet--;
- __mtx_leave(&autoconf_attdet_mtx);
+ __mtx_leave(&autoconf_attdet_mtx );
  strlcpy(devname, dev->dv_xname, sizeof(devname));
  cf = dev->dv_cfdata;
  if (cf->cf_fstate != 1 && cf->cf_fstate != 2)
@@ -1786,10 +1787,10 @@ config_detach(struct device *dev, int flags)
  if (!cold)
   hotplug_device_detach(cd->cd_class, devname);
 done:
- __mtx_enter(&autoconf_attdet_mtx);
+ __mtx_enter(&autoconf_attdet_mtx );
  if (++autoconf_attdet == 0)
   wakeup(&autoconf_attdet);
- __mtx_leave(&autoconf_attdet_mtx);
+ __mtx_leave(&autoconf_attdet_mtx );
  return (rv);
 }
 int

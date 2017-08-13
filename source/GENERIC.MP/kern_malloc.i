@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2250,10 +2251,10 @@ malloc(size_t size, int type, int flags)
  else
   allocsize = 1 << indx;
  kbp = &bucket[indx];
- __mtx_enter(&malloc_mtx);
+ __mtx_enter(&malloc_mtx );
  while (ksp->ks_memuse >= ksp->ks_limit) {
   if (flags & 0x0002) {
-   __mtx_leave(&malloc_mtx);
+   __mtx_leave(&malloc_mtx );
    return (((void *)0));
   }
   if (ksp->ks_limblocks < 65535)
@@ -2263,7 +2264,7 @@ malloc(size_t size, int type, int flags)
  ksp->ks_memuse += allocsize;
  ksp->ks_size |= 1 << indx;
  if (((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first)))) == ((void *)0)) {
-  __mtx_leave(&malloc_mtx);
+  __mtx_leave(&malloc_mtx );
   npg = (((((allocsize) + ((1 << 13) - 1)) & ~((1 << 13) - 1))) >> 13);
   s = _splraise(7);
   va = (caddr_t)uvm_km_kmemalloc_pla(kmem_map, ((void *)0),
@@ -2276,16 +2277,16 @@ malloc(size_t size, int type, int flags)
   if (va == ((void *)0)) {
    if ((flags & (0x0002|0x0004)) == 0)
     panic("malloc: out of space in kmem_map");
-   __mtx_enter(&malloc_mtx);
+   __mtx_enter(&malloc_mtx );
    ksp->ks_memuse -= allocsize;
    wake = ksp->ks_memuse + allocsize >= ksp->ks_limit &&
        ksp->ks_memuse < ksp->ks_limit;
-   __mtx_leave(&malloc_mtx);
+   __mtx_leave(&malloc_mtx );
    if (wake)
     wakeup(ksp);
    return (((void *)0));
   }
-  __mtx_enter(&malloc_mtx);
+  __mtx_enter(&malloc_mtx );
   kbp->kb_total += kbp->kb_elmpercl;
   kup = (&kmemusage[((caddr_t)(va) - kmembase) >> 13]);
   kup->ku_indx = indx;
@@ -2355,7 +2356,7 @@ out:
  ksp->ks_calls++;
  if (ksp->ks_memuse > ksp->ks_maxused)
   ksp->ks_maxused = ksp->ks_memuse;
- __mtx_leave(&malloc_mtx);
+ __mtx_leave(&malloc_mtx );
  if ((flags & 0x0008) && va != ((void *)0))
   __builtin_memset((va), (0), (size));
  return (va);
@@ -2397,7 +2398,7 @@ free(void *addr, int type, size_t freedsize)
   s = _splraise(7);
   uvm_km_free(kmem_map, (vaddr_t)addr, ((paddr_t)(kup->ku_un.pagecnt) << 13));
   _splx(s);
-  __mtx_enter(&malloc_mtx);
+  __mtx_enter(&malloc_mtx );
   ksp->ks_memuse -= size;
   kup->ku_indx = 0;
   kup->ku_un.pagecnt = 0;
@@ -2406,11 +2407,11 @@ free(void *addr, int type, size_t freedsize)
    wakeup(ksp);
   ksp->ks_inuse--;
   kbp->kb_total -= 1;
-  __mtx_leave(&malloc_mtx);
+  __mtx_leave(&malloc_mtx );
   return;
  }
  freep = (struct kmem_freelist *)addr;
- __mtx_enter(&malloc_mtx);
+ __mtx_enter(&malloc_mtx );
  if (freep->kf_spare0 == poison_value(freep)) {
   struct kmem_freelist *fp;
   for ((fp) = ((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first)))); (fp) != ((void *)0); (fp) = ((__typeof(((fp)->kf_flist.sqx_next)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((fp)->kf_flist.sqx_next))))) {
@@ -2437,7 +2438,7 @@ free(void *addr, int type, size_t freedsize)
   wakeup(ksp);
  ksp->ks_inuse--;
  do { (freep)->kf_flist.sqx_next = ((__typeof(((void *)0)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((void *)0)))); *(((__typeof((&kbp->kb_freelist)->sqx_last))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)((&kbp->kb_freelist)->sqx_last)))) = ((__typeof((freep)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)((freep)))); (&kbp->kb_freelist)->sqx_last = ((__typeof(&(freep)->kf_flist.sqx_next))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(&(freep)->kf_flist.sqx_next))); } while (0);
- __mtx_leave(&malloc_mtx);
+ __mtx_leave(&malloc_mtx );
 }
 void
 kmeminit_nkmempages(void)
@@ -2513,17 +2514,17 @@ sysctl_malloc(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   }
   return (sysctl_rdstring(oldp, oldlenp, newp, buckstring));
  case 2:
-  __mtx_enter(&malloc_mtx);
+  __mtx_enter(&malloc_mtx );
   __builtin_memcpy((&kb), (&bucket[BUCKETINDX(name[1])]), (sizeof(kb)));
-  __mtx_leave(&malloc_mtx);
+  __mtx_leave(&malloc_mtx );
   __builtin_memset((&kb.kb_freelist), (0), (sizeof(kb.kb_freelist)));
   return (sysctl_rdstruct(oldp, oldlenp, newp, &kb, sizeof(kb)));
  case 4:
   if ((name[1] < 0) || (name[1] >= 146))
    return (22);
-  __mtx_enter(&malloc_mtx);
+  __mtx_enter(&malloc_mtx );
   __builtin_memcpy((&km), (&kmemstats[name[1]]), (sizeof(km)));
-  __mtx_leave(&malloc_mtx);
+  __mtx_leave(&malloc_mtx );
   return (sysctl_rdstruct(oldp, oldlenp, newp, &km, sizeof(km)));
  case 3:
   error = _rw_enter(&sysctl_kmemlock, 0x0001UL|0x0010UL );

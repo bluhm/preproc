@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4574,8 +4575,8 @@ pppxopen(dev_t dev, int flags, int mode, struct proc *p)
  }
  pxd = malloc(sizeof(*pxd), 2, 0x0001 | 0x0008);
  pxd->pxd_unit = ((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8));
- __mtx_init((&pxd->pxd_rsel_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
- __mtx_init((&pxd->pxd_wsel_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&pxd->pxd_rsel_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&pxd->pxd_wsel_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  do { ((&pxd->pxd_pxis)->lh_first) = ((void *)0); } while (0);
  mq_init(&pxd->pxd_svcq, 128, 6);
  do { if (((pxd)->pxd_entry.le_next = (&pppx_devs)->lh_first) != ((void *)0)) (&pppx_devs)->lh_first->pxd_entry.le_prev = &(pxd)->pxd_entry.le_next; (&pppx_devs)->lh_first = (pxd); (pxd)->pxd_entry.le_prev = &(&pppx_devs)->lh_first; } while (0);
@@ -4779,9 +4780,9 @@ pppxkqfilter(dev_t dev, struct knote *kn)
   return (22);
  }
  kn->kn_hook = (caddr_t)pxd;
- __mtx_enter(mtx);
+ __mtx_enter(mtx );
  do { (kn)->kn_selnext.sle_next = (klist)->slh_first; (klist)->slh_first = (kn); } while (0);
- __mtx_leave(mtx);
+ __mtx_leave(mtx );
  return (0);
 }
 void
@@ -4791,9 +4792,9 @@ filt_pppx_rdetach(struct knote *kn)
  struct klist *klist = &pxd->pxd_rsel.si_note;
  if (((kn->kn_status) & (0x08)))
   return;
- __mtx_enter(&pxd->pxd_rsel_mtx);
+ __mtx_enter(&pxd->pxd_rsel_mtx );
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&pxd->pxd_rsel_mtx);
+ __mtx_leave(&pxd->pxd_rsel_mtx );
 }
 int
 filt_pppx_read(struct knote *kn, long hint)
@@ -4813,9 +4814,9 @@ filt_pppx_wdetach(struct knote *kn)
  struct klist *klist = &pxd->pxd_wsel.si_note;
  if (((kn->kn_status) & (0x08)))
   return;
- __mtx_enter(&pxd->pxd_wsel_mtx);
+ __mtx_enter(&pxd->pxd_wsel_mtx );
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&pxd->pxd_wsel_mtx);
+ __mtx_leave(&pxd->pxd_wsel_mtx );
 }
 int
 filt_pppx_write(struct knote *kn, long hint)
@@ -5028,9 +5029,9 @@ pppx_add_session(struct pppx_dev *pxd, struct pipex_session_req *req)
  }
  if (((session)->session_list.le_next) == ((void *)0))
   pipex_timer_start();
- _rw_exit_write(&netlock );
+ do { _rw_exit_write(&netlock ); } while (0);
  if_attach(ifp);
- _rw_enter_write(&netlock );
+ do { _rw_enter_write(&netlock ); } while (0);
  if_addgroup(ifp, "pppx");
  if_alloc_sadl(ifp);
  bpfattach(&ifp->if_bpf, ifp, 12, sizeof(u_int32_t));
@@ -5109,9 +5110,9 @@ pppx_if_destroy(struct pppx_dev *pxd, struct pppx_if *pxi)
  }
  if ((((&pipex_session_list)->lh_first) == ((void *)0)))
   pipex_timer_stop();
- _rw_exit_write(&netlock );
+ do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
- _rw_enter_write(&netlock );
+ do { _rw_enter_write(&netlock ); } while (0);
  _rw_enter_write(&pppx_ifs_lk );
  if (pppx_ifs_RBT_REMOVE(&pppx_ifs, pxi) == ((void *)0))
   panic("pppx_ifs modified while lock was held");

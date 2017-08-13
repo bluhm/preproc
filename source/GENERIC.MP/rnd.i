@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2339,6 +2340,12 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
+struct sys_fktrace_args {
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
+ union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
+};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -2887,6 +2894,7 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
+int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -3838,14 +3846,14 @@ enqueue_randomness(u_int state, u_int val)
  if (((&rnd_timeout)->to_flags & 4))
   nanotime(&ts);
  val += state << 13;
- __mtx_enter(&entropylock);
+ __mtx_enter(&entropylock );
  rep = rnd_put();
  rep->re_time += ts.tv_nsec ^ (ts.tv_sec << 20);
  rep->re_val += val;
  if (rnd_qlen() > ((1024 / sizeof(struct rand_event)) * 3 / 4)/2 && ((&rnd_timeout)->to_flags & 4) &&
      !((&rnd_timeout)->to_flags & 2))
   timeout_add(&rnd_timeout, 1);
- __mtx_leave(&entropylock);
+ __mtx_leave(&entropylock );
 }
 void
 add_entropy_words(const u_int32_t *buf, u_int n)
@@ -3875,17 +3883,17 @@ dequeue_randomness(void *v)
 {
  struct rand_event *rep;
  u_int32_t buf[2];
- __mtx_enter(&entropylock);
+ __mtx_enter(&entropylock );
  if (((&rnd_timeout)->to_flags & 4))
   timeout_del(&rnd_timeout);
  while ((rep = rnd_get())) {
   buf[0] = rep->re_time;
   buf[1] = rep->re_val;
-  __mtx_leave(&entropylock);
+  __mtx_leave(&entropylock );
   add_entropy_words(buf, 2);
-  __mtx_enter(&entropylock);
+  __mtx_enter(&entropylock );
  }
- __mtx_leave(&entropylock);
+ __mtx_leave(&entropylock );
 }
 void
 extract_entropy(u_int8_t *buf)
@@ -3963,10 +3971,10 @@ _rs_stir(int do_lock)
  for (p = (u_int8_t *)&ts, i = 0; i < sizeof(ts); i++)
   buf[i] ^= p[i];
  if (do_lock)
-  __mtx_enter(&rndlock);
+  __mtx_enter(&rndlock );
  _rs_seed(buf, sizeof(buf));
  if (do_lock)
-  __mtx_leave(&rndlock);
+  __mtx_leave(&rndlock );
  explicit_bzero(buf, sizeof(buf));
 }
 static inline void
@@ -4060,17 +4068,17 @@ u_int32_t
 arc4random(void)
 {
  u_int32_t ret;
- __mtx_enter(&rndlock);
+ __mtx_enter(&rndlock );
  _rs_random_u32(&ret);
- __mtx_leave(&rndlock);
+ __mtx_leave(&rndlock );
  return ret;
 }
 void
 arc4random_buf(void *buf, size_t n)
 {
- __mtx_enter(&rndlock);
+ __mtx_enter(&rndlock );
  _rs_random_buf(buf, n);
- __mtx_leave(&rndlock);
+ __mtx_leave(&rndlock );
 }
 u_int32_t
 arc4random_uniform(u_int32_t upper_bound)

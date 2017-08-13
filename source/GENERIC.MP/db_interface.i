@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3225,10 +3226,10 @@ db_ktrap(type, tf)
   }
   db_recover = (label_t *)1;
  }
- __mtx_enter(&ddb_mp_mutex);
+ __mtx_enter(&ddb_mp_mutex );
  if (ddb_state == 2)
   ddb_state = 0;
- __mtx_leave(&ddb_mp_mutex);
+ __mtx_leave(&ddb_mp_mutex );
  while (db_enter_ddb()) {
  __asm volatile("flushw" : : );
  ddb_regs.ddb_tf = *tf;
@@ -3352,12 +3353,12 @@ int
 db_enter_ddb(void)
 {
  struct cpu_info *ci;
- __mtx_enter(&ddb_mp_mutex);
+ __mtx_enter(&ddb_mp_mutex );
  if (ddb_state == 0) {
   ddb_active_cpu = (__curcpu->ci_number);
   ddb_state = 1;
   (__curcpu->ci_self)->ci_ddb_paused = 4;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
    if (ci != (__curcpu->ci_self) &&
        ci->ci_ddb_paused != 2) {
@@ -3370,7 +3371,7 @@ db_enter_ddb(void)
  if (ddb_active_cpu == (__curcpu->ci_number) && ddb_state == 2) {
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next)
    ci->ci_ddb_paused = 0;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   return (0);
  }
  if (ddb_active_cpu == (__curcpu->ci_number) && db_switch_cpu) {
@@ -3383,18 +3384,18 @@ db_enter_ddb(void)
      (__curcpu->ci_self)->ci_ddb_paused != 0) {
   if ((__curcpu->ci_self)->ci_ddb_paused == 1)
    (__curcpu->ci_self)->ci_ddb_paused = 2;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   while (ddb_active_cpu != (__curcpu->ci_number) &&
       (__curcpu->ci_self)->ci_ddb_paused != 0)
    do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
-  __mtx_enter(&ddb_mp_mutex);
+  __mtx_enter(&ddb_mp_mutex );
  }
  if (ddb_active_cpu == (__curcpu->ci_number) && ddb_state == 1) {
   (__curcpu->ci_self)->ci_ddb_paused = 4;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   return (1);
  } else {
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   return (0);
  }
 }
@@ -3402,21 +3403,21 @@ void
 db_startcpu(struct cpu_info *ci)
 {
  if (ci != (__curcpu->ci_self)) {
-  __mtx_enter(&ddb_mp_mutex);
+  __mtx_enter(&ddb_mp_mutex );
   ci->ci_ddb_paused = 0;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
  }
 }
 void
 db_stopcpu(struct cpu_info *ci)
 {
- __mtx_enter(&ddb_mp_mutex);
+ __mtx_enter(&ddb_mp_mutex );
  if (ci != (__curcpu->ci_self) && ci->ci_ddb_paused != 2) {
   ci->ci_ddb_paused = 1;
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
   sparc64_send_ipi(ci->ci_itid, ipi_db, 0, 0);
  } else {
-  __mtx_leave(&ddb_mp_mutex);
+  __mtx_leave(&ddb_mp_mutex );
  }
 }
 void

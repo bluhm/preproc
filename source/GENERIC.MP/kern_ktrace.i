@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3649,6 +3650,12 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
+struct sys_fktrace_args {
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
+ union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
+};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -4197,6 +4204,7 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
+int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -5048,27 +5056,22 @@ ktrpledge(struct proc *p, int error, uint64_t code, int syscall)
  atomic_clearbits_int(&p->p_flag, 0x00000001);
 }
 int
-sys_ktrace(struct proc *p, void *v, register_t *retval)
+doktrace(struct vnode *vp, int ops, int facs, pid_t pid, struct proc *p)
 {
- struct sys_ktrace_args *uap = v;
- struct vnode *vp = ((void *)0);
  struct process *pr = ((void *)0);
  struct ucred *cred = ((void *)0);
  struct pgrp *pg;
- int facs = ((uap)->facs.be.datum) & ~((unsigned) 0x80000000);
- int ops = ((((uap)->ops.be.datum))&3);
- int descend = ((uap)->ops.be.datum) & 4;
+ int descend = ops & 4;
  int ret = 0;
  int error = 0;
- struct nameidata nd;
+ facs = facs & ~((unsigned)0x80000000);
+ ops = ((ops)&3);
  if (ops != 1) {
   cred = p->p_ucred;
-  ndinitat(&nd, 0, 0x0040, UIO_USERSPACE, -100, ((uap)->fname.be.datum), p);
-  nd.ni_pledge = 0x0000000000000004ULL | 0x0000000000000002ULL;
-  if ((error = vn_open(&nd, 0x0002|0x0100, 0)) != 0)
+  if (!vp) {
+   error = 22;
    goto done;
-  vp = nd.ni_vp;
-  VOP_UNLOCK(vp, p);
+  }
   if (vp->v_type != VREG) {
    error = 13;
    goto done;
@@ -5094,8 +5097,8 @@ sys_ktrace(struct proc *p, void *v, register_t *retval)
    facs |= 0x80000000;
   ktrstart(p, vp, cred);
  }
- if (((uap)->pid.be.datum) < 0) {
-  pg = pgfind(-((uap)->pid.be.datum));
+ if (pid < 0) {
+  pg = pgfind(-pid);
   if (pg == ((void *)0)) {
    error = 3;
    goto done;
@@ -5108,7 +5111,7 @@ sys_ktrace(struct proc *p, void *v, register_t *retval)
     ret |= ktrops(p, pr, ops, facs, vp, cred);
   }
  } else {
-  pr = prfind(((uap)->pid.be.datum));
+  pr = prfind(pid);
   if (pr == ((void *)0)) {
    error = 3;
    goto done;
@@ -5121,9 +5124,52 @@ sys_ktrace(struct proc *p, void *v, register_t *retval)
  if (!ret)
   error = 1;
 done:
- if (vp != ((void *)0))
-  (void) vn_close(vp, 0x0002, cred, p);
  return (error);
+}
+int
+sys_ktrace(struct proc *p, void *v, register_t *retval)
+{
+ struct sys_ktrace_args *uap = v;
+ struct vnode *vp = ((void *)0);
+ const char *fname = ((uap)->fname.be.datum);
+ struct ucred *cred = ((void *)0);
+ int error;
+ if (fname) {
+  struct nameidata nd;
+  cred = p->p_ucred;
+  ndinitat(&nd, 0, 0x0040, UIO_USERSPACE, -100, fname, p);
+  nd.ni_pledge = 0x0000000000000004ULL | 0x0000000000000002ULL;
+  if ((error = vn_open(&nd, 0x0002|0x0100, 0)) != 0)
+   return error;
+  vp = nd.ni_vp;
+  VOP_UNLOCK(vp, p);
+ }
+ error = doktrace(vp, ((uap)->ops.be.datum), ((uap)->facs.be.datum),
+     ((uap)->pid.be.datum), p);
+ if (vp != ((void *)0))
+  (void)vn_close(vp, 0x0002, cred, p);
+ return error;
+}
+int
+sys_fktrace(struct proc *p, void *v, register_t *retval)
+{
+ struct sys_fktrace_args *uap = v;
+ struct vnode *vp = ((void *)0);
+ int fd = ((uap)->fd.be.datum);
+ struct file *fp;
+ int error;
+ if (fd != -1) {
+  if ((error = getvnode(p, fd, &fp)) != 0)
+   return error;
+  vp = fp->f_data;
+  vref(vp);
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
+ }
+ error = doktrace(vp, ((uap)->ops.be.datum), ((uap)->facs.be.datum),
+     ((uap)->pid.be.datum), p);
+ if (vp != ((void *)0))
+  vrele(vp);
+ return error;
 }
 int
 ktrops(struct proc *curp, struct process *pr, int ops, int facs,

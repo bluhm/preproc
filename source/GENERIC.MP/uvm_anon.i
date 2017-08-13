@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2307,9 +2308,9 @@ uvm_anfree(struct vm_anon *anon)
    return;
   }
   pmap_page_protect(pg, 0x00);
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_enter(&uvm.pageqlock );
   uvm_pagefree(pg);
-  __mtx_leave(&uvm.pageqlock);
+  __mtx_leave(&uvm.pageqlock );
  }
  if (pg == ((void *)0) && anon->an_swslot != 0) {
   ((uvmexp.swpgonly > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_anon.c", 110, "uvmexp.swpgonly > 0"));
@@ -2356,8 +2357,8 @@ uvm_anon_pagein(struct vm_anon *anon)
  atomic_clearbits_int(&pg->pg_flags, 0x00000008);
  pmap_clear_reference(pg);
  pmap_page_protect(pg, 0x00);
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  uvm_pagedeactivate(pg);
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  return 0;
 }

@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3268,6 +3269,12 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
+struct sys_fktrace_args {
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
+ union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
+};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -3816,6 +3823,7 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
+int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -4219,12 +4227,12 @@ sys_getitimer(struct proc *p, void *v, register_t *retval)
  if (which < 0 || which > 2)
   return (22);
  __builtin_memset((&aitv), (0), (sizeof(aitv)));
- __mtx_enter(&itimer_mtx);
+ __mtx_enter(&itimer_mtx );
  aitv.it_interval.tv_sec = p->p_p->ps_timer[which].it_interval.tv_sec;
  aitv.it_interval.tv_usec = p->p_p->ps_timer[which].it_interval.tv_usec;
  aitv.it_value.tv_sec = p->p_p->ps_timer[which].it_value.tv_sec;
  aitv.it_value.tv_usec = p->p_p->ps_timer[which].it_value.tv_usec;
- __mtx_leave(&itimer_mtx);
+ __mtx_leave(&itimer_mtx );
  if (which == 0) {
   struct timeval now;
   getmicrouptime(&now);
@@ -4279,9 +4287,9 @@ sys_setitimer(struct proc *p, void *v, register_t *retval)
   pr->ps_timer[0] = aitv;
  } else {
   itimerround(&aitv.it_interval);
-  __mtx_enter(&itimer_mtx);
+  __mtx_enter(&itimer_mtx );
   pr->ps_timer[which] = aitv;
-  __mtx_leave(&itimer_mtx);
+  __mtx_leave(&itimer_mtx );
  }
  return (0);
 }
@@ -4341,7 +4349,7 @@ itimerround(struct timeval *tv)
 int
 itimerdecr(struct itimerval *itp, int usec)
 {
- __mtx_enter(&itimer_mtx);
+ __mtx_enter(&itimer_mtx );
  if (itp->it_value.tv_usec < usec) {
   if (itp->it_value.tv_sec == 0) {
    usec -= itp->it_value.tv_usec;
@@ -4353,7 +4361,7 @@ itimerdecr(struct itimerval *itp, int usec)
  itp->it_value.tv_usec -= usec;
  usec = 0;
  if (((&itp->it_value)->tv_sec || (&itp->it_value)->tv_usec)) {
-  __mtx_leave(&itimer_mtx);
+  __mtx_leave(&itimer_mtx );
   return (1);
  }
 expire:
@@ -4366,7 +4374,7 @@ expire:
   }
  } else
   itp->it_value.tv_usec = 0;
- __mtx_leave(&itimer_mtx);
+ __mtx_leave(&itimer_mtx );
  return (0);
 }
 int

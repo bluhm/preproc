@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3562,7 +3563,7 @@ qlw_scsi_cmd(struct scsi_xfer *xs)
       (xs->flags & 0x00800) ? 0x01 :
       0x04);
  }
- __mtx_enter(&sc->sc_queue_mtx);
+ __mtx_enter(&sc->sc_queue_mtx );
  bus = qlw_xs_bus(sc, xs);
  if (sc->sc_marker_required[bus]) {
   req = sc->sc_next_req_id++;
@@ -3608,7 +3609,7 @@ qlw_scsi_cmd(struct scsi_xfer *xs)
  }
  qlw_queue_write(sc, 0x08, sc->sc_next_req_id);
  if (!((xs->flags) & (0x00002))) {
-  __mtx_leave(&sc->sc_queue_mtx);
+  __mtx_leave(&sc->sc_queue_mtx );
   return;
  }
  done = 0;
@@ -3637,7 +3638,7 @@ qlw_scsi_cmd(struct scsi_xfer *xs)
   }
   qlw_queue_write(sc, 0x0a, rspin);
  } while (done == 0);
- __mtx_leave(&sc->sc_queue_mtx);
+ __mtx_leave(&sc->sc_queue_mtx );
  while ((ccb = ((&list)->sqh_first)) != ((void *)0)) {
   do { if (((&list)->sqh_first = (&list)->sqh_first->ccb_link.sqe_next) == ((void *)0)) (&list)->sqh_last = &(&list)->sqh_first; } while (0);
   scsi_done(ccb->ccb_xs);
@@ -4228,8 +4229,8 @@ qlw_alloc_ccbs(struct qlw_softc *sc)
  u_int8_t *cmd;
  int i;
  do { (&sc->sc_ccb_free)->sqh_first = ((void *)0); (&sc->sc_ccb_free)->sqh_last = &(&sc->sc_ccb_free)->sqh_first; } while (0);
- __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_queue_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  sc->sc_ccbs = mallocarray(sc->sc_maxccbs, sizeof(struct qlw_ccb),
      2, 0x0001 | 0x0004 | 0x0008);
  if (sc->sc_ccbs == ((void *)0)) {
@@ -4291,12 +4292,12 @@ qlw_get_ccb(void *xsc)
 {
  struct qlw_softc *sc = xsc;
  struct qlw_ccb *ccb;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  ccb = ((&sc->sc_ccb_free)->sqh_first);
  if (ccb != ((void *)0)) {
   do { if (((&sc->sc_ccb_free)->sqh_first = (&sc->sc_ccb_free)->sqh_first->ccb_link.sqe_next) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(&sc->sc_ccb_free)->sqh_first; } while (0);
  }
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
  return (ccb);
 }
 void
@@ -4305,7 +4306,7 @@ qlw_put_ccb(void *xsc, void *io)
  struct qlw_softc *sc = xsc;
  struct qlw_ccb *ccb = io;
  ccb->ccb_xs = ((void *)0);
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  do { if (((ccb)->ccb_link.sqe_next = (&sc->sc_ccb_free)->sqh_first) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(ccb)->ccb_link.sqe_next; (&sc->sc_ccb_free)->sqh_first = (ccb); } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
 }

@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5315,7 +5316,7 @@ arc_alloc_ccbs(struct arc_softc *sc)
  u_int8_t *cmd;
  u_int32_t i, size, len;
  { ((&sc->sc_ccb_free)->slh_first) = ((void *)0); };
- __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  size = sizeof(struct arc_ccb) * 264;
  sc->sc_ccbs = malloc(size, 2, 0x0001 | 0x0008);
  len = 512+32;
@@ -5381,11 +5382,11 @@ struct arc_ccb *
 arc_get_ccb(struct arc_softc *sc)
 {
  struct arc_ccb *ccb;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  ccb = ((&sc->sc_ccb_free)->slh_first);
  if (ccb != ((void *)0))
   do { (&sc->sc_ccb_free)->slh_first = (&sc->sc_ccb_free)->slh_first->ccb_link.sle_next; } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
  return (ccb);
 }
 void
@@ -5393,7 +5394,7 @@ arc_put_ccb(struct arc_softc *sc, struct arc_ccb *ccb)
 {
  ccb->ccb_xs = ((void *)0);
  __builtin_bzero((ccb->ccb_cmd), (512+32));
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  do { (ccb)->ccb_link.sle_next = (&sc->sc_ccb_free)->slh_first; (&sc->sc_ccb_free)->slh_first = (ccb); } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
 }

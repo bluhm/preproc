@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4227,14 +4228,16 @@ PTR_ERR_OR_ZERO(const void *ptr)
 typedef struct rwlock rwlock_t;
 typedef struct mutex spinlock_t;
 static inline void
-spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_enter(mtxp);
+ __mtx_enter(mtxp );
 }
 static inline void
-spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_leave(mtxp);
+ __mtx_leave(mtxp );
 }
 struct wait_queue_head {
  struct mutex lock;
@@ -4244,7 +4247,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4255,28 +4258,29 @@ static inline void
 init_completion(struct completion *x)
 {
  x->done = 0;
- __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
 }
 static inline u_long
-wait_for_completion_interruptible_timeout(struct completion *x, u_long timo)
+_wait_for_completion_interruptible_timeout(struct completion *x, u_long timo
+    )
 {
  int ret;
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  while (x->done == 0) {
   ret = msleep(x, &x->wait.lock, 0x100, "wfcit", timo);
   if (ret) {
-   __mtx_leave(&x->wait.lock);
+   __mtx_leave(&x->wait.lock );
    return (ret == 35) ? 0 : -ret;
   }
  }
  return 1;
 }
 static inline void
-complete_all(struct completion *x)
+_complete_all(struct completion *x )
 {
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  x->done = 1;
- __mtx_leave(&x->wait.lock);
+ __mtx_leave(&x->wait.lock );
  wakeup(x);
 }
 struct workqueue_struct;
@@ -4907,7 +4911,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1697, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -6248,7 +6252,7 @@ ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
 }
 static inline void
 ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
@@ -6256,28 +6260,28 @@ ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
 static inline _Bool
 ww_mutex_is_locked(struct ww_mutex *lock) {
  _Bool res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 ww_mutex_trylock(struct ww_mutex *lock) {
  int res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired == 0) {
   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
   lock->acquired = 1;
   lock->owner = (__curcpu->ci_self)->ci_curproc;
   res = 1;
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
  int err;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  for (;;) {
   if (lock->acquired == 0) {
    ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
@@ -6307,7 +6311,7 @@ __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _
    }
   }
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return err;
 }
 static inline int
@@ -6328,13 +6332,13 @@ ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *c
 }
 static inline void
 ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 219, "lock->owner == curproc"));
  ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->acquired == 1"));
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  wakeup(lock);
 }
 static inline void
@@ -8349,22 +8353,22 @@ static inline void ttm_mem_init_shrink(struct ttm_mem_shrink *shrink,
 static inline int ttm_mem_register_shrink(struct ttm_mem_global *glob,
        struct ttm_mem_shrink *shrink)
 {
- __mtx_enter(&glob->lock);
+ __mtx_enter(&glob->lock );
  if (glob->shrink != ((void *)0)) {
-  __mtx_leave(&glob->lock);
+  __mtx_leave(&glob->lock );
   return -16;
  }
  glob->shrink = shrink;
- __mtx_leave(&glob->lock);
+ __mtx_leave(&glob->lock );
  return 0;
 }
 static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
           struct ttm_mem_shrink *shrink)
 {
- __mtx_enter(&glob->lock);
+ __mtx_enter(&glob->lock );
  ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 137, "!(glob->shrink != shrink)"));
  glob->shrink = ((void *)0);
- __mtx_leave(&glob->lock);
+ __mtx_leave(&glob->lock );
 }
 extern int ttm_mem_global_init(struct ttm_mem_global *glob);
 extern void ttm_mem_global_release(struct ttm_mem_global *glob);
@@ -15470,11 +15474,11 @@ void radeon_crtc_handle_flip(struct radeon_device *rdev, int crtc_id)
  unsigned long flags;
  u32 update_pending;
  int vpos, hpos;
- spin_lock_irqsave(&rdev->ddev->event_lock, flags);
+ _spin_lock_irqsave(&rdev->ddev->event_lock, flags );
  work = radeon_crtc->unpin_work;
  if (work == ((void *)0) ||
      (work->fence && !radeon_fence_signaled(work->fence))) {
-  spin_unlock_irqrestore(&rdev->ddev->event_lock, flags);
+  _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
   return;
  }
  if (!radeon_crtc->deferred_flip_completion) {
@@ -15493,13 +15497,13 @@ void radeon_crtc_handle_flip(struct radeon_device *rdev, int crtc_id)
  }
  if (update_pending) {
   radeon_crtc->deferred_flip_completion = 1;
-  spin_unlock_irqrestore(&rdev->ddev->event_lock, flags);
+  _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
   return;
  }
  radeon_crtc->unpin_work = ((void *)0);
  if (work->event)
   drm_send_vblank_event(rdev->ddev, crtc_id, work->event);
- spin_unlock_irqrestore(&rdev->ddev->event_lock, flags);
+ _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
  drm_vblank_put(rdev->ddev, radeon_crtc->crtc_id);
  radeon_fence_unref(&work->fence);
  (work->rdev)->asic->pflip.post_page_flip((work->rdev), (work->crtc_id));
@@ -15536,12 +15540,12 @@ static int radeon_crtc_page_flip(struct drm_crtc *crtc,
  work->old_rbo = rbo;
  obj = new_radeon_fb->obj;
  rbo = ({ __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
- __mtx_enter(&rbo->tbo.bdev->fence_lock);
+ __mtx_enter(&rbo->tbo.bdev->fence_lock );
  if (rbo->tbo.sync_obj)
   work->fence = radeon_fence_ref(rbo->tbo.sync_obj);
- __mtx_leave(&rbo->tbo.bdev->fence_lock);
+ __mtx_leave(&rbo->tbo.bdev->fence_lock );
  task_set(&work->task, radeon_unpin_work_func, work);
- spin_lock_irqsave(&dev->event_lock, flags);
+ _spin_lock_irqsave(&dev->event_lock, flags );
  if (radeon_crtc->unpin_work) {
   do { } while( 0);
   r = -16;
@@ -15549,7 +15553,7 @@ static int radeon_crtc_page_flip(struct drm_crtc *crtc,
  }
  radeon_crtc->unpin_work = work;
  radeon_crtc->deferred_flip_completion = 0;
- spin_unlock_irqrestore(&dev->event_lock, flags);
+ _spin_unlock_irqrestore(&dev->event_lock, flags );
  do { } while( 0);
  r = radeon_bo_reserve(rbo, 0);
  if (__builtin_expect(!!(r != 0), 0)) {
@@ -15599,9 +15603,9 @@ static int radeon_crtc_page_flip(struct drm_crtc *crtc,
   }
   base &= ~7;
  }
- spin_lock_irqsave(&dev->event_lock, flags);
+ _spin_lock_irqsave(&dev->event_lock, flags );
  work->new_crtc_base = base;
- spin_unlock_irqrestore(&dev->event_lock, flags);
+ _spin_unlock_irqrestore(&dev->event_lock, flags );
  crtc->primary->fb = fb;
  r = drm_vblank_get(dev, radeon_crtc->crtc_id);
  if (r) {
@@ -15620,10 +15624,10 @@ pflip_cleanup1:
  }
  radeon_bo_unreserve(rbo);
 pflip_cleanup:
- spin_lock_irqsave(&dev->event_lock, flags);
+ _spin_lock_irqsave(&dev->event_lock, flags );
  radeon_crtc->unpin_work = ((void *)0);
 unlock_free:
- spin_unlock_irqrestore(&dev->event_lock, flags);
+ _spin_unlock_irqrestore(&dev->event_lock, flags );
  drm_gem_object_unreference_unlocked(old_radeon_fb->obj);
  radeon_fence_unref(&work->fence);
  kfree(work);

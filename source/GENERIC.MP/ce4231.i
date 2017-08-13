@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3251,7 +3252,7 @@ ce4231_commit_settings(addr)
   sc->sc_need_commit = 0;
   return (0);
  }
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  r = ce4231_read(sc, 0x09) | 0x08;
  bus_space_write_1((sc)->sc_bustag, (sc)->sc_cshandle, (0x00) << 2, (0x40));
  bus_space_write_1((sc)->sc_bustag, (sc)->sc_cshandle, (0x00) << 2, (0x40 | 0x09));
@@ -3288,7 +3289,7 @@ ce4231_commit_settings(addr)
  if (tries == 0)
   printf("%s: timeout waiting for autocalibration\n",
       sc->sc_dev.dv_xname);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  sc->sc_need_commit = 0;
  return (0);
 }
@@ -3752,7 +3753,7 @@ ce4231_pintr(v)
  struct cs_dma *p;
  struct cs_chdma *chdma = &sc->sc_pchdma;
  int r = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  csr = bus_space_read_4((sc)->sc_bustag, (sc)->sc_pdmahandle, (0x0));
  reg64 = ce4231_read(sc, 0x18);
  if (reg64 & 0x10) {
@@ -3783,7 +3784,7 @@ ce4231_pintr(v)
    (*sc->sc_pintr)(sc->sc_parg);
   r = 1;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (r);
 }
 int
@@ -3796,7 +3797,7 @@ ce4231_cintr(v)
  struct cs_dma *p;
  struct cs_chdma *chdma = &sc->sc_rchdma;
  int r = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  csr = bus_space_read_4((sc)->sc_bustag, (sc)->sc_cdmahandle, (0x0));
  reg64 = ce4231_read(sc, 0x18);
  if (reg64 & 0x20) {
@@ -3827,7 +3828,7 @@ ce4231_cintr(v)
    (*sc->sc_rintr)(sc->sc_rarg);
   r = 1;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (r);
 }
 void *

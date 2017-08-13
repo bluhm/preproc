@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2836,11 +2837,11 @@ eso_intr(void *hdl)
 {
  struct eso_softc *sc = hdl;
  uint8_t irqctl;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  irqctl = bus_space_read_1(sc->sc_iot, sc->sc_ioh, 0x07);
  if ((irqctl & (0x10 | 0x20 |
      0x40 | 0x80)) == 0) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   return (0);
  }
  if (irqctl & 0x10) {
@@ -2862,7 +2863,7 @@ eso_intr(void *hdl)
   eso_write_mixreg(sc, 0x66, 0x00);
   sc->sc_gain[7][0] = (uint8_t)~0;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (1);
 }
 int
@@ -2966,14 +2967,14 @@ eso_halt_output(void *hdl)
  struct eso_softc *sc = hdl;
  int error;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  eso_write_mixreg(sc, 0x78,
      0x01 | 0x02);
  bus_space_write_1(sc->sc_iot, sc->sc_ioh, 0x06,
      0x02);
  sc->sc_pintr = ((void *)0);
  error = msleep(&sc->sc_pintr, &audio_lock, 32, "esoho", sc->sc_pdrain);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  eso_write_mixreg(sc, 0x78, 0);
  bus_space_write_1(sc->sc_iot, sc->sc_ioh, 0x06, 0);
  return (error == 35 ? 0 : error);
@@ -2984,7 +2985,7 @@ eso_halt_input(void *hdl)
  struct eso_softc *sc = hdl;
  int error;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  eso_write_ctlreg(sc, 0xb8,
      0x02 | 0x08 |
      0x01);
@@ -2992,7 +2993,7 @@ eso_halt_input(void *hdl)
      0x04 | 0x00);
  sc->sc_rintr = ((void *)0);
  error = msleep(&sc->sc_rintr, &audio_lock, 32, "esohi", sc->sc_rdrain);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  eso_write_ctlreg(sc, 0xb8,
      0x02 | 0x08);
  bus_space_write_1(sc->sc_dmac_iot, sc->sc_dmac_ioh, 0x0f,
@@ -3006,7 +3007,7 @@ eso_set_port(void *hdl, mixer_ctrl_t *cp)
  uint lgain, rgain;
  uint8_t tmp;
  int rc = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  switch (cp->dev) {
  case 0:
  case 1:
@@ -3150,17 +3151,17 @@ eso_set_port(void *hdl, mixer_ctrl_t *cp)
  default:
   goto error;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return rc;
 error:
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 22;
 }
 int
 eso_get_port(void *hdl, mixer_ctrl_t *cp)
 {
  struct eso_softc *sc = hdl;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  switch (cp->dev) {
  case 7:
   if (sc->sc_gain[cp->dev][0] == (uint8_t)~0)
@@ -3228,10 +3229,10 @@ eso_get_port(void *hdl, mixer_ctrl_t *cp)
  default:
   goto error;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 error:
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 22;
 }
 int
@@ -3692,13 +3693,13 @@ eso_trigger_output(void *hdl, void *start, void *end, int blksize,
      (uint8_t *)end - (uint8_t *)start);
  bus_space_write_1(sc->sc_iot, sc->sc_ioh, 0x06,
      0x02 | 0x08);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  a2c1 = eso_read_mixreg(sc, 0x78);
  a2c1 &= ~0xcc;
  a2c1 |= 0x01 | 0x02 |
      0x10;
  eso_write_mixreg(sc, 0x78, a2c1);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int
@@ -3763,11 +3764,11 @@ eso_trigger_input(void *hdl, void *start, void *end, int blksize,
  bus_space_write_2(sc->sc_dmac_iot, sc->sc_dmac_ioh, 0x04,
      (uint8_t *)end - (uint8_t *)start - 1);
  bus_space_write_1(sc->sc_dmac_iot, sc->sc_dmac_ioh, 0x0f, 0);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  eso_write_ctlreg(sc, 0xb8,
      0x01 | 0x02 |
      0x04 | 0x08);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (0);
 }
 int

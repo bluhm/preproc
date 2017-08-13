@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2731,9 +2732,9 @@ pool_destroy(struct pool *pp)
  }
  _rw_exit_write(&pool_lock );
  while ((ph = ((&pp->pr_emptypages)->tqh_first)) != ((void *)0)) {
-  __mtx_enter(&pp->pr_mtx);
+  __mtx_enter(&pp->pr_mtx );
   pool_p_remove(pp, ph);
-  __mtx_leave(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_mtx );
   pool_p_free(pp, ph);
  }
  (((((&pp->pr_fullpages)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 467, "TAILQ_EMPTY(&pp->pr_fullpages)"));
@@ -2750,10 +2751,10 @@ pool_request_init(struct pool_request *pr,
 void
 pool_request(struct pool *pp, struct pool_request *pr)
 {
- __mtx_enter(&pp->pr_requests_mtx);
+ __mtx_enter(&pp->pr_requests_mtx );
  do { (pr)->pr_entry.tqe_next = ((void *)0); (pr)->pr_entry.tqe_prev = (&pp->pr_requests)->tqh_last; *(&pp->pr_requests)->tqh_last = (pr); (&pp->pr_requests)->tqh_last = &(pr)->pr_entry.tqe_next; } while (0);
  pool_runqueue(pp, 0x0002);
- __mtx_leave(&pp->pr_requests_mtx);
+ __mtx_leave(&pp->pr_requests_mtx );
 }
 struct pool_get_memory {
  struct mutex mtx;
@@ -2770,7 +2771,7 @@ pool_get(struct pool *pp, int flags)
    goto good;
  }
  ((flags & (0x0001 | 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 511, "flags & (PR_WAITOK | PR_NOWAIT)"));
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  if (pp->pr_nout >= pp->pr_hardlimit) {
   if (((flags) & (0x0002|0x0004)))
    goto fail;
@@ -2778,7 +2779,7 @@ pool_get(struct pool *pp, int flags)
   if (((flags) & (0x0002)))
    goto fail;
  }
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  if ((slowdown || pool_debug == 2) && ((flags) & (0x0001)))
   yield();
  if (v == ((void *)0)) {
@@ -2788,10 +2789,10 @@ pool_get(struct pool *pp, int flags)
   struct pool_request pr;
   pool_request_init(&pr, pool_get_done, &mem);
   pool_request(pp, &pr);
-  __mtx_enter(&mem.mtx);
+  __mtx_enter(&mem.mtx );
   while (mem.v == ((void *)0))
    msleep(&mem, &mem.mtx, 0, pp->pr_wchan, 0);
-  __mtx_leave(&mem.mtx);
+  __mtx_leave(&mem.mtx );
   v = mem.v;
  }
 good:
@@ -2800,16 +2801,16 @@ good:
  return (v);
 fail:
  pp->pr_nfail++;
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  return (((void *)0));
 }
 void
 pool_get_done(void *xmem, void *v)
 {
  struct pool_get_memory *mem = xmem;
- __mtx_enter(&mem->mtx);
+ __mtx_enter(&mem->mtx );
  mem->v = v;
- __mtx_leave(&mem->mtx);
+ __mtx_leave(&mem->mtx );
  wakeup_n((mem), 1);
 }
 void
@@ -2829,8 +2830,8 @@ pool_runqueue(struct pool *pp, int flags)
   }
   if ((((&prl)->tqh_first) == ((void *)0)))
    continue;
-  __mtx_leave(&pp->pr_requests_mtx);
-  __mtx_enter(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_requests_mtx );
+  __mtx_enter(&pp->pr_mtx );
   pr = ((&prl)->tqh_first);
   while (pr != ((void *)0)) {
    int slowdown = 0;
@@ -2841,13 +2842,13 @@ pool_runqueue(struct pool *pp, int flags)
     break;
    pr = ((pr)->pr_entry.tqe_next);
   }
-  __mtx_leave(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_mtx );
   while ((pr = ((&prl)->tqh_first)) != ((void *)0) &&
       pr->pr_item != ((void *)0)) {
    do { if (((pr)->pr_entry.tqe_next) != ((void *)0)) (pr)->pr_entry.tqe_next->pr_entry.tqe_prev = (pr)->pr_entry.tqe_prev; else (&prl)->tqh_last = (pr)->pr_entry.tqe_prev; *(pr)->pr_entry.tqe_prev = (pr)->pr_entry.tqe_next; ((pr)->pr_entry.tqe_prev) = ((void *)-1); ((pr)->pr_entry.tqe_next) = ((void *)-1); } while (0);
    (*pr->pr_handler)(pr->pr_cookie, pr->pr_item);
   }
-  __mtx_enter(&pp->pr_requests_mtx);
+  __mtx_enter(&pp->pr_requests_mtx );
  } while (--pp->pr_requesting);
  while ((pr = ((&prl)->tqh_first)) != ((void *)0)) {
   do { if (((pr)->pr_entry.tqe_next) != ((void *)0)) (pr)->pr_entry.tqe_next->pr_entry.tqe_prev = (pr)->pr_entry.tqe_prev; else (&prl)->tqh_last = (pr)->pr_entry.tqe_prev; *(pr)->pr_entry.tqe_prev = (pr)->pr_entry.tqe_next; ((pr)->pr_entry.tqe_prev) = ((void *)-1); ((pr)->pr_entry.tqe_next) = ((void *)-1); } while (0);
@@ -2863,9 +2864,9 @@ pool_do_get(struct pool *pp, int flags, int *slowdown)
  do { if (splassert_ctl > 0) { splassert_check(pp->pr_ipl, __func__); } } while (0);
  pp->pr_nout++;
  if (pp->pr_curpage == ((void *)0)) {
-  __mtx_leave(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_mtx );
   ph = pool_p_alloc(pp, flags, slowdown);
-  __mtx_enter(&pp->pr_mtx);
+  __mtx_enter(&pp->pr_mtx );
   if (ph == ((void *)0)) {
    pp->pr_nout--;
    return (((void *)0));
@@ -2918,7 +2919,7 @@ pool_put(struct pool *pp, void *v)
   pool_cache_put(pp, v);
   return;
  }
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  pool_do_put(pp, v);
  pp->pr_nout--;
  pp->pr_nput++;
@@ -2928,13 +2929,13 @@ pool_put(struct pool *pp, void *v)
   freeph = ph;
   pool_p_remove(pp, freeph);
  }
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  if (freeph != ((void *)0))
   pool_p_free(pp, freeph);
  if (!(((&pp->pr_requests)->tqh_first) == ((void *)0))) {
-  __mtx_enter(&pp->pr_requests_mtx);
+  __mtx_enter(&pp->pr_requests_mtx );
   pool_runqueue(pp, 0x0002);
-  __mtx_leave(&pp->pr_requests_mtx);
+  __mtx_leave(&pp->pr_requests_mtx );
  }
 }
 void
@@ -2983,12 +2984,12 @@ pool_prime(struct pool *pp, int n)
    break;
   do { (ph)->ph_entry.tqe_next = ((void *)0); (ph)->ph_entry.tqe_prev = (&pl)->tqh_last; *(&pl)->tqh_last = (ph); (&pl)->tqh_last = &(ph)->ph_entry.tqe_next; } while (0);
  }
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  while ((ph = ((&pl)->tqh_first)) != ((void *)0)) {
   do { if (((ph)->ph_entry.tqe_next) != ((void *)0)) (ph)->ph_entry.tqe_next->ph_entry.tqe_prev = (ph)->ph_entry.tqe_prev; else (&pl)->tqh_last = (ph)->ph_entry.tqe_prev; *(ph)->ph_entry.tqe_prev = (ph)->ph_entry.tqe_next; ((ph)->ph_entry.tqe_prev) = ((void *)-1); ((ph)->ph_entry.tqe_next) = ((void *)-1); } while (0);
   pool_p_insert(pp, ph);
  }
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  return (0);
 }
 struct pool_page_header *
@@ -3103,14 +3104,14 @@ void
 pool_setlowat(struct pool *pp, int n)
 {
  int prime = 0;
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  pp->pr_minitems = n;
  pp->pr_minpages = (n == 0)
   ? 0
   : ((((n)+((pp->pr_itemsperpage)-1))/(pp->pr_itemsperpage))*(pp->pr_itemsperpage)) / pp->pr_itemsperpage;
  if (pp->pr_nitems < n)
   prime = n - pp->pr_nitems;
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  if (prime > 0)
   pool_prime(pp, prime);
 }
@@ -3147,7 +3148,7 @@ pool_reclaim(struct pool *pp)
 {
  struct pool_page_header *ph, *phnext;
  struct pool_pagelist pl = { ((void *)0), &(pl).tqh_first };
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  for (ph = ((&pp->pr_emptypages)->tqh_first); ph != ((void *)0); ph = phnext) {
   phnext = ((ph)->ph_entry.tqe_next);
   if (pp->pr_npages <= pp->pr_minpages)
@@ -3158,7 +3159,7 @@ pool_reclaim(struct pool *pp)
   pool_p_remove(pp, ph);
   do { (ph)->ph_entry.tqe_next = ((void *)0); (ph)->ph_entry.tqe_prev = (&pl)->tqh_last; *(&pl)->tqh_last = (ph); (&pl)->tqh_last = &(ph)->ph_entry.tqe_next; } while (0);
  }
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  if ((((&pl)->tqh_first) == ((void *)0)))
   return (0);
  while ((ph = ((&pl)->tqh_first)) != ((void *)0)) {
@@ -3496,7 +3497,7 @@ sysctl_dopool(int *name, u_int namelen, char *oldp, size_t *oldlenp)
   break;
  case 3:
   __builtin_memset((&pi), (0), (sizeof(pi)));
-  __mtx_enter(&pp->pr_mtx);
+  __mtx_enter(&pp->pr_mtx );
   pi.pr_size = pp->pr_size;
   pi.pr_pgsize = pp->pr_pgsize;
   pi.pr_itemsperpage = pp->pr_itemsperpage;
@@ -3513,7 +3514,7 @@ sysctl_dopool(int *name, u_int namelen, char *oldp, size_t *oldlenp)
   pi.pr_npagefree = pp->pr_npagefree;
   pi.pr_hiwat = pp->pr_hiwat;
   pi.pr_nidle = pp->pr_nidle;
-  __mtx_leave(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_mtx );
   pool_cache_pool_info(pp, &pi);
   rv = sysctl_rdstruct(oldp, oldlenp, ((void *)0), &pi, sizeof(pi));
   break;
@@ -3545,7 +3546,7 @@ pool_gc_pages(void *null)
   if (pp->pr_cache != ((void *)0))
    pool_cache_gc(pp);
   if (pp->pr_nidle <= pp->pr_minpages ||
-      !__mtx_enter_try(&pp->pr_mtx))
+      !__mtx_enter_try(&pp->pr_mtx ))
    continue;
   if (pp->pr_nidle > pp->pr_minpages &&
       (ph = ((&pp->pr_emptypages)->tqh_first)) != ((void *)0) &&
@@ -3554,7 +3555,7 @@ pool_gc_pages(void *null)
    pool_p_remove(pp, freeph);
   } else
    freeph = ((void *)0);
-  __mtx_leave(&pp->pr_mtx);
+  __mtx_leave(&pp->pr_mtx );
   if (freeph != ((void *)0))
    pool_p_free(pp, freeph);
  }
@@ -3660,7 +3661,7 @@ pool_cache_init(struct pool *pp)
  }
  ((pp->pr_size >= sizeof(struct pool_cache_item)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1643, "pp->pr_size >= sizeof(struct pool_cache_item)"));
  cm = cpumem_get(&pool_caches);
- __mtx_init((&pp->pr_cache_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&pp->pr_cache_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl)))); } while (0);
  arc4random_buf(pp->pr_cache_magic, sizeof(pp->pr_cache_magic));
  do { (&pp->pr_cache_lists)->tqh_first = ((void *)0); (&pp->pr_cache_lists)->tqh_last = &(&pp->pr_cache_lists)->tqh_first; } while (0);
  pp->pr_cache_nitems = 0;
@@ -3712,15 +3713,15 @@ fail:
 static inline void
 pool_list_enter(struct pool *pp)
 {
- if (__mtx_enter_try(&pp->pr_cache_mtx) == 0) {
-  __mtx_enter(&pp->pr_cache_mtx);
+ if (__mtx_enter_try(&pp->pr_cache_mtx ) == 0) {
+  __mtx_enter(&pp->pr_cache_mtx );
   pp->pr_cache_contention++;
  }
 }
 static inline void
 pool_list_leave(struct pool *pp)
 {
- __mtx_leave(&pp->pr_cache_mtx);
+ __mtx_leave(&pp->pr_cache_mtx );
 }
 static inline struct pool_cache_item *
 pool_cache_list_alloc(struct pool *pp, struct pool_cache *pc)
@@ -3845,13 +3846,13 @@ pool_cache_list_put(struct pool *pp, struct pool_cache_item *pl)
  if (pl == ((void *)0))
   return (((void *)0));
  rpl = ((pl)->ci_nextl.tqe_next);
- __mtx_enter(&pp->pr_mtx);
+ __mtx_enter(&pp->pr_mtx );
  do {
   next = pl->ci_next;
   pool_do_put(pp, pl);
   pl = next;
  } while (pl != ((void *)0));
- __mtx_leave(&pp->pr_mtx);
+ __mtx_leave(&pp->pr_mtx );
  return (rpl);
 }
 void
@@ -3880,7 +3881,7 @@ pool_cache_gc(struct pool *pp)
  unsigned int contention, delta;
  if ((ticks - pp->pr_cache_tick) > (hz * pool_wait_gc) &&
      !(((&pp->pr_cache_lists)->tqh_first) == ((void *)0)) &&
-     __mtx_enter_try(&pp->pr_cache_mtx)) {
+     __mtx_enter_try(&pp->pr_cache_mtx )) {
   struct pool_cache_item *pl = ((void *)0);
   pl = ((&pp->pr_cache_lists)->tqh_first);
   if (pl != ((void *)0)) {
@@ -3889,7 +3890,7 @@ pool_cache_gc(struct pool *pp)
    pp->pr_cache_tick = ticks;
    pp->pr_cache_ngc++;
   }
-  __mtx_leave(&pp->pr_cache_mtx);
+  __mtx_leave(&pp->pr_cache_mtx );
   pool_cache_list_put(pp, pl);
  }
  contention = pp->pr_cache_contention;
@@ -3921,11 +3922,11 @@ pool_cache_pool_info(struct pool *pp, struct kinfo_pool *pi)
   pi->pr_nget += nget;
   pi->pr_nput += nput;
  }
- __mtx_enter(&pp->pr_cache_mtx);
+ __mtx_enter(&pp->pr_cache_mtx );
  for ((pc) = cpumem_first((&i), (pp->pr_cache)); (pc) != ((void *)0); (pc) = cpumem_next((&i), (pp->pr_cache)))
   pi->pr_nout += pc->pc_nout;
  pi->pr_nout += pp->pr_cache_nout;
- __mtx_leave(&pp->pr_cache_mtx);
+ __mtx_leave(&pp->pr_cache_mtx );
 }
 int
 pool_cache_info(struct pool *pp, void *oldp, size_t *oldlenp)
@@ -3934,12 +3935,12 @@ pool_cache_info(struct pool *pp, void *oldp, size_t *oldlenp)
  if (pp->pr_cache == ((void *)0))
   return (45);
  __builtin_memset((&kpc), (0), (sizeof(kpc)));
- __mtx_enter(&pp->pr_cache_mtx);
+ __mtx_enter(&pp->pr_cache_mtx );
  kpc.pr_ngc = pp->pr_cache_ngc;
  kpc.pr_len = pp->pr_cache_items;
  kpc.pr_nitems = pp->pr_cache_nitems;
  kpc.pr_contention = pp->pr_cache_contention;
- __mtx_leave(&pp->pr_cache_mtx);
+ __mtx_leave(&pp->pr_cache_mtx );
  return (sysctl_rdstruct(oldp, oldlenp, ((void *)0), &kpc, sizeof(kpc)));
 }
 int

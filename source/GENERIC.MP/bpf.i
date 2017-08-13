@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4089,9 +4090,9 @@ bpf_detachd(struct bpf_d *d)
   int error;
   d->bd_promisc = 0;
   bpf_get(d);
-  __mtx_leave(&d->bd_mtx);
+  __mtx_leave(&d->bd_mtx );
   error = ifpromisc(bp->bif_ifp, 0);
-  __mtx_enter(&d->bd_mtx);
+  __mtx_enter(&d->bd_mtx );
   bpf_put(d);
   if (error && !(error == 22 || error == 19))
    panic("bpf: ifpromisc failed");
@@ -4115,7 +4116,7 @@ bpfopen(dev_t dev, int flag, int mode, struct proc *p)
  bd->bd_unit = unit;
  bd->bd_bufsize = bpf_bufsize;
  bd->bd_sig = 23;
- __mtx_init((&bd->bd_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&bd->bd_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  task_set(&bd->bd_wake_task, bpf_wakeup_cb, bd);
  if (flag & 0x0004)
   bd->bd_rtout = -1;
@@ -4128,11 +4129,11 @@ bpfclose(dev_t dev, int flag, int mode, struct proc *p)
 {
  struct bpf_d *d;
  d = bpfilter_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  bpf_detachd(d);
  bpf_wakeup(d);
  do { if ((d)->bd_list.le_next != ((void *)0)) (d)->bd_list.le_next->bd_list.le_prev = (d)->bd_list.le_prev; *(d)->bd_list.le_prev = (d)->bd_list.le_next; ((d)->bd_list.le_prev) = ((void *)-1); ((d)->bd_list.le_next) = ((void *)-1); } while (0);
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  bpf_put(d);
  return (0);
 }
@@ -4147,7 +4148,7 @@ bpfread(dev_t dev, struct uio *uio, int ioflag)
  if (d->bd_bif == ((void *)0))
   return (6);
  bpf_get(d);
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  if (uio->uio_resid != d->bd_bufsize) {
   error = 22;
   goto out;
@@ -4197,15 +4198,15 @@ bpfread(dev_t dev, struct uio *uio, int ioflag)
  d->bd_hlen = 0;
  d->bd_fbuf = ((void *)0);
  d->bd_in_uiomove = 1;
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  error = uiomove(hbuf, hlen, uio);
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  ((d->bd_fbuf == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 530, "d->bd_fbuf == NULL"));
  ((d->bd_hbuf == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 531, "d->bd_hbuf == NULL"));
  d->bd_fbuf = hbuf;
  d->bd_in_uiomove = 0;
 out:
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  bpf_put(d);
  return (error);
 }
@@ -4328,11 +4329,11 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((127))):
   {
    int n;
-   __mtx_enter(&d->bd_mtx);
+   __mtx_enter(&d->bd_mtx );
    n = d->bd_slen;
    if (d->bd_hbuf != ((void *)0))
     n += d->bd_hlen;
-   __mtx_leave(&d->bd_mtx);
+   __mtx_leave(&d->bd_mtx );
    *(int *)addr = n;
    break;
   }
@@ -4348,9 +4349,9 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
     *(u_int *)addr = size = bpf_maxbufsize;
    else if (size < 32)
     *(u_int *)addr = size = 32;
-   __mtx_enter(&d->bd_mtx);
+   __mtx_enter(&d->bd_mtx );
    d->bd_bufsize = size;
-   __mtx_leave(&d->bd_mtx);
+   __mtx_leave(&d->bd_mtx );
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct bpf_program) & 0x1fff) << 16) | ((('B')) << 8) | ((103))):
@@ -4360,9 +4361,9 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   error = bpf_setf(d, (struct bpf_program *)addr, 1);
   break;
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('B')) << 8) | ((104))):
-  __mtx_enter(&d->bd_mtx);
+  __mtx_enter(&d->bd_mtx );
   bpf_resetd(d);
-  __mtx_leave(&d->bd_mtx);
+  __mtx_leave(&d->bd_mtx );
   break;
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('B')) << 8) | ((105))):
   if (d->bd_bif == ((void *)0)) {
@@ -4392,9 +4393,9 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   if (d->bd_bif == ((void *)0))
    error = 22;
   else {
-   __mtx_enter(&d->bd_mtx);
+   __mtx_enter(&d->bd_mtx );
    error = bpf_setdlt(d, *(u_int *)addr);
-   __mtx_leave(&d->bd_mtx);
+   __mtx_leave(&d->bd_mtx );
   }
   break;
  case ((unsigned long)0x40000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('B')) << 8) | ((107))):
@@ -4507,9 +4508,9 @@ bpf_setf(struct bpf_d *d, struct bpf_program *fp, int wf)
   if (fp->bf_len != 0)
    return (22);
   srp_update_locked(&bpf_insn_gc, filter, ((void *)0));
-  __mtx_enter(&d->bd_mtx);
+  __mtx_enter(&d->bd_mtx );
   bpf_resetd(d);
-  __mtx_leave(&d->bd_mtx);
+  __mtx_leave(&d->bd_mtx );
   return (0);
  }
  flen = fp->bf_len;
@@ -4529,9 +4530,9 @@ bpf_setf(struct bpf_d *d, struct bpf_program *fp, int wf)
  bf->bf_len = flen;
  bf->bf_insns = fcode;
  srp_update_locked(&bpf_insn_gc, filter, bf);
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  bpf_resetd(d);
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  return (0);
 }
 int
@@ -4549,7 +4550,7 @@ bpf_setif(struct bpf_d *d, struct ifreq *ifr)
  }
  if (candidate == ((void *)0))
   return (6);
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  if (d->bd_sbuf == ((void *)0)) {
   if ((error = bpf_allocbufs(d)))
    goto out;
@@ -4560,7 +4561,7 @@ bpf_setif(struct bpf_d *d, struct ifreq *ifr)
  }
  bpf_resetd(d);
 out:
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  return (error);
 }
 void
@@ -4579,7 +4580,7 @@ bpfpoll(dev_t dev, int events, struct proc *p)
   return (0x0008);
  revents = events & (0x0004 | 0x0004);
  if (events & (0x0001 | 0x0040)) {
-  __mtx_enter(&d->bd_mtx);
+  __mtx_enter(&d->bd_mtx );
   if (d->bd_hlen != 0 || (d->bd_immediate && d->bd_slen != 0))
    revents |= events & (0x0001 | 0x0040);
   else {
@@ -4587,7 +4588,7 @@ bpfpoll(dev_t dev, int events, struct proc *p)
     d->bd_rdStart = ticks;
    selrecord(p, &d->bd_sel);
   }
-  __mtx_leave(&d->bd_mtx);
+  __mtx_leave(&d->bd_mtx );
  }
  return (revents);
 }
@@ -4611,10 +4612,10 @@ bpfkqfilter(dev_t dev, struct knote *kn)
  bpf_get(d);
  kn->kn_hook = d;
  do { (kn)->kn_selnext.sle_next = (klist)->slh_first; (klist)->slh_first = (kn); } while (0);
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  if (d->bd_rtout != -1 && d->bd_rdStart == 0)
   d->bd_rdStart = ticks;
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  return (0);
 }
 void
@@ -4630,11 +4631,11 @@ filt_bpfread(struct knote *kn, long hint)
 {
  struct bpf_d *d = kn->kn_hook;
  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1195, "_kernel_lock_held()"));
- __mtx_enter(&d->bd_mtx);
+ __mtx_enter(&d->bd_mtx );
  kn->kn_kevent.data = d->bd_hlen;
  if (d->bd_immediate)
   kn->kn_kevent.data += d->bd_slen;
- __mtx_leave(&d->bd_mtx);
+ __mtx_leave(&d->bd_mtx );
  return (kn->kn_kevent.data > 0);
 }
 void
@@ -4693,10 +4694,10 @@ _bpf_mtap(caddr_t arg, const struct mbuf *m, u_int direction,
   if (slen > 0) {
    if (!gottime++)
     microtime(&tv);
-   __mtx_enter(&d->bd_mtx);
+   __mtx_enter(&d->bd_mtx );
    bpf_catchpacket(d, (u_char *)m, pktlen, slen, cpfn,
        &tv);
-   __mtx_leave(&d->bd_mtx);
+   __mtx_leave(&d->bd_mtx );
    if (d->bd_fildrop)
     drop = 1;
   }

@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2514,6 +2515,12 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
+struct sys_fktrace_args {
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
+ union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
+ union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
+};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -3062,6 +3069,7 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
+int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -3476,13 +3484,13 @@ msleep(const volatile void *ident, struct mutex *mtx, int priority,
  if (cold || panicstr) {
   spl = (mtx)->mtx_oldipl;
   (mtx)->mtx_oldipl = safepri;
-  __mtx_leave(mtx);
+  __mtx_leave(mtx );
   if (__mp_lock_held(&kernel_lock)) {
    hold_count = __mp_release_all(&kernel_lock);
    __mp_acquire_count(&kernel_lock, hold_count);
   }
   if ((priority & 0x200) == 0) {
-   __mtx_enter(mtx);
+   __mtx_enter(mtx );
    (mtx)->mtx_oldipl = spl;
   } else
    _splx(spl);
@@ -3494,12 +3502,12 @@ msleep(const volatile void *ident, struct mutex *mtx, int priority,
  (void)0;
  spl = (mtx)->mtx_oldipl;
  (mtx)->mtx_oldipl = _splraise(14);
- __mtx_leave(mtx);
+ __mtx_leave(mtx );
  sleep_finish(&sls, 1);
  error1 = sleep_finish_timeout(&sls);
  error = sleep_finish_signal(&sls);
  if ((priority & 0x200) == 0) {
-  __mtx_enter(mtx);
+  __mtx_enter(mtx );
   (mtx)->mtx_oldipl = spl;
   (void)0;
  } else

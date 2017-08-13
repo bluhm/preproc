@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4164,7 +4165,7 @@ gcu_miibus_readreg(struct em_hw *hw, int phy, int reg64)
  data |= (reg64 << 16);
  data |= (phy << 21);
  data |= 0x80000000UL;
- __mtx_enter(&gcu->mdio_mtx);
+ __mtx_enter(&gcu->mdio_mtx );
  bus_space_write_4(gcu->tag, gcu->handle, 0x00000014UL, data);
  while (!done && (i++ < 64)) {
   delay(50);
@@ -4173,15 +4174,15 @@ gcu_miibus_readreg(struct em_hw *hw, int phy, int reg64)
   done = !((data & 0x80000000UL) >>
       31);
  }
- __mtx_leave(&gcu->mdio_mtx);
+ __mtx_leave(&gcu->mdio_mtx );
  if (i >= 64) {
   printf("%s: phy read timeout: phy %d, reg %d\n",
       ((sc)->sc_dev.dv_xname), phy, reg64);
   return (0);
  }
- __mtx_enter(&gcu->mdio_mtx);
+ __mtx_enter(&gcu->mdio_mtx );
  data = bus_space_read_4(gcu->tag, gcu->handle, 0x00000010UL);
- __mtx_leave(&gcu->mdio_mtx);
+ __mtx_leave(&gcu->mdio_mtx );
  if((data & 0x80000000UL) != 0) {
   printf("%s: unable to read phy %d reg %d\n",
       ((sc)->sc_dev.dv_xname), phy, reg64);
@@ -4203,7 +4204,7 @@ gcu_miibus_writereg(struct em_hw *hw, int phy, int reg64, int val)
  data |= (reg64 << 16);
  data |= (phy << 21);
  data |= 0x04000000UL | 0x80000000UL;
- __mtx_enter(&gcu->mdio_mtx);
+ __mtx_enter(&gcu->mdio_mtx );
  bus_space_write_4(gcu->tag, gcu->handle, 0x00000014UL, data);
  while (!done && (i++ < 64)) {
   delay(50);
@@ -4212,7 +4213,7 @@ gcu_miibus_writereg(struct em_hw *hw, int phy, int reg64, int val)
   done = !((data & 0x80000000UL) >>
       31);
  }
- __mtx_leave(&gcu->mdio_mtx);
+ __mtx_leave(&gcu->mdio_mtx );
  if (i >= 64) {
   printf("%s: phy read timeout: phy %d, reg %d\n",
       ((sc)->sc_dev.dv_xname), phy, reg64);

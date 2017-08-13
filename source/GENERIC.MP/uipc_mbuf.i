@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4701,13 +4702,13 @@ m_extref(struct mbuf *o, struct mbuf *n)
  int refs = ((o)->M_dat.MH.MH_dat.MH_ext.ext_nextref != (o));
  n->m_hdr.mh_flags |= o->m_hdr.mh_flags & (0x0001|0x0008);
  if (refs)
-  __mtx_enter(&m_extref_mtx);
+  __mtx_enter(&m_extref_mtx );
  n->M_dat.MH.MH_dat.MH_ext.ext_nextref = o->M_dat.MH.MH_dat.MH_ext.ext_nextref;
  n->M_dat.MH.MH_dat.MH_ext.ext_prevref = o;
  o->M_dat.MH.MH_dat.MH_ext.ext_nextref = n;
  n->M_dat.MH.MH_dat.MH_ext.ext_nextref->M_dat.MH.MH_dat.MH_ext.ext_prevref = n;
  if (refs)
-  __mtx_leave(&m_extref_mtx);
+  __mtx_leave(&m_extref_mtx );
  ;
 }
 static inline u_int
@@ -4716,7 +4717,7 @@ m_extunref(struct mbuf *m)
  int refs = 1;
  if (!((m)->M_dat.MH.MH_dat.MH_ext.ext_nextref != (m)))
   return (0);
- __mtx_enter(&m_extref_mtx);
+ __mtx_enter(&m_extref_mtx );
  if (((m)->M_dat.MH.MH_dat.MH_ext.ext_nextref != (m))) {
   m->M_dat.MH.MH_dat.MH_ext.ext_nextref->M_dat.MH.MH_dat.MH_ext.ext_prevref =
       m->M_dat.MH.MH_dat.MH_ext.ext_prevref;
@@ -4724,7 +4725,7 @@ m_extunref(struct mbuf *m)
       m->M_dat.MH.MH_dat.MH_ext.ext_nextref;
  } else
   refs = 0;
- __mtx_leave(&m_extref_mtx);
+ __mtx_leave(&m_extref_mtx );
  return (refs);
 }
 u_int
@@ -5409,18 +5410,18 @@ m_pool_alloc(struct pool *pp, int flags, int *slowdown)
  int avail = 1;
  if (mbuf_mem_alloc + pp->pr_pgsize > mbuf_mem_limit)
   return (((void *)0));
- __mtx_enter(&m_pool_mtx);
+ __mtx_enter(&m_pool_mtx );
  if (mbuf_mem_alloc + pp->pr_pgsize > mbuf_mem_limit)
   avail = 0;
  else
   mbuf_mem_alloc += pp->pr_pgsize;
- __mtx_leave(&m_pool_mtx);
+ __mtx_leave(&m_pool_mtx );
  if (avail) {
   v = (*pool_allocator_multi.pa_alloc)(pp, flags, slowdown);
   if (v == ((void *)0)) {
-   __mtx_enter(&m_pool_mtx);
+   __mtx_enter(&m_pool_mtx );
    mbuf_mem_alloc -= pp->pr_pgsize;
-   __mtx_leave(&m_pool_mtx);
+   __mtx_leave(&m_pool_mtx );
   }
  }
  return (v);
@@ -5429,9 +5430,9 @@ void
 m_pool_free(struct pool *pp, void *v)
 {
  (*pool_allocator_multi.pa_free)(pp, v);
- __mtx_enter(&m_pool_mtx);
+ __mtx_enter(&m_pool_mtx );
  mbuf_mem_alloc -= pp->pr_pgsize;
- __mtx_leave(&m_pool_mtx);
+ __mtx_leave(&m_pool_mtx );
 }
 void
 m_pool_init(struct pool *pp, u_int size, u_int align, const char *wmesg)
@@ -5548,7 +5549,7 @@ ml_purge(struct mbuf_list *ml)
 void
 mq_init(struct mbuf_queue *mq, u_int maxlen, int ipl)
 {
- __mtx_init((&mq->mq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&mq->mq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl)))); } while (0);
  ml_init(&mq->mq_list);
  mq->mq_maxlen = maxlen;
 }
@@ -5556,14 +5557,14 @@ int
 mq_enqueue(struct mbuf_queue *mq, struct mbuf *m)
 {
  int dropped = 0;
- __mtx_enter(&mq->mq_mtx);
+ __mtx_enter(&mq->mq_mtx );
  if (((&(mq)->mq_list)->ml_len) < mq->mq_maxlen)
   ml_enqueue(&mq->mq_list, m);
  else {
   mq->mq_drops++;
   dropped = 1;
  }
- __mtx_leave(&mq->mq_mtx);
+ __mtx_leave(&mq->mq_mtx );
  if (dropped)
   m_freem(m);
  return (dropped);
@@ -5572,9 +5573,9 @@ struct mbuf *
 mq_dequeue(struct mbuf_queue *mq)
 {
  struct mbuf *m;
- __mtx_enter(&mq->mq_mtx);
+ __mtx_enter(&mq->mq_mtx );
  m = ml_dequeue(&mq->mq_list);
- __mtx_leave(&mq->mq_mtx);
+ __mtx_leave(&mq->mq_mtx );
  return (m);
 }
 int
@@ -5582,14 +5583,14 @@ mq_enlist(struct mbuf_queue *mq, struct mbuf_list *ml)
 {
  struct mbuf *m;
  int dropped = 0;
- __mtx_enter(&mq->mq_mtx);
+ __mtx_enter(&mq->mq_mtx );
  if (((&(mq)->mq_list)->ml_len) < mq->mq_maxlen)
   ml_enlist(&mq->mq_list, ml);
  else {
   dropped = ((ml)->ml_len);
   mq->mq_drops += dropped;
  }
- __mtx_leave(&mq->mq_mtx);
+ __mtx_leave(&mq->mq_mtx );
  if (dropped) {
   while ((m = ml_dequeue(ml)) != ((void *)0))
    m_freem(m);
@@ -5599,18 +5600,18 @@ mq_enlist(struct mbuf_queue *mq, struct mbuf_list *ml)
 void
 mq_delist(struct mbuf_queue *mq, struct mbuf_list *ml)
 {
- __mtx_enter(&mq->mq_mtx);
+ __mtx_enter(&mq->mq_mtx );
  *ml = mq->mq_list;
  ml_init(&mq->mq_list);
- __mtx_leave(&mq->mq_mtx);
+ __mtx_leave(&mq->mq_mtx );
 }
 struct mbuf *
 mq_dechain(struct mbuf_queue *mq)
 {
  struct mbuf *m0;
- __mtx_enter(&mq->mq_mtx);
+ __mtx_enter(&mq->mq_mtx );
  m0 = ml_dechain(&mq->mq_list);
- __mtx_leave(&mq->mq_mtx);
+ __mtx_leave(&mq->mq_mtx );
  return (m0);
 }
 unsigned int

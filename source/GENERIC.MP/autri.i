@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3039,10 +3040,10 @@ autri_intr(void *p)
  u_int32_t intsrc;
  u_int32_t mask, active[2];
  int ch, endch;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  intsrc = bus_space_read_4((sc)->memt, (sc)->memh, (0xb0));
  if ((intsrc & (0x00000020|0x00000008)) == 0) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   return 0;
  }
  if (intsrc & 0x00000020) {
@@ -3074,7 +3075,7 @@ autri_intr(void *p)
  }
  autri_reg_set_4(sc,0xb0,
   0x00008000 | 0x00000800 | 0x00000800);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 1;
 }
 int
@@ -3163,11 +3164,11 @@ autri_halt_output(void *addr)
 {
  struct autri_softc *sc = addr;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  sc->sc_play.intr = ((void *)0);
  autri_stopch(sc, sc->sc_play.ch, sc->sc_play.ch_intr);
  autri_disable_interrupt(sc, sc->sc_play.ch_intr);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3175,11 +3176,11 @@ autri_halt_input(void *addr)
 {
  struct autri_softc *sc = addr;
  ;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  sc->sc_rec.intr = ((void *)0);
  autri_stopch(sc, sc->sc_rec.ch, sc->sc_rec.ch_intr);
  autri_disable_interrupt(sc, sc->sc_rec.ch_intr);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3382,12 +3383,12 @@ autri_trigger_output(void *addr, void *start, void *end, int blksize,
   return (22);
  }
  sc->sc_play.dma = p;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  autri_setup_channel(sc, 0x01, param);
  bus_space_write_4((sc)->memt, (sc)->memh, (0xa8), (0));
  autri_enable_interrupt(sc, sc->sc_play.ch_intr);
  autri_startch(sc, sc->sc_play.ch, sc->sc_play.ch_intr);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3407,7 +3408,7 @@ autri_trigger_input(void *addr, void *start, void *end, int blksize, void (*intr
   return (22);
  }
  sc->sc_rec.dma = p;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (sc->sc_devid == ((0x2001 << 16) | 0x1023)) {
   autri_reg_set_4(sc, 0x40, 0x00000200);
   bus_space_write_1((sc)->memt, (sc)->memh, (0x73), (0x80 | sc->sc_rec.ch));
@@ -3415,7 +3416,7 @@ autri_trigger_input(void *addr, void *start, void *end, int blksize, void (*intr
  autri_setup_channel(sc, 0x02, param);
  autri_enable_interrupt(sc, sc->sc_rec.ch_intr);
  autri_startch(sc, sc->sc_rec.ch, sc->sc_rec.ch_intr);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 void

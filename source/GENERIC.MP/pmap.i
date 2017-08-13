@@ -902,6 +902,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3859,7 +3860,7 @@ remap_data:
    ((mp->start) >> 13),
    ((mp->start+mp->size) >> 13), 0);
  }
- __mtx_init((&(&kernel_pmap_)->pm_mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&(&kernel_pmap_)->pm_mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0);
  (&kernel_pmap_)->pm_refs = 1;
  (&kernel_pmap_)->pm_ctx = 0;
  {
@@ -4091,7 +4092,7 @@ pmap_create(void)
 {
  struct pmap *pm;
  pm = pool_get(&pmap_pool, 0x0001 | 0x0008);
- __mtx_init((&pm->pm_mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&pm->pm_mtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0);
  pm->pm_refs = 1;
  pmap_get_page(&pm->pm_physaddr, "pmap_create", pm);
  pm->pm_segs = (int64_t *)(u_long)pm->pm_physaddr;
@@ -4118,7 +4119,7 @@ pmap_release(struct pmap *pm)
  paddr_t *pdir, *ptbl, tmp;
  if(pm == (&kernel_pmap_))
   panic("pmap_release: releasing pmap_kernel()");
- __mtx_enter(&pm->pm_mtx);
+ __mtx_enter(&pm->pm_mtx );
  for(i=0; i<(((1 << 13)/8)); i++) {
   paddr_t psegentp = (paddr_t)(u_long)&pm->pm_segs[i];
   if((pdir = (paddr_t *)(u_long)(__builtin_constant_p(0x14) ? ({ u_int64_t __rldxu_int64_t; if(0x14 == 0x80 || (sizeof(u_int64_t) == 1 && 0x14 == 0x88)) __rldxu_int64_t = *((volatile u_int64_t *)((vaddr_t)psegentp)); else __asm volatile("ldxa" " [%1] " "0x14" ", %0" : "=r" (__rldxu_int64_t) : "r" ((volatile u_int64_t *)((vaddr_t)psegentp)) : "%g0"); __rldxu_int64_t; }) : ldxa_nc(((vaddr_t)psegentp), 0x14)))) {
@@ -4151,7 +4152,7 @@ pmap_release(struct pmap *pm)
  tmp = (paddr_t)(u_long)pm->pm_segs;
  pm->pm_segs = ((void *)0);
  pmap_free_page(tmp, pm);
- __mtx_leave(&pm->pm_mtx);
+ __mtx_leave(&pm->pm_mtx );
  ctx_free(pm);
 }
 void
@@ -4292,18 +4293,18 @@ pmap_enter(struct pmap *pm, vaddr_t va, paddr_t pa, vm_prot_t prot, int flags)
  npv = pool_get(&pv_pool, 0x0002);
  if (npv == ((void *)0) && (flags & 0x00000020))
   return (12);
- __mtx_enter(&pm->pm_mtx);
+ __mtx_enter(&pm->pm_mtx );
  tte.data = pseg_get(pm, va);
  if (tte.data & 0x8000000000000000LL) {
-  __mtx_leave(&pm->pm_mtx);
+  __mtx_leave(&pm->pm_mtx );
   pmap_remove(pm, va, va + (1 << 13)-1);
-  __mtx_enter(&pm->pm_mtx);
+  __mtx_enter(&pm->pm_mtx );
   tte.data = pseg_get(pm, va);
  }
  pv = pa_to_pvh(pa);
  if (pv != ((void *)0)) {
   struct vm_page *pg = PHYS_TO_VM_PAGE(pa);
-  __mtx_enter(&pg->mdpage.pvmtx);
+  __mtx_enter(&pg->mdpage.pvmtx );
   aliased = (pv->pv_va & (0x1LL|0x8LL));
   if ((flags & (0x01 | 0x02 | 0x04)) & ~prot)
    panic("pmap_enter: access_type exceeds prot");
@@ -4312,7 +4313,7 @@ pmap_enter(struct pmap *pm, vaddr_t va, paddr_t pa, vm_prot_t prot, int flags)
   if (flags & 0x02)
    pv->pv_va |= 0x4LL;
   pv->pv_va |= pmap_tte2flags(tte.data);
-  __mtx_leave(&pg->mdpage.pvmtx);
+  __mtx_leave(&pg->mdpage.pvmtx );
  } else {
   aliased = 0;
  }
@@ -4342,7 +4343,7 @@ pmap_enter(struct pmap *pm, vaddr_t va, paddr_t pa, vm_prot_t prot, int flags)
   if (!pmap_get_page(&pg, ((void *)0), pm)) {
    if ((flags & 0x00000020) == 0)
     panic("pmap_enter: no memory");
-   __mtx_leave(&pm->pm_mtx);
+   __mtx_leave(&pm->pm_mtx );
    if (npv != ((void *)0))
     pool_put(&pv_pool, npv);
    return (12);
@@ -4351,7 +4352,7 @@ pmap_enter(struct pmap *pm, vaddr_t va, paddr_t pa, vm_prot_t prot, int flags)
  if (pv != ((void *)0))
   npv = pmap_enter_pv(pm, npv, va, pa);
  ((void)_atomic_add_long_nv((&pm->pm_stats.resident_count), 1));
- __mtx_leave(&pm->pm_mtx);
+ __mtx_leave(&pm->pm_mtx );
  if (pm->pm_ctx || pm == (&kernel_pmap_)) {
   tsb_invalidate(pm->pm_ctx, va);
   smp_tlb_flush_pte(va, pm->pm_ctx);
@@ -4370,7 +4371,7 @@ pmap_remove(struct pmap *pm, vaddr_t va, vaddr_t endva)
  vaddr_t flushva = va;
  ((void)0);
  ((void)0);
- __mtx_enter(&pm->pm_mtx);
+ __mtx_enter(&pm->pm_mtx );
  while (va < endva) {
   if (pm == (&kernel_pmap_) && va >= ktext &&
    va < ((((ekdata)+((4*(1<<20))-1))/(4*(1<<20)))*(4*(1<<20))))
@@ -4399,7 +4400,7 @@ pmap_remove(struct pmap *pm, vaddr_t va, vaddr_t endva)
   }
   va += (1 << 13);
  }
- __mtx_leave(&pm->pm_mtx);
+ __mtx_leave(&pm->pm_mtx );
  while ((pv = freepvs) != ((void *)0)) {
   freepvs = pv->pv_next;
   pool_put(&pv_pool, pv);
@@ -4422,14 +4423,14 @@ pmap_protect(struct pmap *pm, vaddr_t sva, vaddr_t eva, vm_prot_t prot)
   pmap_remove(pm, sva, eva);
   return;
  }
- __mtx_enter(&pm->pm_mtx);
+ __mtx_enter(&pm->pm_mtx );
  sva = sva & ~((1 << 13) - 1);
  while (sva < eva) {
   if (pm == (&kernel_pmap_) && sva >= ktext &&
    sva < ((((ekdata)+((4*(1<<20))-1))/(4*(1<<20)))*(4*(1<<20)))) {
    prom_printf("pmap_protect: va=%08x in locked TLB\r\n", sva);
    OF_enter();
-   __mtx_leave(&pm->pm_mtx);
+   __mtx_leave(&pm->pm_mtx );
    return;
   }
   if (((data = pseg_get(pm, sva))&0x8000000000000000LL) ) {
@@ -4437,9 +4438,9 @@ pmap_protect(struct pmap *pm, vaddr_t sva, vaddr_t eva, vm_prot_t prot)
    pv = pa_to_pvh(pa);
    if (pv != ((void *)0)) {
     struct vm_page *pg = PHYS_TO_VM_PAGE(pa);
-    __mtx_enter(&pg->mdpage.pvmtx);
+    __mtx_enter(&pg->mdpage.pvmtx );
     pv->pv_va |= pmap_tte2flags(data);
-    __mtx_leave(&pg->mdpage.pvmtx);
+    __mtx_leave(&pg->mdpage.pvmtx );
    }
    if ((cputyp == 5)) {
     if ((prot & 0x02) == 0)
@@ -4464,7 +4465,7 @@ pmap_protect(struct pmap *pm, vaddr_t sva, vaddr_t eva, vm_prot_t prot)
   }
   sva += (1 << 13);
  }
- __mtx_leave(&pm->pm_mtx);
+ __mtx_leave(&pm->pm_mtx );
 }
 boolean_t
 pmap_extract(struct pmap *pm, vaddr_t va, paddr_t *pap)
@@ -4557,7 +4558,7 @@ pmap_clear_modify(struct vm_page *pg)
  paddr_t pa = ((pg)->phys_addr);
  int changed = 0;
  pv_entry_t pv;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  pv = pa_to_pvh(pa);
  if (pv->pv_va & 0x4LL)
   changed |= 1;
@@ -4591,7 +4592,7 @@ pmap_clear_modify(struct vm_page *pg)
    cacheinfo.c_dcache_flush_page(pa);
   }
  }
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (changed);
 }
 boolean_t
@@ -4600,7 +4601,7 @@ pmap_clear_reference(struct vm_page *pg)
  paddr_t pa = ((pg)->phys_addr);
  int changed = 0;
  pv_entry_t pv;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  pv = pa_to_pvh(pa);
  if (pv->pv_va & 0x2LL)
   changed = 1;
@@ -4633,7 +4634,7 @@ pmap_clear_reference(struct vm_page *pg)
   }
  }
  cacheinfo.c_dcache_flush_page(((pg)->phys_addr));
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (changed);
 }
 boolean_t
@@ -4641,7 +4642,7 @@ pmap_is_modified(struct vm_page *pg)
 {
  pv_entry_t pv, npv;
  int mod = 0;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  pv = &pg->mdpage.pvent;
  if (pv->pv_va & 0x4LL)
   mod = 1;
@@ -4658,7 +4659,7 @@ pmap_is_modified(struct vm_page *pg)
  }
  if (mod)
   pv->pv_va |= 0x4LL;
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (mod);
 }
 boolean_t
@@ -4666,7 +4667,7 @@ pmap_is_referenced(struct vm_page *pg)
 {
  pv_entry_t pv, npv;
  int ref = 0;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  pv = &pg->mdpage.pvent;
  if (pv->pv_va & 0x2LL)
   ref = 1;
@@ -4683,7 +4684,7 @@ pmap_is_referenced(struct vm_page *pg)
  }
  if (ref)
   pv->pv_va |= 0x2LL;
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (ref);
 }
 void
@@ -4698,7 +4699,7 @@ pmap_unwire(struct pmap *pmap, vaddr_t va)
   OF_enter();
   return;
  }
- __mtx_enter(&pmap->pm_mtx);
+ __mtx_enter(&pmap->pm_mtx );
  data = pseg_get(pmap, va & (~((1 << 13) - 1)));
  if ((cputyp == 5))
   data &= ~0x1000000000000000LL;
@@ -4708,7 +4709,7 @@ pmap_unwire(struct pmap *pmap, vaddr_t va)
   printf("pmap_unwire: gotten pseg empty!\n");
   __asm volatile("ta 1; nop");;
  }
- __mtx_leave(&pmap->pm_mtx);
+ __mtx_leave(&pmap->pm_mtx );
 }
 void
 pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
@@ -4736,7 +4737,7 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
     set |= 0x0000000000000080LL;
   }
   pv = pa_to_pvh(pa);
-  __mtx_enter(&pg->mdpage.pvmtx);
+  __mtx_enter(&pg->mdpage.pvmtx );
   if (pv->pv_pmap != ((void *)0)) {
    for (; pv; pv = pv->pv_next) {
     data = pseg_get(pv->pv_pmap, pv->pv_va & (~((1 << 13) - 1)));
@@ -4755,11 +4756,11 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
     }
    }
   }
-  __mtx_leave(&pg->mdpage.pvmtx);
+  __mtx_leave(&pg->mdpage.pvmtx );
  } else {
   pv_entry_t firstpv;
   firstpv = pa_to_pvh(pa);
-  __mtx_enter(&pg->mdpage.pvmtx);
+  __mtx_enter(&pg->mdpage.pvmtx );
   while ((pv = firstpv->pv_next) != ((void *)0)) {
    data = pseg_get(pv->pv_pmap, pv->pv_va & (~((1 << 13) - 1)));
    firstpv->pv_va |= pmap_tte2flags(data);
@@ -4774,9 +4775,9 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
    }
    ((void)_atomic_sub_long_nv((&pv->pv_pmap->pm_stats.resident_count), 1));
    firstpv->pv_next = pv->pv_next;
-   __mtx_leave(&pg->mdpage.pvmtx);
+   __mtx_leave(&pg->mdpage.pvmtx );
    pool_put(&pv_pool, pv);
-   __mtx_enter(&pg->mdpage.pvmtx);
+   __mtx_enter(&pg->mdpage.pvmtx );
   }
   pv = firstpv;
   if (pv->pv_pmap != ((void *)0)) {
@@ -4796,7 +4797,7 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
    pv->pv_pmap = ((void *)0);
   }
   cacheinfo.c_dcache_flush_page(pa);
-  __mtx_leave(&pg->mdpage.pvmtx);
+  __mtx_leave(&pg->mdpage.pvmtx );
  }
 }
 int
@@ -4854,12 +4855,12 @@ pmap_enter_pv(struct pmap *pmap, pv_entry_t npv, vaddr_t va, paddr_t pa)
 {
  struct vm_page *pg = PHYS_TO_VM_PAGE(pa);
  pv_entry_t pv = &pg->mdpage.pvent;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  if (pv->pv_pmap == ((void *)0)) {
   ((pv)->pv_va = (((va) & (~((1 << 13) - 1))) | (((pv)->pv_va) & (0x03fLL))));
   pv->pv_pmap = pmap;
   pv->pv_next = ((void *)0);
-  __mtx_leave(&pg->mdpage.pvmtx);
+  __mtx_leave(&pg->mdpage.pvmtx );
   return (npv);
  }
  if (npv == ((void *)0))
@@ -4874,7 +4875,7 @@ pmap_enter_pv(struct pmap *pmap, pv_entry_t npv, vaddr_t va, paddr_t pa)
  npv->pv_pmap = pmap;
  npv->pv_next = pv->pv_next;
  pv->pv_next = npv;
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (((void *)0));
 }
 pv_entry_t
@@ -4884,7 +4885,7 @@ pmap_remove_pv(struct pmap *pmap, vaddr_t va, paddr_t pa)
  struct vm_page *pg = PHYS_TO_VM_PAGE(pa);
  int64_t data = 0LL;
  opv = pv = &pg->mdpage.pvent;
- __mtx_enter(&pg->mdpage.pvmtx);
+ __mtx_enter(&pg->mdpage.pvmtx );
  if (pmap == pv->pv_pmap && (!((((pv)->pv_va) ^ (va)) & (~((1 << 13) - 1))))) {
   data = pseg_get(pv->pv_pmap, pv->pv_va & (~((1 << 13) - 1)));
   npv = pv->pv_next;
@@ -4902,7 +4903,7 @@ pmap_remove_pv(struct pmap *pmap, vaddr_t va, paddr_t pa)
    if (pmap == npv->pv_pmap && (!((((npv)->pv_va) ^ (va)) & (~((1 << 13) - 1)))))
     goto found;
   }
-  __mtx_leave(&pg->mdpage.pvmtx);
+  __mtx_leave(&pg->mdpage.pvmtx );
   return (((void *)0));
 found:
   pv->pv_next = npv->pv_next;
@@ -4919,7 +4920,7 @@ found:
   if (!(opv->pv_va & 0x1LL))
    pmap_page_cache(pmap, pa, 1);
  }
- __mtx_leave(&pg->mdpage.pvmtx);
+ __mtx_leave(&pg->mdpage.pvmtx );
  return (npv);
 }
 void

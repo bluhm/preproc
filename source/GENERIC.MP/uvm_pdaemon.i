@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2783,7 +2784,7 @@ uvm_wait(const char *wmsg)
   printf("pagedaemon: deadlock detected!\n");
   timo = hz >> 3;
  }
- __mtx_enter(&uvm.fpageqlock);
+ __mtx_enter(&uvm.fpageqlock );
  wakeup(&uvm.pagedaemon);
  msleep(&uvmexp.free, &uvm.fpageqlock, 4 | 0x200, wmsg, timo);
 }
@@ -2808,14 +2809,14 @@ uvm_pageout(void *arg)
  int npages = 0;
  uvm.pagedaemon_proc = (__curcpu->ci_self)->ci_curproc;
  (void) _spl(0);
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  npages = uvmexp.npages;
  uvmpd_tune();
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
  for (;;) {
   long size;
     work_done = 0;
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   if ((((&uvm.pmr_control.allocs)->tqh_first) == ((void *)0))) {
    msleep(&uvm.pagedaemon, &uvm.fpageqlock, 4,
        "pgdaemon", 0);
@@ -2826,8 +2827,8 @@ uvm_pageout(void *arg)
    constraint = pma->pm_constraint;
   } else
    constraint = no_constraint;
-  __mtx_leave(&uvm.fpageqlock);
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_leave(&uvm.fpageqlock );
+  __mtx_enter(&uvm.pageqlock );
   if (npages != uvmexp.npages) {
    npages = uvmexp.npages;
    uvmpd_tune();
@@ -2842,16 +2843,16 @@ uvm_pageout(void *arg)
   if (uvmexp.free - (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages) < uvmexp.freetarg)
    size += uvmexp.freetarg - (uvmexp.free -
        (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages));
-  __mtx_leave(&uvm.pageqlock);
+  __mtx_leave(&uvm.pageqlock );
   (void) bufbackoff(&constraint, size * 2);
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_enter(&uvm.pageqlock );
   if (pma != ((void *)0) ||
       ((uvmexp.free - (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages)) < uvmexp.freetarg) ||
       ((uvmexp.inactive + (((bcstats.numcleanpages - buflowpages) < 0) ? 0 : bcstats.numcleanpages - buflowpages)) < uvmexp.inactarg)) {
    uvmpd_scan();
    work_done = 1;
   }
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   if (uvmexp.free > uvmexp.reserve_kernel ||
       uvmexp.paging == 0) {
    wakeup(&uvmexp.free);
@@ -2866,8 +2867,8 @@ uvm_pageout(void *arg)
    }
    wakeup(pma);
   }
-  __mtx_leave(&uvm.fpageqlock);
-  __mtx_leave(&uvm.pageqlock);
+  __mtx_leave(&uvm.fpageqlock );
+  __mtx_leave(&uvm.pageqlock );
   do { if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) yield(); } while (0);
  }
 }
@@ -2878,12 +2879,12 @@ uvm_aiodone_daemon(void *arg)
  struct buf *bp, *nbp;
  uvm.aiodoned_proc = (__curcpu->ci_self)->ci_curproc;
  for (;;) {
-  __mtx_enter(&uvm.aiodoned_lock);
+  __mtx_enter(&uvm.aiodoned_lock );
   while ((bp = ((&uvm.aio_done)->tqh_first)) == ((void *)0))
    msleep(&uvm.aiodoned, &uvm.aiodoned_lock,
        4, "aiodoned", 0);
   do { (&uvm.aio_done)->tqh_first = ((void *)0); (&uvm.aio_done)->tqh_last = &(&uvm.aio_done)->tqh_first; } while (0);
-  __mtx_leave(&uvm.aiodoned_lock);
+  __mtx_leave(&uvm.aiodoned_lock );
   free = uvmexp.free;
   while (bp != ((void *)0)) {
    if (bp->b_flags & 0x00200000) {
@@ -2896,10 +2897,10 @@ uvm_aiodone_daemon(void *arg)
    bp = nbp;
    do { if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) yield(); } while (0);
   }
-  __mtx_enter(&uvm.fpageqlock);
+  __mtx_enter(&uvm.fpageqlock );
   wakeup(free <= uvmexp.reserve_kernel ? &uvm.pagedaemon :
       &uvmexp.free);
-  __mtx_leave(&uvm.fpageqlock);
+  __mtx_leave(&uvm.fpageqlock );
  }
 }
 boolean_t
@@ -3062,7 +3063,7 @@ uvmpd_scan_inactive(struct pglist *pglst)
    swslot = 0;
   if (result == 3) {
    uvmexp.paging += npages;
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
    uvmexp.pdpending++;
    if (p) {
     if (p->pg_flags & 0x00020000)
@@ -3089,11 +3090,11 @@ uvmpd_scan_inactive(struct pglist *pglst)
     uvm_anfree(anon);
     pmap_page_protect(p, 0x00);
     anon = ((void *)0);
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     nextpg = ((p)->pageq.tqe_next);
     uvm_pagefree(p);
    } else {
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     nextpg = ((p)->pageq.tqe_next);
     if (result != 0) {
      if (result != 5)
@@ -3111,7 +3112,7 @@ uvmpd_scan_inactive(struct pglist *pglst)
    }
   } else {
    nextpg = ((void *)0);
-   __mtx_enter(&uvm.pageqlock);
+   __mtx_enter(&uvm.pageqlock );
   }
  }
  return (retval);
@@ -3128,9 +3129,9 @@ uvmpd_scan(void)
  free = uvmexp.free - (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages);
  if (free < uvmexp.freetarg) {
   uvmexp.pdswout++;
-  __mtx_leave(&uvm.pageqlock);
+  __mtx_leave(&uvm.pageqlock );
   uvm_swapout_threads();
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_enter(&uvm.pageqlock );
  }
  got_it = 0;
  pages_freed = uvmexp.pdfreed;

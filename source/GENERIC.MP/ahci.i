@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3025,7 +3026,7 @@ ahci_port_alloc(struct ahci_softc *sc, u_int port)
  ap->ap_sc = sc;
  do { (&ap->ap_ccb_free)->tqh_first = ((void *)0); (&ap->ap_ccb_free)->tqh_last = &(&ap->ap_ccb_free)->tqh_first; } while (0);
  do { (&ap->ap_ccb_pending)->tqh_first = ((void *)0); (&ap->ap_ccb_pending)->tqh_last = &(&ap->ap_ccb_pending)->tqh_first; } while (0);
- __mtx_init((&ap->ap_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&ap->ap_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  ahci_pwrite(ap, 0x14, 0);
  cmd = ahci_pread(ap, 0x18);
  if (((cmd) & (((1<<0) | (1<<15) | (1<<4) | (1<<14)))) ||
@@ -4262,14 +4263,14 @@ struct ahci_ccb *
 ahci_get_ccb(struct ahci_port *ap)
 {
  struct ahci_ccb *ccb;
- __mtx_enter(&ap->ap_ccb_mtx);
+ __mtx_enter(&ap->ap_ccb_mtx );
  ccb = ((&ap->ap_ccb_free)->tqh_first);
  if (ccb != ((void *)0)) {
   ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2301, "ccb->ccb_xa.state == ATA_S_PUT"));
   do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&ap->ap_ccb_free)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
   ccb->ccb_xa.state = 0;
  }
- __mtx_leave(&ap->ap_ccb_mtx);
+ __mtx_leave(&ap->ap_ccb_mtx );
  return (ccb);
 }
 void
@@ -4284,9 +4285,9 @@ ahci_put_ccb(struct ahci_ccb *ccb)
       ccb->ccb_slot);
  }
  ccb->ccb_xa.state = 6;
- __mtx_enter(&ap->ap_ccb_mtx);
+ __mtx_enter(&ap->ap_ccb_mtx );
  do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&ap->ap_ccb_free)->tqh_last; *(&ap->ap_ccb_free)->tqh_last = (ccb); (&ap->ap_ccb_free)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
- __mtx_leave(&ap->ap_ccb_mtx);
+ __mtx_leave(&ap->ap_ccb_mtx );
 }
 struct ahci_ccb *
 ahci_get_err_ccb(struct ahci_port *ap)
@@ -4341,9 +4342,9 @@ ahci_get_pmp_ccb(struct ahci_port *ap)
  ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2424, "ccb->ccb_xa.state == ATA_S_PUT"));
  ccb->ccb_xa.flags = 0;
  ccb->ccb_done = ahci_pmp_cmd_done;
- __mtx_enter(&ap->ap_ccb_mtx);
+ __mtx_enter(&ap->ap_ccb_mtx );
  do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&ap->ap_ccb_free)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
- __mtx_leave(&ap->ap_ccb_mtx);
+ __mtx_leave(&ap->ap_ccb_mtx );
  return ccb;
 }
 void
@@ -4357,9 +4358,9 @@ ahci_put_pmp_ccb(struct ahci_ccb *ccb)
   printf("ahci_port_err_ccb_restore but SACT %08x != 0?\n", sact);
  ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2448, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
  ccb->ccb_xa.state = 6;
- __mtx_enter(&ap->ap_ccb_mtx);
+ __mtx_enter(&ap->ap_ccb_mtx );
  do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&ap->ap_ccb_free)->tqh_last; *(&ap->ap_ccb_free)->tqh_last = (ccb); (&ap->ap_ccb_free)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
- __mtx_leave(&ap->ap_ccb_mtx);
+ __mtx_leave(&ap->ap_ccb_mtx );
 }
 int
 ahci_port_read_ncq_error(struct ahci_port *ap, int *err_slotp, int pmp_port)

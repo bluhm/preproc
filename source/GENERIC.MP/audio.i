@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2675,11 +2676,11 @@ audio_start_do(struct audio_softc *sc)
        sc->play.blksz,
        audio_pintr, (void *)sc, &p);
   } else {
-   __mtx_enter(&audio_lock);
+   __mtx_enter(&audio_lock );
    ptr = audio_buf_rgetblk(&sc->play, &count);
    error = sc->ops->start_output(sc->arg,
        ptr, sc->play.blksz, audio_pintr, (void *)sc);
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
   }
   if (error)
    printf("%s: failed to start playback\n", ((sc)->dev.dv_xname));
@@ -2698,11 +2699,11 @@ audio_start_do(struct audio_softc *sc)
        sc->rec.blksz,
        audio_rintr, (void *)sc, &p);
   } else {
-   __mtx_enter(&audio_lock);
+   __mtx_enter(&audio_lock );
    ptr = audio_buf_wgetblk(&sc->rec, &count);
    error = sc->ops->start_input(sc->arg,
        ptr, sc->rec.blksz, audio_rintr, (void *)sc);
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
   }
   if (error)
    printf("%s: failed to start recording\n", ((sc)->dev.dv_xname));
@@ -3124,9 +3125,9 @@ audio_activate(struct device *self, int act)
  struct audio_softc *sc = (struct audio_softc *)self;
  switch (act) {
  case 2:
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   sc->quiesce = 1;
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   if (sc->mode != 0 && sc->active)
    audio_stop_do(sc);
   do {} while(0);
@@ -3275,11 +3276,11 @@ audio_drain(struct audio_softc *sc)
  do {} while(0);
  if (!(sc->mode & 0x01) || sc->pause)
   return 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  bpf = sc->pchan * sc->bps;
  sc->play.used -= sc->play.used % bpf;
  if (sc->play.used == 0) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   return 0;
  }
  if (!sc->active) {
@@ -3290,11 +3291,11 @@ audio_drain(struct audio_softc *sc)
    audio_fill_sil(sc, ptr, count);
    audio_buf_wcommit(&sc->play, count);
   }
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   error = audio_start(sc);
   if (error)
    return error;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
  }
  xrun = sc->play.xrun;
  while (sc->play.xrun == xrun) {
@@ -3309,7 +3310,7 @@ audio_drain(struct audio_softc *sc)
    break;
   }
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return error;
 }
 int
@@ -3332,17 +3333,17 @@ audio_read(struct audio_softc *sc, struct uio *uio, int ioflag)
  do {} while(0);
  while (sc->quiesce)
   tsleep(&sc->quiesce, 0, "au_qrd", 0);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (audio_canstart(sc)) {
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   error = audio_start(sc);
   if (error)
    return error;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
  }
  while (sc->rec.used == 0) {
   if (ioflag & 0x10) {
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
    return 35;
   }
   do {} while(0);
@@ -3353,7 +3354,7 @@ audio_read(struct audio_softc *sc, struct uio *uio, int ioflag)
    error = 5;
   if (error) {
    do {} while(0);
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
    return error;
   }
  }
@@ -3362,16 +3363,16 @@ audio_read(struct audio_softc *sc, struct uio *uio, int ioflag)
   if (count > uio->uio_resid)
    count = uio->uio_resid;
   audio_buf_rdiscard(&sc->rec, count);
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   do {} while(0);
   if (sc->conv_dec)
    sc->conv_dec(ptr, count);
   error = uiomove(ptr, count, uio);
   if (error)
    return error;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3383,10 +3384,10 @@ audio_write(struct audio_softc *sc, struct uio *uio, int ioflag)
  do {} while(0);
  while (sc->quiesce)
   tsleep(&sc->quiesce, 0, "au_qwr", 0);
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (uio->uio_resid > 0 && (ioflag & 0x10)) {
   if (sc->play.used == sc->play.len) {
-   __mtx_leave(&audio_lock);
+   __mtx_leave(&audio_lock );
    return 35;
   }
  }
@@ -3396,7 +3397,7 @@ audio_write(struct audio_softc *sc, struct uio *uio, int ioflag)
    if (count > 0)
     break;
    if (ioflag & 0x10) {
-    __mtx_leave(&audio_lock);
+    __mtx_leave(&audio_lock );
     return 0;
    }
    do {} while(0);
@@ -3407,14 +3408,14 @@ audio_write(struct audio_softc *sc, struct uio *uio, int ioflag)
     error = 5;
    if (error) {
     do {} while(0);
-    __mtx_leave(&audio_lock);
+    __mtx_leave(&audio_lock );
     return error;
    }
   }
   if (count > uio->uio_resid)
    count = uio->uio_resid;
   audio_buf_wcommit(&sc->play, count);
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   error = uiomove(ptr, count, uio);
   if (error)
    return 0;
@@ -3427,9 +3428,9 @@ audio_write(struct audio_softc *sc, struct uio *uio, int ioflag)
    if (error)
     return error;
   }
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return 0;
 }
 int
@@ -3452,13 +3453,13 @@ audio_ioctl(struct audio_softc *sc, unsigned long cmd, void *addr)
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((126))):
   break;
  case ((unsigned long)0x40000000 | ((sizeof(struct audio_pos) & 0x1fff) << 16) | ((('A')) << 8) | ((35))):
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   ap = (struct audio_pos *)addr;
   ap->play_pos = sc->play.pos;
   ap->play_xrun = sc->play.xrun;
   ap->rec_pos = sc->rec.pos;
   ap->rec_xrun = sc->rec.xrun;
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   break;
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('A')) << 8) | ((38))):
   return audio_ioc_start(sc);
@@ -3513,7 +3514,7 @@ int
 audio_poll(struct audio_softc *sc, int events, struct proc *p)
 {
  int revents = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if ((sc->mode & 0x02) && sc->rec.used > 0)
   revents |= events & (0x0001 | 0x0040);
  if ((sc->mode & 0x01) && sc->play.used < sc->play.len)
@@ -3524,7 +3525,7 @@ audio_poll(struct audio_softc *sc, int events, struct proc *p)
   if (events & (0x0004 | 0x0004))
    selrecord(p, &sc->play.sel);
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return revents;
 }
 int

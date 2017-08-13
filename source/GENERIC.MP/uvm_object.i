@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2106,13 +2107,13 @@ uvm_objwire(struct uvm_object *uobj, voff_t start, voff_t end,
     uao_dropswap(uobj, i);
    }
   }
-  __mtx_enter(&uvm.pageqlock);
+  __mtx_enter(&uvm.pageqlock );
   for (i = 0; i < npages; i++) {
    uvm_pagewire(pgs[i]);
    if (pageq != ((void *)0))
     do { (pgs[i])->pageq.tqe_next = ((void *)0); (pgs[i])->pageq.tqe_prev = (pageq)->tqh_last; *(pageq)->tqh_last = (pgs[i]); (pageq)->tqh_last = &(pgs[i])->pageq.tqe_next; } while (0);
   }
-  __mtx_leave(&uvm.pageqlock);
+  __mtx_leave(&uvm.pageqlock );
   uvm_page_unbusy(pgs, npages);
   left -= npages;
   offset += (voff_t)npages << 13;
@@ -2127,12 +2128,12 @@ uvm_objunwire(struct uvm_object *uobj, voff_t start, voff_t end)
 {
  struct vm_page *pg;
  off_t offset;
- __mtx_enter(&uvm.pageqlock);
+ __mtx_enter(&uvm.pageqlock );
  for (offset = start; offset < end; offset += (1 << 13)) {
   pg = uvm_pagelookup(uobj, offset);
   ((pg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_object.c", 143, "pg != NULL"));
   ((!(pg->pg_flags & 0x00000020)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_object.c", 144, "!(pg->pg_flags & PG_RELEASED)"));
   uvm_pageunwire(pg);
  }
- __mtx_leave(&uvm.pageqlock);
+ __mtx_leave(&uvm.pageqlock );
 }

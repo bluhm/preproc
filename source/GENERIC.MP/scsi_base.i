@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2427,24 +2428,24 @@ int
 scsi_pending_start(struct mutex *mtx, u_int *running)
 {
  int rv = 1;
- __mtx_enter(mtx);
+ __mtx_enter(mtx );
  (*running)++;
  if ((*running) > 1)
   rv = 0;
- __mtx_leave(mtx);
+ __mtx_leave(mtx );
  return (rv);
 }
 int
 scsi_pending_finish(struct mutex *mtx, u_int *running)
 {
  int rv = 1;
- __mtx_enter(mtx);
+ __mtx_enter(mtx );
  (*running)--;
  if ((*running) > 0) {
   (*running) = 1;
   rv = 0;
  }
- __mtx_leave(mtx);
+ __mtx_leave(mtx );
  return (rv);
 }
 void
@@ -2456,7 +2457,7 @@ scsi_iopool_init(struct scsi_iopool *iopl, void *iocookie,
  iopl->io_put = io_put;
  do { (&iopl->queue)->tqh_first = ((void *)0); (&iopl->queue)->tqh_last = &(&iopl->queue)->tqh_first; } while (0);
  iopl->running = 0;
- __mtx_init((&iopl->mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&iopl->mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
 }
 void *
 scsi_iopool_get(struct scsi_iopool *iopl)
@@ -2479,7 +2480,7 @@ scsi_iopool_destroy(struct scsi_iopool *iopl)
 {
  struct scsi_runq sleepers = { ((void *)0), &(sleepers).tqh_first };
  struct scsi_iohandler *ioh = ((void *)0);
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  while ((ioh = ((&iopl->queue)->tqh_first)) != ((void *)0)) {
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&iopl->queue)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
   ioh->q_state = 0;
@@ -2488,7 +2489,7 @@ scsi_iopool_destroy(struct scsi_iopool *iopl)
   else
    panic("scsi_iopool_destroy: scsi_iohandler on pool");
  }
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  while ((ioh = ((&sleepers)->tqh_first)) != ((void *)0)) {
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&sleepers)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
   ioh->handler(ioh->cookie, ((void *)0));
@@ -2519,7 +2520,7 @@ scsi_ioh_add(struct scsi_iohandler *ioh)
 {
  struct scsi_iopool *iopl = ioh->pool;
  int rv = 0;
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  switch (ioh->q_state) {
  case 0:
   do { (ioh)->q_entry.tqe_next = ((void *)0); (ioh)->q_entry.tqe_prev = (&iopl->queue)->tqh_last; *(&iopl->queue)->tqh_last = (ioh); (&iopl->queue)->tqh_last = &(ioh)->q_entry.tqe_next; } while (0);
@@ -2531,7 +2532,7 @@ scsi_ioh_add(struct scsi_iohandler *ioh)
  default:
   panic("scsi_ioh_add: unexpected state %u", ioh->q_state);
  }
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  scsi_iopool_run(iopl);
  return (rv);
 }
@@ -2540,7 +2541,7 @@ scsi_ioh_del(struct scsi_iohandler *ioh)
 {
  struct scsi_iopool *iopl = ioh->pool;
  int rv = 0;
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  switch (ioh->q_state) {
  case 2:
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&iopl->queue)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
@@ -2552,29 +2553,29 @@ scsi_ioh_del(struct scsi_iohandler *ioh)
  default:
   panic("scsi_ioh_del: unexpected state %u", ioh->q_state);
  }
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  return (rv);
 }
 struct scsi_iohandler *
 scsi_ioh_deq(struct scsi_iopool *iopl)
 {
  struct scsi_iohandler *ioh = ((void *)0);
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  ioh = ((&iopl->queue)->tqh_first);
  if (ioh != ((void *)0)) {
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&iopl->queue)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
   ioh->q_state = 0;
  }
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  return (ioh);
 }
 int
 scsi_ioh_pending(struct scsi_iopool *iopl)
 {
  int rv;
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  rv = !(((&iopl->queue)->tqh_first) == ((void *)0));
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  return (rv);
 }
 void
@@ -2601,20 +2602,20 @@ scsi_iopool_run(struct scsi_iopool *iopl)
 void
 scsi_move(struct scsi_io_mover *m)
 {
- __mtx_enter(&m->mtx);
+ __mtx_enter(&m->mtx );
  while (!m->done)
   msleep(m, &m->mtx, 16, "scsiiomv", 0);
- __mtx_leave(&m->mtx);
+ __mtx_leave(&m->mtx );
 }
 void
 scsi_move_done(void *cookie, void *io)
 {
  struct scsi_io_mover *m = cookie;
- __mtx_enter(&m->mtx);
+ __mtx_enter(&m->mtx );
  m->io = io;
  m->done = 1;
  wakeup_n((m), 1);
- __mtx_leave(&m->mtx);
+ __mtx_leave(&m->mtx );
 }
 void *
 scsi_io_get(struct scsi_iopool *iopl, int flags)
@@ -2658,13 +2659,13 @@ scsi_xsh_add(struct scsi_xshandler *xsh)
  int rv = 0;
  if (((link->state) & ((1<<1))))
   return (0);
- __mtx_enter(&link->pool->mtx);
+ __mtx_enter(&link->pool->mtx );
  if (xsh->ioh.q_state == 0) {
   do { (&xsh->ioh)->q_entry.tqe_next = ((void *)0); (&xsh->ioh)->q_entry.tqe_prev = (&link->queue)->tqh_last; *(&link->queue)->tqh_last = (&xsh->ioh); (&link->queue)->tqh_last = &(&xsh->ioh)->q_entry.tqe_next; } while (0);
   xsh->ioh.q_state = 1;
   rv = 1;
  }
- __mtx_leave(&link->pool->mtx);
+ __mtx_leave(&link->pool->mtx );
  scsi_xsh_runqueue(link);
  return (rv);
 }
@@ -2673,7 +2674,7 @@ scsi_xsh_del(struct scsi_xshandler *xsh)
 {
  struct scsi_link *link = xsh->link;
  int rv = 1;
- __mtx_enter(&link->pool->mtx);
+ __mtx_enter(&link->pool->mtx );
  switch (xsh->ioh.q_state) {
  case 0:
   rv = 0;
@@ -2691,7 +2692,7 @@ scsi_xsh_del(struct scsi_xshandler *xsh)
   panic("unexpected xsh state %u", xsh->ioh.q_state);
  }
  xsh->ioh.q_state = 0;
- __mtx_leave(&link->pool->mtx);
+ __mtx_leave(&link->pool->mtx );
  return (rv);
 }
 void
@@ -2703,7 +2704,7 @@ scsi_xsh_runqueue(struct scsi_link *link)
   return;
  do {
   runq = 0;
-  __mtx_enter(&link->pool->mtx);
+  __mtx_enter(&link->pool->mtx );
   while (!((link->state) & ((1<<1))) &&
       link->pending < link->openings &&
       ((ioh = ((&link->queue)->tqh_first)) != ((void *)0))) {
@@ -2713,7 +2714,7 @@ scsi_xsh_runqueue(struct scsi_link *link)
    ioh->q_state = 2;
    runq = 1;
   }
-  __mtx_leave(&link->pool->mtx);
+  __mtx_leave(&link->pool->mtx );
   if (runq)
    scsi_iopool_run(link->pool);
  } while (!scsi_pending_finish(&link->pool->mtx, &link->running));
@@ -2775,7 +2776,7 @@ scsi_link_shutdown(struct scsi_link *link)
  struct scsi_iopool *iopl = link->pool;
  struct scsi_iohandler *ioh;
  struct scsi_xshandler *xsh;
- __mtx_enter(&iopl->mtx);
+ __mtx_enter(&iopl->mtx );
  while ((ioh = ((&link->queue)->tqh_first)) != ((void *)0)) {
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&link->queue)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
   ioh->q_state = 0;
@@ -2801,7 +2802,7 @@ scsi_link_shutdown(struct scsi_link *link)
  }
  while (link->pending > 0)
   msleep(&link->pending, &iopl->mtx, 16, "pendxs", 0);
- __mtx_leave(&iopl->mtx);
+ __mtx_leave(&iopl->mtx );
  while ((ioh = ((&sleepers)->tqh_first)) != ((void *)0)) {
   do { if (((ioh)->q_entry.tqe_next) != ((void *)0)) (ioh)->q_entry.tqe_next->q_entry.tqe_prev = (ioh)->q_entry.tqe_prev; else (&sleepers)->tqh_last = (ioh)->q_entry.tqe_prev; *(ioh)->q_entry.tqe_prev = (ioh)->q_entry.tqe_next; ((ioh)->q_entry.tqe_prev) = ((void *)-1); ((ioh)->q_entry.tqe_next) = ((void *)-1); } while (0);
   ioh->handler(ioh->cookie, ((void *)0));
@@ -2811,22 +2812,22 @@ int
 scsi_link_open(struct scsi_link *link)
 {
  int open = 0;
- __mtx_enter(&link->pool->mtx);
+ __mtx_enter(&link->pool->mtx );
  if (link->pending < link->openings) {
   link->pending++;
   open = 1;
  }
- __mtx_leave(&link->pool->mtx);
+ __mtx_leave(&link->pool->mtx );
  return (open);
 }
 void
 scsi_link_close(struct scsi_link *link)
 {
- __mtx_enter(&link->pool->mtx);
+ __mtx_enter(&link->pool->mtx );
  link->pending--;
  if (((link->state) & ((1<<1))) && link->pending == 0)
   wakeup_n((&link->pending), 1);
- __mtx_leave(&link->pool->mtx);
+ __mtx_leave(&link->pool->mtx );
  scsi_xsh_runqueue(link);
 }
 struct scsi_xfer *
@@ -3224,10 +3225,10 @@ scsi_xs_sync(struct scsi_xfer *xs)
  do {
   xs->cookie = &cookie;
   scsi_xs_exec(xs);
-  __mtx_enter(&cookie);
+  __mtx_enter(&cookie );
   while (xs->cookie != ((void *)0))
    msleep(xs, &cookie, 16, "syncxs", 0);
-  __mtx_leave(&cookie);
+  __mtx_leave(&cookie );
   error = scsi_xs_error(xs);
  } while (error == -1);
  return (error);
@@ -3238,11 +3239,11 @@ scsi_xs_sync_done(struct scsi_xfer *xs)
  struct mutex *cookie = xs->cookie;
  if (cookie == ((void *)0))
   panic("scsi_done called twice on xs(%p)", xs);
- __mtx_enter(cookie);
+ __mtx_enter(cookie );
  xs->cookie = ((void *)0);
  if (!((xs->flags) & (0x00001)))
   wakeup_n((xs), 1);
- __mtx_leave(cookie);
+ __mtx_leave(cookie );
 }
 int
 scsi_xs_error(struct scsi_xfer *xs)

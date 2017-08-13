@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2363,10 +2364,10 @@ ldc_send_vers(struct ldc_conn *lc)
  struct ldc_pkt *lp;
  uint64_t tx_head, tx_tail, tx_state;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lp = (struct ldc_pkt *)(lc->lc_txq->lq_va + tx_tail);
@@ -2381,11 +2382,11 @@ ldc_send_vers(struct ldc_conn *lc)
  err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
  if (err != 0) {
   printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lc->lc_state = 1;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
 }
 void
 ldc_send_ack(struct ldc_conn *lc)
@@ -2393,10 +2394,10 @@ ldc_send_ack(struct ldc_conn *lc)
  struct ldc_pkt *lp;
  uint64_t tx_head, tx_tail, tx_state;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lp = (struct ldc_pkt *)(lc->lc_txq->lq_va + tx_tail);
@@ -2411,11 +2412,11 @@ ldc_send_ack(struct ldc_conn *lc)
  err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
  if (err != 0) {
   printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lc->lc_state = 2;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
 }
 void
 ldc_send_rts(struct ldc_conn *lc)
@@ -2423,10 +2424,10 @@ ldc_send_rts(struct ldc_conn *lc)
  struct ldc_pkt *lp;
  uint64_t tx_head, tx_tail, tx_state;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lp = (struct ldc_pkt *)(lc->lc_txq->lq_va + tx_tail);
@@ -2441,11 +2442,11 @@ ldc_send_rts(struct ldc_conn *lc)
  err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
  if (err != 0) {
   printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lc->lc_state = 3;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
 }
 void
 ldc_send_rtr(struct ldc_conn *lc)
@@ -2453,10 +2454,10 @@ ldc_send_rtr(struct ldc_conn *lc)
  struct ldc_pkt *lp;
  uint64_t tx_head, tx_tail, tx_state;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lp = (struct ldc_pkt *)(lc->lc_txq->lq_va + tx_tail);
@@ -2471,11 +2472,11 @@ ldc_send_rtr(struct ldc_conn *lc)
  err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
  if (err != 0) {
   printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lc->lc_state = 4;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
 }
 void
 ldc_send_rdx(struct ldc_conn *lc)
@@ -2483,10 +2484,10 @@ ldc_send_rdx(struct ldc_conn *lc)
  struct ldc_pkt *lp;
  uint64_t tx_head, tx_tail, tx_state;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lp = (struct ldc_pkt *)(lc->lc_txq->lq_va + tx_tail);
@@ -2501,11 +2502,11 @@ ldc_send_rdx(struct ldc_conn *lc)
  err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
  if (err != 0) {
   printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return;
  }
  lc->lc_state = 5;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
 }
 int
 ldc_send_unreliable(struct ldc_conn *lc, void *msg, size_t len)
@@ -2515,17 +2516,17 @@ ldc_send_unreliable(struct ldc_conn *lc, void *msg, size_t len)
  uint64_t tx_avail;
  uint8_t *p = msg;
  int err;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_get_state(lc->lc_id, &tx_head, &tx_tail, &tx_state);
  if (err != 0 || tx_state != 1) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return (5);
  }
  tx_avail = (tx_head - tx_tail) / sizeof(*lp) +
      lc->lc_txq->lq_nentries - 1;
  tx_avail %= lc->lc_txq->lq_nentries;
  if (len > tx_avail * 56) {
-  __mtx_leave(&lc->lc_txq->lq_mtx);
+  __mtx_leave(&lc->lc_txq->lq_mtx );
   return (35);
  }
  while (len > 0) {
@@ -2545,13 +2546,13 @@ ldc_send_unreliable(struct ldc_conn *lc, void *msg, size_t len)
   err = hv_ldc_tx_set_qtail(lc->lc_id, tx_tail);
   if (err != 0) {
    printf("%s: hv_ldc_tx_set_qtail: %d\n", __func__, err);
-   __mtx_leave(&lc->lc_txq->lq_mtx);
+   __mtx_leave(&lc->lc_txq->lq_mtx );
    return (5);
   }
   p += min(len, 56);
   len -= min(len, 56);
  }
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
  return (0);
 }
 void
@@ -2559,7 +2560,7 @@ ldc_reset(struct ldc_conn *lc)
 {
  int err;
  ;
- __mtx_enter(&lc->lc_txq->lq_mtx);
+ __mtx_enter(&lc->lc_txq->lq_mtx );
  err = hv_ldc_tx_qconf(lc->lc_id,
      lc->lc_txq->lq_map->dm_segs[0].ds_addr, lc->lc_txq->lq_nentries);
  if (err != 0)
@@ -2571,7 +2572,7 @@ ldc_reset(struct ldc_conn *lc)
  lc->lc_tx_seqid = 0;
  lc->lc_state = 0;
  lc->lc_tx_state = lc->lc_rx_state = 0;
- __mtx_leave(&lc->lc_txq->lq_mtx);
+ __mtx_leave(&lc->lc_txq->lq_mtx );
  lc->lc_reset(lc);
 }
 struct ldc_queue *
@@ -2584,7 +2585,7 @@ ldc_queue_alloc(bus_dma_tag_t t, int nentries)
  lq = malloc(sizeof(struct ldc_queue), 2, 0x0002);
  if (lq == ((void *)0))
   return ((void *)0);
- __mtx_init((&lq->lq_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lq->lq_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  size = ((((nentries * sizeof(struct ldc_pkt))+(((1 << 13))-1))/((1 << 13)))*((1 << 13)));
  if (bus_dmamap_create(t, size, 1, size, 0,
      0x0001 | 0x0002, &lq->lq_map) != 0)

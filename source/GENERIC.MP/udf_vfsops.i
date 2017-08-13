@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3798,7 +3799,7 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   error = 22;
   goto bail;
  }
- __mtx_init((&ump->um_hashmtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&ump->um_hashmtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  ump->um_hashtbl = hashinit(100, 140, 0x0001,
      &ump->um_hashsz);
  arc4random_buf(&ump->um_hashkey, sizeof(ump->um_hashkey));

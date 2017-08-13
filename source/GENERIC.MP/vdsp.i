@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -5741,7 +5742,7 @@ vdsp_attach(struct device *parent, struct device *self, void *aux)
  sc->sc_tx_ino = ca->ca_tx_ino;
  sc->sc_rx_ino = ca->ca_rx_ino;
  printf(": ivec 0x%llx, 0x%llx", sc->sc_tx_ino, sc->sc_rx_ino);
- __mtx_init((&sc->sc_desc_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_desc_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  hv_ldc_tx_qconf(ca->ca_id, 0, 0);
  hv_ldc_rx_qconf(ca->ca_id, 0, 0);
  sc->sc_tx_ih = bus_intr_establish(ca->ca_bustag, sc->sc_tx_ino,
@@ -6147,11 +6148,11 @@ vdsp_rx_vio_desc_data(struct vdsp_softc *sc, struct vio_msg_tag *tag)
   ;
   switch (dm->operation) {
   case 0x01:
-   __mtx_enter(&sc->sc_desc_mtx);
+   __mtx_enter(&sc->sc_desc_mtx );
    sc->sc_desc_msg[sc->sc_desc_head++] = dm;
    sc->sc_desc_head &= (64 - 1);
    ((sc->sc_desc_head != sc->sc_desc_tail) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vdsp.c", 842, "sc->sc_desc_head != sc->sc_desc_tail"));
-   __mtx_leave(&sc->sc_desc_mtx);
+   __mtx_leave(&sc->sc_desc_mtx );
    task_add(systq, &sc->sc_read_task);
    break;
   default:
@@ -6374,15 +6375,15 @@ void
 vdsp_read(void *arg1)
 {
  struct vdsp_softc *sc = arg1;
- __mtx_enter(&sc->sc_desc_mtx);
+ __mtx_enter(&sc->sc_desc_mtx );
  while (sc->sc_desc_tail != sc->sc_desc_head) {
-  __mtx_leave(&sc->sc_desc_mtx);
+  __mtx_leave(&sc->sc_desc_mtx );
   vdsp_read_desc(sc, sc->sc_desc_msg[sc->sc_desc_tail]);
-  __mtx_enter(&sc->sc_desc_mtx);
+  __mtx_enter(&sc->sc_desc_mtx );
   sc->sc_desc_tail++;
   sc->sc_desc_tail &= (64 - 1);
  }
- __mtx_leave(&sc->sc_desc_mtx);
+ __mtx_leave(&sc->sc_desc_mtx );
 }
 void
 vdsp_read_desc(struct vdsp_softc *sc, struct vdsk_desc_msg *dm)

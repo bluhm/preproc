@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -6814,6 +6815,7 @@ rt2661_prepare_beacon(struct rt2661_softc *sc)
   return 55;
  }
  rate = (((ni->ni_chan)->ic_flags & 0x0100) != 0) ? 12 : 2;
+ __builtin_memset((&desc), (0), (sizeof(desc)));
  rt2661_setup_tx_desc(sc, &desc, (1 << 4), (1 << 12),
      m0->M_dat.MH.MH_pkthdr.len, rate, ((void *)0), 0, 13,
      (100 + 1));

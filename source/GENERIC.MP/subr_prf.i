@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3085,24 +3086,24 @@ printf(const char *fmt, ...)
 {
  va_list ap;
  int retval;
- __mtx_enter(&kprintf_mutex);
+ __mtx_enter(&kprintf_mutex );
  __builtin_va_start((ap), fmt);
  retval = kprintf(fmt, 0x01 | 0x04, ((void *)0), ((void *)0), ap);
  __builtin_va_end((ap));
  if (!panicstr)
   logwakeup();
- __mtx_leave(&kprintf_mutex);
+ __mtx_leave(&kprintf_mutex );
  return(retval);
 }
 int
 vprintf(const char *fmt, va_list ap)
 {
  int retval;
- __mtx_enter(&kprintf_mutex);
+ __mtx_enter(&kprintf_mutex );
  retval = kprintf(fmt, 0x01 | 0x04, ((void *)0), ((void *)0), ap);
  if (!panicstr)
   logwakeup();
- __mtx_leave(&kprintf_mutex);
+ __mtx_leave(&kprintf_mutex );
  return (retval);
 }
 int

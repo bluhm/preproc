@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2401,12 +2402,12 @@ vscsi_attach(struct device *parent, struct device *self, void *aux)
  struct vscsi_softc *sc = (struct vscsi_softc *)self;
  struct scsibus_attach_args saa;
  printf("\n");
- __mtx_init((&sc->sc_state_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_state_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  sc->sc_state = VSCSI_S_CLOSED;
  do { (&sc->sc_ccb_i2t)->tqh_first = ((void *)0); (&sc->sc_ccb_i2t)->tqh_last = &(&sc->sc_ccb_i2t)->tqh_first; } while (0);
  do { (&sc->sc_ccb_t2i)->tqh_first = ((void *)0); (&sc->sc_ccb_t2i)->tqh_last = &(&sc->sc_ccb_t2i)->tqh_first; } while (0);
- __mtx_init((&sc->sc_poll_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&sc->sc_sel_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_poll_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_sel_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  _rw_init_flags(&sc->sc_ioc_lock, "vscsiioc", 0, ((void *)0));
  scsi_iopool_init(&sc->sc_iopool, sc, vscsi_ccb_get, vscsi_ccb_put);
  sc->sc_link.adapter = &vscsi_switch;
@@ -2435,12 +2436,12 @@ vscsi_cmd(struct scsi_xfer *xs)
   return;
  }
  ccb->ccb_xs = xs;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  if (sc->sc_state == VSCSI_S_RUNNING) {
   running = 1;
   do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&sc->sc_ccb_i2t)->tqh_last; *(&sc->sc_ccb_i2t)->tqh_last = (ccb); (&sc->sc_ccb_i2t)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
  }
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  if (!running) {
   xs->error = 2;
   scsi_done(xs);
@@ -2448,10 +2449,10 @@ vscsi_cmd(struct scsi_xfer *xs)
  }
  selwakeup(&sc->sc_sel);
  if (polled) {
-  __mtx_enter(&sc->sc_poll_mtx);
+  __mtx_enter(&sc->sc_poll_mtx );
   while (ccb->ccb_xs != ((void *)0))
    msleep(ccb, &sc->sc_poll_mtx, 16, "vscsipoll", 0);
-  __mtx_leave(&sc->sc_poll_mtx);
+  __mtx_leave(&sc->sc_poll_mtx );
   scsi_done(xs);
  }
 }
@@ -2460,10 +2461,10 @@ vscsi_done(struct vscsi_softc *sc, struct vscsi_ccb *ccb)
 {
  struct scsi_xfer *xs = ccb->ccb_xs;
  if (((xs->flags) & (0x00002))) {
-  __mtx_enter(&sc->sc_poll_mtx);
+  __mtx_enter(&sc->sc_poll_mtx );
   ccb->ccb_xs = ((void *)0);
   wakeup(ccb);
-  __mtx_leave(&sc->sc_poll_mtx);
+  __mtx_leave(&sc->sc_poll_mtx );
  } else
   scsi_done(xs);
 }
@@ -2472,23 +2473,23 @@ vscsi_probe(struct scsi_link *link)
 {
  struct vscsi_softc *sc = link->adapter_softc;
  int rv = 0;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  if (sc->sc_state == VSCSI_S_RUNNING)
   sc->sc_ref_count++;
  else
   rv = 6;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  return (rv);
 }
 void
 vscsi_free(struct scsi_link *link)
 {
  struct vscsi_softc *sc = link->adapter_softc;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  sc->sc_ref_count--;
  if (sc->sc_state != VSCSI_S_RUNNING && sc->sc_ref_count == 0)
   wakeup(&sc->sc_ref_count);
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
 }
 int
 vscsiopen(dev_t dev, int flags, int mode, struct proc *p)
@@ -2498,12 +2499,12 @@ vscsiopen(dev_t dev, int flags, int mode, struct proc *p)
  int rv = 0;
  if (sc == ((void *)0))
   return (6);
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  if (sc->sc_state != VSCSI_S_CLOSED)
   rv = 16;
  else
   sc->sc_state = VSCSI_S_CONFIG;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  if (rv != 0) {
   device_unref(&sc->sc_dev);
   return (rv);
@@ -2515,9 +2516,9 @@ vscsiopen(dev_t dev, int flags, int mode, struct proc *p)
   pool_destroy(&sc->sc_ccb_pool);
   state = VSCSI_S_CLOSED;
  }
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  sc->sc_state = state;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  device_unref(&sc->sc_dev);
  return (rv);
 }
@@ -2561,11 +2562,11 @@ vscsi_i2t(struct vscsi_softc *sc, struct vscsi_ioc_i2t *i2t)
  struct vscsi_ccb *ccb;
  struct scsi_xfer *xs;
  struct scsi_link *link;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  ccb = ((&sc->sc_ccb_i2t)->tqh_first);
  if (ccb != ((void *)0))
   do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&sc->sc_ccb_i2t)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  if (ccb == ((void *)0))
   return (35);
  xs = ccb->ccb_xs;
@@ -2692,9 +2693,9 @@ vscsi_devevent_task(void *xdt)
  struct vscsi_devevent_task *dt = xdt;
  struct vscsi_softc *sc = dt->sc;
  int state;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  state = sc->sc_state;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  if (state != VSCSI_S_RUNNING)
   goto gone;
  switch (dt->cmd) {
@@ -2720,10 +2721,10 @@ vscsipoll(dev_t dev, int events, struct proc *p)
  if (sc == ((void *)0))
   return (6);
  if (events & (0x0001 | 0x0040)) {
-  __mtx_enter(&sc->sc_state_mtx);
+  __mtx_enter(&sc->sc_state_mtx );
   if (!(((&sc->sc_ccb_i2t)->tqh_first) == ((void *)0)))
    revents |= events & (0x0001 | 0x0040);
-  __mtx_leave(&sc->sc_state_mtx);
+  __mtx_leave(&sc->sc_state_mtx );
  }
  if (revents == 0) {
   if (events & (0x0001 | 0x0040))
@@ -2749,9 +2750,9 @@ vscsikqfilter(dev_t dev, struct knote *kn)
   return (22);
  }
  kn->kn_hook = sc;
- __mtx_enter(&sc->sc_sel_mtx);
+ __mtx_enter(&sc->sc_sel_mtx );
  do { (kn)->kn_selnext.sle_next = (klist)->slh_first; (klist)->slh_first = (kn); } while (0);
- __mtx_leave(&sc->sc_sel_mtx);
+ __mtx_leave(&sc->sc_sel_mtx );
  return (0);
 }
 void
@@ -2759,9 +2760,9 @@ filt_vscsidetach(struct knote *kn)
 {
  struct vscsi_softc *sc = kn->kn_hook;
  struct klist *klist = &sc->sc_sel.si_note;
- __mtx_enter(&sc->sc_sel_mtx);
+ __mtx_enter(&sc->sc_sel_mtx );
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&sc->sc_sel_mtx);
+ __mtx_leave(&sc->sc_sel_mtx );
  device_unref(&sc->sc_dev);
 }
 int
@@ -2769,10 +2770,10 @@ filt_vscsiread(struct knote *kn, long hint)
 {
  struct vscsi_softc *sc = kn->kn_hook;
  int event = 0;
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  if (!(((&sc->sc_ccb_i2t)->tqh_first) == ((void *)0)))
   event = 1;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  return (event);
 }
 int
@@ -2782,10 +2783,10 @@ vscsiclose(dev_t dev, int flags, int mode, struct proc *p)
  struct vscsi_ccb *ccb;
  if (sc == ((void *)0))
   return (6);
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  ((sc->sc_state == VSCSI_S_RUNNING) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/vscsi.c", 626, "sc->sc_state == VSCSI_S_RUNNING"));
  sc->sc_state = VSCSI_S_CONFIG;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  scsi_activate(sc->sc_scsibus, -1, -1, 1);
  while ((ccb = ((&sc->sc_ccb_t2i)->tqh_first)) != ((void *)0)) {
   do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&sc->sc_ccb_t2i)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
@@ -2798,16 +2799,16 @@ vscsiclose(dev_t dev, int flags, int mode, struct proc *p)
   vscsi_done(sc, ccb);
  }
  scsi_req_detach(sc->sc_scsibus, -1, -1, 0x01);
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  while (sc->sc_ref_count > 0) {
   msleep(&sc->sc_ref_count, &sc->sc_state_mtx,
       16, "vscsiref", 0);
  }
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  pool_destroy(&sc->sc_ccb_pool);
- __mtx_enter(&sc->sc_state_mtx);
+ __mtx_enter(&sc->sc_state_mtx );
  sc->sc_state = VSCSI_S_CLOSED;
- __mtx_leave(&sc->sc_state_mtx);
+ __mtx_leave(&sc->sc_state_mtx );
  device_unref(&sc->sc_dev);
  return (0);
 }

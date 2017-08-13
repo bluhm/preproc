@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3750,7 +3751,7 @@ int
 disk_construct(struct disk *diskp)
 {
  _rw_init_flags(&diskp->dk_lock, "dklk", 0x04, ((void *)0));
- __mtx_init((&diskp->dk_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&diskp->dk_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  diskp->dk_flags |= 0x0001;
  return (0);
 }
@@ -3865,16 +3866,16 @@ disk_gone(int (*open)(dev_t, int, int, struct proc *), int unit)
 void
 disk_busy(struct disk *diskp)
 {
- __mtx_enter(&diskp->dk_mtx);
+ __mtx_enter(&diskp->dk_mtx );
  if (diskp->dk_busy++ == 0)
   microuptime(&diskp->dk_timestamp);
- __mtx_leave(&diskp->dk_mtx);
+ __mtx_leave(&diskp->dk_mtx );
 }
 void
 disk_unbusy(struct disk *diskp, long bcount, daddr_t blkno, int read)
 {
  struct timeval dv_time, diff_time;
- __mtx_enter(&diskp->dk_mtx);
+ __mtx_enter(&diskp->dk_mtx );
  if (diskp->dk_busy-- == 0)
   printf("disk_unbusy: %s: dk_busy < 0\n", diskp->dk_name);
  microuptime(&dv_time);
@@ -3891,7 +3892,7 @@ disk_unbusy(struct disk *diskp, long bcount, daddr_t blkno, int read)
   }
  } else
   diskp->dk_seek++;
- __mtx_leave(&diskp->dk_mtx);
+ __mtx_leave(&diskp->dk_mtx );
  enqueue_randomness(4, (int)(bcount ^ diff_time.tv_usec ^ (blkno >> 32) ^ (blkno & 0xffffffff)));
 }
 int

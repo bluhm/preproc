@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -4227,14 +4228,16 @@ PTR_ERR_OR_ZERO(const void *ptr)
 typedef struct rwlock rwlock_t;
 typedef struct mutex spinlock_t;
 static inline void
-spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_lock_irqsave(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_enter(mtxp);
+ __mtx_enter(mtxp );
 }
 static inline void
-spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags)
+_spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned long flags
+    )
 {
- __mtx_leave(mtxp);
+ __mtx_leave(mtxp );
 }
 struct wait_queue_head {
  struct mutex lock;
@@ -4244,7 +4247,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4255,28 +4258,29 @@ static inline void
 init_completion(struct completion *x)
 {
  x->done = 0;
- __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&x->wait.lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
 }
 static inline u_long
-wait_for_completion_interruptible_timeout(struct completion *x, u_long timo)
+_wait_for_completion_interruptible_timeout(struct completion *x, u_long timo
+    )
 {
  int ret;
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  while (x->done == 0) {
   ret = msleep(x, &x->wait.lock, 0x100, "wfcit", timo);
   if (ret) {
-   __mtx_leave(&x->wait.lock);
+   __mtx_leave(&x->wait.lock );
    return (ret == 35) ? 0 : -ret;
   }
  }
  return 1;
 }
 static inline void
-complete_all(struct completion *x)
+_complete_all(struct completion *x )
 {
- __mtx_enter(&x->wait.lock);
+ __mtx_enter(&x->wait.lock );
  x->done = 1;
- __mtx_leave(&x->wait.lock);
+ __mtx_leave(&x->wait.lock );
  wakeup(x);
 }
 struct workqueue_struct;
@@ -4907,7 +4911,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1697, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -6248,7 +6252,7 @@ ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
 }
 static inline void
 ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
@@ -6256,28 +6260,28 @@ ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
 static inline _Bool
 ww_mutex_is_locked(struct ww_mutex *lock) {
  _Bool res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 ww_mutex_trylock(struct ww_mutex *lock) {
  int res = 0;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  if (lock->acquired == 0) {
   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
   lock->acquired = 1;
   lock->owner = (__curcpu->ci_self)->ci_curproc;
   res = 1;
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return res;
 }
 static inline int
 __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
  int err;
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  for (;;) {
   if (lock->acquired == 0) {
    ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
@@ -6307,7 +6311,7 @@ __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _
    }
   }
  }
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  return err;
 }
 static inline int
@@ -6328,13 +6332,13 @@ ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *c
 }
 static inline void
 ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock);
+ __mtx_enter(&lock->lock );
  ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 219, "lock->owner == curproc"));
  ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->acquired == 1"));
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
- __mtx_leave(&lock->lock);
+ __mtx_leave(&lock->lock );
  wakeup(lock);
 }
 static inline void
@@ -7873,7 +7877,7 @@ static void drm_reset_vblank_timestamp(struct drm_device *dev, unsigned int pipe
  _Bool rc;
  struct timeval t_vblank;
  int count = 3;
- __mtx_enter(&dev->vblank_time_lock);
+ __mtx_enter(&dev->vblank_time_lock );
  do {
   cur_vblank = dev->driver->get_vblank_counter(dev, pipe);
   rc = drm_get_last_vbltimestamp(dev, pipe, &t_vblank, 0);
@@ -7881,7 +7885,7 @@ static void drm_reset_vblank_timestamp(struct drm_device *dev, unsigned int pipe
  if (!rc)
   t_vblank = (struct timeval) {0, 0};
  store_vblank(dev, pipe, 1, &t_vblank, cur_vblank);
- __mtx_leave(&dev->vblank_time_lock);
+ __mtx_leave(&dev->vblank_time_lock );
 }
 static void drm_update_vblank_count(struct drm_device *dev, unsigned int pipe,
         unsigned long flags)
@@ -7931,13 +7935,13 @@ static void vblank_disable_and_save(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  unsigned long irqflags;
- spin_lock_irqsave(&dev->vblank_time_lock, irqflags);
+ _spin_lock_irqsave(&dev->vblank_time_lock, irqflags );
  if (vblank->enabled) {
   dev->driver->disable_vblank(dev, pipe);
   vblank->enabled = 0;
  }
  drm_update_vblank_count(dev, pipe, 0);
- spin_unlock_irqrestore(&dev->vblank_time_lock, irqflags);
+ _spin_unlock_irqrestore(&dev->vblank_time_lock, irqflags );
 }
 static void vblank_disable_fn(unsigned long arg)
 {
@@ -7947,12 +7951,12 @@ static void vblank_disable_fn(unsigned long arg)
  unsigned long irqflags;
  if (!dev->vblank_disable_allowed)
   return;
- spin_lock_irqsave(&dev->vbl_lock, irqflags);
+ _spin_lock_irqsave(&dev->vbl_lock, irqflags );
  if ((*(&vblank->refcount)) == 0 && vblank->enabled) {
   do { } while( 0);
   vblank_disable_and_save(dev, pipe);
  }
- spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+ _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
 }
 void drm_vblank_cleanup(struct drm_device *dev)
 {
@@ -7972,8 +7976,8 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
 {
  int ret = -12;
  unsigned int i;
- __mtx_init((&dev->vbl_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
- __mtx_init((&dev->vblank_time_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&dev->vbl_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&dev->vblank_time_lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  dev->num_crtcs = num_crtcs;
  dev->vblank = kcalloc(num_crtcs, sizeof(*dev->vblank), (0x0001 | 0x0004));
  if (!dev->vblank)
@@ -8001,9 +8005,25 @@ err:
  return ret;
 }
 ;
+static void drm_irq_vgaarb_nokms(void *cookie, _Bool state)
+{
+ struct drm_device *dev = cookie;
+ if (!dev->irq_enabled)
+  return;
+ if (state) {
+  if (dev->driver->irq_uninstall)
+   dev->driver->irq_uninstall(dev);
+ } else {
+  if (dev->driver->irq_preinstall)
+   dev->driver->irq_preinstall(dev);
+  if (dev->driver->irq_postinstall)
+   dev->driver->irq_postinstall(dev);
+ }
+}
 int drm_irq_install(struct drm_device *dev, int irq)
 {
  int ret;
+ unsigned long sh_flags = 0;
  if (!drm_core_check_feature(dev, 0x40))
   return -22;
  if (irq == 0)
@@ -8016,10 +8036,22 @@ int drm_irq_install(struct drm_device *dev, int irq)
  do { } while( 0);
  if (dev->driver->irq_preinstall)
   dev->driver->irq_preinstall(dev);
+ if (drm_core_check_feature(dev, 0x80))
+  sh_flags = 0;
+ ret = (0);
+ if (ret < 0) {
+  dev->irq_enabled = 0;
+  return ret;
+ }
+ if (!drm_core_check_feature(dev, 0x2000))
+  vga_client_register(dev->pdev, (void *)dev, drm_irq_vgaarb_nokms, ((void *)0));
  if (dev->driver->irq_postinstall)
   ret = dev->driver->irq_postinstall(dev);
  if (ret < 0) {
   dev->irq_enabled = 0;
+  if (!drm_core_check_feature(dev, 0x2000))
+   vga_client_register(dev->pdev, ((void *)0), ((void *)0), ((void *)0));
+  ;
  } else {
   dev->irq = irq;
  }
@@ -8036,22 +8068,25 @@ int drm_irq_uninstall(struct drm_device *dev)
  irq_enabled = dev->irq_enabled;
  dev->irq_enabled = 0;
  if (dev->num_crtcs) {
-  spin_lock_irqsave(&dev->vbl_lock, irqflags);
+  _spin_lock_irqsave(&dev->vbl_lock, irqflags );
   for (i = 0; i < dev->num_crtcs; i++) {
    struct drm_vblank_crtc *vblank = &dev->vblank[i];
    if (!vblank->enabled)
     continue;
-   ({ int __ret = !!(drm_core_check_feature(dev, 0x2000)); if (__ret) printf("WARNING %s failed at %s:%d\n", "drm_core_check_feature(dev, 0x2000)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 596); __builtin_expect(!!(__ret), 0); });
+   ({ int __ret = !!(drm_core_check_feature(dev, 0x2000)); if (__ret) printf("WARNING %s failed at %s:%d\n", "drm_core_check_feature(dev, 0x2000)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 590); __builtin_expect(!!(__ret), 0); });
    vblank_disable_and_save(dev, i);
    wakeup(&vblank->queue);
   }
-  spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+  _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
  }
  if (!irq_enabled)
   return -22;
  do { } while( 0);
+ if (!drm_core_check_feature(dev, 0x2000))
+  vga_client_register(dev->pdev, ((void *)0), ((void *)0), ((void *)0));
  if (dev->driver->irq_uninstall)
   dev->driver->irq_uninstall(dev);
+ ;
  return 0;
 }
 ;
@@ -8064,7 +8099,7 @@ int drm_control(struct drm_device *dev, void *data,
   return 0;
  if (drm_core_check_feature(dev, 0x2000))
   return 0;
- if (({ int __ret = !!(!dev->pdev); if (__ret) printf("WARNING %s failed at %s:%d\n", "!dev->pdev", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 651); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(!dev->pdev); if (__ret) printf("WARNING %s failed at %s:%d\n", "!dev->pdev", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 641); __builtin_expect(!!(__ret), 0); }))
   return -22;
  switch (ctl->func) {
  case DRM_INST_HANDLER:
@@ -8095,7 +8130,7 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
  int dotclock = mode->crtc_clock;
  if (!dev->num_crtcs)
   return;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 700); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 690); __builtin_expect(!!(__ret), 0); }))
   return;
  if (dotclock > 0) {
   int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
@@ -8193,7 +8228,7 @@ drm_get_last_vbltimestamp(struct drm_device *dev, unsigned int pipe,
 u32 drm_vblank_count(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 964); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 954); __builtin_expect(!!(__ret), 0); }))
   return 0;
  return vblank->count;
 }
@@ -8209,7 +8244,7 @@ u32 drm_vblank_count_and_time(struct drm_device *dev, unsigned int pipe,
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  int count = 3;
  u32 cur_vblank;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1011); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1001); __builtin_expect(!!(__ret), 0); }))
   return 0;
  do {
   cur_vblank = vblank->count;
@@ -8283,7 +8318,7 @@ static int drm_vblank_enable(struct drm_device *dev, unsigned int pipe)
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  int ret = 0;
  do { if ((&dev->vbl_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->vbl_lock), __func__); } while (0);
- __mtx_enter(&dev->vblank_time_lock);
+ __mtx_enter(&dev->vblank_time_lock );
  if (!vblank->enabled) {
   ret = dev->driver->enable_vblank(dev, pipe);
   do { } while( 0);
@@ -8294,7 +8329,7 @@ static int drm_vblank_enable(struct drm_device *dev, unsigned int pipe)
    drm_update_vblank_count(dev, pipe, 0);
   }
  }
- __mtx_leave(&dev->vblank_time_lock);
+ __mtx_leave(&dev->vblank_time_lock );
  return ret;
 }
 int drm_vblank_get(struct drm_device *dev, unsigned int pipe)
@@ -8304,9 +8339,9 @@ int drm_vblank_get(struct drm_device *dev, unsigned int pipe)
  int ret = 0;
  if (!dev->num_crtcs)
   return -22;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1230); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1220); __builtin_expect(!!(__ret), 0); }))
   return -22;
- spin_lock_irqsave(&dev->vbl_lock, irqflags);
+ _spin_lock_irqsave(&dev->vbl_lock, irqflags );
  if (__sync_add_and_fetch(&vblank->refcount, 1) == 1) {
   ret = drm_vblank_enable(dev, pipe);
  } else {
@@ -8315,7 +8350,7 @@ int drm_vblank_get(struct drm_device *dev, unsigned int pipe)
    ret = -22;
   }
  }
- spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+ _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
  return ret;
 }
 ;
@@ -8327,9 +8362,9 @@ int drm_crtc_vblank_get(struct drm_crtc *crtc)
 void drm_vblank_put(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1281); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1271); __builtin_expect(!!(__ret), 0); }))
   return;
- if (({ int __ret = !!((*(&vblank->refcount)) == 0); if (__ret) printf("WARNING %s failed at %s:%d\n", "(*(&vblank->refcount)) == 0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1284); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!((*(&vblank->refcount)) == 0); if (__ret) printf("WARNING %s failed at %s:%d\n", "(*(&vblank->refcount)) == 0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1274); __builtin_expect(!!(__ret), 0); }))
   return;
  if ((__sync_sub_and_fetch((&vblank->refcount), 1) == 0)) {
   if (drm_vblank_offdelay == 0)
@@ -8351,13 +8386,13 @@ void drm_wait_one_vblank(struct drm_device *dev, unsigned int pipe)
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  int ret;
  u32 last;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1330); __builtin_expect(!!(__ret), 0); }) || cold)
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1320); __builtin_expect(!!(__ret), 0); }) || cold)
   return;
  ret = drm_vblank_get(dev, pipe);
  if (({ int __ret = !!(ret); if (__ret) printf("vblank not available on crtc %i, ret=%i\n", pipe, ret); __builtin_expect(!!(__ret), 0); }))
   return;
  last = drm_vblank_count(dev, pipe);
- ret = ({ long __ret = (((uint64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1341, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(last != drm_vblank_count(dev, pipe))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (last != drm_vblank_count(dev, pipe))) { __ret = 1; break; } } while (__ret > 0 && !(last != drm_vblank_count(dev, pipe))); __ret; });
+ ret = ({ long __ret = (((uint64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1331, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(last != drm_vblank_count(dev, pipe))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (last != drm_vblank_count(dev, pipe))) { __ret = 1; break; } } while (__ret > 0 && !(last != drm_vblank_count(dev, pipe))); __ret; });
  ({ int __ret = !!(ret == 0); if (__ret) printf("vblank wait timed out on crtc %i\n", pipe); __builtin_expect(!!(__ret), 0); });
  drm_vblank_put(dev, pipe);
 }
@@ -8374,10 +8409,10 @@ void drm_vblank_off(struct drm_device *dev, unsigned int pipe)
  struct timeval now;
  unsigned long irqflags;
  unsigned int seq;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1385); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1375); __builtin_expect(!!(__ret), 0); }))
   return;
- spin_lock_irqsave(&dev->event_lock, irqflags);
- __mtx_enter(&dev->vbl_lock);
+ _spin_lock_irqsave(&dev->event_lock, irqflags );
+ __mtx_enter(&dev->vbl_lock );
  do {} while(0);
  if (drm_core_check_feature(dev, 0x10000) || !vblank->inmodeset)
   vblank_disable_and_save(dev, pipe);
@@ -8386,7 +8421,7 @@ void drm_vblank_off(struct drm_device *dev, unsigned int pipe)
   __sync_fetch_and_add(&vblank->refcount, 1);
   vblank->inmodeset = 1;
  }
- __mtx_leave(&dev->vbl_lock);
+ __mtx_leave(&dev->vbl_lock );
  seq = drm_vblank_count_and_time(dev, pipe, &now);
  for (e = ({ __typeof( ((__typeof(*e) *)0)->base.link ) *__mptr = ((&dev->vblank_event_list)->next); (__typeof(*e) *)( (char *)__mptr - __builtin_offsetof(__typeof(*e), base.link) );}), t = ({ __typeof( ((__typeof(*e) *)0)->base.link ) *__mptr = (e->base.link.next); (__typeof(*e) *)( (char *)__mptr - __builtin_offsetof(__typeof(*e), base.link) );}); &e->base.link != (&dev->vblank_event_list); e = t, t = ({ __typeof( ((__typeof(*t) *)0)->base.link ) *__mptr = (t->base.link.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), base.link) );})) {
   if (e->pipe != pipe)
@@ -8396,7 +8431,7 @@ void drm_vblank_off(struct drm_device *dev, unsigned int pipe)
   drm_vblank_put(dev, pipe);
   send_vblank_event(dev, e, seq, &now);
  }
- spin_unlock_irqrestore(&dev->event_lock, irqflags);
+ _spin_unlock_irqrestore(&dev->event_lock, irqflags );
 }
 ;
 void drm_crtc_vblank_off(struct drm_crtc *crtc)
@@ -8410,22 +8445,22 @@ void drm_crtc_vblank_reset(struct drm_crtc *crtc)
  unsigned long irqflags;
  unsigned int pipe = drm_crtc_index(crtc);
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
- spin_lock_irqsave(&dev->vbl_lock, irqflags);
+ _spin_lock_irqsave(&dev->vbl_lock, irqflags );
  if (!vblank->inmodeset) {
   __sync_fetch_and_add(&vblank->refcount, 1);
   vblank->inmodeset = 1;
  }
- spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
- ({ int __ret = !!(!list_empty(&dev->vblank_event_list)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!list_empty(&dev->vblank_event_list)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1474); __builtin_expect(!!(__ret), 0); });
+ _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
+ ({ int __ret = !!(!list_empty(&dev->vblank_event_list)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!list_empty(&dev->vblank_event_list)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1464); __builtin_expect(!!(__ret), 0); });
 }
 ;
 void drm_vblank_on(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  unsigned long irqflags;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1495); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1485); __builtin_expect(!!(__ret), 0); }))
   return;
- spin_lock_irqsave(&dev->vbl_lock, irqflags);
+ _spin_lock_irqsave(&dev->vbl_lock, irqflags );
  do {} while(0);
  if (vblank->inmodeset) {
   __sync_fetch_and_sub(&vblank->refcount, 1);
@@ -8433,8 +8468,8 @@ void drm_vblank_on(struct drm_device *dev, unsigned int pipe)
  }
  drm_reset_vblank_timestamp(dev, pipe);
  if ((*(&vblank->refcount)) != 0 || drm_vblank_offdelay == 0)
-  ({ int __ret = !!(drm_vblank_enable(dev, pipe)); if (__ret) printf("WARNING %s failed at %s:%d\n", "drm_vblank_enable(dev, pipe)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1515); __builtin_expect(!!(__ret), 0); });
- spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+  ({ int __ret = !!(drm_vblank_enable(dev, pipe)); if (__ret) printf("WARNING %s failed at %s:%d\n", "drm_vblank_enable(dev, pipe)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1505); __builtin_expect(!!(__ret), 0); });
+ _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
 }
 ;
 void drm_crtc_vblank_on(struct drm_crtc *crtc)
@@ -8447,7 +8482,7 @@ void drm_vblank_pre_modeset(struct drm_device *dev, unsigned int pipe)
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  if (!dev->num_crtcs)
   return;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1568); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1558); __builtin_expect(!!(__ret), 0); }))
   return;
  if (!vblank->inmodeset) {
   vblank->inmodeset = 0x1;
@@ -8462,13 +8497,13 @@ void drm_vblank_post_modeset(struct drm_device *dev, unsigned int pipe)
  unsigned long irqflags;
  if (!dev->num_crtcs)
   return;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1603); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1593); __builtin_expect(!!(__ret), 0); }))
   return;
  if (vblank->inmodeset) {
-  spin_lock_irqsave(&dev->vbl_lock, irqflags);
+  _spin_lock_irqsave(&dev->vbl_lock, irqflags );
   dev->vblank_disable_allowed = 1;
   drm_reset_vblank_timestamp(dev, pipe);
-  spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+  _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
   if (vblank->inmodeset & 0x2)
    drm_vblank_put(dev, pipe);
   vblank->inmodeset = 0;
@@ -8522,7 +8557,7 @@ static int drm_queue_vblank_event(struct drm_device *dev, unsigned int pipe,
  e->base.event = &e->event.base;
  e->base.file_priv = file_priv;
  e->base.destroy = (void (*) (struct drm_pending_event *)) kfree;
- spin_lock_irqsave(&dev->event_lock, flags);
+ _spin_lock_irqsave(&dev->event_lock, flags );
  if (!vblank->enabled) {
   ret = -22;
   goto err_unlock;
@@ -8550,10 +8585,10 @@ static int drm_queue_vblank_event(struct drm_device *dev, unsigned int pipe,
   list_add_tail(&e->base.link, &dev->vblank_event_list);
   vblwait->reply.sequence = vblwait->request.sequence;
  }
- spin_unlock_irqrestore(&dev->event_lock, flags);
+ _spin_unlock_irqrestore(&dev->event_lock, flags );
  return 0;
 err_unlock:
- spin_unlock_irqrestore(&dev->event_lock, flags);
+ _spin_unlock_irqrestore(&dev->event_lock, flags );
  kfree(e);
 err_put:
  drm_vblank_put(dev, pipe);
@@ -8610,7 +8645,7 @@ int drm_wait_vblank(struct drm_device *dev, void *data,
  }
  do { } while( 0);
  vblank->last_wait = vblwait->request.sequence;
- do { ret = ({ long __ret = 3 * hz; if (!((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) do { struct sleep_state sls; int deadline, __error, __error1; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1841, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0x100, "drmweti"); sleep_setup_timeout(&sls, __ret); sleep_setup_signal(&sls, 0x100); deadline = ticks + __ret; sleep_finish(&sls, !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret = deadline - ticks; __error1 = sleep_finish_timeout(&sls); __error = sleep_finish_signal(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error1 == 35) __ret = 0; if (__error == -1) __ret = -4; else if (__error) __ret = -__error; if (__ret == 0 && ((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) { __ret = 1; break; } } while (__ret > 0 && !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret; }); if (ret == 0) ret = -16; if (ret > 0) ret = 0; } while (0);
+ do { ret = ({ long __ret = 3 * hz; if (!((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) do { struct sleep_state sls; int deadline, __error, __error1; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1831, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0x100, "drmweti"); sleep_setup_timeout(&sls, __ret); sleep_setup_signal(&sls, 0x100); deadline = ticks + __ret; sleep_finish(&sls, !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret = deadline - ticks; __error1 = sleep_finish_timeout(&sls); __error = sleep_finish_signal(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error1 == 35) __ret = 0; if (__error == -1) __ret = -4; else if (__error) __ret = -__error; if (__ret == 0 && ((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) { __ret = 1; break; } } while (__ret > 0 && !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret; }); if (ret == 0) ret = -16; if (ret > 0) ret = 0; } while (0);
  if (ret != -4) {
   struct timeval now;
   vblwait->reply.sequence = drm_vblank_count_and_time(dev, pipe, &now);
@@ -8647,22 +8682,22 @@ _Bool drm_handle_vblank(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  unsigned long irqflags;
- if (({ static int __warned; int __ret = !!(!dev->num_crtcs); if (__ret && !__warned) { printf("WARNING %s failed at %s:%d\n", "!dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1903); __warned = 1; } __builtin_expect(!!(__ret), 0); }))
+ if (({ static int __warned; int __ret = !!(!dev->num_crtcs); if (__ret && !__warned) { printf("WARNING %s failed at %s:%d\n", "!dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1893); __warned = 1; } __builtin_expect(!!(__ret), 0); }))
   return 0;
- if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1906); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(pipe >= dev->num_crtcs); if (__ret) printf("WARNING %s failed at %s:%d\n", "pipe >= dev->num_crtcs", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1896); __builtin_expect(!!(__ret), 0); }))
   return 0;
- spin_lock_irqsave(&dev->event_lock, irqflags);
- __mtx_enter(&dev->vblank_time_lock);
+ _spin_lock_irqsave(&dev->event_lock, irqflags );
+ __mtx_enter(&dev->vblank_time_lock );
  if (!vblank->enabled) {
-  __mtx_leave(&dev->vblank_time_lock);
-  spin_unlock_irqrestore(&dev->event_lock, irqflags);
+  __mtx_leave(&dev->vblank_time_lock );
+  _spin_unlock_irqrestore(&dev->event_lock, irqflags );
   return 0;
  }
  drm_update_vblank_count(dev, pipe, 1);
- __mtx_leave(&dev->vblank_time_lock);
+ __mtx_leave(&dev->vblank_time_lock );
  wakeup(&vblank->queue);
  drm_handle_vblank_events(dev, pipe);
- spin_unlock_irqrestore(&dev->event_lock, irqflags);
+ _spin_unlock_irqrestore(&dev->event_lock, irqflags );
  return 1;
 }
 ;

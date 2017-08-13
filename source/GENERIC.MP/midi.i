@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2716,7 +2717,7 @@ midiread(dev_t dev, struct uio *uio, int ioflag)
  }
  mb = &sc->inbuf;
  error = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  while (((mb)->used == 0)) {
   if (ioflag & 0x10) {
    error = 35;
@@ -2735,15 +2736,15 @@ midiread(dev_t dev, struct uio *uio, int ioflag)
    count = mb->used;
   if (count > uio->uio_resid)
    count = uio->uio_resid;
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   error = uiomove(mb->data + mb->start, count, uio);
   if (error)
    goto done;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   do { (mb)->start += (count); (mb)->start &= ((1 << 10) - 1); (mb)->used -= (count); } while(0);
  }
 done_mtx:
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 done:
  device_unref(&sc->dev);
  return error;
@@ -2765,9 +2766,9 @@ midi_ointr(void *addr)
 void
 midi_timeout(void *addr)
 {
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  midi_ointr(addr);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 void
 midi_out_start(struct midi_softc *sc)
@@ -2825,7 +2826,7 @@ midiwrite(dev_t dev, struct uio *uio, int ioflag)
  }
  mb = &sc->outbuf;
  error = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if ((ioflag & 0x10) && ((mb)->used >= (1 << 10)) && (uio->uio_resid > 0)) {
   error = 35;
   goto done_mtx;
@@ -2848,16 +2849,16 @@ midiwrite(dev_t dev, struct uio *uio, int ioflag)
    count = ((1 << 10) - (mb)->used);
   if (count > uio->uio_resid)
    count = uio->uio_resid;
-  __mtx_leave(&audio_lock);
+  __mtx_leave(&audio_lock );
   error = uiomove(mb->data + (((mb)->start + (mb)->used) & ((1 << 10) - 1)), count, uio);
   if (error)
    goto done;
-  __mtx_enter(&audio_lock);
+  __mtx_enter(&audio_lock );
   mb->used += count;
   midi_out_start(sc);
  }
 done_mtx:
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 done:
  device_unref(&sc->dev);
  return error;
@@ -2871,7 +2872,7 @@ midipoll(dev_t dev, int events, struct proc *p)
  if (sc == ((void *)0))
   return 0x0008;
  revents = 0;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (events & (0x0001 | 0x0040)) {
   if (!((&sc->inbuf)->used == 0))
    revents |= events & (0x0001 | 0x0040);
@@ -2886,7 +2887,7 @@ midipoll(dev_t dev, int events, struct proc *p)
   if (events & (0x0004 | 0x0004))
    selrecord(p, &sc->wsel);
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  device_unref(&sc->dev);
  return (revents);
 }
@@ -2914,9 +2915,9 @@ midikqfilter(dev_t dev, struct knote *kn)
   goto done;
  }
  kn->kn_hook = (void *)sc;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { (kn)->kn_selnext.sle_next = (klist)->slh_first; (klist)->slh_first = (kn); } while (0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 done:
  device_unref(&sc->dev);
  return error;
@@ -2925,36 +2926,36 @@ void
 filt_midirdetach(struct knote *kn)
 {
  struct midi_softc *sc = (struct midi_softc *)kn->kn_hook;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { if ((&sc->rsel.si_note)->slh_first == (kn)) { do { ((&sc->rsel.si_note))->slh_first = ((&sc->rsel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&sc->rsel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 int
 filt_midiread(struct knote *kn, long hint)
 {
  struct midi_softc *sc = (struct midi_softc *)kn->kn_hook;
  int retval;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  retval = !((&sc->inbuf)->used == 0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (retval);
 }
 void
 filt_midiwdetach(struct knote *kn)
 {
  struct midi_softc *sc = (struct midi_softc *)kn->kn_hook;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  do { if ((&sc->wsel.si_note)->slh_first == (kn)) { do { ((&sc->wsel.si_note))->slh_first = ((&sc->wsel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&sc->wsel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
 }
 int
 filt_midiwrite(struct knote *kn, long hint)
 {
  struct midi_softc *sc = (struct midi_softc *)kn->kn_hook;
  int retval;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  retval = !((&sc->outbuf)->used >= (1 << 10));
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  return (retval);
 }
 int
@@ -3011,7 +3012,7 @@ midiclose(dev_t dev, int fflag, int devtype, struct proc *p)
   return 6;
  error = 0;
  mb = &sc->outbuf;
- __mtx_enter(&audio_lock);
+ __mtx_enter(&audio_lock );
  if (!((mb)->used == 0))
   midi_out_start(sc);
  while (sc->isbusy) {
@@ -3023,7 +3024,7 @@ midiclose(dev_t dev, int fflag, int devtype, struct proc *p)
   if (error)
    break;
  }
- __mtx_leave(&audio_lock);
+ __mtx_leave(&audio_lock );
  tsleep(&sc->wchan, 32, "mid_cl", hz * 32 / 3125);
  sc->hw_if->close(sc->hw_hdl);
  sc->flags = 0;

@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3266,21 +3267,21 @@ ufsdirhash_build(struct inode *ip)
  memreqd = sizeof(*dh) + narrays * sizeof(*dh->dh_hash) +
      narrays * (1 << 8) * sizeof(**dh->dh_hash) +
      nblocks * sizeof(*dh->dh_blkfree);
- __mtx_enter(&ufsdirhash_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
  if (memreqd + ufs_dirhashmem > ufs_dirhashmaxmem) {
-  __mtx_leave(&ufsdirhash_mtx);
+  __mtx_leave(&ufsdirhash_mtx );
   if (memreqd > ufs_dirhashmaxmem / 2)
    return (-1);
   if (ufsdirhash_recycle(memreqd) != 0)
    return (-1);
  }
  ufs_dirhashmem += memreqd;
- __mtx_leave(&ufsdirhash_mtx);
+ __mtx_leave(&ufsdirhash_mtx );
  dh = malloc(sizeof(*dh), 32, 0x0002|0x0008);
  if (dh == ((void *)0)) {
-  __mtx_enter(&ufsdirhash_mtx);
+  __mtx_enter(&ufsdirhash_mtx );
   ufs_dirhashmem -= memreqd;
-  __mtx_leave(&ufsdirhash_mtx);
+  __mtx_leave(&ufsdirhash_mtx );
   return (-1);
  }
  dh->dh_hash = mallocarray(narrays, sizeof(dh->dh_hash[0]),
@@ -3295,7 +3296,7 @@ ufsdirhash_build(struct inode *ip)
   for (j = 0; j < (1 << 8); j++)
    dh->dh_hash[i][j] = (-1);
  }
- __mtx_init((&dh->dh_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&dh->dh_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  dh->dh_narrays = narrays;
  dh->dh_hlen = nslots;
  dh->dh_nblk = nblocks;
@@ -3336,10 +3337,10 @@ ufsdirhash_build(struct inode *ip)
  }
  if (bp != ((void *)0))
   brelse(bp);
- __mtx_enter(&ufsdirhash_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
  do { (dh)->dh_list.tqe_next = ((void *)0); (dh)->dh_list.tqe_prev = (&ufsdirhash_list)->tqh_last; *(&ufsdirhash_list)->tqh_last = (dh); (&ufsdirhash_list)->tqh_last = &(dh)->dh_list.tqe_next; } while (0);
  dh->dh_onlist = 1;
- __mtx_leave(&ufsdirhash_mtx);
+ __mtx_leave(&ufsdirhash_mtx );
  return (0);
 fail:
  if (dh->dh_hash != ((void *)0)) {
@@ -3354,9 +3355,9 @@ fail:
       nblocks * sizeof(dh->dh_blkfree[0]));
  free(dh, 32, sizeof(*dh));
  ip->inode_ext.dirhash = ((void *)0);
- __mtx_enter(&ufsdirhash_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
  ufs_dirhashmem -= memreqd;
- __mtx_leave(&ufsdirhash_mtx);
+ __mtx_leave(&ufsdirhash_mtx );
  return (-1);
 }
 void
@@ -3366,12 +3367,12 @@ ufsdirhash_free(struct inode *ip)
  int i, mem;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&ufsdirhash_mtx);
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_onlist)
   do { if (((dh)->dh_list.tqe_next) != ((void *)0)) (dh)->dh_list.tqe_next->dh_list.tqe_prev = (dh)->dh_list.tqe_prev; else (&ufsdirhash_list)->tqh_last = (dh)->dh_list.tqe_prev; *(dh)->dh_list.tqe_prev = (dh)->dh_list.tqe_next; ((dh)->dh_list.tqe_prev) = ((void *)-1); ((dh)->dh_list.tqe_next) = ((void *)-1); } while (0);
- __mtx_leave(&(dh)->dh_mtx);
- __mtx_leave(&ufsdirhash_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
+ __mtx_leave(&ufsdirhash_mtx );
  mem = sizeof(*dh);
  if (dh->dh_hash != ((void *)0)) {
   for (i = 0; i < dh->dh_narrays; i++)
@@ -3386,9 +3387,9 @@ ufsdirhash_free(struct inode *ip)
  }
  free(dh, 32, sizeof(*dh));
  ip->inode_ext.dirhash = ((void *)0);
- __mtx_enter(&ufsdirhash_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
  ufs_dirhashmem -= mem;
- __mtx_leave(&ufsdirhash_mtx);
+ __mtx_leave(&ufsdirhash_mtx );
 }
 int
 ufsdirhash_lookup(struct inode *ip, char *name, int namelen, int32_t *offp,
@@ -3403,8 +3404,8 @@ ufsdirhash_lookup(struct inode *ip, char *name, int namelen, int32_t *offp,
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return (-2);
  if (((dh)->dh_list.tqe_next) != ((void *)0)) {
-  __mtx_enter(&ufsdirhash_mtx);
-  __mtx_enter(&(dh)->dh_mtx);
+  __mtx_enter(&ufsdirhash_mtx );
+  __mtx_enter(&(dh)->dh_mtx );
   if (dh->dh_hash != ((void *)0) &&
       (dh_next = ((dh)->dh_list.tqe_next)) != ((void *)0) &&
       dh->dh_score >= dh_next->dh_score) {
@@ -3412,12 +3413,12 @@ ufsdirhash_lookup(struct inode *ip, char *name, int namelen, int32_t *offp,
    do { if (((dh)->dh_list.tqe_next) != ((void *)0)) (dh)->dh_list.tqe_next->dh_list.tqe_prev = (dh)->dh_list.tqe_prev; else (&ufsdirhash_list)->tqh_last = (dh)->dh_list.tqe_prev; *(dh)->dh_list.tqe_prev = (dh)->dh_list.tqe_next; ((dh)->dh_list.tqe_prev) = ((void *)-1); ((dh)->dh_list.tqe_next) = ((void *)-1); } while (0);
    do { if (((dh)->dh_list.tqe_next = (dh_next)->dh_list.tqe_next) != ((void *)0)) (dh)->dh_list.tqe_next->dh_list.tqe_prev = &(dh)->dh_list.tqe_next; else (&ufsdirhash_list)->tqh_last = &(dh)->dh_list.tqe_next; (dh_next)->dh_list.tqe_next = (dh); (dh)->dh_list.tqe_prev = &(dh_next)->dh_list.tqe_next; } while (0);
   }
-  __mtx_leave(&ufsdirhash_mtx);
+  __mtx_leave(&ufsdirhash_mtx );
  } else {
-  __mtx_enter(&(dh)->dh_mtx);
+  __mtx_enter(&(dh)->dh_mtx );
  }
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return (-2);
  }
@@ -3443,7 +3444,7 @@ restart:
      slot = (((slot) + 1 == (dh->dh_hlen)) ? 0 : ((slot) + 1))) {
   if (offset == (-2))
    continue;
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   if (offset < 0 || offset >= (((ip)->i_ump->um_fstype == 1) ? (ip)->dinode_u.ffs1_din->di_size : (ip)->dinode_u.ffs2_din->di_size))
    panic("ufsdirhash_lookup: bad offset in hash array");
   if ((offset & ~bmask) != blkoff) {
@@ -3480,9 +3481,9 @@ restart:
    *offp = offset;
    return (0);
   }
-  __mtx_enter(&(dh)->dh_mtx);
+  __mtx_enter(&(dh)->dh_mtx );
   if (dh->dh_hash == ((void *)0)) {
-   __mtx_leave(&(dh)->dh_mtx);
+   __mtx_leave(&(dh)->dh_mtx );
    if (bp != ((void *)0))
     brelse(bp);
    ufsdirhash_free(ip);
@@ -3493,7 +3494,7 @@ restart:
    goto restart;
   }
  }
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
  if (bp != ((void *)0))
   brelse(bp);
  return (2);
@@ -3508,9 +3509,9 @@ ufsdirhash_findfree(struct inode *ip, int slotneeded, int *slotsize)
  int dirblock, error, freebytes, i;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return (-1);
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return (-1);
  }
@@ -3519,11 +3520,11 @@ ufsdirhash_findfree(struct inode *ip, int slotneeded, int *slotsize)
   if ((dirblock = dh->dh_firstfree[i]) != -1)
    break;
  if (dirblock == -1) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   return (-1);
  }
  (((dirblock < dh->dh_nblk && dh->dh_blkfree[dirblock] >= (((slotneeded) + ((4) - 1)) / (4)))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 513, "(dirblock < dh->dh_nblk && dh->dh_blkfree[dirblock] >= (((slotneeded) + ((4) - 1)) / (4)))"));
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
  pos = dirblock * (1 << 9);
  error = ((ip)->i_vtbl->iv_bufatoff)((ip), ((off_t)pos), ((char **)&dp), (&bp));
  if (error)
@@ -3572,20 +3573,20 @@ ufsdirhash_enduseful(struct inode *ip)
  int i;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return (-1);
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return (-1);
  }
  if (dh->dh_blkfree[dh->dh_dirblks - 1] != (1 << 9) / 4) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   return (-1);
  }
  for (i = dh->dh_dirblks - 1; i >= 0; i--)
   if (dh->dh_blkfree[i] != (1 << 9) / 4)
    break;
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
  return ((int32_t)(i + 1) * (1 << 9));
 }
 void
@@ -3595,15 +3596,15 @@ ufsdirhash_add(struct inode *ip, struct direct *dirp, int32_t offset)
  int slot;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
  (((offset < dh->dh_dirblks * (1 << 9))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 614, "(offset < dh->dh_dirblks * (1 << 9))"));
  if (dh->dh_hused >= (dh->dh_hlen * 3) / 4) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
@@ -3614,7 +3615,7 @@ ufsdirhash_add(struct inode *ip, struct direct *dirp, int32_t offset)
   dh->dh_hused++;
  ((dh)->dh_hash[(slot) >> 8][(slot) & ((1 << 8) - 1)]) = offset;
  ufsdirhash_adjfree(dh, offset, -((sizeof(struct direct) - (255 +1)) + (((dirp)->d_namlen+1 + 3) &~ 3)));
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 void
 ufsdirhash_remove(struct inode *ip, struct direct *dirp, int32_t offset)
@@ -3623,9 +3624,9 @@ ufsdirhash_remove(struct inode *ip, struct direct *dirp, int32_t offset)
  int slot;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
@@ -3633,7 +3634,7 @@ ufsdirhash_remove(struct inode *ip, struct direct *dirp, int32_t offset)
  slot = ufsdirhash_findslot(dh, dirp->d_name, dirp->d_namlen, offset);
  ufsdirhash_delslot(dh, slot);
  ufsdirhash_adjfree(dh, offset, ((sizeof(struct direct) - (255 +1)) + (((dirp)->d_namlen+1 + 3) &~ 3)));
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 void
 ufsdirhash_move(struct inode *ip, struct direct *dirp, int32_t oldoff,
@@ -3643,16 +3644,16 @@ ufsdirhash_move(struct inode *ip, struct direct *dirp, int32_t oldoff,
  int slot;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
  (((oldoff < dh->dh_dirblks * (1 << 9) && newoff < dh->dh_dirblks * (1 << 9))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 693, "(oldoff < dh->dh_dirblks * (1 << 9) && newoff < dh->dh_dirblks * (1 << 9))"));
  slot = ufsdirhash_findslot(dh, dirp->d_name, dirp->d_namlen, oldoff);
  ((dh)->dh_hash[(slot) >> 8][(slot) & ((1 << 8) - 1)]) = newoff;
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 void
 ufsdirhash_newblk(struct inode *ip, int32_t offset)
@@ -3661,16 +3662,16 @@ ufsdirhash_newblk(struct inode *ip, int32_t offset)
  int block;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
  (((offset == dh->dh_dirblks * (1 << 9))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 720, "(offset == dh->dh_dirblks * (1 << 9))"));
  block = offset / (1 << 9);
  if (block >= dh->dh_nblk) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
@@ -3678,7 +3679,7 @@ ufsdirhash_newblk(struct inode *ip, int32_t offset)
  dh->dh_blkfree[block] = (1 << 9) / 4;
  if (dh->dh_firstfree[(((__builtin_offsetof(struct direct, d_name) + ((255 + 1)+1)*sizeof(((struct direct *)0)->d_name[0]) + 3) & ~3) / 4)] == -1)
   dh->dh_firstfree[(((__builtin_offsetof(struct direct, d_name) + ((255 + 1)+1)*sizeof(((struct direct *)0)->d_name[0]) + 3) & ~3) / 4)] = block;
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 void
 ufsdirhash_dirtrunc(struct inode *ip, int32_t offset)
@@ -3687,16 +3688,16 @@ ufsdirhash_dirtrunc(struct inode *ip, int32_t offset)
  int block, i;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
  (((offset <= dh->dh_dirblks * (1 << 9))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 756, "(offset <= dh->dh_dirblks * (1 << 9))"));
  block = (((offset) + (((1 << 9)) - 1)) / ((1 << 9)));
  if (block < dh->dh_nblk / 8 && dh->dh_narrays > 1) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
@@ -3709,7 +3710,7 @@ ufsdirhash_dirtrunc(struct inode *ip, int32_t offset)
   if (dh->dh_firstfree[i] >= block)
    panic("ufsdirhash_dirtrunc: first free corrupt");
  dh->dh_dirblks = block;
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 void
 ufsdirhash_checkblock(struct inode *ip, char *buf, int32_t offset)
@@ -3721,9 +3722,9 @@ ufsdirhash_checkblock(struct inode *ip, char *buf, int32_t offset)
   return;
  if ((dh = ip->inode_ext.dirhash) == ((void *)0))
   return;
- __mtx_enter(&(dh)->dh_mtx);
+ __mtx_enter(&(dh)->dh_mtx );
  if (dh->dh_hash == ((void *)0)) {
-  __mtx_leave(&(dh)->dh_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
   ufsdirhash_free(ip);
   return;
  }
@@ -3752,7 +3753,7 @@ ufsdirhash_checkblock(struct inode *ip, char *buf, int32_t offset)
    panic("ufsdirhash_checkblock: bad first-free");
  if (dh->dh_firstfree[ffslot] == -1)
   panic("ufsdirhash_checkblock: missing first-free entry");
- __mtx_leave(&(dh)->dh_mtx);
+ __mtx_leave(&(dh)->dh_mtx );
 }
 int
 ufsdirhash_hash(struct dirhash *dh, char *name, int namelen)
@@ -3840,17 +3841,17 @@ ufsdirhash_recycle(int wanted)
  int32_t **hash;
  u_int8_t *blkfree;
  int i, mem, narrays, nblk;
- __mtx_enter(&ufsdirhash_mtx);
+ __mtx_enter(&ufsdirhash_mtx );
  while (wanted + ufs_dirhashmem > ufs_dirhashmaxmem) {
   if ((dh = ((&ufsdirhash_list)->tqh_first)) == ((void *)0)) {
-   __mtx_leave(&ufsdirhash_mtx);
+   __mtx_leave(&ufsdirhash_mtx );
    return (-1);
   }
-  __mtx_enter(&(dh)->dh_mtx);
+  __mtx_enter(&(dh)->dh_mtx );
   (((dh->dh_hash != ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ufs/ufs_dirhash.c", 1013, "(dh->dh_hash != ((void *)0))"));
   if (--dh->dh_score > 0) {
-   __mtx_leave(&(dh)->dh_mtx);
-   __mtx_leave(&ufsdirhash_mtx);
+   __mtx_leave(&(dh)->dh_mtx );
+   __mtx_leave(&ufsdirhash_mtx );
    return (-1);
   }
   do { if (((dh)->dh_list.tqe_next) != ((void *)0)) (dh)->dh_list.tqe_next->dh_list.tqe_prev = (dh)->dh_list.tqe_prev; else (&ufsdirhash_list)->tqh_last = (dh)->dh_list.tqe_prev; *(dh)->dh_list.tqe_prev = (dh)->dh_list.tqe_next; ((dh)->dh_list.tqe_prev) = ((void *)-1); ((dh)->dh_list.tqe_next) = ((void *)-1); } while (0);
@@ -3864,13 +3865,13 @@ ufsdirhash_recycle(int wanted)
   mem = narrays * sizeof(*dh->dh_hash) +
       narrays * (1 << 8) * sizeof(**dh->dh_hash) +
       dh->dh_nblk * sizeof(*dh->dh_blkfree);
-  __mtx_leave(&(dh)->dh_mtx);
-  __mtx_leave(&ufsdirhash_mtx);
+  __mtx_leave(&(dh)->dh_mtx );
+  __mtx_leave(&ufsdirhash_mtx );
   for (i = 0; i < narrays; i++)
    pool_put(&ufsdirhash_pool, hash[i]);
   free(hash, 32, narrays * sizeof(hash[0]));
   free(blkfree, 32, nblk * sizeof(blkfree[0]));
-  __mtx_enter(&ufsdirhash_mtx);
+  __mtx_enter(&ufsdirhash_mtx );
   ufs_dirhashmem -= mem;
  }
  return (0);
@@ -3880,7 +3881,7 @@ ufsdirhash_init(void)
 {
  pool_init(&ufsdirhash_pool, (1 << 8) * sizeof(int32_t), 0, 0,
      0x0001, "dirhash", ((void *)0));
- __mtx_init((&ufsdirhash_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&ufsdirhash_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  arc4random_buf(&ufsdirhash_key, sizeof(ufsdirhash_key));
  do { (&ufsdirhash_list)->tqh_first = ((void *)0); (&ufsdirhash_list)->tqh_last = &(&ufsdirhash_list)->tqh_first; } while (0);
  ufs_dirhashmaxmem = 2 * 1024 * 1024;

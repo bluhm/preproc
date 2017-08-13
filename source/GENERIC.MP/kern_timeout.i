@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -2661,7 +2662,7 @@ timeout_add(struct timeout *new, int to_ticks)
   panic("timeout_add: not initialized");
  if (to_ticks < 0)
   panic("timeout_add: to_ticks (%d) < 0", to_ticks);
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
  old_time = new->to_time;
  new->to_time = to_ticks + ticks;
  new->to_flags &= ~8;
@@ -2675,7 +2676,7 @@ timeout_add(struct timeout *new, int to_ticks)
   new->to_flags |= 2;
   do { (&new->to_list)->prev = (&timeout_todo)->prev; (&new->to_list)->next = (&timeout_todo); (&timeout_todo)->prev->next = (&new->to_list); (&timeout_todo)->prev = (&new->to_list); } while (0);
  }
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
  return (ret);
 }
 int
@@ -2752,21 +2753,21 @@ int
 timeout_del(struct timeout *to)
 {
  int ret = 0;
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
  if (to->to_flags & 2) {
   do { (&to->to_list)->next->prev = (&to->to_list)->prev; (&to->to_list)->prev->next = (&to->to_list)->next; ((&to->to_list)->prev) = ((void *)-1); ((&to->to_list)->next) = ((void *)-1); } while (0);
   to->to_flags &= ~2;
   ret = 1;
  }
  to->to_flags &= ~8;
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
  return (ret);
 }
 int
 timeout_hardclock_update(void)
 {
  int ret;
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
  do { if (!(((&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->next) == (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256]))) { (&timeout_todo)->prev->next = (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->next; (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->next->prev = (&timeout_todo)->prev; (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->prev->next = (&timeout_todo); (&timeout_todo)->prev = (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->prev; do { (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->next = (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256]); (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256])->prev = (&timeout_wheel[((((ticks)) >> (((0))*8)) & 255) + (0)*256]); } while (0); } } while (0);
  if ((((ticks) >> ((0)*8)) & 255) == 0) {
   do { if (!(((&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->next) == (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256]))) { (&timeout_todo)->prev->next = (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->next; (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->next->prev = (&timeout_todo)->prev; (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->prev->next = (&timeout_todo); (&timeout_todo)->prev = (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->prev; do { (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->next = (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256]); (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256])->prev = (&timeout_wheel[((((ticks)) >> (((1))*8)) & 255) + (1)*256]); } while (0); } } while (0);
@@ -2777,7 +2778,7 @@ timeout_hardclock_update(void)
   }
  }
  ret = !(((&timeout_todo)->next) == (&timeout_todo));
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
  return (ret);
 }
 void
@@ -2790,9 +2791,9 @@ timeout_run(struct timeout *to)
  to->to_flags |= 8;
  fn = to->to_func;
  arg = to->to_arg;
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
  fn(arg);
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
 }
 void
 softclock(void *arg)
@@ -2801,7 +2802,7 @@ softclock(void *arg)
  struct circq *bucket;
  struct timeout *to;
  int needsproc = 0;
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
  while (!(((&timeout_todo)->next) == (&timeout_todo))) {
   to = timeout_from_circq(((&timeout_todo)->next));
   do { (&to->to_list)->next->prev = (&to->to_list)->prev; (&to->to_list)->prev->next = (&to->to_list)->next; ((&to->to_list)->prev) = ((void *)-1); ((&to->to_list)->next) = ((void *)-1); } while (0);
@@ -2816,7 +2817,7 @@ softclock(void *arg)
    timeout_run(to);
   }
  }
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
  if (needsproc)
   wakeup(&timeout_proc);
 }
@@ -2843,13 +2844,13 @@ softclock_thread(void *arg)
  for (;;) {
   sleep_setup(&sls, &timeout_proc, 0, "bored");
   sleep_finish(&sls, (((&timeout_proc)->next) == (&timeout_proc)));
-  __mtx_enter(&timeout_mutex);
+  __mtx_enter(&timeout_mutex );
   while (!(((&timeout_proc)->next) == (&timeout_proc))) {
    to = timeout_from_circq(((&timeout_proc)->next));
    do { (&to->to_list)->next->prev = (&to->to_list)->prev; (&to->to_list)->prev->next = (&to->to_list)->next; ((&to->to_list)->prev) = ((void *)-1); ((&to->to_list)->next) = ((void *)-1); } while (0);
    timeout_run(to);
   }
-  __mtx_leave(&timeout_mutex);
+  __mtx_leave(&timeout_mutex );
  }
 }
 void
@@ -2860,7 +2861,7 @@ timeout_adjust_ticks(int adj)
  int new_ticks, b;
  if (adj <= 0)
   return;
- __mtx_enter(&timeout_mutex);
+ __mtx_enter(&timeout_mutex );
  new_ticks = ticks + adj;
  for (b = 0; b < (sizeof((timeout_wheel)) / sizeof((timeout_wheel)[0])); b++) {
   p = ((&timeout_wheel[b])->next);
@@ -2874,7 +2875,7 @@ timeout_adjust_ticks(int adj)
   }
  }
  ticks = new_ticks;
- __mtx_leave(&timeout_mutex);
+ __mtx_leave(&timeout_mutex );
 }
 void db_show_callout_bucket(struct circq *);
 void

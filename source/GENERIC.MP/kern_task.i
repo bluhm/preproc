@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -1760,7 +1761,7 @@ taskq_create(const char *name, unsigned int nthreads, int ipl,
  tq->tq_nthreads = nthreads;
  tq->tq_name = name;
  tq->tq_flags = flags;
- __mtx_init((&tq->tq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&tq->tq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl)))); } while (0);
  do { (&tq->tq_worklist)->tqh_first = ((void *)0); (&tq->tq_worklist)->tqh_last = &(&tq->tq_worklist)->tqh_first; } while (0);
  kthread_create_deferred(taskq_create_thread, tq);
  return (tq);
@@ -1768,11 +1769,11 @@ taskq_create(const char *name, unsigned int nthreads, int ipl,
 void
 taskq_destroy(struct taskq *tq)
 {
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  switch (tq->tq_state) {
  case TQ_S_CREATED:
   tq->tq_state = TQ_S_DESTROYED;
-  __mtx_leave(&tq->tq_mtx);
+  __mtx_leave(&tq->tq_mtx );
   return;
  case TQ_S_RUNNING:
   tq->tq_state = TQ_S_DESTROYED;
@@ -1784,7 +1785,7 @@ taskq_destroy(struct taskq *tq)
   wakeup(tq);
   msleep(&tq->tq_running, &tq->tq_mtx, 32, "tqdestroy", 0);
  }
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
  free(tq, 2, sizeof(*tq));
 }
 void
@@ -1792,10 +1793,10 @@ taskq_create_thread(void *arg)
 {
  struct taskq *tq = arg;
  int rv;
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  switch (tq->tq_state) {
  case TQ_S_DESTROYED:
-  __mtx_leave(&tq->tq_mtx);
+  __mtx_leave(&tq->tq_mtx );
   free(tq, 2, sizeof(*tq));
   return;
  case TQ_S_CREATED:
@@ -1806,9 +1807,9 @@ taskq_create_thread(void *arg)
  }
  do {
   tq->tq_running++;
-  __mtx_leave(&tq->tq_mtx);
+  __mtx_leave(&tq->tq_mtx );
   rv = kthread_create(taskq_thread, tq, ((void *)0), tq->tq_name);
-  __mtx_enter(&tq->tq_mtx);
+  __mtx_enter(&tq->tq_mtx );
   if (rv != 0) {
    printf("unable to create thread for \"%s\" taskq\n",
        tq->tq_name);
@@ -1819,7 +1820,7 @@ taskq_create_thread(void *arg)
    break;
   }
  } while (tq->tq_running < tq->tq_nthreads);
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
 }
 void
 task_set(struct task *t, void (*fn)(void *), void *arg)
@@ -1834,13 +1835,13 @@ task_add(struct taskq *tq, struct task *w)
  int rv = 0;
  if (((w->t_flags) & (1)))
   return (0);
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  if (!((w->t_flags) & (1))) {
   rv = 1;
   ((w->t_flags) |= (1));
   do { (w)->t_entry.tqe_next = ((void *)0); (w)->t_entry.tqe_prev = (&tq->tq_worklist)->tqh_last; *(&tq->tq_worklist)->tqh_last = (w); (&tq->tq_worklist)->tqh_last = &(w)->t_entry.tqe_next; } while (0);
  }
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
  if (rv)
   wakeup_n((tq), 1);
  return (rv);
@@ -1851,13 +1852,13 @@ task_del(struct taskq *tq, struct task *w)
  int rv = 0;
  if (!((w->t_flags) & (1)))
   return (0);
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  if (((w->t_flags) & (1))) {
   rv = 1;
   ((w->t_flags) &= ~(1));
   do { if (((w)->t_entry.tqe_next) != ((void *)0)) (w)->t_entry.tqe_next->t_entry.tqe_prev = (w)->t_entry.tqe_prev; else (&tq->tq_worklist)->tqh_last = (w)->t_entry.tqe_prev; *(w)->t_entry.tqe_prev = (w)->t_entry.tqe_next; ((w)->t_entry.tqe_prev) = ((void *)-1); ((w)->t_entry.tqe_next) = ((void *)-1); } while (0);
  }
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
  return (rv);
 }
 int
@@ -1875,10 +1876,10 @@ int
 taskq_next_work(struct taskq *tq, struct task *work, sleepfn tqsleep)
 {
  struct task *next;
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  while ((next = ((&tq->tq_worklist)->tqh_first)) == ((void *)0)) {
   if (tq->tq_state != TQ_S_RUNNING) {
-   __mtx_leave(&tq->tq_mtx);
+   __mtx_leave(&tq->tq_mtx );
    return (0);
   }
   tqsleep(tq, &tq->tq_mtx, 32, "bored", 0);
@@ -1887,7 +1888,7 @@ taskq_next_work(struct taskq *tq, struct task *work, sleepfn tqsleep)
  ((next->t_flags) &= ~(1));
  *work = *next;
  next = ((&tq->tq_worklist)->tqh_first);
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
  if (next != ((void *)0) && tq->tq_nthreads > 1)
   wakeup_n((tq), 1);
  return (1);
@@ -1909,9 +1910,9 @@ taskq_thread(void *xtq)
   (*work.t_func)(work.t_arg);
   do { if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) yield(); } while (0);
  }
- __mtx_enter(&tq->tq_mtx);
+ __mtx_enter(&tq->tq_mtx );
  last = (--tq->tq_running == 0);
- __mtx_leave(&tq->tq_mtx);
+ __mtx_leave(&tq->tq_mtx );
  if (((tq->tq_flags) & ((1 << 1))))
   atomic_clearbits_int(&(__curcpu->ci_self)->ci_curproc->p_flag, 0x00000010);
  if (((tq->tq_flags) & ((1 << 0))))

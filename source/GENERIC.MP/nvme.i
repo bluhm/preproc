@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3635,7 +3636,7 @@ nvme_attach(struct nvme_softc *sc)
  u_int64_t cap;
  u_int32_t reg64;
  u_int mps = 13;
- __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&sc->sc_ccb_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  do { (&sc->sc_ccb_list)->sqh_first = ((void *)0); (&sc->sc_ccb_list)->sqh_last = &(&sc->sc_ccb_list)->sqh_first; } while (0);
  scsi_iopool_init(&sc->sc_iopool, sc, nvme_ccb_get, nvme_ccb_put);
  reg64 = bus_space_read_4((sc)->sc_iot, (sc)->sc_ioh, (0x0008));
@@ -4110,7 +4111,7 @@ nvme_q_submit(struct nvme_softc *sc, struct nvme_queue *q, struct nvme_ccb *ccb,
 {
  struct nvme_sqe *sqe = ((void *)(q->q_sq_dmamem)->ndm_kva);
  u_int32_t tail;
- __mtx_enter(&q->q_sq_mtx);
+ __mtx_enter(&q->q_sq_mtx );
  tail = q->q_sq_tail;
  if (++q->q_sq_tail >= q->q_entries)
   q->q_sq_tail = 0;
@@ -4123,7 +4124,7 @@ nvme_q_submit(struct nvme_softc *sc, struct nvme_queue *q, struct nvme_ccb *ccb,
  bus_dmamap_sync(sc->sc_dmat, ((q->q_sq_dmamem)->ndm_map),
      sizeof(*sqe) * tail, sizeof(*sqe), 0x04);
  bus_space_write_4((sc)->sc_iot, (sc)->sc_ioh, (q->q_sqtdbl), (q->q_sq_tail));
- __mtx_leave(&q->q_sq_mtx);
+ __mtx_leave(&q->q_sq_mtx );
 }
 struct nvme_poll_state {
  struct nvme_sqe s;
@@ -4188,7 +4189,7 @@ nvme_q_complete(struct nvme_softc *sc, struct nvme_queue *q)
  u_int32_t head;
  u_int16_t flags;
  int rv = 0;
- if (!__mtx_enter_try(&q->q_cq_mtx))
+ if (!__mtx_enter_try(&q->q_cq_mtx ))
   return (-1);
  head = q->q_cq_head;
  nvme_dmamem_sync(sc, q->q_cq_dmamem, 0x02);
@@ -4208,7 +4209,7 @@ nvme_q_complete(struct nvme_softc *sc, struct nvme_queue *q)
  nvme_dmamem_sync(sc, q->q_cq_dmamem, 0x01);
  if (rv)
   bus_space_write_4((sc)->sc_iot, (sc)->sc_ioh, (q->q_cqhdbl), (q->q_cq_head = head));
- __mtx_leave(&q->q_cq_mtx);
+ __mtx_leave(&q->q_cq_mtx );
  return (rv);
 }
 int
@@ -4363,11 +4364,11 @@ nvme_ccb_get(void *cookie)
 {
  struct nvme_softc *sc = cookie;
  struct nvme_ccb *ccb;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  ccb = ((&sc->sc_ccb_list)->sqh_first);
  if (ccb != ((void *)0))
   do { if (((&sc->sc_ccb_list)->sqh_first = (&sc->sc_ccb_list)->sqh_first->ccb_entry.sqe_next) == ((void *)0)) (&sc->sc_ccb_list)->sqh_last = &(&sc->sc_ccb_list)->sqh_first; } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
  return (ccb);
 }
 void
@@ -4375,9 +4376,9 @@ nvme_ccb_put(void *cookie, void *io)
 {
  struct nvme_softc *sc = cookie;
  struct nvme_ccb *ccb = io;
- __mtx_enter(&sc->sc_ccb_mtx);
+ __mtx_enter(&sc->sc_ccb_mtx );
  do { if (((ccb)->ccb_entry.sqe_next = (&sc->sc_ccb_list)->sqh_first) == ((void *)0)) (&sc->sc_ccb_list)->sqh_last = &(ccb)->ccb_entry.sqe_next; (&sc->sc_ccb_list)->sqh_first = (ccb); } while (0);
- __mtx_leave(&sc->sc_ccb_mtx);
+ __mtx_leave(&sc->sc_ccb_mtx );
 }
 void
 nvme_ccbs_free(struct nvme_softc *sc)
@@ -4407,8 +4408,8 @@ nvme_q_alloc(struct nvme_softc *sc, u_int16_t id, u_int entries, u_int dstrd)
   goto free_sq;
  __builtin_memset((((void *)(q->q_sq_dmamem)->ndm_kva)), (0), (((q->q_sq_dmamem)->ndm_map->dm_segs[0].ds_len)));
  __builtin_memset((((void *)(q->q_cq_dmamem)->ndm_kva)), (0), (((q->q_cq_dmamem)->ndm_map->dm_segs[0].ds_len)));
- __mtx_init((&q->q_sq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
- __mtx_init((&q->q_cq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&q->q_sq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&q->q_cq_mtx), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  q->q_sqtdbl = (0x1000 + (2 * (id) + 0) * (dstrd));
  q->q_cqhdbl = (0x1000 + (2 * (id) + 1) * (dstrd));
  q->q_id = id;

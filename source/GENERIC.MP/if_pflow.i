@@ -891,6 +891,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -6081,12 +6082,11 @@ pflowioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &pflowr,
       sizeof(pflowr))))
    return (error);
-  _rw_exit_write(&netlock );
+  do { _rw_exit_write(&netlock ); } while (0);
   error = pflow_set(sc, &pflowr);
-  if (error != 0) {
-   _rw_enter_write(&netlock );
+  do { _rw_enter_write(&netlock ); } while (0);
+  if (error != 0)
    return (error);
-  }
   if ((ifp->if_flags & 0x1) && sc->so != ((void *)0)) {
    ifp->if_flags |= 0x40;
    sc->sc_gcounter=pflowstats.pflow_flows;
@@ -6094,7 +6094,6 @@ pflowioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
     pflow_sendout_ipfix_tmpl(sc);
   } else
    ifp->if_flags &= ~0x40;
-  _rw_enter_write(&netlock );
   break;
  default:
   return (25);

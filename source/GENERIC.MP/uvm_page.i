@@ -849,6 +849,7 @@ void _rw_exit_read(struct rwlock * );
 void _rw_exit_write(struct rwlock * );
 void rw_assert_wrlock(struct rwlock *);
 void rw_assert_rdlock(struct rwlock *);
+void rw_assert_anylock(struct rwlock *);
 void rw_assert_unlocked(struct rwlock *);
 int _rw_enter(struct rwlock *, int );
 void _rw_exit(struct rwlock * );
@@ -3416,8 +3417,8 @@ uvm_page_init(vaddr_t *kvm_startp, vaddr_t *kvm_endp)
  do { (&uvm.page_active)->tqh_first = ((void *)0); (&uvm.page_active)->tqh_last = &(&uvm.page_active)->tqh_first; } while (0);
  do { (&uvm.page_inactive_swp)->tqh_first = ((void *)0); (&uvm.page_inactive_swp)->tqh_last = &(&uvm.page_inactive_swp)->tqh_first; } while (0);
  do { (&uvm.page_inactive_obj)->tqh_first = ((void *)0); (&uvm.page_inactive_obj)->tqh_last = &(&uvm.page_inactive_obj)->tqh_first; } while (0);
- __mtx_init((&uvm.pageqlock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))));
- __mtx_init((&uvm.fpageqlock), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&uvm.pageqlock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&uvm.fpageqlock), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0);
  uvm_pmr_init();
  if (vm_nphysseg == 0)
   panic("uvm_page_bootstrap: no memory pre-allocated");
@@ -3444,7 +3445,7 @@ uvm_page_init(vaddr_t *kvm_startp, vaddr_t *kvm_endp)
   for (i = 0, curpg = seg->pgs; i < n;
       i++, curpg++, pgno++, paddr += (1 << 13)) {
    curpg->phys_addr = paddr;
-   do { __mtx_init((&(curpg)->mdpage.pvmtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); (curpg)->mdpage.pvent.pv_next = ((void *)0); (curpg)->mdpage.pvent.pv_pmap = ((void *)0); (curpg)->mdpage.pvent.pv_va = 0; } while (0);
+   do { do { (void)(((void *)0)); (void)(0); __mtx_init((&(curpg)->mdpage.pvmtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0); (curpg)->mdpage.pvent.pv_next = ((void *)0); (curpg)->mdpage.pvent.pv_pmap = ((void *)0); (curpg)->mdpage.pvent.pv_va = 0; } while (0);
    if (pgno >= seg->avail_start &&
        pgno < seg->avail_end) {
     uvmexp.npages++;
@@ -3455,7 +3456,7 @@ uvm_page_init(vaddr_t *kvm_startp, vaddr_t *kvm_endp)
  }
  *kvm_startp = (((virtual_space_start) + ((1 << 13) - 1)) & ~((1 << 13) - 1));
  *kvm_endp = ((virtual_space_end) & ~((1 << 13) - 1));
- __mtx_init((&uvm.aiodoned_lock), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5))));
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&uvm.aiodoned_lock), ((((5)) > 0 && ((5)) < 12) ? 12 : ((5)))); } while (0);
  uvmexp.reserve_pagedaemon = 4;
  uvmexp.reserve_kernel = 6;
  uvmexp.anonminpct = 10;
@@ -3606,7 +3607,7 @@ uvm_page_physload(paddr_t start, paddr_t end, paddr_t avail_start,
   for (lcv = 0, paddr = ((paddr_t)(start) << 13); lcv < npages;
       lcv++, paddr += (1 << 13)) {
    pgs[lcv].phys_addr = paddr;
-   do { __mtx_init((&(&pgs[lcv])->mdpage.pvmtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); (&pgs[lcv])->mdpage.pvent.pv_next = ((void *)0); (&pgs[lcv])->mdpage.pvent.pv_pmap = ((void *)0); (&pgs[lcv])->mdpage.pvent.pv_va = 0; } while (0);
+   do { do { (void)(((void *)0)); (void)(0); __mtx_init((&(&pgs[lcv])->mdpage.pvmtx), ((((7)) > 0 && ((7)) < 12) ? 12 : ((7)))); } while (0); (&pgs[lcv])->mdpage.pvent.pv_next = ((void *)0); (&pgs[lcv])->mdpage.pvent.pv_pmap = ((void *)0); (&pgs[lcv])->mdpage.pvent.pv_va = 0; } while (0);
    if (((paddr) >> 13) >= avail_start &&
        ((paddr) >> 13) < avail_end) {
     if (flags & 0x01) {
@@ -3891,13 +3892,13 @@ uvm_page_unbusy(struct vm_page **pgs, int npgs)
   if (pg->pg_flags & 0x00000020) {
    uobj = pg->uobject;
    if (uobj != ((void *)0)) {
-    __mtx_enter(&uvm.pageqlock);
+    __mtx_enter(&uvm.pageqlock );
     pmap_page_protect(pg, 0x00);
     if (pg->pg_flags & 0x00200000)
      uao_dropswap(uobj,
          pg->offset >> 13);
     uvm_pagefree(pg);
-    __mtx_leave(&uvm.pageqlock);
+    __mtx_leave(&uvm.pageqlock );
    } else {
     atomic_clearbits_int(&pg->pg_flags, 0x00000001);
     ;
