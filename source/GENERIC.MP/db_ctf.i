@@ -2339,7 +2339,7 @@ struct ctf_lmember {
 };
 struct ctf_enum {
  uint32_t cte_name;
- int cte_value;
+ int32_t cte_value;
 };
 struct kmemstats {
  long ks_inuse;

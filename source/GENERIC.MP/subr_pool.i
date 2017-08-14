@@ -1367,6 +1367,7 @@ int __mtx_enter_try(struct mutex *);
 void __mtx_leave(struct mutex *);
 struct pool;
 struct pool_request;
+struct pool_lock_ops;
 struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
 struct pool_allocator {
  void *(*pa_alloc)(struct pool *, int, int *);
@@ -1377,8 +1378,14 @@ struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_head
 struct pool_cache_item;
 struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
 struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
 struct pool {
- struct mutex pr_mtx;
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
  struct { struct pool *sqe_next; }
    pr_poollist;
  struct pool_pagelist
@@ -1405,12 +1412,13 @@ struct pool {
  struct pool_allocator *
    pr_alloc;
  const char * pr_wchan;
+ int pr_flags;
  int pr_ipl;
  struct phtree { struct rb_tree rbh_root; }
    pr_phtree;
  struct cpumem * pr_cache;
  unsigned long pr_cache_magic[2];
- struct mutex pr_cache_mtx;
+ union pool_lock pr_cache_lock;
  struct pool_cache_lists
    pr_cache_lists;
  u_int pr_cache_nitems;
@@ -1426,7 +1434,7 @@ struct pool {
  const char *pr_hardlimit_warning;
  struct timeval pr_hardlimit_ratecap;
  struct timeval pr_hardlimit_warning_last;
- struct mutex pr_requests_mtx;
+ union pool_lock pr_requests_lock;
  struct pool_requests
    pr_requests;
  unsigned int pr_requesting;
@@ -1444,7 +1452,7 @@ extern struct pool_allocator pool_allocator_single;
 extern struct pool_allocator pool_allocator_multi;
 struct pool_request {
  struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
- void (*pr_handler)(void *, void *);
+ void (*pr_handler)(struct pool *, void *, void *);
  void *pr_cookie;
  void *pr_item;
 };
@@ -1460,7 +1468,7 @@ void pool_set_constraints(struct pool *,
       const struct kmem_pa_mode *mode);
 void *pool_get(struct pool *, int) __attribute__((__malloc__));
 void pool_request_init(struct pool_request *,
-      void (*)(void *, void *), void *);
+      void (*)(struct pool *, void *, void *), void *);
 void pool_request(struct pool *, struct pool_request *);
 void pool_put(struct pool *, void *);
 int pool_reclaim(struct pool *);
@@ -2480,6 +2488,49 @@ unsigned int pool_serial;
 unsigned int pool_count;
 struct rwlock pool_lock = { 0, "pools" };
 struct pool phpool;
+struct pool_lock_ops {
+ void (*pl_init)(struct pool *, union pool_lock *,
+      struct lock_type *);
+ void (*pl_enter)(union pool_lock * );
+ int (*pl_enter_try)(union pool_lock * );
+ void (*pl_leave)(union pool_lock * );
+ void (*pl_assert_locked)(union pool_lock *);
+ void (*pl_assert_unlocked)(union pool_lock *);
+ int (*pl_sleep)(void *, union pool_lock *, int, const char *, int);
+};
+static const struct pool_lock_ops pool_lock_ops_mtx;
+static const struct pool_lock_ops pool_lock_ops_rw;
+static inline void
+pl_enter(struct pool *pp, union pool_lock *pl )
+{
+ pp->pr_lock_ops->pl_enter(pl );
+}
+static inline int
+pl_enter_try(struct pool *pp, union pool_lock *pl )
+{
+ return pp->pr_lock_ops->pl_enter_try(pl );
+}
+static inline void
+pl_leave(struct pool *pp, union pool_lock *pl )
+{
+ pp->pr_lock_ops->pl_leave(pl );
+}
+static inline void
+pl_assert_locked(struct pool *pp, union pool_lock *pl)
+{
+ pp->pr_lock_ops->pl_assert_locked(pl);
+}
+static inline void
+pl_assert_unlocked(struct pool *pp, union pool_lock *pl)
+{
+ pp->pr_lock_ops->pl_assert_unlocked(pl);
+}
+static inline int
+pl_sleep(struct pool *pp, void *ident, union pool_lock *lock, int priority,
+    const char *wmesg, int timo)
+{
+ return pp->pr_lock_ops->pl_sleep(ident, lock, priority, wmesg, timo);
+}
 struct pool_item {
  u_long pi_magic;
  struct { struct pool_item *sqx_next; } pi_list;
@@ -2534,7 +2585,7 @@ void *pool_do_get(struct pool *, int, int *);
 void pool_do_put(struct pool *, void *);
 int pool_chk_page(struct pool *, struct pool_page_header *, int);
 int pool_chk(struct pool *);
-void pool_get_done(void *, void *);
+void pool_get_done(struct pool *, void *, void *);
 void pool_runqueue(struct pool *, int);
 void *pool_allocator_alloc(struct pool *, int, int *);
 void pool_allocator_free(struct pool *, void *);
@@ -2596,7 +2647,7 @@ pr_find_pagehead(struct pool *pp, void *v)
  ph = phtree_RBT_NFIND(&pp->pr_phtree, &key);
  if (ph == ((void *)0))
   panic("%s: %s: page header missing", __func__, pp->pr_wchan);
- ((ph->ph_page <= (caddr_t)v) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 258, "ph->ph_page <= (caddr_t)v"));
+ ((ph->ph_page <= (caddr_t)v) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 318, "ph->ph_page <= (caddr_t)v"));
  if (ph->ph_page + pp->pr_pgsize <= (caddr_t)v)
   panic("%s: %s: incorrect page", __func__, pp->pr_wchan);
  return (ph);
@@ -2637,7 +2688,7 @@ pool_init(struct pool *pp, size_t size, u_int align, int ipl, int flags,
   while (!((pgsizes) & (pgsize)))
    pgsize >>= 1;
  }
- ((((pa_pagesz) & (pgsize))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 321, "ISSET(pa_pagesz, pgsize)"));
+ ((((pa_pagesz) & (pgsize))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 381, "ISSET(pa_pagesz, pgsize)"));
  items = pgsize / size;
  if (((pa_pagesz) & (1UL))) {
   if (pgsize - (size * items) >
@@ -2648,8 +2699,13 @@ pool_init(struct pool *pp, size_t size, u_int align, int ipl, int flags,
    items = off / size;
   }
  }
- ((items > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 341, "items > 0"));
+ ((items > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 401, "items > 0"));
  __builtin_memset((pp), (0), (sizeof(*pp)));
+ if (((flags) & (0x0010))) {
+  ((flags & 0x0001) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 408, "flags & PR_WAITOK"));
+  pp->pr_lock_ops = &pool_lock_ops_rw;
+ } else
+  pp->pr_lock_ops = &pool_lock_ops_mtx;
  do { (&pp->pr_emptypages)->tqh_first = ((void *)0); (&pp->pr_emptypages)->tqh_last = &(&pp->pr_emptypages)->tqh_first; } while (0);
  do { (&pp->pr_fullpages)->tqh_first = ((void *)0); (&pp->pr_fullpages)->tqh_last = &(&pp->pr_fullpages)->tqh_first; } while (0);
  do { (&pp->pr_partpages)->tqh_first = ((void *)0); (&pp->pr_partpages)->tqh_last = &(&pp->pr_partpages)->tqh_first; } while (0);
@@ -2686,13 +2742,14 @@ pool_init(struct pool *pp, size_t size, u_int align, int ipl, int flags,
  pp->pr_hiwat = 0;
  pp->pr_nidle = 0;
  pp->pr_ipl = ipl;
- do { (void)(wchan); (void)(0); __mtx_init((&pp->pr_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl)))); } while (0);
- do { (void)(wchan); (void)(0); __mtx_init((&pp->pr_requests_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl)))); } while (0);
+ pp->pr_flags = flags;
+ (pp)->pr_lock_ops->pl_init(pp, &pp->pr_lock, ((void *)0));
+ (pp)->pr_lock_ops->pl_init(pp, &pp->pr_requests_lock, ((void *)0));
  do { (&pp->pr_requests)->tqh_first = ((void *)0); (&pp->pr_requests)->tqh_last = &(&pp->pr_requests)->tqh_first; } while (0);
  if (phpool.pr_size == 0) {
   pool_init(&phpool, sizeof(struct pool_page_header), 0,
       15, 0, "phpool", ((void *)0));
-  ((((&phpool)->pr_phoffset != 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 399, "POOL_INPGHDR(&phpool)"));
+  ((((&phpool)->pr_phoffset != 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 466, "POOL_INPGHDR(&phpool)"));
  }
  pp->pr_crange = &kp_dirty;
  _rw_enter_write(&pool_lock );
@@ -2732,17 +2789,17 @@ pool_destroy(struct pool *pp)
  }
  _rw_exit_write(&pool_lock );
  while ((ph = ((&pp->pr_emptypages)->tqh_first)) != ((void *)0)) {
-  __mtx_enter(&pp->pr_mtx );
+  pl_enter(pp, &pp->pr_lock);
   pool_p_remove(pp, ph);
-  __mtx_leave(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_lock);
   pool_p_free(pp, ph);
  }
- (((((&pp->pr_fullpages)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 467, "TAILQ_EMPTY(&pp->pr_fullpages)"));
- (((((&pp->pr_partpages)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 468, "TAILQ_EMPTY(&pp->pr_partpages)"));
+ (((((&pp->pr_fullpages)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 534, "TAILQ_EMPTY(&pp->pr_fullpages)"));
+ (((((&pp->pr_partpages)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 535, "TAILQ_EMPTY(&pp->pr_partpages)"));
 }
 void
 pool_request_init(struct pool_request *pr,
-    void (*handler)(void *, void *), void *cookie)
+    void (*handler)(struct pool *, void *, void *), void *cookie)
 {
  pr->pr_handler = handler;
  pr->pr_cookie = cookie;
@@ -2751,13 +2808,13 @@ pool_request_init(struct pool_request *pr,
 void
 pool_request(struct pool *pp, struct pool_request *pr)
 {
- __mtx_enter(&pp->pr_requests_mtx );
+ pl_enter(pp, &pp->pr_requests_lock);
  do { (pr)->pr_entry.tqe_next = ((void *)0); (pr)->pr_entry.tqe_prev = (&pp->pr_requests)->tqh_last; *(&pp->pr_requests)->tqh_last = (pr); (&pp->pr_requests)->tqh_last = &(pr)->pr_entry.tqe_next; } while (0);
  pool_runqueue(pp, 0x0002);
- __mtx_leave(&pp->pr_requests_mtx );
+ pl_leave(pp, &pp->pr_requests_lock);
 }
 struct pool_get_memory {
- struct mutex mtx;
+ union pool_lock lock;
  void * volatile v;
 };
 void *
@@ -2765,13 +2822,15 @@ pool_get(struct pool *pp, int flags)
 {
  void *v = ((void *)0);
  int slowdown = 0;
+ ((flags & (0x0001 | 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 570, "flags & (PR_WAITOK | PR_NOWAIT)"));
+ if (pp->pr_flags & 0x0010)
+  ((flags & 0x0001) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 572, "flags & PR_WAITOK"));
  if (pp->pr_cache != ((void *)0)) {
   v = pool_cache_get(pp);
   if (v != ((void *)0))
    goto good;
  }
- ((flags & (0x0001 | 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 511, "flags & (PR_WAITOK | PR_NOWAIT)"));
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  if (pp->pr_nout >= pp->pr_hardlimit) {
   if (((flags) & (0x0002|0x0004)))
    goto fail;
@@ -2779,20 +2838,19 @@ pool_get(struct pool *pp, int flags)
   if (((flags) & (0x0002)))
    goto fail;
  }
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  if ((slowdown || pool_debug == 2) && ((flags) & (0x0001)))
   yield();
  if (v == ((void *)0)) {
-  struct pool_get_memory mem = {
-      { ((void *)0), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl))), 0 },
-      ((void *)0) };
+  struct pool_get_memory mem = { .v = ((void *)0) };
   struct pool_request pr;
+  (pp)->pr_lock_ops->pl_init(pp, &mem.lock, ((void *)0));
   pool_request_init(&pr, pool_get_done, &mem);
   pool_request(pp, &pr);
-  __mtx_enter(&mem.mtx );
+  pl_enter(pp, &mem.lock);
   while (mem.v == ((void *)0))
-   msleep(&mem, &mem.mtx, 0, pp->pr_wchan, 0);
-  __mtx_leave(&mem.mtx );
+   pl_sleep(pp, &mem, &mem.lock, 0, pp->pr_wchan, 0);
+  pl_leave(pp, &mem.lock);
   v = mem.v;
  }
 good:
@@ -2801,16 +2859,16 @@ good:
  return (v);
 fail:
  pp->pr_nfail++;
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  return (((void *)0));
 }
 void
-pool_get_done(void *xmem, void *v)
+pool_get_done(struct pool *pp, void *xmem, void *v)
 {
  struct pool_get_memory *mem = xmem;
- __mtx_enter(&mem->mtx );
+ pl_enter(pp, &mem->lock);
  mem->v = v;
- __mtx_leave(&mem->mtx );
+ pl_leave(pp, &mem->lock);
  wakeup_n((mem), 1);
 }
 void
@@ -2818,8 +2876,8 @@ pool_runqueue(struct pool *pp, int flags)
 {
  struct pool_requests prl = { ((void *)0), &(prl).tqh_first };
  struct pool_request *pr;
- do { if ((&pp->pr_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&pp->pr_mtx), __func__); } while (0);
- do { if ((&pp->pr_requests_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&pp->pr_requests_mtx), __func__); } while (0);
+ pl_assert_unlocked(pp, &pp->pr_lock);
+ pl_assert_locked(pp, &pp->pr_requests_lock);
  if (pp->pr_requesting++)
   return;
  do {
@@ -2830,8 +2888,8 @@ pool_runqueue(struct pool *pp, int flags)
   }
   if ((((&prl)->tqh_first) == ((void *)0)))
    continue;
-  __mtx_leave(&pp->pr_requests_mtx );
-  __mtx_enter(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_requests_lock);
+  pl_enter(pp, &pp->pr_lock);
   pr = ((&prl)->tqh_first);
   while (pr != ((void *)0)) {
    int slowdown = 0;
@@ -2842,13 +2900,13 @@ pool_runqueue(struct pool *pp, int flags)
     break;
    pr = ((pr)->pr_entry.tqe_next);
   }
-  __mtx_leave(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_lock);
   while ((pr = ((&prl)->tqh_first)) != ((void *)0) &&
       pr->pr_item != ((void *)0)) {
    do { if (((pr)->pr_entry.tqe_next) != ((void *)0)) (pr)->pr_entry.tqe_next->pr_entry.tqe_prev = (pr)->pr_entry.tqe_prev; else (&prl)->tqh_last = (pr)->pr_entry.tqe_prev; *(pr)->pr_entry.tqe_prev = (pr)->pr_entry.tqe_next; ((pr)->pr_entry.tqe_prev) = ((void *)-1); ((pr)->pr_entry.tqe_next) = ((void *)-1); } while (0);
-   (*pr->pr_handler)(pr->pr_cookie, pr->pr_item);
+   (*pr->pr_handler)(pp, pr->pr_cookie, pr->pr_item);
   }
-  __mtx_enter(&pp->pr_requests_mtx );
+  pl_enter(pp, &pp->pr_requests_lock);
  } while (--pp->pr_requesting);
  while ((pr = ((&prl)->tqh_first)) != ((void *)0)) {
   do { if (((pr)->pr_entry.tqe_next) != ((void *)0)) (pr)->pr_entry.tqe_next->pr_entry.tqe_prev = (pr)->pr_entry.tqe_prev; else (&prl)->tqh_last = (pr)->pr_entry.tqe_prev; *(pr)->pr_entry.tqe_prev = (pr)->pr_entry.tqe_next; ((pr)->pr_entry.tqe_prev) = ((void *)-1); ((pr)->pr_entry.tqe_next) = ((void *)-1); } while (0);
@@ -2860,13 +2918,13 @@ pool_do_get(struct pool *pp, int flags, int *slowdown)
 {
  struct pool_item *pi;
  struct pool_page_header *ph;
- do { if ((&pp->pr_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&pp->pr_mtx), __func__); } while (0);
+ pl_assert_locked(pp, &pp->pr_lock);
  do { if (splassert_ctl > 0) { splassert_check(pp->pr_ipl, __func__); } } while (0);
  pp->pr_nout++;
  if (pp->pr_curpage == ((void *)0)) {
-  __mtx_leave(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_lock);
   ph = pool_p_alloc(pp, flags, slowdown);
-  __mtx_enter(&pp->pr_mtx );
+  pl_enter(pp, &pp->pr_lock);
   if (ph == ((void *)0)) {
    pp->pr_nout--;
    return (((void *)0));
@@ -2893,7 +2951,7 @@ pool_do_get(struct pool *pp, int flags, int *slowdown)
    panic("%s: %s free list modified: "
        "page %p; item addr %p; offset 0x%zx=0x%x",
        __func__, pp->pr_wchan, ph->ph_page, pi,
-       pidx * sizeof(int), ip[pidx]);
+       (pidx * sizeof(int)) + sizeof(*pi), ip[pidx]);
   }
  }
  if (ph->ph_nmissing++ == 0) {
@@ -2919,7 +2977,7 @@ pool_put(struct pool *pp, void *v)
   pool_cache_put(pp, v);
   return;
  }
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  pool_do_put(pp, v);
  pp->pr_nout--;
  pp->pr_nput++;
@@ -2929,13 +2987,13 @@ pool_put(struct pool *pp, void *v)
   freeph = ph;
   pool_p_remove(pp, freeph);
  }
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  if (freeph != ((void *)0))
   pool_p_free(pp, freeph);
  if (!(((&pp->pr_requests)->tqh_first) == ((void *)0))) {
-  __mtx_enter(&pp->pr_requests_mtx );
+  pl_enter(pp, &pp->pr_requests_lock);
   pool_runqueue(pp, 0x0002);
-  __mtx_leave(&pp->pr_requests_mtx );
+  pl_leave(pp, &pp->pr_requests_lock);
  }
 }
 void
@@ -2984,12 +3042,12 @@ pool_prime(struct pool *pp, int n)
    break;
   do { (ph)->ph_entry.tqe_next = ((void *)0); (ph)->ph_entry.tqe_prev = (&pl)->tqh_last; *(&pl)->tqh_last = (ph); (&pl)->tqh_last = &(ph)->ph_entry.tqe_next; } while (0);
  }
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  while ((ph = ((&pl)->tqh_first)) != ((void *)0)) {
   do { if (((ph)->ph_entry.tqe_next) != ((void *)0)) (ph)->ph_entry.tqe_next->ph_entry.tqe_prev = (ph)->ph_entry.tqe_prev; else (&pl)->tqh_last = (ph)->ph_entry.tqe_prev; *(ph)->ph_entry.tqe_prev = (ph)->ph_entry.tqe_next; ((ph)->ph_entry.tqe_prev) = ((void *)-1); ((ph)->ph_entry.tqe_next) = ((void *)-1); } while (0);
   pool_p_insert(pp, ph);
  }
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  return (0);
 }
 struct pool_page_header *
@@ -2999,8 +3057,8 @@ pool_p_alloc(struct pool *pp, int flags, int *slowdown)
  struct pool_item *pi;
  caddr_t addr;
  int n;
- do { if ((&pp->pr_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&pp->pr_mtx), __func__); } while (0);
- ((pp->pr_size >= sizeof(*pi)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 849, "pp->pr_size >= sizeof(*pi)"));
+ pl_assert_unlocked(pp, &pp->pr_lock);
+ ((pp->pr_size >= sizeof(*pi)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 917, "pp->pr_size >= sizeof(*pi)"));
  addr = pool_allocator_alloc(pp, flags, slowdown);
  if (addr == ((void *)0))
   return (((void *)0));
@@ -3038,8 +3096,8 @@ void
 pool_p_free(struct pool *pp, struct pool_page_header *ph)
 {
  struct pool_item *pi;
- do { if ((&pp->pr_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&pp->pr_mtx), __func__); } while (0);
- ((ph->ph_nmissing == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 902, "ph->ph_nmissing == 0"));
+ pl_assert_unlocked(pp, &pp->pr_lock);
+ ((ph->ph_nmissing == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 970, "ph->ph_nmissing == 0"));
  for ((pi) = ((__typeof(((&ph->ph_items)->sqx_first)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((&ph->ph_items)->sqx_first)))); (pi) != ((void *)0); (pi) = ((__typeof(((pi)->pi_list.sqx_next)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((pi)->pi_list.sqx_next))))) {
   if (__builtin_expect(((pi->pi_magic != ((u_long)(pi) ^ (ph)->ph_magic)) != 0), 0)) {
    panic("%s: %s free list modified: "
@@ -3067,7 +3125,7 @@ pool_p_free(struct pool *pp, struct pool_page_header *ph)
 void
 pool_p_insert(struct pool *pp, struct pool_page_header *ph)
 {
- do { if ((&pp->pr_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&pp->pr_mtx), __func__); } while (0);
+ pl_assert_locked(pp, &pp->pr_lock);
  if (pp->pr_curpage == ((void *)0))
   pp->pr_curpage = ph;
  do { (ph)->ph_entry.tqe_next = ((void *)0); (ph)->ph_entry.tqe_prev = (&pp->pr_emptypages)->tqh_last; *(&pp->pr_emptypages)->tqh_last = (ph); (&pp->pr_emptypages)->tqh_last = &(ph)->ph_entry.tqe_next; } while (0);
@@ -3082,7 +3140,7 @@ pool_p_insert(struct pool *pp, struct pool_page_header *ph)
 void
 pool_p_remove(struct pool *pp, struct pool_page_header *ph)
 {
- do { if ((&pp->pr_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&pp->pr_mtx), __func__); } while (0);
+ pl_assert_locked(pp, &pp->pr_lock);
  pp->pr_npagefree++;
  pp->pr_npages--;
  pp->pr_nidle--;
@@ -3104,14 +3162,14 @@ void
 pool_setlowat(struct pool *pp, int n)
 {
  int prime = 0;
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  pp->pr_minitems = n;
  pp->pr_minpages = (n == 0)
   ? 0
   : ((((n)+((pp->pr_itemsperpage)-1))/(pp->pr_itemsperpage))*(pp->pr_itemsperpage)) / pp->pr_itemsperpage;
  if (pp->pr_nitems < n)
   prime = n - pp->pr_nitems;
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  if (prime > 0)
   pool_prime(pp, prime);
 }
@@ -3148,7 +3206,7 @@ pool_reclaim(struct pool *pp)
 {
  struct pool_page_header *ph, *phnext;
  struct pool_pagelist pl = { ((void *)0), &(pl).tqh_first };
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  for (ph = ((&pp->pr_emptypages)->tqh_first); ph != ((void *)0); ph = phnext) {
   phnext = ((ph)->ph_entry.tqe_next);
   if (pp->pr_npages <= pp->pr_minpages)
@@ -3159,7 +3217,7 @@ pool_reclaim(struct pool *pp)
   pool_p_remove(pp, ph);
   do { (ph)->ph_entry.tqe_next = ((void *)0); (ph)->ph_entry.tqe_prev = (&pl)->tqh_last; *(&pl)->tqh_last = (ph); (&pl)->tqh_last = &(ph)->ph_entry.tqe_next; } while (0);
  }
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  if ((((&pl)->tqh_first) == ((void *)0)))
   return (0);
  while ((ph = ((&pl)->tqh_first)) != ((void *)0)) {
@@ -3497,7 +3555,7 @@ sysctl_dopool(int *name, u_int namelen, char *oldp, size_t *oldlenp)
   break;
  case 3:
   __builtin_memset((&pi), (0), (sizeof(pi)));
-  __mtx_enter(&pp->pr_mtx );
+  pl_enter(pp, &pp->pr_lock);
   pi.pr_size = pp->pr_size;
   pi.pr_pgsize = pp->pr_pgsize;
   pi.pr_itemsperpage = pp->pr_itemsperpage;
@@ -3514,7 +3572,7 @@ sysctl_dopool(int *name, u_int namelen, char *oldp, size_t *oldlenp)
   pi.pr_npagefree = pp->pr_npagefree;
   pi.pr_hiwat = pp->pr_hiwat;
   pi.pr_nidle = pp->pr_nidle;
-  __mtx_leave(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_lock);
   pool_cache_pool_info(pp, &pi);
   rv = sysctl_rdstruct(oldp, oldlenp, ((void *)0), &pi, sizeof(pi));
   break;
@@ -3546,7 +3604,7 @@ pool_gc_pages(void *null)
   if (pp->pr_cache != ((void *)0))
    pool_cache_gc(pp);
   if (pp->pr_nidle <= pp->pr_minpages ||
-      !__mtx_enter_try(&pp->pr_mtx ))
+      !pl_enter_try(pp, &pp->pr_lock))
    continue;
   if (pp->pr_nidle > pp->pr_minpages &&
       (ph = ((&pp->pr_emptypages)->tqh_first)) != ((void *)0) &&
@@ -3555,7 +3613,7 @@ pool_gc_pages(void *null)
    pool_p_remove(pp, freeph);
   } else
    freeph = ((void *)0);
-  __mtx_leave(&pp->pr_mtx );
+  pl_leave(pp, &pp->pr_lock);
   if (freeph != ((void *)0))
    pool_p_free(pp, freeph);
  }
@@ -3633,7 +3691,7 @@ pool_multi_alloc_ni(struct pool *pp, int flags, int *slowdown)
   kv.kv_align = pp->pr_pgsize;
  kd.kd_waitok = ((flags) & (0x0001));
  kd.kd_slowdown = slowdown;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1606);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1674);
  v = km_alloc(pp->pr_pgsize, &kv, pp->pr_crange, &kd);
  _kernel_unlock();
  return (v);
@@ -3644,7 +3702,7 @@ pool_multi_free_ni(struct pool *pp, void *v)
  struct kmem_va_mode kv = kv_any;
  if (((pp)->pr_phoffset != 0))
   kv.kv_align = pp->pr_pgsize;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1621);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1689);
  km_free(v, pp->pr_pgsize, &kv, pp->pr_crange);
  _kernel_unlock();
 }
@@ -3657,11 +3715,12 @@ pool_cache_init(struct pool *pp)
  struct cpumem_iter i;
  if (pool_caches.pr_size == 0) {
   pool_init(&pool_caches, sizeof(struct pool_cache),
-      64, 0, 0x0001, "plcache", ((void *)0));
+      64, 0, 0x0001 | 0x0010,
+      "plcache", ((void *)0));
  }
- ((pp->pr_size >= sizeof(struct pool_cache_item)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1643, "pp->pr_size >= sizeof(struct pool_cache_item)"));
+ ((pp->pr_size >= sizeof(struct pool_cache_item)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1712, "pp->pr_size >= sizeof(struct pool_cache_item)"));
  cm = cpumem_get(&pool_caches);
- do { (void)(((void *)0)); (void)(0); __mtx_init((&pp->pr_cache_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl)))); } while (0);
+ (pp)->pr_lock_ops->pl_init(pp, &pp->pr_cache_lock, ((void *)0));
  arc4random_buf(pp->pr_cache_magic, sizeof(pp->pr_cache_magic));
  do { (&pp->pr_cache_lists)->tqh_first = ((void *)0); (&pp->pr_cache_lists)->tqh_last = &(&pp->pr_cache_lists)->tqh_first; } while (0);
  pp->pr_cache_nitems = 0;
@@ -3713,15 +3772,15 @@ fail:
 static inline void
 pool_list_enter(struct pool *pp)
 {
- if (__mtx_enter_try(&pp->pr_cache_mtx ) == 0) {
-  __mtx_enter(&pp->pr_cache_mtx );
+ if (pl_enter_try(pp, &pp->pr_cache_lock) == 0) {
+  pl_enter(pp, &pp->pr_cache_lock);
   pp->pr_cache_contention++;
  }
 }
 static inline void
 pool_list_leave(struct pool *pp)
 {
- __mtx_leave(&pp->pr_cache_mtx );
+ pl_leave(pp, &pp->pr_cache_lock);
 }
 static inline struct pool_cache_item *
 pool_cache_list_alloc(struct pool *pp, struct pool_cache *pc)
@@ -3846,13 +3905,13 @@ pool_cache_list_put(struct pool *pp, struct pool_cache_item *pl)
  if (pl == ((void *)0))
   return (((void *)0));
  rpl = ((pl)->ci_nextl.tqe_next);
- __mtx_enter(&pp->pr_mtx );
+ pl_enter(pp, &pp->pr_lock);
  do {
   next = pl->ci_next;
   pool_do_put(pp, pl);
   pl = next;
  } while (pl != ((void *)0));
- __mtx_leave(&pp->pr_mtx );
+ pl_leave(pp, &pp->pr_lock);
  return (rpl);
 }
 void
@@ -3881,7 +3940,7 @@ pool_cache_gc(struct pool *pp)
  unsigned int contention, delta;
  if ((ticks - pp->pr_cache_tick) > (hz * pool_wait_gc) &&
      !(((&pp->pr_cache_lists)->tqh_first) == ((void *)0)) &&
-     __mtx_enter_try(&pp->pr_cache_mtx )) {
+     pl_enter_try(pp, &pp->pr_cache_lock)) {
   struct pool_cache_item *pl = ((void *)0);
   pl = ((&pp->pr_cache_lists)->tqh_first);
   if (pl != ((void *)0)) {
@@ -3890,7 +3949,7 @@ pool_cache_gc(struct pool *pp)
    pp->pr_cache_tick = ticks;
    pp->pr_cache_ngc++;
   }
-  __mtx_leave(&pp->pr_cache_mtx );
+  pl_leave(pp, &pp->pr_cache_lock);
   pool_cache_list_put(pp, pl);
  }
  contention = pp->pr_cache_contention;
@@ -3922,11 +3981,11 @@ pool_cache_pool_info(struct pool *pp, struct kinfo_pool *pi)
   pi->pr_nget += nget;
   pi->pr_nput += nput;
  }
- __mtx_enter(&pp->pr_cache_mtx );
+ pl_enter(pp, &pp->pr_cache_lock);
  for ((pc) = cpumem_first((&i), (pp->pr_cache)); (pc) != ((void *)0); (pc) = cpumem_next((&i), (pp->pr_cache)))
   pi->pr_nout += pc->pc_nout;
  pi->pr_nout += pp->pr_cache_nout;
- __mtx_leave(&pp->pr_cache_mtx );
+ pl_leave(pp, &pp->pr_cache_lock);
 }
 int
 pool_cache_info(struct pool *pp, void *oldp, size_t *oldlenp)
@@ -3935,12 +3994,12 @@ pool_cache_info(struct pool *pp, void *oldp, size_t *oldlenp)
  if (pp->pr_cache == ((void *)0))
   return (45);
  __builtin_memset((&kpc), (0), (sizeof(kpc)));
- __mtx_enter(&pp->pr_cache_mtx );
+ pl_enter(pp, &pp->pr_cache_lock);
  kpc.pr_ngc = pp->pr_cache_ngc;
  kpc.pr_len = pp->pr_cache_items;
  kpc.pr_nitems = pp->pr_cache_nitems;
  kpc.pr_contention = pp->pr_cache_contention;
- __mtx_leave(&pp->pr_cache_mtx );
+ pl_leave(pp, &pp->pr_cache_lock);
  return (sysctl_rdstruct(oldp, oldlenp, ((void *)0), &kpc, sizeof(kpc)));
 }
 int
@@ -3986,3 +4045,96 @@ err:
  free(kpcc, 127, len);
  return (error);
 }
+void
+pool_lock_mtx_init(struct pool *pp, union pool_lock *lock,
+    struct lock_type *type)
+{
+ __mtx_init((&lock->prl_mtx), ((((pp->pr_ipl)) > 0 && ((pp->pr_ipl)) < 12) ? 12 : ((pp->pr_ipl))));
+}
+void
+pool_lock_mtx_enter(union pool_lock *lock )
+{
+ __mtx_enter(&lock->prl_mtx );
+}
+int
+pool_lock_mtx_enter_try(union pool_lock *lock )
+{
+ return (__mtx_enter_try(&lock->prl_mtx ));
+}
+void
+pool_lock_mtx_leave(union pool_lock *lock )
+{
+ __mtx_leave(&lock->prl_mtx );
+}
+void
+pool_lock_mtx_assert_locked(union pool_lock *lock)
+{
+ do { if ((&lock->prl_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&lock->prl_mtx), __func__); } while (0);
+}
+void
+pool_lock_mtx_assert_unlocked(union pool_lock *lock)
+{
+ do { if ((&lock->prl_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&lock->prl_mtx), __func__); } while (0);
+}
+int
+pool_lock_mtx_sleep(void *ident, union pool_lock *lock, int priority,
+    const char *wmesg, int timo)
+{
+ return msleep(ident, &lock->prl_mtx, priority, wmesg, timo);
+}
+static const struct pool_lock_ops pool_lock_ops_mtx = {
+ pool_lock_mtx_init,
+ pool_lock_mtx_enter,
+ pool_lock_mtx_enter_try,
+ pool_lock_mtx_leave,
+ pool_lock_mtx_assert_locked,
+ pool_lock_mtx_assert_unlocked,
+ pool_lock_mtx_sleep,
+};
+void
+pool_lock_rw_init(struct pool *pp, union pool_lock *lock,
+    struct lock_type *type)
+{
+ _rw_init_flags(&lock->prl_rwlock, pp->pr_wchan, 0, type);
+}
+void
+pool_lock_rw_enter(union pool_lock *lock )
+{
+ _rw_enter_write(&lock->prl_rwlock );
+}
+int
+pool_lock_rw_enter_try(union pool_lock *lock )
+{
+ return (_rw_enter(&lock->prl_rwlock, 0x0001UL | 0x0040UL
+     ) == 0);
+}
+void
+pool_lock_rw_leave(union pool_lock *lock )
+{
+ _rw_exit_write(&lock->prl_rwlock );
+}
+void
+pool_lock_rw_assert_locked(union pool_lock *lock)
+{
+ rw_assert_wrlock(&lock->prl_rwlock);
+}
+void
+pool_lock_rw_assert_unlocked(union pool_lock *lock)
+{
+ ((rw_status(&lock->prl_rwlock) != 0x0001UL) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 2263, "rw_status(&lock->prl_rwlock) != RW_WRITE"));
+}
+int
+pool_lock_rw_sleep(void *ident, union pool_lock *lock, int priority,
+    const char *wmesg, int timo)
+{
+ return rwsleep(ident, &lock->prl_rwlock, priority, wmesg, timo);
+}
+static const struct pool_lock_ops pool_lock_ops_rw = {
+ pool_lock_rw_init,
+ pool_lock_rw_enter,
+ pool_lock_rw_enter_try,
+ pool_lock_rw_leave,
+ pool_lock_rw_assert_locked,
+ pool_lock_rw_assert_unlocked,
+ pool_lock_rw_sleep,
+};

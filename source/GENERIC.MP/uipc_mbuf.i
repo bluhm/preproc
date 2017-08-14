@@ -1578,6 +1578,7 @@ void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
 struct pool;
 struct pool_request;
+struct pool_lock_ops;
 struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
 struct pool_allocator {
  void *(*pa_alloc)(struct pool *, int, int *);
@@ -1588,8 +1589,14 @@ struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_head
 struct pool_cache_item;
 struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
 struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
 struct pool {
- struct mutex pr_mtx;
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
  struct { struct pool *sqe_next; }
    pr_poollist;
  struct pool_pagelist
@@ -1616,12 +1623,13 @@ struct pool {
  struct pool_allocator *
    pr_alloc;
  const char * pr_wchan;
+ int pr_flags;
  int pr_ipl;
  struct phtree { struct rb_tree rbh_root; }
    pr_phtree;
  struct cpumem * pr_cache;
  unsigned long pr_cache_magic[2];
- struct mutex pr_cache_mtx;
+ union pool_lock pr_cache_lock;
  struct pool_cache_lists
    pr_cache_lists;
  u_int pr_cache_nitems;
@@ -1637,7 +1645,7 @@ struct pool {
  const char *pr_hardlimit_warning;
  struct timeval pr_hardlimit_ratecap;
  struct timeval pr_hardlimit_warning_last;
- struct mutex pr_requests_mtx;
+ union pool_lock pr_requests_lock;
  struct pool_requests
    pr_requests;
  unsigned int pr_requesting;
@@ -1655,7 +1663,7 @@ extern struct pool_allocator pool_allocator_single;
 extern struct pool_allocator pool_allocator_multi;
 struct pool_request {
  struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
- void (*pr_handler)(void *, void *);
+ void (*pr_handler)(struct pool *, void *, void *);
  void *pr_cookie;
  void *pr_item;
 };
@@ -1671,7 +1679,7 @@ void pool_set_constraints(struct pool *,
       const struct kmem_pa_mode *mode);
 void *pool_get(struct pool *, int) __attribute__((__malloc__));
 void pool_request_init(struct pool_request *,
-      void (*)(void *, void *), void *);
+      void (*)(struct pool *, void *, void *), void *);
 void pool_request(struct pool *, struct pool_request *);
 void pool_put(struct pool *, void *);
 int pool_reclaim(struct pool *);
@@ -3425,6 +3433,7 @@ enum { PF_CHANGE_NONE, PF_CHANGE_ADD_HEAD, PF_CHANGE_ADD_TAIL,
    PF_CHANGE_REMOVE, PF_CHANGE_GET_TICKET };
 enum { PF_GET_NONE, PF_GET_CLR_CNTR };
 enum { PF_SK_WIRE, PF_SK_STACK, PF_SK_BOTH };
+enum { PF_PEER_SRC, PF_PEER_DST, PF_PEER_BOTH };
 enum { PFTM_TCP_FIRST_PACKET, PFTM_TCP_OPENING, PFTM_TCP_ESTABLISHED,
    PFTM_TCP_CLOSING, PFTM_TCP_FIN_WAIT, PFTM_TCP_CLOSED,
    PFTM_UDP_FIRST_PACKET, PFTM_UDP_SINGLE, PFTM_UDP_MULTIPLE,

@@ -1822,6 +1822,7 @@ void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
 struct pool;
 struct pool_request;
+struct pool_lock_ops;
 struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
 struct pool_allocator {
  void *(*pa_alloc)(struct pool *, int, int *);
@@ -1832,8 +1833,14 @@ struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_head
 struct pool_cache_item;
 struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
 struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
 struct pool {
- struct mutex pr_mtx;
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
  struct { struct pool *sqe_next; }
    pr_poollist;
  struct pool_pagelist
@@ -1860,12 +1867,13 @@ struct pool {
  struct pool_allocator *
    pr_alloc;
  const char * pr_wchan;
+ int pr_flags;
  int pr_ipl;
  struct phtree { struct rb_tree rbh_root; }
    pr_phtree;
  struct cpumem * pr_cache;
  unsigned long pr_cache_magic[2];
- struct mutex pr_cache_mtx;
+ union pool_lock pr_cache_lock;
  struct pool_cache_lists
    pr_cache_lists;
  u_int pr_cache_nitems;
@@ -1881,7 +1889,7 @@ struct pool {
  const char *pr_hardlimit_warning;
  struct timeval pr_hardlimit_ratecap;
  struct timeval pr_hardlimit_warning_last;
- struct mutex pr_requests_mtx;
+ union pool_lock pr_requests_lock;
  struct pool_requests
    pr_requests;
  unsigned int pr_requesting;
@@ -1899,7 +1907,7 @@ extern struct pool_allocator pool_allocator_single;
 extern struct pool_allocator pool_allocator_multi;
 struct pool_request {
  struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
- void (*pr_handler)(void *, void *);
+ void (*pr_handler)(struct pool *, void *, void *);
  void *pr_cookie;
  void *pr_item;
 };
@@ -1915,7 +1923,7 @@ void pool_set_constraints(struct pool *,
       const struct kmem_pa_mode *mode);
 void *pool_get(struct pool *, int) __attribute__((__malloc__));
 void pool_request_init(struct pool_request *,
-      void (*)(void *, void *), void *);
+      void (*)(struct pool *, void *, void *), void *);
 void pool_request(struct pool *, struct pool_request *);
 void pool_put(struct pool *, void *);
 int pool_reclaim(struct pool *);
@@ -5155,6 +5163,7 @@ enum { PF_CHANGE_NONE, PF_CHANGE_ADD_HEAD, PF_CHANGE_ADD_TAIL,
    PF_CHANGE_REMOVE, PF_CHANGE_GET_TICKET };
 enum { PF_GET_NONE, PF_GET_CLR_CNTR };
 enum { PF_SK_WIRE, PF_SK_STACK, PF_SK_BOTH };
+enum { PF_PEER_SRC, PF_PEER_DST, PF_PEER_BOTH };
 enum { PFTM_TCP_FIRST_PACKET, PFTM_TCP_OPENING, PFTM_TCP_ESTABLISHED,
    PFTM_TCP_CLOSING, PFTM_TCP_FIN_WAIT, PFTM_TCP_CLOSED,
    PFTM_UDP_FIRST_PACKET, PFTM_UDP_SINGLE, PFTM_UDP_MULTIPLE,
@@ -7294,10 +7303,8 @@ static __inline int pf_state_key_addr_setup(struct pf_pdesc *, void *,
 int pf_state_key_setup(struct pf_pdesc *, struct
        pf_state_key **, struct pf_state_key **, int);
 int pf_tcp_track_full(struct pf_pdesc *,
-       struct pf_state_peer *, struct pf_state_peer *,
-       struct pf_state **, u_short *, int *);
+       struct pf_state **, u_short *, int *, int);
 int pf_tcp_track_sloppy(struct pf_pdesc *,
-       struct pf_state_peer *, struct pf_state_peer *,
        struct pf_state **, u_short *);
 static __inline int pf_synproxy(struct pf_pdesc *, struct pf_state **,
        u_short *);
@@ -7361,6 +7368,7 @@ static __inline int pf_state_compare_id(struct pf_state *,
  struct pf_state *);
 static __inline void pf_cksum_uncover(u_int16_t *, u_int16_t, u_int8_t);
 static __inline void pf_cksum_cover(u_int16_t *, u_int16_t, u_int8_t);
+static __inline void pf_set_protostate(struct pf_state *, int, u_int8_t);
 struct pf_src_tree tree_src_tracking;
 struct pf_state_tree_id tree_id;
 struct pf_state_queue state_list;
@@ -7415,6 +7423,15 @@ pf_src_compare(struct pf_src_node *a, struct pf_src_node *b)
  if ((diff = pf_addr_compare(&a->addr, &b->addr, a->af)) != 0)
   return (diff);
  return (0);
+}
+static __inline void
+pf_set_protostate(struct pf_state *s, int which, u_int8_t newstate)
+{
+ if (which == PF_PEER_DST || which == PF_PEER_BOTH)
+  s->dst.state = newstate;
+ if (which == PF_PEER_DST)
+  return;
+ s->src.state = newstate;
 }
 void
 pf_addrcpy(struct pf_addr *dst, struct pf_addr *src, sa_family_t af)
@@ -7521,8 +7538,8 @@ pf_src_connlimit(struct pf_state **state)
         0x02 ||
         (*state)->rule.ptr == st->rule.ptr)) {
      st->timeout = PFTM_PURGE;
-     st->src.state = st->dst.state =
-         0;
+     pf_set_protostate(st, PF_PEER_BOTH,
+         0);
      killed++;
     }
    }
@@ -7533,7 +7550,7 @@ pf_src_connlimit(struct pf_state **state)
    addlog("\n");
  }
  (*state)->timeout = PFTM_PURGE;
- (*state)->src.state = (*state)->dst.state = 0;
+ pf_set_protostate(*state, PF_PEER_BOTH, 0);
  return (1);
 }
 int
@@ -7671,7 +7688,7 @@ pf_state_key_attach(struct pf_state_key *sk, struct pf_state *s, int idx)
  struct pf_state_item *si;
  struct pf_state_key *cur;
  struct pf_state *olds = ((void *)0);
- ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 682, "s->key[idx] == NULL"));
+ ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 692, "s->key[idx] == NULL"));
  if ((cur = pf_state_tree_RB_INSERT(&pf_statetbl, sk)) != ((void *)0)) {
   for((si) = ((&cur->states)->tqh_first); (si) != ((void *)0); (si) = ((si)->entry.tqe_next))
    if (si->s->kif == s->kif &&
@@ -7703,8 +7720,8 @@ pf_state_key_attach(struct pf_state_key *sk, struct pf_state *s, int idx)
      addlog("\n");
     }
     if (reuse) {
-     si->s->src.state = si->s->dst.state =
-         0;
+     pf_set_protostate(si->s, PF_PEER_BOTH,
+         0);
      olds = si->s;
     } else {
      pool_put(&pf_state_key_pl, sk);
@@ -8108,7 +8125,7 @@ pf_purge_expired_rules(void)
   return;
  while ((r = ((&pf_rule_gcl)->slh_first)) != ((void *)0)) {
   do { if ((&pf_rule_gcl)->slh_first == (r)) { do { ((&pf_rule_gcl))->slh_first = ((&pf_rule_gcl))->slh_first->gcle.sle_next; } while (0); } else { struct pf_rule *curelm = (&pf_rule_gcl)->slh_first; while (curelm->gcle.sle_next != (r)) curelm = curelm->gcle.sle_next; curelm->gcle.sle_next = curelm->gcle.sle_next->gcle.sle_next; } ((r)->gcle.sle_next) = ((void *)-1); } while (0);
-  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1201, "r->rule_flag & PFRULE_EXPIRED"));
+  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1211, "r->rule_flag & PFRULE_EXPIRED"));
   pf_purge_rule(r);
  }
 }
@@ -8121,7 +8138,7 @@ void
 pf_purge(void *xnloops)
 {
  int *nloops = xnloops;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1217);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1227);
  do { _rw_enter_write(&netlock ); } while (0);
  (void)(0);
  pf_purge_expired_states(1 + (pf_status.states
@@ -8148,8 +8165,8 @@ pf_state_expires(const struct pf_state *state)
  u_int32_t states;
  if (state->timeout == PFTM_PURGE)
   return (0);
- ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1257, "state->timeout != PFTM_UNLINKED"));
- ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1258, "state->timeout < PFTM_MAX"));
+ ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1267, "state->timeout != PFTM_UNLINKED"));
+ ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1268, "state->timeout < PFTM_MAX"));
  timeout = state->rule.ptr->timeout[state->timeout];
  if (!timeout)
   timeout = pf_default_rule.timeout[state->timeout];
@@ -8243,7 +8260,7 @@ pf_free_state(struct pf_state *cur)
  (void)(0);
  if (pfsync_state_in_use(cur))
   return;
- ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1377, "cur->timeout == PFTM_UNLINKED"));
+ ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1387, "cur->timeout == PFTM_UNLINKED"));
  if (--cur->rule.ptr->states_cur == 0 &&
      cur->rule.ptr->src_nodes == 0)
   pf_rm_rule(((void *)0), cur->rule.ptr);
@@ -10193,13 +10210,13 @@ pf_create_state(struct pf_pdesc *pd, struct pf_rule *r, struct pf_rule *a,
    s->src.seqhi++;
   s->dst.seqhi = 1;
   s->dst.max_win = 1;
-  s->src.state = 2;
-  s->dst.state = 0;
+  pf_set_protostate(s, PF_PEER_SRC, 2);
+  pf_set_protostate(s, PF_PEER_DST, 0);
   s->timeout = PFTM_TCP_FIRST_PACKET;
   break;
  case 17:
-  s->src.state = 1;
-  s->dst.state = 0;
+  pf_set_protostate(s, PF_PEER_SRC, 1);
+  pf_set_protostate(s, PF_PEER_DST, 0);
   s->timeout = PFTM_UDP_FIRST_PACKET;
   break;
  case 1:
@@ -10207,8 +10224,8 @@ pf_create_state(struct pf_pdesc *pd, struct pf_rule *r, struct pf_rule *a,
   s->timeout = PFTM_ICMP_FIRST_PACKET;
   break;
  default:
-  s->src.state = 1;
-  s->dst.state = 0;
+  pf_set_protostate(s, PF_PEER_SRC, 1);
+  pf_set_protostate(s, PF_PEER_DST, 0);
   s->timeout = PFTM_OTHER_FIRST_PACKET;
  }
  s->creation = time_uptime;
@@ -10266,7 +10283,7 @@ pf_create_state(struct pf_pdesc *pd, struct pf_rule *r, struct pf_rule *a,
   int rtid = pd->rdomain;
   if (act->rtableid >= 0)
    rtid = act->rtableid;
-  s->src.state = ((11)+0);
+  pf_set_protostate(s, PF_PEER_SRC, ((11)+0));
   s->src.seqhi = arc4random();
   mss = pf_get_mss(pd);
   mss = pf_calc_mss(pd->src, pd->af, rtid, mss);
@@ -10343,15 +10360,27 @@ pf_translate(struct pf_pdesc *pd, struct pf_addr *saddr, u_int16_t sport,
  return (rewrite);
 }
 int
-pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
-    struct pf_state_peer *dst, struct pf_state **state, u_short *reason,
-    int *copyback)
+pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state **state, u_short *reason,
+    int *copyback, int reverse)
 {
  struct tcphdr *th = &pd->hdr.tcp;
+ struct pf_state_peer *src, *dst;
  u_int16_t win = ((__uint16_t)(th->th_win));
  u_int32_t ack, end, data_end, seq, orig_seq;
- u_int8_t sws, dws;
+ u_int8_t sws, dws, psrc, pdst;
  int ackskew;
+ if ((pd->dir == (*state)->direction && !reverse) ||
+     (pd->dir != (*state)->direction && reverse)) {
+  src = &(*state)->src;
+  dst = &(*state)->dst;
+  psrc = PF_PEER_SRC;
+  pdst = PF_PEER_DST;
+ } else {
+  src = &(*state)->dst;
+  dst = &(*state)->src;
+  psrc = PF_PEER_DST;
+  pdst = PF_PEER_SRC;
+ }
  if (src->wscale && dst->wscale && !(th->th_flags & 0x02)) {
   sws = src->wscale & 0x0f;
   dws = dst->wscale & 0x0f;
@@ -10397,7 +10426,7 @@ pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
    end++;
   src->seqlo = seq;
   if (src->state < 2)
-   src->state = 2;
+   pf_set_protostate(*state, psrc, 2);
   if (src->seqhi == 1 ||
       ((int)((end + (((1)>(dst->max_win << dws))?(1):(dst->max_win << dws)))-(src->seqhi)) >= 0))
    src->seqhi = end + (((1)>(dst->max_win << dws))?(1):(dst->max_win << dws));
@@ -10452,13 +10481,14 @@ pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
    dst->seqhi = ack + ((((win << sws))>(1))?((win << sws)):(1));
   if (th->th_flags & 0x02)
    if (src->state < 2)
-    src->state = 2;
+    pf_set_protostate(*state, psrc, 2);
   if (th->th_flags & 0x01)
    if (src->state < 7)
-    src->state = 7;
+    pf_set_protostate(*state, psrc, 7);
   if (th->th_flags & 0x10) {
    if (dst->state == 2) {
-    dst->state = 4;
+    pf_set_protostate(*state, pdst,
+        4);
     if (src->state == 4 &&
         !(((&(*state)->src_nodes)->slh_first) == ((void *)0)) &&
         pf_src_connlimit(state)) {
@@ -10466,10 +10496,11 @@ pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
      return (PF_DROP);
     }
    } else if (dst->state == 7)
-    dst->state = 9;
+    pf_set_protostate(*state, pdst,
+        9);
   }
   if (th->th_flags & 0x04)
-   src->state = dst->state = 10;
+   pf_set_protostate(*state, PF_PEER_BOTH, 10);
   (*state)->expire = time_uptime;
   if (src->state >= 9 &&
       dst->state >= 9)
@@ -10514,9 +10545,9 @@ pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
    dst->seqhi = ack + ((((win << sws))>(1))?((win << sws)):(1));
   if (th->th_flags & 0x01)
    if (src->state < 7)
-    src->state = 7;
+    pf_set_protostate(*state, psrc, 7);
   if (th->th_flags & 0x04)
-   src->state = dst->state = 10;
+   pf_set_protostate(*state, PF_PEER_BOTH, 10);
  } else {
   if ((*state)->dst.state == 2 &&
       (*state)->src.state == 2) {
@@ -10556,19 +10587,32 @@ pf_tcp_track_full(struct pf_pdesc *pd, struct pf_state_peer *src,
  return (PF_PASS);
 }
 int
-pf_tcp_track_sloppy(struct pf_pdesc *pd, struct pf_state_peer *src,
-    struct pf_state_peer *dst, struct pf_state **state, u_short *reason)
+pf_tcp_track_sloppy(struct pf_pdesc *pd, struct pf_state **state,
+    u_short *reason)
 {
  struct tcphdr *th = &pd->hdr.tcp;
+ struct pf_state_peer *src, *dst;
+ u_int8_t psrc, pdst;
+ if (pd->dir == (*state)->direction) {
+  src = &(*state)->src;
+  dst = &(*state)->dst;
+  psrc = PF_PEER_SRC;
+  pdst = PF_PEER_DST;
+ } else {
+  src = &(*state)->dst;
+  dst = &(*state)->src;
+  psrc = PF_PEER_DST;
+  pdst = PF_PEER_SRC;
+ }
  if (th->th_flags & 0x02)
   if (src->state < 2)
-   src->state = 2;
+   pf_set_protostate(*state, psrc, 2);
  if (th->th_flags & 0x01)
   if (src->state < 7)
-   src->state = 7;
+   pf_set_protostate(*state, psrc, 7);
  if (th->th_flags & 0x10) {
   if (dst->state == 2) {
-   dst->state = 4;
+   pf_set_protostate(*state, pdst, 4);
    if (src->state == 4 &&
        !(((&(*state)->src_nodes)->slh_first) == ((void *)0)) &&
        pf_src_connlimit(state)) {
@@ -10576,10 +10620,11 @@ pf_tcp_track_sloppy(struct pf_pdesc *pd, struct pf_state_peer *src,
     return (PF_DROP);
    }
   } else if (dst->state == 7) {
-   dst->state = 9;
+   pf_set_protostate(*state, pdst, 9);
   } else if (src->state == 2 &&
       dst->state < 2) {
-   dst->state = src->state = 4;
+   pf_set_protostate(*state, PF_PEER_BOTH,
+       4);
    if (!(((&(*state)->src_nodes)->slh_first) == ((void *)0)) &&
        pf_src_connlimit(state)) {
     do { if ((void *)(reason) != ((void *)0)) { *(reason) = (13); if (13 < 17) pf_status.counters[13]++; } } while (0);
@@ -10588,11 +10633,11 @@ pf_tcp_track_sloppy(struct pf_pdesc *pd, struct pf_state_peer *src,
   } else if (src->state == 7 &&
       dst->state == 4 &&
       dst->seqlo == 0) {
-   dst->state = 7;
+   pf_set_protostate(*state, pdst, 7);
   }
  }
  if (th->th_flags & 0x04)
-  src->state = dst->state = 10;
+  pf_set_protostate(*state, PF_PEER_BOTH, 10);
  (*state)->expire = time_uptime;
  if (src->state >= 9 &&
      dst->state >= 9)
@@ -10642,7 +10687,8 @@ pf_synproxy(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
    do { if ((void *)(reason) != ((void *)0)) { *(reason) = (13); if (13 < 17) pf_status.counters[13]++; } } while (0);
    return (PF_DROP);
   } else
-   (*state)->src.state = ((11)+1);
+   pf_set_protostate(*state, PF_PEER_SRC,
+       ((11)+1));
  }
  if ((*state)->src.state == ((11)+1)) {
   struct tcphdr *th = &pd->hdr.tcp;
@@ -10692,8 +10738,8 @@ pf_synproxy(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
    (*state)->dst.seqhi = (*state)->dst.seqlo +
        (*state)->src.max_win;
    (*state)->src.wscale = (*state)->dst.wscale = 0;
-   (*state)->src.state = (*state)->dst.state =
-       4;
+   pf_set_protostate(*state, PF_PEER_BOTH,
+       4);
    do { if ((void *)(reason) != ((void *)0)) { *(reason) = (14); if (14 < 17) pf_status.counters[14]++; } } while (0);
    return (PF_SYNPROXY_DROP);
   }
@@ -10708,6 +10754,7 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
  struct pf_state_peer *src, *dst;
  int action = PF_PASS;
  struct inpcb *inp;
+ u_int8_t psrc, pdst;
  key.af = pd->af;
  key.proto = pd->virtual_proto;
  key.rdomain = pd->rdomain;
@@ -10720,9 +10767,13 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
  if (pd->dir == (*state)->direction) {
   src = &(*state)->src;
   dst = &(*state)->dst;
+  psrc = PF_PEER_SRC;
+  pdst = PF_PEER_DST;
  } else {
   src = &(*state)->dst;
   dst = &(*state)->src;
+  psrc = PF_PEER_DST;
+  pdst = PF_PEER_SRC;
  }
  switch (pd->virtual_proto) {
  case 6:
@@ -10737,8 +10788,8 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
      pf_print_flags(pd->hdr.tcp.th_flags);
      addlog("\n");
     }
-    (*state)->src.state = 0;
-    (*state)->dst.state = 0;
+    pf_set_protostate(*state, PF_PEER_BOTH,
+        0);
     pf_remove_state(*state);
     *state = ((void *)0);
     pd->m->M_dat.MH.MH_pkthdr.pf.inp = inp;
@@ -10750,26 +10801,19 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
    }
   }
   if ((*state)->state_flags & 0x0002) {
-   if (pf_tcp_track_sloppy(pd, src, dst, state, reason) ==
-       PF_DROP)
+   if (pf_tcp_track_sloppy(pd, state, reason) == PF_DROP)
     return (PF_DROP);
   } else {
-   int ret;
-   if ((((*state)->key[PF_SK_WIRE]->af != (*state)->key[PF_SK_STACK]->af) && ((*state)->key[PF_SK_WIRE]->af != (pd->af))))
-    ret = pf_tcp_track_full(pd, dst, src, state,
-        reason, &copyback);
-   else
-    ret = pf_tcp_track_full(pd, src, dst, state,
-        reason, &copyback);
-   if (ret == PF_DROP)
+   if (pf_tcp_track_full(pd, state, reason, &copyback,
+       (((*state)->key[PF_SK_WIRE]->af != (*state)->key[PF_SK_STACK]->af) && ((*state)->key[PF_SK_WIRE]->af != (pd->af)))) == PF_DROP)
     return (PF_DROP);
   }
   break;
  case 17:
   if (src->state < 1)
-   src->state = 1;
+   pf_set_protostate(*state, psrc, 1);
   if (dst->state == 1)
-   dst->state = 2;
+   pf_set_protostate(*state, pdst, 2);
   (*state)->expire = time_uptime;
   if (src->state == 2 &&
       dst->state == 2)
@@ -10779,9 +10823,9 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
   break;
  default:
   if (src->state < 1)
-   src->state = 1;
+   pf_set_protostate(*state, psrc, 1);
   if (dst->state == 1)
-   dst->state = 2;
+   pf_set_protostate(*state, pdst, 2);
   (*state)->expire = time_uptime;
   if (src->state == 2 &&
       dst->state == 2)
@@ -12614,7 +12658,7 @@ pf_inp_lookup(struct mbuf *m)
  else
   inp = m->M_dat.MH.MH_pkthdr.pf.statekey->inp;
  if (inp && inp->inp_pf_sk)
-  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7078, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
+  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7116, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
  return (inp);
 }
 void
@@ -12642,7 +12686,7 @@ pf_inp_unlink(struct inpcb *inp)
 void
 pf_state_key_link(struct pf_state_key *sk, struct pf_state_key *pkt_sk)
 {
- (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7121, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
+ (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7159, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
  pkt_sk->reverse = pf_state_key_ref(sk);
  sk->reverse = pf_state_key_ref(pkt_sk);
 }
@@ -12668,9 +12712,9 @@ void
 pf_state_key_unref(struct pf_state_key *sk)
 {
  if ((sk != ((void *)0)) && refcnt_rele(&(sk->refcnt))) {
-  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7157, "!pf_state_key_isvalid(sk)"));
-  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7159, "sk->reverse == NULL"));
-  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7161, "sk->inp == NULL"));
+  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7195, "!pf_state_key_isvalid(sk)"));
+  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7197, "sk->reverse == NULL"));
+  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7199, "sk->inp == NULL"));
   pool_put(&pf_state_key_pl, sk);
  }
 }

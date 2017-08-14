@@ -2790,7 +2790,7 @@ pcbmap(struct denode *dep, uint32_t findcn, daddr_t *bnp, uint32_t *cnp,
   (dep)->de_fc[0].fc_frcn = i; (dep)->de_fc[0].fc_fsrcn = cn;;
   return (0);
  }
-hiteof:;
+hiteof:
  if (cnp)
   *cnp = i;
  if (bp)
