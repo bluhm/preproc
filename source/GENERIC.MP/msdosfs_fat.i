@@ -2665,7 +2665,7 @@ int uniqdosname(struct denode *, struct componentname *, u_char *);
 int findwin95(struct denode *);
 int pcbmap(struct denode *, uint32_t, daddr_t *, uint32_t *, int *);
 int clusterfree(struct msdosfsmount *, uint32_t, uint32_t *);
-int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t, uint32_t *, uint32_t *);
+int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t *, uint32_t *);
 int extendfile(struct denode *, uint32_t, struct buf **, uint32_t *, int);
 int fatentry(int, struct msdosfsmount *, uint32_t, uint32_t *, uint32_t);
 void fc_purge(struct denode *, u_int);
@@ -3057,11 +3057,12 @@ chainalloc(struct msdosfsmount *pmp, uint32_t start, uint32_t count,
 }
 int
 clusteralloc(struct msdosfsmount *pmp, uint32_t start, uint32_t count,
-    uint32_t fillwith, uint32_t *retcluster, uint32_t *got)
+    uint32_t *retcluster, uint32_t *got)
 {
  uint32_t idx;
  uint32_t len, newst, foundl, cn, l;
  uint32_t foundcn = 0;
+ uint32_t fillwith = 0xffffffff;
  u_int map;
  if (start) {
   if ((len = chainlength(pmp, start, count)) >= count)
@@ -3221,7 +3222,7 @@ extendfile(struct denode *dep, uint32_t count, struct buf **bpp, uint32_t *ncp,
  if (dep->de_fc[1].fc_frcn == 0xffffffff &&
      dep->de_StartCluster != 0) {
   fc_lfcempty++;
-  error = pcbmap(dep, 0xffff, 0, &cn, 0);
+  error = pcbmap(dep, 0xffffffff, 0, &cn, 0);
   if (error != 7)
    return (error);
  }
@@ -3231,7 +3232,7 @@ extendfile(struct denode *dep, uint32_t count, struct buf **bpp, uint32_t *ncp,
    cn = 0;
   else
    cn = dep->de_fc[1].fc_fsrcn + 1;
-  error = clusteralloc(pmp, cn, count, 0xffffffff, &cn, &got);
+  error = clusteralloc(pmp, cn, count, &cn, &got);
   if (error)
    return (error);
   count -= got;

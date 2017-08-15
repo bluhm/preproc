@@ -6062,20 +6062,20 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, size_t size)
       (reg64 & 0x1f) == 0x0f) {
    tmp = (reg64 & 0xe0) >> 5;
    reg64 = rtwn_efuse_read_1(sc, addr);
+   addr++;
    if ((reg64 & 0x0f) != 0x0f)
     off = ((reg64 & 0xf0) >> 1) | tmp;
-   addr++;
+   else
+    continue;
   } else
    off = reg64 >> 4;
   msk = reg64 & 0xf;
   for (i = 0; i < 4; i++) {
    if (msk & (1 << i))
     continue;
-   rom[off * 8 + i * 2 + 0] =
-       rtwn_efuse_read_1(sc, addr);
+   rom[off * 8 + i * 2 + 0] = rtwn_efuse_read_1(sc, addr);
    addr++;
-   rom[off * 8 + i * 2 + 1] =
-       rtwn_efuse_read_1(sc, addr);
+   rom[off * 8 + i * 2 + 1] = rtwn_efuse_read_1(sc, addr);
    addr++;
   }
  }

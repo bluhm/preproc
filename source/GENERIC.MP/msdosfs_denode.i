@@ -2697,7 +2697,7 @@ int uniqdosname(struct denode *, struct componentname *, u_char *);
 int findwin95(struct denode *);
 int pcbmap(struct denode *, uint32_t, daddr_t *, uint32_t *, int *);
 int clusterfree(struct msdosfsmount *, uint32_t, uint32_t *);
-int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t, uint32_t *, uint32_t *);
+int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t *, uint32_t *);
 int extendfile(struct denode *, uint32_t, struct buf **, uint32_t *, int);
 int fatentry(int, struct msdosfsmount *, uint32_t, uint32_t *, uint32_t);
 void fc_purge(struct denode *, u_int);
@@ -2856,7 +2856,7 @@ retry:
   uint32_t size;
   nvp->v_type = VDIR;
   if (ldep->de_StartCluster != 0) {
-   error = pcbmap(ldep, 0xffff, 0, &size, 0);
+   error = pcbmap(ldep, 0xffffffff, 0, &size, 0);
    if (error == 7) {
     ldep->de_FileSize = ((size) << (pmp)->pm_cnshift);
     error = 0;

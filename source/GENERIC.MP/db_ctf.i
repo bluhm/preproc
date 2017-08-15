@@ -2693,7 +2693,7 @@ db_ctf_type_by_index(uint16_t index)
  return ((void *)0);
 }
 void
-db_ctf_pprintf(const struct ctf_type *ctt, vaddr_t addr)
+db_ctf_pprint(const struct ctf_type *ctt, vaddr_t addr)
 {
  const struct ctf_type *ref;
  uint16_t kind;
@@ -2720,7 +2720,7 @@ db_ctf_pprintf(const struct ctf_type *ctt, vaddr_t addr)
  case 12:
  case 13:
   ref = db_ctf_type_by_index(ctt->_ctt_stype._ST._type);
-  db_ctf_pprintf(ref, addr);
+  db_ctf_pprint(ref, addr);
   break;
  case 0:
  case 9:
@@ -2754,7 +2754,7 @@ db_ctf_pprint_struct(const struct ctf_type *ctt, vaddr_t addr)
    if (name != ((void *)0))
     db_printf("%s = ", name);
    ref = db_ctf_type_by_index(ctm->ctm_type);
-   db_ctf_pprintf(ref, addr + ctm->ctm_offset / 8);
+   db_ctf_pprint(ref, addr + ctm->ctm_offset / 8);
    if (i < vlen - 1)
     db_printf(", ");
   }
@@ -2767,7 +2767,7 @@ db_ctf_pprint_struct(const struct ctf_type *ctt, vaddr_t addr)
    if (name != ((void *)0))
     db_printf("%s = ", name);
    ref = db_ctf_type_by_index(ctlm->_ctlm_member.ctm_type);
-   db_ctf_pprintf(ref, addr +
+   db_ctf_pprint(ref, addr +
        (((uint64_t)(ctlm)->ctlm_offsethi) << 32 | (ctlm)->ctlm_offsetlo) / 8);
    if (i < vlen - 1)
     db_printf(", ");
@@ -2882,6 +2882,6 @@ db_ctf_pprint_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
   return;
  }
  db_printf("%s:\t", db_tok_string);
- db_ctf_pprintf(ctt, addr);
+ db_ctf_pprint(ctt, addr);
  db_printf("\n");
 }

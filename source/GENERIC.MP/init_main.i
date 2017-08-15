@@ -6282,6 +6282,7 @@ main(void *framep)
  config_rootfound("vscsi", ((void *)0));
  config_rootfound("softraid", ((void *)0));
  diskconf();
+ db_ctf_init();
  if (mountroot == ((void *)0) || ((*mountroot)() != 0))
   panic("cannot mount root");
  ((&mountlist)->tqh_first)->mnt_flag |= 0x00004000;
@@ -6317,7 +6318,6 @@ main(void *framep)
   panic("fork zerothread");
  cpu_boot_secondary_processors();
  config_process_deferred_mountroot();
- db_ctf_init();
  start_init_exec = 1;
  wakeup((void *)&start_init_exec);
  pool_gc_pages(((void *)0));

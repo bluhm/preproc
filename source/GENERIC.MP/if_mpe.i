@@ -2989,7 +2989,7 @@ mpe_input(struct mbuf *m, struct ifnet *ifp, struct sockaddr_mpls *smpls,
  }
  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
- if (ifp && ifp->if_bpf)
+ if (ifp->if_bpf)
   bpf_mtap_af(ifp->if_bpf, 2, m, 1);
  ipv4_input(ifp, m);
 }
@@ -3007,7 +3007,7 @@ mpe_input6(struct mbuf *m, struct ifnet *ifp, struct sockaddr_mpls *smpls,
  }
  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
- if (ifp && ifp->if_bpf)
+ if (ifp->if_bpf)
   bpf_mtap_af(ifp->if_bpf, 24, m, 1);
  ipv6_input(ifp, m);
 }

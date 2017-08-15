@@ -4037,10 +4037,14 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
  struct sockaddr *saddr;
  struct sockaddr_in *sin;
  struct mbuf *m;
+ if (!(nmp->nm_sotype == 2 || nmp->nm_sotype == 1)) {
+  error = 22;
+  goto bad;
+ }
  nmp->nm_so = ((void *)0);
  saddr = ((struct sockaddr *)((nmp->nm_nam)->m_hdr.mh_data));
  error = socreate(saddr->sa_family, &nmp->nm_so, nmp->nm_sotype,
-  nmp->nm_soproto);
+     nmp->nm_soproto);
  if (error)
   goto bad;
  so = nmp->nm_so;
@@ -4120,13 +4124,7 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
   sndreserve = nmp->nm_wsize + 404;
   rcvreserve = (max(nmp->nm_rsize, nmp->nm_readdirsize) +
       404) * 2;
- } else if (nmp->nm_sotype == 5) {
-  sndreserve = (nmp->nm_wsize + 404) * 2;
-  rcvreserve = (max(nmp->nm_rsize, nmp->nm_readdirsize) +
-      404) * 2;
- } else {
-  if (nmp->nm_sotype != 1)
-   panic("nfscon sotype");
+ } else if (nmp->nm_sotype == 1) {
   if (so->so_proto->pr_flags & 0x04) {
    m = m_get((0x0001), (4));
    *((int32_t *)((m)->m_hdr.mh_data)) = 1;
@@ -4169,7 +4167,7 @@ nfs_reconnect(struct nfsreq *rep)
  while ((error = nfs_connect(nmp, rep)) != 0) {
   if (error == 4 || error == -1)
    return (4);
-  (void) tsleep((caddr_t)&lbolt, 24, "nfsrecon", 0);
+  (void)tsleep((caddr_t)&lbolt, 24, "nfsrecon", 0);
  }
  for((rp) = ((&nmp->nm_reqsq)->tqh_first); (rp) != ((void *)0); (rp) = ((rp)->r_chain.tqe_next)) {
   rp->r_flags |= 0x40;
@@ -4212,10 +4210,7 @@ nfs_send(struct socket *so, struct mbuf *nam, struct mbuf *top,
   sendnam = ((void *)0);
  else
   sendnam = nam;
- if (so->so_type == 5)
-  flags = 0x8;
- else
-  flags = 0;
+ flags = 0;
  error = sosend(so, sendnam, ((void *)0), top, ((void *)0), flags);
  if (error) {
   if (rep) {
@@ -4225,7 +4220,7 @@ nfs_send(struct socket *so, struct mbuf *nam, struct mbuf *top,
     rep->r_flags |= 0x40;
   }
   if (error != 4 && error != -1 &&
-   error != 35 && error != 32)
+      error != 35 && error != 32)
    error = 0;
  }
  return (error);
@@ -4290,17 +4285,18 @@ tryagain:
    auio.uio_resid = sizeof(u_int32_t);
    auio.uio_procp = p;
    do {
-      rcvflg = 0x40;
-      error = soreceive(so, ((void *)0), &auio, ((void *)0), ((void *)0),
-          &rcvflg, 0);
-      if (error == 35 && rep) {
-    if (rep->r_flags & 0x04)
-     return (4);
-    if (rep->r_rexmit >= rep->r_nmp->nm_retry) {
-     nfsstats.rpctimeouts++;
-     error = 32;
+    rcvflg = 0x40;
+    error = soreceive(so, ((void *)0), &auio, ((void *)0), ((void *)0),
+        &rcvflg, 0);
+    if (error == 35 && rep) {
+     if (rep->r_flags & 0x04)
+      return (4);
+     if (rep->r_rexmit >=
+         rep->r_nmp->nm_retry) {
+      nfsstats.rpctimeouts++;
+      error = 32;
+     }
     }
-      }
    } while (error == 35);
    if (!error && auio.uio_resid > 0) {
        log(6,
@@ -4327,28 +4323,28 @@ tryagain:
        error = soreceive(so, ((void *)0), &auio, mp, ((void *)0),
            &rcvflg, 0);
    } while (error == 35 || error == 4 ||
-     error == -1);
+       error == -1);
    if (!error && auio.uio_resid > 0) {
-       log(6,
-    "short receive (%zu/%u) from nfs server %s\n",
-    len - auio.uio_resid, len,
-    rep->r_nmp->nm_mountp->mnt_stat.f_mntfromname);
-       error = 32;
+    log(6, "short receive (%zu/%u) from "
+        "nfs server %s\n", len - auio.uio_resid,
+        len, rep->r_nmp->nm_mountp->
+        mnt_stat.f_mntfromname);
+    error = 32;
    }
   } else {
    auio.uio_resid = len = 100000000;
    auio.uio_procp = p;
    do {
-       rcvflg = 0;
-       error = soreceive(so, ((void *)0), &auio, mp, &control,
-           &rcvflg, 0);
-       m_freem(control);
-       if (error == 35 && rep) {
-    if (rep->r_flags & 0x04)
-     return (4);
-       }
+    rcvflg = 0;
+    error = soreceive(so, ((void *)0), &auio, mp, &control,
+        &rcvflg, 0);
+    m_freem(control);
+    if (error == 35 && rep) {
+     if (rep->r_flags & 0x04)
+      return (4);
+    }
    } while (error == 35 ||
-     (!error && *mp == ((void *)0) && control));
+       (!error && *mp == ((void *)0) && control));
    if ((rcvflg & 0x8) == 0)
     printf("Egad!!\n");
    if (!error && *mp == ((void *)0))
@@ -4422,7 +4418,7 @@ nfs_reply(struct nfsreq *myrep)
   m_freem(nam);
   info.nmi_md = info.nmi_mrep;
   info.nmi_dpos = ((caddr_t)((info.nmi_md)->m_hdr.mh_data));
-  { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (2*4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (2*4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (2*4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } };
+  { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (2 * 4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (2 * 4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (2 * 4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } };
   rxid = *tl++;
   if (*tl != rpc_reply) {
    nfsstats.rpcinvalid++;
@@ -4513,8 +4509,7 @@ tryagain:
    error = nfs_sndlock(&nmp->nm_flag, rep);
   if (!error) {
    error = nfs_send(nmp->nm_so, nmp->nm_nam,
-     m_copym(m, 0, 1000000000, 0x0001),
-     rep);
+       m_copym(m, 0, 1000000000, 0x0001), rep);
    if (nmp->nm_soflags & 0x04)
     nfs_sndunlock(&nmp->nm_flag);
   }
@@ -4708,11 +4703,11 @@ nfs_timer(void *arg)
       nmp->nm_sent < nmp->nm_cwnd) &&
      (m = m_copym(rep->r_mreq, 0, 1000000000, 0x0002))){
    if ((nmp->nm_flag & 0x00000080) == 0)
-       error = (*so->so_proto->pr_usrreq)(so, 9, m,
-       ((void *)0), ((void *)0), (__curcpu->ci_self)->ci_curproc);
+        error = (*so->so_proto->pr_usrreq)(so, 9,
+        m, ((void *)0), ((void *)0), (__curcpu->ci_self)->ci_curproc);
    else
-       error = (*so->so_proto->pr_usrreq)(so, 9, m,
-       nmp->nm_nam, ((void *)0), (__curcpu->ci_self)->ci_curproc);
+        error = (*so->so_proto->pr_usrreq)(so, 9,
+        m, nmp->nm_nam, ((void *)0), (__curcpu->ci_self)->ci_curproc);
    if (error) {
     if (((error) != 4 && (error) != -1 && (error) != 35 && ((nmp->nm_soflags) & 0x04) == 0))
      so->so_error = 0;
@@ -4764,8 +4759,8 @@ nfs_sndlock(int *flagp, struct nfsreq *rep)
   if (rep && nfs_sigintr(rep->r_nmp, rep, p))
    return (4);
   *flagp |= 0x02000000;
-  (void) tsleep((caddr_t)flagp, slpflag | (22 - 1), "nfsndlck",
-   slptimeo);
+  (void)tsleep((caddr_t)flagp, slpflag | (22 - 1), "nfsndlck",
+      slptimeo);
   if (slpflag == 0x100) {
    slpflag = 0;
    slptimeo = 2 * hz;
@@ -4798,8 +4793,8 @@ nfs_rcvlock(struct nfsreq *rep)
   if (nfs_sigintr(rep->r_nmp, rep, rep->r_procp))
    return (4);
   *flagp |= 0x08000000;
-  (void) tsleep((caddr_t)flagp, slpflag | (22 - 1), "nfsrcvlk",
-   slptimeo);
+  (void)tsleep((caddr_t)flagp, slpflag | (22 - 1), "nfsrcvlk",
+      slptimeo);
   if (rep->r_mrep != ((void *)0)) {
     return (37);
   }
@@ -4819,7 +4814,7 @@ nfs_rcvunlock(int *flagp)
  *flagp &= ~0x04000000;
  if (*flagp & 0x08000000) {
   *flagp &= ~0x08000000;
-  wakeup((caddr_t)flagp);
+  wakeup(flagp);
  }
 }
 void
@@ -4952,11 +4947,13 @@ nfs_getreq(struct nfsrv_descript *nd, struct nfsd *nfsd, int has_header)
    return (72);
   }
   { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= ((len + 2) * 4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += ((len + 2) * 4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, ((len + 2) * 4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } };
-  for (i = 0; i < len; i++)
-      if (i < 16)
-   nd->nd_cr.cr_groups[i] = ((gid_t)((__uint32_t)((int32_t)(*tl++))));
-      else
-   tl++;
+  for (i = 0; i < len; i++) {
+   if (i < 16)
+    nd->nd_cr.cr_groups[i] =
+        ((gid_t)((__uint32_t)((int32_t)(*tl++))));
+   else
+    tl++;
+  }
   nd->nd_cr.cr_ngroups = (len > 16) ? 16 : len;
   len = ((int)((__uint32_t)((int32_t)(*++tl))));
   if (len < 0 || len > 400) {
@@ -5078,98 +5075,98 @@ nfsrv_getstream(struct nfssvc_sock *slp, int waitflag)
   return (0);
  slp->ns_flag |= 0x10;
  for (;;) {
-     if (slp->ns_reclen == 0) {
-  if (slp->ns_cc < 4) {
+  if (slp->ns_reclen == 0) {
+   if (slp->ns_cc < 4) {
+    slp->ns_flag &= ~0x10;
+    return (0);
+   }
+   m = slp->ns_raw;
+   if (m->m_hdr.mh_len >= 4) {
+    __builtin_bcopy((((caddr_t)((m)->m_hdr.mh_data))), (&recmark), (4));
+    m->m_hdr.mh_data += 4;
+    m->m_hdr.mh_len -= 4;
+   } else {
+    cp1 = (caddr_t)&recmark;
+    cp2 = ((caddr_t)((m)->m_hdr.mh_data));
+    while (cp1 < ((caddr_t)&recmark) + 4) {
+     while (m->m_hdr.mh_len == 0) {
+      m = m->m_hdr.mh_next;
+      cp2 = ((caddr_t)((m)->m_hdr.mh_data));
+     }
+     *cp1++ = *cp2++;
+     m->m_hdr.mh_data++;
+     m->m_hdr.mh_len--;
+    }
+   }
+   slp->ns_cc -= 4;
+   recmark = ((__uint32_t)(recmark));
+   slp->ns_reclen = recmark & ~0x80000000;
+   if (recmark & 0x80000000)
+    slp->ns_flag |= 0x20;
+   else
+    slp->ns_flag &= ~0x20;
+   if (slp->ns_reclen > (404 + (64 * 1024))) {
+    slp->ns_flag &= ~0x10;
+    return (1);
+   }
+  }
+  recm = ((void *)0);
+  if (slp->ns_cc == slp->ns_reclen) {
+   recm = slp->ns_raw;
+   slp->ns_raw = slp->ns_rawend = ((void *)0);
+   slp->ns_cc = slp->ns_reclen = 0;
+  } else if (slp->ns_cc > slp->ns_reclen) {
+   len = 0;
+   m = slp->ns_raw;
+   om = ((void *)0);
+   while (len < slp->ns_reclen) {
+    if ((len + m->m_hdr.mh_len) > slp->ns_reclen) {
+     m2 = m_copym(m, 0, slp->ns_reclen - len,
+         waitflag);
+     if (m2) {
+      if (om) {
+       om->m_hdr.mh_next = m2;
+       recm = slp->ns_raw;
+      } else
+       recm = m2;
+      m->m_hdr.mh_data += slp->ns_reclen-len;
+      m->m_hdr.mh_len -= slp->ns_reclen-len;
+      len = slp->ns_reclen;
+     } else {
+      slp->ns_flag &= ~0x10;
+      return (35);
+     }
+    } else if ((len + m->m_hdr.mh_len) == slp->ns_reclen) {
+     om = m;
+     len += m->m_hdr.mh_len;
+     m = m->m_hdr.mh_next;
+     recm = slp->ns_raw;
+     om->m_hdr.mh_next = ((void *)0);
+    } else {
+     om = m;
+     len += m->m_hdr.mh_len;
+     m = m->m_hdr.mh_next;
+    }
+   }
+   slp->ns_raw = m;
+   slp->ns_cc -= len;
+   slp->ns_reclen = 0;
+  } else {
    slp->ns_flag &= ~0x10;
    return (0);
   }
-  m = slp->ns_raw;
-  if (m->m_hdr.mh_len >= 4) {
-   __builtin_bcopy((((caddr_t)((m)->m_hdr.mh_data))), ((caddr_t)&recmark), (4));
-   m->m_hdr.mh_data += 4;
-   m->m_hdr.mh_len -= 4;
-  } else {
-   cp1 = (caddr_t)&recmark;
-   cp2 = ((caddr_t)((m)->m_hdr.mh_data));
-   while (cp1 < ((caddr_t)&recmark) + 4) {
-    while (m->m_hdr.mh_len == 0) {
-     m = m->m_hdr.mh_next;
-     cp2 = ((caddr_t)((m)->m_hdr.mh_data));
-    }
-    *cp1++ = *cp2++;
-    m->m_hdr.mh_data++;
-    m->m_hdr.mh_len--;
-   }
+  mpp = &slp->ns_frag;
+  while (*mpp)
+   mpp = &((*mpp)->m_hdr.mh_next);
+  *mpp = recm;
+  if (slp->ns_flag & 0x20) {
+   if (slp->ns_recend)
+       slp->ns_recend->m_hdr.mh_nextpkt = slp->ns_frag;
+   else
+       slp->ns_rec = slp->ns_frag;
+   slp->ns_recend = slp->ns_frag;
+   slp->ns_frag = ((void *)0);
   }
-  slp->ns_cc -= 4;
-  recmark = ((__uint32_t)(recmark));
-  slp->ns_reclen = recmark & ~0x80000000;
-  if (recmark & 0x80000000)
-   slp->ns_flag |= 0x20;
-  else
-   slp->ns_flag &= ~0x20;
-  if (slp->ns_reclen > (404 + (64 * 1024))) {
-   slp->ns_flag &= ~0x10;
-   return (1);
-  }
-     }
-     recm = ((void *)0);
-     if (slp->ns_cc == slp->ns_reclen) {
-  recm = slp->ns_raw;
-  slp->ns_raw = slp->ns_rawend = ((void *)0);
-  slp->ns_cc = slp->ns_reclen = 0;
-     } else if (slp->ns_cc > slp->ns_reclen) {
-  len = 0;
-  m = slp->ns_raw;
-  om = ((void *)0);
-  while (len < slp->ns_reclen) {
-   if ((len + m->m_hdr.mh_len) > slp->ns_reclen) {
-    m2 = m_copym(m, 0, slp->ns_reclen - len,
-     waitflag);
-    if (m2) {
-     if (om) {
-      om->m_hdr.mh_next = m2;
-      recm = slp->ns_raw;
-     } else
-      recm = m2;
-     m->m_hdr.mh_data += slp->ns_reclen - len;
-     m->m_hdr.mh_len -= slp->ns_reclen - len;
-     len = slp->ns_reclen;
-    } else {
-     slp->ns_flag &= ~0x10;
-     return (35);
-    }
-   } else if ((len + m->m_hdr.mh_len) == slp->ns_reclen) {
-    om = m;
-    len += m->m_hdr.mh_len;
-    m = m->m_hdr.mh_next;
-    recm = slp->ns_raw;
-    om->m_hdr.mh_next = ((void *)0);
-   } else {
-    om = m;
-    len += m->m_hdr.mh_len;
-    m = m->m_hdr.mh_next;
-   }
-  }
-  slp->ns_raw = m;
-  slp->ns_cc -= len;
-  slp->ns_reclen = 0;
-     } else {
-  slp->ns_flag &= ~0x10;
-  return (0);
-     }
-     mpp = &slp->ns_frag;
-     while (*mpp)
-  mpp = &((*mpp)->m_hdr.mh_next);
-     *mpp = recm;
-     if (slp->ns_flag & 0x20) {
-  if (slp->ns_recend)
-      slp->ns_recend->m_hdr.mh_nextpkt = slp->ns_frag;
-  else
-      slp->ns_rec = slp->ns_frag;
-  slp->ns_recend = slp->ns_frag;
-  slp->ns_frag = ((void *)0);
-     }
  }
 }
 int

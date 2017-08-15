@@ -3488,7 +3488,7 @@ int msdosfs_vptofh(struct vnode *, struct fid *);
 int msdosfs_init(struct vfsconf *);
 int pcbmap(struct denode *, uint32_t, daddr_t *, uint32_t *, int *);
 int clusterfree(struct msdosfsmount *, uint32_t, uint32_t *);
-int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t, uint32_t *, uint32_t *);
+int clusteralloc(struct msdosfsmount *, uint32_t, uint32_t, uint32_t *, uint32_t *);
 int extendfile(struct denode *, uint32_t, struct buf **, uint32_t *, int);
 int fatentry(int, struct msdosfsmount *, uint32_t, uint32_t *, uint32_t);
 void fc_purge(struct denode *, u_int);

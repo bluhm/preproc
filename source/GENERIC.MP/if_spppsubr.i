@@ -3219,7 +3219,7 @@ sppp_output(struct ifnet *ifp, struct mbuf *m,
        (ifp)->if_xname);
   ++ifp->if_data.ifi_oerrors;
   _splx(s);
-  return (55);
+  return (rv ? rv : 55);
  }
  *((u_int16_t *)((m)->m_hdr.mh_data)) = protocol;
  rv = if_enqueue(ifp, m);

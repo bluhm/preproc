@@ -4124,6 +4124,11 @@ typedef enum {
  PCI_D3hot,
  PCI_D3cold
 } pci_power_t;
+static inline int
+vga_client_register(struct pci_dev *a, void *b, void *c, void *d)
+{
+ return -19;
+}
 struct i2c_algorithm;
 struct i2c_adapter {
  struct i2c_controller ic;

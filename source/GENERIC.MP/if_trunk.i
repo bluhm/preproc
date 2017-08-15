@@ -3813,7 +3813,6 @@ trunk_bcast_start(struct trunk_softc *tr, struct mbuf *m0)
 {
  int active_ports = 0;
  int errors = 0;
- int ret;
  struct trunk_port *tp, *last = ((void *)0);
  struct mbuf *m;
  for((tp) = ((&tr->tr_ports)->slh_first); (tp) != ((void *)0); (tp) = ((tp)->tp_entries.sle_next)) {
@@ -3823,12 +3822,10 @@ trunk_bcast_start(struct trunk_softc *tr, struct mbuf *m0)
   if (last != ((void *)0)) {
    m = m_copym(m0, 0, 1000000000, 0x0002);
    if (m == ((void *)0)) {
-    ret = 55;
     errors++;
     break;
    }
-   ret = if_enqueue(last->tp_if, m);
-   if (ret != 0)
+   if (if_enqueue(last->tp_if, m) != 0)
     errors++;
   }
   last = tp;
@@ -3837,11 +3834,10 @@ trunk_bcast_start(struct trunk_softc *tr, struct mbuf *m0)
   m_freem(m0);
   return (2);
  }
- ret = if_enqueue(last->tp_if, m0);
- if (ret != 0)
+ if (if_enqueue(last->tp_if, m0) != 0)
   errors++;
  if (errors == active_ports)
-  return (ret);
+  return (55);
  return (0);
 }
 int

@@ -4124,6 +4124,11 @@ typedef enum {
  PCI_D3hot,
  PCI_D3cold
 } pci_power_t;
+static inline int
+vga_client_register(struct pci_dev *a, void *b, void *c, void *d)
+{
+ return -19;
+}
 struct i2c_algorithm;
 struct i2c_adapter {
  struct i2c_controller ic;
@@ -8591,6 +8596,8 @@ static _Bool drm_dp_sideband_msg_build(struct drm_dp_sideband_msg_rx *msg,
    print_hex_dump("", "failed hdr", DUMP_PREFIX_NONE, 16, 1, replybuf, replybuflen, 0);
    return 0;
   }
+  if (!recv_hdr.somt && !msg->have_somt)
+   return 0;
   msg->curchunk_len = recv_hdr.msg_len;
   msg->curchunk_hdrlen = hdrlen;
   if (recv_hdr.somt && msg->have_somt)
@@ -8951,7 +8958,7 @@ static int drm_dp_mst_wait_tx_reply(struct drm_dp_mst_branch *mstb,
 {
  struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
  int ret;
- ret = ({ long __ret = (4 * hz); if (!(check_txmsg_state(mgr, txmsg))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 759, "!cold")); ((void)_atomic_add_int_nv((&(mgr->tx_waitq).count), 1)); sleep_setup(&sls, &mgr->tx_waitq, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(check_txmsg_state(mgr, txmsg))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(mgr->tx_waitq).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (check_txmsg_state(mgr, txmsg))) { __ret = 1; break; } } while (__ret > 0 && !(check_txmsg_state(mgr, txmsg))); __ret; });
+ ret = ({ long __ret = (4 * hz); if (!(check_txmsg_state(mgr, txmsg))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 766, "!cold")); ((void)_atomic_add_int_nv((&(mgr->tx_waitq).count), 1)); sleep_setup(&sls, &mgr->tx_waitq, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(check_txmsg_state(mgr, txmsg))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(mgr->tx_waitq).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (check_txmsg_state(mgr, txmsg))) { __ret = 1; break; } } while (__ret > 0 && !(check_txmsg_state(mgr, txmsg))); __ret; });
  _rw_enter_write(&mstb->mgr->qlock );
  if (ret > 0) {
   if (txmsg->state == 4) {
@@ -9520,7 +9527,7 @@ static void process_single_down_tx_qlock(struct drm_dp_mst_topology_mgr *mgr)
 {
  struct drm_dp_sideband_msg_tx *txmsg;
  int ret;
- ({ int __ret = !!(!(rw_status(&mgr->qlock) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&mgr->qlock) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 1495); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(!(rw_status(&mgr->qlock) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&mgr->qlock) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 1502); __builtin_expect(!!(__ret), 0); });
  if (list_empty(&mgr->tx_msg_downq)) {
   mgr->tx_down_in_progress = 0;
   return;
@@ -9908,7 +9915,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, _Bool m
   goto out_unlock;
  mgr->mst_state = mst_state;
  if (mst_state) {
-  ({ int __ret = !!(mgr->mst_primary); if (__ret) printf("WARNING %s failed at %s:%d\n", "mgr->mst_primary", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 2028); __builtin_expect(!!(__ret), 0); });
+  ({ int __ret = !!(mgr->mst_primary); if (__ret) printf("WARNING %s failed at %s:%d\n", "mgr->mst_primary", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 2035); __builtin_expect(!!(__ret), 0); });
   ret = drm_dp_dpcd_read(mgr->aux, 0x000, mgr->dpcd, 0xf);
   if (ret != 0xf) {
    do { } while( 0);
@@ -10006,7 +10013,7 @@ out_unlock:
  return ret;
 }
 ;
-static void drm_dp_get_one_sb_msg(struct drm_dp_mst_topology_mgr *mgr, _Bool up)
+static _Bool drm_dp_get_one_sb_msg(struct drm_dp_mst_topology_mgr *mgr, _Bool up)
 {
  int len;
  u8 replyblock[32];
@@ -10020,12 +10027,12 @@ static void drm_dp_get_one_sb_msg(struct drm_dp_mst_topology_mgr *mgr, _Bool up)
           replyblock, len);
  if (ret != len) {
   do { } while( 0);
-  return;
+  return 0;
  }
  ret = drm_dp_sideband_msg_build(msg, replyblock, len, 1);
  if (!ret) {
   do { } while( 0);
-  return;
+  return 0;
  }
  replylen = msg->curchunk_len + msg->curchunk_hdrlen;
  origlen = replylen;
@@ -10037,18 +10044,25 @@ static void drm_dp_get_one_sb_msg(struct drm_dp_mst_topology_mgr *mgr, _Bool up)
         replyblock, len);
   if (ret != len) {
    do { } while( 0);
+   return 0;
   }
   ret = drm_dp_sideband_msg_build(msg, replyblock, len, 0);
-  if (ret == 0)
+  if (!ret) {
    do { } while( 0);
+   return 0;
+  }
   curreply += len;
   replylen -= len;
  }
+ return 1;
 }
 static int drm_dp_mst_handle_down_rep(struct drm_dp_mst_topology_mgr *mgr)
 {
  int ret = 0;
- drm_dp_get_one_sb_msg(mgr, 0);
+ if (!drm_dp_get_one_sb_msg(mgr, 0)) {
+  __builtin_memset((&mgr->down_rep_recv), (0), (sizeof(struct drm_dp_sideband_msg_rx)));
+  return 0;
+ }
  if (mgr->down_rep_recv.have_eomt) {
   struct drm_dp_sideband_msg_tx *txmsg;
   struct drm_dp_mst_branch *mstb;
@@ -10088,7 +10102,10 @@ static int drm_dp_mst_handle_down_rep(struct drm_dp_mst_topology_mgr *mgr)
 static int drm_dp_mst_handle_up_req(struct drm_dp_mst_topology_mgr *mgr)
 {
  int ret = 0;
- drm_dp_get_one_sb_msg(mgr, 1);
+ if (!drm_dp_get_one_sb_msg(mgr, 1)) {
+  __builtin_memset((&mgr->up_req_recv), (0), (sizeof(struct drm_dp_sideband_msg_rx)));
+  return 0;
+ }
  if (mgr->up_req_recv.have_eomt) {
   struct drm_dp_sideband_msg_req_body msg;
   struct drm_dp_mst_branch *mstb = ((void *)0);
@@ -10128,7 +10145,8 @@ static int drm_dp_mst_handle_up_req(struct drm_dp_mst_topology_mgr *mgr)
    }
    do { } while( 0);
   }
-  drm_dp_put_mst_branch_device(mstb);
+  if (mstb)
+   drm_dp_put_mst_branch_device(mstb);
   __builtin_memset((&mgr->up_req_recv), (0), (sizeof(struct drm_dp_sideband_msg_rx)));
  }
  return ret;
