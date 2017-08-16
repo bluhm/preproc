@@ -5900,9 +5900,7 @@ gre_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    if (inp)
     ina_dst = &inp->inp_laddru.iau_a4u.inaddr;
   } else if (nam) {
-   sin4 = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
-   if (nam->m_hdr.mh_len == sizeof(struct sockaddr_in) &&
-       sin4->sin_family == 2)
+   if (in_nam2sin(nam, &sin4) == 0)
     ina_dst = &sin4->sin_addr;
   }
   if (ina_dst != ((void *)0) &&

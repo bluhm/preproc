@@ -3187,7 +3187,6 @@ struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
 struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
 int in6_addr2scopeid(unsigned int, struct in6_addr *);
 int in6_matchlen(struct in6_addr *, struct in6_addr *);
-int in6_are_prefix_equal(struct in6_addr *, struct in6_addr *, int);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
 struct ip6_hdr {
@@ -5925,31 +5924,28 @@ rip6_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   break;
  case 9:
  {
-  struct sockaddr_in6 tmp;
-  struct sockaddr_in6 *dst;
+  struct sockaddr_in6 dst;
+  __builtin_memset((&dst), (0), (sizeof(dst)));
+  dst.sin6_family = 24;
+  dst.sin6_len = sizeof(dst);
   if (so->so_state & 0x002) {
    if (nam) {
     error = 56;
     break;
    }
-   __builtin_bzero((&tmp), (sizeof(tmp)));
-   tmp.sin6_family = 24;
-   tmp.sin6_len = sizeof(struct sockaddr_in6);
-   __builtin_memcpy((&tmp.sin6_addr), (&in6p->inp_faddru.iau_addr6), (sizeof(struct in6_addr)));
-   dst = &tmp;
+   dst.sin6_addr = in6p->inp_faddru.iau_addr6;
   } else {
+   struct sockaddr_in6 *addr6;
    if (nam == ((void *)0)) {
     error = 57;
     break;
    }
-   if (nam->m_hdr.mh_len != sizeof(tmp)) {
-    error = 22;
+   if ((error = in6_nam2sin6(nam, &addr6)))
     break;
-   }
-   tmp = *((struct sockaddr_in6 *)((nam)->m_hdr.mh_data));
-   dst = &tmp;
+   dst.sin6_addr = addr6->sin6_addr;
+   dst.sin6_scope_id = addr6->sin6_scope_id;
   }
-  error = rip6_output(m, so, sin6tosa(dst), control);
+  error = rip6_output(m, so, sin6tosa(&dst), control);
   m = ((void *)0);
   break;
  }

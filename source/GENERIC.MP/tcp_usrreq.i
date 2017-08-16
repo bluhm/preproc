@@ -5125,7 +5125,6 @@ struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
 struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
 int in6_addr2scopeid(unsigned int, struct in6_addr *);
 int in6_matchlen(struct in6_addr *, struct in6_addr *);
-int in6_are_prefix_equal(struct in6_addr *, struct in6_addr *, int);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
 u_int tcp_sendspace = 1024*16;
@@ -5187,34 +5186,29 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    tp->t_state = 1;
   break;
  case 4:
-  switch (((struct sockaddr *)((nam)->m_hdr.mh_data))->sa_family) {
-  case 2: {
-   struct in_addr *addr =
-       &((struct sockaddr_in *)((nam)->m_hdr.mh_data))->sin_addr;
-   if ((addr->s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
-       (addr->s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xffffffff))))) ||
-       (((u_int32_t)(addr->s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))) ||
-       in_broadcast(*addr, inp->inp_rtableid)) {
-    error = 22;
+  if (inp->inp_flags & 0x100) {
+   struct sockaddr_in6 *sin6;
+   if ((error = in6_nam2sin6(nam, &sin6)))
     break;
-   }
-   error = in_pcbconnect(inp, nam);
-   break;
-  }
-  case 24: {
-   struct in6_addr *addr6 =
-       &((struct sockaddr_in6 *)((nam)->m_hdr.mh_data))->sin6_addr;
-   if (((*(const u_int32_t *)(const void *)(&(addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(addr6)->__u6_addr.__u6_addr8[12]) == 0)) ||
-       ((addr6)->__u6_addr.__u6_addr8[0] == 0xff)) {
+   if (((*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+       ((&sin6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff)) {
     error = 22;
     break;
    }
    error = in6_pcbconnect(inp, nam);
-   break;
-  }
-  default:
-   error = 47;
-   break;
+  } else
+  {
+   struct sockaddr_in *sin;
+   if ((error = in_nam2sin(nam, &sin)))
+    break;
+   if ((sin->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+       (sin->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xffffffff))))) ||
+       (((u_int32_t)(sin->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))) ||
+       in_broadcast(sin->sin_addr, inp->inp_rtableid)) {
+    error = 22;
+    break;
+   }
+   error = in_pcbconnect(inp, nam);
   }
   if (error)
    break;

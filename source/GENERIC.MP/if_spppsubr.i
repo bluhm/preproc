@@ -2779,7 +2779,6 @@ struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
 struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
 int in6_addr2scopeid(unsigned int, struct in6_addr *);
 int in6_matchlen(struct in6_addr *, struct in6_addr *);
-int in6_are_prefix_equal(struct in6_addr *, struct in6_addr *, int);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
 struct slcp {
@@ -5834,7 +5833,6 @@ sppp_update_ip6_addr(void *arg)
  struct sppp *sp = arg;
  struct ifnet *ifp = &sp->pp_if;
  struct in6_aliasreq *ifra = &sp->ipv6cp.req_ifid;
- struct in6_addr mask = in6mask128;
  struct in6_ifaddr *ia6;
  int error;
  do { _rw_enter_write(&netlock ); } while (0);
@@ -5851,7 +5849,7 @@ sppp_update_ip6_addr(void *arg)
        (ifp)->if_xname, error);
   goto out;
  }
- if (!in6_are_prefix_equal(&ia6->ia_prefixmask.sin6_addr, &mask, 128)) {
+ if (__builtin_memcmp((&ia6->ia_prefixmask.sin6_addr), (&in6mask128), (sizeof(in6mask128))) != 0) {
   ifra->ifra_dstaddr.sin6_len = 0;
   ifra->ifra_dstaddr.sin6_family = 0;
  }

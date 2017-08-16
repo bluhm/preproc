@@ -3094,12 +3094,12 @@ ndinitat(struct nameidata *ndp, u_long op, u_long flags,
     enum uio_seg segflg, int dirfd, const char *namep, struct proc *p)
 {
  __builtin_memset((ndp), (0), (sizeof(*ndp)));
- (ndp)->ni_cnd.cn_nameiop = op;
- (ndp)->ni_cnd.cn_flags = flags;
- (ndp)->ni_segflg = segflg;
- (ndp)->ni_dirfd = dirfd;
- (ndp)->ni_dirp = namep;
- (ndp)->ni_cnd.cn_proc = p;
+ ndp->ni_cnd.cn_nameiop = op;
+ ndp->ni_cnd.cn_flags = flags;
+ ndp->ni_segflg = segflg;
+ ndp->ni_dirfd = dirfd;
+ ndp->ni_dirp = namep;
+ ndp->ni_cnd.cn_proc = p;
 }
 int
 namei(struct nameidata *ndp)

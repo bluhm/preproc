@@ -2980,7 +2980,6 @@ struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
 struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
 int in6_addr2scopeid(unsigned int, struct in6_addr *);
 int in6_matchlen(struct in6_addr *, struct in6_addr *);
-int in6_are_prefix_equal(struct in6_addr *, struct in6_addr *, int);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
 struct ip6_hdr {
@@ -4469,25 +4468,6 @@ in6_matchlen(struct in6_addr *src, struct in6_addr *dst)
   } else
    match += 8;
  return match;
-}
-int
-in6_are_prefix_equal(struct in6_addr *p1, struct in6_addr *p2, int len)
-{
- int bytelen, bitlen;
- if (0 > len || len > 128) {
-  log(3, "in6_are_prefix_equal: invalid prefix length(%d)\n",
-      len);
-  return (0);
- }
- bytelen = len / 8;
- bitlen = len % 8;
- if (__builtin_bcmp((&p1->__u6_addr.__u6_addr8), (&p2->__u6_addr.__u6_addr8), (bytelen)))
-  return (0);
- if (bitlen != 0 &&
-     p1->__u6_addr.__u6_addr8[bytelen] >> (8 - bitlen) !=
-     p2->__u6_addr.__u6_addr8[bytelen] >> (8 - bitlen))
-  return (0);
- return (1);
 }
 void
 in6_prefixlen2mask(struct in6_addr *maskp, int len)
