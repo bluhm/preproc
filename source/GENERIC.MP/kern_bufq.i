@@ -1911,7 +1911,7 @@ int
 bufq_init(struct bufq *bq, int type)
 {
  u_int hi = 128, low = 64;
- if (type > 2)
+ if (type >= 2)
   panic("bufq_init: type %i unknown", type);
  if (hi >= (bcstats.kvaslots / 16)) {
   hi = bcstats.kvaslots / 16;

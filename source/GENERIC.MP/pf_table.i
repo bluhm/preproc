@@ -5192,6 +5192,8 @@ pfr_validate_addr(struct pfr_addr *ad)
   return (-1);
  if (ad->pfra_fback)
   return (-1);
+ if (ad->pfra_type >= PFRKE_MAX)
+  return (-1);
  return (0);
 }
 void
@@ -5256,6 +5258,8 @@ struct pfr_kentry *
 pfr_create_kentry(struct pfr_addr *ad)
 {
  struct pfr_kentry_all *ke;
+ if (ad->pfra_type >= PFRKE_MAX)
+  panic("unknown pfra_type %d", ad->pfra_type);
  ke = pool_get(&pfr_kentry_pl[ad->pfra_type], 0x0002 | 0x0008);
  if (ke == ((void *)0))
   return (((void *)0));
@@ -5272,9 +5276,6 @@ pfr_create_kentry(struct pfr_addr *ad)
    ke->u.kr.kif = pfi_kif_get(ad->pfra_ifname);
   if (ke->u.kr.kif)
    pfi_kif_ref(ke->u.kr.kif, PFI_KIF_REF_ROUTE);
-  break;
- default:
-  panic("unknown pfrke_type %d", ke->u._ke._pfrke_type);
   break;
  }
  switch (ad->pfra_af) {
