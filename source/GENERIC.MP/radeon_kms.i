@@ -12427,7 +12427,7 @@ radeondrm_attach_kms(struct device *parent, struct device *self, void *aux)
  ri->ri_bits = bus_space_vaddr(rdev->memt, rdev->memh);
  ri->ri_hw = rdev;
  ri->ri_updatecursor = ((void *)0);
- fbwscons_init(&rdev->sf, 0x0400 | 0x0800 | 0x0004, console);
+ fbwscons_init(&rdev->sf, 0x0800 | 0x1000 | 0x0004, console);
  if (console)
   fbwscons_console_init(&rdev->sf, -1);
 }

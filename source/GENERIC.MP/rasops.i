@@ -1587,7 +1587,7 @@ void wsfont_enum(int (*)(void *, struct wsdisplay_font *), void *);
 int wsfont_lock(int, struct wsdisplay_font **, int, int);
 int wsfont_unlock(int);
 int wsfont_map_unichar(struct wsdisplay_font *, int);
-int wsfont_rotate(int);
+int wsfont_rotate(int, int);
 struct wsdisplay_font;
 struct rasops_screen;
 struct rasops_info {
@@ -1764,7 +1764,7 @@ rasops_init(struct rasops_info *ri, int wantrows, int wantcols)
  ri->ri_copyrows = ri->ri_ops.copyrows;
  ri->ri_eraserows = ri->ri_ops.eraserows;
  ri->ri_alloc_attr = ri->ri_ops.alloc_attr;
- if (ri->ri_flg & 0x0400) {
+ if (ri->ri_flg & 0x0800) {
   void *cookie;
   int curx, cury;
   long attr;
@@ -1780,7 +1780,7 @@ rasops_init(struct rasops_info *ri, int wantrows, int wantcols)
   ri->ri_ops.eraserows = rasops_vcons_eraserows;
   ri->ri_ops.alloc_attr = rasops_vcons_alloc_attr;
   ri->ri_ops.unpack_attr = rasops_vcons_unpack_attr;
- } else if ((ri->ri_flg & 0x0800) && ri->ri_bs != ((void *)0)) {
+ } else if ((ri->ri_flg & 0x1000) && ri->ri_bs != ((void *)0)) {
   long attr;
   int i;
   ri->ri_ops.putchar = rasops_wronly_putchar;
@@ -1806,7 +1806,7 @@ rasops_reconfig(struct rasops_info *ri, int wantrows, int wantcols)
  if (ri->ri_font->fontwidth > 32 || ri->ri_font->fontwidth < 4)
   panic("rasops_init: fontwidth assumptions botched!");
  bpp = (ri->ri_depth == 15 ? 16 : ri->ri_depth);
- if ((ri->ri_flg & 0x0200) != 0)
+ if ((ri->ri_flg & 0x0400) != 0)
   ri->ri_bits = ri->ri_origbits;
  if (wantrows < 10)
   wantrows = 10;
@@ -1886,11 +1886,11 @@ rasops_reconfig(struct rasops_info *ri, int wantrows, int wantcols)
   rasops32_init(ri);
   break;
  default:
-  ri->ri_flg &= ~0x0200;
+  ri->ri_flg &= ~0x0400;
   _splx(s);
   return (-1);
  }
- ri->ri_flg |= 0x0200;
+ ri->ri_flg |= 0x0400;
  _splx(s);
  return (0);
 }
@@ -2438,7 +2438,7 @@ rasops_vcons_copycols(void *cookie, int row, int src, int dst, int num)
  __builtin_memmove((&scr->rs_bs[row * cols + dst]), (&scr->rs_bs[row * cols + src]), (num * sizeof(struct wsdisplay_charcell)));
  if (!scr->rs_visible)
   return 0;
- if ((ri->ri_flg & 0x0800) == 0)
+ if ((ri->ri_flg & 0x1000) == 0)
   return ri->ri_copycols(ri, row, src, dst, num);
  for (col = dst; col < dst + num; col++) {
   int off = row * cols + col;
@@ -2474,7 +2474,7 @@ rasops_vcons_copyrows(void *cookie, int src, int dst, int num)
  __builtin_memmove((&scr->rs_bs[dst * cols]), (&scr->rs_bs[src * cols]), (num * cols * sizeof(struct wsdisplay_charcell)));
  if (!scr->rs_visible)
   return 0;
- if ((ri->ri_flg & 0x0800) == 0)
+ if ((ri->ri_flg & 0x1000) == 0)
   return ri->ri_copyrows(ri, src, dst, num);
  for (row = dst; row < dst + num; row++) {
   for (col = 0; col < cols; col++) {
@@ -2628,7 +2628,7 @@ int
 rasops_load_font(void *v, void *cookie, struct wsdisplay_font *font)
 {
  struct rasops_info *ri = v;
- if ((ri->ri_flg & 0x0200) == 0 || ri->ri_font == ((void *)0))
+ if ((ri->ri_flg & 0x0400) == 0 || ri->ri_font == ((void *)0))
   return 22;
  if (font->data != ((void *)0))
   return rasops_add_font(ri, font);
@@ -2659,7 +2659,7 @@ rasops_list_font(void *v, struct wsdisplay_font *font)
  struct rasops_info *ri = v;
  struct rasops_list_font_ctx ctx;
  int idx;
- if ((ri->ri_flg & 0x0200) == 0 || ri->ri_font == ((void *)0))
+ if ((ri->ri_flg & 0x0400) == 0 || ri->ri_font == ((void *)0))
   return 22;
  if (font->index < 0)
   return 22;

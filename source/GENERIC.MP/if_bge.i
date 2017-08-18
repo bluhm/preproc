@@ -6111,7 +6111,7 @@ bge_reset(struct bge_softc *sc)
  bge_writemem_ind(sc, 0x00000B50, 0x4B657654);
  reset = 0x00000001 | (0x41 << 1);
  if (sc->bge_flags & 0x00000020) {
-  if (((sc->bge_chipid != 0x5785) >> 12) &&
+  if (((sc->bge_chipid) >> 12) != 0x5785 &&
       !((sc)->bge_flags & 0x00020000)) {
    if (bus_space_read_4(sc->bge_btag, sc->bge_bhandle, 0x7e2c) == 0x60) {
     bus_space_write_4(sc->bge_btag, sc->bge_bhandle, 0x7e2c, 0x20);

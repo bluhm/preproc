@@ -3560,6 +3560,8 @@ void ieee80211_recv_4way_msg1(struct ieee80211com *,
 void ieee80211_recv_4way_msg2(struct ieee80211com *,
      struct ieee80211_eapol_key *, struct ieee80211_node *,
      const u_int8_t *);
+int ieee80211_must_update_group_key(struct ieee80211_key *, const uint8_t *,
+     int);
 void ieee80211_recv_4way_msg3(struct ieee80211com *,
      struct ieee80211_eapol_key *, struct ieee80211_node *);
 void ieee80211_recv_4way_msg4(struct ieee80211com *,
@@ -3713,6 +3715,7 @@ ieee80211_recv_4way_msg1(struct ieee80211com *ic,
  arc4random_buf(ic->ic_nonce, 32);
  ieee80211_derive_ptk(ni->ni_rsnakms, ni->ni_pmk, ni->ni_macaddr,
      ic->ic_myaddr, ni->ni_nonce, ic->ic_nonce, &tptk);
+ ni->ni_flags |= 0x2000;
  if (ic->ic_ac.ac_if.if_flags & 0x4)
   printf("%s: received msg %d/%d of the %s handshake from %s\n",
       ic->ic_ac.ac_if.if_xname, 1, 4, "4-way",
@@ -3756,6 +3759,13 @@ ieee80211_recv_4way_msg2(struct ieee80211com *ic,
       ic->ic_ac.ac_if.if_xname, 2, 4, "4-way",
       ether_sprintf(ni->ni_macaddr));
  (void)ieee80211_send_4way_msg3(ic, ni);
+}
+int
+ieee80211_must_update_group_key(struct ieee80211_key *k, const uint8_t *gtk,
+    int len)
+{
+ return (k->k_cipher == IEEE80211_CIPHER_NONE || k->k_len != len ||
+     __builtin_memcmp((k->k_key), (gtk), (len)) != 0);
 }
 void
 ieee80211_recv_4way_msg3(struct ieee80211com *ic,
@@ -3888,7 +3898,8 @@ ieee80211_recv_4way_msg3(struct ieee80211com *ic,
       ether_sprintf(ni->ni_macaddr));
  if (ieee80211_send_4way_msg4(ic, ni) != 0)
   return;
- if (ni->ni_rsncipher != IEEE80211_CIPHER_USEGROUP) {
+ if (ni->ni_rsncipher != IEEE80211_CIPHER_USEGROUP &&
+     (ni->ni_flags & 0x2000)) {
   u_int64_t prsc;
   keylen = ieee80211_cipher_keylen(ni->ni_rsncipher);
   if (((u_int16_t) ((((const u_int8_t *)(key->keylen))[0] << 8) | (((const u_int8_t *)(key->keylen))[1]))) != keylen) {
@@ -3906,9 +3917,12 @@ ieee80211_recv_4way_msg3(struct ieee80211com *ic,
    reason = IEEE80211_REASON_AUTH_LEAVE;
    goto deauth;
   }
+  ni->ni_flags &= ~0x2000;
   ni->ni_flags &= ~(0x0010 | 0x0008);
   ni->ni_flags |= 0x0008;
- }
+ } else if (ni->ni_rsncipher != IEEE80211_CIPHER_USEGROUP)
+  printf("%s: unexpected pairwise key update received from %s\n",
+      ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  if (gtk != ((void *)0)) {
   u_int8_t kid;
   keylen = ieee80211_cipher_keylen(ni->ni_rsngroupcipher);
@@ -3918,19 +3932,23 @@ ieee80211_recv_4way_msg3(struct ieee80211com *ic,
   }
   kid = gtk[6] & 3;
   k = &ic->ic_nw_keys[kid];
-  __builtin_memset((k), (0), (sizeof(*k)));
-  k->k_id = kid;
-  k->k_cipher = ni->ni_rsngroupcipher;
-  k->k_flags = 0x00000001;
-  if (gtk[6] & (1 << 2))
-   k->k_flags |= 0x00000002;
-  k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
-  k->k_len = keylen;
-  __builtin_memcpy((k->k_key), (&gtk[8]), (k->k_len));
-  if ((*ic->ic_set_key)(ic, ni, k) != 0) {
-   reason = IEEE80211_REASON_AUTH_LEAVE;
-   goto deauth;
-  }
+  if (ieee80211_must_update_group_key(k, &gtk[8], keylen)) {
+   __builtin_memset((k), (0), (sizeof(*k)));
+   k->k_id = kid;
+   k->k_cipher = ni->ni_rsngroupcipher;
+   k->k_flags = 0x00000001;
+   if (gtk[6] & (1 << 2))
+    k->k_flags |= 0x00000002;
+   k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
+   k->k_len = keylen;
+   __builtin_memcpy((k->k_key), (&gtk[8]), (k->k_len));
+   if ((*ic->ic_set_key)(ic, ni, k) != 0) {
+    reason = IEEE80211_REASON_AUTH_LEAVE;
+    goto deauth;
+   }
+  } else
+   printf("%s: reused group key update received from %s\n",
+       ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  }
  if (igtk != ((void *)0)) {
   u_int16_t kid;
@@ -3945,17 +3963,21 @@ ieee80211_recv_4way_msg3(struct ieee80211com *ic,
    goto deauth;
   }
   k = &ic->ic_nw_keys[kid];
-  __builtin_memset((k), (0), (sizeof(*k)));
-  k->k_id = kid;
-  k->k_cipher = ni->ni_rsngroupmgmtcipher;
-  k->k_flags = 0x00000004;
-  k->k_mgmt_rsc = ((u_int64_t)(&igtk[8])[5] << 40 | (u_int64_t)(&igtk[8])[4] << 32 | (u_int64_t)(&igtk[8])[3] << 24 | (u_int64_t)(&igtk[8])[2] << 16 | (u_int64_t)(&igtk[8])[1] << 8 | (u_int64_t)(&igtk[8])[0]);
-  k->k_len = 16;
-  __builtin_memcpy((k->k_key), (&igtk[14]), (k->k_len));
-  if ((*ic->ic_set_key)(ic, ni, k) != 0) {
-   reason = IEEE80211_REASON_AUTH_LEAVE;
-   goto deauth;
-  }
+  if (ieee80211_must_update_group_key(k, &igtk[14], 16)) {
+   __builtin_memset((k), (0), (sizeof(*k)));
+   k->k_id = kid;
+   k->k_cipher = ni->ni_rsngroupmgmtcipher;
+   k->k_flags = 0x00000004;
+   k->k_mgmt_rsc = ((u_int64_t)(&igtk[8])[5] << 40 | (u_int64_t)(&igtk[8])[4] << 32 | (u_int64_t)(&igtk[8])[3] << 24 | (u_int64_t)(&igtk[8])[2] << 16 | (u_int64_t)(&igtk[8])[1] << 8 | (u_int64_t)(&igtk[8])[0]);
+   k->k_len = 16;
+   __builtin_memcpy((k->k_key), (&igtk[14]), (k->k_len));
+   if ((*ic->ic_set_key)(ic, ni, k) != 0) {
+    reason = IEEE80211_REASON_AUTH_LEAVE;
+    goto deauth;
+   }
+  } else
+   printf("%s: reused group key update received from %s\n",
+       ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  }
  if (info & (1 << 6))
   ni->ni_flags |= (0x0010 | 0x0008);
@@ -4124,19 +4146,23 @@ ieee80211_recv_rsn_group_msg1(struct ieee80211com *ic,
   return;
  kid = gtk[6] & 3;
  k = &ic->ic_nw_keys[kid];
- __builtin_memset((k), (0), (sizeof(*k)));
- k->k_id = kid;
- k->k_cipher = ni->ni_rsngroupcipher;
- k->k_flags = 0x00000001;
- if (gtk[6] & (1 << 2))
-  k->k_flags |= 0x00000002;
- k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
- k->k_len = keylen;
- __builtin_memcpy((k->k_key), (&gtk[8]), (k->k_len));
- if ((*ic->ic_set_key)(ic, ni, k) != 0) {
-  reason = IEEE80211_REASON_AUTH_LEAVE;
-  goto deauth;
- }
+ if (ieee80211_must_update_group_key(k, &gtk[8], keylen)) {
+  __builtin_memset((k), (0), (sizeof(*k)));
+  k->k_id = kid;
+  k->k_cipher = ni->ni_rsngroupcipher;
+  k->k_flags = 0x00000001;
+  if (gtk[6] & (1 << 2))
+   k->k_flags |= 0x00000002;
+  k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
+  k->k_len = keylen;
+  __builtin_memcpy((k->k_key), (&gtk[8]), (k->k_len));
+  if ((*ic->ic_set_key)(ic, ni, k) != 0) {
+   reason = IEEE80211_REASON_AUTH_LEAVE;
+   goto deauth;
+  }
+ } else
+  printf("%s: reused group key update received from %s\n",
+      ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  if (igtk != ((void *)0)) {
   if (igtk[1] != 4 + 24) {
    reason = IEEE80211_REASON_AUTH_LEAVE;
@@ -4149,17 +4175,21 @@ ieee80211_recv_rsn_group_msg1(struct ieee80211com *ic,
    goto deauth;
   }
   k = &ic->ic_nw_keys[kid];
-  __builtin_memset((k), (0), (sizeof(*k)));
-  k->k_id = kid;
-  k->k_cipher = ni->ni_rsngroupmgmtcipher;
-  k->k_flags = 0x00000004;
-  k->k_mgmt_rsc = ((u_int64_t)(&igtk[8])[5] << 40 | (u_int64_t)(&igtk[8])[4] << 32 | (u_int64_t)(&igtk[8])[3] << 24 | (u_int64_t)(&igtk[8])[2] << 16 | (u_int64_t)(&igtk[8])[1] << 8 | (u_int64_t)(&igtk[8])[0]);
-  k->k_len = 16;
-  __builtin_memcpy((k->k_key), (&igtk[14]), (k->k_len));
-  if ((*ic->ic_set_key)(ic, ni, k) != 0) {
-   reason = IEEE80211_REASON_AUTH_LEAVE;
-   goto deauth;
-  }
+  if (ieee80211_must_update_group_key(k, &igtk[14], 16)) {
+   __builtin_memset((k), (0), (sizeof(*k)));
+   k->k_id = kid;
+   k->k_cipher = ni->ni_rsngroupmgmtcipher;
+   k->k_flags = 0x00000004;
+   k->k_mgmt_rsc = ((u_int64_t)(&igtk[8])[5] << 40 | (u_int64_t)(&igtk[8])[4] << 32 | (u_int64_t)(&igtk[8])[3] << 24 | (u_int64_t)(&igtk[8])[2] << 16 | (u_int64_t)(&igtk[8])[1] << 8 | (u_int64_t)(&igtk[8])[0]);
+   k->k_len = 16;
+   __builtin_memcpy((k->k_key), (&igtk[14]), (k->k_len));
+   if ((*ic->ic_set_key)(ic, ni, k) != 0) {
+    reason = IEEE80211_REASON_AUTH_LEAVE;
+    goto deauth;
+   }
+  } else
+   printf("%s: reused group key update received from %s\n",
+       ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  }
  if (info & (1 << 9)) {
   if (ic->ic_opmode != IEEE80211_M_IBSS ||
@@ -4189,6 +4219,7 @@ ieee80211_recv_wpa_group_msg1(struct ieee80211com *ic,
  u_int16_t info;
  u_int8_t kid;
  int keylen;
+ const uint8_t *gtk;
  if (ic->ic_opmode != IEEE80211_M_STA &&
      ic->ic_opmode != IEEE80211_M_IBSS)
   return;
@@ -4217,20 +4248,25 @@ ieee80211_recv_wpa_group_msg1(struct ieee80211com *ic,
  info = ((u_int16_t) ((((const u_int8_t *)(key->info))[0] << 8) | (((const u_int8_t *)(key->info))[1])));
  kid = (info >> 4) & 3;
  k = &ic->ic_nw_keys[kid];
- __builtin_memset((k), (0), (sizeof(*k)));
- k->k_id = kid;
- k->k_cipher = ni->ni_rsngroupcipher;
- k->k_flags = 0x00000001;
- if (info & (1 << 6))
-  k->k_flags |= 0x00000002;
- k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
- k->k_len = keylen;
- __builtin_memcpy((k->k_key), (&key[1]), (k->k_len));
- if ((*ic->ic_set_key)(ic, ni, k) != 0) {
-  ((*(ic)->ic_send_mgmt)(ic, ni, 0xc0, IEEE80211_REASON_AUTH_LEAVE, 0));
-  (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
-  return;
- }
+ gtk = (const uint8_t *)&key[1];
+ if (ieee80211_must_update_group_key(k, gtk, keylen)) {
+  __builtin_memset((k), (0), (sizeof(*k)));
+  k->k_id = kid;
+  k->k_cipher = ni->ni_rsngroupcipher;
+  k->k_flags = 0x00000001;
+  if (info & (1 << 6))
+   k->k_flags |= 0x00000002;
+  k->k_rsc[0] = ((u_int64_t)(key->rsc)[5] << 40 | (u_int64_t)(key->rsc)[4] << 32 | (u_int64_t)(key->rsc)[3] << 24 | (u_int64_t)(key->rsc)[2] << 16 | (u_int64_t)(key->rsc)[1] << 8 | (u_int64_t)(key->rsc)[0]);
+  k->k_len = keylen;
+  __builtin_memcpy((k->k_key), (gtk), (k->k_len));
+  if ((*ic->ic_set_key)(ic, ni, k) != 0) {
+   ((*(ic)->ic_send_mgmt)(ic, ni, 0xc0, IEEE80211_REASON_AUTH_LEAVE, 0));
+   (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
+   return;
+  }
+ } else
+  printf("%s: reused group key update received from %s\n",
+      ic->ic_ac.ac_if.if_xname, ether_sprintf(ni->ni_macaddr));
  if (info & (1 << 9)) {
   if (ic->ic_opmode != IEEE80211_M_IBSS ||
       ++ni->ni_key_count == 2)

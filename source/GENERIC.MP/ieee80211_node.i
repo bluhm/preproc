@@ -6672,6 +6672,7 @@ ieee80211_node_join_rsn(struct ieee80211com *ic, struct ieee80211_node *ni)
  ni->ni_key_count = 0;
  ni->ni_port_valid = 0;
  ni->ni_flags &= ~(0x0010 | 0x0008);
+ ni->ni_flags &= ~0x2000;
  ni->ni_replaycnt = -1;
  ni->ni_rsn_retries = 0;
  ni->ni_rsncipher = ni->ni_rsnciphers;
@@ -6974,7 +6975,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2006, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2007, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

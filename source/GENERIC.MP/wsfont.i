@@ -1478,7 +1478,7 @@ void wsfont_enum(int (*)(void *, struct wsdisplay_font *), void *);
 int wsfont_lock(int, struct wsdisplay_font **, int, int);
 int wsfont_unlock(int);
 int wsfont_map_unichar(struct wsdisplay_font *, int);
-int wsfont_rotate(int);
+int wsfont_rotate(int, int);
 static u_char bold8x16_iso1_data[];
 struct wsdisplay_font bold8x16_iso1 = {
  "Boldface.iso1",

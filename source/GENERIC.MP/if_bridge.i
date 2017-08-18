@@ -6212,7 +6212,7 @@ bridge_ipsec(struct bridge_softc *sc, struct ifnet *ifp,
   switch (af) {
   case 2:
    if (m->M_dat.MH.MH_pkthdr.len - hlen < 2 * sizeof(u_int32_t))
-    break;
+    goto skiplookup;
    ip = ((struct ip *)((m)->m_hdr.mh_data));
    proto = ip->ip_p;
    off = __builtin_offsetof(struct ip, ip_p);
@@ -6228,7 +6228,7 @@ bridge_ipsec(struct bridge_softc *sc, struct ifnet *ifp,
    break;
   case 24:
    if (m->M_dat.MH.MH_pkthdr.len - hlen < 2 * sizeof(u_int32_t))
-    break;
+    goto skiplookup;
    ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
    proto = ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
    off = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_nxt);

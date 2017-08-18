@@ -8340,7 +8340,7 @@ int
 qlw_pci_match(struct device *parent, void *match, void *aux)
 {
  struct pci_attach_args *pa = aux;
- if ((((pa->pa_id == 0x1216) >> 16) & 0xffff)) {
+ if ((((pa->pa_id) >> 16) & 0xffff) == 0x1216) {
   pcireg_t subid;
   subid = pci_conf_read(pa->pa_pc, pa->pa_tag, 0x2c);
   if ((((subid) >> 0) & 0xffff) == 0x101e)

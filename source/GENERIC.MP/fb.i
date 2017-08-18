@@ -3209,7 +3209,7 @@ fbwscons_console_init(struct sunfb *sf, int row)
  if (ri->ri_updatecursor != ((void *)0) &&
      (sf->sf_ccolp != ((void *)0) || sf->sf_crowp != ((void *)0)))
   ri->ri_updatecursor = fb_updatecursor;
- if (ri->ri_flg & 0x0400)
+ if (ri->ri_flg & 0x0800)
   cookie = ri->ri_active;
  else
   cookie = ri;
@@ -3281,7 +3281,7 @@ fb_alloc_screen(void *v, const struct wsscreen_descr *type,
  void *cookie;
  if (sf->sf_nscreens > 0)
   return (12);
- if (ri->ri_flg & 0x0400)
+ if (ri->ri_flg & 0x0800)
   cookie = ri->ri_active;
  else
   cookie = ri;
