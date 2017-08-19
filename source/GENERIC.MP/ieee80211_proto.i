@@ -3065,6 +3065,7 @@ struct ieee80211com;
 struct ieee80211_node;
 void ieee80211_crypto_attach(struct ifnet *);
 void ieee80211_crypto_detach(struct ifnet *);
+void ieee80211_crypto_clear_groupkeys(struct ieee80211com *);
 struct ieee80211_key *ieee80211_get_txkey(struct ieee80211com *,
      const struct ieee80211_frame *, struct ieee80211_node *);
 struct ieee80211_key *ieee80211_get_rxkey(struct ieee80211com *,
@@ -4476,6 +4477,7 @@ justcleanup:
    break;
   }
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
+  ieee80211_crypto_clear_groupkeys(ic);
   break;
  case IEEE80211_S_SCAN:
   ic->ic_flags &= ~0x00000002;
@@ -4486,6 +4488,7 @@ justcleanup:
   ni->ni_associd = 0;
   ni->ni_rstamp = 0;
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
+  ieee80211_crypto_clear_groupkeys(ic);
   switch (ostate) {
   case IEEE80211_S_INIT:
    if (ic->ic_opmode == IEEE80211_M_HOSTAP &&
@@ -4517,6 +4520,7 @@ justcleanup:
   break;
  case IEEE80211_S_AUTH:
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
+  ieee80211_crypto_clear_groupkeys(ic);
   switch (ostate) {
   case IEEE80211_S_INIT:
    if (ifp->if_flags & 0x4)

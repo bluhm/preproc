@@ -3669,6 +3669,7 @@ struct ieee80211com;
 struct ieee80211_node;
 void ieee80211_crypto_attach(struct ifnet *);
 void ieee80211_crypto_detach(struct ifnet *);
+void ieee80211_crypto_clear_groupkeys(struct ieee80211com *);
 struct ieee80211_key *ieee80211_get_txkey(struct ieee80211com *,
      const struct ieee80211_frame *, struct ieee80211_node *);
 struct ieee80211_key *ieee80211_get_rxkey(struct ieee80211com *,
@@ -7014,7 +7015,7 @@ ar9380_init_from_rom(struct athn_softc *sc, struct ieee80211_channel *c,
  if (((sc)->mac_ver == 0x240))
   ar9485_init_swreg(sc);
  else
-  ar9485_init_swreg(sc);
+  ar9380_init_swreg(sc);
  if (((sc)->mac_ver == 0x240) &&
      (eep->baseEepHeader.featureEnable & 0x40)) {
   reg64 = (sc)->ops.read((sc), (0x16290));

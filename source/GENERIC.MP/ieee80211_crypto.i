@@ -3026,6 +3026,7 @@ struct ieee80211com;
 struct ieee80211_node;
 void ieee80211_crypto_attach(struct ifnet *);
 void ieee80211_crypto_detach(struct ifnet *);
+void ieee80211_crypto_clear_groupkeys(struct ieee80211com *);
 struct ieee80211_key *ieee80211_get_txkey(struct ieee80211com *,
      const struct ieee80211_frame *, struct ieee80211_node *);
 struct ieee80211_key *ieee80211_get_rxkey(struct ieee80211com *,
@@ -4037,20 +4038,25 @@ ieee80211_crypto_detach(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
  struct ieee80211_pmk *pmk;
- int i;
  while ((pmk = ((&ic->ic_pmksa)->tqh_first)) != ((void *)0)) {
   do { if (((pmk)->pmk_next.tqe_next) != ((void *)0)) (pmk)->pmk_next.tqe_next->pmk_next.tqe_prev = (pmk)->pmk_next.tqe_prev; else (&ic->ic_pmksa)->tqh_last = (pmk)->pmk_next.tqe_prev; *(pmk)->pmk_next.tqe_prev = (pmk)->pmk_next.tqe_next; ((pmk)->pmk_next.tqe_prev) = ((void *)-1); ((pmk)->pmk_next.tqe_next) = ((void *)-1); } while (0);
   explicit_bzero(pmk, sizeof(*pmk));
   free(pmk, 2, sizeof(*pmk));
  }
+ ieee80211_crypto_clear_groupkeys(ic);
+ explicit_bzero(ic->ic_psk, 32);
+ timeout_del(&ic->ic_tkip_micfail_timeout);
+}
+void
+ieee80211_crypto_clear_groupkeys(struct ieee80211com *ic)
+{
+ int i;
  for (i = 0; i < 6; i++) {
   struct ieee80211_key *k = &ic->ic_nw_keys[i];
   if (k->k_cipher != IEEE80211_CIPHER_NONE)
    (*ic->ic_delete_key)(ic, ((void *)0), k);
   explicit_bzero(k, sizeof(*k));
  }
- explicit_bzero(ic->ic_psk, 32);
- timeout_del(&ic->ic_tkip_micfail_timeout);
 }
 int
 ieee80211_cipher_keylen(enum ieee80211_cipher cipher)

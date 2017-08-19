@@ -3707,7 +3707,7 @@ nvme_attach(struct nvme_softc *sc)
  sc->sc_hib_q = nvme_q_alloc(sc, 2, 4, sc->sc_dstrd);
  if (sc->sc_hib_q == ((void *)0)) {
   printf("%s: unable to allocate hibernate io queue\n", ((sc)->sc_dev.dv_xname));
-  goto free_hib_q;
+  goto free_q;
  }
  bus_space_write_4((sc)->sc_iot, (sc)->sc_ioh, (0x0010), (1));
  sc->sc_namespaces = mallocarray(sc->sc_nn, sizeof(*sc->sc_namespaces),
@@ -3723,8 +3723,6 @@ nvme_attach(struct nvme_softc *sc)
  saa.saa_sc_link = &sc->sc_link;
  sc->sc_scsibus = (struct scsibus_softc *)config_found_sm((&sc->sc_dev), (&saa), (scsiprint), ((void *)0));
  return (0);
-free_hib_q:
- nvme_q_free(sc, sc->sc_hib_q);
 free_q:
  nvme_q_free(sc, sc->sc_q);
 disable:
@@ -3777,7 +3775,7 @@ nvme_scsi_probe(struct scsi_link *link)
  struct nvme_ccb *ccb;
  int rv;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
- ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 450, "ccb != NULL"));
+ ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 448, "ccb != NULL"));
  mem = nvme_dmamem_alloc(sc, sizeof(*identify));
  if (mem == ((void *)0))
   return (12);
@@ -4266,7 +4264,7 @@ nvme_q_create(struct nvme_softc *sc, struct nvme_queue *q)
  struct nvme_ccb *ccb;
  int rv;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
- ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1080, "ccb != NULL"));
+ ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1078, "ccb != NULL"));
  ccb->ccb_done = nvme_empty_done;
  ccb->ccb_cookie = &sqe;
  __builtin_memset((&sqe), (0), (sizeof(sqe)));
@@ -4301,7 +4299,7 @@ nvme_q_delete(struct nvme_softc *sc, struct nvme_queue *q)
  struct nvme_ccb *ccb;
  int rv;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
- ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1124, "ccb != NULL"));
+ ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1122, "ccb != NULL"));
  ccb->ccb_done = nvme_empty_done;
  ccb->ccb_cookie = &sqe;
  __builtin_memset((&sqe), (0), (sizeof(sqe)));

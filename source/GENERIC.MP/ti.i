@@ -3655,7 +3655,7 @@ ti_cmd(struct ti_softc *sc, struct ti_cmd_desc *cmd)
  u_int32_t index;
  index = sc->ti_cmd_saved_prodidx;
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x700 + (index * 4)), (*(u_int32_t *)(cmd)));
- (index) = (index + 1) % 64;
+ do { (index) = (index + 1) % 64; } while (0);
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x50C), (index));
  sc->ti_cmd_saved_prodidx = index;
 }
@@ -3667,10 +3667,10 @@ ti_cmd_ext(struct ti_softc *sc, struct ti_cmd_desc *cmd, caddr_t arg,
  int i;
  index = sc->ti_cmd_saved_prodidx;
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x700 + (index * 4)), (*(u_int32_t *)(cmd)));
- (index) = (index + 1) % 64;
+ do { (index) = (index + 1) % 64; } while (0);
  for (i = 0; i < len; i++) {
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x700 + (index * 4)), (*(u_int32_t *)(&arg[i * 4])));
-  (index) = (index + 1) % 64;
+  do { (index) = (index + 1) % 64; } while (0);
  }
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x50C), (index));
  sc->ti_cmd_saved_prodidx = index;
@@ -3739,7 +3739,7 @@ ti_handle_events(struct ti_softc *sc)
           (((((e)->ti_eventx)) >> 24) & 0xff));
    break;
   }
-  (sc->ti_ev_saved_considx) = (sc->ti_ev_saved_considx + 1) % 256;
+  do { (sc->ti_ev_saved_considx) = (sc->ti_ev_saved_considx + 1) % 256; } while (0);
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x628), (sc->ti_ev_saved_considx));
  }
 }
@@ -3876,7 +3876,7 @@ ti_init_rx_ring_std(struct ti_softc *sc)
   if (ti_newbuf_std(sc, i, ((void *)0), 0) == 55)
    return (55);
  }
- if (sc->ti_hwrev == 0x01) { cmd.ti_cmdx = (((0x03) << 24) | ((0) << 12) | ((i - 1))); ti_cmd(sc, &cmd);; } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x51C), (i - 1)); };
+ do { if (sc->ti_hwrev == 0x01) { do { cmd.ti_cmdx = (((0x03) << 24) | ((0) << 12) | ((i - 1))); ti_cmd(sc, &cmd); } while (0); } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x51C), (i - 1)); } } while (0);
  sc->ti_std = i - 1;
  return (0);
 }
@@ -3904,7 +3904,7 @@ ti_init_rx_ring_jumbo(struct ti_softc *sc)
   if (ti_newbuf_jumbo(sc, i, ((void *)0), 0) == 55)
    return (55);
  };
- if (sc->ti_hwrev == 0x01) { cmd.ti_cmdx = (((0x10) << 24) | ((0) << 12) | ((i - 1))); ti_cmd(sc, &cmd);; } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x524), (i - 1)); };
+ do { if (sc->ti_hwrev == 0x01) { do { cmd.ti_cmdx = (((0x10) << 24) | ((0) << 12) | ((i - 1))); ti_cmd(sc, &cmd); } while (0); } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x524), (i - 1)); } } while (0);
  sc->ti_jumbo = i - 1;
  return (0);
 }
@@ -3928,7 +3928,7 @@ ti_init_rx_ring_mini(struct ti_softc *sc)
   if (ti_newbuf_mini(sc, i, ((void *)0), 0) == 55)
    return (55);
  };
- bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x52C), (i - 1));;
+ do { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x52C), (i - 1)); } while (0);
  sc->ti_mini = i - 1;
  return (0);
 }
@@ -4003,12 +4003,12 @@ ti_add_mcast(struct ti_softc *sc, struct ether_addr *addr)
  case 0x01:
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x610), (((__uint16_t)(m[0]))));
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x614), ((((__uint16_t)(m[1])) << 16) | ((__uint16_t)(m[2]))));
-  cmd.ti_cmdx = (((0x08) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x08) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   break;
  case 0x02:
   ext[0] = ((__uint16_t)(m[0]));
   ext[1] = (((__uint16_t)(m[1])) << 16) | ((__uint16_t)(m[2]));
-  cmd.ti_cmdx = (((0x12) << 24) | ((0) << 12) | ((0))); ti_cmd_ext(sc, &cmd, (caddr_t)&ext, 2);;
+  do { cmd.ti_cmdx = (((0x12) << 24) | ((0) << 12) | ((0))); ti_cmd_ext(sc, &cmd, (caddr_t)&ext, 2); } while (0);
   break;
  default:
   printf("%s: unknown hwrev\n", sc->sc_dv.dv_xname);
@@ -4026,12 +4026,12 @@ ti_del_mcast(struct ti_softc *sc, struct ether_addr *addr)
  case 0x01:
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x610), (((__uint16_t)(m[0]))));
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x614), ((((__uint16_t)(m[1])) << 16) | ((__uint16_t)(m[2]))));
-  cmd.ti_cmdx = (((0x09) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x09) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   break;
  case 0x02:
   ext[0] = ((__uint16_t)(m[0]));
   ext[1] = (((__uint16_t)(m[1])) << 16) | ((__uint16_t)(m[2]));
-  cmd.ti_cmdx = (((0x13) << 24) | ((0) << 12) | ((0))); ti_cmd_ext(sc, &cmd, (caddr_t)&ext, 2);;
+  do { cmd.ti_cmdx = (((0x13) << 24) | ((0) << 12) | ((0))); ti_cmd_ext(sc, &cmd, (caddr_t)&ext, 2); } while (0);
   break;
  default:
   printf("%s: unknown hwrev\n", sc->sc_dv.dv_xname);
@@ -4048,15 +4048,15 @@ ti_iff(struct ti_softc *sc)
  struct ti_cmd_desc cmd;
  struct ti_mc_entry *mc;
  u_int32_t intrs;
- cmd.ti_cmdx = (((0x0E) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd);;
- cmd.ti_cmdx = (((0x0A) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd);;
+ do { cmd.ti_cmdx = (((0x0E) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
+ do { cmd.ti_cmdx = (((0x0A) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  ifp->if_flags &= ~0x200;
  if (ifp->if_flags & 0x100 || ac->ac_multirangecnt > 0) {
   ifp->if_flags |= 0x200;
   if (ifp->if_flags & 0x100) {
-   cmd.ti_cmdx = (((0x0A) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd);;
+   do { cmd.ti_cmdx = (((0x0A) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   } else {
-   cmd.ti_cmdx = (((0x0E) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd);;
+   do { cmd.ti_cmdx = (((0x0E) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   }
  } else {
   intrs = bus_space_read_4(sc->ti_btag, sc->ti_bhandle, (0x504));
@@ -4377,9 +4377,9 @@ ti_rxeof(struct ti_softc *sc)
   cur_rx =
       &sc->ti_rdata->ti_rx_return_ring[sc->ti_rx_saved_considx];
   rxidx = cur_rx->ti_idx;
-  (sc->ti_rx_saved_considx) = (sc->ti_rx_saved_considx + 1) % 2048;
+  do { (sc->ti_rx_saved_considx) = (sc->ti_rx_saved_considx + 1) % 2048; } while (0);
   if (cur_rx->ti_flags & 0x0010) {
-   (sc->ti_jumbo) = (sc->ti_jumbo + 1) % 256;
+   do { (sc->ti_jumbo) = (sc->ti_jumbo + 1) % 256; } while (0);
    m = sc->ti_cdata.ti_rx_jumbo_chain[rxidx];
    sc->ti_cdata.ti_rx_jumbo_chain[rxidx] = ((void *)0);
    dmamap = sc->ti_cdata.ti_rx_jumbo_map[rxidx];
@@ -4396,7 +4396,7 @@ ti_rxeof(struct ti_softc *sc)
     continue;
    }
   } else if (cur_rx->ti_flags & 0x1000) {
-   (sc->ti_mini) = (sc->ti_mini + 1) % 1024;
+   do { (sc->ti_mini) = (sc->ti_mini + 1) % 1024; } while (0);
    m = sc->ti_cdata.ti_rx_mini_chain[rxidx];
    sc->ti_cdata.ti_rx_mini_chain[rxidx] = ((void *)0);
    dmamap = sc->ti_cdata.ti_rx_mini_map[rxidx];
@@ -4413,7 +4413,7 @@ ti_rxeof(struct ti_softc *sc)
     continue;
    }
   } else {
-   (sc->ti_std) = (sc->ti_std + 1) % 512;
+   do { (sc->ti_std) = (sc->ti_std + 1) % 512; } while (0);
    m = sc->ti_cdata.ti_rx_std_chain[rxidx];
    sc->ti_cdata.ti_rx_std_chain[rxidx] = ((void *)0);
    dmamap = sc->ti_cdata.ti_rx_std_map[rxidx];
@@ -4443,9 +4443,9 @@ ti_rxeof(struct ti_softc *sc)
  }
  if (sc->ti_hwrev == 0x01)
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x680), (sc->ti_rx_saved_considx));
- if (sc->ti_hwrev == 0x01) { cmd.ti_cmdx = (((0x03) << 24) | ((0) << 12) | ((sc->ti_std))); ti_cmd(sc, &cmd);; } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x51C), (sc->ti_std)); };
- bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x52C), (sc->ti_mini));;
- if (sc->ti_hwrev == 0x01) { cmd.ti_cmdx = (((0x10) << 24) | ((0) << 12) | ((sc->ti_jumbo))); ti_cmd(sc, &cmd);; } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x524), (sc->ti_jumbo)); };
+ do { if (sc->ti_hwrev == 0x01) { do { cmd.ti_cmdx = (((0x03) << 24) | ((0) << 12) | ((sc->ti_std))); ti_cmd(sc, &cmd); } while (0); } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x51C), (sc->ti_std)); } } while (0);
+ do { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x52C), (sc->ti_mini)); } while (0);
+ do { if (sc->ti_hwrev == 0x01) { do { cmd.ti_cmdx = (((0x10) << 24) | ((0) << 12) | ((sc->ti_jumbo))); ti_cmd(sc, &cmd); } while (0); } else { bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x524), (sc->ti_jumbo)); } } while (0);
  if_input(ifp, &ml);
 }
 void
@@ -4472,7 +4472,7 @@ ti_txeof_tigon1(struct ti_softc *sc)
    sc->ti_cdata.ti_tx_map[idx] = ((void *)0);
   }
   sc->ti_txcnt--;
-  (sc->ti_tx_saved_considx) = (sc->ti_tx_saved_considx + 1) % 512;
+  do { (sc->ti_tx_saved_considx) = (sc->ti_tx_saved_considx + 1) % 512; } while (0);
   ifp->if_timer = 0;
   active = 0;
  }
@@ -4501,7 +4501,7 @@ ti_txeof_tigon2(struct ti_softc *sc)
    sc->ti_cdata.ti_tx_map[idx] = ((void *)0);
   }
   sc->ti_txcnt--;
-  (sc->ti_tx_saved_considx) = (sc->ti_tx_saved_considx + 1) % 512;
+  do { (sc->ti_tx_saved_considx) = (sc->ti_tx_saved_considx + 1) % 512; } while (0);
   ifp->if_timer = 0;
  }
  if (cur_tx != ((void *)0))
@@ -4577,7 +4577,7 @@ ti_encap_tigon1(struct ti_softc *sc, struct mbuf *m_head, u_int32_t *txidx)
   ti_mem_write(sc, 0x2000 + frag * sizeof(txdesc),
         sizeof(txdesc), (caddr_t)&txdesc);
   cur = frag;
-  (frag) = (frag + 1) % 512;
+  do { (frag) = (frag + 1) % 512; } while (0);
  }
  if (frag == sc->ti_tx_saved_considx)
   goto fail_unload;
@@ -4627,7 +4627,7 @@ ti_encap_tigon2(struct ti_softc *sc, struct mbuf *m_head, u_int32_t *txidx)
    f->ti_vlan_tag = m_head->M_dat.MH.MH_pkthdr.ether_vtag;
   }
   cur = frag;
-  (frag) = (frag + 1) % 512;
+  do { (frag) = (frag + 1) % 512; } while (0);
  }
  if (frag == sc->ti_tx_saved_considx)
   goto fail_unload;
@@ -4703,14 +4703,14 @@ ti_init2(struct ti_softc *sc)
  ifp = &sc->arpcom.ac_if;
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x65C), (sc->sc_dv.dv_unit));
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x660), (9018 + 4));
- cmd.ti_cmdx = (((0x04) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd);;
+ do { cmd.ti_cmdx = (((0x04) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  m = (u_int16_t *)&sc->arpcom.ac_enaddr[0];
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x600), (((__uint16_t)(m[0]))));
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x604), ((((__uint16_t)(m[1])) << 16) | ((__uint16_t)(m[2]))));
- cmd.ti_cmdx = (((0x0C) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd);;
+ do { cmd.ti_cmdx = (((0x0C) << 24) | ((0) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  ti_iff(sc);
  if (sc->ti_hwrev == 0x01)
-  cmd.ti_cmdx = (((0x02) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x02) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  if (ti_init_rx_ring_std(sc) == 55)
   panic("not enough mbufs for rx ring");
  ti_init_rx_ring_jumbo(sc);
@@ -4719,7 +4719,7 @@ ti_init2(struct ti_softc *sc)
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x680), (0));
  sc->ti_rx_saved_considx = 0;
  ti_init_tx_ring(sc);
- cmd.ti_cmdx = (((0x01) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd);;
+ do { cmd.ti_cmdx = (((0x01) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x504), (0));
  ifp->if_flags |= 0x40;
  ifq_clr_oactive(&ifp->if_snd);
@@ -4743,7 +4743,7 @@ ti_ifmedia_upd(struct ifnet *ifp)
  case 0ULL:
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x648), (0x00008000|0x00040000| 0x00080000|0x00800000| 0x20000000|0x40000000));
   bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x64C), (0x00020000|0x00010000| 0x00080000|0x00100000| 0x20000000|0x40000000));
-  cmd.ti_cmdx = (((0x0B) << 24) | ((0x00) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x0B) << 24) | ((0x00) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   break;
  case 11:
  case 16:
@@ -4752,7 +4752,7 @@ ti_ifmedia_upd(struct ifnet *ifp)
   if ((ifm->ifm_media & 0x00ffff0000000000ULL) == 0x0000010000000000ULL) {
    bus_space_write_4(sc->ti_btag, sc->ti_bhandle, ((0x648)), ((bus_space_read_4(sc->ti_btag, sc->ti_bhandle, ((0x648))) | (0x00080000))));
   }
-  cmd.ti_cmdx = (((0x0B) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x0B) << 24) | ((0x01) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   break;
  case 7:
  case 13:
@@ -4771,7 +4771,7 @@ ti_ifmedia_upd(struct ifnet *ifp)
   } else {
    bus_space_write_4(sc->ti_btag, sc->ti_bhandle, ((0x64C)), ((bus_space_read_4(sc->ti_btag, sc->ti_bhandle, ((0x64C))) | (0x00100000))));
   }
-  cmd.ti_cmdx = (((0x0B) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd);;
+  do { cmd.ti_cmdx = (((0x0B) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
   break;
  }
  return (0);
@@ -4876,7 +4876,7 @@ ti_stop(struct ti_softc *sc)
  ifp->if_flags &= ~0x40;
  ifq_clr_oactive(&ifp->if_snd);
  bus_space_write_4(sc->ti_btag, sc->ti_bhandle, (0x504), (1));
- cmd.ti_cmdx = (((0x01) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd);;
+ do { cmd.ti_cmdx = (((0x01) << 24) | ((0x02) << 12) | ((0))); ti_cmd(sc, &cmd); } while (0);
  ti_chipinit(sc);
  ti_mem_set(sc, 0x2000, 0x100000 - 0x2000);
  ti_chipinit(sc);
