@@ -5767,7 +5767,6 @@ int rtwn_r88e_ra_init(struct rtwn_softc *, u_int8_t, u_int32_t,
 void rtwn_tsf_sync_enable(struct rtwn_softc *);
 void rtwn_set_led(struct rtwn_softc *, int, int);
 void rtwn_update_short_preamble(struct ieee80211com *);
-void rtwn_update_avgrssi(struct rtwn_softc *, int, int8_t);
 int8_t rtwn_r88e_get_rssi(struct rtwn_softc *, int, void *);
 void rtwn_watchdog(struct ifnet *);
 void rtwn_fw_reset(struct rtwn_softc *);
@@ -5969,7 +5968,7 @@ rtwn_fw_cmd(struct rtwn_softc *sc, uint8_t id, const void *buf, int len)
  cmd.id = id;
  if (len > 3)
   cmd.id |= 0x80;
- ((len <= sizeof(cmd.msg)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rtwn.c", 382, "len <= sizeof(cmd.msg)"));
+ ((len <= sizeof(cmd.msg)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rtwn.c", 381, "len <= sizeof(cmd.msg)"));
  __builtin_memcpy((cmd.msg), (buf), (len));
  rtwn_write_2(sc, (0x088 + (sc->fwcur) * 2), *((uint8_t *)&cmd + 4));
  rtwn_write_4(sc, (0x1d0 + (sc->fwcur) * 4), *((uint8_t *)&cmd + 0));
