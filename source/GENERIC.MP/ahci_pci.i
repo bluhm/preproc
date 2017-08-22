@@ -2954,6 +2954,7 @@ struct ahci_port {
  u_int32_t ap_err_saved_sactive;
  u_int32_t ap_err_saved_active;
  u_int32_t ap_err_saved_active_cnt;
+ u_int32_t ap_saved_cmd;
  u_int8_t *ap_err_scratch;
 };
 struct ahci_softc {

@@ -6125,7 +6125,7 @@ uvideo_vs_parse_desc_format_mjpeg(struct uvideo_softc *sc,
       ((sc)->sc_dev.dv_xname));
   return (USBD_INVAL);
  }
- if (sc->sc_fmtgrp_idx > 8) {
+ if (sc->sc_fmtgrp_idx >= 8) {
   printf("%s: too many format descriptors found!\n", ((sc)->sc_dev.dv_xname));
   return (USBD_INVAL);
  }
@@ -6157,7 +6157,7 @@ uvideo_vs_parse_desc_format_uncompressed(struct uvideo_softc *sc,
       ((sc)->sc_dev.dv_xname));
   return (USBD_INVAL);
  }
- if (sc->sc_fmtgrp_idx > 8) {
+ if (sc->sc_fmtgrp_idx >= 8) {
   printf("%s: too many format descriptors found!\n", ((sc)->sc_dev.dv_xname));
   return (USBD_INVAL);
  }

@@ -2759,6 +2759,7 @@ struct ahci_port {
  u_int32_t ap_err_saved_sactive;
  u_int32_t ap_err_saved_active;
  u_int32_t ap_err_saved_active_cnt;
+ u_int32_t ap_saved_cmd;
  u_int8_t *ap_err_scratch;
 };
 struct ahci_softc {
@@ -2785,13 +2786,19 @@ struct cfdriver ahci_cd = {
 void ahci_enable_interrupts(struct ahci_port *);
 int ahci_init(struct ahci_softc *);
 int ahci_port_alloc(struct ahci_softc *, u_int);
+void ahci_port_detect(struct ahci_softc *, u_int);
 void ahci_port_free(struct ahci_softc *, u_int);
 int ahci_port_init(struct ahci_softc *, u_int);
 int ahci_default_port_start(struct ahci_port *, int);
 int ahci_port_stop(struct ahci_port *, int);
 int ahci_port_clo(struct ahci_port *);
 int ahci_port_softreset(struct ahci_port *);
+void ahci_port_comreset(struct ahci_port *);
 int ahci_port_portreset(struct ahci_port *, int);
+void ahci_port_portreset_start(struct ahci_port *);
+int ahci_port_portreset_poll(struct ahci_port *);
+void ahci_port_portreset_wait(struct ahci_port *);
+int ahci_port_portreset_finish(struct ahci_port *, int);
 int ahci_port_signature(struct ahci_port *);
 int ahci_pmp_port_softreset(struct ahci_port *, int);
 int ahci_pmp_port_portreset(struct ahci_port *, int);
@@ -2855,7 +2862,7 @@ ahci_attach(struct ahci_softc *sc)
 {
  struct atascsi_attach_args aaa;
  u_int32_t pi;
- int i;
+ int i, j, done;
  if (sc->sc_port_start == ((void *)0))
   sc->sc_port_start = ahci_default_port_start;
  if (ahci_init(sc) != 0) {
@@ -2873,6 +2880,24 @@ ahci_attach(struct ahci_softc *sc)
   }
   if (ahci_port_alloc(sc, i) == 12)
    goto freeports;
+  if (sc->sc_ports[i] != ((void *)0))
+   ahci_port_portreset_start(sc->sc_ports[i]);
+ }
+ for (i = 0; i < 1000; i++) {
+  done = 1;
+  for (j = 0; j < 32; j++) {
+   if (sc->sc_ports[j] == ((void *)0))
+    continue;
+   if (ahci_port_portreset_poll(sc->sc_ports[j]))
+    done = 0;
+  }
+  if (done)
+   break;
+  delay(1000);
+ }
+ for (i = 0; i < 32; i++) {
+  if (sc->sc_ports[i] != ((void *)0))
+   ahci_port_detect(sc, i);
  }
  __builtin_memset((&aaa), (0), (sizeof(aaa)));
  aaa.aaa_cookie = sc;
@@ -3008,7 +3033,6 @@ ahci_port_alloc(struct ahci_softc *sc, u_int port)
  u_int32_t cmd;
  struct ahci_cmd_hdr *hdr;
  struct ahci_cmd_table *table;
- const char *speed;
  int i, rc = 12;
  ap = malloc(sizeof(*ap), 2, 0x0002 | 0x0008);
  if (ap == ((void *)0)) {
@@ -3111,7 +3135,21 @@ nomem:
  do { if (((ap->ap_ccb_err)->ccb_entry.tqe_next) != ((void *)0)) (ap->ap_ccb_err)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ap->ap_ccb_err)->ccb_entry.tqe_prev; else (&ap->ap_ccb_free)->tqh_last = (ap->ap_ccb_err)->ccb_entry.tqe_prev; *(ap->ap_ccb_err)->ccb_entry.tqe_prev = (ap->ap_ccb_err)->ccb_entry.tqe_next; ((ap->ap_ccb_err)->ccb_entry.tqe_prev) = ((void *)-1); ((ap->ap_ccb_err)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
  ap->ap_ccb_err->ccb_xa.state = 2;
  ahci_pwait_eq((ap), (0x18), (0xf0000000), 0, (1));
- rc = ahci_port_portreset(ap, 1);
+ rc = 0;
+freeport:
+ if (rc != 0)
+  ahci_port_free(sc, port);
+reterr:
+ return (rc);
+}
+void
+ahci_port_detect(struct ahci_softc *sc, u_int port)
+{
+ struct ahci_port *ap;
+ const char *speed;
+ int rc;
+ ap = sc->sc_ports[port];
+ rc = ahci_port_portreset_finish(ap, 1);
  switch (rc) {
  case 19:
   switch (ahci_pread(ap, 0x28) & 0xf) {
@@ -3170,8 +3208,6 @@ nomem:
 freeport:
  if (rc != 0)
   ahci_port_free(sc, port);
-reterr:
- return (rc);
 }
 void
 ahci_port_free(struct ahci_softc *sc, u_int port)
@@ -3548,7 +3584,7 @@ ahci_pmp_probe_timeout(void *cookie)
   break;
  case 5:
  case 3:
-  ((ap->ap_active == (1 << ccb->ccb_slot) && ap->ap_sactive == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1234, "ap->ap_active == (1 << ccb->ccb_slot) && ap->ap_sactive == 0"));
+  ((ap->ap_active == (1 << ccb->ccb_slot) && ap->ap_sactive == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1282, "ap->ap_active == (1 << ccb->ccb_slot) && ap->ap_sactive == 0"));
   ahci_port_stop(ap, 0);
   ((ap)->ap_sc->sc_port_start((ap), (0)));
   if (ahci_active_mask(ap) != 0) {
@@ -3563,7 +3599,7 @@ ahci_pmp_probe_timeout(void *cookie)
   }
   ccb->ccb_xa.state = 4;
   ap->ap_active &= ~(1 << ccb->ccb_slot);
-  ((ap->ap_active_cnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1251, "ap->ap_active_cnt > 0"));
+  ((ap->ap_active_cnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1299, "ap->ap_active_cnt > 0"));
   --ap->ap_active_cnt;
   ;
   break;
@@ -3652,18 +3688,10 @@ err:
  _splx(s);
  return (rc);
 }
-int
-ahci_port_portreset(struct ahci_port *ap, int pmp)
+void
+ahci_port_comreset(struct ahci_port *ap)
 {
- u_int32_t cmd, r;
- int rc, s, retries = 0;
- s = _splraise(5);
- ;
- cmd = ahci_pread(ap, 0x18) & ~0xf0000000;
- ahci_port_stop(ap, 0);
- ahci_pwrite(ap, 0x2c, 0);
-retry:
- delay(10000);
+ u_int32_t r;
  r = 0x300 | 0x1;
  if ((ap->ap_sc->sc_dev.dv_cfdata->cf_flags & 0x01) != 0) {
   ;
@@ -3676,8 +3704,45 @@ retry:
  r |= 0x0;
  ahci_pwrite(ap, 0x2c, r);
  delay(10000);
- if (ahci_pwait_eq(ap, 0x28, 0xf,
-     0x3, 1)) {
+}
+void
+ahci_port_portreset_start(struct ahci_port *ap)
+{
+ int s;
+ s = _splraise(5);
+ ;
+ ap->ap_saved_cmd = ahci_pread(ap, 0x18) & ~0xf0000000;
+ ahci_port_stop(ap, 0);
+ ahci_pwrite(ap, 0x2c, 0);
+ delay(10000);
+ ahci_port_comreset(ap);
+ _splx(s);
+}
+int
+ahci_port_portreset_poll(struct ahci_port *ap)
+{
+ if ((ahci_pread(ap, 0x28) & 0xf) !=
+     0x3)
+  return (35);
+ return (0);
+}
+void
+ahci_port_portreset_wait(struct ahci_port *ap)
+{
+ int i;
+ for (i = 0; i < 1000; i++) {
+  if (ahci_port_portreset_poll(ap) == 0)
+   break;
+  delay(1000);
+ }
+}
+int
+ahci_port_portreset_finish(struct ahci_port *ap, int pmp)
+{
+ int rc, s, retries = 0;
+ s = _splraise(5);
+retry:
+ if (ahci_port_portreset_poll(ap)) {
   rc = 19;
   if (ahci_pread(ap, 0x28) & 0xf) {
   } else {
@@ -3688,6 +3753,8 @@ retry:
   if (ahci_pwait_eq((ap), (0x20), ((1<<7) | (1<<3) | (1<<0)), 0, (3))) {
    if (retries == 0) {
     retries = 1;
+    ahci_port_comreset(ap);
+    ahci_port_portreset_wait(ap);
     goto retry;
    }
    rc = 16;
@@ -3696,14 +3763,26 @@ retry:
   }
  }
  if (pmp != 0) {
-  if (ahci_port_detect_pmp(ap) != 0) {
-   rc = 16;
+  if (ahci_port_detect_pmp(ap)) {
+   pmp = 0;
+   retries = 0;
+   ahci_port_comreset(ap);
+   ahci_port_portreset_wait(ap);
+   goto retry;
   }
  }
 err:
- ahci_pwrite(ap, 0x18, cmd);
+ ahci_pwrite(ap, 0x18, ap->ap_saved_cmd);
+ ap->ap_saved_cmd = 0;
  _splx(s);
  return (rc);
+}
+int
+ahci_port_portreset(struct ahci_port *ap, int pmp)
+{
+ ahci_port_portreset_start(ap);
+ ahci_port_portreset_wait(ap);
+ return (ahci_port_portreset_finish(ap, pmp));
 }
 int
 ahci_port_detect_pmp(struct ahci_port *ap)
@@ -3832,7 +3911,7 @@ ahci_port_detect_pmp(struct ahci_port *ap)
   ahci_pwrite(ap, 0x30, -1);
   ahci_pwrite(ap, 0x10, -1);
   ahci_enable_interrupts(ap);
-  ahci_port_portreset(ap, 0);
+  rc = pmp_rc;
  }
  return (rc);
 }
@@ -3943,7 +4022,7 @@ ahci_start(struct ahci_ccb *ccb)
        ap->ap_pmp_ncq_port != ccb->ccb_xa.pmp_port)) {
    do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&ap->ap_ccb_pending)->tqh_last; *(&ap->ap_ccb_pending)->tqh_last = (ccb); (&ap->ap_ccb_pending)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
   } else {
-   ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1791, "ap->ap_active_cnt == 0"));
+   ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1890, "ap->ap_active_cnt == 0"));
    ap->ap_sactive |= (1 << ccb->ccb_slot);
    ccb->ccb_xa.state = 5;
    ahci_pwrite(ap, 0x34, 1 << ccb->ccb_slot);
@@ -3966,7 +4045,7 @@ ahci_issue_pending_ncq_commands(struct ahci_port *ap)
 {
  struct ahci_ccb *nextccb;
  u_int32_t sact_change = 0;
- ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1818, "ap->ap_active_cnt == 0"));
+ ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1917, "ap->ap_active_cnt == 0"));
  nextccb = ((&ap->ap_ccb_pending)->tqh_first);
  if (nextccb == ((void *)0) || !(nextccb->ccb_xa.flags & (1<<6)))
   return;
@@ -3993,17 +4072,17 @@ ahci_issue_pending_commands(struct ahci_port *ap, int last_was_ncq)
  nextccb = ((&ap->ap_ccb_pending)->tqh_first);
  if (nextccb && (nextccb->ccb_xa.flags & (1<<6))) {
   if (last_was_ncq) {
-   ((nextccb->ccb_xa.pmp_port != ap->ap_pmp_ncq_port) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1856, "nextccb->ccb_xa.pmp_port != ap->ap_pmp_ncq_port"));
+   ((nextccb->ccb_xa.pmp_port != ap->ap_pmp_ncq_port) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1955, "nextccb->ccb_xa.pmp_port != ap->ap_pmp_ncq_port"));
   } else {
    ap->ap_active_cnt--;
   }
   if (ap->ap_active == 0)
    ahci_issue_pending_ncq_commands(ap);
   else
-   ((ap->ap_active_cnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1869, "ap->ap_active_cnt == 1"));
+   ((ap->ap_active_cnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1968, "ap->ap_active_cnt == 1"));
  } else if (nextccb) {
   if (ap->ap_sactive != 0 || last_was_ncq)
-   ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1872, "ap->ap_active_cnt == 0"));
+   ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1971, "ap->ap_active_cnt == 0"));
   if (ap->ap_sactive != 0)
    return;
   do {
@@ -4015,14 +4094,14 @@ ahci_issue_pending_commands(struct ahci_port *ap, int last_was_ncq)
     ap->ap_active_cnt++;
    if (ap->ap_active_cnt == 2)
     break;
-   ((ap->ap_active_cnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1889, "ap->ap_active_cnt == 1"));
+   ((ap->ap_active_cnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1988, "ap->ap_active_cnt == 1"));
    nextccb = ((&ap->ap_ccb_pending)->tqh_first);
   } while (nextccb && !(nextccb->ccb_xa.flags & (1<<6)));
  } else if (!last_was_ncq) {
-  ((ap->ap_active_cnt == 1 || ap->ap_active_cnt == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1893, "ap->ap_active_cnt == 1 || ap->ap_active_cnt == 2"));
+  ((ap->ap_active_cnt == 1 || ap->ap_active_cnt == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1992, "ap->ap_active_cnt == 1 || ap->ap_active_cnt == 2"));
   ap->ap_active_cnt--;
  } else {
-  ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1898, "ap->ap_active_cnt == 0"));
+  ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1997, "ap->ap_active_cnt == 0"));
  }
 }
 int
@@ -4061,8 +4140,8 @@ ahci_port_intr(struct ahci_port *ap, u_int32_t ci_mask)
  if (is)
   ;
  if (ap->ap_sactive) {
-  ((ap->ap_active == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1967, "ap->ap_active == 0"));
-  ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 1968, "ap->ap_active_cnt == 0"));
+  ((ap->ap_active == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2066, "ap->ap_active == 0"));
+  ((ap->ap_active_cnt == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2067, "ap->ap_active_cnt == 0"));
   ci_saved = ahci_pread(ap, 0x34);
   active = &ap->ap_sactive;
  } else {
@@ -4172,14 +4251,14 @@ ahci_port_intr(struct ahci_port *ap, u_int32_t ci_mask)
    goto failall;
   }
   ci_saved &= ~(1 << err_slot);
-  ((ccb->ccb_xa.state == 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2139, "ccb->ccb_xa.state == ATA_S_ONCHIP"));
+  ((ccb->ccb_xa.state == 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2238, "ccb->ccb_xa.state == ATA_S_ONCHIP"));
   ccb->ccb_xa.state = 3;
   if (ap->ap_sactive == 0) {
    tmp = ci_saved;
    if (tmp) {
     slot = ffs(tmp) - 1;
     tmp &= ~(1 << slot);
-    ((tmp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2149, "tmp == 0"));
+    ((tmp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2248, "tmp == 0"));
    }
   }
  }
@@ -4256,8 +4335,8 @@ failall:
     slot = ffs(tmp) - 1;
     tmp &= ~(1 << slot);
     ccb = &ap->ap_ccbs[slot];
-    ((ccb->ccb_xa.state == 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2275, "ccb->ccb_xa.state == ATA_S_ONCHIP"));
-    (((!!(ccb->ccb_xa.flags & (1<<6))) == (!!ap->ap_sactive)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2277, "(!!(ccb->ccb_xa.flags & ATA_F_NCQ)) == (!!ap->ap_sactive)"));
+    ((ccb->ccb_xa.state == 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2374, "ccb->ccb_xa.state == ATA_S_ONCHIP"));
+    (((!!(ccb->ccb_xa.flags & (1<<6))) == (!!ap->ap_sactive)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2376, "(!!(ccb->ccb_xa.flags & ATA_F_NCQ)) == (!!ap->ap_sactive)"));
    }
    ;
    if (ap->ap_sactive)
@@ -4274,7 +4353,7 @@ ahci_get_ccb(struct ahci_port *ap)
  __mtx_enter(&ap->ap_ccb_mtx );
  ccb = ((&ap->ap_ccb_free)->tqh_first);
  if (ccb != ((void *)0)) {
-  ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2301, "ccb->ccb_xa.state == ATA_S_PUT"));
+  ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2400, "ccb->ccb_xa.state == ATA_S_PUT"));
   do { if (((ccb)->ccb_entry.tqe_next) != ((void *)0)) (ccb)->ccb_entry.tqe_next->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_prev; else (&ap->ap_ccb_free)->tqh_last = (ccb)->ccb_entry.tqe_prev; *(ccb)->ccb_entry.tqe_prev = (ccb)->ccb_entry.tqe_next; ((ccb)->ccb_entry.tqe_prev) = ((void *)-1); ((ccb)->ccb_entry.tqe_next) = ((void *)-1); } while (0);
   ccb->ccb_xa.state = 0;
  }
@@ -4306,8 +4385,8 @@ ahci_get_err_ccb(struct ahci_port *ap)
  sact = ahci_pread(ap, 0x34);
  if (sact != 0)
   printf("ahci_get_err_ccb but SACT %08x != 0?\n", sact);
- ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2343, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
- ((ap->ap_err_busy == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2346, "ap->ap_err_busy == 0"));
+ ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2442, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
+ ((ap->ap_err_busy == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2445, "ap->ap_err_busy == 0"));
  ap->ap_err_busy = 1;
  ap->ap_err_saved_active = ap->ap_active;
  ap->ap_err_saved_active_cnt = ap->ap_active_cnt;
@@ -4325,12 +4404,12 @@ ahci_put_err_ccb(struct ahci_ccb *ccb)
  struct ahci_port *ap = ccb->ccb_port;
  u_int32_t sact;
  do { if (splassert_ctl > 0) { splassert_check(5, __func__); } } while (0);
- ((ap->ap_err_busy) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2381, "ap->ap_err_busy"));
+ ((ap->ap_err_busy) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2480, "ap->ap_err_busy"));
  sact = ahci_pread(ap, 0x34);
  if (sact != 0)
   printf("ahci_port_err_ccb_restore but SACT %08x != 0?\n", sact);
- ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2387, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
- ((ccb == ap->ap_ccb_err) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2391, "ccb == ap->ap_ccb_err"));
+ ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2486, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
+ ((ccb == ap->ap_ccb_err) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2490, "ccb == ap->ap_ccb_err"));
  ap->ap_sactive = ap->ap_err_saved_sactive;
  ap->ap_active_cnt = ap->ap_err_saved_active_cnt;
  ap->ap_active = ap->ap_err_saved_active;
@@ -4345,9 +4424,9 @@ ahci_get_pmp_ccb(struct ahci_port *ap)
  sact = ahci_pread(ap, 0x34);
  if (sact != 0)
   printf("ahci_get_pmp_ccb; SACT %08x != 0\n", sact);
- ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2421, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
+ ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2520, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
  ccb = &ap->ap_ccbs[1];
- ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2424, "ccb->ccb_xa.state == ATA_S_PUT"));
+ ((ccb->ccb_xa.state == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2523, "ccb->ccb_xa.state == ATA_S_PUT"));
  ccb->ccb_xa.flags = 0;
  ccb->ccb_done = ahci_pmp_cmd_done;
  __mtx_enter(&ap->ap_ccb_mtx );
@@ -4360,11 +4439,11 @@ ahci_put_pmp_ccb(struct ahci_ccb *ccb)
 {
  struct ahci_port *ap = ccb->ccb_port;
  u_int32_t sact;
- ((ccb == &ap->ap_ccbs[1]) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2442, "ccb == &ap->ap_ccbs[1]"));
+ ((ccb == &ap->ap_ccbs[1]) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2541, "ccb == &ap->ap_ccbs[1]"));
  sact = ahci_pread(ap, 0x34);
  if (sact != 0)
   printf("ahci_port_err_ccb_restore but SACT %08x != 0?\n", sact);
- ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2448, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
+ ((ahci_pread(ap, 0x38) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2547, "ahci_pread(ap, AHCI_PREG_CI) == 0"));
  ccb->ccb_xa.state = 6;
  __mtx_enter(&ap->ap_ccb_mtx );
  do { (ccb)->ccb_entry.tqe_next = ((void *)0); (ccb)->ccb_entry.tqe_prev = (&ap->ap_ccb_free)->tqh_last; *(&ap->ap_ccb_free)->tqh_last = (ccb); (&ap->ap_ccb_free)->tqh_last = &(ccb)->ccb_entry.tqe_next; } while (0);
@@ -4382,7 +4461,7 @@ ahci_port_read_ncq_error(struct ahci_port *ap, int *err_slotp, int pmp_port)
  oldstate = ap->ap_state;
  ap->ap_state = 3;
  cmd = ahci_pread(ap, 0x18) & ~0xf0000000;
- (((cmd & (1<<15)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2473, "(cmd & AHCI_PREG_CMD_CR) == 0"));
+ (((cmd & (1<<15)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ahci.c", 2572, "(cmd & AHCI_PREG_CMD_CR) == 0"));
  ((ap)->ap_sc->sc_port_start((ap), (0)));
  ccb = ahci_get_err_ccb(ap);
  ccb->ccb_xa.flags = (1<<2) | (1<<0) | (1<<3);
