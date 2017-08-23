@@ -2063,8 +2063,7 @@ int soconnect2(struct socket *so1, struct socket *so2);
 int socreate(int dom, struct socket **aso, int type, int proto);
 int sodisconnect(struct socket *so);
 void sofree(struct socket *so);
-int sogetopt(struct socket *so, int level, int optname,
-     struct mbuf **mp);
+int sogetopt(struct socket *so, int level, int optname, struct mbuf *m);
 void sohasoutofband(struct socket *so);
 void soisconnected(struct socket *so);
 void soisconnecting(struct socket *so);
@@ -6683,12 +6682,14 @@ ip6_send_dispatch(void *xmq)
  mq_delist(mq, &ml);
  if (((&ml)->ml_len == 0))
   return;
+ do { _rw_enter_write(&netlock ); } while (0);
  extern int ipsec_in_use;
  if (ipsec_in_use) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1461);
+  do { _rw_exit_write(&netlock ); } while (0);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1464);
+  do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }
- do { _rw_enter_write(&netlock ); } while (0);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip6_output(m, ((void *)0), ((void *)0), 0x04, ((void *)0), ((void *)0));
  }

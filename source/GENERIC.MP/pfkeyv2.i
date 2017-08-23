@@ -1324,8 +1324,7 @@ int soconnect2(struct socket *so1, struct socket *so2);
 int socreate(int dom, struct socket **aso, int type, int proto);
 int sodisconnect(struct socket *so);
 void sofree(struct socket *so);
-int sogetopt(struct socket *so, int level, int optname,
-     struct mbuf **mp);
+int sogetopt(struct socket *so, int level, int optname, struct mbuf *m);
 void sohasoutofband(struct socket *so);
 void soisconnected(struct socket *so);
 void soisconnecting(struct socket *so);

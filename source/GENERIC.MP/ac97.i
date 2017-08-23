@@ -2268,12 +2268,14 @@ int
 ac97_mixer_set_port(struct ac97_codec_if *codec_if, mixer_ctrl_t *cp)
 {
  struct ac97_softc *as = (struct ac97_softc *)codec_if;
- struct ac97_source_info *si = &as->source_info[cp->dev];
+ struct ac97_source_info *si;
  u_int16_t mask;
  u_int16_t val, newval;
  int error, spdif;
- if (cp->dev < 0 || cp->dev >= as->num_source_info ||
-     cp->type == 0 || cp->type != si->type)
+ if (cp->dev < 0 || cp->dev >= as->num_source_info)
+  return (22);
+ si = &as->source_info[cp->dev];
+ if (cp->type == 0 || cp->type != si->type)
   return (22);
  spdif = si->req_feature == CHECK_SPDIF &&
      si->reg64 == 0x2a;
@@ -2495,11 +2497,13 @@ int
 ac97_mixer_get_port(struct ac97_codec_if *codec_if, mixer_ctrl_t *cp)
 {
  struct ac97_softc *as = (struct ac97_softc *)codec_if;
- struct ac97_source_info *si = &as->source_info[cp->dev];
+ struct ac97_source_info *si;
  u_int16_t mask;
  u_int16_t val;
- if (cp->dev < 0 || cp->dev >= as->num_source_info ||
-     cp->type != si->type)
+ if (cp->dev < 0 || cp->dev >= as->num_source_info)
+  return (22);
+ si = &as->source_info[cp->dev];
+ if (cp->type != si->type)
   return (22);
  ac97_read(as, si->reg64, &val);
  ;

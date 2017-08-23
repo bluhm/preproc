@@ -5491,7 +5491,7 @@ ar5k_eeprom_init(struct ath_hal *hal)
  }
  offset = (((hal->ah_capabilities.cap_eeprom.ee_version) >= 0x3003) ? 0x0128 : 0x00e4);
  ee->ee_ctls = (((hal->ah_capabilities.cap_eeprom.ee_version) >= 0x3003) ? 32 : 16);
- for (i = 0; i < ee->ee_ctls; i++) {
+ for (i = 0; i < ee->ee_ctls - 1; i++) {
   { if ((ret = hal->ah_eeprom_read(hal, (offset++), &(val))) != 0) return (ret); };
   ee->ee_ctl[i] = (val >> 8) & 0xff;
   ee->ee_ctl[i + 1] = val & 0xff;

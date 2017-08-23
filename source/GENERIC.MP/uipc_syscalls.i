@@ -2156,8 +2156,7 @@ int soconnect2(struct socket *so1, struct socket *so2);
 int socreate(int dom, struct socket **aso, int type, int proto);
 int sodisconnect(struct socket *so);
 void sofree(struct socket *so);
-int sogetopt(struct socket *so, int level, int optname,
-     struct mbuf **mp);
+int sogetopt(struct socket *so, int level, int optname, struct mbuf *m);
 void sohasoutofband(struct socket *so);
 void soisconnected(struct socket *so);
 void soisconnecting(struct socket *so);
@@ -5007,9 +5006,10 @@ sys_getsockopt(struct proc *p, void *v, register_t *retval)
    goto out;
  } else
   valsize = 0;
+ m = m_get(0x0001, 4);
  so = fp->f_data;
  s = solock(so);
- error = sogetopt(so, ((uap)->level.be.datum), ((uap)->name.be.datum), &m);
+ error = sogetopt(so, ((uap)->level.be.datum), ((uap)->name.be.datum), m);
  sounlock(s);
  if (error == 0 && ((uap)->val.be.datum) && valsize && m != ((void *)0)) {
   if (valsize > m->m_hdr.mh_len)
@@ -5019,9 +5019,9 @@ sys_getsockopt(struct proc *p, void *v, register_t *retval)
    error = copyout(&valsize,
        ((uap)->avalsize.be.datum), sizeof (valsize));
  }
+ m_free(m);
 out:
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
- m_free(m);
  return (error);
 }
 int

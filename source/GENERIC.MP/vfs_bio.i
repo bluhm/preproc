@@ -3922,8 +3922,8 @@ bread_cluster(struct vnode *vp, daddr_t blkno, int size, struct buf **rbpp)
   xbpp[i]->b_pobj = bp->b_pobj;
   xbpp[i]->b_poffs = bp->b_poffs + (i * size);
  }
- ((bp->b_lblkno == blkno + 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 646, "bp->b_lblkno == blkno + 1"));
- ((bp->b_vp == vp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 647, "bp->b_vp == vp"));
+ ((bp->b_lblkno == blkno + 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 652, "bp->b_lblkno == blkno + 1"));
+ ((bp->b_vp == vp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 653, "bp->b_vp == vp"));
  bp->b_blkno = sblkno;
  ((bp->b_flags) |= (0x00008000 | 0x00000004 | 0x00000040));
  bp->b_saveaddr = (void *)xbpp;
@@ -4030,7 +4030,7 @@ brelse(struct buf *bp)
  int s;
  s = _splraise(5);
  if (bp->b_data != ((void *)0))
-  ((bp->b_bufsize > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 855, "bp->b_bufsize > 0"));
+  ((bp->b_bufsize > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 861, "bp->b_bufsize > 0"));
  if (((bp->b_flags) & ((0x00001000|0x00000400))))
   ((bp->b_flags) |= (0x00000800));
  if (((bp->b_flags) & (0x00000800))) {
@@ -4194,7 +4194,7 @@ buf_get(struct vnode *vp, daddr_t blkno, size_t size)
  bcstats.numbufs++;
  if (size) {
   buf_alloc_pages(bp, (((size) + ((1 << 13) - 1)) & ~((1 << 13) - 1)));
-  ((((bp->b_flags) & (0x04000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1138, "ISSET(bp->b_flags, B_DMA)"));
+  ((((bp->b_flags) & (0x04000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1147, "ISSET(bp->b_flags, B_DMA)"));
   buf_map(bp);
  }
  ((bp->b_flags) |= (0x02000000));
@@ -4254,7 +4254,7 @@ int
 biowait(struct buf *bp)
 {
  int s;
- ((!(bp->b_flags & 0x00000004)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1225, "!(bp->b_flags & B_ASYNC)"));
+ ((!(bp->b_flags & 0x00000004)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1234, "!(bp->b_flags & B_ASYNC)"));
  s = _splraise(5);
  while (!((bp->b_flags) & (0x00000100)))
   tsleep(bp, 16 + 1, "biowait", 0);
@@ -4323,7 +4323,7 @@ bcstats_print(
 void
 buf_adjcnt(struct buf *bp, long ncount)
 {
- ((ncount <= bp->b_bufsize) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1328, "ncount <= bp->b_bufsize"));
+ ((ncount <= bp->b_bufsize) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1337, "ncount <= bp->b_bufsize"));
  bp->b_bcount = ncount;
 }
 int chillbufs(struct
@@ -4362,7 +4362,7 @@ bufcache_getcleanbuf(int cachenum, int discard)
       cachenum < 2 - 1 && ((bp->b_flags) & (0x00800000))) {
    int64_t pages = ((bp->b_bufsize) >> 13);
    struct bufcache *newcache;
-   ((bp->cache == cachenum) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1456, "bp->cache == cachenum"));
+   ((bp->cache == cachenum) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1465, "bp->cache == cachenum"));
    if (fliphigh) {
     ((bp->b_flags) |= (0x00000010));
     if (bp->cache == 0 && buf_flip_high(bp) == -1) {
@@ -4429,9 +4429,9 @@ bufcache_take(struct buf *bp)
  struct bufqueue *queue;
  int64_t pages;
  do { if (splassert_ctl > 0) { splassert_check(5, __func__); } } while (0);
- ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1552, "ISSET(bp->b_flags, B_BC)"));
- ((bp->cache >= 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1553, "bp->cache >= DMA_CACHE"));
- (((bp->cache < 2)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1554, "(bp->cache < NUM_CACHES)"));
+ ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1561, "ISSET(bp->b_flags, B_BC)"));
+ ((bp->cache >= 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1562, "bp->cache >= DMA_CACHE"));
+ (((bp->cache < 2)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1563, "(bp->cache < NUM_CACHES)"));
  pages = ((bp->b_bufsize) >> 13);
  struct bufcache *cache = &cleancache[bp->cache];
  if (!((bp->b_flags) & (0x00000080))) {
@@ -4479,7 +4479,7 @@ bufcache_release(struct buf *bp)
  int64_t pages;
  struct bufcache *cache = &cleancache[bp->cache];
  pages = ((bp->b_bufsize) >> 13);
- ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1613, "ISSET(bp->b_flags, B_BC)"));
+ ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1622, "ISSET(bp->b_flags, B_BC)"));
  if (fliphigh) {
   if (((bp->b_flags) & (0x04000000)) && bp->cache > 0)
    panic("B_DMA buffer release from cache %d",
