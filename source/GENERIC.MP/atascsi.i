@@ -3382,7 +3382,7 @@ atascsi_disk_vpd_ata(struct scsi_xfer *xs)
  __builtin_memset((pg.sat_product), (' '), (sizeof(pg.sat_product)));
  __builtin_memcpy((pg.sat_product), ("atascsi"), ((((strlen("atascsi"))<(sizeof(pg.sat_product)))?(strlen("atascsi")):(sizeof(pg.sat_product)))));
  __builtin_memset((pg.sat_revision), (' '), (sizeof(pg.sat_revision)));
- __builtin_memcpy((pg.sat_revision), (osrelease), ((((strlen(osrelease))<(sizeof(pg.sat_product)))?(strlen(osrelease)):(sizeof(pg.sat_product)))));
+ __builtin_memcpy((pg.sat_revision), (osrelease), ((((strlen(osrelease))<(sizeof(pg.sat_revision)))?(strlen(osrelease)):(sizeof(pg.sat_revision)))));
  switch (ap->ap_type) {
  case 1:
   pg.command_code = 0xec;

@@ -4378,22 +4378,23 @@ struct r88e_tx_rpt_ccx {
  uint8_t rptb6;
  uint8_t rptb7;
 } __attribute__((__packed__));
-struct r88e_rx_cck {
+struct r88e_rx_phystat {
  uint8_t path_agc[2];
- uint8_t sig_qual;
+ uint8_t ch_corr[2];
+ uint8_t sq_rpt;
  uint8_t agc_rpt;
  uint8_t rpt_b;
  uint8_t reserved1;
  uint8_t noise_power;
- uint8_t path_cfotail[2];
+ int8_t path_cfotail[2];
  uint8_t pcts_mask[2];
- uint8_t stream_rxevm[2];
+ int8_t stream_rxevm[2];
  uint8_t path_rxsnr[2];
  uint8_t noise_power_db_lsb;
  uint8_t reserved2[3];
  uint8_t stream_csi[2];
  uint8_t stream_target_csi[2];
- uint8_t sig_evm;
+ int8_t sig_evm;
  uint8_t reserved3;
  uint8_t reserved4;
 } __attribute__((__packed__));
@@ -6251,7 +6252,6 @@ urtwn_rx_frame(struct urtwn_softc *sc, uint8_t *buf, int pktlen)
   struct urtwn_rx_radiotap_header *tap = &sc->sc_rxtapu.th;
   struct mbuf mb;
   tap->wr_flags = 0;
-  tap->wr_flags = 2;
   if (!(rxdw3 & 0x00000040)) {
    switch (rate) {
    case 0: tap->wr_rate = 2; break;
@@ -6267,6 +6267,8 @@ urtwn_rx_frame(struct urtwn_softc *sc, uint8_t *buf, int pktlen)
    case 10: tap->wr_rate = 96; break;
    case 11: tap->wr_rate = 108; break;
    }
+   if (rate <= 3)
+    tap->wr_flags |= 0x02;
   } else if (rate >= 12) {
    tap->wr_rate = 0x80 | (rate - 12);
   }

@@ -4673,22 +4673,23 @@ struct r88e_tx_rpt_ccx {
  uint8_t rptb6;
  uint8_t rptb7;
 } __attribute__((__packed__));
-struct r88e_rx_cck {
+struct r88e_rx_phystat {
  uint8_t path_agc[2];
- uint8_t sig_qual;
+ uint8_t ch_corr[2];
+ uint8_t sq_rpt;
  uint8_t agc_rpt;
  uint8_t rpt_b;
  uint8_t reserved1;
  uint8_t noise_power;
- uint8_t path_cfotail[2];
+ int8_t path_cfotail[2];
  uint8_t pcts_mask[2];
- uint8_t stream_rxevm[2];
+ int8_t stream_rxevm[2];
  uint8_t path_rxsnr[2];
  uint8_t noise_power_db_lsb;
  uint8_t reserved2[3];
  uint8_t stream_csi[2];
  uint8_t stream_target_csi[2];
- uint8_t sig_evm;
+ int8_t sig_evm;
  uint8_t reserved3;
  uint8_t reserved4;
 } __attribute__((__packed__));
@@ -6617,18 +6618,20 @@ rtwn_update_avgrssi(struct rtwn_softc *sc, int rate, int8_t rssi)
   pwdb = 100;
  else
   pwdb = 100 + rssi;
- if (rate <= 3) {
-  pwdb += 6;
-  if (pwdb > 100)
-   pwdb = 100;
-  if (pwdb <= 14)
-   pwdb -= 4;
-  else if (pwdb <= 26)
-   pwdb -= 8;
-  else if (pwdb <= 34)
-   pwdb -= 6;
-  else if (pwdb <= 42)
-   pwdb -= 2;
+ if (sc->chip & (0x00000001 | 0x00000010)) {
+  if (rate <= 3) {
+   pwdb += 6;
+   if (pwdb > 100)
+    pwdb = 100;
+   if (pwdb <= 14)
+    pwdb -= 4;
+   else if (pwdb <= 26)
+    pwdb -= 8;
+   else if (pwdb <= 34)
+    pwdb -= 6;
+   else if (pwdb <= 42)
+    pwdb -= 2;
+  }
  }
  if (sc->avg_pwdb == -1)
   sc->avg_pwdb = pwdb;
@@ -6667,49 +6670,21 @@ rtwn_get_rssi(struct rtwn_softc *sc, int rate, void *physt)
 int8_t
 rtwn_r88e_get_rssi(struct rtwn_softc *sc, int rate, void *physt)
 {
- struct r92c_rx_phystat *phy;
- struct r88e_rx_cck *cck;
- uint8_t cck_agc_rpt, lna_idx, vga_idx;
+ static const int8_t cckoff[] = { 20, 14, 10, -4, -16, -22, -38, -40 };
+ struct r88e_rx_phystat *phy;
+ uint8_t rpt;
  int8_t rssi;
- rssi = 0;
+ phy = (struct r88e_rx_phystat *)physt;
  if (rate <= 3) {
-  cck = (struct r88e_rx_cck *)physt;
-  cck_agc_rpt = cck->agc_rpt;
-  lna_idx = (cck_agc_rpt & 0xe0) >> 5;
-  vga_idx = cck_agc_rpt & 0x1f;
-  switch (lna_idx) {
-  case 7:
-   if (vga_idx <= 27)
-    rssi = -100 + 2* (27 - vga_idx);
-   else
-    rssi = -100;
-   break;
-  case 6:
-   rssi = -48 + 2 * (2 - vga_idx);
-   break;
-  case 5:
-   rssi = -42 + 2 * (7 - vga_idx);
-   break;
-  case 4:
-   rssi = -36 + 2 * (7 - vga_idx);
-   break;
-  case 3:
-   rssi = -24 + 2 * (7 - vga_idx);
-   break;
-  case 2:
-   rssi = -12 + 2 * (5 - vga_idx);
-   break;
-  case 1:
-   rssi = 8 - (2 * vga_idx);
-   break;
-  case 0:
-   rssi = 14 - (2 * vga_idx);
-   break;
+  rpt = (phy->agc_rpt >> 5) & 0x7;
+  rssi = (phy->agc_rpt & 0x1f) << 1;
+  if (sc->sc_flags & 0x01) {
+   if (rpt == 2)
+    rssi -= 6;
   }
-  rssi += 6;
+  rssi = (phy->agc_rpt & 0x1f) > 27 ? -94 : cckoff[rpt] - rssi;
  } else {
-  phy = (struct r92c_rx_phystat *)physt;
-  rssi = ((__extension__({ __uint32_t __swap32gen_x = (phy->phydw1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) >> 1) & 0x7f) - 110;
+  rssi = ((__extension__({ __uint32_t __swap32gen_x = (phy->sq_rpt); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) >> 1) & 0x7f) - 110;
  }
  return (rssi);
 }
