@@ -2435,8 +2435,10 @@ void pcmcia_check_cis_quirks(sc)
     *pf = *pcmcia_cis_quirks[i].pf;
     do { (&pf->cfe_head)->sqh_first = ((void *)0); (&pf->cfe_head)->sqh_last = &(&pf->cfe_head)->sqh_first; } while (0);
     cfe = malloc(sizeof(*cfe), 2, 0x0002);
-    if (cfe == ((void *)0))
+    if (cfe == ((void *)0)) {
+     free(pf, 2, sizeof(*pf));
      return;
+    }
     *cfe = *pcmcia_cis_quirks[i].cfe;
     do { (cfe)->cfe_list.sqe_next = ((void *)0); *(&pf->cfe_head)->sqh_last = (cfe); (&pf->cfe_head)->sqh_last = &(cfe)->cfe_list.sqe_next; } while (0);
     do { (pf)->pf_list.sqe_next = ((void *)0); *(&sc->card.pf_head)->sqh_last = (pf); (&sc->card.pf_head)->sqh_last = &(pf)->pf_list.sqe_next; } while (0);
