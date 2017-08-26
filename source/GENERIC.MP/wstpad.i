@@ -2314,36 +2314,39 @@ static inline int
 chk_scroll_state(struct wstpad *tp)
 {
  if (tp->contacts != tp->prev_contacts || tp->btns || tp->btns_sync) {
-  tp->scroll.acc_dx = 0;
-  tp->scroll.acc_dy = 0;
+  tp->scroll.dz = 0;
+  tp->scroll.dw = 0;
   return (0);
  }
- return ((tp->dx || tp->dy) && tp->t->matches >= 3);
+ return (tp->dx || tp->dy);
 }
 void
 wstpad_scroll(struct wstpad *tp, int dx, int dy, u_int *cmds)
 {
- int sign = 0;
- if (dy) {
-  tp->scroll.acc_dy += dy;
-  if (tp->scroll.acc_dy <= -tp->scroll.vdist)
-   sign = 1;
-  else if (tp->scroll.acc_dy >= tp->scroll.vdist)
-   sign = -1;
-  if (sign) {
-   tp->scroll.acc_dy += sign * tp->scroll.vdist;
-   tp->scroll.dz = sign;
+ int sign;
+ sign = (dy > 0) - (dy < 0);
+ if (sign) {
+  if (tp->scroll.dz != -sign) {
+   if (tp->t->matches < 3)
+    return;
+   tp->scroll.dz = -sign;
+   tp->scroll.acc_dy = -tp->scroll.vdist / 2;
+  }
+  tp->scroll.acc_dy += abs(dy);
+  if (tp->scroll.acc_dy >= 0) {
+   tp->scroll.acc_dy -= tp->scroll.vdist;
    *cmds |= 1 << VSCROLL;
   }
- } else if (dx) {
-  tp->scroll.acc_dx += dx;
-  if (tp->scroll.acc_dx <= -tp->scroll.hdist)
-   sign = -1;
-  else if (tp->scroll.acc_dx >= tp->scroll.hdist)
-   sign = 1;
-  if (sign) {
-   tp->scroll.acc_dx -= sign * tp->scroll.hdist;
+ } else if ((sign = (dx > 0) - (dx < 0))) {
+  if (tp->scroll.dw != sign) {
+   if (tp->t->matches < 3)
+    return;
    tp->scroll.dw = sign;
+   tp->scroll.acc_dx = -tp->scroll.hdist / 2;
+  }
+  tp->scroll.acc_dx += abs(dx);
+  if (tp->scroll.acc_dx >= 0) {
+   tp->scroll.acc_dx -= tp->scroll.hdist;
    *cmds |= 1 << HSCROLL;
   }
  }
@@ -2359,18 +2362,20 @@ wstpad_f2scroll(struct wsmouseinput *input, u_int *cmds)
  dir = tp->t->dir;
  dy = ((dir) == 0 || (dir) == 11) || ((dir) == 5 || (dir) == 6) ? tp->dy : 0;
  dx = ((dir) == 2 || (dir) == 3) || ((dir) == 8 || (dir) == 9) ? tp->dx : 0;
- if ((dx || dy) && ((tp)->features & (1 << 31))) {
-  t2 = get_2nd_touch(input);
-  if (t2 == ((void *)0) || t2->matches < 3)
-   return;
-  dir = t2->dir;
-  if ((dy > 0 && !((dir) == 0 || (dir) == 11)) || (dy < 0 && !((dir) == 5 || (dir) == 6)))
-   return;
-  if ((dx > 0 && !((dir) == 2 || (dir) == 3)) || (dx < 0 && !((dir) == 8 || (dir) == 9)))
-   return;
+ if (dx || dy) {
+  if (((tp)->features & (1 << 31))) {
+   t2 = get_2nd_touch(input);
+   if (t2 == ((void *)0))
+    return;
+   dir = t2->dir;
+   if ((dy > 0 && !((dir) == 0 || (dir) == 11)) || (dy < 0 && !((dir) == 5 || (dir) == 6)))
+    return;
+   if ((dx > 0 && !((dir) == 2 || (dir) == 3)) || (dx < 0 && !((dir) == 8 || (dir) == 9)))
+    return;
+  }
+  wstpad_scroll(tp, dx, dy, cmds);
+  set_freeze_ts(tp, 0, 100);
  }
- wstpad_scroll(tp, dx, dy, cmds);
- set_freeze_ts(tp, 0, 100);
 }
 void
 wstpad_edgescroll(struct wsmouseinput *input, u_int *cmds)
@@ -3051,8 +3056,8 @@ wstpad_configure(struct wsmouseinput *input)
   tp->tap.maxtime.tv_nsec = 180 * 1000000;
   tp->tap.clicktime = 180;
   tp->tap.locktime = 0;
-  tp->scroll.hdist = 5 * h_unit;
-  tp->scroll.vdist = 5 * v_unit;
+  tp->scroll.hdist = 4 * h_unit;
+  tp->scroll.vdist = 4 * v_unit;
   tp->tap.maxdist = 3 * h_unit;
  }
  tp->freeze = 0;

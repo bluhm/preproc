@@ -2442,7 +2442,6 @@ struct synaptics_softc {
  int identify;
  int capabilities, ext_capabilities, ext2_capabilities;
  int model, ext_model;
- int resolution, dimension;
  int modes;
  int mode;
  int mask;
@@ -3056,6 +3055,7 @@ synaptics_get_hwinfo(struct pms_softc *sc)
 {
  struct synaptics_softc *syn = sc->synaptics;
  struct wsmousehw *hw;
+ int resolution, max_coords, min_coords;
  hw = wsmouse_get_hw(sc->sc_wsmousedev);
  if (synaptics_query(sc, 0x00, &syn->identify))
   return (-1);
@@ -3072,11 +3072,16 @@ synaptics_get_hwinfo(struct pms_softc *sc)
   &syn->ext_capabilities))
   return (-1);
  if ((((syn->identify) & 0x0f) >= 4) &&
-     synaptics_query(sc, 0x08, &syn->resolution))
+     synaptics_query(sc, 0x08, &resolution))
   return (-1);
  if (((((syn->capabilities) >> 20) & 0x07) >= 5) &&
      (syn->ext_capabilities & (1 << 17)) &&
-     synaptics_query(sc, 0x0d, &syn->dimension))
+     synaptics_query(sc, 0x0d, &max_coords))
+  return (-1);
+ if (((((syn->capabilities) >> 20) & 0x07) >= 7 ||
+     (((syn->identify) & 0x0f) << 8 | (((syn->identify) >> 16) & 0xff)) == 0x801) &&
+     (syn->ext_capabilities & (1 << 13)) &&
+     synaptics_query(sc, 0x0f, &min_coords))
   return (-1);
  if ((((syn->identify) & 0x0f) << 8 | (((syn->identify) >> 16) & 0xff)) >= 0x705) {
   if (synaptics_query(sc, 0x01, &syn->modes))
@@ -3094,16 +3099,18 @@ synaptics_get_hwinfo(struct pms_softc *sc)
   hw->type = 15;
  hw->hw_type = (syn->ext_capabilities & (1 << 20))
      ? WSMOUSEHW_CLICKPAD : WSMOUSEHW_TOUCHPAD;
- if (syn->resolution & (1 << 15)) {
-  hw->h_res = (((syn->resolution) >> 16) & 0xff);
-  hw->v_res = ((syn->resolution) & 0xff);
+ if (resolution & (1 << 15)) {
+  hw->h_res = (((resolution) >> 16) & 0xff);
+  hw->v_res = ((resolution) & 0xff);
  }
- hw->x_min = 1472;
- hw->y_min = 1408;
- hw->x_max = (syn->dimension) ?
-     ((((syn->dimension) & 0xff0000) >> 11) | (((syn->dimension) & 0xf00) >> 7)) : 5472;
- hw->y_max = (syn->dimension) ?
-     ((((syn->dimension) & 0xff) << 5) | (((syn->dimension) & 0xf000) >> 11)) : 4448;
+ hw->x_min = (min_coords ?
+     ((((min_coords) & 0xff0000) >> 11) | (((min_coords) & 0xf00) >> 7)) : 1472);
+ hw->y_min = (min_coords ?
+     ((((min_coords) & 0xff) << 5) | (((min_coords) & 0xf000) >> 11)) : 1408);
+ hw->x_max = (max_coords ?
+     ((((max_coords) & 0xff0000) >> 11) | (((max_coords) & 0xf00) >> 7)) : 5472);
+ hw->y_max = (max_coords ?
+     ((((max_coords) & 0xff) << 5) | (((max_coords) & 0xf000) >> 11)) : 4448);
  hw->contacts_max = 3;
  syn->sec_buttons = 0;
  if (((syn->ext_model >> 12) & 0x0f) > 8)
