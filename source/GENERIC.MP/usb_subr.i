@@ -10664,6 +10664,10 @@ const struct usb_known_product usb_known_products[] = {
      "Moonbase Otago OneRNG",
  },
  {
+     0x1d50, 0x60c6,
+     "Altusmetrum ChaosKey 1.0",
+ },
+ {
      0x0fde, 0xca05,
      "OWL CM-160",
  },

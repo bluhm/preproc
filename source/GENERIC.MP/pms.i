@@ -3055,7 +3055,7 @@ synaptics_get_hwinfo(struct pms_softc *sc)
 {
  struct synaptics_softc *syn = sc->synaptics;
  struct wsmousehw *hw;
- int resolution, max_coords, min_coords;
+ int resolution = 0, max_coords = 0, min_coords = 0;
  hw = wsmouse_get_hw(sc->sc_wsmousedev);
  if (synaptics_query(sc, 0x00, &syn->identify))
   return (-1);
