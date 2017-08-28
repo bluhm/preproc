@@ -4458,7 +4458,12 @@ chillbufs(struct bufcache *cache, struct bufqueue *queue, int64_t *queuepages)
 {
  struct buf *bp;
  int64_t limit, pages;
- limit = cache->cachepages / 3;
+ if (queue == &cache->hotqueue)
+  limit = min(cache->cachepages / 20, 4096);
+ else if (queue == &cache->warmqueue)
+  limit = (cache->cachepages / 2);
+ else
+  panic("chillbufs: invalid queue");
  if (*queuepages > 96 && *queuepages > limit) {
   bp = ((queue)->tqh_first);
   if (!bp)
@@ -4479,7 +4484,7 @@ bufcache_release(struct buf *bp)
  int64_t pages;
  struct bufcache *cache = &cleancache[bp->cache];
  pages = ((bp->b_bufsize) >> 13);
- ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1622, "ISSET(bp->b_flags, B_BC)"));
+ ((((bp->b_flags) & (0x02000000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_bio.c", 1630, "ISSET(bp->b_flags, B_BC)"));
  if (fliphigh) {
   if (((bp->b_flags) & (0x04000000)) && bp->cache > 0)
    panic("B_DMA buffer release from cache %d",
