@@ -14193,6 +14193,10 @@ static const struct pci_known_product pci_known_products[] = {
      "Braswell AHCI",
  },
  {
+     0x8086, 0x22a8,
+     "Braswell LPE Audio",
+ },
+ {
      0x8086, 0x22b0,
      "HD Graphics",
  },
@@ -14211,6 +14215,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x8086, 0x22b5,
      "Braswell xHCI",
+ },
+ {
+     0x8086, 0x22b7,
+     "Braswell USB OTG",
  },
  {
      0x8086, 0x22b8,

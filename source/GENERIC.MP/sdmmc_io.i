@@ -2886,7 +2886,7 @@ sdmmc_io_scan(struct sdmmc_softc *sc)
  sf0->number = 0;
  if (sdmmc_set_relative_addr(sc, sf0) != 0) {
   printf("%s: can't set I/O RCA\n", ((sc)->sc_dev.dv_xname));
-  ((sf0->flags) |= (0x0001));
+  sdmmc_function_free(sf0);
   return;
  }
  sc->sc_fn0 = sf0;
