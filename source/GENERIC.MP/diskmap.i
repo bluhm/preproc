@@ -1832,11 +1832,6 @@ struct nameidata {
  size_t ni_pathlen;
  char *ni_next;
  u_long ni_loopcnt;
- char *ni_p_path;
- size_t ni_p_size;
- size_t ni_p_length;
- char *ni_p_next;
- char *ni_p_prev;
  struct componentname {
   u_long cn_nameiop;
   u_long cn_flags;
@@ -2056,7 +2051,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -2134,7 +2128,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -2900,7 +2893,6 @@ int pledge_fail(struct proc *, int, uint64_t);
 struct mbuf;
 struct nameidata;
 int pledge_namei(struct proc *, struct nameidata *, char *);
-int pledge_namei_wlpath(struct proc *, struct nameidata *);
 int pledge_sendfd(struct proc *p, struct file *);
 int pledge_recvfd(struct proc *p, struct file *);
 int pledge_sysctl(struct proc *p, int namelen, int *name, void *new);
@@ -2917,16 +2909,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct whitepaths {
- size_t wl_size;
- int wl_count;
- int wl_ref;
- struct whitepath {
-  char *name;
-  size_t len;
- } wl_paths[0];
-};
-void pledge_dropwpaths(struct process *);
 int
 diskmapopen(dev_t dev, int flag, int fmt, struct proc *p)
 {

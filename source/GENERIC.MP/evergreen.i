@@ -1647,7 +1647,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -1725,7 +1724,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;

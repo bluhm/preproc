@@ -1856,7 +1856,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -1934,7 +1933,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -3516,7 +3514,6 @@ int pledge_fail(struct proc *, int, uint64_t);
 struct mbuf;
 struct nameidata;
 int pledge_namei(struct proc *, struct nameidata *, char *);
-int pledge_namei_wlpath(struct proc *, struct nameidata *);
 int pledge_sendfd(struct proc *p, struct file *);
 int pledge_recvfd(struct proc *p, struct file *);
 int pledge_sysctl(struct proc *p, int namelen, int *name, void *new);
@@ -3533,16 +3530,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct whitepaths {
- size_t wl_size;
- int wl_count;
- int wl_ref;
- struct whitepath {
-  char *name;
-  size_t len;
- } wl_paths[0];
-};
-void pledge_dropwpaths(struct process *);
 struct __tfork {
  void *tf_tcb;
  pid_t *tf_tid;
@@ -5413,8 +5400,6 @@ process_new(struct proc *p, struct process *parent, int flags)
   pr->ps_vmspace = uvmspace_share(parent);
  else
   pr->ps_vmspace = uvmspace_fork(parent);
- if (pr->ps_pledgepaths)
-  pr->ps_pledgepaths->wl_ref++;
  if (parent->ps_flags & 0x00000100)
   startprofclock(pr);
  if (flags & 0x00000400)
@@ -5464,9 +5449,9 @@ fork1(struct proc *curp, int flags, void (*func)(void *), void *arg,
  vaddr_t uaddr;
  int error;
  struct ptrace_state *newptstat = ((void *)0);
- (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 336, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
- (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 337, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
- ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 338, "func != NULL"));
+ (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 333, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
+ (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 334, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
+ ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 335, "func != NULL"));
  if ((error = fork_check_maxthread(uid)))
   return error;
  if ((nprocesses >= maxprocess - 5 && uid != 0) ||
@@ -5659,10 +5644,10 @@ freepid(pid_t pid)
 void
 proc_trampoline_mp(void)
 {
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 668, "__mp_lock_held(&sched_lock)")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 665, "__mp_lock_held(&sched_lock)")); } while (0);
  __mp_unlock(&sched_lock);
  _spl(0);
- ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 671, "__mp_lock_held(&sched_lock) == 0"));
- ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "!_kernel_lock_held()"));
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 674);
+ ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 668, "__mp_lock_held(&sched_lock) == 0"));
+ ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "!_kernel_lock_held()"));
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 671);
 }

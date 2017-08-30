@@ -1499,7 +1499,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -1577,7 +1576,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -1886,11 +1884,6 @@ struct nameidata {
  size_t ni_pathlen;
  char *ni_next;
  u_long ni_loopcnt;
- char *ni_p_path;
- size_t ni_p_size;
- size_t ni_p_length;
- char *ni_p_next;
- char *ni_p_prev;
  struct componentname {
   u_long cn_nameiop;
   u_long cn_flags;
@@ -7780,7 +7773,6 @@ int pledge_fail(struct proc *, int, uint64_t);
 struct mbuf;
 struct nameidata;
 int pledge_namei(struct proc *, struct nameidata *, char *);
-int pledge_namei_wlpath(struct proc *, struct nameidata *);
 int pledge_sendfd(struct proc *p, struct file *);
 int pledge_recvfd(struct proc *p, struct file *);
 int pledge_sysctl(struct proc *p, int namelen, int *name, void *new);
@@ -7797,22 +7789,8 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct whitepaths {
- size_t wl_size;
- int wl_count;
- int wl_ref;
- struct whitepath {
-  char *name;
-  size_t len;
- } wl_paths[0];
-};
-void pledge_dropwpaths(struct process *);
 uint64_t pledgereq_flags(const char *req);
 int canonpath(const char *input, char *buf, size_t bufsize);
-int substrcmp(const char *p1, size_t s1, const char *p2, size_t s2);
-int resolvpath(struct proc *p, char **rdir, size_t *rdirlen, char **cwd,
-    size_t *cwdlen, char *path, size_t pathlen, char **resolved,
-    size_t *resolvedlen);
 const uint64_t pledge_syscalls[331] = {
  [1] = 0xffffffffffffffffULL,
  [86] = 0xffffffffffffffffULL,
@@ -8060,9 +8038,8 @@ sys_pledge(struct proc *p, void *v, register_t *retval)
       (((flags | pr->ps_pledge) != pr->ps_pledge)))
    return (1);
  }
- if (((uap)->paths.be.datum)) {
+ if (((uap)->paths.be.datum))
   return (22);
- }
  if (((uap)->request.be.datum)) {
   pr->ps_pledge = flags;
   pr->ps_flags |= 0x00100000;
@@ -8209,52 +8186,6 @@ pledge_namei(struct proc *p, struct nameidata *ni, char *origpath)
  if (ni->ni_pledge & ~p->p_p->ps_pledge)
   return (pledge_fail(p, 1, (ni->ni_pledge & ~p->p_p->ps_pledge)));
  return (0);
-}
-int
-pledge_namei_wlpath(struct proc *p, struct nameidata *ni)
-{
- struct whitepaths *wl = p->p_p->ps_pledgepaths;
- char *rdir = ((void *)0), *cwd = ((void *)0), *resolved = ((void *)0);
- size_t rdirlen = 0, cwdlen = 0, resolvedlen = 0;
- int i, error, pardir_found;
- if (ni->ni_p_path == ((void *)0))
-  return(0);
- ((wl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_pledge.c", 772, "wl != NULL"));
- error = resolvpath(p, &rdir, &rdirlen, &cwd, &cwdlen,
-     ni->ni_p_path, ni->ni_p_length+1, &resolved, &resolvedlen);
- free(rdir, 127, rdirlen);
- free(cwd, 127, cwdlen);
- if (error != 0)
-  return (error);
- ;
- error = 2;
- pardir_found = 0;
- for (i = 0; i < wl->wl_count && wl->wl_paths[i].name && error; i++) {
-  int substr = substrcmp(wl->wl_paths[i].name,
-      wl->wl_paths[i].len - 1, resolved, resolvedlen - 1);
-  ;
-  if (substr == 1) {
-   u_char term = resolved[wl->wl_paths[i].len - 1];
-   if (term == '\0' || term == '/' ||
-       wl->wl_paths[i].name[1] == '\0')
-    error = 0;
-  } else if (substr == 2) {
-   u_char term = wl->wl_paths[i].name[resolvedlen - 1];
-   if (resolved[1] == '\0' || term == '/')
-    pardir_found = 1;
-  }
- }
- if (pardir_found)
-  switch (p->p_pledge_syscall) {
-  case 38:
-  case 40:
-  case 42:
-  case 53:
-   ni->ni_pledge |= 0x4000000000000000ULL;
-   error = 0;
-  }
- free(resolved, 127, resolvedlen);
- return (error);
 }
 int
 pledge_recvfd(struct proc *p, struct file *fp)
@@ -8883,18 +8814,6 @@ pledge_protexec(struct proc *p, int prot)
   return pledge_fail(p, 1, 0x0000000000008000ULL);
  return 0;
 }
-void
-pledge_dropwpaths(struct process *pr)
-{
- if (pr->ps_pledgepaths && --pr->ps_pledgepaths->wl_ref == 0) {
-  struct whitepaths *wl = pr->ps_pledgepaths;
-  int i;
-  for (i = 0; i < wl->wl_count; i++)
-   free(wl->wl_paths[i].name, 127, wl->wl_paths[i].len);
-  free(wl, 127, wl->wl_size);
- }
- pr->ps_pledgepaths = ((void *)0);
-}
 int
 canonpath(const char *input, char *buf, size_t bufsize)
 {
@@ -8928,104 +8847,4 @@ canonpath(const char *input, char *buf, size_t bufsize)
   return 0;
  } else
   return 63;
-}
-int
-substrcmp(const char *p1, size_t s1, const char *p2, size_t s2)
-{
- size_t i;
- for (i = 0; i < s1 || i < s2; i++) {
-  if (p1[i] != p2[i])
-   break;
- }
- if (i == s1) {
-  return (1);
- } else if (i == s2)
-  return (2);
- else
-  return (0);
-}
-int
-resolvpath(struct proc *p,
-    char **rdir, size_t *rdirlen,
-    char **cwd, size_t *cwdlen,
-    char *path, size_t pathlen,
-    char **resolved, size_t *resolvedlen)
-{
- int error;
- char *abspath = ((void *)0), *canopath = ((void *)0), *fullpath = ((void *)0);
- size_t abspathlen, canopathlen = 0, fullpathlen = 0, canopathlen_exact;
- if (path[0] != '/') {
-  if (*cwd == ((void *)0)) {
-   char *rawcwd, *bp, *bpend;
-   size_t rawcwdlen = 1024 * 4;
-   rawcwd = malloc(rawcwdlen, 127, 0x0001);
-   bp = &rawcwd[rawcwdlen];
-   bpend = bp;
-   *(--bp) = '\0';
-   error = vfs_getcwd_common(p->p_fd->fd_cdir,
-       ((void *)0), &bp, rawcwd, rawcwdlen/2,
-       0x0001, p);
-   if (error) {
-    free(rawcwd, 127, rawcwdlen);
-    goto out;
-   }
-   *cwdlen = (bpend - bp);
-   *cwd = malloc(*cwdlen, 127, 0x0001);
-   __builtin_memcpy((*cwd), (bp), (*cwdlen));
-   free(rawcwd, 127, rawcwdlen);
-  }
-  abspathlen = *cwdlen + pathlen;
-  abspath = malloc(abspathlen, 127, 0x0001);
-  snprintf(abspath, abspathlen, "%s/%s", *cwd, path);
- } else {
-  abspathlen = pathlen;
-  abspath = malloc(abspathlen, 127, 0x0001);
-  __builtin_memcpy((abspath), (path), (pathlen));
- }
- canopathlen = abspathlen;
- canopath = malloc(canopathlen, 127, 0x0001);
- error = canonpath(abspath, canopath, canopathlen);
- free(abspath, 127, abspathlen);
- if (error != 0)
-  goto out;
- canopathlen_exact = strlen(canopath) + 1;
- if (canopathlen_exact > 1024) {
-  error = 63;
-  goto out;
- }
- if (p->p_fd->fd_rdir != ((void *)0)) {
-  if (*rdir == ((void *)0)) {
-   char *rawrdir, *bp, *bpend;
-   size_t rawrdirlen = 1024 * 4;
-   rawrdir = malloc(rawrdirlen, 127, 0x0001);
-   bp = &rawrdir[rawrdirlen];
-   bpend = bp;
-   *(--bp) = '\0';
-   error = vfs_getcwd_common(p->p_fd->fd_rdir,
-       rootvnode, &bp, rawrdir, rawrdirlen/2,
-       0x0001, p);
-   if (error) {
-    free(rawrdir, 127, rawrdirlen);
-    goto out;
-   }
-   *rdirlen = (bpend - bp);
-   *rdir = malloc(*rdirlen, 127, 0x0001);
-   __builtin_memcpy((*rdir), (bp), (*rdirlen));
-   free(rawrdir, 127, rawrdirlen);
-  }
-  fullpathlen = *rdirlen + canopathlen_exact - 1;
-  fullpath = malloc(fullpathlen, 127, 0x0001);
-  snprintf(fullpath, fullpathlen, "%s%s", *rdir, canopath);
- } else {
-  fullpathlen = canopathlen_exact;
-  fullpath = malloc(fullpathlen, 127, 0x0001);
-  __builtin_memcpy((fullpath), (canopath), (fullpathlen));
- }
- *resolvedlen = fullpathlen;
- *resolved = fullpath;
-out:
- free(canopath, 127, canopathlen);
- if (error != 0)
-  free(fullpath, 127, fullpathlen);
- return error;
 }

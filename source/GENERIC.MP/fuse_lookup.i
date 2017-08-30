@@ -1629,11 +1629,6 @@ struct nameidata {
  size_t ni_pathlen;
  char *ni_next;
  u_long ni_loopcnt;
- char *ni_p_path;
- size_t ni_p_size;
- size_t ni_p_length;
- char *ni_p_next;
- char *ni_p_prev;
  struct componentname {
   u_long cn_nameiop;
   u_long cn_flags;

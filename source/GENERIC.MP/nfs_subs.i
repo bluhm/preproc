@@ -2304,11 +2304,6 @@ struct nameidata {
  size_t ni_pathlen;
  char *ni_next;
  u_long ni_loopcnt;
- char *ni_p_path;
- size_t ni_p_size;
- size_t ni_p_length;
- char *ni_p_next;
- char *ni_p_prev;
  struct componentname {
   u_long cn_nameiop;
   u_long cn_flags;
@@ -5075,7 +5070,6 @@ nfs_namei(struct nameidata *ndp, fhandle_t *fhp, int len,
   cnp->cn_flags |= (0x000100 | 0x000200);
  else
   cnp->cn_flags |= 0x000100;
- ((ndp->ni_p_path == ((void *)0) && ndp->ni_p_size == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_subs.c", 1253, "ndp->ni_p_path == NULL && ndp->ni_p_size == 0"));
  cnp->cn_proc = p;
  error = vfs_lookup(ndp);
  if (error)

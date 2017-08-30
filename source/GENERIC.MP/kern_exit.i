@@ -1405,7 +1405,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -1483,7 +1482,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -3223,7 +3221,6 @@ int pledge_fail(struct proc *, int, uint64_t);
 struct mbuf;
 struct nameidata;
 int pledge_namei(struct proc *, struct nameidata *, char *);
-int pledge_namei_wlpath(struct proc *, struct nameidata *);
 int pledge_sendfd(struct proc *p, struct file *);
 int pledge_recvfd(struct proc *p, struct file *);
 int pledge_sysctl(struct proc *p, int namelen, int *name, void *new);
@@ -3240,16 +3237,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct whitepaths {
- size_t wl_size;
- int wl_count;
- int wl_ref;
- struct whitepath {
-  char *name;
-  size_t len;
- } wl_paths[0];
-};
-void pledge_dropwpaths(struct process *);
 struct ipc_perm {
  uid_t cuid;
  gid_t cgid;
@@ -5624,16 +5611,15 @@ process_zap(struct process *pr)
  leavepgrp(pr);
  do { if ((pr)->ps_sibling.le_next != ((void *)0)) (pr)->ps_sibling.le_next->ps_sibling.le_prev = (pr)->ps_sibling.le_prev; *(pr)->ps_sibling.le_prev = (pr)->ps_sibling.le_next; ((pr)->ps_sibling.le_prev) = ((void *)-1); ((pr)->ps_sibling.le_next) = ((void *)-1); } while (0);
  (void)chgproccnt(pr->ps_ucred->cr_ruid, -1);
- pledge_dropwpaths(pr);
  otvp = pr->ps_textvp;
  pr->ps_textvp = ((void *)0);
  if (otvp)
   vrele(otvp);
- ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 657, "pr->ps_refcnt == 1"));
+ ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 655, "pr->ps_refcnt == 1"));
  if (pr->ps_ptstat != ((void *)0))
   free(pr->ps_ptstat, 42, sizeof(*pr->ps_ptstat));
  pool_put(&rusage_pool, pr->ps_ru);
- (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 661, "TAILQ_EMPTY(&pr->ps_threads)"));
+ (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 659, "TAILQ_EMPTY(&pr->ps_threads)"));
  limfree(pr->ps_limit);
  crfree(pr->ps_ucred);
  pool_put(&process_pool, pr);

@@ -1273,11 +1273,6 @@ struct nameidata {
  size_t ni_pathlen;
  char *ni_next;
  u_long ni_loopcnt;
- char *ni_p_path;
- size_t ni_p_size;
- size_t ni_p_length;
- char *ni_p_next;
- char *ni_p_prev;
  struct componentname {
   u_long cn_nameiop;
   u_long cn_flags;
@@ -2649,7 +2644,6 @@ struct exec_package;
 struct proc;
 struct ps_strings;
 struct uvm_object;
-struct whitepaths;
 union sigval;
 struct emul {
  char e_name[8];
@@ -2727,7 +2721,6 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
- struct whitepaths *ps_pledgepaths;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -2898,7 +2891,6 @@ int pledge_fail(struct proc *, int, uint64_t);
 struct mbuf;
 struct nameidata;
 int pledge_namei(struct proc *, struct nameidata *, char *);
-int pledge_namei_wlpath(struct proc *, struct nameidata *);
 int pledge_sendfd(struct proc *p, struct file *);
 int pledge_recvfd(struct proc *p, struct file *);
 int pledge_sysctl(struct proc *p, int namelen, int *name, void *new);
@@ -2915,16 +2907,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct whitepaths {
- size_t wl_size;
- int wl_count;
- int wl_ref;
- struct whitepath {
-  char *name;
-  size_t len;
- } wl_paths[0];
-};
-void pledge_dropwpaths(struct process *);
 struct flock {
  off_t l_start;
  off_t l_len;
@@ -2972,48 +2954,6 @@ extern struct filelist filehead;
 extern int maxfiles;
 extern int numfiles;
 extern struct fileops vnops;
-struct kmemstats {
- long ks_inuse;
- long ks_calls;
- long ks_memuse;
- u_short ks_limblocks;
- u_short ks_mapblocks;
- long ks_maxused;
- long ks_limit;
- long ks_size;
- long ks_spare;
-};
-struct kmemusage {
- short ku_indx;
- union {
-  u_short freecnt;
-  u_short pagecnt;
- } ku_un;
-};
-struct kmem_freelist;
-struct kmembuckets {
- struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
- u_int64_t kb_calls;
- u_int64_t kb_total;
- u_int64_t kb_totalfree;
- u_int64_t kb_elmpercl;
- u_int64_t kb_highwat;
- u_int64_t kb_couldfree;
-};
-extern struct kmemstats kmemstats[];
-extern struct kmemusage *kmemusage;
-extern char *kmembase;
-extern struct kmembuckets bucket[];
-void *malloc(size_t, int, int);
-void *mallocarray(size_t, size_t, int, int);
-void free(void *, int, size_t);
-int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-size_t malloc_roundup(size_t);
-void malloc_printit(int (*)(const char *, ...));
-void poison_mem(void *, size_t);
-int poison_check(void *, size_t, size_t *, uint32_t *);
-uint32_t poison_value(void *);
 struct ktr_header {
  uint ktr_type;
  pid_t ktr_pid;
@@ -3063,33 +3003,6 @@ void ktrcleartrace(struct process *);
 void ktrsettrace(struct process *, int, struct vnode *, struct ucred *);
 void ktrstruct(struct proc *, const char *, const void *, size_t);
 void
-push_component(struct nameidata *ndp, char *cp, size_t cplen)
-{
- ((cplen < 1024) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_lookup.c", 66, "cplen < MAXPATHLEN"));
- if (ndp->ni_p_size - ndp->ni_p_length <= cplen) {
-  char *tmp = malloc(ndp->ni_p_size + 1024, 127, 0x0001);
-  __builtin_memcpy((tmp), (ndp->ni_p_path), (ndp->ni_p_length));
-  ndp->ni_p_next = tmp + (ndp->ni_p_next - ndp->ni_p_path);
-  ndp->ni_p_prev = tmp + (ndp->ni_p_prev - ndp->ni_p_path);
-  free(ndp->ni_p_path, 127, ndp->ni_p_size);
-  ndp->ni_p_path = tmp;
-  ndp->ni_p_size += 1024;
- }
- __builtin_memcpy((ndp->ni_p_next), (cp), (cplen));
- ndp->ni_p_prev = ndp->ni_p_next;
- ndp->ni_p_next += cplen;
- ndp->ni_p_length += cplen;
- *ndp->ni_p_next = '\0';
-}
-void
-pop_symlink(struct nameidata *ndp)
-{
- ((ndp->ni_p_next != ndp->ni_p_prev) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_lookup.c", 89, "ndp->ni_p_next != ndp->ni_p_prev"));
- ndp->ni_p_length = ndp->ni_p_prev - ndp->ni_p_path;
- ndp->ni_p_next = ndp->ni_p_prev;
- *ndp->ni_p_next = '\0';
-}
-void
 ndinitat(struct nameidata *ndp, u_long op, u_long flags,
     enum uio_seg segflg, int dirfd, const char *namep, struct proc *p)
 {
@@ -3112,7 +3025,6 @@ namei(struct nameidata *ndp)
  int error, linklen;
  struct componentname *cnp = &ndp->ni_cnd;
  struct proc *p = cnp->cn_proc;
- ((ndp->ni_p_path == ((void *)0) && ndp->ni_p_size == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_lookup.c", 149, "ndp->ni_p_path == NULL && ndp->ni_p_size == 0"));
  ndp->ni_cnd.cn_cred = ndp->ni_cnd.cn_proc->p_ucred;
  if (!cnp->cn_cred || !cnp->cn_proc)
   panic ("namei: bad cred/proc");
@@ -3155,38 +3067,20 @@ fail:
  error = pledge_namei(p, ndp, cnp->cn_pnbuf);
  if (error)
   goto fail;
- if (!((p->p_p->ps_flags) & (0x00000800)) &&
-     ((p->p_p->ps_flags) & (0x00100000)) && p->p_p->ps_pledgepaths) {
-  ndp->ni_p_path = malloc(1024, 127, 0x0001);
-  ndp->ni_p_next = ndp->ni_p_prev = ndp->ni_p_path;
-  ndp->ni_p_size = 1024;
-  ndp->ni_p_length = 0;
- } else {
-  ndp->ni_p_path = ((void *)0);
-  ndp->ni_p_size = 0;
- }
  if (cnp->cn_pnbuf[0] == '/') {
   dp = ndp->ni_rootdir;
   vref(dp);
-  if (ndp->ni_p_path != ((void *)0)) {
-   *ndp->ni_p_path = '/';
-   ndp->ni_p_next++;
-   *ndp->ni_p_next = '\0';
-   ndp->ni_p_length = 1;
-  }
  } else if (ndp->ni_dirfd == -100) {
   dp = fdp->fd_cdir;
   vref(dp);
  } else {
   struct file *fp = fd_getfile(fdp, ndp->ni_dirfd);
   if (fp == ((void *)0)) {
-   free(ndp->ni_p_path, 127, ndp->ni_p_size);
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (9);
   }
   dp = (struct vnode *)fp->f_data;
   if (fp->f_type != 1 || dp->v_type != VDIR) {
-   free(ndp->ni_p_path, 127, ndp->ni_p_size);
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (20);
   }
@@ -3194,28 +3088,16 @@ fail:
  }
  for (;;) {
   if (!dp->v_mount) {
-   free(ndp->ni_p_path, 127, ndp->ni_p_size);
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (2);
   }
   cnp->cn_nameptr = cnp->cn_pnbuf;
   ndp->ni_startdir = dp;
   if ((error = vfs_lookup(ndp)) != 0) {
-   free(ndp->ni_p_path, 127, ndp->ni_p_size);
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (error);
   }
   if ((cnp->cn_flags & 0x010000) == 0) {
-   error = pledge_namei_wlpath(p, ndp);
-   if (error) {
-    free(ndp->ni_p_path, 127, ndp->ni_p_size);
-    pool_put(&namei_pool, cnp->cn_pnbuf);
-    if (ndp->ni_vp)
-     vput(ndp->ni_vp);
-    ndp->ni_vp = ((void *)0);
-    return(error);
-   }
-   free(ndp->ni_p_path, 127, ndp->ni_p_size);
    if ((cnp->cn_flags & (0x000800 | 0x001000)) == 0)
     pool_put(&namei_pool, cnp->cn_pnbuf);
    else
@@ -3270,17 +3152,9 @@ badlink:
    vrele(dp);
    dp = ndp->ni_rootdir;
    vref(dp);
-   if (ndp->ni_p_path != ((void *)0)) {
-    ndp->ni_p_next = ndp->ni_p_prev = ndp->ni_p_path;
-    *ndp->ni_p_path = '/';
-    ndp->ni_p_next++;
-    *ndp->ni_p_next = '\0';
-    ndp->ni_p_length = 1;
-   }
   }
  }
  pool_put(&namei_pool, cnp->cn_pnbuf);
- free(ndp->ni_p_path, 127, ndp->ni_p_size);
  vrele(ndp->ni_dvp);
  vput(ndp->ni_vp);
  ndp->ni_vp = ((void *)0);
@@ -3343,8 +3217,6 @@ dirloop:
   error = 63;
   goto bad;
  }
- if (ndp->ni_p_path != ((void *)0))
-  push_component(ndp, cnp->cn_nameptr, cnp->cn_namelen);
  ndp->ni_pathlen -= cnp->cn_namelen;
  ndp->ni_next = cp;
  if (*cp == '/') {
@@ -3443,8 +3315,6 @@ dirloop:
   ndp->ni_pathlen += slashes;
   ndp->ni_next -= slashes;
   cnp->cn_flags |= 0x010000;
-  if (ndp->ni_p_path != ((void *)0))
-   pop_symlink(ndp);
   return (0);
  }
  if ((dp->v_type != VDIR) && (cnp->cn_flags & 0x080000)) {
@@ -3455,8 +3325,6 @@ nextname:
  if (!(cnp->cn_flags & 0x008000)) {
   cnp->cn_nameptr = ndp->ni_next;
   vrele(ndp->ni_dvp);
-  if (ndp->ni_p_path != ((void *)0))
-   push_component(ndp, "/", 1);
   goto dirloop;
  }
 terminal:

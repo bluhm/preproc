@@ -1726,7 +1726,7 @@ struct urng_chip {
 struct urng_softc {
  struct device sc_dev;
  struct usbd_device *sc_udev;
- struct usbd_pipe *sc_pipe;
+ struct usbd_pipe *sc_outpipe;
  struct timeout sc_timeout;
  struct usb_task sc_task;
  struct usbd_xfer *sc_xfer;
@@ -1797,7 +1797,7 @@ urng_attach(struct device *parent, struct device *self, void *aux)
   return;
  }
  error = usbd_open_pipe(uaa->iface, ep_ibulk, 0x01,
-      &sc->sc_pipe);
+      &sc->sc_outpipe);
  if (error) {
   printf("%s: failed to open bulk-in pipe: %s\n",
     ((sc)->sc_dev.dv_xname), usbd_errstr(error));
@@ -1828,8 +1828,8 @@ urng_detach(struct device *self, int flags)
   timeout_del(&sc->sc_timeout);
  if (sc->sc_xfer)
   usbd_free_xfer(sc->sc_xfer);
- if (sc->sc_pipe != ((void *)0))
-  usbd_close_pipe(sc->sc_pipe);
+ if (sc->sc_outpipe != ((void *)0))
+  usbd_close_pipe(sc->sc_outpipe);
  return (0);
 }
 void
@@ -1838,7 +1838,7 @@ urng_task(void *arg)
  struct urng_softc *sc = (struct urng_softc *)arg;
  usbd_status error;
  u_int32_t len, i;
- usbd_setup_xfer(sc->sc_xfer, sc->sc_pipe, ((void *)0), sc->sc_buf,
+ usbd_setup_xfer(sc->sc_xfer, sc->sc_outpipe, ((void *)0), sc->sc_buf,
      sc->sc_chip.bufsiz, 0x04 | 0x02,
      sc->sc_chip.read_timeout, ((void *)0));
  error = usbd_transfer(sc->sc_xfer);
