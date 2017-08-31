@@ -1750,7 +1750,7 @@ struct urng_type {
 };
 static const struct urng_type urng_devs[] = {
  { { 0x1d50, 0x60c6 },
-   {64, 6, 0, 100, 5000} },
+   {64, 5, 0, 100, 5000} },
  { { 0x12d8, 0x0001 },
    {128, 1, 0, 100, 5000} },
 };
@@ -1773,7 +1773,7 @@ urng_attach(struct device *parent, struct device *self, void *aux)
  usb_endpoint_descriptor_t *ed;
  int ep_ibulk = -1;
  usbd_status error;
- int i;
+ int i, ep_addr;
  sc->sc_udev = uaa->device;
  sc->sc_chip = ((struct urng_type *)usbd_match_device((const struct usb_devno *)(urng_devs), sizeof (urng_devs) / sizeof ((urng_devs)[0]), sizeof ((urng_devs)[0]), (uaa->vendor), (uaa->product)))->urng_chip;
  ;
@@ -1786,10 +1786,13 @@ urng_attach(struct device *parent, struct device *self, void *aux)
    return;
   }
   if (((ed->bEndpointAddress) & 0x80) == 0x80 &&
-      ((ed->bmAttributes) & 0x03) == 0x02 &&
-      ((ed->bEndpointAddress) & 0x0f) == sc->sc_chip.endpoint) {
-   ep_ibulk = ed->bEndpointAddress;
-   break;
+      ((ed->bmAttributes) & 0x03) == 0x02) {
+       ep_addr = ((ed->bEndpointAddress) & 0x0f);
+   ;
+   if (ep_addr == sc->sc_chip.endpoint) {
+    ep_ibulk = ed->bEndpointAddress;
+    break;
+   }
   }
  }
  if (ep_ibulk == -1) {

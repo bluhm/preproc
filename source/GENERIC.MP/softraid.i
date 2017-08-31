@@ -8160,6 +8160,10 @@ sr_sensors_refresh(void *arg)
    sv->sv_sensor.value = 10;
    sv->sv_sensor.status = SENSOR_S_WARN;
    break;
+  case 0x05:
+   sv->sv_sensor.value = 7;
+   sv->sv_sensor.status = SENSOR_S_WARN;
+   break;
   case 0x04:
   case 0x00:
    sv->sv_sensor.value = 4;
