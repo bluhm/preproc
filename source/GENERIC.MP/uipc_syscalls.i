@@ -2171,8 +2171,7 @@ int soreserve(struct socket *so, u_long sndcc, u_long rcvcc);
 void sorflush(struct socket *so);
 int sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
      struct mbuf *top, struct mbuf *control, int flags);
-int sosetopt(struct socket *so, int level, int optname,
-     struct mbuf *m0);
+int sosetopt(struct socket *so, int level, int optname, struct mbuf *m);
 int soshutdown(struct socket *so, int how);
 void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
@@ -3827,7 +3826,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -4966,7 +4964,6 @@ sys_setsockopt(struct proc *p, void *v, register_t *retval)
  s = solock(so);
  error = sosetopt(so, ((uap)->level.be.datum), ((uap)->name.be.datum), m);
  sounlock(s);
- m = ((void *)0);
 bad:
  m_freem(m);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);

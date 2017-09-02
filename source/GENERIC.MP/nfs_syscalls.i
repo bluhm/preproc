@@ -3215,8 +3215,7 @@ int soreserve(struct socket *so, u_long sndcc, u_long rcvcc);
 void sorflush(struct socket *so);
 int sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
      struct mbuf *top, struct mbuf *control, int flags);
-int sosetopt(struct socket *so, int level, int optname,
-     struct mbuf *m0);
+int sosetopt(struct socket *so, int level, int optname, struct mbuf *m);
 int soshutdown(struct socket *so, int how);
 void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
@@ -4615,7 +4614,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -5313,6 +5311,7 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
   *((int32_t *)((m)->m_hdr.mh_data)) = 1;
   m->m_hdr.mh_len = sizeof(int32_t);
   sosetopt(so, 0xffff, 0x0008, m);
+  m_freem(m);
  }
  if (so->so_proto->pr_domain->dom_family == 2 &&
      so->so_proto->pr_protocol == 6) {
@@ -5320,6 +5319,7 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
   *((int32_t *)((m)->m_hdr.mh_data)) = 1;
   m->m_hdr.mh_len = sizeof(int32_t);
   sosetopt(so, 6, 0x01, m);
+  m_freem(m);
  }
  so->so_rcv.sb_flags &= ~0x40;
  so->so_rcv.sb_timeo = 0;

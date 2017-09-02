@@ -2362,8 +2362,7 @@ int soreserve(struct socket *so, u_long sndcc, u_long rcvcc);
 void sorflush(struct socket *so);
 int sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
      struct mbuf *top, struct mbuf *control, int flags);
-int sosetopt(struct socket *so, int level, int optname,
-     struct mbuf *m0);
+int sosetopt(struct socket *so, int level, int optname, struct mbuf *m);
 int soshutdown(struct socket *so, int how);
 void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
@@ -3284,7 +3283,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -3938,12 +3936,8 @@ route_ctloutput(int op, struct socket *so, int level, int optname,
  struct routecb *rop = ((struct routecb *)(so)->so_pcb);
  int error = 0;
  unsigned int tid;
- if (level != 17) {
-  error = 22;
-  if (op == 1 && m)
-   m_free(m);
-  return (error);
- }
+ if (level != 17)
+  return (22);
  switch (op) {
  case 1:
   switch (optname) {
@@ -3968,7 +3962,6 @@ route_ctloutput(int op, struct socket *so, int level, int optname,
    error = 42;
    break;
   }
-  m_free(m);
   break;
  case 0:
   switch (optname) {
@@ -4020,7 +4013,7 @@ route_input(struct mbuf *m0, struct socket *so, sa_family_t sa_family)
  int sockets = 0;
  struct socket *last = ((void *)0);
  struct sockaddr *sosrc, *sodst;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 374, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 369, "_kernel_lock_held()"));
  sosrc = &route_src;
  sodst = &route_dst;
  if (m->m_hdr.mh_len < __builtin_offsetof(struct rt_msghdr, rtm_type) + 1) {
@@ -4345,7 +4338,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
    break;
   }
   ifp = if_get(rt->rt_ifidx);
-  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 802, "ifp != NULL"));
+  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 797, "ifp != NULL"));
   if ((((rt->rt_flags) & (0x20000)))) {
    ifp->if_rtrequest(ifp, 0x11, rt);
    rtable_walk(tableid, ((rt)->rt_dest)->sa_family,
@@ -4410,7 +4403,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
     ifa = info->rti_ifa;
     if (rt->rt_ifa != ifa) {
      ifp = if_get(rt->rt_ifidx);
-     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 909, "ifp != NULL"));
+     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 904, "ifp != NULL"));
      ifp->if_rtrequest(ifp, 0x2, rt);
      ifafree(rt->rt_ifa);
      if_put(ifp);
@@ -4466,7 +4459,7 @@ change:
    rtm_setmetrics(rtm->rtm_inits, &rtm->rtm_rmx,
        &rt->rt_rmx);
    ifp = if_get(rt->rt_ifidx);
-   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 997, "ifp != NULL"));
+   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 992, "ifp != NULL"));
    ifp->if_rtrequest(ifp, 0x1, rt);
    if_put(ifp);
    if (info->rti_info[10] != ((void *)0)) {
@@ -4960,7 +4953,7 @@ sysctl_iflist(int af, struct walkarg *w)
   }
   info.rti_info[4] = ((void *)0);
   for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
-   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1674, "ifa->ifa_addr->sa_family != AF_LINK"));
+   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1669, "ifa->ifa_addr->sa_family != AF_LINK"));
    if (af && af != ifa->ifa_addr->sa_family)
     continue;
    info.rti_info[5] = ifa->ifa_addr;

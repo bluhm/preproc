@@ -2463,7 +2463,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -4657,13 +4656,11 @@ int ip_mforward(struct mbuf *, struct ifnet *);
 int ip_optcopy(struct ip *, struct ip *);
 int ip_output(struct mbuf *, struct mbuf *, struct route *, int,
      struct ip_moptions *, struct inpcb *, u_int32_t);
-int ip_pcbopts(struct mbuf **, struct mbuf *);
 struct mbuf *
   ip_reass(struct ipqent *, struct ipq *);
 u_int16_t
   ip_randomid(void);
 void ip_send(struct mbuf *);
-int ip_setmoptions(int, struct ip_moptions **, struct mbuf *, u_int);
 void ip_slowtimo(void);
 struct mbuf *
   ip_srcroute(struct mbuf *);

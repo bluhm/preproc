@@ -1759,8 +1759,7 @@ int soreserve(struct socket *so, u_long sndcc, u_long rcvcc);
 void sorflush(struct socket *so);
 int sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
      struct mbuf *top, struct mbuf *control, int flags);
-int sosetopt(struct socket *so, int level, int optname,
-     struct mbuf *m0);
+int sosetopt(struct socket *so, int level, int optname, struct mbuf *m);
 int soshutdown(struct socket *so, int how);
 void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
@@ -3203,7 +3202,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -4545,13 +4543,11 @@ int ip_mforward(struct mbuf *, struct ifnet *);
 int ip_optcopy(struct ip *, struct ip *);
 int ip_output(struct mbuf *, struct mbuf *, struct route *, int,
      struct ip_moptions *, struct inpcb *, u_int32_t);
-int ip_pcbopts(struct mbuf **, struct mbuf *);
 struct mbuf *
   ip_reass(struct ipqent *, struct ipq *);
 u_int16_t
   ip_randomid(void);
 void ip_send(struct mbuf *);
-int ip_setmoptions(int, struct ip_moptions **, struct mbuf *, u_int);
 void ip_slowtimo(void);
 struct mbuf *
   ip_srcroute(struct mbuf *);
@@ -6506,11 +6502,10 @@ dropfrag:
 void
 ip_freef(struct ipq *fp)
 {
- struct ipqent *q, *p;
- for (q = ((&fp->ipq_fragq)->lh_first); q != ((void *)0); q = p) {
-  p = ((q)->ipqe_q.le_next);
-  m_freem(q->ipqe_m);
+ struct ipqent *q;
+ while ((q = ((&fp->ipq_fragq)->lh_first)) != ((void *)0)) {
   do { if ((q)->ipqe_q.le_next != ((void *)0)) (q)->ipqe_q.le_next->ipqe_q.le_prev = (q)->ipqe_q.le_prev; *(q)->ipqe_q.le_prev = (q)->ipqe_q.le_next; ((q)->ipqe_q.le_prev) = ((void *)-1); ((q)->ipqe_q.le_next) = ((void *)-1); } while (0);
+  m_freem(q->ipqe_m);
   pool_put(&ipqent_pool, q);
   ip_frags--;
  }
@@ -6522,8 +6517,7 @@ ip_slowtimo(void)
 {
  struct ipq *fp, *nfp;
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
- for (fp = ((&ipq)->lh_first); fp != ((void *)0); fp = nfp) {
-  nfp = ((fp)->ipq_q.le_next);
+ for ((fp) = ((&ipq)->lh_first); (fp) && ((nfp) = ((fp)->ipq_q.le_next), 1); (fp) = (nfp)) {
   if (--fp->ipq_ttl == 0) {
    ipstat_inc(ips_fragtimeout);
    ip_freef(fp);
@@ -6563,7 +6557,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1087);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1085);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
@@ -7072,7 +7066,7 @@ ip_send_dispatch(void *xmq)
  extern int ipsec_in_use;
  if (ipsec_in_use) {
   do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1816);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1814);
   do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }

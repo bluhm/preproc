@@ -1740,8 +1740,7 @@ int soreserve(struct socket *so, u_long sndcc, u_long rcvcc);
 void sorflush(struct socket *so);
 int sosend(struct socket *so, struct mbuf *addr, struct uio *uio,
      struct mbuf *top, struct mbuf *control, int flags);
-int sosetopt(struct socket *so, int level, int optname,
-     struct mbuf *m0);
+int sosetopt(struct socket *so, int level, int optname, struct mbuf *m);
 int soshutdown(struct socket *so, int how);
 void sowakeup(struct socket *so, struct sockbuf *sb);
 void sorwakeup(struct socket *);
@@ -2944,7 +2943,6 @@ void in6_proto_cksum_out(struct mbuf *, struct ifnet *);
 int in6_localaddr(struct in6_addr *);
 int in6_addrscope(struct in6_addr *);
 struct in6_ifaddr *in6_ifawithscope(struct ifnet *, struct in6_addr *, u_int);
-void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_mask2len(struct in6_addr *, u_char *);
 int in6_nam2sin6(const struct mbuf *, struct sockaddr_in6 **);
 struct inpcb;
@@ -4241,13 +4239,11 @@ int ip_mforward(struct mbuf *, struct ifnet *);
 int ip_optcopy(struct ip *, struct ip *);
 int ip_output(struct mbuf *, struct mbuf *, struct route *, int,
      struct ip_moptions *, struct inpcb *, u_int32_t);
-int ip_pcbopts(struct mbuf **, struct mbuf *);
 struct mbuf *
   ip_reass(struct ipqent *, struct ipq *);
 u_int16_t
   ip_randomid(void);
 void ip_send(struct mbuf *);
-int ip_setmoptions(int, struct ip_moptions **, struct mbuf *, u_int);
 void ip_slowtimo(void);
 struct mbuf *
   ip_srcroute(struct mbuf *);
@@ -5924,6 +5920,8 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+int ip_pcbopts(struct mbuf **, struct mbuf *);
+int ip_setmoptions(int, struct ip_moptions **, struct mbuf *, u_int);
 void ip_mloopback(struct ifnet *, struct mbuf *, struct sockaddr_in *);
 static __inline u_int16_t __attribute__((__unused__))
     in_cksum_phdr(u_int32_t, u_int32_t, u_int32_t);
@@ -6026,7 +6024,7 @@ reroute:
    ip->ip_src = ia->ia_addr.sin_addr;
  }
  if (ipsec_in_use || inp != ((void *)0)) {
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 234, "_kernel_lock_held()"));
+  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 236, "_kernel_lock_held()"));
   tdb = ip_output_ipsec_lookup(m, hlen, &error, inp,
       ipsecflowinfo);
   if (error != 0) {
@@ -6075,7 +6073,7 @@ reroute:
   else {
    if (ipmforwarding && ip_mrouter[ifp->if_data.ifi_rdomain] &&
        (flags & 0x1) == 0) {
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 340);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 342);
     rv = ip_mforward(m, ifp);
     _kernel_unlock();
     if (rv != 0) {
@@ -6112,7 +6110,7 @@ sendit:
      (ro->ro_rt->rt_rmx.rmx_locks & 0x1) == 0)
   ip->ip_off |= ((__uint16_t)(0x4000));
  if (tdb != ((void *)0)) {
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 405, "_kernel_lock_held()"));
+  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 407, "_kernel_lock_held()"));
   error = ip_output_ipsec_send(tdb, m, ifp, ro);
   goto done;
  }
@@ -6442,8 +6440,6 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
  u_int rtid = 0;
  if (level != 0) {
   error = 22;
-  if (op == 1)
-   (void) m_free(m);
  } else switch (op) {
  case 1:
   switch (optname) {
@@ -6627,7 +6623,6 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
    error = 42;
    break;
   }
-  m_free(m);
   break;
  case 0:
   switch (optname) {
@@ -6759,13 +6754,12 @@ ip_pcbopts(struct mbuf **pcbopt, struct mbuf *m)
  m_free(*pcbopt);
  *pcbopt = 0;
  if (m == ((void *)0) || m->m_hdr.mh_len == 0) {
-  m_free(m);
   return (0);
  }
  if (m->m_hdr.mh_len % sizeof(int32_t))
-  goto bad;
+  return (22);
  if (m->m_hdr.mh_data + m->m_hdr.mh_len + sizeof(struct in_addr) >= &m->M_dat.M_databuf[(256 - sizeof(struct m_hdr))])
-  goto bad;
+  return (22);
  cnt = m->m_hdr.mh_len;
  m->m_hdr.mh_len += sizeof(struct in_addr);
  cp = ((u_char *)((m)->m_hdr.mh_data)) + sizeof(struct in_addr);
@@ -6779,10 +6773,10 @@ ip_pcbopts(struct mbuf **pcbopt, struct mbuf *m)
    optlen = 1;
   else {
    if (cnt < 1 + sizeof(*cp))
-    goto bad;
+    return (22);
    optlen = cp[1];
    if (optlen < 1 + sizeof(*cp) || optlen > cnt)
-    goto bad;
+    return (22);
   }
   switch (opt) {
   default:
@@ -6790,7 +6784,7 @@ ip_pcbopts(struct mbuf **pcbopt, struct mbuf *m)
   case 131:
   case 137:
    if (optlen < 4 - 1 + sizeof(struct in_addr))
-    goto bad;
+    return (22);
    m->m_hdr.mh_len -= sizeof(struct in_addr);
    cnt -= sizeof(struct in_addr);
    optlen -= sizeof(struct in_addr);
@@ -6801,12 +6795,11 @@ ip_pcbopts(struct mbuf **pcbopt, struct mbuf *m)
   }
  }
  if (m->m_hdr.mh_len > 40 + sizeof(struct in_addr))
-  goto bad;
- *pcbopt = m;
+  return (22);
+ *pcbopt = m_dup_pkt(m, 0, 0x0002);
+ if (*pcbopt == ((void *)0))
+  return (55);
  return (0);
-bad:
- (void)m_free(m);
- return (22);
 }
 int
 ip_setmoptions(int optname, struct ip_moptions **imop, struct mbuf *m,
