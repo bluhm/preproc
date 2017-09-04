@@ -8358,11 +8358,11 @@ drm_gem_object_release_handle(int id, void *ptr, void *data)
  struct drm_file *file_priv = data;
  struct drm_gem_object *obj = ptr;
  struct drm_device *dev = obj->dev;
+ if (dev->driver->gem_close_object)
+  dev->driver->gem_close_object(obj, file_priv);
  if (drm_core_check_feature(dev, 0x4000))
   drm_gem_remove_prime_handles(obj, file_priv);
  drm_vma_node_revoke(&obj->vma_node, file_priv->filp);
- if (dev->driver->gem_close_object)
-  dev->driver->gem_close_object(obj, file_priv);
  drm_gem_object_handle_unreference_unlocked(obj);
  return 0;
 }

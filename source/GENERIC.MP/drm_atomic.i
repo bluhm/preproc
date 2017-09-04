@@ -8707,6 +8707,8 @@ int drm_atomic_check_only(struct drm_atomic_state *state)
  }
  if (config->funcs->atomic_check)
   ret = config->funcs->atomic_check(state->dev, state);
+ if (ret)
+  return ret;
  if (!state->allow_modeset) {
   for ((i) = 0; (i) < (state)->dev->mode_config.num_crtc && ((crtc) = (state)->crtcs[i], (crtc_state) = (state)->crtc_states[i], 1); (i)++) if (crtc_state) {
    if (drm_atomic_crtc_needs_modeset(crtc_state)) {
@@ -8715,7 +8717,7 @@ int drm_atomic_check_only(struct drm_atomic_state *state)
    }
   }
  }
- return ret;
+ return 0;
 }
 ;
 int drm_atomic_commit(struct drm_atomic_state *state)
