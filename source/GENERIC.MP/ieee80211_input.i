@@ -5071,6 +5071,7 @@ ieee80211_recv_probe_resp(struct ieee80211com *ic, struct mbuf *m,
        ic->ic_curmode == IEEE80211_MODE_11A ||
        (capinfo & 0x0400));
   }
+   ic->ic_mgt_timer = 0;
  }
  if (ni->ni_flags & 0x0002) {
   if ((edcaie != ((void *)0) &&

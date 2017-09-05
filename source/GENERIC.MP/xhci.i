@@ -4754,7 +4754,7 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
  if (xp->free_trbs < ntrb)
   return (USBD_NOMEM);
  trb0 = xhci_xfer_get_trb(sc, xfer, &toggle0, (ntrb == 1));
- remain = xfer->length;
+ remain = xfer->length - len0;
  paddr += len0;
  len = min(remain, (64 * 1024));
  for (i = ntrb - 1; i > 0; i--) {
