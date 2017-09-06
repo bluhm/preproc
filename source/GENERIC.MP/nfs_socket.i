@@ -4026,53 +4026,45 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
  int s, error, rcvreserve, sndreserve;
  struct sockaddr *saddr;
  struct sockaddr_in *sin;
- struct mbuf *m;
- if (!(nmp->nm_sotype == 2 || nmp->nm_sotype == 1)) {
-  error = 22;
-  goto bad;
- }
+ struct mbuf *nam = ((void *)0), *mopt = ((void *)0);
+ if (!(nmp->nm_sotype == 2 || nmp->nm_sotype == 1))
+  return (22);
  nmp->nm_so = ((void *)0);
  saddr = ((struct sockaddr *)((nmp->nm_nam)->m_hdr.mh_data));
  error = socreate(saddr->sa_family, &nmp->nm_so, nmp->nm_sotype,
      nmp->nm_soproto);
- if (error)
-  goto bad;
+ if (error) {
+  nfs_disconnect(nmp);
+  return (error);
+ }
+ if (nmp->nm_sotype == 1 || saddr->sa_family == 2)
+  mopt = m_get((0x0001), (4));
+ if (saddr->sa_family == 2)
+  nam = m_get((0x0001), (3));
  so = nmp->nm_so;
+ s = solock(so);
  nmp->nm_soflags = so->so_proto->pr_flags;
  if (saddr->sa_family == 2) {
-  struct mbuf *mopt;
   int *ip;
-  mopt = m_get((0x0001), (4));
   mopt->m_hdr.mh_len = sizeof(int);
   ip = ((int *)((mopt)->m_hdr.mh_data));
   *ip = 2;
-  s = solock(so);
   error = sosetopt(so, 0, 19, mopt);
-  sounlock(s);
-  m_freem(mopt);
   if (error)
    goto bad;
-  m = m_get((0x0001), (3));
-  sin = ((struct sockaddr_in *)((m)->m_hdr.mh_data));
+  sin = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
   __builtin_memset((sin), (0), (sizeof(*sin)));
-  sin->sin_len = m->m_hdr.mh_len = sizeof(struct sockaddr_in);
+  sin->sin_len = nam->m_hdr.mh_len = sizeof(struct sockaddr_in);
   sin->sin_family = 2;
   sin->sin_addr.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
   sin->sin_port = ((__uint16_t)(0));
-  s = solock(so);
-  error = sobind(so, m, &proc0);
-  sounlock(s);
-  m_freem(m);
+  error = sobind(so, nam, &proc0);
   if (error)
    goto bad;
-  mopt = m_get((0x0001), (4));
   mopt->m_hdr.mh_len = sizeof(int);
   ip = ((int *)((mopt)->m_hdr.mh_data));
   *ip = 0;
-  s = solock(so);
   error = sosetopt(so, 0, 19, mopt);
-  sounlock(s);
-  m_freem(mopt);
   if (error)
    goto bad;
  }
@@ -4082,31 +4074,24 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
    goto bad;
   }
  } else {
-  s = solock(so);
   error = soconnect(so, nmp->nm_nam);
-  if (error) {
-   sounlock(s);
+  if (error)
    goto bad;
-  }
   while ((so->so_state & 0x004) && so->so_error == 0) {
    sosleep(so, &so->so_timeo, 24, "nfscon", 2 * hz);
    if ((so->so_state & 0x004) &&
        so->so_error == 0 && rep &&
        (error = nfs_sigintr(nmp, rep, rep->r_procp)) != 0){
     so->so_state &= ~0x004;
-    sounlock(s);
     goto bad;
    }
   }
   if (so->so_error) {
    error = so->so_error;
    so->so_error = 0;
-   sounlock(s);
    goto bad;
   }
-  sounlock(s);
  }
- s = solock(so);
  so->so_rcv.sb_timeo = (5 * hz);
  if (nmp->nm_flag & (0x00000001 | 0x00000040))
   so->so_snd.sb_timeo = (5 * hz);
@@ -4118,18 +4103,14 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
       404) * 2;
  } else if (nmp->nm_sotype == 1) {
   if (so->so_proto->pr_flags & 0x04) {
-   m = m_get((0x0001), (4));
-   *((int32_t *)((m)->m_hdr.mh_data)) = 1;
-   m->m_hdr.mh_len = sizeof(int32_t);
-   sosetopt(so, 0xffff, 0x0008, m);
-   m_freem(m);
+   *((int32_t *)((mopt)->m_hdr.mh_data)) = 1;
+   mopt->m_hdr.mh_len = sizeof(int32_t);
+   sosetopt(so, 0xffff, 0x0008, mopt);
   }
   if (so->so_proto->pr_protocol == 6) {
-   m = m_get((0x0001), (4));
-   *((int32_t *)((m)->m_hdr.mh_data)) = 1;
-   m->m_hdr.mh_len = sizeof(int32_t);
-   sosetopt(so, 6, 0x01, m);
-   m_freem(m);
+   *((int32_t *)((mopt)->m_hdr.mh_data)) = 1;
+   mopt->m_hdr.mh_len = sizeof(int32_t);
+   sosetopt(so, 6, 0x01, mopt);
   }
   sndreserve = (nmp->nm_wsize + 404 +
       sizeof (u_int32_t)) * 2;
@@ -4137,17 +4118,22 @@ nfs_connect(struct nfsmount *nmp, struct nfsreq *rep)
       sizeof (u_int32_t)) * 2;
  }
  error = soreserve(so, sndreserve, rcvreserve);
- sounlock(s);
  if (error)
   goto bad;
  so->so_rcv.sb_flags |= 0x40;
  so->so_snd.sb_flags |= 0x40;
+ sounlock(s);
+ m_freem(mopt);
+ m_freem(nam);
  nfs_init_rtt(nmp);
  nmp->nm_cwnd = (256 * 32) / 2;
  nmp->nm_sent = 0;
  nmp->nm_timeouts = 0;
  return (0);
 bad:
+ sounlock(s);
+ m_freem(mopt);
+ m_freem(nam);
  nfs_disconnect(nmp);
  return (error);
 }

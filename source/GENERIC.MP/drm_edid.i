@@ -4214,12 +4214,12 @@ PTR_ERR(const void *ptr)
 static inline long
 IS_ERR(const void *ptr)
 {
-        return __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-91), 0);
+        return __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-95), 0);
 }
 static inline long
 IS_ERR_OR_NULL(const void *ptr)
 {
-        return !ptr || __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-91), 0);
+        return !ptr || __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-95), 0);
 }
 static inline void *
 ERR_CAST(const void *ptr)
@@ -4922,7 +4922,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -9952,7 +9952,7 @@ int drm_edid_to_sad(struct edid *edid, struct cea_sad **sads)
  }
  if (cea_db_offsets(cea, &start, &end)) {
   do { } while( 0);
-  return -5;
+  return -95;
  }
  for ((i) = (start); (i) < (end) && (i) + cea_db_payload_len(&(cea)[(i)]) < (end); (i) += cea_db_payload_len(&(cea)[(i)]) + 1) {
   u8 *db = &cea[i];
@@ -9992,7 +9992,7 @@ int drm_edid_to_speaker_allocation(struct edid *edid, u8 **sadb)
  }
  if (cea_db_offsets(cea, &start, &end)) {
   do { } while( 0);
-  return -5;
+  return -95;
  }
  for ((i) = (start); (i) < (end) && (i) + cea_db_payload_len(&(cea)[(i)]) < (end); (i) += cea_db_payload_len(&(cea)[(i)]) + 1) {
   const u8 *db = &cea[i];

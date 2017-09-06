@@ -3092,7 +3092,6 @@ struct ipq {
  struct in_addr ipq_src, ipq_dst;
 };
 extern struct ipstat ipstat;
-extern struct ipqhead { struct ipq *lh_first; } ipq;
 extern int ip_defttl;
 extern int ip_mtudisc;
 extern u_int ip_mtudisc_timeout;
@@ -4633,6 +4632,7 @@ rt_if_linkstate_change(struct rtentry *rt, void *arg, u_int id)
 {
  struct ifnet *ifp = arg;
  struct sockaddr_in6 sa_mask;
+ int error;
  if (rt->rt_ifidx != ifp->if_index)
   return (0);
  if (rt->rt_flags & 0x200000) {
@@ -4640,29 +4640,26 @@ rt_if_linkstate_change(struct rtentry *rt, void *arg, u_int id)
   return (0);
  }
  if (((ifp->if_data.ifi_link_state) >= 4 || (ifp->if_data.ifi_link_state) == 0) && ifp->if_flags & 0x1) {
-  if (!(rt->rt_flags & 0x1)) {
-   rt->rt_flags |= 0x1;
-   rtable_mpath_reprio(id, ((rt)->rt_dest),
-       rt_plen2mask(rt, &sa_mask),
-       rt->rt_priority & 0x7f, rt);
-  }
+  if (((rt->rt_flags) & (0x1)))
+   return (0);
+  rt->rt_flags |= 0x1;
+  error = rtable_mpath_reprio(id, ((rt)->rt_dest),
+      rt_plen2mask(rt, &sa_mask), rt->rt_priority & 0x7f, rt);
  } else {
-  if (rt->rt_flags & 0x1) {
-   if (((rt->rt_flags) & (0x10000|0x10)) &&
-       !((rt->rt_flags) & (0x20000|0x1000000))) {
-    int error;
-    if ((error = rtdeletemsg(rt, ifp, id)))
-     return (error);
-    return (35);
-   }
-   rt->rt_flags &= ~0x1;
-   rtable_mpath_reprio(id, ((rt)->rt_dest),
-       rt_plen2mask(rt, &sa_mask),
-       rt->rt_priority | 0x80, rt);
+  if (((rt->rt_flags) & (0x10000|0x10)) &&
+      !((rt->rt_flags) & (0x20000|0x1000000))) {
+   if ((error = rtdeletemsg(rt, ifp, id)))
+    return (error);
+   return (35);
   }
+  if (!((rt->rt_flags) & (0x1)))
+   return (0);
+  rt->rt_flags &= ~0x1;
+  error = rtable_mpath_reprio(id, ((rt)->rt_dest),
+      rt_plen2mask(rt, &sa_mask), rt->rt_priority | 0x80, rt);
  }
  if_group_routechange(((rt)->rt_dest), rt_plen2mask(rt, &sa_mask));
- return (0);
+ return (error);
 }
 struct sockaddr *
 rt_plentosa(sa_family_t af, int plen, struct sockaddr_in6 *sa_mask)

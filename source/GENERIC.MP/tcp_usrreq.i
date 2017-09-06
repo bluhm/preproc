@@ -4433,7 +4433,6 @@ struct ipq {
  struct in_addr ipq_src, ipq_dst;
 };
 extern struct ipstat ipstat;
-extern struct ipqhead { struct ipq *lh_first; } ipq;
 extern int ip_defttl;
 extern int ip_mtudisc;
 extern u_int ip_mtudisc_timeout;
@@ -5136,7 +5135,7 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
  struct tcpcb *tp = ((void *)0);
  int error = 0;
  short ostate;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ soassertlocked(so);
  if (req == 11) {
   if ((so->so_proto->pr_domain->dom_family) == 24)
    return in6_control(so, (u_long)m, (caddr_t)nam,

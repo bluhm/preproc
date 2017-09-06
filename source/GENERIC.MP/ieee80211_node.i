@@ -4074,6 +4074,8 @@ void pf_anchor_remove(struct pf_rule *);
 void pf_remove_if_empty_ruleset(struct pf_ruleset *);
 struct pf_anchor *pf_find_anchor(const char *);
 struct pf_ruleset *pf_find_ruleset(const char *);
+struct pf_ruleset *pf_get_leaf_ruleset(char *, char **);
+struct pf_anchor *pf_create_anchor(struct pf_anchor *, const char *);
 struct pf_ruleset *pf_find_or_create_ruleset(const char *);
 void pf_rs_initialize(void);
 int pf_anchor_copyout(const struct pf_ruleset *,
@@ -5795,7 +5797,8 @@ ieee80211_begin_scan(struct ifnet *ifp)
    (ic->ic_flags & 0x00000001) ?
     "active" : "passive");
  ieee80211_free_allnodes(ic);
- if (((ic->ic_media.ifm_cur->ifm_media) & 0x000000ff00000000ULL) == 0ULL)
+ if (((ic->ic_media.ifm_cur->ifm_media) & 0x000000ff00000000ULL) == 0ULL ||
+     (ic->ic_caps & 0x00008000))
   ic->ic_curmode = IEEE80211_MODE_AUTO;
  ieee80211_setmode(ic, ic->ic_curmode);
  ic->ic_scan_count = 0;
@@ -6975,7 +6978,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2007, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2008, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

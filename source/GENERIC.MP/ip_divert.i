@@ -3244,7 +3244,6 @@ struct ipq {
  struct in_addr ipq_src, ipq_dst;
 };
 extern struct ipstat ipstat;
-extern struct ipqhead { struct ipq *lh_first; } ipq;
 extern int ip_defttl;
 extern int ip_mtudisc;
 extern u_int ip_mtudisc_timeout;
@@ -5425,6 +5424,8 @@ void pf_anchor_remove(struct pf_rule *);
 void pf_remove_if_empty_ruleset(struct pf_ruleset *);
 struct pf_anchor *pf_find_anchor(const char *);
 struct pf_ruleset *pf_find_ruleset(const char *);
+struct pf_ruleset *pf_get_leaf_ruleset(char *, char **);
+struct pf_anchor *pf_create_anchor(struct pf_anchor *, const char *);
 struct pf_ruleset *pf_find_or_create_ruleset(const char *);
 void pf_rs_initialize(void);
 int pf_anchor_copyout(const struct pf_ruleset *,
@@ -5625,7 +5626,7 @@ divert_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ soassertlocked(so);
  if (req == 11) {
   return (in_control(so, (u_long)m, (caddr_t)addr,
       (struct ifnet *)control));

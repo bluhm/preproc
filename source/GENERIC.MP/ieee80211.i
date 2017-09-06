@@ -4513,7 +4513,8 @@ ieee80211_next_mode(struct ifnet *ifp)
      ic->ic_curmode++) {
   if (ic->ic_curmode == IEEE80211_MODE_11N)
    continue;
-  if (ic->ic_curmode >= (IEEE80211_MODE_11N+1)) {
+  if (ic->ic_curmode >= (IEEE80211_MODE_11N+1) ||
+      (ic->ic_caps & 0x00008000)) {
    ic->ic_curmode = IEEE80211_MODE_AUTO;
    break;
   }

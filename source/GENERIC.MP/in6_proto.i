@@ -2416,7 +2416,6 @@ struct ipq {
  struct in_addr ipq_src, ipq_dst;
 };
 extern struct ipstat ipstat;
-extern struct ipqhead { struct ipq *lh_first; } ipq;
 extern int ip_defttl;
 extern int ip_mtudisc;
 extern u_int ip_mtudisc_timeout;

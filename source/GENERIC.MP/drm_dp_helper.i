@@ -3474,12 +3474,12 @@ PTR_ERR(const void *ptr)
 static inline long
 IS_ERR(const void *ptr)
 {
-        return __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-91), 0);
+        return __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-95), 0);
 }
 static inline long
 IS_ERR_OR_NULL(const void *ptr)
 {
-        return !ptr || __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-91), 0);
+        return !ptr || __builtin_expect(!!(((unsigned long)ptr) >= (unsigned long)-95), 0);
 }
 static inline void *
 ERR_CAST(const void *ptr)
@@ -4182,7 +4182,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1660, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8046,7 +8046,7 @@ static int drm_dp_dpcd_access(struct drm_dp_aux *aux, u8 request,
   switch (msg.reply & (0x3 << 0)) {
   case (0x0 << 0):
    if (err < size)
-    err = -5;
+    err = -95;
    goto unlock;
   case (0x1 << 0):
    err = -5;
@@ -8260,7 +8260,7 @@ static int drm_dp_i2c_drain_msg(struct drm_dp_aux *aux, struct drm_dp_aux_msg *o
  while (msg.size > 0) {
   err = drm_dp_i2c_do_msg(aux, &msg);
   if (err <= 0)
-   return err == 0 ? -5 : err;
+   return err == 0 ? -95 : err;
   if (err < msg.size && err < ret) {
    do { } while( 0);
    ret = err;

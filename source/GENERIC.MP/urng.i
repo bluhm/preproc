@@ -1831,8 +1831,10 @@ urng_detach(struct device *self, int flags)
   timeout_del(&sc->sc_timeout);
  if (sc->sc_xfer)
   usbd_free_xfer(sc->sc_xfer);
- if (sc->sc_outpipe != ((void *)0))
+ if (sc->sc_outpipe != ((void *)0)) {
   usbd_close_pipe(sc->sc_outpipe);
+  sc->sc_outpipe = ((void *)0);
+ }
  return (0);
 }
 void

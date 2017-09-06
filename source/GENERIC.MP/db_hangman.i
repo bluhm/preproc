@@ -2058,7 +2058,6 @@ typedef struct {
   Elf64_Xword d_val;
  } d_un;
 } Elf64_Dyn;
-unsigned int elf_hash(const unsigned char *name);
 typedef struct {
  Elf32_Word n_namesz;
  Elf32_Word n_descsz;

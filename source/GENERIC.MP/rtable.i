@@ -2197,6 +2197,7 @@ rtable_mpath_reprio(unsigned int rtableid, struct sockaddr *dst,
   rt->rt_priority = prio;
   rtable_mpath_insert(an, rt);
   rtfree(rt);
+  error = 35;
  }
  _rw_exit_write(&ar->ar_lock );
  return (error);
@@ -2206,22 +2207,18 @@ rtable_mpath_insert(struct art_node *an, struct rtentry *rt)
 {
  struct rtentry *mrt, *prt = ((void *)0);
  uint8_t prio = rt->rt_priority;
- if ((mrt = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head)) != ((void *)0)) {
-  while (srp_get_locked(&(mrt)->rt_next.se_next) != ((void *)0)) {
-   if (mrt->rt_priority > prio)
-    break;
-   prt = mrt;
-   mrt = srp_get_locked(&(mrt)->rt_next.se_next);
-  }
-  if (mrt->rt_priority > prio) {
-   if (prt != ((void *)0)) {
-    do { void *next; srp_init(&(rt)->rt_next.se_next); next = srp_get_locked(&(prt)->rt_next.se_next); if (next != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, next); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, next); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(prt)->rt_next.se_next, (rt)); } while (0);
-   } else {
-    do { void *head; srp_init(&(rt)->rt_next.se_next); head = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head); if (head != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, head); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(&an->an_pointer.an__rtlist)->sl_head, (rt)); } while (0);
-   }
-  } else {
-   do { void *next; srp_init(&(rt)->rt_next.se_next); next = srp_get_locked(&(mrt)->rt_next.se_next); if (next != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, next); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, next); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(mrt)->rt_next.se_next, (rt)); } while (0);
-  }
+ if ((mrt = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head)) == ((void *)0)) {
+  do { void *head; srp_init(&(rt)->rt_next.se_next); head = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head); if (head != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, head); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(&an->an_pointer.an__rtlist)->sl_head, (rt)); } while (0);
+  return;
+ }
+ while (mrt->rt_priority <= prio && srp_get_locked(&(mrt)->rt_next.se_next)) {
+  prt = mrt;
+  mrt = srp_get_locked(&(mrt)->rt_next.se_next);
+ }
+ if (mrt->rt_priority <= prio) {
+  do { void *next; srp_init(&(rt)->rt_next.se_next); next = srp_get_locked(&(mrt)->rt_next.se_next); if (next != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, next); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, next); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(mrt)->rt_next.se_next, (rt)); } while (0);
+ } else if (prt != ((void *)0)) {
+  do { void *next; srp_init(&(rt)->rt_next.se_next); next = srp_get_locked(&(prt)->rt_next.se_next); if (next != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, next); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, next); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(prt)->rt_next.se_next, (rt)); } while (0);
  } else {
   do { void *head; srp_init(&(rt)->rt_next.se_next); head = srp_get_locked(&(&an->an_pointer.an__rtlist)->sl_head); if (head != ((void *)0)) { (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&rt_rc)->srpl_gc, &(rt)->rt_next.se_next, head); } (&rt_rc)->srpl_ref(&(&rt_rc)->srpl_gc.srp_gc_cookie, rt); srp_update_locked(&(&rt_rc)->srpl_gc, &(&an->an_pointer.an__rtlist)->sl_head, (rt)); } while (0);
  }

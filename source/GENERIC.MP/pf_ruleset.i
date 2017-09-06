@@ -3380,6 +3380,8 @@ void pf_anchor_remove(struct pf_rule *);
 void pf_remove_if_empty_ruleset(struct pf_ruleset *);
 struct pf_anchor *pf_find_anchor(const char *);
 struct pf_ruleset *pf_find_ruleset(const char *);
+struct pf_ruleset *pf_get_leaf_ruleset(char *, char **);
+struct pf_anchor *pf_create_anchor(struct pf_anchor *, const char *);
 struct pf_ruleset *pf_find_or_create_ruleset(const char *);
 void pf_rs_initialize(void);
 int pf_anchor_copyout(const struct pf_ruleset *,
@@ -3528,7 +3530,7 @@ pf_find_anchor(const char *path)
   return (((void *)0));
  strlcpy(key->path, path, sizeof(key->path));
  found = pf_anchor_global_RB_FIND(&pf_anchors, key);
- free(key, 127, sizeof (*key));
+ free(key, 127, sizeof(*key));
  return (found);
 }
 struct pf_ruleset *
@@ -3546,11 +3548,79 @@ pf_find_ruleset(const char *path)
   return (&anchor->ruleset);
 }
 struct pf_ruleset *
+pf_get_leaf_ruleset(char *path, char **path_remainder)
+{
+ struct pf_ruleset *ruleset;
+ char *leaf, *p;
+ int i = 0;
+ p = path;
+ while (*p == '/')
+  p++;
+ ruleset = pf_find_ruleset(p);
+ leaf = p;
+ while (ruleset == ((void *)0)) {
+  leaf = strrchr(p, '/');
+  if (leaf != ((void *)0)) {
+   *leaf = '\0';
+   i++;
+   ruleset = pf_find_ruleset(p);
+  } else {
+   leaf = path;
+   ruleset = &pf_main_anchor.ruleset;
+  }
+ }
+ if (path_remainder != ((void *)0))
+  *path_remainder = leaf;
+ while (i != 0) {
+  while (*leaf != '\0')
+   leaf++;
+  *leaf = '/';
+  i--;
+ }
+ return (ruleset);
+}
+struct pf_anchor *
+pf_create_anchor(struct pf_anchor *parent, const char *aname)
+{
+ struct pf_anchor *anchor, *dup;
+ if (!*aname || (strlen(aname) >= 64) ||
+     ((parent != ((void *)0)) && (strlen(parent->path) >= (1024 - 64 - 1))))
+  return (((void *)0));
+ anchor = malloc(sizeof(*anchor), 127, 0x0001|0x0004|0x0008);
+ if (anchor == ((void *)0))
+  return (((void *)0));
+ do { (&anchor->children)->rbh_root = ((void *)0); } while (0);
+ strlcpy(anchor->name, aname, sizeof(anchor->name));
+ if (parent != ((void *)0)) {
+  strlcpy(anchor->path, parent->path, sizeof(anchor->path));
+  strlcat(anchor->path, "/", sizeof(anchor->path));
+ }
+ strlcat(anchor->path, anchor->name, sizeof(anchor->path));
+ if ((dup = pf_anchor_global_RB_INSERT(&pf_anchors, anchor)) != ((void *)0)) {
+  do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("%s: RB_INSERT to global '%s' '%s' collides with '%s' '%s'", __func__, anchor->path, anchor->name, dup->path, dup->name); addlog("\n"); } } while (0);
+  free(anchor, 127, sizeof(*anchor));
+  return (((void *)0));
+ }
+ if (parent != ((void *)0)) {
+  anchor->parent = parent;
+  dup = pf_anchor_node_RB_INSERT(&parent->children, anchor);
+  if (dup != ((void *)0)) {
+   do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("%s: RB_INSERT to parent '%s' '%s' collides with " "'%s' '%s'", __func__, anchor->path, anchor->name, dup->path, dup->name); addlog("\n"); } } while (0);
+   pf_anchor_global_RB_REMOVE(&pf_anchors, anchor);
+   free(anchor, 127, sizeof(*anchor));
+   return (((void *)0));
+  }
+ }
+ pf_init_ruleset(&anchor->ruleset);
+ anchor->ruleset.anchor = anchor;
+ return (anchor);
+}
+struct pf_ruleset *
 pf_find_or_create_ruleset(const char *path)
 {
- char *p, *q, *r;
+ char *p, *aname, *r;
  struct pf_ruleset *ruleset;
- struct pf_anchor *anchor, *dup, *parent = ((void *)0);
+ struct pf_anchor *anchor;
  if (path[0] == 0)
   return (&pf_main_anchor.ruleset);
  while (*path == '/')
@@ -3562,68 +3632,22 @@ pf_find_or_create_ruleset(const char *path)
  if (p == ((void *)0))
   return (((void *)0));
  strlcpy(p, path, 1024);
- while (parent == ((void *)0) && (q = strrchr(p, '/')) != ((void *)0)) {
-  *q = 0;
-  if ((ruleset = pf_find_ruleset(p)) != ((void *)0)) {
-   parent = ruleset->anchor;
-   break;
-  }
- }
- if (q == ((void *)0))
-  q = p;
- else
-  q++;
- strlcpy(p, path, 1024);
- if (!*q) {
-  free(p, 127, 1024);
-  return (((void *)0));
- }
- while ((r = strchr(q, '/')) != ((void *)0) || *q) {
+ ruleset = pf_get_leaf_ruleset(p, &aname);
+ anchor = ruleset->anchor;
+ while (*aname == '/')
+  aname++;
+ while ((r = strchr(aname, '/')) != ((void *)0) || *aname) {
   if (r != ((void *)0))
    *r = 0;
-  if (!*q || strlen(q) >= 64 ||
-      (parent != ((void *)0) && strlen(parent->path) >=
-      1024 - 64 - 1)) {
-   free(p, 127, 1024);
-   return (((void *)0));
-  }
-  anchor = malloc(sizeof(*anchor), 127, 0x0001|0x0004|0x0008);
+  anchor = pf_create_anchor(anchor, aname);
   if (anchor == ((void *)0)) {
    free(p, 127, 1024);
    return (((void *)0));
   }
-  do { (&anchor->children)->rbh_root = ((void *)0); } while (0);
-  strlcpy(anchor->name, q, sizeof(anchor->name));
-  if (parent != ((void *)0)) {
-   strlcpy(anchor->path, parent->path,
-       sizeof(anchor->path));
-   strlcat(anchor->path, "/", sizeof(anchor->path));
-  }
-  strlcat(anchor->path, anchor->name, sizeof(anchor->path));
-  if ((dup = pf_anchor_global_RB_INSERT(&pf_anchors, anchor)) !=
-      ((void *)0)) {
-   do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("pf_find_or_create_ruleset: RB_INSERT1 " "'%s' '%s' collides with '%s' '%s'", anchor->path, anchor->name, dup->path, dup->name); addlog("\n"); } } while (0);
-   free(anchor, 127, sizeof(*anchor));
-   free(p, 127, 1024);
-   return (((void *)0));
-  }
-  if (parent != ((void *)0)) {
-   anchor->parent = parent;
-   if ((dup = pf_anchor_node_RB_INSERT(&parent->children, anchor)) != ((void *)0)) {
-    do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("pf_find_or_create_ruleset: " "RB_INSERT2 '%s' '%s' collides with " "'%s' '%s'", anchor->path, anchor->name, dup->path, dup->name); addlog("\n"); } } while (0);
-    pf_anchor_global_RB_REMOVE(&pf_anchors, anchor);
-    free(anchor, 127, sizeof(*anchor));
-    free(p, 127, 1024);
-    return (((void *)0));
-   }
-  }
-  pf_init_ruleset(&anchor->ruleset);
-  anchor->ruleset.anchor = anchor;
-  parent = anchor;
-  if (r != ((void *)0))
-   q = r + 1;
+  if (r == ((void *)0))
+   break;
   else
-   *q = 0;
+   aname = r + 1;
  }
  free(p, 127, 1024);
  return (&anchor->ruleset);
