@@ -3237,7 +3237,6 @@ _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
 struct ctf_type;
 int db_ctf_func_numargs(Elf64_Sym *);
-const struct ctf_type *db_ctf_type_by_name(char *);
 struct db_variable {
  char *name;
  long *valuep;
@@ -3335,7 +3334,7 @@ void db_dmesg_cmd(db_expr_t, int, db_expr_t, char *);
 void db_show_panic_cmd(db_expr_t, int, db_expr_t, char *);
 void db_bcstats_print_cmd(db_expr_t, int, db_expr_t, char *);
 void db_struct_offset_cmd(db_expr_t, int, db_expr_t, char *);
-void db_struct_layout_cmd(db_expr_t, int, db_expr_t, char *);
+void db_ctf_show_struct(db_expr_t, int, db_expr_t, char *);
 void db_show_regs(db_expr_t, boolean_t, db_expr_t, char *);
 void db_write_cmd(db_expr_t, boolean_t, db_expr_t, char *);
 void db_witness_display(db_expr_t, int, db_expr_t, char *);
@@ -3673,6 +3672,7 @@ struct db_command db_show_cmds[] = {
  { "proc", db_proc_print_cmd, 0, ((void *)0) },
  { "registers", db_show_regs, 0, ((void *)0) },
  { "socket", db_socket_print_cmd, 0, ((void *)0) },
+ { "struct", db_ctf_show_struct, 0x1, ((void *)0) },
  { "uvmexp", db_uvmexp_print_cmd, 0, ((void *)0) },
  { "vnode", db_vnode_print_cmd, 0, ((void *)0) },
  { "watches", db_listwatch_cmd, 0, ((void *)0) },

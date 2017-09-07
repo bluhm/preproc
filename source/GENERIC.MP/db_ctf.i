@@ -2290,7 +2290,16 @@ _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
 struct ctf_type;
 int db_ctf_func_numargs(Elf64_Sym *);
-const struct ctf_type *db_ctf_type_by_name(char *);
+db_expr_t db_get_value(db_addr_t, size_t, int);
+void db_put_value(db_addr_t, size_t, db_expr_t);
+void db_read_bytes(db_addr_t, size_t, char *);
+void db_write_bytes(db_addr_t, size_t, char *);
+struct db_stack_trace {
+ unsigned int st_count;
+ db_addr_t st_pc[19];
+};
+void db_print_stack_trace(struct db_stack_trace *);
+void db_save_stack_trace(struct db_stack_trace *);
 struct ctf_header {
  uint16_t cth_magic;
  uint8_t cth_version;
@@ -2514,6 +2523,7 @@ struct ddb_ctf db_ctf;
 static const char *db_ctf_off2name(uint32_t);
 static Elf64_Sym *db_ctf_idx2sym(size_t *, uint8_t);
 static char *db_ctf_decompress(const char *, size_t, off_t);
+const struct ctf_type *db_ctf_type_by_name(const char *, unsigned int);
 const struct ctf_type *db_ctf_type_by_symbol(Elf64_Sym *);
 const struct ctf_type *db_ctf_type_by_index(uint16_t);
 void db_ctf_pprint_struct(const struct ctf_type *, vaddr_t);
@@ -2669,6 +2679,33 @@ db_ctf_type_by_symbol(Elf64_Sym *st)
  return ((void *)0);
 }
 const struct ctf_type *
+db_ctf_type_by_name(const char *name, unsigned int kind)
+{
+ struct ctf_header *cth;
+ const struct ctf_type *ctt;
+ const char *tname;
+ uint32_t off, toff;
+ if (!db_ctf.ctf_found)
+  return (((void *)0));
+ cth = db_ctf.cth;
+ for (off = cth->cth_typeoff; off < cth->cth_stroff; off += toff) {
+  ctt = (struct ctf_type *)(db_ctf.data + off);
+  toff = db_ctf_type_len(ctt);
+  if (toff == 0) {
+   db_printf("incorrect type at offset %u", off);
+   break;
+  }
+  if ((((ctt->_ctt_stype.cts_info) & 0xf800) >> 11) != kind)
+   continue;
+  tname = db_ctf_off2name(ctt->_ctt_stype.cts_name);
+  if (tname == ((void *)0))
+   continue;
+  if (strcmp(name, tname) == 0)
+   return (ctt);
+ }
+ return (((void *)0));
+}
+const struct ctf_type *
 db_ctf_type_by_index(uint16_t index)
 {
  uint32_t offset = db_ctf.cth->cth_typeoff;
@@ -2780,6 +2817,7 @@ db_ctf_pprint_ptr(const struct ctf_type *ctt, vaddr_t addr)
  const char *name, *modif = "";
  const struct ctf_type *ref;
  uint16_t kind;
+ unsigned long ptr;
  ref = db_ctf_type_by_index(ctt->_ctt_stype._ST._type);
  kind = (((ref->_ctt_stype.cts_info) & 0xf800) >> 11);
  switch (kind) {
@@ -2803,7 +2841,8 @@ db_ctf_pprint_ptr(const struct ctf_type *ctt, vaddr_t addr)
  name = db_ctf_off2name(ref->_ctt_stype.cts_name);
  if (name != ((void *)0))
   db_printf("(%s%s *)", modif, name);
- db_printf("0x%lx", addr);
+ ptr = (unsigned long)db_get_value(addr, sizeof(ptr), 0);
+ db_printf("0x%lx", ptr);
 }
 static const char *
 db_ctf_off2name(uint32_t offset)
@@ -2883,4 +2922,36 @@ db_ctf_pprint_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  db_printf("%s:\t", db_tok_string);
  db_ctf_pprint(ctt, addr);
  db_printf("\n");
+}
+void
+db_ctf_show_struct(db_expr_t addr, int have_addr, db_expr_t count,
+    char *modifiers)
+{
+ const struct ctf_type *ctt;
+ const char *name;
+ uint64_t sz;
+ int t;
+ t = db_read_token();
+ if (t != 3) {
+  db_printf("Bad struct name\n");
+  db_flush_lex();
+  return;
+ }
+ name = db_tok_string;
+ ctt = db_ctf_type_by_name(name, 6);
+ if (ctt == ((void *)0)) {
+  db_printf("unknown struct %s\n", name);
+  db_flush_lex();
+  return;
+ }
+ if (db_expression(&addr)) {
+  db_dot = (db_addr_t)addr;
+  db_last_addr = db_dot;
+ } else
+  addr = (db_expr_t)db_dot;
+ db_skip_to_eol();
+ sz = (ctt->_ctt_stype._ST._size <= 0xfffe) ?
+     ctt->_ctt_stype._ST._size : (((uint64_t)(ctt)->ctt_lsizehi) << 32 | (ctt)->ctt_lsizelo);
+ db_printf("struct %s at %p (%llu bytes) ", name, (void *)addr, sz);
+ db_ctf_pprint_struct(ctt, addr);
 }

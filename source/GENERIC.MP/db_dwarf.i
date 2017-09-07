@@ -2148,7 +2148,6 @@ _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
 struct ctf_type;
 int db_ctf_func_numargs(Elf64_Sym *);
-const struct ctf_type *db_ctf_type_by_name(char *);
 enum {
  DW_LNS_copy = 1,
  DW_LNS_advance_pc = 2,

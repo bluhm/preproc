@@ -5812,7 +5812,7 @@ sr_meta_native_attach(struct sr_discipline *sd, int force)
   } else
    not_sr++;
  }
- if (sr && not_sr) {
+ if (sr && not_sr && !force) {
   sr_error(sc, "not all chunks are of the native metadata "
       "format");
   goto bad;

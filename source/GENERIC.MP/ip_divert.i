@@ -5475,7 +5475,6 @@ u_int divert_sendspace = (65536 + 100);
 u_int divert_recvspace = (65536 + 100);
 int *divertctl_vars[4] = { ((void *)0), &divert_recvspace, &divert_sendspace, ((void *)0) };
 int divbhashsize = 128;
-static struct sockaddr_in ipaddr = { sizeof(ipaddr), 2 };
 int divert_output(struct inpcb *, struct mbuf *, struct mbuf *,
      struct mbuf *);
 void
@@ -5489,17 +5488,11 @@ divert_output(struct inpcb *inp, struct mbuf *m, struct mbuf *nam,
     struct mbuf *control)
 {
  struct sockaddr_in *sin;
- struct socket *so;
- struct ifaddr *ifa;
- int error = 0, min_hdrlen = 0, dir;
+ int error, min_hdrlen, off, dir;
  struct ip *ip;
- u_int16_t off;
- m->M_dat.MH.MH_pkthdr.ph_ifidx = 0;
- m->m_hdr.mh_nextpkt = ((void *)0);
- m->M_dat.MH.MH_pkthdr.ph_rtableid = inp->inp_rtableid;
  m_freem(control);
- sin = ((struct sockaddr_in *)((nam)->m_hdr.mh_data));
- so = inp->inp_socket;
+ if ((error = in_nam2sin(nam, &sin)))
+  goto fail;
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(struct ip))
   goto fail;
  if ((m = m_pullup(m, sizeof(struct ip))) == ((void *)0)) {
@@ -5528,24 +5521,35 @@ divert_output(struct inpcb *inp, struct mbuf *m, struct mbuf *nam,
   m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0200;
   break;
  default:
+  min_hdrlen = 0;
   break;
  }
  if (min_hdrlen && m->M_dat.MH.MH_pkthdr.len < off + min_hdrlen)
   goto fail;
  m->M_dat.MH.MH_pkthdr.pf.flags |= 0x10;
  if (dir == PF_IN) {
-  ipaddr.sin_addr = sin->sin_addr;
-  ifa = ifa_ifwithaddr(sintosa(&ipaddr), m->M_dat.MH.MH_pkthdr.ph_rtableid);
-  if (ifa == ((void *)0)) {
+  struct rtentry *rt;
+  struct ifnet *ifp;
+  rt = rtalloc(sintosa(sin), 0, inp->inp_rtableid);
+  if (!rtisvalid(rt) || !((rt->rt_flags) & (0x200000))) {
+   rtfree(rt);
    error = 49;
    goto fail;
   }
-  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifa->ifa_ifp->if_index;
+  m->M_dat.MH.MH_pkthdr.ph_ifidx = rt->rt_ifidx;
+  rtfree(rt);
   ip->ip_sum = 0;
   ip->ip_sum = in_cksum(m, off);
   in_proto_cksum_out(m, ((void *)0));
-  ipv4_input(ifa->ifa_ifp, m);
+  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
+  if (ifp == ((void *)0)) {
+   error = 50;
+   goto fail;
+  }
+  ipv4_input(ifp, m);
+  if_put(ifp);
  } else {
+  m->M_dat.MH.MH_pkthdr.ph_rtableid = inp->inp_rtableid;
   error = ip_output(m, ((void *)0), &inp->inp_ru.ru_route,
       0x0020 | 0x2, ((void *)0), ((void *)0), 0);
   if (error == 13)
@@ -5609,7 +5613,7 @@ divert_packet(struct mbuf *m, int dir, u_int16_t divert_port)
    m_freem(m);
    return (0);
   } else {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_divert.c", 230);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_divert.c", 231);
    sorwakeup(inp->inp_socket);
    _kernel_unlock();
   }

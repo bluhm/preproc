@@ -2178,7 +2178,6 @@ _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
 struct ctf_type;
 int db_ctf_func_numargs(Elf64_Sym *);
-const struct ctf_type *db_ctf_type_by_name(char *);
 db_expr_t db_get_value(db_addr_t, size_t, int);
 void db_put_value(db_addr_t, size_t, db_expr_t);
 void db_read_bytes(db_addr_t, size_t, char *);
