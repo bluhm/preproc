@@ -1942,10 +1942,8 @@ rasops1_copycols(void *cookie, int row, int src, int dst, int num)
   src = src & 31;
   rnum = 32 - lnum;
   db = dst & 31;
-  if ((src -= db) < 0) {
-   sp--;
+  if ((src -= db) < 0)
    src += 32;
-  }
   while (height--) {
    sp = srp;
    dp = drp;

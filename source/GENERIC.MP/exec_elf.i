@@ -4083,7 +4083,7 @@ elf_load_file(struct proc *p, char *path, struct exec_package *epp,
  struct nameidata nd;
  Elf64_Ehdr eh;
  Elf64_Phdr *ph = ((void *)0);
- u_long phsize;
+ u_long phsize = 0;
  Elf64_Addr addr;
  struct vnode *vp;
  Elf64_Phdr *base_ph = ((void *)0);

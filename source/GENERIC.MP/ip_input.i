@@ -6198,14 +6198,13 @@ ip_local(struct mbuf **mp, int *offp, int nxt, int af)
    ip = ((struct ip *)((m)->m_hdr.mh_data));
   }
   __mtx_enter(&ipq_mutex );
-  for((fp) = ((&ipq)->lh_first); (fp)!= ((void *)0); (fp) = ((fp)->ipq_q.le_next))
+  for((fp) = ((&ipq)->lh_first); (fp)!= ((void *)0); (fp) = ((fp)->ipq_q.le_next)) {
    if (ip->ip_id == fp->ipq_id &&
        ip->ip_src.s_addr == fp->ipq_src.s_addr &&
        ip->ip_dst.s_addr == fp->ipq_dst.s_addr &&
        ip->ip_p == fp->ipq_p)
-    goto found;
-  fp = 0;
-found:
+    break;
+  }
   ip->ip_len = ((__uint16_t)(((__uint16_t)(ip->ip_len)) - hlen));
   mff = (ip->ip_off & ((__uint16_t)(0x2000))) != 0;
   if (mff) {
@@ -6260,7 +6259,7 @@ ip_deliver(struct mbuf **mp, int *offp, int nxt, int af)
  struct protosw *psw;
  int naf = af;
  int nest = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 641, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 640, "_kernel_lock_held()"));
  switch (af) {
  case 2:
   in_proto_cksum_out(*mp, ((void *)0));
@@ -6567,7 +6566,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1099);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1098);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
@@ -7076,7 +7075,7 @@ ip_send_dispatch(void *xmq)
  extern int ipsec_in_use;
  if (ipsec_in_use) {
   do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1828);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1827);
   do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }
