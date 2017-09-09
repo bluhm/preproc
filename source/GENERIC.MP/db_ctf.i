@@ -202,26 +202,6 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-typedef __int_least8_t int_least8_t;
-typedef __uint_least8_t uint_least8_t;
-typedef __int_least16_t int_least16_t;
-typedef __uint_least16_t uint_least16_t;
-typedef __int_least32_t int_least32_t;
-typedef __uint_least32_t uint_least32_t;
-typedef __int_least64_t int_least64_t;
-typedef __uint_least64_t uint_least64_t;
-typedef __int_fast8_t int_fast8_t;
-typedef __uint_fast8_t uint_fast8_t;
-typedef __int_fast16_t int_fast16_t;
-typedef __uint_fast16_t uint_fast16_t;
-typedef __int_fast32_t int_fast32_t;
-typedef __uint_fast32_t uint_fast32_t;
-typedef __int_fast64_t int_fast64_t;
-typedef __uint_fast64_t uint_fast64_t;
-typedef __intptr_t intptr_t;
-typedef __uintptr_t uintptr_t;
-typedef __intmax_t intmax_t;
-typedef __uintmax_t uintmax_t;
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
@@ -547,11 +527,6 @@ typedef struct sigaltstack {
 typedef struct sigcontext ucontext_t;
 extern void delay(unsigned int);
 extern int cputyp;
-
-
-
-
-
 extern __inline u_int64_t sparc_rd_asi(void); extern __inline u_int64_t sparc_rd_asi() { u_int64_t r; __asm volatile("rd %%" "asi" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_fprs(void); extern __inline u_int64_t sparc_rd_fprs() { u_int64_t r; __asm volatile("rd %%" "fprs" ", %0" : "=r" (r) : : "%g0"); return (r); };
 extern __inline u_int64_t sparc_rd_asr22(void); extern __inline u_int64_t sparc_rd_asr22() { u_int64_t r; __asm volatile("rd %%" "asr22" ", %0" : "=r" (r) : : "%g0"); return (r); };
@@ -993,6 +968,26 @@ int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
+typedef __int_least8_t int_least8_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least64_t uint_least64_t;
+typedef __int_fast8_t int_fast8_t;
+typedef __uint_fast8_t uint_fast8_t;
+typedef __int_fast16_t int_fast16_t;
+typedef __uint_fast16_t uint_fast16_t;
+typedef __int_fast32_t int_fast32_t;
+typedef __uint_fast32_t uint_fast32_t;
+typedef __int_fast64_t int_fast64_t;
+typedef __uint_fast64_t uint_fast64_t;
+typedef __intptr_t intptr_t;
+typedef __uintptr_t uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;

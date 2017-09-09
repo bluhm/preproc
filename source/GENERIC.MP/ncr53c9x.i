@@ -2343,8 +2343,8 @@ ncr53c9x_reset(sc)
  struct ncr53c9x_softc *sc;
 {
  (*(sc)->sc_glue->gl_dma_reset)((sc));
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x02, 304); sc->sc_lastcmd = 0x02; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x02)); } while (0);
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00, 305); sc->sc_lastcmd = 0x00; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x02, 303); sc->sc_lastcmd = 0x02; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x02)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00, 304); sc->sc_lastcmd = 0x00; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00)); } while (0);
  delay(500);
  switch (sc->sc_rev) {
  case 5:
@@ -2397,7 +2397,7 @@ ncr53c9x_scsi_reset(sc)
 {
  (*sc->sc_glue->gl_dma_stop)(sc);
  printf("%s: resetting SCSI bus\n", sc->sc_dev.dv_xname);
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x03, 376); sc->sc_lastcmd = 0x03; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x03)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x03, 375); sc->sc_lastcmd = 0x03; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x03)); } while (0);
 }
 void
 ncr53c9x_init(sc, doreset)
@@ -2461,7 +2461,7 @@ ncr53c9x_init(sc, doreset)
  }
  if (doreset) {
   sc->sc_state = 9;
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x03, 468); sc->sc_lastcmd = 0x03; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x03)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x03, 467); sc->sc_lastcmd = 0x03; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x03)); } while (0);
   switch (sc->sc_rev) {
   case 3:
    delay(600000);
@@ -2554,7 +2554,7 @@ ncr53c9x_select(sc, ecb)
   timeout_add(&ecb->to, timeout);
  }
  if (sc->sc_rev == 9) {
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 637); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 636); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
   (*(sc)->sc_glue->gl_write_reg)((sc), (0x04), (target | 0x10));
  } else {
   (*(sc)->sc_glue->gl_write_reg)((sc), (0x04), (target));
@@ -2568,13 +2568,13 @@ ncr53c9x_select(sc, ecb)
    (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_cmdp), (&sc->sc_cmdlen), (0), (&dmasize));
    do { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x00), ((dmasize))); (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x01), ((dmasize) >> 8)); if ((sc->sc_cfg2 & 0x40) || (sc->sc_rev == 9)) { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x0e), ((dmasize) >> 16)); } if (sc->sc_rev == 9) { (*(sc)->sc_glue->gl_write_reg)((sc), (0xf), (0)); } } while (0);
    if (sc->sc_rev != 9)
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 662); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x41 | 0x80, 665); sc->sc_lastcmd = 0x41 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x41 | 0x80)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 661); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x41 | 0x80, 664); sc->sc_lastcmd = 0x41 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x41 | 0x80)); } while (0);
    (*(sc)->sc_glue->gl_dma_go)((sc));
   } else {
    ncr53c9x_wrfifo(sc, (u_char *)&ecb->cmd.cmd, ecb->clen);
    sc->sc_cmdlen = 0;
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x41, 670); sc->sc_lastcmd = 0x41; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x41)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x41, 669); sc->sc_lastcmd = 0x41; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x41)); } while (0);
   }
   return;
  }
@@ -2607,13 +2607,13 @@ ncr53c9x_select(sc, ecb)
   sc->sc_cmdp = cmd;
   (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_cmdp), (&sc->sc_cmdlen), (0), (&dmasize));
   do { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x00), ((dmasize))); (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x01), ((dmasize) >> 8)); if ((sc->sc_cfg2 & 0x40) || (sc->sc_rev == 9)) { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x0e), ((dmasize) >> 16)); } if (sc->sc_rev == 9) { (*(sc)->sc_glue->gl_write_reg)((sc), (0xf), (0)); } } while (0);
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 720); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 719); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
   if (selatn3) {
    sc->sc_msgout = 0x0100;
    sc->sc_flags |= 0x40;
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x46 | 0x80, 726); sc->sc_lastcmd = 0x46 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x46 | 0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x46 | 0x80, 725); sc->sc_lastcmd = 0x46 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x46 | 0x80)); } while (0);
   } else
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x42 | 0x80, 728); sc->sc_lastcmd = 0x42 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x42 | 0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x42 | 0x80, 727); sc->sc_lastcmd = 0x42 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x42 | 0x80)); } while (0);
   (*(sc)->sc_glue->gl_dma_go)((sc));
   return;
  }
@@ -2621,13 +2621,13 @@ ncr53c9x_select(sc, ecb)
  ncr53c9x_wrfifo(sc, cmd, clen);
  if (selatns) {
   do {if (ncr53c9x_debug & 0x08) printf ("SELATNS \n");} while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x43, 746); sc->sc_lastcmd = 0x43; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x43)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x43, 745); sc->sc_lastcmd = 0x43; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x43)); } while (0);
  } else if (selatn3) {
   sc->sc_msgout = 0x0100;
   sc->sc_flags |= 0x40;
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x46, 750); sc->sc_lastcmd = 0x46; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x46)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x46, 749); sc->sc_lastcmd = 0x46; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x46)); } while (0);
  } else
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x42, 752); sc->sc_lastcmd = 0x42; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x42)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x42, 751); sc->sc_lastcmd = 0x42; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x42)); } while (0);
 }
 void *
 ncr53c9x_get_ecb(void *null)
@@ -2979,7 +2979,7 @@ static void
 ncr53c9x_flushfifo(struct ncr53c9x_softc *sc)
 {
  do {if (ncr53c9x_debug & 0x08) printf ("[flushfifo] ");} while (0);
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1260); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1259); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
  if (sc->sc_phase == (0x02) ||
      sc->sc_phase == (0x04|0x02))
   delay(2);
@@ -3086,17 +3086,17 @@ ncr53c9x_reselect(sc, message, tagtype, tagid)
  sc->sc_nexus = ecb;
  ncr53c9x_setsync(sc, ti);
  if (ecb->flags & 0x80)
-  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1420);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1420); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
+  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1419);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1419); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
  else if (ecb->flags & 0x40)
-  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1422);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1422); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
+  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1421);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1421); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
  sc->sc_dp = ecb->daddr;
  sc->sc_dleft = ecb->dleft;
  return (0);
 reset:
- do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1431);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1431); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
+ do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1430);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1430); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
  return (1);
 abort:
- do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1435);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1435); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
+ do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1434);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1434); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
  return (1);
 }
 static inline int
@@ -3128,13 +3128,13 @@ ncr53c9x_msgin(sc)
  }
  do {if (ncr53c9x_debug & 0x10) printf ("<msgbyte:0x%02x>", sc->sc_imess[0]);} while (0);
  if ((sc->sc_flags & 0x01)) {
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1492); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1491); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
   printf("<dropping msg byte %x>",
    sc->sc_imess[sc->sc_imlen]);
   return;
  }
  if (sc->sc_imlen >= 8) {
-  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0008, 1499);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1499); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0008); } while (0);
+  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0008, 1498);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1498); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0008); } while (0);
   sc->sc_flags |= 0x01;
  } else {
   u_char *pb;
@@ -3152,7 +3152,7 @@ ncr53c9x_msgin(sc)
   if (__verify_msg_format(pb, plen))
    goto gotit;
  }
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1525); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1524); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
  return;
 gotit:
  do {if (ncr53c9x_debug & 0x200) printf ("gotmsg(%x) state %d", sc->sc_imess[0], sc->sc_state);}while (0);
@@ -3188,7 +3188,7 @@ gotit:
     printf("%s: tagged queuing rejected: target %d\n",
         sc->sc_dev.dv_xname, ecb->xs->sc_link->target);
     do {if (ncr53c9x_debug & 0x200) printf ("(rejected sent tag)");}while (0);
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1579); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1578); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
     delay(1);
     ti->flags &= ~0x40;
     lun = ecb->xs->sc_link->lun;
@@ -3263,7 +3263,7 @@ gotit:
          == 0) {
       ti->offset = 0;
       ti->flags &= ~0x08;
-      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 1678);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1678); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
+      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 1677);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1677); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
      } else {
       ti->flags &= ~0x08;
      }
@@ -3285,7 +3285,7 @@ gotit:
       if (ti->offset > 15)
        ti->offset = 15;
       ti->flags &= ~0x08;
-      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 1710);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1710); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
+      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 1709);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1709); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
      } else {
       ti->flags |= 0x08;
      }
@@ -3315,7 +3315,7 @@ gotit:
    sc_print_addr(ecb->xs->sc_link);
    printf("unrecognized MESSAGE; sending REJECT\n");
   reject:
-   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0008, 1743);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1743); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0008); } while (0);
+   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0008, 1742);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1742); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0008); } while (0);
    break;
   }
   break;
@@ -3349,15 +3349,15 @@ gotit:
   printf("%s: unexpected MESSAGE IN; sending DEVICE RESET\n",
       sc->sc_dev.dv_xname);
  reset:
-  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1783);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1783); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
+  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0001, 1782);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1782); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0001); } while (0);
   break;
  abort:
-  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1787);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1787); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
+  do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 1786);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1786); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
   break;
  }
  if (sc->sc_msgpriq)
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1793); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0);
- do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1796); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1792); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0);
+ do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 1795); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
  sc->sc_flags &= ~0x01;
  sc->sc_imlen = 0;
 }
@@ -3372,17 +3372,17 @@ ncr53c9x_msgout(sc)
  if (sc->sc_flags & 0x40) {
   if (sc->sc_prevphase != (0x04|0x02)) {
   new:
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1828); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 1827); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
    sc->sc_msgoutq = 0;
    sc->sc_omlen = 0;
   }
  } else {
   if (sc->sc_prevphase == (0x04|0x02)) {
-   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", sc->sc_msgoutq, 1835);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1835); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (sc->sc_msgoutq); } while (0);
+   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", sc->sc_msgoutq, 1834);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 1834); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (sc->sc_msgoutq); } while (0);
    goto new;
   } else {
    printf("%s at line %d: unexpected MESSAGE OUT phase\n",
-       sc->sc_dev.dv_xname, 1839);
+       sc->sc_dev.dv_xname, 1838);
   }
  }
  if (sc->sc_omlen == 0) {
@@ -3417,7 +3417,7 @@ ncr53c9x_msgout(sc)
   case 0x0010:
    if (sc->sc_state != 5) {
     printf("%s at line %d: no nexus\n",
-        sc->sc_dev.dv_xname, 1876);
+        sc->sc_dev.dv_xname, 1875);
    }
    ecb = sc->sc_nexus;
    sc->sc_omess[0] =
@@ -3426,7 +3426,7 @@ ncr53c9x_msgout(sc)
   case 0x0100:
    if (sc->sc_state != 5) {
     printf("%s at line %d: no nexus\n",
-        sc->sc_dev.dv_xname, 1885);
+        sc->sc_dev.dv_xname, 1884);
    }
    ecb = sc->sc_nexus;
    sc->sc_omess[0] = ecb->tag[0];
@@ -3466,13 +3466,13 @@ ncr53c9x_msgout(sc)
   ncr53c9x_flushfifo(sc);
   ncr53c9x_wrfifo(sc, sc->sc_omp, sc->sc_omlen);
   sc->sc_cmdlen = 0;
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 1951); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 1950); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
  } else {
   size = min(sc->sc_omlen, sc->sc_maxxfer);
   (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_omp), (&sc->sc_omlen), (0), (&size));
   do { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x00), ((size))); (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x01), ((size) >> 8)); if ((sc->sc_cfg2 & 0x40) || (sc->sc_rev == 9)) { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x0e), ((size) >> 16)); } if (sc->sc_rev == 9) { (*(sc)->sc_glue->gl_write_reg)((sc), (0xf), (0)); } } while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 1960); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10|0x80, 1961); sc->sc_lastcmd = 0x10|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10|0x80)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 1959); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10|0x80, 1960); sc->sc_lastcmd = 0x10|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10|0x80)); } while (0);
   (*(sc)->sc_glue->gl_dma_go)((sc));
  }
 }
@@ -3494,7 +3494,7 @@ again:
  ncr53c9x_readregs(sc);
  if (sc->sc_espintr & 0x80) {
   if ((*(sc)->sc_glue->gl_read_reg)((sc), (0x07)) & 0x1f) {
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2016); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2015); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
    delay(1);
   }
   if (sc->sc_state != 9) {
@@ -3513,7 +3513,7 @@ again:
      sc->sc_espstat & 0x40) {
   if (sc->sc_espstat & 0x40) {
    if ((*(sc)->sc_glue->gl_read_reg)((sc), (0x07)) & 0x1f) {
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2046); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2045); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
     delay(1);
    }
    if (sc->sc_state == 5 ||
@@ -3534,7 +3534,7 @@ again:
     sc->sc_state, sc->sc_phase,
     sc->sc_prevphase);
    if ((*(sc)->sc_glue->gl_read_reg)((sc), (0x07)) & 0x1f) {
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2079); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2078); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
     delay(1);
    }
    ncr53c9x_init(sc, 1);
@@ -3582,17 +3582,17 @@ again:
  if (sc->sc_espstat & 0x20) {
   printf("%s: SCSI bus parity error\n", sc->sc_dev.dv_xname);
   if (sc->sc_prevphase == (0x04|0x02|0x01))
-   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0002, 2162);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2162); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0002); } while (0);
+   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0002, 2161);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2161); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0002); } while (0);
   else
-   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0004, 2164);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2164); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0004); } while (0);
+   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0004, 2163);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2163); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0004); } while (0);
  }
  if (sc->sc_espintr & 0x20) {
   sc->sc_msgify = 0;
   do {if (ncr53c9x_debug & 0x08) printf ("<DISC [intr %x, stat %x, step %d]>", sc->sc_espintr,sc->sc_espstat,sc->sc_espstep);} while (0);
   if ((*(sc)->sc_glue->gl_read_reg)((sc), (0x07)) & 0x1f) {
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2172); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2171); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
   }
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x44, 2179); sc->sc_lastcmd = 0x44; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x44)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x44, 2178); sc->sc_lastcmd = 0x44; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x44)); } while (0);
   switch (sc->sc_state) {
   case 3:
    goto sched;
@@ -3699,7 +3699,7 @@ printf("<<RESELECT CONT'd>>");
    ncr53c9x_msgin(sc);
    if (nfifo != 2) {
     sc->sc_flags |= 0x80;
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2354); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2353); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
    } else if (sc->sc_features & 0x04 &&
        sc->sc_rev == 0) {
     sc->sc_flags |= 0x80;
@@ -3722,7 +3722,7 @@ printf("<<RESELECT CONT'd>>");
    ti = &sc->sc_tinfo[sc_link->target];
    switch (sc->sc_espstep) {
    case 0:
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1b, 2396); sc->sc_lastcmd = 0x1b; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1b)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1b, 2395); sc->sc_lastcmd = 0x1b; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1b)); } while (0);
     break;
    case 1:
     if ((ti->flags & 0x02) == 0 &&
@@ -3737,18 +3737,18 @@ printf("<<RESELECT CONT'd>>");
      goto reset;
     }
     if (ti->flags & 0x80) {
-     do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0040, 2411);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2411); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0040); } while (0);
+     do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0040, 2410);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2410); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0040); } while (0);
     }
     if (ti->flags & 0x02) {
      ti->period = sc->sc_minsync;
      ti->offset = 15;
      sc->sc_flags |= 0x08;
      if (ecb->tag[0])
-      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0100|0x0080, 2419);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2419); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0100|0x0080); } while (0);
+      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0100|0x0080, 2418);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2418); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0100|0x0080); } while (0);
      else
-      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 2421);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2421); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
+      do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0080, 2420);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2420); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0080); } while (0);
     } else {
-     do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0100, 2424);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2424); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0100); } while (0);
+     do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0100, 2423);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2423); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0100); } while (0);
     }
     sc->sc_prevphase = (0x04|0x02);
     break;
@@ -3770,11 +3770,11 @@ printf("<<RESELECT CONT'd>>");
       & 0x1f,
      sc->sc_espintr, sc->sc_espstat,
      sc->sc_espstep);
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2456); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
-    do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 2457);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2457); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2455); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 2456);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2456); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
     return (1);
    case 2:
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2461); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2460); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
     break;
    case 4:
     if (sc->sc_features & 0x04 &&
@@ -3802,7 +3802,7 @@ printf("<<RESELECT CONT'd>>");
     sc->sc_dev.dv_xname,
     sc->sc_espintr, sc->sc_espstat,
     sc->sc_espstep);
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2494); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2493); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
    delay(1);
    goto reset;
   }
@@ -3841,7 +3841,7 @@ printf("<<RESELECT CONT'd>>");
     printf("%s: STATUS_PHASE: msg %d\n",
      sc->sc_dev.dv_xname, msg);
    sc->sc_imlen = 0;
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 2537); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x12, 2536); sc->sc_lastcmd = 0x12; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x12)); } while (0);
    goto shortcut;
   }
   break;
@@ -3868,10 +3868,10 @@ msgin:
   if (sc->sc_espintr & 0x10) {
    if ((sc->sc_rev != 9) ||
        !(sc->sc_espstat2 & 0x80)) {
-    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2571); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+    do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2570); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
    }
    sc->sc_flags |= 0x20;
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 2574); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 2573); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
   } else if (sc->sc_espintr & 0x08) {
    if ((sc->sc_flags & 0x20) == 0) {
     printf("%s: MSGIN: unexpected FC bit: "
@@ -3898,7 +3898,7 @@ msgin:
  case (0x02):
   do {if (ncr53c9x_debug & 0x40) printf ("COMMAND_PHASE 0x%02x (%d) ", ecb->cmd.cmd.opcode, ecb->clen);}while (0);
   if ((*(sc)->sc_glue->gl_read_reg)((sc), (0x07)) & 0x1f) {
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2610); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2609); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
   }
   if (sc->sc_features & 0x04) {
    size = ecb->clen;
@@ -3906,19 +3906,19 @@ msgin:
    sc->sc_cmdp = (caddr_t)&ecb->cmd.cmd;
    (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_cmdp), (&sc->sc_cmdlen), (0), (&size));
    do { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x00), ((size))); (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x01), ((size) >> 8)); if ((sc->sc_cfg2 & 0x40) || (sc->sc_rev == 9)) { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x0e), ((size) >> 16)); } if (sc->sc_rev == 9) { (*(sc)->sc_glue->gl_write_reg)((sc), (0xf), (0)); } } while (0);
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 2624); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10 | 0x80, 2627); sc->sc_lastcmd = 0x10 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10 | 0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 2623); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10 | 0x80, 2626); sc->sc_lastcmd = 0x10 | 0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10 | 0x80)); } while (0);
    (*(sc)->sc_glue->gl_dma_go)((sc));
   } else {
    ncr53c9x_wrfifo(sc, (u_char *)&ecb->cmd.cmd, ecb->clen);
    sc->sc_cmdlen = 0;
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 2632); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x10, 2631); sc->sc_lastcmd = 0x10; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x10)); } while (0);
   }
   sc->sc_prevphase = (0x02);
   break;
  case (0):
   do {if (ncr53c9x_debug & 0x40) printf ("DATA_OUT_PHASE [%ld] ",(long)sc->sc_dleft);}while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2638); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2637); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
   size = min(sc->sc_dleft, sc->sc_maxxfer);
   (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_dp), (&sc->sc_dleft), (0), (&size));
   sc->sc_prevphase = (0);
@@ -3926,21 +3926,21 @@ msgin:
  case (0x01):
   do {if (ncr53c9x_debug & 0x40) printf ("DATA_IN_PHASE ");}while (0);
   if (sc->sc_rev == 0)
-   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2647); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
+   do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x01, 2646); sc->sc_lastcmd = 0x01; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x01)); } while (0);
   size = min(sc->sc_dleft, sc->sc_maxxfer);
   (*(sc)->sc_glue->gl_dma_setup)((sc), (&sc->sc_dp), (&sc->sc_dleft), (1), (&size));
   sc->sc_prevphase = (0x01);
  setup_xfer:
   ecb->flags &= ~0x100;
   do { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x00), ((size))); (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x01), ((size) >> 8)); if ((sc->sc_cfg2 & 0x40) || (sc->sc_rev == 9)) { (*((sc))->sc_glue->gl_write_reg)(((sc)), (0x0e), ((size) >> 16)); } if (sc->sc_rev == 9) { (*(sc)->sc_glue->gl_write_reg)((sc), (0xf), (0)); } } while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 2660); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)(size==0?0x18:0x10)|0x80, 2670); sc->sc_lastcmd = (size==0?0x18:0x10)|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), ((size==0?0x18:0x10)|0x80)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x00|0x80, 2659); sc->sc_lastcmd = 0x00|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x00|0x80)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)(size==0?0x18:0x10)|0x80, 2669); sc->sc_lastcmd = (size==0?0x18:0x10)|0x80; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), ((size==0?0x18:0x10)|0x80)); } while (0);
   (*(sc)->sc_glue->gl_dma_go)((sc));
   return (1);
  case (0x02|0x01):
   do {if (ncr53c9x_debug & 0x40) printf ("STATUS_PHASE ");}while (0);
   sc->sc_flags |= 0x10;
-  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x11, 2676); sc->sc_lastcmd = 0x11; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x11)); } while (0);
+  do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x11, 2675); sc->sc_lastcmd = 0x11; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x11)); } while (0);
   sc->sc_prevphase = (0x02|0x01);
   goto shortcut;
   break;
@@ -3990,7 +3990,7 @@ ncr53c9x_abort(sc, ecb)
  if (ecb == sc->sc_nexus) {
   int timeout = ecb->timeout;
   if (sc->sc_state == 5)
-   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 2750);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2750); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
+   do { do {if (ncr53c9x_debug & 0x08) printf ("ncr53c9x_sched_msgout %x %d ", 0x0020, 2749);} while (0); do { if (ncr53c9x_debug & 0x100) printf("<cmd:0x%x %d>", (unsigned)0x1a, 2749); sc->sc_lastcmd = 0x1a; (*(sc)->sc_glue->gl_write_reg)((sc), (0x03), (0x1a)); } while (0); sc->sc_flags |= 0x40; sc->sc_msgpriq |= (0x0020); } while (0);
   if (timeout > 1000000)
    timeout = (timeout / 1000) * hz;
   else

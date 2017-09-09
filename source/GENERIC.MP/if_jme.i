@@ -4836,7 +4836,7 @@ jme_init_rx_ring(struct jme_softc *sc)
  struct jme_ring_data *rd;
  struct jme_rxdesc *rxd;
  int i;
- ((sc->jme_cdata.jme_rxhead == ((void *)0) && sc->jme_cdata.jme_rxtail == ((void *)0) && sc->jme_cdata.jme_rxlen == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_jme.c", 2161, "sc->jme_cdata.jme_rxhead == NULL && sc->jme_cdata.jme_rxtail == NULL && sc->jme_cdata.jme_rxlen == 0"));
+ ((sc->jme_cdata.jme_rxhead == ((void *)0) && sc->jme_cdata.jme_rxtail == ((void *)0) && sc->jme_cdata.jme_rxlen == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_jme.c", 2160, "sc->jme_cdata.jme_rxhead == NULL && sc->jme_cdata.jme_rxtail == NULL && sc->jme_cdata.jme_rxlen == 0"));
  sc->jme_cdata.jme_rx_cons = 0;
  rd = &sc->jme_rdata;
  __builtin_bzero((rd->jme_rx_ring), ((sizeof(struct jme_desc) * 256)));

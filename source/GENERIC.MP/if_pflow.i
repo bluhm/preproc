@@ -202,48 +202,6 @@ struct file;
 struct buf;
 struct tty;
 struct uio;
-struct kmemstats {
- long ks_inuse;
- long ks_calls;
- long ks_memuse;
- u_short ks_limblocks;
- u_short ks_mapblocks;
- long ks_maxused;
- long ks_limit;
- long ks_size;
- long ks_spare;
-};
-struct kmemusage {
- short ku_indx;
- union {
-  u_short freecnt;
-  u_short pagecnt;
- } ku_un;
-};
-struct kmem_freelist;
-struct kmembuckets {
- struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
- u_int64_t kb_calls;
- u_int64_t kb_total;
- u_int64_t kb_totalfree;
- u_int64_t kb_elmpercl;
- u_int64_t kb_highwat;
- u_int64_t kb_couldfree;
-};
-extern struct kmemstats kmemstats[];
-extern struct kmemusage *kmemusage;
-extern char *kmembase;
-extern struct kmembuckets bucket[];
-void *malloc(size_t, int, int);
-void *mallocarray(size_t, size_t, int, int);
-void free(void *, int, size_t);
-int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-size_t malloc_roundup(size_t);
-void malloc_printit(int (*)(const char *, ...));
-void poison_mem(void *, size_t);
-int poison_check(void *, size_t, size_t *, uint32_t *);
-uint32_t poison_value(void *);
 struct timeval {
  time_t tv_sec;
  suseconds_t tv_usec;
@@ -1010,6 +968,48 @@ int __mp_release_all_but_one(struct __mp_lock *);
 void __mp_acquire_count(struct __mp_lock *, int);
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+struct kmem_freelist;
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
@@ -5737,7 +5737,7 @@ pflow_output_process(void *arg)
  struct pflow_softc *sc = arg;
  struct mbuf *m;
  mq_delist(&sc->sc_outputqueue, &ml);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pflow.c", 136);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pflow.c", 135);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   pflow_sendout_mbuf(sc, m);
  }

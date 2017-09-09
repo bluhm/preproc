@@ -2630,7 +2630,7 @@ scsibusdetach(struct device *dev, int type)
  error = scsi_detach_bus(sb, type);
  if (error != 0)
   return (error);
- (((((&sb->sc_link_list)->slh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.c", 277, "SLIST_EMPTY(&sb->sc_link_list)"));
+ (((((&sb->sc_link_list)->slh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsiconf.c", 276, "SLIST_EMPTY(&sb->sc_link_list)"));
  return (0);
 }
 int

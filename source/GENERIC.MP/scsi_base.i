@@ -2471,7 +2471,7 @@ void *
 scsi_iopool_get(struct scsi_iopool *iopl)
 {
  void *io;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 247);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 246);
  io = iopl->io_get(iopl->iocookie);
  _kernel_unlock();
  return (io);
@@ -2479,7 +2479,7 @@ scsi_iopool_get(struct scsi_iopool *iopl)
 void
 scsi_iopool_put(struct scsi_iopool *iopl, void *io)
 {
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 257);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 256);
  iopl->io_put(iopl->iocookie, io);
  _kernel_unlock();
 }
@@ -3206,7 +3206,7 @@ scsi_xs_exec(struct scsi_xfer *xs)
  xs->resid = xs->datalen;
  xs->status = 0;
  ((xs->flags) &= ~(0x00008));
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 1288);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 1287);
  xs->sc_link->adapter->scsi_cmd(xs);
  _kernel_unlock();
 }
@@ -3214,7 +3214,7 @@ void
 scsi_done(struct scsi_xfer *xs)
 {
  ((xs->flags) |= (0x00008));
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 1307);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../scsi/scsi_base.c", 1306);
  xs->done(xs);
  _kernel_unlock();
 }

@@ -1675,7 +1675,7 @@ counters_alloc(unsigned int n)
  struct cpumem_iter cmi;
  uint64_t *counters;
  unsigned int i;
- ((n > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_percpu.c", 135, "n > 0"));
+ ((n > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_percpu.c", 134, "n > 0"));
  n++;
  cm = cpumem_malloc(n * sizeof(uint64_t), 12);
  for ((counters) = cpumem_first((&cmi), (cm)); (counters) != ((void *)0); (counters) = cpumem_next((&cmi), (cm))) {
