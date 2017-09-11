@@ -1783,7 +1783,7 @@ urng_attach(struct device *parent, struct device *self, void *aux)
   if (ed == ((void *)0)) {
    printf("%s: failed to get endpoint %d descriptor\n",
        ((sc)->sc_dev.dv_xname), i);
-   return;
+   goto fail;
   }
   if (((ed->bEndpointAddress) & 0x80) == 0x80 &&
       ((ed->bmAttributes) & 0x03) == 0x02) {
@@ -1797,30 +1797,32 @@ urng_attach(struct device *parent, struct device *self, void *aux)
  }
  if (ep_ibulk == -1) {
   printf("%s: missing endpoint\n", ((sc)->sc_dev.dv_xname));
-  return;
+  goto fail;
  }
  error = usbd_open_pipe(uaa->iface, ep_ibulk, 0x01,
       &sc->sc_outpipe);
  if (error) {
   printf("%s: failed to open bulk-in pipe: %s\n",
     ((sc)->sc_dev.dv_xname), usbd_errstr(error));
-  return;
+  goto fail;
  }
  sc->sc_xfer = usbd_alloc_xfer(sc->sc_udev);
  if (sc->sc_xfer == ((void *)0)) {
   printf("%s: could not alloc xfer\n", ((sc)->sc_dev.dv_xname));
-  return;
+  goto fail;
  }
  sc->sc_buf = usbd_alloc_buffer(sc->sc_xfer, sc->sc_chip.bufsiz);
  if (sc->sc_buf == ((void *)0)) {
   printf("%s: could not alloc %d-byte buffer\n", ((sc)->sc_dev.dv_xname),
     sc->sc_chip.bufsiz);
-  return;
+  goto fail;
  }
  ((&sc->sc_task)->fun = (urng_task), (&sc->sc_task)->arg = (sc), (&sc->sc_task)->type = (0), (&sc->sc_task)->state = 0x0);
  timeout_set(&sc->sc_timeout, urng_timeout, sc);
  usb_add_task(sc->sc_udev, &sc->sc_task);
  return;
+fail:
+ usbd_deactivate(sc->sc_udev);
 }
 int
 urng_detach(struct device *self, int flags)
@@ -1829,8 +1831,10 @@ urng_detach(struct device *self, int flags)
  usb_rem_task(sc->sc_udev, &sc->sc_task);
  if (((&sc->sc_timeout)->to_flags & 4))
   timeout_del(&sc->sc_timeout);
- if (sc->sc_xfer)
+ if (sc->sc_xfer != ((void *)0)) {
   usbd_free_xfer(sc->sc_xfer);
+  sc->sc_xfer = ((void *)0);
+ }
  if (sc->sc_outpipe != ((void *)0)) {
   usbd_close_pipe(sc->sc_outpipe);
   sc->sc_outpipe = ((void *)0);
