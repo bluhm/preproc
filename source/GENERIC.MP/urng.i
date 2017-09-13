@@ -1726,12 +1726,13 @@ struct urng_chip {
 struct urng_softc {
  struct device sc_dev;
  struct usbd_device *sc_udev;
- struct usbd_pipe *sc_outpipe;
+ struct usbd_pipe *sc_inpipe;
  struct timeout sc_timeout;
  struct usb_task sc_task;
  struct usbd_xfer *sc_xfer;
  struct urng_chip sc_chip;
  int *sc_buf;
+ int sc_product;
 };
 int urng_match(struct device *, void *, void *);
 void urng_attach(struct device *, struct device *, void *);
@@ -1776,6 +1777,7 @@ urng_attach(struct device *parent, struct device *self, void *aux)
  int i, ep_addr;
  sc->sc_udev = uaa->device;
  sc->sc_chip = ((struct urng_type *)usbd_match_device((const struct usb_devno *)(urng_devs), sizeof (urng_devs) / sizeof ((urng_devs)[0]), sizeof ((urng_devs)[0]), (uaa->vendor), (uaa->product)))->urng_chip;
+ sc->sc_product = uaa->product;
  ;
  id = usbd_get_interface_descriptor(uaa->iface);
  for (i = 0; i < id->bNumEndpoints; i++) {
@@ -1796,11 +1798,11 @@ urng_attach(struct device *parent, struct device *self, void *aux)
   }
  }
  if (ep_ibulk == -1) {
-  printf("%s: missing endpoint\n", ((sc)->sc_dev.dv_xname));
+  printf("%s: missing bulk input endpoint\n", ((sc)->sc_dev.dv_xname));
   goto fail;
  }
  error = usbd_open_pipe(uaa->iface, ep_ibulk, 0x01,
-      &sc->sc_outpipe);
+      &sc->sc_inpipe);
  if (error) {
   printf("%s: failed to open bulk-in pipe: %s\n",
     ((sc)->sc_dev.dv_xname), usbd_errstr(error));
@@ -1835,9 +1837,9 @@ urng_detach(struct device *self, int flags)
   usbd_free_xfer(sc->sc_xfer);
   sc->sc_xfer = ((void *)0);
  }
- if (sc->sc_outpipe != ((void *)0)) {
-  usbd_close_pipe(sc->sc_outpipe);
-  sc->sc_outpipe = ((void *)0);
+ if (sc->sc_inpipe != ((void *)0)) {
+  usbd_close_pipe(sc->sc_inpipe);
+  sc->sc_inpipe = ((void *)0);
  }
  return (0);
 }
@@ -1847,7 +1849,7 @@ urng_task(void *arg)
  struct urng_softc *sc = (struct urng_softc *)arg;
  usbd_status error;
  u_int32_t len, i;
- usbd_setup_xfer(sc->sc_xfer, sc->sc_outpipe, ((void *)0), sc->sc_buf,
+ usbd_setup_xfer(sc->sc_xfer, sc->sc_inpipe, ((void *)0), sc->sc_buf,
      sc->sc_chip.bufsiz, 0x04 | 0x02,
      sc->sc_chip.read_timeout, ((void *)0));
  error = usbd_transfer(sc->sc_xfer);
@@ -1872,6 +1874,6 @@ bail:
 void
 urng_timeout(void *arg)
 {
-        struct urng_softc *sc = arg;
-        usb_add_task(sc->sc_udev, &sc->sc_task);
+ struct urng_softc *sc = arg;
+ usb_add_task(sc->sc_udev, &sc->sc_task);
 }
