@@ -3692,12 +3692,12 @@ m_getuio(struct mbuf **mp, int atomic, long space, struct uio *uio)
     goto nopages;
    mlen = m->M_dat.MH.MH_dat.MH_ext.ext_size;
    len = ulmin(mlen, resid);
-   if (atomic && top == ((void *)0) && len < mlen - max_hdr)
+   if (atomic && m == top && len < mlen - max_hdr)
     m->m_hdr.mh_data += max_hdr;
   } else {
 nopages:
    len = ulmin(mlen, resid);
-   if (atomic && top == ((void *)0) && len < mlen - max_hdr)
+   if (atomic && m == top && len < mlen - max_hdr)
     (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (len)) &~ (sizeof(long) - 1);
   }
   error = uiomove(((caddr_t)((m)->m_hdr.mh_data)), len, uio);
