@@ -6797,7 +6797,7 @@ ip_pcbopts(struct mbuf **pcbopt, struct mbuf *m)
  }
  if (m->m_hdr.mh_len > 40 + sizeof(struct in_addr))
   return (22);
- *pcbopt = m_dup_pkt(m, 0, 0x0002);
+ *pcbopt = m_copym(m, 0, 1000000000, 0x0002);
  if (*pcbopt == ((void *)0))
   return (55);
  return (0);
