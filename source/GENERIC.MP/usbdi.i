@@ -3152,7 +3152,6 @@ usb_transfer_complete(struct usbd_xfer *xfer)
  struct usbd_pipe *pipe = xfer->pipe;
  int polling = pipe->device->bus->use_polling;
  int status, flags;
- do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0);
  ;
  if (xfer->busy_free != 0x4f4e5155) {
   printf("%s: xfer=%p not on queue\n", __func__, xfer);
