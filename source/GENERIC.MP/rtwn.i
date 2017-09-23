@@ -5775,7 +5775,10 @@ int rtwn_r88e_ra_init(struct rtwn_softc *, u_int8_t, u_int32_t,
       int, uint32_t, int);
 void rtwn_tsf_sync_enable(struct rtwn_softc *);
 void rtwn_set_led(struct rtwn_softc *, int, int);
+void rtwn_set_nettype(struct rtwn_softc *, enum ieee80211_opmode);
 void rtwn_update_short_preamble(struct ieee80211com *);
+void rtwn_r92c_update_short_preamble(struct rtwn_softc *);
+void rtwn_r88e_update_short_preamble(struct rtwn_softc *);
 int8_t rtwn_r88e_get_rssi(struct rtwn_softc *, int, void *);
 void rtwn_watchdog(struct ifnet *);
 void rtwn_fw_reset(struct rtwn_softc *);
@@ -5977,7 +5980,7 @@ rtwn_fw_cmd(struct rtwn_softc *sc, uint8_t id, const void *buf, int len)
  cmd.id = id;
  if (len > 3)
   cmd.id |= 0x80;
- ((len <= sizeof(cmd.msg)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rtwn.c", 393, "len <= sizeof(cmd.msg)"));
+ ((len <= sizeof(cmd.msg)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rtwn.c", 396, "len <= sizeof(cmd.msg)"));
  __builtin_memcpy((cmd.msg), (buf), (len));
  rtwn_write_2(sc, (0x088 + (sc->fwcur) * 2), *((uint8_t *)&cmd + 4));
  rtwn_write_4(sc, (0x1d0 + (sc->fwcur) * 4), *((uint8_t *)&cmd + 0));
@@ -6299,7 +6302,7 @@ rtwn_tsf_sync_enable(struct rtwn_softc *sc)
      rtwn_read_1(sc, 0x550) & ~0x10);
  rtwn_write_1(sc, 0x550,
      rtwn_read_1(sc, 0x550) & ~0x08);
- __builtin_memcpy((&tsf), (ni->ni_tstamp), (8));
+ __builtin_memcpy((&tsf), (ni->ni_tstamp), (sizeof(tsf)));
  tsf = __extension__({ __uint64_t __swap64gen_x = (tsf); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
  tsf = tsf - (tsf % (ni->ni_intval * 1024));
  tsf -= 1024;
@@ -6343,6 +6346,23 @@ rtwn_set_led(struct rtwn_softc *sc, int led, int on)
  sc->ledlink = on;
 }
 void
+rtwn_set_nettype(struct rtwn_softc *sc, enum ieee80211_opmode opmode)
+{
+ uint8_t msr;
+ msr = rtwn_read_1(sc, 0x102) & ~0x03;
+ switch (opmode) {
+ case IEEE80211_M_MONITOR:
+  msr |= 0x00;
+  break;
+ case IEEE80211_M_STA:
+  msr |= 0x02;
+  break;
+ default:
+  break;
+ }
+ rtwn_write_1(sc, 0x102, msr);
+}
+void
 rtwn_calib(struct rtwn_softc *sc)
 {
  struct r92c_fw_cmd_rssi cmd;
@@ -6381,9 +6401,7 @@ rtwn_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
  if (ostate == IEEE80211_S_RUN) {
   sc->sc_ops.cancel_calib(sc->sc_ops.cookie);
   rtwn_set_led(sc, 0, 0);
-  reg64 = rtwn_read_4(sc, 0x100);
-  reg64 = (((reg64) & ~0x00030000) | (((0) << 16) & 0x00030000));
-  rtwn_write_4(sc, 0x100, reg64);
+  rtwn_set_nettype(sc, IEEE80211_M_MONITOR);
   rtwn_write_2(sc, 0x6a4, 0);
   rtwn_write_1(sc, 0x553, 0x03);
   rtwn_write_1(sc, 0x550,
@@ -6414,7 +6432,9 @@ rtwn_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
   }
   rtwn_set_led(sc, 0, !sc->ledlink);
   rtwn_write_1(sc, 0x522,
-      rtwn_read_1(sc, 0x522) | 0x0f);
+      rtwn_read_1(sc, 0x522) | 0x01 |
+      0x02 | 0x04 |
+      0x08);
   rtwn_set_chan(sc, ic->ic_bss->ni_chan, ((void *)0));
   sc->sc_ops.next_scan(sc->sc_ops.cookie);
   break;
@@ -6439,9 +6459,7 @@ rtwn_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
    break;
   }
   ni = ic->ic_bss;
-  reg64 = rtwn_read_4(sc, 0x100);
-  reg64 = (((reg64) & ~0x00030000) | (((2) << 16) & 0x00030000));
-  rtwn_write_4(sc, 0x100, reg64);
+  rtwn_set_nettype(sc, IEEE80211_M_STA);
   rtwn_write_4(sc, 0x618 + 0, ((&ni->ni_bssid[0])[0] | (&ni->ni_bssid[0])[1] << 8 | (&ni->ni_bssid[0])[2] << 16 | (&ni->ni_bssid[0])[3] << 24));
   rtwn_write_4(sc, 0x618 + 4, ((&ni->ni_bssid[4])[0] | (&ni->ni_bssid[4])[1] << 8));
   if (ic->ic_curmode == IEEE80211_MODE_11B)
@@ -6451,7 +6469,7 @@ rtwn_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
   rtwn_updateslot(ic);
   rtwn_update_short_preamble(ic);
   rtwn_write_2(sc, 0x6a4, 0xffff);
-  rtwn_write_1(sc, 0x522, 0);
+  rtwn_write_1(sc, 0x522, ~(0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80));
   rtwn_write_2(sc, 0x554, ni->ni_intval);
   rtwn_write_4(sc, 0x608,
       rtwn_read_4(sc, 0x608) |
@@ -6473,13 +6491,32 @@ void
 rtwn_update_short_preamble(struct ieee80211com *ic)
 {
  struct rtwn_softc *sc = ic->ic_ac.ac_if.if_softc;
+ if (sc->chip & 0x00000020)
+  rtwn_r88e_update_short_preamble(sc);
+ else
+  rtwn_r92c_update_short_preamble(sc);
+}
+void
+rtwn_r92c_update_short_preamble(struct rtwn_softc *sc)
+{
  uint32_t reg64;
  reg64 = rtwn_read_4(sc, 0x440);
- if (ic->ic_flags & 0x00040000)
+ if (sc->sc_ic.ic_flags & 0x00040000)
   reg64 |= 0x00800000;
  else
   reg64 &= ~0x00800000;
  rtwn_write_4(sc, 0x440, reg64);
+}
+void
+rtwn_r88e_update_short_preamble(struct rtwn_softc *sc)
+{
+ uint32_t reg64;
+ reg64 = rtwn_read_4(sc, 0x668);
+ if (sc->sc_ic.ic_flags & 0x00040000)
+  reg64 |= 0x00020000;
+ else
+  reg64 &= ~0x00020000;
+ rtwn_write_4(sc, 0x668, reg64);
 }
 void
 rtwn_updateslot(struct ieee80211com *ic)
@@ -7443,7 +7480,9 @@ rtwn_iq_calib_run(struct rtwn_softc *sc, int n, uint16_t tx[2][2],
   rtwn_write_4(sc, (0x840 + (0) * 4), 0x00010000);
   rtwn_write_4(sc, (0x840 + (1) * 4), 0x00010000);
  }
- rtwn_write_1(sc, 0x522, 0x3f);
+ rtwn_write_1(sc, 0x522, 0x01 |
+     0x02 | 0x04 | 0x08 |
+     0x10 | 0x20);
  rtwn_write_1(sc, 0x550,
      iq_cal_regs->bcn_ctrl & ~(0x08));
  rtwn_write_1(sc, 0x551,
@@ -7628,7 +7667,7 @@ rtwn_lc_calib(struct rtwn_softc *sc)
        (((rf_ac[i]) & ~0x70000) | (((1) << 16) & 0x70000)));
   }
  } else {
-  rtwn_write_1(sc, 0x522, 0xff);
+  rtwn_write_1(sc, 0x522, (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80));
  }
  rtwn_rf_write(sc, 0, 0x18,
      rtwn_rf_read(sc, 0, 0x18) | 0x08000);
@@ -7638,7 +7677,7 @@ rtwn_lc_calib(struct rtwn_softc *sc)
   for (i = 0; i < sc->nrxchains; i++)
    rtwn_rf_write(sc, i, 0x00, rf_ac[i]);
  } else {
-  rtwn_write_1(sc, 0x522, 0x00);
+  rtwn_write_1(sc, 0x522, ~(0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80));
  }
 }
 void
@@ -7741,9 +7780,7 @@ rtwn_init(struct ifnet *ifp)
  __builtin_memcpy((ic->ic_myaddr), (((caddr_t)((ifp->if_sadl)->sdl_data + (ifp->if_sadl)->sdl_nlen))), (6));
  for (i = 0; i < 6; i++)
   rtwn_write_1(sc, 0x610 + i, ic->ic_myaddr[i]);
- reg64 = rtwn_read_4(sc, 0x100);
- reg64 = (((reg64) & ~0x00030000) | (((2) << 16) & 0x00030000));
- rtwn_write_4(sc, 0x100, reg64);
+ rtwn_set_nettype(sc, IEEE80211_M_MONITOR);
  rtwn_rxfilter_init(sc);
  reg64 = rtwn_read_4(sc, 0x440);
  if (sc->chip & 0x80000000) {
