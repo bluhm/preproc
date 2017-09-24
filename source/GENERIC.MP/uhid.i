@@ -3508,6 +3508,7 @@ uhid_do_ioctl(struct uhid_softc *sc, u_long cmd, caddr_t addr,
   return (5);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((126))):
+ case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((125))):
   break;
  case ((unsigned long)0x40000000 | ((sizeof(struct usb_device_info) & 0x1fff) << 16) | ((('U')) << 8) | ((112))):
   usbd_fill_deviceinfo(sc->sc_hdev.sc_udev,

@@ -6469,7 +6469,7 @@ rtwn_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
   rtwn_updateslot(ic);
   rtwn_update_short_preamble(ic);
   rtwn_write_2(sc, 0x6a4, 0xffff);
-  rtwn_write_1(sc, 0x522, ~(0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80));
+  rtwn_write_1(sc, 0x522, 0x00);
   rtwn_write_2(sc, 0x554, ni->ni_intval);
   rtwn_write_4(sc, 0x608,
       rtwn_read_4(sc, 0x608) |
@@ -7677,7 +7677,7 @@ rtwn_lc_calib(struct rtwn_softc *sc)
   for (i = 0; i < sc->nrxchains; i++)
    rtwn_rf_write(sc, i, 0x00, rf_ac[i]);
  } else {
-  rtwn_write_1(sc, 0x522, ~(0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80));
+  rtwn_write_1(sc, 0x522, 0x00);
  }
 }
 void
