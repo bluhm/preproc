@@ -3735,7 +3735,7 @@ wdcprobe(struct channel_softc *chp)
  ;
  if (ret_value == 0)
   return 0;
- if (chp->wdc->quirks & 0x0004)
+ if (chp->wdc && (chp->wdc->quirks & 0x0004))
   goto noatapi;
  for (drive = 0; drive < 2; drive++) {
    if ((ret_value & (0x01 << drive)) == 0)
@@ -3753,7 +3753,7 @@ wdcprobe(struct channel_softc *chp)
    chp->ch_drive[drive].drive_flags |= 0x0002;
  }
 noatapi:
- if (chp->wdc->quirks & 0x0002)
+ if (chp->wdc && (chp->wdc->quirks & 0x0002))
   goto noata;
  for (drive = 0; drive < 2; drive++) {
    if ((ret_value & (0x01 << drive)) == 0)

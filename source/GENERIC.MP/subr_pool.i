@@ -2574,7 +2574,7 @@ void pool_cache_gc(struct pool *);
 void pool_cache_pool_info(struct pool *, struct kinfo_pool *);
 int pool_cache_info(struct pool *, void *, size_t *);
 int pool_cache_cpus_info(struct pool *, void *, size_t *);
-int pool_debug = 1;
+int pool_debug = 0;
 struct pool_page_header *
   pool_p_alloc(struct pool *, int, int *);
 void pool_p_insert(struct pool *, struct pool_page_header *);
