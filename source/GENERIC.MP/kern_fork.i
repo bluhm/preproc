@@ -5366,7 +5366,7 @@ process_initialize(struct process *pr, struct proc *p)
  p->p_p = pr;
  pr->ps_ucred = p->p_ucred;
  (pr->ps_ucred)->cr_ref++;
- ((p->p_ucred->cr_ref >= 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 195, "p->p_ucred->cr_ref >= 2"));
+ ((p->p_ucred->cr_ref >= 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 199, "p->p_ucred->cr_ref >= 2"));
  do { ((&pr->ps_children)->lh_first) = ((void *)0); } while (0);
  timeout_set(&pr->ps_realit_to, realitexpire, pr);
 }
@@ -5449,9 +5449,9 @@ fork1(struct proc *curp, int flags, void (*func)(void *), void *arg,
  vaddr_t uaddr;
  int error;
  struct ptrace_state *newptstat = ((void *)0);
- (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 333, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
- (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 334, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
- ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 335, "func != NULL"));
+ (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 337, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
+ (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 338, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
+ ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 339, "func != NULL"));
  if ((error = fork_check_maxthread(uid)))
   return error;
  if ((nprocesses >= maxprocess - 5 && uid != 0) ||
@@ -5644,10 +5644,10 @@ freepid(pid_t pid)
 void
 proc_trampoline_mp(void)
 {
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 665, "__mp_lock_held(&sched_lock)")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "__mp_lock_held(&sched_lock)")); } while (0);
  __mp_unlock(&sched_lock);
  _spl(0);
- ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 668, "__mp_lock_held(&sched_lock) == 0"));
- ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "!_kernel_lock_held()"));
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 671);
+ ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "__mp_lock_held(&sched_lock) == 0"));
+ ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 673, "!_kernel_lock_held()"));
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 675);
 }

@@ -4015,7 +4015,8 @@ int
 sys___set_tcb(struct proc *p, void *v, register_t *retval)
 {
  struct sys___set_tcb_args *uap = v;
- ((p)->p_md.md_tf->tf_global[7] = (int64_t)(((uap)->tcb.be.datum)));
+ void *tcb = ((uap)->tcb.be.datum);
+ ((p)->p_md.md_tf->tf_global[7] = (int64_t)(tcb));
  return (0);
 }
 int
@@ -4028,7 +4029,7 @@ void
 dorefreshcreds(struct process *pr, struct proc *p)
 {
  struct ucred *uc = p->p_ucred;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1099);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1104);
  if (uc != pr->ps_ucred) {
   p->p_ucred = pr->ps_ucred;
   (p->p_ucred)->cr_ref++;
