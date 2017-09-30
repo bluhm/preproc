@@ -3256,6 +3256,7 @@ int db_var_rw_int(struct db_variable *, db_expr_t *, int);
 void db_stack_trace_print(db_expr_t, int, db_expr_t, char *,
     int (*)(const char *, ...));
 db_addr_t db_disasm(db_addr_t, boolean_t);
+void db_kill_cmd(db_expr_t, int, db_expr_t, char *);
 void db_show_all_procs(db_expr_t, int, db_expr_t, char *);
 void db_show_callout(db_expr_t, int, db_expr_t, char *);
 struct mount;
@@ -3689,6 +3690,7 @@ struct db_command db_boot_cmds[] = {
 };
 struct db_command db_command_table[] = {
  { "machine", ((void *)0), 0, ((void *)0)},
+ { "kill", db_kill_cmd, 0, ((void *)0) },
  { "print", db_print_cmd, 0, ((void *)0) },
  { "p", db_print_cmd, 0, ((void *)0) },
  { "pprint", db_ctf_pprint_cmd, 0x1, ((void *)0) },

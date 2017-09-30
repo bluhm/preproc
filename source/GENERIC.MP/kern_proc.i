@@ -3412,6 +3412,23 @@ void db_end_line(int);
 char *db_format(char *, size_t, long, int, int, int);
 void db_stack_dump(void);
 void
+db_kill_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
+{
+ struct process *pr;
+ struct sigaction sa;
+ struct proc *p;
+ pr = prfind(addr);
+ if (pr == ((void *)0)) {
+  db_printf("%ld: No such process", addr);
+  return;
+ }
+ p = ((&pr->ps_threads)->tqh_first);
+ __builtin_memset((&sa), (0), (sizeof sa));
+ sa.__sigaction_u.__sa_handler = (void (*)(int))0;
+ setsigvec(p, 6, &sa);
+ psignal(p, 6);
+}
+void
 db_show_all_procs(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
  char *mode;

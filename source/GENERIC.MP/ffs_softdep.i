@@ -7617,6 +7617,7 @@ void db_register_xir(void (*)(void *, int), void *);
 void db_stack_trace_print(db_expr_t, int, db_expr_t, char *,
     int (*)(const char *, ...));
 db_addr_t db_disasm(db_addr_t, boolean_t);
+void db_kill_cmd(db_expr_t, int, db_expr_t, char *);
 void db_show_all_procs(db_expr_t, int, db_expr_t, char *);
 void db_show_callout(db_expr_t, int, db_expr_t, char *);
 struct mount;
