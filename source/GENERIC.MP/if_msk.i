@@ -4275,6 +4275,13 @@ mskc_attach(struct device *parent, struct device *self, void *aux)
   goto fail_1;
  }
  ;
+ if ((((pa->pa_id) >> 0) & 0xffff) == 0x11ab) {
+  switch ((((pa->pa_id) >> 16) & 0xffff)) {
+  case 0x4351:
+  case 0x4362:
+   pa->pa_flags &= ~0x20;
+  }
+ }
  if (pci_intr_map_msi(pa, &ih) != 0 && pci_intr_map(pa, &ih) != 0) {
   printf(": couldn't map interrupt\n");
   goto fail_1;
