@@ -3363,7 +3363,7 @@ lom2_intr(void *arg)
   __mtx_leave(&sc->sc_queue_mtx );
   return (1);
  }
- ((sc->sc_state = 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/lom.c", 791, "sc->sc_state = LOM_STATE_DATA"));
+ ((sc->sc_state == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/lom.c", 791, "sc->sc_state == LOM_STATE_DATA"));
  lc->lc_data = obr;
  do { if (((lc)->lc_next.tqe_next) != ((void *)0)) (lc)->lc_next.tqe_next->lc_next.tqe_prev = (lc)->lc_next.tqe_prev; else (&sc->sc_queue)->tqh_last = (lc)->lc_next.tqe_prev; *(lc)->lc_next.tqe_prev = (lc)->lc_next.tqe_next; ((lc)->lc_next.tqe_prev) = ((void *)-1); ((lc)->lc_next.tqe_next) = ((void *)-1); } while (0);
  wakeup(lc);

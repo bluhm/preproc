@@ -2078,6 +2078,9 @@ ugold_si700x_temp(int type, uint8_t msb, uint8_t lsb)
  case 2:
   temp = (((temp & ~3) * 21965) / 8192) - 46850;
   break;
+ case 3:
+  temp = (temp * 1000) / 256;
+  break;
  default:
   temp = 0;
  }
@@ -2094,6 +2097,9 @@ ugold_si700x_rhum(int type, uint8_t msb, uint8_t lsb, int temp)
  case 2:
   rhum = (((rhum & ~3) * 15625) / 8192) - 6000;
   break;
+ case 3:
+  rhum = rhum * 32;
+  break;
  default:
   rhum = 0;
  }
@@ -2106,7 +2112,8 @@ ugold_si700x_rhum(int type, uint8_t msb, uint8_t lsb, int temp)
 static void
 ugold_si700x_type(struct ugold_softc *sc, uint8_t *buf, u_int len)
 {
- if (__builtin_memcmp((buf), ("TEMPerHu"), (len)) == 0)
+ if (__builtin_memcmp((buf), ("TEMPerHu"), (len)) == 0 ||
+     __builtin_memcmp((buf), ("TEMPer1F"), (len)) == 0)
   return;
  printf("%s: %d sensor%s type ", sc->sc_hdev.sc_dev.dv_xname,
      sc->sc_num_sensors, (sc->sc_num_sensors == 1) ? "" : "s");
@@ -2116,6 +2123,9 @@ ugold_si700x_type(struct ugold_softc *sc, uint8_t *buf, u_int len)
  } else if (__builtin_memcmp((buf), ("mM12V1.2"), (len)) == 0) {
   sc->sc_type = 2;
   printf("si7006 (temperature and humidity)\n");
+ } else if (__builtin_memcmp((buf), ("_H1V1.5F"), (len)) == 0) {
+  sc->sc_type = 3;
+  printf("sht1x (temperature and humidity)\n");
  } else {
   sc->sc_type = -1;
   printf("unknown\n");
