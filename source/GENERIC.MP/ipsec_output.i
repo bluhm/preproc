@@ -3227,7 +3227,6 @@ struct inpcb {
  struct pf_state_key *inp_pf_sk;
  u_int inp_rtableid;
  int inp_pipex;
- int inp_divertfl;
 };
 struct inpcbhead { struct inpcb *lh_first; };
 struct inpcbtable {

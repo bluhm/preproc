@@ -4249,7 +4249,6 @@ struct inpcb {
  struct pf_state_key *inp_pf_sk;
  u_int inp_rtableid;
  int inp_pipex;
- int inp_divertfl;
 };
 struct inpcbhead { struct inpcb *lh_first; };
 struct inpcbtable {
@@ -5798,37 +5797,10 @@ int
 rip6_ctloutput(int op, struct socket *so, int level, int optname,
     struct mbuf *m)
 {
- struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
- int error = 0;
- int dir;
+ int error;
  switch (level) {
  case 41:
   switch (optname) {
-  case 0x1022:
-   switch (op) {
-   case 1:
-    if (m == ((void *)0) || m->m_hdr.mh_len < sizeof(int)) {
-     error = 22;
-     break;
-    }
-    dir = *((int *)((m)->m_hdr.mh_data));
-    if (inp->inp_divertfl > 0)
-     error = 91;
-    else if ((dir & 0x01) ||
-        (dir & 0x02))
-     inp->inp_divertfl = dir;
-    else
-     error = 22;
-    break;
-   case 0:
-    m->m_hdr.mh_len = sizeof(int);
-    *((int *)((m)->m_hdr.mh_data)) = inp->inp_divertfl;
-    break;
-   default:
-    error = 22;
-    break;
-   }
-   return (error);
   case 108:
   case 101:
   case 102:

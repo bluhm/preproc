@@ -4186,7 +4186,6 @@ struct inpcb {
  struct pf_state_key *inp_pf_sk;
  u_int inp_rtableid;
  int inp_pipex;
- int inp_divertfl;
 };
 struct inpcbhead { struct inpcb *lh_first; };
 struct inpcbtable {
@@ -5604,15 +5603,8 @@ divert6_packet(struct mbuf *m, int dir, u_int16_t divert_port)
   return (0);
  }
  for((inp) = ((&divb6table.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next)) {
-  if (inp->inp_lport != divert_port)
-   continue;
-  if (inp->inp_divertfl == 0)
+  if (inp->inp_lport == divert_port)
    break;
-  if (dir == PF_IN && !(inp->inp_divertfl & 0x01))
-   return (-1);
-  if (dir == PF_OUT && !(inp->inp_divertfl & 0x02))
-   return (-1);
-  break;
  }
  __builtin_memset((&addr), (0), (sizeof(addr)));
  addr.sin6_family = 24;
@@ -5640,7 +5632,7 @@ divert6_packet(struct mbuf *m, int dir, u_int16_t divert_port)
    m_freem(m);
    return (0);
   } else {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_divert.c", 234);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_divert.c", 227);
    sorwakeup(inp->inp_socket);
    _kernel_unlock();
   }

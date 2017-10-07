@@ -6787,7 +6787,7 @@ vfs_mount_print(struct mount *mp, int full,
  struct vnode *vp;
  int cnt = 0;
  (*pr)("flags %b\nvnodecovered %p syncer %p data %p\n",
-     mp->mnt_flag, "\010\001RDONLY\002SYNCHRONOUS\003NOEXEC\004NOSUID\005NODEV\006NOPERM" "\007ASYNC\010EXRDONLY\011EXPORTED\012DEFEXPORTED\013EXPORTANON" "\014WXALLOWED\015LOCAL\016QUOTA\017ROOTFS\020NOATIME",
+     mp->mnt_flag, "\20\001RDONLY\002SYNCHRONOUS\003NOEXEC\004NOSUID\005NODEV\006NOPERM" "\007ASYNC\010EXRDONLY\011EXPORTED\012DEFEXPORTED\013EXPORTANON" "\014WXALLOWED\015LOCAL\016QUOTA\017ROOTFS\020NOATIME",
      mp->mnt_vnodecovered, mp->mnt_syncer, mp->mnt_data);
  (*pr)("vfsconf: ops %p name \"%s\" num %d ref %d flags 0x%x\n",
             vfc->vfc_vfsops, vfc->vfc_name, vfc->vfc_typenum,
