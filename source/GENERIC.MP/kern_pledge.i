@@ -7795,6 +7795,7 @@ const uint64_t pledge_syscalls[331] = {
  [1] = 0xffffffffffffffffULL,
  [86] = 0xffffffffffffffffULL,
  [330] = 0xffffffffffffffffULL,
+ [329] = 0xffffffffffffffffULL,
  [108] = 0xffffffffffffffffULL,
  [112] = 0xffffffffffffffffULL,
  [119] = 0xffffffffffffffffULL,
@@ -8557,6 +8558,7 @@ pledge_ioctl(struct proc *p, long com, struct file *fp)
    if ((p->p_p->ps_pledge & 0x0000000000001000ULL) == 0)
     break;
   case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((16))):
+  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((110))):
   case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((119))):
   case ((unsigned long)0x40000000 | ((sizeof(struct termios) & 0x1fff) << 16) | ((('t')) << 8) | ((19))):
   case ((unsigned long)0x40000000 | ((sizeof(struct winsize) & 0x1fff) << 16) | ((('t')) << 8) | ((104))):
