@@ -6928,16 +6928,19 @@ ip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  int error;
  extern int ip_mrtproto;
  extern struct mrtstat mrtstat;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1 && name[0] != 30)
   return (20);
  switch (name[0]) {
  case 5:
   if (newp && securelevel > 0)
    return (1);
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &ip_dosourceroute));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &ip_dosourceroute);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 27:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_int(oldp, oldlenp, newp, newlen,
       &ip_mtudisc);
   if (ip_mtudisc != 0 && ip_mtudisc_timeout_q == ((void *)0)) {
@@ -6947,25 +6950,37 @@ ip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
    rt_timer_queue_destroy(ip_mtudisc_timeout_q);
    ip_mtudisc_timeout_q = ((void *)0);
   }
+  do { _rw_exit_write(&netlock ); } while (0);
   return error;
  case 28:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_int(oldp, oldlenp, newp, newlen,
      &ip_mtudisc_timeout);
   if (ip_mtudisc_timeout_q != ((void *)0))
    rt_timer_queue_change(ip_mtudisc_timeout_q,
            ip_mtudisc_timeout);
+  do { _rw_exit_write(&netlock ); } while (0);
   return (error);
  case 25:
-  return (sysctl_tstring(oldp, oldlenp, newp, newlen,
-           ipsec_def_enc, sizeof(ipsec_def_enc)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
+           ipsec_def_enc, sizeof(ipsec_def_enc));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 26:
-  return (sysctl_tstring(oldp, oldlenp, newp, newlen,
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
            ipsec_def_auth,
-           sizeof(ipsec_def_auth)));
+           sizeof(ipsec_def_auth));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 29:
-  return (sysctl_tstring(oldp, oldlenp, newp, newlen,
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
            ipsec_def_comp,
-           sizeof(ipsec_def_comp)));
+           sizeof(ipsec_def_comp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 30:
   return (sysctl_mq((name + 1), (namelen - 1), (oldp), (oldlenp), (newp), (newlen), &(&ipintrq)->ni_q));
  case 33:
@@ -6978,15 +6993,25 @@ ip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  case 37:
   if (newp)
    return (1);
-  return mrt_sysctl_mfc(oldp, oldlenp);
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = mrt_sysctl_mfc(oldp, oldlenp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 38:
   if (newp)
    return (1);
-  return mrt_sysctl_vif(oldp, oldlenp);
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = mrt_sysctl_vif(oldp, oldlenp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
-  if (name[0] < 41)
-   return (sysctl_int_arr(ipctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 41) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(ipctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (45);
  }
 }
@@ -7074,7 +7099,7 @@ ip_send_dispatch(void *xmq)
  extern int ipsec_in_use;
  if (ipsec_in_use) {
   do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1827);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1847);
   do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }

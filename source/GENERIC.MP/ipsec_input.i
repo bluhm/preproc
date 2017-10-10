@@ -5516,18 +5516,26 @@ int
 esp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 4:
   if (newp != ((void *)0))
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      &espstat, sizeof(espstat)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      &espstat, sizeof(espstat));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
-  if (name[0] < 5)
-   return (sysctl_int_arr(espctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 5) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(espctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }
@@ -5535,18 +5543,26 @@ int
 ah_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 2:
   if (newp != ((void *)0))
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      &ahstat, sizeof(ahstat)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      &ahstat, sizeof(ahstat));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
-  if (name[0] < 3)
-   return (sysctl_int_arr(ahctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 3) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(ahctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }
@@ -5554,18 +5570,26 @@ int
 ipcomp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 2:
   if (newp != ((void *)0))
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      &ipcompstat, sizeof(ipcompstat)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      &ipcompstat, sizeof(ipcompstat));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
-  if (name[0] < 3)
-   return (sysctl_int_arr(ipcompctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 3) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(ipcompctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }

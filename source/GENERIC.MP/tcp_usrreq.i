@@ -5726,90 +5726,114 @@ tcp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
  int error, nval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 10:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &tcp_do_sack));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &tcp_do_sack);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 5:
   return (sysctl_rdint(oldp, oldlenp, newp, 2));
  case 6:
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      baddynamicports.tcp, sizeof(baddynamicports.tcp)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      baddynamicports.tcp, sizeof(baddynamicports.tcp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 24:
   if (newp && securelevel > 0)
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      rootonlyports.tcp, sizeof(rootonlyports.tcp)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      rootonlyports.tcp, sizeof(rootonlyports.tcp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 9:
-  return (tcp_ident(oldp, oldlenp, newp, newlen, 0));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = tcp_ident(oldp, oldlenp, newp, newlen, 0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 19:
-  return (tcp_ident(oldp, oldlenp, newp, newlen, 1));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = tcp_ident(oldp, oldlenp, newp, newlen, 1);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 22:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &tcp_always_keepalive));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &tcp_always_keepalive);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 14:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-     &tcp_do_ecn));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+     &tcp_do_ecn);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 18:
+  do { _rw_enter_write(&netlock ); } while (0);
   nval = tcp_reass_limit;
   error = sysctl_int(oldp, oldlenp, newp, newlen, &nval);
-  if (error)
-   return (error);
-  if (nval != tcp_reass_limit) {
+  if (!error && nval != tcp_reass_limit) {
    error = pool_sethardlimit(&tcpqe_pool, nval, ((void *)0), 0);
-   if (error)
-    return (error);
-   tcp_reass_limit = nval;
+   if (!error)
+    tcp_reass_limit = nval;
   }
-  return (0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 20:
+  do { _rw_enter_write(&netlock ); } while (0);
   nval = tcp_sackhole_limit;
   error = sysctl_int(oldp, oldlenp, newp, newlen, &nval);
-  if (error)
-   return (error);
-  if (nval != tcp_sackhole_limit) {
+  if (!error && nval != tcp_sackhole_limit) {
    error = pool_sethardlimit(&sackhl_pool, nval, ((void *)0), 0);
-   if (error)
-    return (error);
-   tcp_sackhole_limit = nval;
+   if (!error)
+    tcp_sackhole_limit = nval;
   }
-  return (0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 21:
   return (tcp_sysctl_tcpstat(oldp, oldlenp, newp));
  case 23:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_int(oldp, oldlenp, newp, newlen,
       &tcp_syn_use_limit);
-  if (error)
-   return (error);
-  if (newp != ((void *)0)) {
+  if (!error && newp != ((void *)0)) {
    if (tcp_syn_cache[0].scs_use > tcp_syn_use_limit)
     tcp_syn_cache[0].scs_use = tcp_syn_use_limit;
    if (tcp_syn_cache[1].scs_use > tcp_syn_use_limit)
     tcp_syn_cache[1].scs_use = tcp_syn_use_limit;
   }
-  return (0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 25:
+  do { _rw_enter_write(&netlock ); } while (0);
   nval = tcp_syn_hash_size;
   error = sysctl_int(oldp, oldlenp, newp, newlen, &nval);
-  if (error)
-   return (error);
-  if (nval != tcp_syn_hash_size) {
-   if (nval < 1 || nval > 100000)
-    return (22);
-   if (tcp_syn_cache[0].scs_size != nval)
-    tcp_syn_cache[0].scs_use = 0;
-   if (tcp_syn_cache[1].scs_size != nval)
-    tcp_syn_cache[1].scs_use = 0;
-   tcp_syn_hash_size = nval;
+  if (!error && nval != tcp_syn_hash_size) {
+   if (nval < 1 || nval > 100000) {
+    error = 22;
+   } else {
+    if (tcp_syn_cache[0].scs_size != nval)
+     tcp_syn_cache[0].scs_use = 0;
+    if (tcp_syn_cache[1].scs_size != nval)
+     tcp_syn_cache[1].scs_use = 0;
+    tcp_syn_hash_size = nval;
+   }
   }
-  return (0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
-  if (name[0] < 26)
-   return (sysctl_int_arr(tcpctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 26) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(tcpctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }

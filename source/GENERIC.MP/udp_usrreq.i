@@ -6740,25 +6740,36 @@ int
 udp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 2:
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      baddynamicports.udp, sizeof(baddynamicports.udp)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      baddynamicports.udp, sizeof(baddynamicports.udp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 6:
   if (newp && securelevel > 0)
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      rootonlyports.udp, sizeof(rootonlyports.udp)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      rootonlyports.udp, sizeof(rootonlyports.udp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 5:
   if (newp != ((void *)0))
    return (1);
   return (udp_sysctl_udpstat(oldp, oldlenp, newp));
  default:
-  if (name[0] < 7)
-   return (sysctl_int_arr(udpctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 7) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(udpctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }

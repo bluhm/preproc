@@ -1260,5 +1260,7 @@ _kernel_unlock(void)
 int
 _kernel_lock_held(void)
 {
+ if (panicstr)
+  return 1;
  return (__mp_lock_held(&kernel_lock));
 }

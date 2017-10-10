@@ -5740,21 +5740,32 @@ int
 divert6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 2:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &divert6_sendspace));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &divert6_sendspace);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 1:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &divert6_recvspace));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &divert6_recvspace);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 3:
   return (divert6_sysctl_div6stat(oldp, oldlenp, newp));
  default:
-  if (name[0] < 4)
-   return sysctl_int_arr(divert6ctl_vars, name, namelen,
+  if (name[0] < 4) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(divert6ctl_vars, name, namelen,
        oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (42);
  }
 }

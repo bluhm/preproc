@@ -1985,10 +1985,8 @@ net_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  protocol = name[1];
  for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
   if (pr->pr_protocol == protocol && pr->pr_sysctl) {
-   do { _rw_enter_write(&netlock ); } while (0);
    error = (*pr->pr_sysctl)(name + 2, namelen - 2,
        oldp, oldlenp, newp, newlen);
-   do { _rw_exit_write(&netlock ); } while (0);
    return (error);
   }
  return (42);

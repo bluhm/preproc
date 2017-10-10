@@ -15563,7 +15563,7 @@ radeon_bios_get_hardcoded_edid(struct radeon_device *rdev)
  }
  return ((void *)0);
 }
-static inline struct radeon_i2c_bus_rec combios_setup_i2c_bus(struct radeon_device *rdev,
+static struct radeon_i2c_bus_rec combios_setup_i2c_bus(struct radeon_device *rdev,
              enum radeon_combios_ddc ddc,
              u32 clk_mask,
              u32 data_mask)

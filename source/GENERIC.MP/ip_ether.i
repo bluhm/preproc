@@ -5835,17 +5835,24 @@ int
 etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 1:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &etherip_allow));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &etherip_allow);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 2:
   if (newp != ((void *)0))
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      &etheripstat, sizeof(etheripstat)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      &etheripstat, sizeof(etheripstat));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  default:
   return (42);
  }

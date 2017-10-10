@@ -5011,7 +5011,6 @@ sysctl_rtable(int *name, u_int namelen, void *where, size_t *given, void *new,
  struct walkarg w;
  struct rt_tableinfo tableinfo;
  u_int tableid = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (new)
   return (1);
  if (namelen < 3 || namelen > 4)
@@ -5032,6 +5031,7 @@ sysctl_rtable(int *name, u_int namelen, void *where, size_t *given, void *new,
  switch (w.w_op) {
  case 1:
  case 2:
+  do { _rw_enter_write(&netlock ); } while (0);
   for (i = 1; i <= 36; i++) {
    if (af != 0 && af != i)
     continue;
@@ -5041,9 +5041,12 @@ sysctl_rtable(int *name, u_int namelen, void *where, size_t *given, void *new,
    if (error)
     break;
   }
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case 3:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_iflist(af, &w);
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case 4:
   return (sysctl_rtable_rtstat(where, given, new));
@@ -5058,7 +5061,9 @@ sysctl_rtable(int *name, u_int namelen, void *where, size_t *given, void *new,
       &tableinfo, sizeof(tableinfo));
   return (error);
  case 6:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_ifnames(&w);
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  }
  free(w.w_tmem, 5, 0);

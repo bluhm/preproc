@@ -5855,13 +5855,20 @@ int
 gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
         if (namelen != 1)
                 return (20);
         switch (name[0]) {
         case 1:
-                return (sysctl_int(oldp, oldlenp, newp, newlen, &gre_allow));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &gre_allow);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
         case 2:
-                return (sysctl_int(oldp, oldlenp, newp, newlen, &gre_wccp));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &gre_wccp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
         default:
                 return (42);
         }
@@ -5870,12 +5877,16 @@ int
 ipmobile_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen)
 {
+ int error;
         if (namelen != 1)
                 return (20);
         switch (name[0]) {
         case 1:
-                return (sysctl_int(oldp, oldlenp, newp, newlen,
-       &ip_mobile_allow));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &ip_mobile_allow);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
         default:
                 return (42);
         }

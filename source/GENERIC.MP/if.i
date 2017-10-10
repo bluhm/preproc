@@ -7510,14 +7510,22 @@ int
 sysctl_mq(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen, struct mbuf_queue *mq)
 {
+ unsigned int maxlen;
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 1:
   return (sysctl_rdint(oldp, oldlenp, newp, ((&(mq)->mq_list)->ml_len)));
  case 2:
-  return (sysctl_int(oldp, oldlenp, newp, newlen,
-      &mq->mq_maxlen));
+  maxlen = mq->mq_maxlen;
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &maxlen);
+  if (!error && maxlen != mq->mq_maxlen) {
+   __mtx_enter(&mq->mq_mtx );
+   mq->mq_maxlen = maxlen;
+   __mtx_leave(&mq->mq_mtx );
+  }
+  return (error);
  case 3:
   return (sysctl_rdint(oldp, oldlenp, newp, ((mq)->mq_drops)));
  default:

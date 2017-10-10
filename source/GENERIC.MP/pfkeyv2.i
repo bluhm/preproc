@@ -6362,7 +6362,6 @@ pfkeyv2_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  struct pfkeyv2_sysctl_walk w;
  int error = 22;
  u_int rdomain;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (new)
   return (1);
  if (namelen < 1)
@@ -6376,15 +6375,19 @@ pfkeyv2_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  case 1:
   if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
    return (error);
+  do { _rw_enter_write(&netlock ); } while (0);
   error = tdb_walk(rdomain, pfkeyv2_sysctl_walker, &w);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (oldp)
    *oldlenp = w.w_where - oldp;
   else
    *oldlenp = w.w_len;
   break;
  case 2:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = pfkeyv2_ipo_walk(rdomain,
       pfkeyv2_sysctl_policydumper, &w);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (oldp)
    *oldlenp = w.w_where - oldp;
   else

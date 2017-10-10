@@ -4903,11 +4903,11 @@ icmp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
  int error;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 5:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_int(oldp, oldlenp, newp, newlen,
       &icmp_redirtimeout);
   if (icmp_redirect_timeout_q != ((void *)0)) {
@@ -4921,14 +4921,17 @@ icmp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
    icmp_redirect_timeout_q =
        rt_timer_queue_create(icmp_redirtimeout);
   }
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case 7:
   error = icmp_sysctl_icmpstat(oldp, oldlenp, newp);
   break;
  default:
   if (name[0] < 8) {
+   do { _rw_enter_write(&netlock ); } while (0);
    error = sysctl_int_arr(icmpctl_vars, name, namelen,
        oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
    break;
   }
   error = 42;

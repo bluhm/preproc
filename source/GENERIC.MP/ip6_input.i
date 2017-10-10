@@ -6629,7 +6629,6 @@ ip6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  extern int ip6_mrtproto;
  extern struct mrt6stat mrt6stat;
  int error;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (namelen != 1 && name[0] != 51)
   return (20);
  switch (name[0]) {
@@ -6640,31 +6639,46 @@ ip6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  case 7:
   if (newp != ((void *)0))
    return (1);
-  return (sysctl_struct(oldp, oldlenp, newp, newlen,
-      &mrt6stat, sizeof(mrt6stat)));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_struct(oldp, oldlenp, newp, newlen,
+      &mrt6stat, sizeof(mrt6stat));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 8:
   return sysctl_rdint(oldp, oldlenp, newp, ip6_mrtproto);
  case 52:
   if (newp)
    return (1);
-  return mrt6_sysctl_mif(oldp, oldlenp);
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = mrt6_sysctl_mif(oldp, oldlenp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 53:
   if (newp)
    return (1);
-  return mrt6_sysctl_mfc(oldp, oldlenp);
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = mrt6_sysctl_mfc(oldp, oldlenp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 50:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = sysctl_int(oldp, oldlenp, newp, newlen,
       &ip6_mtudisc_timeout);
   if (icmp6_mtudisc_timeout_q != ((void *)0))
    rt_timer_queue_change(icmp6_mtudisc_timeout_q,
        ip6_mtudisc_timeout);
+  do { _rw_exit_write(&netlock ); } while (0);
   return (error);
  case 51:
   return (sysctl_mq((name + 1), (namelen - 1), (oldp), (oldlenp), (newp), (newlen), &(&ip6intrq)->ni_q));
  default:
-  if (name[0] < 54)
-   return (sysctl_int_arr(ipv6ctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 54) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(ipv6ctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return (45);
  }
 }
@@ -6682,7 +6696,7 @@ ip6_send_dispatch(void *xmq)
  extern int ipsec_in_use;
  if (ipsec_in_use) {
   do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1464);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 1477);
   do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }

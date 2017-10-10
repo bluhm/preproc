@@ -5629,11 +5629,15 @@ int
 ipip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return (20);
  switch (name[0]) {
  case 1:
-  return (sysctl_int(oldp, oldlenp, newp, newlen, &ipip_allow));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &ipip_allow);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case 2:
   return (ipip_sysctl_ipipstat(oldp, oldlenp, newp));
  default:

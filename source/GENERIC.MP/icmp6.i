@@ -6748,15 +6748,20 @@ int
 icmp6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen)
 {
+ int error;
  if (namelen != 1)
   return 20;
  switch (name[0]) {
  case 1:
   return icmp6_sysctl_icmp6stat(oldp, oldlenp, newp);
  default:
-  if (name[0] < 19)
-   return (sysctl_int_arr(icmpv6ctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen));
+  if (name[0] < 19) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(icmpv6ctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
   return 42;
  }
 }
