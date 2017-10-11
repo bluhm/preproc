@@ -4111,6 +4111,8 @@ softdep_flushfiles(struct mount *oldmnt, int flags, struct proc *p)
       count == 0)
    break;
  }
+ if (error == 0)
+  error = ffs_flushfiles(oldmnt, flags, p);
  if (loopcnt == 0) {
   error = 16;
  }
