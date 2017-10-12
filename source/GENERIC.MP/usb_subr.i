@@ -4424,12 +4424,32 @@ const struct usb_known_product usb_known_products[] = {
      "USB2AR Ethernet",
  },
  {
+     0x0a5c, 0x0bdc,
+     "BCMFW",
+ },
+ {
      0x0a5c, 0x2000,
      "BCM2033",
  },
  {
      0x0a5c, 0x2033,
      "BCM2033 (no fw)",
+ },
+ {
+     0x0a5c, 0xbd17,
+     "BCM43236",
+ },
+ {
+     0x0a5c, 0xbd1e,
+     "BCM43143",
+ },
+ {
+     0x0a5c, 0xbd1f,
+     "BCM43242",
+ },
+ {
+     0x0a5c, 0xbd27,
+     "BCM43569",
  },
  {
      0x04f9, 0x0002,

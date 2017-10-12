@@ -2521,6 +2521,7 @@ static char *db_ctf_decompress(const char *, size_t, off_t);
 const struct ctf_type *db_ctf_type_by_name(const char *, unsigned int);
 const struct ctf_type *db_ctf_type_by_symbol(Elf64_Sym *);
 const struct ctf_type *db_ctf_type_by_index(uint16_t);
+void db_ctf_pprint(const struct ctf_type *, vaddr_t);
 void db_ctf_pprint_struct(const struct ctf_type *, vaddr_t);
 void db_ctf_pprint_ptr(const struct ctf_type *, vaddr_t);
 void

@@ -6833,10 +6833,9 @@ int
 ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
 {
  struct ifnet *ifp;
- struct ifreq *ifr;
- struct sockaddr_dl *sdl;
+ struct ifreq *ifr = (struct ifreq *)data;
  struct ifgroupreq *ifgr;
- struct if_afreq *ifar;
+ struct if_afreq *ifar = (struct if_afreq *)data;
  char ifdescrbuf[64];
  char ifrtlabelbuf[32];
  int s, error = 0, oif_xflags;
@@ -6846,9 +6845,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
   return (ifconf(cmd, data));
- }
- ifr = (struct ifreq *)data;
- switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((121))):
   if ((error = suser(p, 0)) != 0)
@@ -6866,15 +6862,17 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   if ((error = suser(p, 0)) != 0)
    return (error);
   return (if_setgroupattribs(data));
+ }
+ ifp = ifunit(ifr->ifr_name);
+ if (ifp == ((void *)0))
+  return (6);
+ oif_flags = ifp->if_flags;
+ oif_xflags = ifp->if_xflags;
+ switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((171))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))):
   if ((error = suser(p, 0)) != 0)
    return (error);
-  ifar = (struct if_afreq *)data;
-  if ((ifp = ifunit(ifar->ifar_name)) == ((void *)0))
-   return (6);
-  oif_flags = ifp->if_flags;
-  oif_xflags = ifp->if_xflags;
   switch (ifar->ifar_af) {
   case 2:
    if (cmd == ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))))
@@ -6889,15 +6887,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   default:
    return (47);
   }
-  if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)
-   rtm_ifchg(ifp);
-  return (error);
- }
- ifp = ifunit(ifr->ifr_name);
- if (ifp == 0)
-  return (6);
- oif_flags = ifp->if_flags;
- switch (cmd) {
+  break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))):
   ifr->ifr_ifru.ifru_flags = ifp->if_flags;
   if (ifq_is_oactive(&ifp->if_snd))
@@ -6991,7 +6981,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   }
   ifp->if_xflags = (ifp->if_xflags & (0x1|0x2)) |
    (ifr->ifr_ifru.ifru_flags & ~(0x1|0x2));
-  rtm_ifchg(ifp);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((24))):
   if ((error = suser(p, 0)) != 0)
@@ -7111,8 +7100,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((31))):
   if ((error = suser(p, 0)))
    return (error);
-  sdl = ifp->if_sadl;
-  if (sdl == ((void *)0))
+  if (ifp->if_sadl == ((void *)0))
    return (22);
   if (ifr->ifr_ifru.ifru_addr.sa_len != 6)
    return (22);
@@ -7149,6 +7137,8 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    (struct mbuf *) ifp, p));
   break;
  }
+ if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)
+  rtm_ifchg(ifp);
  if (((oif_flags ^ ifp->if_flags) & 0x1) != 0)
   getmicrotime(&ifp->if_data.ifi_lastchange);
  return (error);

@@ -3917,7 +3917,6 @@ struct kqueue {
  struct selinfo kq_sel;
  struct filedesc *kq_fdp;
  int kq_state;
- struct kevent kq_kev[8];
 };
 struct taskq;
 struct task {

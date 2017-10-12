@@ -5499,7 +5499,7 @@ ipsp_ids_timeout(void *arg)
 {
  struct ipsec_ids *ids = arg;
  ;
- ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 994, "ids->id_refcount == 0"));
+ ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 991, "ids->id_refcount == 0"));
  do { _rw_enter_write(&netlock ); } while (0);
  ipsec_ids_tree_RBT_REMOVE(&ipsec_ids_tree, ids);
  ipsec_ids_flows_RBT_REMOVE(&ipsec_ids_flows, ids);
@@ -5512,7 +5512,7 @@ void
 ipsp_ids_free(struct ipsec_ids *ids)
 {
  ;
- ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1014, "ids->id_refcount > 0"));
+ ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1011, "ids->id_refcount > 0"));
  if (--ids->id_refcount == 0)
   timeout_add_sec(&ids->id_timeout, ipsec_ids_idle);
 }
