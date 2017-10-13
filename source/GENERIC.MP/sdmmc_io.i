@@ -2940,13 +2940,12 @@ sdmmc_io_function_enable(struct sdmmc_function *sf)
  struct sdmmc_function *sf0 = sc->sc_fn0;
  u_int8_t rv;
  int retry = 5;
+ rw_assert_wrlock(&sc->sc_lock);
  if (sf->number == 0)
   return 0;
- _rw_enter_write(&sc->sc_lock );
  rv = sdmmc_io_read_1(sf0, 0x02);
  rv |= (1<<sf->number);
  sdmmc_io_write_1(sf0, 0x02, rv);
- _rw_exit(&sc->sc_lock );
  while (!sdmmc_io_function_ready(sf) && retry-- > 0)
   tsleep(&lbolt, 40, "pause", 0);
  return (retry >= 0) ? 0 : 60;
@@ -3217,11 +3216,10 @@ sdmmc_intr_enable(struct sdmmc_function *sf)
  struct sdmmc_softc *sc = sf->sc;
  struct sdmmc_function *sf0 = sc->sc_fn0;
  u_int8_t imask;
- _rw_enter_write(&sc->sc_lock );
+ rw_assert_wrlock(&sc->sc_lock);
  imask = sdmmc_io_read_1(sf0, 0x04);
  imask |= 1 << sf->number;
  sdmmc_io_write_1(sf0, 0x04, imask);
- _rw_exit(&sc->sc_lock );
 }
 void
 sdmmc_intr_disable(struct sdmmc_function *sf)
@@ -3229,11 +3227,10 @@ sdmmc_intr_disable(struct sdmmc_function *sf)
  struct sdmmc_softc *sc = sf->sc;
  struct sdmmc_function *sf0 = sc->sc_fn0;
  u_int8_t imask;
- _rw_enter_write(&sc->sc_lock );
+ rw_assert_wrlock(&sc->sc_lock);
  imask = sdmmc_io_read_1(sf0, 0x04);
  imask &= ~(1 << sf->number);
  sdmmc_io_write_1(sf0, 0x04, imask);
- _rw_exit(&sc->sc_lock );
 }
 void *
 sdmmc_intr_establish(struct device *sdmmc, int (*fun)(void *),

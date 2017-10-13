@@ -1803,327 +1803,6 @@ extern struct domain *domains[];
 void domaininit(void);
 extern struct domain inetdomain;
 extern struct domain inet6domain;
-struct uvmexp {
- int pagesize;
- int pagemask;
- int pageshift;
- int npages;
- int free;
- int active;
- int inactive;
- int paging;
- int wired;
- int zeropages;
- int reserve_pagedaemon;
- int reserve_kernel;
- int anonpages;
- int vnodepages;
- int vtextpages;
- int freemin;
- int freetarg;
- int inactarg;
- int wiredmax;
- int anonmin;
- int vtextmin;
- int vnodemin;
- int anonminpct;
- int vtextminpct;
- int vnodeminpct;
- int nswapdev;
- int swpages;
- int swpginuse;
- int swpgonly;
- int nswget;
- int nanon;
- int nanonneeded;
- int nfreeanon;
- int faults;
- int traps;
- int intrs;
- int swtch;
- int softs;
- int syscalls;
- int pageins;
- int obsolete_swapins;
- int obsolete_swapouts;
- int pgswapin;
- int pgswapout;
- int forks;
- int forks_ppwait;
- int forks_sharevm;
- int pga_zerohit;
- int pga_zeromiss;
- int zeroaborts;
- int fltnoram;
- int fltnoanon;
- int fltnoamap;
- int fltpgwait;
- int fltpgrele;
- int fltrelck;
- int fltrelckok;
- int fltanget;
- int fltanretry;
- int fltamcopy;
- int fltnamap;
- int fltnomap;
- int fltlget;
- int fltget;
- int flt_anon;
- int flt_acow;
- int flt_obj;
- int flt_prcopy;
- int flt_przero;
- int pdwoke;
- int pdrevs;
- int pdswout;
- int pdfreed;
- int pdscans;
- int pdanscan;
- int pdobscan;
- int pdreact;
- int pdbusy;
- int pdpageouts;
- int pdpending;
- int pddeact;
- int pdreanon;
- int pdrevnode;
- int pdrevtext;
- int fpswtch;
- int kmapent;
-};
-struct _ps_strings {
- void *val;
-};
-struct ctlname {
- char *ctl_name;
- int ctl_type;
-};
-struct kinfo_proc {
- u_int64_t p_forw;
- u_int64_t p_back;
- u_int64_t p_paddr;
- u_int64_t p_addr;
- u_int64_t p_fd;
- u_int64_t p_stats;
- u_int64_t p_limit;
- u_int64_t p_vmspace;
- u_int64_t p_sigacts;
- u_int64_t p_sess;
- u_int64_t p_tsess;
- u_int64_t p_ru;
- int32_t p_eflag;
- int32_t p_exitsig;
- int32_t p_flag;
- int32_t p_pid;
- int32_t p_ppid;
- int32_t p_sid;
- int32_t p__pgid;
- int32_t p_tpgid;
- u_int32_t p_uid;
- u_int32_t p_ruid;
- u_int32_t p_gid;
- u_int32_t p_rgid;
- u_int32_t p_groups[16];
- int16_t p_ngroups;
- int16_t p_jobc;
- u_int32_t p_tdev;
- u_int32_t p_estcpu;
- u_int32_t p_rtime_sec;
- u_int32_t p_rtime_usec;
- int32_t p_cpticks;
- u_int32_t p_pctcpu;
- u_int32_t p_swtime;
- u_int32_t p_slptime;
- int32_t p_schedflags;
- u_int64_t p_uticks;
- u_int64_t p_sticks;
- u_int64_t p_iticks;
- u_int64_t p_tracep;
- int32_t p_traceflag;
- int32_t p_holdcnt;
- int32_t p_siglist;
- u_int32_t p_sigmask;
- u_int32_t p_sigignore;
- u_int32_t p_sigcatch;
- int8_t p_stat;
- u_int8_t p_priority;
- u_int8_t p_usrpri;
- u_int8_t p_nice;
- u_int16_t p_xstat;
- u_int16_t p_acflag;
- char p_comm[24];
- char p_wmesg[8];
- u_int64_t p_wchan;
- char p_login[32];
- int32_t p_vm_rssize;
- int32_t p_vm_tsize;
- int32_t p_vm_dsize;
- int32_t p_vm_ssize;
- int64_t p_uvalid;
- u_int64_t p_ustart_sec;
- u_int32_t p_ustart_usec;
- u_int32_t p_uutime_sec;
- u_int32_t p_uutime_usec;
- u_int32_t p_ustime_sec;
- u_int32_t p_ustime_usec;
- u_int64_t p_uru_maxrss;
- u_int64_t p_uru_ixrss;
- u_int64_t p_uru_idrss;
- u_int64_t p_uru_isrss;
- u_int64_t p_uru_minflt;
- u_int64_t p_uru_majflt;
- u_int64_t p_uru_nswap;
- u_int64_t p_uru_inblock;
- u_int64_t p_uru_oublock;
- u_int64_t p_uru_msgsnd;
- u_int64_t p_uru_msgrcv;
- u_int64_t p_uru_nsignals;
- u_int64_t p_uru_nvcsw;
- u_int64_t p_uru_nivcsw;
- u_int32_t p_uctime_sec;
- u_int32_t p_uctime_usec;
- int32_t p_psflags;
- int32_t p_spare;
- u_int32_t p_svuid;
- u_int32_t p_svgid;
- char p_emul[8];
- u_int64_t p_rlim_rss_cur;
- u_int64_t p_cpuid;
- u_int64_t p_vm_map_size;
- int32_t p_tid;
- u_int32_t p_rtableid;
-};
-struct kinfo_vmentry {
- u_long kve_start;
- u_long kve_end;
- u_long kve_guard;
- u_long kve_fspace;
- u_long kve_fspace_augment;
- u_int64_t kve_offset;
- int kve_wired_count;
- int kve_etype;
- int kve_protection;
- int kve_max_protection;
- int kve_advice;
- int kve_inheritance;
- u_int8_t kve_flags;
-};
-struct kinfo_file {
- uint64_t f_fileaddr;
- uint32_t f_flag;
- uint32_t f_iflags;
- uint32_t f_type;
- uint32_t f_count;
- uint32_t f_msgcount;
- uint32_t f_usecount;
- uint64_t f_ucred;
- uint32_t f_uid;
- uint32_t f_gid;
- uint64_t f_ops;
- uint64_t f_offset;
- uint64_t f_data;
- uint64_t f_rxfer;
- uint64_t f_rwfer;
- uint64_t f_seek;
- uint64_t f_rbytes;
- uint64_t f_wbytes;
- uint64_t v_un;
- uint32_t v_type;
- uint32_t v_tag;
- uint32_t v_flag;
- uint32_t va_rdev;
- uint64_t v_data;
- uint64_t v_mount;
- uint64_t va_fileid;
- uint64_t va_size;
- uint32_t va_mode;
- uint32_t va_fsid;
- char f_mntonname[96];
- uint32_t so_type;
- uint32_t so_state;
- uint64_t so_pcb;
- uint32_t so_protocol;
- uint32_t so_family;
- uint64_t inp_ppcb;
- uint32_t inp_lport;
- uint32_t inp_laddru[4];
- uint32_t inp_fport;
- uint32_t inp_faddru[4];
- uint64_t unp_conn;
- uint64_t pipe_peer;
- uint32_t pipe_state;
- uint32_t kq_count;
- uint32_t kq_state;
- uint32_t __unused1;
- uint32_t p_pid;
- int32_t fd_fd;
- uint32_t fd_ofileflags;
- uint32_t p_uid;
- uint32_t p_gid;
- uint32_t p_tid;
- char p_comm[24];
- uint32_t inp_rtableid;
- uint64_t so_splice;
- int64_t so_splicelen;
- uint64_t so_rcv_cc;
- uint64_t so_snd_cc;
- uint64_t unp_refs;
- uint64_t unp_nextref;
- uint64_t unp_addr;
- char unp_path[104];
- uint32_t inp_proto;
- uint32_t t_state;
- uint64_t t_rcv_wnd;
- uint64_t t_snd_wnd;
- uint64_t t_snd_cwnd;
- uint32_t va_nlink;
-};
-typedef int (sysctlfn)(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
-int sysctl_int(void *, size_t *, void *, size_t, int *);
-int sysctl_int_lower(void *, size_t *, void *, size_t, int *);
-int sysctl_rdint(void *, size_t *, void *, int);
-int sysctl_int_arr(int **, int *, u_int, void *, size_t *, void *, size_t);
-int sysctl_quad(void *, size_t *, void *, size_t, int64_t *);
-int sysctl_rdquad(void *, size_t *, void *, int64_t);
-int sysctl_string(void *, size_t *, void *, size_t, char *, size_t);
-int sysctl_tstring(void *, size_t *, void *, size_t, char *, size_t);
-int sysctl__string(void *, size_t *, void *, size_t, char *, size_t, int);
-int sysctl_rdstring(void *, size_t *, void *, const char *);
-int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
-int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
-int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
-int sysctl_doproc(int *, u_int, char *, size_t *);
-struct rtentry;
-struct walkarg;
-int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
-int sysctl_rtable(int *, u_int, void *, size_t *, void *, size_t);
-int sysctl_clockrate(char *, size_t *, void *);
-int sysctl_vnode(char *, size_t *, struct proc *);
-int sysctl_dopool(int *, u_int, char *, size_t *);
-int kern_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-       struct proc *);
-int hw_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int vm_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int fs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int fs_posix_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-    struct proc *);
-int net_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int cpu_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int vfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int sysctl_sysvipc(int *, u_int, void *, size_t *);
-int sysctl_wdog(int *, u_int, void *, size_t *, void *, size_t);
-extern int (*cpu_cpuspeed)(int *);
-extern void (*cpu_setperf)(int);
-int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 static inline unsigned int
 _atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
@@ -3414,8 +3093,6 @@ int if_clone_create(const char *, int);
 int if_clone_destroy(const char *);
 struct if_clone *
  if_clone_lookup(const char *, int *);
-int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
-     struct mbuf_queue *);
 void ifa_add(struct ifnet *, struct ifaddr *);
 void ifa_del(struct ifnet *, struct ifaddr *);
 void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
@@ -5828,7 +5505,7 @@ if_idxmap_insert(struct ifnet *ifp)
  struct srp *map;
  unsigned int index, i;
  refcnt_init(&ifp->if_refcnt);
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 301, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 300, "_kernel_lock_held()"));
  if (++if_idxmap.count > 0xffff)
   panic("too many interfaces");
  if_map = srp_get_locked(&if_idxmap.map);
@@ -5875,11 +5552,11 @@ if_idxmap_remove(struct ifnet *ifp)
  struct srp *map;
  unsigned int index;
  index = ifp->if_index;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 365, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 364, "_kernel_lock_held()"));
  if_map = srp_get_locked(&if_idxmap.map);
- ((index < if_map->limit) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 368, "index < if_map->limit"));
+ ((index < if_map->limit) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 367, "index < if_map->limit"));
  map = (struct srp *)(if_map + 1);
- ((ifp == (struct ifnet *)srp_get_locked(&map[index])) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 371, "ifp == (struct ifnet *)srp_get_locked(&map[index])"));
+ ((ifp == (struct ifnet *)srp_get_locked(&map[index])) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 370, "ifp == (struct ifnet *)srp_get_locked(&map[index])"));
  srp_update_locked(&if_ifp_gc, &map[index], ((void *)0));
  if_idxmap.count--;
  refcnt_finalize(&ifp->if_refcnt, "ifidxrm");
@@ -5911,7 +5588,7 @@ if_attachsetup(struct ifnet *ifp)
  timeout_set(ifp->if_slowtimo, if_slowtimo, ifp);
  if_slowtimo(ifp);
  if_idxmap_insert(ifp);
- ((if_get(0) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 428, "if_get(0) == NULL"));
+ ((if_get(0) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 427, "if_get(0) == NULL"));
  ifidx = ifp->if_index;
  mq_init(&ifp->if_inputqueue, 8192, 6);
  task_set(ifp->if_inputtask, if_input_process, (void *)ifidx);
@@ -5987,8 +5664,8 @@ if_attach_queues(struct ifnet *ifp, unsigned int nqs)
  struct ifqueue **map;
  struct ifqueue *ifq;
  int i;
- ((ifp->if_ifqs == ifp->if_snd._ifq_ptr._ifq_ifqs) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 538, "ifp->if_ifqs == ifp->if_snd.ifq_ifqs"));
- ((nqs != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 539, "nqs != 0"));
+ ((ifp->if_ifqs == ifp->if_snd._ifq_ptr._ifq_ifqs) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 537, "ifp->if_ifqs == ifp->if_snd.ifq_ifqs"));
+ ((nqs != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 538, "nqs != 0"));
  map = mallocarray(sizeof(*map), nqs, 2, 0x0001);
  ifp->if_snd._ifq_ptr._ifq_softc = ((void *)0);
  map[0] = &ifp->if_snd;
@@ -6007,11 +5684,11 @@ if_attach_common(struct ifnet *ifp)
  do { (&ifp->if_addrlist)->tqh_first = ((void *)0); (&ifp->if_addrlist)->tqh_last = &(&ifp->if_addrlist)->tqh_first; } while (0);
  do { (&ifp->if_maddrlist)->tqh_first = ((void *)0); (&ifp->if_maddrlist)->tqh_last = &(&ifp->if_maddrlist)->tqh_first; } while (0);
  if (!((ifp->if_xflags) & (0x1))) {
-  ((ifp->if_qstart == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart set without MPSAFE set", "diagnostic ", "ifp->if_qstart == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 565, ifp->if_xname));
+  ((ifp->if_qstart == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart set without MPSAFE set", "diagnostic ", "ifp->if_qstart == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 564, ifp->if_xname));
   ifp->if_qstart = if_qstart_compat;
  } else {
-  ((ifp->if_start == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_start set with MPSAFE set", "diagnostic ", "ifp->if_start == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 569, ifp->if_xname));
-  ((ifp->if_qstart != ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart not set with MPSAFE set", "diagnostic ", "ifp->if_qstart != NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 571, ifp->if_xname));
+  ((ifp->if_start == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_start set with MPSAFE set", "diagnostic ", "ifp->if_start == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 568, ifp->if_xname));
+  ((ifp->if_qstart != ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart not set with MPSAFE set", "diagnostic ", "ifp->if_qstart != NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 570, ifp->if_xname));
  }
  ifq_init(&ifp->if_snd, ifp, 0);
  ifp->if_snd._ifq_ptr._ifq_ifqs[0] = &ifp->if_snd;
@@ -6047,7 +5724,7 @@ if_attach_ifq(struct ifnet *ifp, const struct ifq_ops *newops, void *args)
 void
 if_start(struct ifnet *ifp)
 {
- ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 623, "ifp->if_qstart == if_qstart_compat"));
+ ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 622, "ifp->if_qstart == if_qstart_compat"));
  if_qstart_compat(&ifp->if_snd);
 }
 void
@@ -6055,7 +5732,7 @@ if_qstart_compat(struct ifqueue *ifq)
 {
  struct ifnet *ifp = ifq->ifq_if;
  int s;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 641);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 640);
  s = _splraise(6);
  (*ifp->if_start)(ifp);
  _splx(s);
@@ -6068,7 +5745,7 @@ if_enqueue(struct ifnet *ifp, struct mbuf *m)
  struct ifqueue *ifq;
  int error;
  if (ifp->if_bridgeport && (m->m_hdr.mh_flags & 0x0010) == 0) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 657);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 656);
   error = bridge_output(ifp, m, ((void *)0), ((void *)0));
   _kernel_unlock();
   return (error);
@@ -6164,7 +5841,7 @@ if_ih_insert(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 803, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 802, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie) {
    ifih->ifih_refcnt++;
@@ -6197,12 +5874,12 @@ if_ih_remove(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 847, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 846, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie)
    break;
  }
- ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 854, "ifih != NULL"));
+ ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 853, "ifih != NULL"));
  if (--ifih->ifih_refcnt == 0) {
   do { struct srp *ref; struct ifih *c, *n; ref = &(&ifp->if_inputs)->sl_head; while ((c = srp_get_locked(ref)) != (ifih)) ref = &c->ifih_next.se_next; n = srp_get_locked(&(c)->ifih_next.se_next); if (n != ((void *)0)) (&ifih_rc)->srpl_ref(&(&ifih_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&ifih_rc)->srpl_gc, ref, n); srp_update_locked(&(&ifih_rc)->srpl_gc, &c->ifih_next.se_next, ((void *)0)); } while (0);
   refcnt_finalize(&ifih->ifih_srpcnt, "ifihrm");
@@ -6233,7 +5910,7 @@ if_input_process(void *xifidx)
  extern int ipsec_in_use;
  if (ipsec_in_use) {
   do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 914);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 913);
   do { _rw_enter_write(&netlock ); } while (0);
   locked = 1;
  }
@@ -6257,7 +5934,7 @@ void
 if_netisr(void *unused)
 {
  int n, t = 0;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 950);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 949);
  do { _rw_enter_write(&netlock ); } while (0);
  while ((n = netisr) != 0) {
   if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) {
@@ -6526,7 +6203,7 @@ ifa_ifwithaddr(struct sockaddr *addr, u_int rtableid)
  struct ifnet *ifp;
  struct ifaddr *ifa;
  u_int rdomain;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1378, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1377, "_kernel_lock_held()"));
  rdomain = rtable_l2(rtableid);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6545,7 +6222,7 @@ ifa_ifwithdstaddr(struct sockaddr *addr, u_int rdomain)
 {
  struct ifnet *ifp;
  struct ifaddr *ifa;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1404, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1403, "_kernel_lock_held()"));
  rdomain = rtable_l2(rdomain);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6614,9 +6291,9 @@ p2p_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   }
   if (ifa == ((void *)0))
    break;
-  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1490, "ifa == rt->rt_ifa"));
+  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1489, "ifa == rt->rt_ifa"));
   lo0ifp = if_get(rtable_loindex(ifp->if_data.ifi_rdomain));
-  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1493, "lo0ifp != NULL"));
+  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1492, "lo0ifp != NULL"));
   for((lo0ifa) = ((&lo0ifp->if_addrlist)->tqh_first); (lo0ifa) != ((void *)0); (lo0ifa) = ((lo0ifa)->ifa_list.tqe_next)) {
    if (lo0ifa->ifa_addr->sa_family ==
        ifa->ifa_addr->sa_family)
@@ -6675,7 +6352,7 @@ if_linkstate_task(void *xifidx)
 {
  unsigned int ifidx = (unsigned long)xifidx;
  struct ifnet *ifp;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1584);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1583);
  do { _rw_enter_write(&netlock ); } while (0);
  ifp = if_get(ifidx);
  if (ifp != ((void *)0))
@@ -6718,7 +6395,7 @@ if_watchdog_task(void *xifidx)
  ifp = if_get(ifidx);
  if (ifp == ((void *)0))
   return;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1645);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1644);
  s = _splraise(6);
  if (ifp->if_watchdog)
   (*ifp->if_watchdog)(ifp);
@@ -6748,7 +6425,7 @@ if_get(unsigned int index)
   map = (struct srp *)(if_map + 1);
   ifp = srp_follow(&sr, &map[index]);
   if (ifp != ((void *)0)) {
-   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1687, "ifp->if_index == index"));
+   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1686, "ifp->if_index == index"));
    if_ref(ifp);
   }
  }
@@ -6840,7 +6517,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  char ifrtlabelbuf[32];
  int s, error = 0, oif_xflags;
  size_t bytesdone;
- short oif_flags;
+ unsigned short oif_flags;
  const char *label;
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
@@ -7495,32 +7172,6 @@ ifpromisc(struct ifnet *ifp, int pswitch)
  }
  ifr.ifr_ifru.ifru_flags = ifp->if_flags;
  return ((*ifp->if_ioctl)(ifp, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))), (caddr_t)&ifr));
-}
-int
-sysctl_mq(int *name, u_int namelen, void *oldp, size_t *oldlenp,
-    void *newp, size_t newlen, struct mbuf_queue *mq)
-{
- unsigned int maxlen;
- int error;
- if (namelen != 1)
-  return (20);
- switch (name[0]) {
- case 1:
-  return (sysctl_rdint(oldp, oldlenp, newp, ((&(mq)->mq_list)->ml_len)));
- case 2:
-  maxlen = mq->mq_maxlen;
-  error = sysctl_int(oldp, oldlenp, newp, newlen, &maxlen);
-  if (!error && maxlen != mq->mq_maxlen) {
-   __mtx_enter(&mq->mq_mtx );
-   mq->mq_maxlen = maxlen;
-   __mtx_leave(&mq->mq_mtx );
-  }
-  return (error);
- case 3:
-  return (sysctl_rdint(oldp, oldlenp, newp, ((mq)->mq_drops)));
- default:
-  return (45);
- }
 }
 void
 ifa_add(struct ifnet *ifp, struct ifaddr *ifa)

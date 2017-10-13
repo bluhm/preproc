@@ -1838,13 +1838,14 @@ _rw_exit(struct rwlock *rwl )
 int
 rw_status(struct rwlock *rwl)
 {
- if (rwl->rwl_owner & 0x04UL) {
-  if ((((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL) == (((long)rwl->rwl_owner) & ~0x07UL))
+ unsigned long owner = rwl->rwl_owner;
+ if (owner & 0x04UL) {
+  if ((((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL) == (((long)owner) & ~0x07UL))
    return 0x0001UL;
   else
    return 0x0100UL;
  }
- if (rwl->rwl_owner)
+ if (owner)
   return 0x0002UL;
  return (0);
 }
@@ -1910,7 +1911,7 @@ _rrw_exit(struct rrwlock *rrwl )
 {
  if (((struct proc *)((&rrwl->rrwl_lock)->rwl_owner & ~0x07UL)) ==
      (struct proc *)(((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL)) {
-  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 403, "rrwl->rrwl_wcnt > 0"));
+  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 405, "rrwl->rrwl_wcnt > 0"));
   rrwl->rrwl_wcnt--;
   if (rrwl->rrwl_wcnt != 0) {
    (void)0;

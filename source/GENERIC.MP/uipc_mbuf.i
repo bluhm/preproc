@@ -1828,6 +1828,330 @@ counters_pkt(struct cpumem *cm, unsigned int c, unsigned int b, uint64_t v)
  counters[b] += v;
  counters_leave(&ref, cm);
 }
+struct uvmexp {
+ int pagesize;
+ int pagemask;
+ int pageshift;
+ int npages;
+ int free;
+ int active;
+ int inactive;
+ int paging;
+ int wired;
+ int zeropages;
+ int reserve_pagedaemon;
+ int reserve_kernel;
+ int anonpages;
+ int vnodepages;
+ int vtextpages;
+ int freemin;
+ int freetarg;
+ int inactarg;
+ int wiredmax;
+ int anonmin;
+ int vtextmin;
+ int vnodemin;
+ int anonminpct;
+ int vtextminpct;
+ int vnodeminpct;
+ int nswapdev;
+ int swpages;
+ int swpginuse;
+ int swpgonly;
+ int nswget;
+ int nanon;
+ int nanonneeded;
+ int nfreeanon;
+ int faults;
+ int traps;
+ int intrs;
+ int swtch;
+ int softs;
+ int syscalls;
+ int pageins;
+ int obsolete_swapins;
+ int obsolete_swapouts;
+ int pgswapin;
+ int pgswapout;
+ int forks;
+ int forks_ppwait;
+ int forks_sharevm;
+ int pga_zerohit;
+ int pga_zeromiss;
+ int zeroaborts;
+ int fltnoram;
+ int fltnoanon;
+ int fltnoamap;
+ int fltpgwait;
+ int fltpgrele;
+ int fltrelck;
+ int fltrelckok;
+ int fltanget;
+ int fltanretry;
+ int fltamcopy;
+ int fltnamap;
+ int fltnomap;
+ int fltlget;
+ int fltget;
+ int flt_anon;
+ int flt_acow;
+ int flt_obj;
+ int flt_prcopy;
+ int flt_przero;
+ int pdwoke;
+ int pdrevs;
+ int pdswout;
+ int pdfreed;
+ int pdscans;
+ int pdanscan;
+ int pdobscan;
+ int pdreact;
+ int pdbusy;
+ int pdpageouts;
+ int pdpending;
+ int pddeact;
+ int pdreanon;
+ int pdrevnode;
+ int pdrevtext;
+ int fpswtch;
+ int kmapent;
+};
+struct _ps_strings {
+ void *val;
+};
+struct ctlname {
+ char *ctl_name;
+ int ctl_type;
+};
+struct kinfo_proc {
+ u_int64_t p_forw;
+ u_int64_t p_back;
+ u_int64_t p_paddr;
+ u_int64_t p_addr;
+ u_int64_t p_fd;
+ u_int64_t p_stats;
+ u_int64_t p_limit;
+ u_int64_t p_vmspace;
+ u_int64_t p_sigacts;
+ u_int64_t p_sess;
+ u_int64_t p_tsess;
+ u_int64_t p_ru;
+ int32_t p_eflag;
+ int32_t p_exitsig;
+ int32_t p_flag;
+ int32_t p_pid;
+ int32_t p_ppid;
+ int32_t p_sid;
+ int32_t p__pgid;
+ int32_t p_tpgid;
+ u_int32_t p_uid;
+ u_int32_t p_ruid;
+ u_int32_t p_gid;
+ u_int32_t p_rgid;
+ u_int32_t p_groups[16];
+ int16_t p_ngroups;
+ int16_t p_jobc;
+ u_int32_t p_tdev;
+ u_int32_t p_estcpu;
+ u_int32_t p_rtime_sec;
+ u_int32_t p_rtime_usec;
+ int32_t p_cpticks;
+ u_int32_t p_pctcpu;
+ u_int32_t p_swtime;
+ u_int32_t p_slptime;
+ int32_t p_schedflags;
+ u_int64_t p_uticks;
+ u_int64_t p_sticks;
+ u_int64_t p_iticks;
+ u_int64_t p_tracep;
+ int32_t p_traceflag;
+ int32_t p_holdcnt;
+ int32_t p_siglist;
+ u_int32_t p_sigmask;
+ u_int32_t p_sigignore;
+ u_int32_t p_sigcatch;
+ int8_t p_stat;
+ u_int8_t p_priority;
+ u_int8_t p_usrpri;
+ u_int8_t p_nice;
+ u_int16_t p_xstat;
+ u_int16_t p_acflag;
+ char p_comm[24];
+ char p_wmesg[8];
+ u_int64_t p_wchan;
+ char p_login[32];
+ int32_t p_vm_rssize;
+ int32_t p_vm_tsize;
+ int32_t p_vm_dsize;
+ int32_t p_vm_ssize;
+ int64_t p_uvalid;
+ u_int64_t p_ustart_sec;
+ u_int32_t p_ustart_usec;
+ u_int32_t p_uutime_sec;
+ u_int32_t p_uutime_usec;
+ u_int32_t p_ustime_sec;
+ u_int32_t p_ustime_usec;
+ u_int64_t p_uru_maxrss;
+ u_int64_t p_uru_ixrss;
+ u_int64_t p_uru_idrss;
+ u_int64_t p_uru_isrss;
+ u_int64_t p_uru_minflt;
+ u_int64_t p_uru_majflt;
+ u_int64_t p_uru_nswap;
+ u_int64_t p_uru_inblock;
+ u_int64_t p_uru_oublock;
+ u_int64_t p_uru_msgsnd;
+ u_int64_t p_uru_msgrcv;
+ u_int64_t p_uru_nsignals;
+ u_int64_t p_uru_nvcsw;
+ u_int64_t p_uru_nivcsw;
+ u_int32_t p_uctime_sec;
+ u_int32_t p_uctime_usec;
+ int32_t p_psflags;
+ int32_t p_spare;
+ u_int32_t p_svuid;
+ u_int32_t p_svgid;
+ char p_emul[8];
+ u_int64_t p_rlim_rss_cur;
+ u_int64_t p_cpuid;
+ u_int64_t p_vm_map_size;
+ int32_t p_tid;
+ u_int32_t p_rtableid;
+};
+struct kinfo_vmentry {
+ u_long kve_start;
+ u_long kve_end;
+ u_long kve_guard;
+ u_long kve_fspace;
+ u_long kve_fspace_augment;
+ u_int64_t kve_offset;
+ int kve_wired_count;
+ int kve_etype;
+ int kve_protection;
+ int kve_max_protection;
+ int kve_advice;
+ int kve_inheritance;
+ u_int8_t kve_flags;
+};
+struct kinfo_file {
+ uint64_t f_fileaddr;
+ uint32_t f_flag;
+ uint32_t f_iflags;
+ uint32_t f_type;
+ uint32_t f_count;
+ uint32_t f_msgcount;
+ uint32_t f_usecount;
+ uint64_t f_ucred;
+ uint32_t f_uid;
+ uint32_t f_gid;
+ uint64_t f_ops;
+ uint64_t f_offset;
+ uint64_t f_data;
+ uint64_t f_rxfer;
+ uint64_t f_rwfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
+ uint64_t v_un;
+ uint32_t v_type;
+ uint32_t v_tag;
+ uint32_t v_flag;
+ uint32_t va_rdev;
+ uint64_t v_data;
+ uint64_t v_mount;
+ uint64_t va_fileid;
+ uint64_t va_size;
+ uint32_t va_mode;
+ uint32_t va_fsid;
+ char f_mntonname[96];
+ uint32_t so_type;
+ uint32_t so_state;
+ uint64_t so_pcb;
+ uint32_t so_protocol;
+ uint32_t so_family;
+ uint64_t inp_ppcb;
+ uint32_t inp_lport;
+ uint32_t inp_laddru[4];
+ uint32_t inp_fport;
+ uint32_t inp_faddru[4];
+ uint64_t unp_conn;
+ uint64_t pipe_peer;
+ uint32_t pipe_state;
+ uint32_t kq_count;
+ uint32_t kq_state;
+ uint32_t __unused1;
+ uint32_t p_pid;
+ int32_t fd_fd;
+ uint32_t fd_ofileflags;
+ uint32_t p_uid;
+ uint32_t p_gid;
+ uint32_t p_tid;
+ char p_comm[24];
+ uint32_t inp_rtableid;
+ uint64_t so_splice;
+ int64_t so_splicelen;
+ uint64_t so_rcv_cc;
+ uint64_t so_snd_cc;
+ uint64_t unp_refs;
+ uint64_t unp_nextref;
+ uint64_t unp_addr;
+ char unp_path[104];
+ uint32_t inp_proto;
+ uint32_t t_state;
+ uint64_t t_rcv_wnd;
+ uint64_t t_snd_wnd;
+ uint64_t t_snd_cwnd;
+ uint32_t va_nlink;
+};
+typedef int (sysctlfn)(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
+int sysctl_int(void *, size_t *, void *, size_t, int *);
+int sysctl_int_lower(void *, size_t *, void *, size_t, int *);
+int sysctl_rdint(void *, size_t *, void *, int);
+int sysctl_int_arr(int **, int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_quad(void *, size_t *, void *, size_t, int64_t *);
+int sysctl_rdquad(void *, size_t *, void *, int64_t);
+int sysctl_string(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl_tstring(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl__string(void *, size_t *, void *, size_t, char *, size_t, int);
+int sysctl_rdstring(void *, size_t *, void *, const char *);
+int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
+int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
+int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
+int sysctl_doproc(int *, u_int, char *, size_t *);
+struct mbuf_queue;
+int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
+    struct mbuf_queue *);
+struct rtentry;
+struct walkarg;
+int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
+int sysctl_rtable(int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_clockrate(char *, size_t *, void *);
+int sysctl_vnode(char *, size_t *, struct proc *);
+int sysctl_dopool(int *, u_int, char *, size_t *);
+int kern_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+       struct proc *);
+int hw_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int vm_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_posix_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+    struct proc *);
+int net_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int cpu_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int vfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int sysctl_sysvipc(int *, u_int, void *, size_t *);
+int sysctl_wdog(int *, u_int, void *, size_t *, void *, size_t);
+extern int (*cpu_cpuspeed)(int *);
+extern void (*cpu_setperf)(int);
+int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 typedef __sa_family_t sa_family_t;
 struct linger {
  int l_onoff;
@@ -2685,97 +3009,6 @@ struct vmspace {
 struct uvm_constraint_range {
  paddr_t ucr_low;
  paddr_t ucr_high;
-};
-struct uvmexp {
- int pagesize;
- int pagemask;
- int pageshift;
- int npages;
- int free;
- int active;
- int inactive;
- int paging;
- int wired;
- int zeropages;
- int reserve_pagedaemon;
- int reserve_kernel;
- int anonpages;
- int vnodepages;
- int vtextpages;
- int freemin;
- int freetarg;
- int inactarg;
- int wiredmax;
- int anonmin;
- int vtextmin;
- int vnodemin;
- int anonminpct;
- int vtextminpct;
- int vnodeminpct;
- int nswapdev;
- int swpages;
- int swpginuse;
- int swpgonly;
- int nswget;
- int nanon;
- int nanonneeded;
- int nfreeanon;
- int faults;
- int traps;
- int intrs;
- int swtch;
- int softs;
- int syscalls;
- int pageins;
- int obsolete_swapins;
- int obsolete_swapouts;
- int pgswapin;
- int pgswapout;
- int forks;
- int forks_ppwait;
- int forks_sharevm;
- int pga_zerohit;
- int pga_zeromiss;
- int zeroaborts;
- int fltnoram;
- int fltnoanon;
- int fltnoamap;
- int fltpgwait;
- int fltpgrele;
- int fltrelck;
- int fltrelckok;
- int fltanget;
- int fltanretry;
- int fltamcopy;
- int fltnamap;
- int fltnomap;
- int fltlget;
- int fltget;
- int flt_anon;
- int flt_acow;
- int flt_obj;
- int flt_prcopy;
- int flt_przero;
- int pdwoke;
- int pdrevs;
- int pdswout;
- int pdfreed;
- int pdscans;
- int pdanscan;
- int pdobscan;
- int pdreact;
- int pdbusy;
- int pdpageouts;
- int pdpending;
- int pddeact;
- int pdreanon;
- int pdrevnode;
- int pdrevtext;
- int fpswtch;
- int kmapent;
-};
-struct _ps_strings {
- void *val;
 };
 extern struct uvmexp uvmexp;
 extern struct uvm_constraint_range isa_constraint;
@@ -4544,7 +4777,7 @@ mbinit(void)
   m_pool_init(&mclpools[i], mclsizes[i], 64, mclnames[i]);
  }
  (void)mextfree_register(m_extfree_pool);
- ((num_extfree_fns == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 197, "num_extfree_fns == 1"));
+ ((num_extfree_fns == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 198, "num_extfree_fns == 1"));
 }
 void
 mbcpuinit()
@@ -4619,7 +4852,7 @@ m_resethdr(struct mbuf *m)
 {
  int len = m->M_dat.MH.MH_pkthdr.len;
  u_int8_t loopcnt = m->M_dat.MH.MH_pkthdr.ph_loopcnt;
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 302, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 303, "m->m_flags & M_PKTHDR"));
  m->m_hdr.mh_flags &= (0x0001|0x0002|0x0004|0x0008|0x2000);
  m_tag_delete_chain(m);
  pf_pkt_unlink_state_key(m);
@@ -4742,7 +4975,7 @@ m_extunref(struct mbuf *m)
 u_int
 mextfree_register(void (*fn)(caddr_t, u_int, void *))
 {
- ((num_extfree_fns < (sizeof((mextfree_fns)) / sizeof((mextfree_fns)[0]))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 468, "num_extfree_fns < nitems(mextfree_fns)"));
+ ((num_extfree_fns < (sizeof((mextfree_fns)) / sizeof((mextfree_fns)[0]))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 469, "num_extfree_fns < nitems(mextfree_fns)"));
  mextfree_fns[num_extfree_fns] = fn;
  return num_extfree_fns++;
 }
@@ -4750,7 +4983,7 @@ void
 m_extfree(struct mbuf *m)
 {
  if (m_extunref(m) == 0) {
-  ((m->M_dat.MH.MH_dat.MH_ext.ext_free_fn < num_extfree_fns) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 477, "m->m_ext.ext_free_fn < num_extfree_fns"));
+  ((m->M_dat.MH.MH_dat.MH_ext.ext_free_fn < num_extfree_fns) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 478, "m->m_ext.ext_free_fn < num_extfree_fns"));
   mextfree_fns[m->M_dat.MH.MH_dat.MH_ext.ext_free_fn](m->M_dat.MH.MH_dat.MH_ext.ext_buf,
       m->M_dat.MH.MH_dat.MH_ext.ext_size, m->M_dat.MH.MH_dat.MH_ext.ext_arg);
  }
@@ -4780,7 +5013,7 @@ m_defrag(struct mbuf *m, int how)
  struct mbuf *m0;
  if (m->m_hdr.mh_next == ((void *)0))
   return (0);
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 522, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 523, "m->m_flags & M_PKTHDR"));
  if ((m0 = m_gethdr(how, m->m_hdr.mh_type)) == ((void *)0))
   return (55);
  if (m->M_dat.MH.MH_pkthdr.len > ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
@@ -5092,7 +5325,7 @@ m_pullup(struct mbuf *n, int len)
   m->m_hdr.mh_len = 0;
   m->m_hdr.mh_data += adj;
  }
- ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 933, "M_TRAILINGSPACE(m) >= len"));
+ ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 934, "M_TRAILINGSPACE(m) >= len"));
  do {
   if (n == ((void *)0)) {
    (void)m_free(m);
@@ -5208,8 +5441,8 @@ m_makespace(struct mbuf *m0, int skip, int hlen, int *off)
 {
  struct mbuf *m;
  unsigned remain;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1081, "m0->m_flags & M_PKTHDR"));
- ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1088, "hlen < MHLEN"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1082, "m0->m_flags & M_PKTHDR"));
+ ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1089, "hlen < MHLEN"));
  for (m = m0; m && skip > m->m_hdr.mh_len; m = m->m_hdr.mh_next)
   skip -= m->m_hdr.mh_len;
  if (m == ((void *)0))
@@ -5378,7 +5611,7 @@ int
 m_dup_pkthdr(struct mbuf *to, struct mbuf *from, int wait)
 {
  int error;
- ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1320, "from->m_flags & M_PKTHDR"));
+ ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1321, "from->m_flags & M_PKTHDR"));
  to->m_hdr.mh_flags = (to->m_hdr.mh_flags & (0x0001 | 0x0008));
  to->m_hdr.mh_flags |= (from->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000));
  to->M_dat.MH.MH_pkthdr = from->M_dat.MH.MH_pkthdr;
@@ -5395,7 +5628,7 @@ m_dup_pkt(struct mbuf *m0, unsigned int adj, int wait)
 {
  struct mbuf *m;
  int len;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1347, "m0->m_flags & M_PKTHDR"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1348, "m0->m_flags & M_PKTHDR"));
  len = m0->M_dat.MH.MH_pkthdr.len + adj;
  if (len > (64 * 1024))
   return (((void *)0));
@@ -5634,4 +5867,30 @@ mq_purge(struct mbuf_queue *mq)
  struct mbuf_list ml;
  mq_delist(mq, &ml);
  return (ml_purge(&ml));
+}
+int
+sysctl_mq(int *name, u_int namelen, void *oldp, size_t *oldlenp,
+    void *newp, size_t newlen, struct mbuf_queue *mq)
+{
+ unsigned int maxlen;
+ int error;
+ if (namelen != 1)
+  return (20);
+ switch (name[0]) {
+ case 1:
+  return (sysctl_rdint(oldp, oldlenp, newp, ((&(mq)->mq_list)->ml_len)));
+ case 2:
+  maxlen = mq->mq_maxlen;
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &maxlen);
+  if (!error && maxlen != mq->mq_maxlen) {
+   __mtx_enter(&mq->mq_mtx );
+   mq->mq_maxlen = maxlen;
+   __mtx_leave(&mq->mq_mtx );
+  }
+  return (error);
+ case 3:
+  return (sysctl_rdint(oldp, oldlenp, newp, ((mq)->mq_drops)));
+ default:
+  return (45);
+ }
 }

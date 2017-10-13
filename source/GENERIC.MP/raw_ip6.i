@@ -2044,6 +2044,9 @@ int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
 int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
 int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
 int sysctl_doproc(int *, u_int, char *, size_t *);
+struct mbuf_queue;
+int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
+    struct mbuf_queue *);
 struct rtentry;
 struct walkarg;
 int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
@@ -2502,8 +2505,6 @@ int if_clone_create(const char *, int);
 int if_clone_destroy(const char *);
 struct if_clone *
  if_clone_lookup(const char *, int *);
-int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
-     struct mbuf_queue *);
 void ifa_add(struct ifnet *, struct ifaddr *);
 void ifa_del(struct ifnet *, struct ifaddr *);
 void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
