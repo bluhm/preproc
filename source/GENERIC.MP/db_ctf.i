@@ -2542,7 +2542,7 @@ db_ctf_init(void)
  db_ctf.cth = (struct ctf_header *)db_ctf.rawctf;
  db_ctf.dlen = db_ctf.cth->cth_stroff + db_ctf.cth->cth_strlen;
  if ((db_ctf.cth->cth_flags & (1 << 0)) == 0) {
-  printf("unsupported non-compressed CTF section\n");
+  db_printf("unsupported non-compressed CTF section\n");
   return;
  }
  db_ctf.data = db_ctf_decompress(db_ctf.rawctf + sizeof(*db_ctf.cth),
@@ -2900,6 +2900,11 @@ db_ctf_pprint_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  Elf64_Sym *st;
  const struct ctf_type *ctt;
  int t;
+ if (!db_ctf.ctf_found) {
+  db_printf("No CTF data found\n");
+  db_flush_lex();
+  return;
+ }
  t = db_read_token();
  if (t != 3) {
   db_printf("Bad symbol name\n");
