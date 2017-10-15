@@ -3911,82 +3911,201 @@ struct process;
 struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
+static inline int process_checktracestate(struct process *_curpr,
+       struct process *_tr, struct proc *_t);
+static inline struct process *process_tprfind(pid_t _tpid, struct proc **_tp);
+int ptrace_ctrl(struct proc *, int, pid_t, caddr_t, int);
+int ptrace_ustate(struct proc *, int, pid_t, void *, int, register_t *);
+int ptrace_kstate(struct proc *, int, pid_t, void *);
 int process_auxv_offset(struct proc *, struct process *, struct uio *);
 int global_ptrace;
 int
 sys_ptrace(struct proc *p, void *v, register_t *retval)
 {
  struct sys_ptrace_args *uap = v;
- struct proc *t;
- struct process *tr;
- struct uio uio;
- struct iovec iov;
- struct ptrace_io_desc piod;
- struct ptrace_event pe;
- struct ptrace_thread_state pts;
- struct reg64 *regs;
- struct fpreg64 *fpregs;
- register_t wcookie;
- int error, write;
- int temp = 0;
  int req = ((uap)->req.be.datum);
  pid_t pid = ((uap)->pid.be.datum);
- caddr_t addr = ((uap)->addr.be.datum);
+ caddr_t uaddr = ((uap)->addr.be.datum);
+ void *kaddr = ((void *)0);
  int data = ((uap)->data.be.datum);
- int s;
+ union {
+  struct ptrace_thread_state u_pts;
+  struct ptrace_io_desc u_piod;
+  struct ptrace_event u_pe;
+  struct ptrace_state u_ps;
+  register_t u_wcookie;
+ } u;
+ int size = 0;
+ enum { NONE, IN, IN_ALLOC, OUT, OUT_ALLOC, IN_OUT } mode;
+ int kstate = 0;
+ int error;
+ *retval = 0;
  switch (req) {
  case 0:
-  t = p;
-  tr = t->p_p;
-  break;
+ case 7:
+ case 8:
+ case 9:
+ case 10:
+  return ptrace_ctrl(p, req, pid, uaddr, data);
  case 1:
  case 2:
  case 4:
  case 5:
- case 8:
- case 9:
- case 11:
- case 12:
- case 13:
- case 14:
- case 15:
- case 16:
- case 10:
- default:
-  if ((tr = prfind(pid)) == ((void *)0))
-   return (3);
-  t = tr->ps_mainproc;
+  mode = NONE;
   break;
- case 7:
- case (32 + 4):
+ case 11:
+  mode = IN_OUT;
+  size = sizeof u.u_piod;
+  data = size;
+  break;
+ case 15:
+  mode = OUT;
+  size = sizeof u.u_pts;
+  kstate = 1;
+  break;
+ case 16:
+  mode = IN_OUT;
+  size = sizeof u.u_pts;
+  kstate = 1;
+  break;
+ case 13:
+  mode = OUT;
+  size = sizeof u.u_pe;
+  kstate = 1;
+  break;
+ case 12:
+  mode = IN;
+  size = sizeof u.u_pe;
+  kstate = 1;
+  break;
+ case 14:
+  mode = OUT;
+  size = sizeof u.u_ps;
+  kstate = 1;
+  break;
  case (32 + 0):
+  mode = OUT_ALLOC;
+  size = sizeof(struct reg64);
+  break;
  case (32 + 1):
+  mode = IN_ALLOC;
+  size = sizeof(struct reg64);
+  break;
  case (32 + 2):
+  mode = OUT_ALLOC;
+  size = sizeof(struct fpreg64);
+  break;
  case (32 + 3):
-  if (pid > 100000) {
-   t = tfind(pid - 100000);
-   if (t == ((void *)0))
-    return (3);
-   tr = t->p_p;
-  } else {
-   if ((tr = prfind(pid)) == ((void *)0))
-    return (3);
-   t = tr->ps_mainproc;
+  mode = IN_ALLOC;
+  size = sizeof(struct fpreg64);
+  break;
+ case (32 + 4):
+  mode = OUT;
+  size = sizeof u.u_wcookie;
+  data = size;
+  break;
+ default:
+  return 22;
+ }
+ switch (mode) {
+ case NONE:
+  kaddr = uaddr;
+  break;
+ case IN:
+ case IN_OUT:
+ case OUT:
+  ((size <= sizeof u) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 216, "size <= sizeof u"));
+  if (data != size)
+   return 22;
+  if (mode == OUT)
+   __builtin_memset((&u), (0), (size));
+  else {
+   if ((error = copyin(uaddr, &u, size)))
+    return error;
+  }
+  kaddr = &u;
+  break;
+ case IN_ALLOC:
+  kaddr = malloc(size, 127, 0x0001);
+  if ((error = copyin(uaddr, kaddr, size))) {
+   free(kaddr, 127, size);
+   return error;
   }
   break;
+ case OUT_ALLOC:
+  kaddr = malloc(size, 127, 0x0001 | 0x0008);
+  break;
  }
- if ((tr->ps_flags & 0x00000004) != 0)
-  return (35);
+ if (kstate)
+  error = ptrace_kstate(p, req, pid, kaddr);
+ else
+  error = ptrace_ustate(p, req, pid, kaddr, data, retval);
+ if (error == 0) {
+  switch (mode) {
+  case NONE:
+  case IN:
+  case IN_ALLOC:
+   break;
+  case IN_OUT:
+  case OUT:
+   error = copyout(&u, uaddr, size);
+   if (req == 11) {
+    error = 0;
+   }
+   break;
+  case OUT_ALLOC:
+   error = copyout(kaddr, uaddr, size);
+   break;
+  }
+ }
+ if (mode == IN_ALLOC || mode == OUT_ALLOC)
+  free(kaddr, 127, size);
+ return error;
+}
+int
+ptrace_ctrl(struct proc *p, int req, pid_t pid, caddr_t addr, int data)
+{
+ struct proc *t;
+ struct process *tr;
+ int error = 0;
+ int s;
  switch (req) {
  case 0:
-  break;
+  tr = p->p_p;
+  atomic_setbits_int(&tr->ps_flags, 0x00000200);
+  tr->ps_oppid = tr->ps_pptr->ps_pid;
+  if (tr->ps_ptstat == ((void *)0))
+   tr->ps_ptstat = malloc(sizeof(*tr->ps_ptstat),
+       42, 0x0001);
+  __builtin_memset((tr->ps_ptstat), (0), (sizeof(*tr->ps_ptstat)));
+  return 0;
+ case 8:
  case 9:
+ case 10:
+  if ((tr = prfind(pid)) == ((void *)0))
+   return (3);
+  t = ((&tr->ps_threads)->tqh_first);
+  break;
+ case 7:
+  if ((tr = process_tprfind(pid, &t)) == ((void *)0))
+   return 3;
+  break;
+ }
+ if (req != 9) {
+  if (req != 8 && (data < 0 || data >= 33))
+   return 22;
+  if ((error = process_checktracestate(p->p_p, tr, t)))
+   return error;
+  ;
+ } else {
   if (tr == p->p_p)
    return (22);
   if (((tr->ps_flags) & (0x00010000)))
    return (1);
   if (((tr->ps_flags) & (0x00000200)))
    return (16);
+  if (((tr->ps_flags) & (0x00000004)))
+   return (35);
   if ((tr->ps_ucred->cr_ruid != p->p_ucred->cr_ruid ||
       ((tr->ps_flags) & (0x00000020 | 0x00000010))) &&
       (error = suser(p, 0)) != 0)
@@ -3998,71 +4117,131 @@ sys_ptrace(struct proc *p, void *v, register_t *retval)
    return (1);
   if (tr->ps_pid != 1 && inferior(p->p_p, tr))
    return (22);
-  break;
- case 1:
- case 2:
- case 4:
- case 5:
- case 11:
+ }
+ switch (req) {
  case 7:
- case 8:
+  if (pid < 100000 && tr->ps_single)
+   t = tr->ps_single;
+  if ((int *)addr != (int *)1)
+   if ((error = process_set_pc(t, addr)) != 0)
+    return error;
+  goto sendsig;
  case 10:
- case 12:
- case 13:
- case 14:
- case (32 + 0):
- case (32 + 1):
- case (32 + 2):
- case (32 + 3):
- case (32 + 4):
-  if (!((tr->ps_flags) & (0x00000200)))
-   return (1);
-  if (tr->ps_pptr != p->p_p)
-   return (16);
-  if (t->p_stat != 4 || !((tr->ps_flags) & (0x00000400)))
-   return (16);
+  if (pid < 100000 && tr->ps_single)
+   t = tr->ps_single;
+  if (tr->ps_oppid != tr->ps_pptr->ps_pid) {
+   struct process *ppr;
+   ppr = prfind(tr->ps_oppid);
+   proc_reparent(tr, ppr ? ppr : initprocess);
+  }
+  tr->ps_oppid = 0;
+  atomic_clearbits_int(&tr->ps_flags, 0x00000200|0x00000400);
+ sendsig:
+  __builtin_memset((tr->ps_ptstat), (0), (sizeof(*tr->ps_ptstat)));
+  if (t->p_stat == 4) {
+   t->p_xstat = data;
+   do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+   setrunnable(t);
+   do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+  } else {
+   if (data != 0)
+    psignal(t, data);
+  }
   break;
+ case 8:
+  if (pid < 100000 && tr->ps_single)
+   t = tr->ps_single;
+  data = 9;
+  goto sendsig;
+ case 9:
+  atomic_setbits_int(&tr->ps_flags, 0x00000200);
+  tr->ps_oppid = tr->ps_pptr->ps_pid;
+  if (tr->ps_pptr != p->p_p)
+   proc_reparent(tr, p->p_p);
+  if (tr->ps_ptstat == ((void *)0))
+   tr->ps_ptstat = malloc(sizeof(*tr->ps_ptstat),
+       42, 0x0001);
+  data = 17;
+  goto sendsig;
+ default:
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 514, __func__, req));
+  break;
+ }
+ return error;
+}
+int
+ptrace_kstate(struct proc *p, int req, pid_t pid, void *addr)
+{
+ struct process *tr;
+ struct ptrace_event *pe = addr;
+ int error;
+ (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 531, "(p->p_flag & P_SYSTEM) == 0"));
+ if ((tr = prfind(pid)) == ((void *)0))
+  return 3;
+ if ((error = process_checktracestate(p->p_p, tr, ((void *)0))))
+  return error;
+ switch (req) {
  case 15:
  case 16:
-  if (!((tr->ps_flags) & (0x00000200)))
-   return (1);
-  if (tr->ps_pptr != p->p_p)
-   return (16);
-  if (data != sizeof(pts))
-   return (22);
+       {
+  struct ptrace_thread_state *pts = addr;
+  struct proc *t;
   if (req == 16) {
-   error = copyin(addr, &pts, sizeof(pts));
-   if (error)
-    return (error);
-   t = tfind(pts.pts_tid - 100000);
+   t = tfind(pts->pts_tid - 100000);
    if (t == ((void *)0) || ((t->p_flag) & (0x00002000)))
-    return (3);
+    return 3;
    if (t->p_p != tr)
-    return (22);
+    return 22;
    t = ((t)->p_thr_link.tqe_next);
   } else {
    t = ((&tr->ps_threads)->tqh_first);
   }
   if (t == ((void *)0))
-   pts.pts_tid = -1;
+   pts->pts_tid = -1;
   else
-   pts.pts_tid = t->p_tid + 100000;
-  return (copyout(&pts, addr, sizeof(pts)));
- default:
-  return (22);
+   pts->pts_tid = t->p_tid + 100000;
+  return 0;
+       }
  }
+ switch (req) {
+ case 13:
+  pe->pe_set_event = tr->ps_ptmask;
+  break;
+ case 12:
+  tr->ps_ptmask = pe->pe_set_event;
+  break;
+ case 14:
+  if (tr->ps_single)
+   tr->ps_ptstat->pe_tid =
+       tr->ps_single->p_tid + 100000;
+  __builtin_memcpy((addr), (tr->ps_ptstat), (sizeof *tr->ps_ptstat));
+  break;
+ default:
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 580, __func__, req));
+  break;
+ }
+ return 0;
+}
+int
+ptrace_ustate(struct proc *p, int req, pid_t pid, void *addr, int data,
+    register_t *retval)
+{
+ struct proc *t;
+ struct process *tr;
+ struct uio uio;
+ struct iovec iov;
+ int error, write;
+ int temp = 0;
+ (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 601, "(p->p_flag & P_SYSTEM) == 0"));
+ if ((tr = process_tprfind(pid, &t)) == ((void *)0))
+  return 3;
+ if ((error = process_checktracestate(p->p_p, tr, t)))
+  return error;
  ;
  write = 0;
- *retval = 0;
+ if ((error = process_checkioperm(p, tr)) != 0)
+  return error;
  switch (req) {
- case 0:
-  atomic_setbits_int(&tr->ps_flags, 0x00000200);
-  tr->ps_oppid = tr->ps_pptr->ps_pid;
-  if (tr->ps_ptstat == ((void *)0))
-   tr->ps_ptstat = malloc(sizeof(*tr->ps_ptstat),
-       42, 0x0001);
-  __builtin_memset((tr->ps_ptstat), (0), (sizeof(*tr->ps_ptstat)));
-  return (0);
  case 4:
  case 5:
   write = 1;
@@ -4082,20 +4261,19 @@ sys_ptrace(struct proc *p, void *v, register_t *retval)
     1);
   if (write == 0)
    *retval = temp;
-  return (error);
+  return error;
  case 11:
-  error = copyin(addr, &piod, sizeof(piod));
-  if (error)
-   return (error);
-  iov.iov_base = piod.piod_addr;
-  iov.iov_len = piod.piod_len;
+       {
+  struct ptrace_io_desc *piod = addr;
+  iov.iov_base = piod->piod_addr;
+  iov.iov_len = piod->piod_len;
   uio.uio_iov = &iov;
   uio.uio_iovcnt = 1;
-  uio.uio_offset = (off_t)(vaddr_t)piod.piod_offs;
-  uio.uio_resid = piod.piod_len;
+  uio.uio_offset = (off_t)(vaddr_t)piod->piod_offs;
+  uio.uio_resid = piod->piod_len;
   uio.uio_segflg = UIO_USERSPACE;
   uio.uio_procp = p;
-  switch (piod.piod_op) {
+  switch (piod->piod_op) {
   case 3:
    req = 1;
    uio.uio_rw = UIO_READ;
@@ -4117,136 +4295,68 @@ sys_ptrace(struct proc *p, void *v, register_t *retval)
    uio.uio_rw = UIO_READ;
    temp = tr->ps_emul->e_arglen * sizeof(char *);
    if (uio.uio_offset > temp)
-    return (5);
+    return 5;
    if (uio.uio_resid > temp - uio.uio_offset)
     uio.uio_resid = temp - uio.uio_offset;
-   piod.piod_len = iov.iov_len = uio.uio_resid;
+   piod->piod_len = iov.iov_len = uio.uio_resid;
    error = process_auxv_offset(p, tr, &uio);
    if (error)
-    return (error);
+    return error;
    break;
   default:
-   return (22);
+   return 22;
   }
   error = process_domem(p, tr, &uio, req);
-  piod.piod_len -= uio.uio_resid;
-  (void) copyout(&piod, addr, sizeof(piod));
-  return (error);
- case 7:
-  if (pid < 100000 && tr->ps_single)
-   t = tr->ps_single;
-  if (data < 0 || data >= 33)
-   return (22);
-  if ((int *)addr != (int *)1)
-   if ((error = process_set_pc(t, addr)) != 0)
-    return error;
-  goto sendsig;
- case 10:
-  if (pid < 100000 && tr->ps_single)
-   t = tr->ps_single;
-  if (data < 0 || data >= 33)
-   return (22);
-  if (tr->ps_oppid != tr->ps_pptr->ps_pid) {
-   struct process *ppr;
-   ppr = prfind(tr->ps_oppid);
-   proc_reparent(tr, ppr ? ppr : initprocess);
-  }
-  tr->ps_oppid = 0;
-  atomic_clearbits_int(&tr->ps_flags, 0x00000200|0x00000400);
- sendsig:
-  __builtin_memset((tr->ps_ptstat), (0), (sizeof(*tr->ps_ptstat)));
-  if (t->p_stat == 4) {
-   t->p_xstat = data;
-   do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
-   setrunnable(t);
-   do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
-  } else {
-   if (data != 0)
-    psignal(t, data);
-  }
-  return (0);
- case 8:
-  if (pid < 100000 && tr->ps_single)
-   t = tr->ps_single;
-  data = 9;
-  goto sendsig;
- case 9:
-  atomic_setbits_int(&tr->ps_flags, 0x00000200);
-  tr->ps_oppid = tr->ps_pptr->ps_pid;
-  if (tr->ps_pptr != p->p_p)
-   proc_reparent(tr, p->p_p);
-  if (tr->ps_ptstat == ((void *)0))
-   tr->ps_ptstat = malloc(sizeof(*tr->ps_ptstat),
-       42, 0x0001);
-  data = 17;
-  goto sendsig;
- case 13:
-  if (data != sizeof(pe))
-   return (22);
-  __builtin_memset((&pe), (0), (sizeof(pe)));
-  pe.pe_set_event = tr->ps_ptmask;
-  return (copyout(&pe, addr, sizeof(pe)));
- case 12:
-  if (data != sizeof(pe))
-   return (22);
-  if ((error = copyin(addr, &pe, sizeof(pe))))
-   return (error);
-  tr->ps_ptmask = pe.pe_set_event;
-  return (0);
- case 14:
-  if (data != sizeof(*tr->ps_ptstat))
-   return (22);
-  if (tr->ps_single)
-   tr->ps_ptstat->pe_tid =
-       tr->ps_single->p_tid + 100000;
-  return (copyout(tr->ps_ptstat, addr, sizeof(*tr->ps_ptstat)));
+  piod->piod_len -= uio.uio_resid;
+  return error;
+       }
  case (32 + 1):
-  (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 584, "(p->p_flag & P_SYSTEM) == 0"));
-  if ((error = process_checkioperm(p, tr)) != 0)
-   return (error);
-  regs = malloc(sizeof(*regs), 127, 0x0001);
-  error = copyin(addr, regs, sizeof(*regs));
-  if (error == 0) {
-   error = process_write_regs(t, regs);
-  }
-  free(regs, 127, sizeof(*regs));
-  return (error);
+  return process_write_regs(t, addr);
  case (32 + 0):
-  (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 596, "(p->p_flag & P_SYSTEM) == 0"));
-  if ((error = process_checkioperm(p, tr)) != 0)
-   return (error);
-  regs = malloc(sizeof(*regs), 127, 0x0001);
-  error = process_read_regs(t, regs);
-  if (error == 0)
-   error = copyout(regs, addr, sizeof (*regs));
-  free(regs, 127, sizeof(*regs));
-  return (error);
+  return process_read_regs(t, addr);
  case (32 + 3):
-  (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 608, "(p->p_flag & P_SYSTEM) == 0"));
-  if ((error = process_checkioperm(p, tr)) != 0)
-   return (error);
-  fpregs = malloc(sizeof(*fpregs), 127, 0x0001);
-  error = copyin(addr, fpregs, sizeof(*fpregs));
-  if (error == 0) {
-   error = process_write_fpregs(t, fpregs);
-  }
-  free(fpregs, 127, sizeof(*fpregs));
-  return (error);
+  return process_write_fpregs(t, addr);
  case (32 + 2):
-  (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 622, "(p->p_flag & P_SYSTEM) == 0"));
-  if ((error = process_checkioperm(p, tr)) != 0)
-   return (error);
-  fpregs = malloc(sizeof(*fpregs), 127, 0x0001);
-  error = process_read_fpregs(t, fpregs);
-  if (error == 0)
-   error = copyout(fpregs, addr, sizeof(*fpregs));
-  free(fpregs, 127, sizeof(*fpregs));
-  return (error);
+  return process_read_fpregs(t, addr);
  case (32 + 4):
-  wcookie = process_get_wcookie (t);
-  return (copyout(&wcookie, addr, sizeof (register_t)));
+  *(register_t *)addr = process_get_wcookie(t);
+  return 0;
+ default:
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 718, __func__, req));
+  break;
  }
- panic("ptrace: impossible");
+ return 0;
+}
+static inline struct process *
+process_tprfind(pid_t tpid, struct proc **tp)
+{
+ if (tpid > 100000) {
+  struct proc *t = tfind(tpid - 100000);
+  if (t == ((void *)0))
+   return ((void *)0);
+  *tp = t;
+  return t->p_p;
+ } else {
+  struct process *tr = prfind(tpid);
+  if (tr == ((void *)0))
+   return ((void *)0);
+  *tp = ((&tr->ps_threads)->tqh_first);
+  return tr;
+ }
+}
+static inline int
+process_checktracestate(struct process *curpr, struct process *tr,
+    struct proc *t)
+{
+ if (!((tr->ps_flags) & (0x00000200)))
+  return 1;
+ if (tr->ps_pptr != curpr)
+  return 16;
+ if (((tr->ps_flags) & (0x00000004)))
+  return 35;
+ if (t != ((void *)0) &&
+     (t->p_stat != 4 || !((tr->ps_flags) & (0x00000400))))
+  return 16;
  return 0;
 }
 int
@@ -4259,7 +4369,7 @@ process_checkioperm(struct proc *p, struct process *tr)
   return (error);
  if ((tr->ps_pid == 1) && (securelevel > -1))
   return (1);
- if (tr->ps_flags & 0x00000004)
+ if (((tr->ps_flags) & (0x00000004)))
   return (35);
  return (0);
 }
