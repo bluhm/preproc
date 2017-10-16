@@ -5240,6 +5240,7 @@ ar5k_ar5212_reset(struct ath_hal *hal, HAL_OPMODE op_mode, HAL_CHANNEL *channel,
  u_int32_t data, s_seq, s_ant, s_led[3], dmasize;
  u_int i, mode, freq, ee_mode, ant[2];
  const HAL_RATE_TABLE *rt;
+ *status = 0;
  if (chanchange == AH_TRUE) {
   s_seq = bus_space_read_4(hal->ah_st, hal->ah_sh, ((((0) << 2) + 0x1140)));
   s_ant = bus_space_read_4(hal->ah_st, hal->ah_sh, (0x8058));
