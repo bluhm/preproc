@@ -3821,7 +3821,6 @@ extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
 extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,

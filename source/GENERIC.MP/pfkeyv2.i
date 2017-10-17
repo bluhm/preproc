@@ -3020,7 +3020,6 @@ extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
 extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
@@ -4713,6 +4712,7 @@ struct dump_state {
  struct socket *socket;
 };
 static struct { struct keycb *lh_first; } pfkeyv2_sockets = { ((void *)0) };
+struct mutex pfkeyv2_mtx = { ((void *)0), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))), 0 };
 static uint32_t pfkeyv2_seq = 1;
 static int nregistered = 0;
 static int npromisc = 0;
@@ -4788,10 +4788,15 @@ pfkeyv2_detach(struct socket *so, struct proc *p)
  if (kp == ((void *)0))
   return 57;
  do { if ((kp)->kcb_list.le_next != ((void *)0)) (kp)->kcb_list.le_next->kcb_list.le_prev = (kp)->kcb_list.le_prev; *(kp)->kcb_list.le_prev = (kp)->kcb_list.le_next; ((kp)->kcb_list.le_prev) = ((void *)-1); ((kp)->kcb_list.le_next) = ((void *)-1); } while (0);
- if (kp->flags & 1)
-  nregistered--;
- if (kp->flags & 2)
-  npromisc--;
+ if (kp->flags &
+     (1|2)) {
+  __mtx_enter(&pfkeyv2_mtx );
+  if (kp->flags & 1)
+   nregistered--;
+  if (kp->flags & 2)
+   npromisc--;
+  __mtx_leave(&pfkeyv2_mtx );
+ }
  raw_detach(&kp->rcb);
  return (0);
 }
@@ -5272,6 +5277,10 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  struct sadb_supported *ssup;
  struct sadb_ident *sid, *did;
  u_int rdomain;
+ int promisc;
+ __mtx_enter(&pfkeyv2_mtx );
+ promisc = npromisc;
+ __mtx_leave(&pfkeyv2_mtx );
  do { _rw_enter_write(&netlock ); } while (0);
  __builtin_bzero((headers), (sizeof(headers)));
  kp = ((struct keycb *)(so)->so_pcb);
@@ -5280,7 +5289,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   goto ret;
  }
  rdomain = kp->rdomain;
- if (npromisc) {
+ if (promisc) {
   struct mbuf *packet;
   if (!(freeme = malloc(sizeof(struct sadb_msg) + len, 74,
       0x0002))) {
@@ -5599,7 +5608,9 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  case 7:
   if (!(kp->flags & 1)) {
    kp->flags |= 1;
+   __mtx_enter(&pfkeyv2_mtx );
    nregistered++;
+   __mtx_leave(&pfkeyv2_mtx );
   }
   i = sizeof(struct sadb_supported) + sizeof(ealgs);
   if (!(freeme = malloc(i, 74, 0x0002 | 0x0008))) {
@@ -5888,11 +5899,15 @@ pfkeyv2_send(struct socket *so, void *message, int len)
     if (j) {
      kp->flags |=
          2;
+     __mtx_enter(&pfkeyv2_mtx );
      npromisc++;
+     __mtx_leave(&pfkeyv2_mtx );
     } else {
      kp->flags &=
          ~2;
+     __mtx_enter(&pfkeyv2_mtx );
      npromisc--;
+     __mtx_leave(&pfkeyv2_mtx );
     }
    }
   }
@@ -5941,9 +5956,12 @@ pfkeyv2_acquire(struct ipsec_policy *ipo, union sockaddr_union *gw,
  struct sadb_prop *sa_prop;
  struct sadb_msg *smsg;
  int rval = 0;
- int i, j;
+ int i, j, registered;
+ __mtx_enter(&pfkeyv2_mtx );
  *seq = pfkeyv2_seq++;
- if (!nregistered) {
+ registered = nregistered;
+ __mtx_leave(&pfkeyv2_mtx );
+ if (!registered) {
   rval = 3;
   goto ret;
  }
@@ -6132,7 +6150,9 @@ pfkeyv2_expire(struct tdb *sa, u_int16_t type)
  smsg->sadb_msg_type = 8;
  smsg->sadb_msg_satype = sa->tdb_satype;
  smsg->sadb_msg_len = i / sizeof(uint64_t);
+ __mtx_enter(&pfkeyv2_mtx );
  smsg->sadb_msg_seq = pfkeyv2_seq++;
+ __mtx_leave(&pfkeyv2_mtx );
  headers[1] = p;
  export_sa(&p, sa);
  headers[2] = p;

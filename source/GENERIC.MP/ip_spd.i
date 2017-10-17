@@ -3471,7 +3471,6 @@ extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
 extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
@@ -3852,17 +3851,21 @@ int ipsp_acquire_sa(struct ipsec_policy *, union sockaddr_union *,
      union sockaddr_union *, struct sockaddr_encap *, struct mbuf *);
 struct ipsec_acquire *ipsp_pending_acquire(struct ipsec_policy *,
      union sockaddr_union *);
-void ipsp_delete_acquire(void *);
+void ipsp_delete_acquire_timo(void *);
+void ipsp_delete_acquire(struct ipsec_acquire *);
 struct pool ipsec_policy_pool;
 struct pool ipsec_acquire_pool;
 int ipsec_policy_pool_initialized = 0;
 int ipsec_acquire_pool_initialized = 0;
 struct radix_node_head **spd_tables;
 unsigned int spd_table_max;
+struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head =
+    { ((void *)0), &(ipsec_acquire_head).tqh_first };
 struct radix_node_head *
 spd_table_get(unsigned int rtableid)
 {
  unsigned int rdomain;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (spd_tables == ((void *)0))
   return (((void *)0));
  rdomain = rtable_l2(rtableid);
@@ -3876,6 +3879,7 @@ spd_table_add(unsigned int rtableid)
  struct radix_node_head *rnh = ((void *)0);
  unsigned int rdomain;
  void *p;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  rdomain = rtable_l2(rtableid);
  if (spd_tables == ((void *)0) || rdomain > spd_table_max) {
   if ((p = mallocarray(rdomain + 1, sizeof(*rnh),
@@ -3908,6 +3912,7 @@ ipsp_spd_lookup(struct mbuf *m, int af, int hlen, int *error, int direction,
  struct ipsec_ids *ids = ((void *)0);
  int signore = 0, dignore = 0;
  u_int rdomain = rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (!ipsec_in_use && inp == ((void *)0)) {
   *error = 0;
   return ((void *)0);
@@ -4200,6 +4205,7 @@ ipsec_delete_policy(struct ipsec_policy *ipo)
  struct radix_node_head *rnh;
  struct radix_node *rn = (struct radix_node *)ipo;
  int err = 0;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (--ipo->ipo_ref_count > 0)
   return 0;
  if ((rnh = spd_table_get(ipo->ipo_rdomain)) == ((void *)0) ||
@@ -4217,9 +4223,17 @@ ipsec_delete_policy(struct ipsec_policy *ipo)
  return err;
 }
 void
-ipsp_delete_acquire(void *v)
+ipsp_delete_acquire_timo(void *v)
 {
  struct ipsec_acquire *ipa = v;
+ do { _rw_enter_write(&netlock ); } while (0);
+ ipsp_delete_acquire(ipa);
+ do { _rw_exit_write(&netlock ); } while (0);
+}
+void
+ipsp_delete_acquire(struct ipsec_acquire *ipa)
+{
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  timeout_del(&ipa->ipa_timeout);
  do { if (((ipa)->ipa_next.tqe_next) != ((void *)0)) (ipa)->ipa_next.tqe_next->ipa_next.tqe_prev = (ipa)->ipa_next.tqe_prev; else (&ipsec_acquire_head)->tqh_last = (ipa)->ipa_next.tqe_prev; *(ipa)->ipa_next.tqe_prev = (ipa)->ipa_next.tqe_next; ((ipa)->ipa_next.tqe_prev) = ((void *)-1); ((ipa)->ipa_next.tqe_next) = ((void *)-1); } while (0);
  if (ipa->ipa_policy != ((void *)0))
@@ -4230,6 +4244,7 @@ struct ipsec_acquire *
 ipsp_pending_acquire(struct ipsec_policy *ipo, union sockaddr_union *gw)
 {
  struct ipsec_acquire *ipa;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ipa) = ((&ipo->ipo_acquires)->tqh_first); (ipa) != ((void *)0); (ipa) = ((ipa)->ipa_ipo_next.tqe_next)) {
   if (!__builtin_memcmp((gw), (&ipa->ipa_addr), (gw->sa.sa_len)))
    return ipa;
@@ -4241,6 +4256,7 @@ ipsp_acquire_sa(struct ipsec_policy *ipo, union sockaddr_union *gw,
     union sockaddr_union *laddr, struct sockaddr_encap *ddst, struct mbuf *m)
 {
  struct ipsec_acquire *ipa;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if ((ipa = ipsp_pending_acquire(ipo, gw)) != ((void *)0))
   return 0;
  if (ipsec_acquire_pool_initialized == 0) {
@@ -4252,7 +4268,7 @@ ipsp_acquire_sa(struct ipsec_policy *ipo, union sockaddr_union *gw,
  if (ipa == ((void *)0))
   return 12;
  ipa->ipa_addr = *gw;
- timeout_set(&ipa->ipa_timeout, ipsp_delete_acquire, ipa);
+ timeout_set_proc(&ipa->ipa_timeout, ipsp_delete_acquire_timo, ipa);
  ipa->ipa_info.sen_len = ipa->ipa_mask.sen_len = sizeof(struct sockaddr_encap);
  ipa->ipa_info.sen_family = ipa->ipa_mask.sen_family = 30;
  switch (ipo->ipo_addr.sen_type) {

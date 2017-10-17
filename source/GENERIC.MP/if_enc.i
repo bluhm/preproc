@@ -2153,6 +2153,7 @@ struct ifnet *
 enc_getif(u_int id, u_int unit)
 {
  struct ifnet *ifp;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (unit > 0) {
   if (unit > enc_max_unit)
    return (((void *)0));

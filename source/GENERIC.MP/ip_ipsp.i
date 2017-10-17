@@ -3087,7 +3087,6 @@ extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
 extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
@@ -4870,14 +4869,12 @@ void tdb_soft_firstuse(void *v);
 int tdb_hash(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
 int ipsec_in_use = 0;
 u_int64_t ipsec_last_added = 0;
-struct ipsec_policy_head ipsec_policy_head =
-    { ((void *)0), &(ipsec_policy_head).tqh_first };
-struct ipsec_acquire_head ipsec_acquire_head =
-    { ((void *)0), &(ipsec_acquire_head).tqh_first };
-u_int32_t ipsec_ids_next_flow = 1;
 int ipsec_ids_idle = 100;
+u_int32_t ipsec_ids_next_flow = 1;
 struct ipsec_ids_tree ipsec_ids_tree;
 struct ipsec_ids_flows ipsec_ids_flows;
+struct ipsec_policy_head ipsec_policy_head =
+    { ((void *)0), &(ipsec_policy_head).tqh_first };
 void ipsp_ids_timeout(void *);
 static inline int ipsp_ids_cmp(const struct ipsec_ids *,
     const struct ipsec_ids *);
@@ -4951,6 +4948,7 @@ tdb_hash(u_int rdomain, u_int32_t spi, union sockaddr_union *dst,
     u_int8_t proto)
 {
  SIPHASH_CTX ctx;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  SipHash_Init((&ctx), (&tdbkey));
  SipHash_Update((&ctx), 2, 4, (&rdomain), (sizeof(rdomain)));
  SipHash_Update((&ctx), 2, 4, (&spi), (sizeof(spi)));
@@ -5049,6 +5047,7 @@ gettdbbysrcdst(u_int rdomain, u_int32_t spi, union sockaddr_union *src,
  u_int32_t hashval;
  struct tdb *tdbp;
  union sockaddr_union su_null;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbsrc == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, src, proto);
@@ -5102,6 +5101,7 @@ gettdbbydst(u_int rdomain, union sockaddr_union *dst, u_int8_t sproto,
 {
  u_int32_t hashval;
  struct tdb *tdbp;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbdst == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, dst, sproto);
@@ -5123,6 +5123,7 @@ gettdbbysrc(u_int rdomain, union sockaddr_union *src, u_int8_t sproto,
 {
  u_int32_t hashval;
  struct tdb *tdbp;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbsrc == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, src, sproto);
@@ -5375,6 +5376,7 @@ struct tdb *
 tdb_alloc(u_int rdomain)
 {
  struct tdb *tdbp;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  tdbp = malloc(sizeof(*tdbp), 75, 0x0001 | 0x0008);
  do { (&tdbp->tdb_policy_head)->tqh_first = ((void *)0); (&tdbp->tdb_policy_head)->tqh_last = &(&tdbp->tdb_policy_head)->tqh_first; } while (0);
  tdbp->tdb_established = time_second;
@@ -5389,6 +5391,7 @@ void
 tdb_free(struct tdb *tdbp)
 {
  struct ipsec_policy *ipo;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  if (tdbp->tdb_xform) {
   (*(tdbp->tdb_xform->xf_zeroize))(tdbp);
   tdbp->tdb_xform = ((void *)0);
@@ -5463,6 +5466,7 @@ ipsp_ids_insert(struct ipsec_ids *ids)
 {
  struct ipsec_ids *found;
  u_int32_t start_flow;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  found = ipsec_ids_tree_RBT_INSERT(&ipsec_ids_tree, ids);
  if (found) {
   if (found->id_refcount++ == 0)
@@ -5491,6 +5495,7 @@ struct ipsec_ids *
 ipsp_ids_lookup(u_int32_t ipsecflowinfo)
 {
  struct ipsec_ids key;
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  key.id_flow = ipsecflowinfo;
  return ipsec_ids_flows_RBT_FIND(&ipsec_ids_flows, &key);
 }
@@ -5499,7 +5504,7 @@ ipsp_ids_timeout(void *arg)
 {
  struct ipsec_ids *ids = arg;
  ;
- ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 991, "ids->id_refcount == 0"));
+ ((ids->id_refcount == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1006, "ids->id_refcount == 0"));
  do { _rw_enter_write(&netlock ); } while (0);
  ipsec_ids_tree_RBT_REMOVE(&ipsec_ids_tree, ids);
  ipsec_ids_flows_RBT_REMOVE(&ipsec_ids_flows, ids);
@@ -5512,7 +5517,7 @@ void
 ipsp_ids_free(struct ipsec_ids *ids)
 {
  ;
- ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1011, "ids->id_refcount > 0"));
+ ((ids->id_refcount > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_ipsp.c", 1026, "ids->id_refcount > 0"));
  if (--ids->id_refcount == 0)
   timeout_add_sec(&ids->id_timeout, ipsec_ids_idle);
 }

@@ -3081,7 +3081,6 @@ extern struct auth_hash auth_hash_hmac_sha1_96;
 extern struct auth_hash auth_hash_hmac_ripemd_160_96;
 extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-extern struct ipsec_acquire_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipsec_acquire_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
@@ -4924,29 +4923,9 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifaliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
- case ((unsigned long)0x80000000 | ((sizeof(struct in6_aliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  switch (cmd) {
-  case ((unsigned long)0x80000000 | ((sizeof(struct ifaliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
-   src = sintosa(
-    &(((struct in_aliasreq *)data)->ifra_ifrau.ifrau_addr));
-   dst = sintosa(
-    &(((struct in_aliasreq *)data)->ifra_dstaddr));
-   break;
-  case ((unsigned long)0x80000000 | ((sizeof(struct in6_aliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
-   src = sin6tosa(
-    &(((struct in6_aliasreq *)data)->ifra_ifrau.ifrau_addr));
-   dst = sin6tosa(
-    &(((struct in6_aliasreq *)data)->ifra_dstaddr));
-   break;
-  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-   src = sstosa(&(((struct if_laddrreq *)data)->addr));
-   dst = sstosa(&(((struct if_laddrreq *)data)->dstaddr));
-   break;
-  default:
-   return (22);
-  }
+  src = sstosa(&(((struct if_laddrreq *)data)->addr));
+  dst = sstosa(&(((struct if_laddrreq *)data)->dstaddr));
   if (src->sa_family != dst->sa_family)
    return (22);
   switch (src->sa_family) {
@@ -4972,18 +4951,6 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    break;
   default:
    return (47);
-  }
-  switch (cmd) {
-  case ((unsigned long)0x80000000 | ((sizeof(struct ifaliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
-   if (src->sa_family == 2)
-    break;
-   return (47);
-  case ((unsigned long)0x80000000 | ((sizeof(struct in6_aliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
-   if (src->sa_family == 24)
-    break;
-   return (47);
-  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-   break;
   }
   for((sc2) = ((&gif_softc_list)->lh_first); (sc2)!= ((void *)0); (sc2) = ((sc2)->gif_list.le_next)) {
    if (sc2 == sc)
@@ -5034,55 +5001,6 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    free((caddr_t)sc->gif_pdst, 9, 0);
    sc->gif_pdst = ((void *)0);
   }
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((71))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((71))):
-  if (sc->gif_psrc == ((void *)0)) {
-   error = 49;
-   goto bad;
-  }
-  src = sc->gif_psrc;
-  switch (cmd) {
-  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((71))):
-   dst = &ifr->ifr_ifru.ifru_addr;
-   size = sizeof(ifr->ifr_ifru.ifru_addr);
-   break;
-  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((71))):
-   dst = sin6tosa(
-    &(((struct in6_ifreq *)data)->ifr_ifru.ifru_addr));
-   size = sizeof(((struct in6_ifreq *)data)->ifr_ifru.ifru_addr);
-   break;
-  default:
-   error = 49;
-   goto bad;
-  }
-  if (src->sa_len > size)
-   return (22);
-  __builtin_bcopy(((caddr_t)src), ((caddr_t)dst), (src->sa_len));
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((72))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((72))):
-  if (sc->gif_pdst == ((void *)0)) {
-   error = 49;
-   goto bad;
-  }
-  src = sc->gif_pdst;
-  switch (cmd) {
-  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((72))):
-   dst = &ifr->ifr_ifru.ifru_addr;
-   size = sizeof(ifr->ifr_ifru.ifru_addr);
-   break;
-  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((72))):
-   dst = sin6tosa(&(((struct in6_ifreq *)data)->ifr_ifru.ifru_addr));
-   size = sizeof(((struct in6_ifreq *)data)->ifr_ifru.ifru_addr);
-   break;
-  default:
-   error = 49;
-   goto bad;
-  }
-  if (src->sa_len > size)
-   return (22);
-  __builtin_bcopy(((caddr_t)src), ((caddr_t)dst), (src->sa_len));
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
   if (sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0)) {
