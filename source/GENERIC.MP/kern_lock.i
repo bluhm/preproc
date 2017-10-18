@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
@@ -1220,6 +1220,67 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
+{
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+ return (n);
+}
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+ return (r);
+}
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
 void witness_initialize(void);
 void witness_init(struct lock_object *, struct lock_type *);
 int witness_defineorder(struct lock_object *, struct lock_object *);
@@ -1240,22 +1301,32 @@ void witness_norelease(struct lock_object *);
 void witness_releaseok(struct lock_object *);
 const char *witness_file(struct lock_object *);
 void witness_thread_exit(struct proc *);
+void db_force_whitespace(void);
+void db_putchar(int);
+int db_print_position(void);
+int db_printf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+int db_vprintf(const char *, va_list)
+    __attribute__((__format__(__kprintf__,1,0)));
+void db_end_line(int);
+char *db_format(char *, size_t, long, int, int, int);
+void db_stack_dump(void);
 struct __mp_lock kernel_lock;
 void
 _kernel_lock_init(void)
 {
- __mp_lock_init(&kernel_lock);
+ ___mp_lock_init((&kernel_lock), ((void *)0));
 }
 void
 _kernel_lock(const char *file, int line)
 {
- ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 71, "__mp_lock_held(&sched_lock) == 0"));
- __mp_lock(&kernel_lock);
+ ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 80, "__mp_lock_held(&sched_lock) == 0"));
+ ___mp_lock((&kernel_lock) );
 }
 void
 _kernel_unlock(void)
 {
- __mp_unlock(&kernel_lock);
+ ___mp_unlock((&kernel_lock) );
 }
 int
 _kernel_lock_held(void)
@@ -1263,4 +1334,77 @@ _kernel_lock_held(void)
  if (panicstr)
   return 1;
  return (__mp_lock_held(&kernel_lock));
+}
+void
+___mp_lock_init(struct __mp_lock *mpl, struct lock_type *type)
+{
+ __builtin_memset((mpl->mpl_cpus), (0), (sizeof(mpl->mpl_cpus)));
+ mpl->mpl_users = 0;
+ mpl->mpl_ticket = 1;
+}
+static __inline void
+__mp_lock_spin(struct __mp_lock *mpl, u_int me)
+{
+ while (mpl->mpl_ticket != me)
+  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
+}
+void
+___mp_lock(struct __mp_lock *mpl )
+{
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ unsigned long s;
+ s = intr_disable();
+ if (cpu->mplc_depth++ == 0)
+  cpu->mplc_ticket = _atomic_add_int_nv((&mpl->mpl_users), 1);
+ intr_restore(s);
+ __mp_lock_spin(mpl, cpu->mplc_ticket);
+ __asm volatile("membar " "#StoreLoad|#StoreStore" ::: "memory");
+ (void)0;
+}
+void
+___mp_unlock(struct __mp_lock *mpl )
+{
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ unsigned long s;
+ (void)0;
+ s = intr_disable();
+ if (--cpu->mplc_depth == 0) {
+  __asm volatile("membar " "#LoadStore|#StoreStore" ::: "memory");
+  mpl->mpl_ticket++;
+ }
+ intr_restore(s);
+}
+int
+___mp_release_all(struct __mp_lock *mpl )
+{
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ unsigned long s;
+ int rv;
+ s = intr_disable();
+ rv = cpu->mplc_depth;
+ cpu->mplc_depth = 0;
+ __asm volatile("membar " "#LoadStore|#StoreStore" ::: "memory");
+ mpl->mpl_ticket++;
+ intr_restore(s);
+ return (rv);
+}
+int
+___mp_release_all_but_one(struct __mp_lock *mpl )
+{
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ int rv = cpu->mplc_depth - 1;
+ cpu->mplc_depth = 1;
+ return (rv);
+}
+void
+___mp_acquire_count(struct __mp_lock *mpl, int count )
+{
+ while (count--)
+  ___mp_lock(mpl );
+}
+int
+__mp_lock_held(struct __mp_lock *mpl)
+{
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ return (cpu->mplc_ticket == mpl->mpl_ticket && cpu->mplc_depth > 0);
 }

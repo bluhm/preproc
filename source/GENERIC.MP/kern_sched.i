@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 struct mdproc {
@@ -2384,23 +2384,23 @@ sched_idle(void *v)
  int s;
  _kernel_unlock();
  spc = &ci->ci_schedstate;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  cpuset_add(&sched_idle_cpus, ci);
  p->p_stat = 3;
  p->p_cpu = ci;
  atomic_setbits_int(&p->p_flag, 0x40000000);
  mi_switch();
  cpuset_del(&sched_idle_cpus, ci);
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  ((ci == (__curcpu->ci_self)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 148, "ci == curcpu()"));
  (((__curcpu->ci_self)->ci_curproc == spc->spc_idleproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 149, "curproc == spc->spc_idleproc"));
  while (1) {
   while (!(((__curcpu->ci_self))->ci_schedstate.spc_whichqs == 0)) {
    struct proc *dead;
-   do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+   do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
    p->p_stat = 3;
    mi_switch();
-   do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+   do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
    while ((dead = ((&spc->spc_deadproc)->lh_first))) {
     do { if ((dead)->p_hash.le_next != ((void *)0)) (dead)->p_hash.le_next->p_hash.le_prev = (dead)->p_hash.le_prev; *(dead)->p_hash.le_prev = (dead)->p_hash.le_next; ((dead)->p_hash.le_prev) = ((void *)-1); ((dead)->p_hash.le_next) = ((void *)-1); } while (0);
     exit2(dead);
@@ -2413,10 +2413,10 @@ sched_idle(void *v)
    if (spc->spc_schedflags & 0x0004 &&
        (spc->spc_schedflags & 0x0008) == 0) {
     cpuset_del(&sched_idle_cpus, ci);
-    do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+    do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
     atomic_setbits_int(&spc->spc_schedflags,
         spc->spc_whichqs ? 0 : 0x0008);
-    do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+    do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
     wakeup(spc);
    }
    cpu_idle_cycle();
@@ -2437,7 +2437,7 @@ sched_exit(struct proc *p)
  do { (&p->p_rtime)->tv_sec = (&p->p_rtime)->tv_sec + (&ts)->tv_sec; (&p->p_rtime)->tv_nsec = (&p->p_rtime)->tv_nsec + (&ts)->tv_nsec; if ((&p->p_rtime)->tv_nsec >= 1000000000L) { (&p->p_rtime)->tv_sec++; (&p->p_rtime)->tv_nsec -= 1000000000L; } } while (0);
  do { if (((p)->p_hash.le_next = (&spc->spc_deadproc)->lh_first) != ((void *)0)) (&spc->spc_deadproc)->lh_first->p_hash.le_prev = &(p)->p_hash.le_next; (&spc->spc_deadproc)->lh_first = (p); (p)->p_hash.le_prev = &(&spc->spc_deadproc)->lh_first; } while (0);
  _kernel_unlock();
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  idle = spc->spc_idleproc;
  idle->p_stat = 2;
  cpu_switchto(((void *)0), idle);
@@ -2518,10 +2518,10 @@ again:
   p = spc->spc_idleproc;
   if (p == ((void *)0)) {
                         int s;
-   __mp_unlock(&sched_lock);
+   ___mp_unlock((&sched_lock) );
    _spl(0);
    delay(10);
-   do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+   do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
    goto again;
                 }
   ((p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 330, "p"));
@@ -2666,7 +2666,7 @@ sched_peg_curproc(struct cpu_info *ci)
 {
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_priority = p->p_usrpri;
  p->p_stat = 2;
  p->p_cpu = ci;
@@ -2674,7 +2674,7 @@ sched_peg_curproc(struct cpu_info *ci)
  setrunqueue(p);
  p->p_ru.ru_nvcsw++;
  mi_switch();
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 sched_start_secondary_cpus(void)

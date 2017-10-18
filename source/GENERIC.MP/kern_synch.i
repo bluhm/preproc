@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
@@ -3461,8 +3461,8 @@ tsleep(const volatile void *ident, int priority, const char *wmesg, int timo)
   s = _splraise(15);
   _splx(safepri);
   if (__mp_lock_held(&kernel_lock)) {
-   hold_count = __mp_release_all(&kernel_lock);
-   __mp_acquire_count(&kernel_lock, hold_count);
+   hold_count = ___mp_release_all((&kernel_lock) );
+   ___mp_acquire_count((&kernel_lock), (hold_count) );
   }
   _splx(s);
   return (0);
@@ -3492,8 +3492,8 @@ msleep(const volatile void *ident, struct mutex *mtx, int priority,
   (mtx)->mtx_oldipl = safepri;
   __mtx_leave(mtx );
   if (__mp_lock_held(&kernel_lock)) {
-   hold_count = __mp_release_all(&kernel_lock);
-   __mp_acquire_count(&kernel_lock, hold_count);
+   hold_count = ___mp_release_all((&kernel_lock) );
+   ___mp_acquire_count((&kernel_lock), (hold_count) );
   }
   if ((priority & 0x200) == 0) {
    __mtx_enter(mtx );
@@ -3561,7 +3561,7 @@ sleep_setup(struct sleep_state *sls, const volatile void *ident, int prio,
  sls->sls_catch = 0;
  sls->sls_do_sleep = 1;
  sls->sls_sig = 1;
- do { sls->sls_s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { sls->sls_s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_wchan = ident;
  p->p_wmesg = wmesg;
  p->p_slptime = 0;
@@ -3583,7 +3583,7 @@ sleep_finish(struct sleep_state *sls, int do_sleep)
  if (p->p_stat != 7)
   panic("sleep_finish !SONPROC");
  p->p_cpu->ci_schedstate.spc_curpriority = p->p_usrpri;
- do { __mp_unlock(&sched_lock); _splx(sls->sls_s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(sls->sls_s); } while ( 0);
  atomic_clearbits_int(&p->p_flag, 0x00000080);
 }
 void
@@ -3642,7 +3642,7 @@ endtsleep(void *arg)
 {
  struct proc *p = arg;
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  if (p->p_wchan) {
   if (p->p_stat == 3)
    setrunnable(p);
@@ -3650,7 +3650,7 @@ endtsleep(void *arg)
    unsleep(p);
   atomic_setbits_int(&p->p_flag, 0x00000400);
  }
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 unsleep(struct proc *p)
@@ -3668,7 +3668,7 @@ wakeup_n(const volatile void *ident, int n)
  struct proc *p;
  struct proc *pnext;
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  qp = &slpque[(((long)(ident) >> 8) & (128 - 1))];
  for (p = ((qp)->tqh_first); p != ((void *)0) && n != 0; p = pnext) {
   pnext = ((p)->p_runq.tqe_next);
@@ -3686,7 +3686,7 @@ wakeup_n(const volatile void *ident, int n)
     setrunnable(p);
   }
  }
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 wakeup(const volatile void *chan)
@@ -3698,7 +3698,7 @@ sys_sched_yield(struct proc *p, void *v, register_t *retval)
 {
  struct proc *q;
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_priority = p->p_usrpri;
  for((q) = ((&p->p_p->ps_threads)->tqh_first); (q) != ((void *)0); (q) = ((q)->p_thr_link.tqe_next))
   p->p_priority = max(p->p_priority, q->p_priority);
@@ -3706,7 +3706,7 @@ sys_sched_yield(struct proc *p, void *v, register_t *retval)
  setrunqueue(p);
  p->p_ru.ru_nvcsw++;
  mi_switch();
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  return (0);
 }
 int

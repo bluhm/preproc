@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 struct sigacts {
@@ -5543,7 +5543,7 @@ ptsignal(struct proc *p, int signum, enum signal_type type)
     ptsignal(q, signum, SPROPAGATED);
  if (action == (void (*)(int))3 && ((prop & 0x20) == 0 || p->p_stat != 4))
   return;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  switch (p->p_stat) {
  case 3:
   if ((p->p_flag & 0x00000080) == 0)
@@ -5601,7 +5601,7 @@ runfast:
 run:
  setrunnable(p);
 out:
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  if (wakeparent)
   wakeup(pr->ps_pptr);
 }
@@ -5632,10 +5632,10 @@ issignal(struct proc *p)
    if (dolock)
     _kernel_unlock();
    if (dolock)
-    do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+    do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
    proc_stop(p, 1);
    if (dolock)
-    do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+    do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
    if (dolock)
     _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1175);
    single_thread_clear(p, 0);
@@ -5664,10 +5664,10 @@ issignal(struct proc *p)
      break;
     p->p_xstat = signum;
     if (dolock)
-     do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+     do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
     proc_stop(p, 1);
     if (dolock)
-     do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+     do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
     break;
    } else if (prop & 0x10) {
     break;
@@ -6099,10 +6099,10 @@ single_thread_check(struct proc *p, int deep)
     wakeup(&pr->ps_singlecount);
    if (pr->ps_flags & 0x00001000)
     exit1(p, 0, 0x00000003);
-   do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+   do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
    p->p_stat = 4;
    mi_switch();
-   do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+   do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
   } while (pr->ps_single != ((void *)0));
  }
  return (0);
@@ -6138,16 +6138,16 @@ single_thread_set(struct proc *p, enum single_thread_mode mode, int deep)
    continue;
   if (q->p_flag & 0x00002000) {
    if (mode == SINGLE_EXIT) {
-    do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+    do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
     if (q->p_stat == 4) {
      setrunnable(q);
      pr->ps_singlecount++;
     }
-    do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+    do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
    }
    continue;
   }
-  do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+  do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
   atomic_setbits_int(&q->p_flag, 0x00080000);
   switch (q->p_stat) {
   case 1:
@@ -6178,7 +6178,7 @@ single_thread_set(struct proc *p, enum single_thread_mode mode, int deep)
    signotify(q);
    break;
   }
-  do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+  do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  }
  if (mode != SINGLE_PTRACE)
   single_thread_wait(pr);
@@ -6204,13 +6204,13 @@ single_thread_clear(struct proc *p, int flag)
   if (q == p || (q->p_flag & 0x00080000) == 0)
    continue;
   atomic_clearbits_int(&q->p_flag, 0x00080000);
-  do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+  do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
   if (q->p_stat == 4 && (q->p_flag & flag) == 0) {
    if (q->p_wchan == 0)
     setrunnable(q);
    else
     q->p_stat = 3;
   }
-  do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+  do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  }
 }

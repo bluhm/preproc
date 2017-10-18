@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
@@ -4107,10 +4107,10 @@ donice(struct proc *curp, struct process *chgpr, int n)
  if (n < chgpr->ps_nice && suser(curp, 0))
   return (13);
  chgpr->ps_nice = n;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  for((p) = ((&chgpr->ps_threads)->tqh_first); (p) != ((void *)0); (p) = ((p)->p_thr_link.tqe_next))
   (void)resetpriority(p);
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  return (0);
 }
 int
@@ -4228,9 +4228,9 @@ void
 tuagg(struct process *pr, struct proc *p)
 {
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  tuagg_unlocked(pr, p);
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 calctsru(struct tusage *tup, struct timespec *up, struct timespec *sp,

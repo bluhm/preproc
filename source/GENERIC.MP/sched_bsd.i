@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
@@ -2472,7 +2472,7 @@ schedcpu(void *arg)
   p->p_pctcpu = (p->p_pctcpu * ccpu) >> 11;
   if (p->p_slptime > 1)
    continue;
-  do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+  do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
   p->p_pctcpu += (phz == 100)?
    ((fixpt_t) p->p_cpticks) << (11 - 11):
                  100 * (((fixpt_t) p->p_cpticks)
@@ -2491,7 +2491,7 @@ schedcpu(void *arg)
    } else
     p->p_priority = p->p_usrpri;
   }
-  do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+  do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
  }
  uvm_meter();
  wakeup(&lbolt);
@@ -2519,26 +2519,26 @@ yield(void)
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  int s;
  do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0);
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_priority = p->p_usrpri;
  p->p_stat = 2;
  setrunqueue(p);
  p->p_ru.ru_nvcsw++;
  mi_switch();
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 preempt(void)
 {
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_priority = p->p_usrpri;
  p->p_stat = 2;
  setrunqueue(p);
  p->p_ru.ru_nivcsw++;
  mi_switch();
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void
 mi_switch(void)
@@ -2555,9 +2555,9 @@ mi_switch(void)
  assertwaitok();
  ((p->p_stat != 7) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sched_bsd.c", 348, "p->p_stat != SONPROC"));
  do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sched_bsd.c", 350, "__mp_lock_held(&sched_lock)")); } while (0);
- sched_count = __mp_release_all_but_one(&sched_lock);
+ sched_count = ___mp_release_all_but_one((&sched_lock) );
  if (__mp_lock_held(&kernel_lock))
-  hold_count = __mp_release_all(&kernel_lock);
+  hold_count = ___mp_release_all((&kernel_lock) );
  else
   hold_count = 0;
  nanouptime(&ts);
@@ -2588,13 +2588,13 @@ mi_switch(void)
  }
  ((__curcpu->ci_self))->ci_want_resched = 0;
  do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sched_bsd.c", 417, "__mp_lock_held(&sched_lock)")); } while (0);
- __mp_unlock(&sched_lock);
+ ___mp_unlock((&sched_lock) );
  ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sched_bsd.c", 429, "__mp_lock_held(&sched_lock) == 0"));
  ((p->p_cpu == (__curcpu->ci_self)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sched_bsd.c", 436, "p->p_cpu == curcpu()"));
  nanouptime(&p->p_cpu->ci_schedstate.spc_runtime);
  if (hold_count)
-  __mp_acquire_count(&kernel_lock, hold_count);
- __mp_acquire_count(&sched_lock, sched_count + 1);
+  ___mp_acquire_count((&kernel_lock), (hold_count) );
+ ___mp_acquire_count((&sched_lock), (sched_count + 1) );
 }
 static __inline void
 resched_proc(struct proc *p, u_char pri)
@@ -2646,12 +2646,12 @@ void
 schedclock(struct proc *p)
 {
  int s;
- do { s = _splraise(14); __mp_lock(&sched_lock); } while ( 0);
+ do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_estcpu = min((p->p_estcpu + 1), 2 * 20 - (128 / 32));
  resetpriority(p);
  if (p->p_priority >= 50)
   p->p_priority = p->p_usrpri;
- do { __mp_unlock(&sched_lock); _splx(s); } while ( 0);
+ do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
 }
 void (*cpu_setperf)(int);
 int perflevel = 100;

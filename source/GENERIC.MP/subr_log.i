@@ -952,20 +952,20 @@ struct blink_led {
 };
 extern void blink_led_register(struct blink_led *);
 struct __mp_lock_cpu {
- volatile u_int mplc_ticket;
- volatile u_int mplc_depth;
+ u_int mplc_ticket;
+ u_int mplc_depth;
 };
 struct __mp_lock {
  struct __mp_lock_cpu mpl_cpus[256];
  volatile u_int mpl_ticket;
- volatile u_int mpl_users;
+ u_int mpl_users;
 };
-void __mp_lock_init(struct __mp_lock *);
-void __mp_lock(struct __mp_lock *);
-void __mp_unlock(struct __mp_lock *);
-int __mp_release_all(struct __mp_lock *);
-int __mp_release_all_but_one(struct __mp_lock *);
-void __mp_acquire_count(struct __mp_lock *, int);
+void ___mp_lock_init(struct __mp_lock *, struct lock_type *);
+void ___mp_lock(struct __mp_lock * );
+void ___mp_unlock(struct __mp_lock * );
+int ___mp_release_all(struct __mp_lock * );
+int ___mp_release_all_but_one(struct __mp_lock * );
+void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
@@ -4595,24 +4595,28 @@ sys_sendsyslog(struct proc *p, void *v, register_t *retval)
 {
  struct sys_sendsyslog_args *uap = v;
  int error;
- static int dropped_count, orig_error;
+ static int dropped_count, orig_error, orig_pid;
  if (dropped_count) {
   size_t l;
-  char buf[64];
+  char buf[80];
   l = snprintf(buf, sizeof(buf),
-      "<%d>sendsyslog: dropped %d message%s, error %d",
+      "<%d>sendsyslog: dropped %d message%s, error %d, pid %d",
       (0<<3)|4, dropped_count,
-      dropped_count == 1 ? "" : "s", orig_error);
+      dropped_count == 1 ? "" : "s", orig_error, orig_pid);
   error = dosendsyslog(p, buf, ulmin(l, sizeof(buf) - 1),
       0, UIO_SYSSPACE);
-  if (error == 0)
+  if (error == 0) {
    dropped_count = 0;
+   orig_error = 0;
+   orig_pid = 0;
+  }
  }
  error = dosendsyslog(p, ((uap)->buf.be.datum), ((uap)->nbyte.be.datum),
      ((uap)->flags.be.datum), UIO_USERSPACE);
  if (error) {
   dropped_count++;
   orig_error = error;
+  orig_pid = p->p_p->ps_pid;
  }
  return (error);
 }
