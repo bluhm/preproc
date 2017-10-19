@@ -6192,11 +6192,17 @@ icmp6_reflect(struct mbuf *m, size_t off)
  struct icmp6_hdr *icmp6;
  struct in6_addr t, *src = ((void *)0);
  struct sockaddr_in6 sa6_src, sa6_dst;
+ u_int rtableid;
  extern char _ctassert[(sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr) <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? 1 : -1 ] __attribute__((__unused__));
  if (off < sizeof(struct ip6_hdr)) {
-  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1055); } while (0);
+  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1056); } while (0);
   goto bad;
  }
+ if (m->M_dat.MH.MH_pkthdr.ph_loopcnt++ >= 128)
+  goto bad;
+ rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ m_resethdr(m);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = rtableid;
  if (off > sizeof(struct ip6_hdr)) {
   size_t l;
   struct ip6_hdr nip6;
@@ -6230,7 +6236,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
  sa6_dst.sin6_family = 24;
  sa6_dst.sin6_len = sizeof(sa6_dst);
  sa6_dst.sin6_addr = t;
- rt = rtalloc(sin6tosa(&sa6_dst), 0, m->M_dat.MH.MH_pkthdr.ph_rtableid);
+ rt = rtalloc(sin6tosa(&sa6_dst), 0, rtableid);
  if (rtisvalid(rt) && ((rt->rt_flags) & (0x200000)) &&
      !((ifatoia6(rt->rt_ifa)->ia6_flags) & (0x01|0x02|0x04))) {
   src = &t;
@@ -6238,8 +6244,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
  rtfree(rt);
  rt = ((void *)0);
  if (src == ((void *)0)) {
-  rt = rtalloc(sin6tosa(&sa6_src), 1,
-      m->M_dat.MH.MH_pkthdr.ph_rtableid);
+  rt = rtalloc(sin6tosa(&sa6_src), 1, rtableid);
   if (!rtisvalid(rt)) {
    char addr[46];
    do { if (nd6_debug) log (7, "%s: source can't be determined: dst=%s\n", __func__, inet_ntop(24, &sa6_src.sin6_addr, addr, sizeof(addr))); } while (0);
@@ -6258,7 +6263,6 @@ icmp6_reflect(struct mbuf *m, size_t off)
  icmp6->icmp6_cksum = 0;
  m->M_dat.MH.MH_pkthdr.csum_flags = 0x0200;
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- pf_pkt_addr_changed(m);
  ip6_send(m);
  return;
  bad:

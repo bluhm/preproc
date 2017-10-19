@@ -4801,8 +4801,13 @@ icmp_reflect(struct mbuf *m, struct mbuf **op, struct in_ifaddr *ia)
   m_freem(m);
   return (65);
  }
- pf_pkt_addr_changed(m);
+ if (m->M_dat.MH.MH_pkthdr.ph_loopcnt++ >= 128) {
+  m_freem(m);
+  return (62);
+ }
  rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ m_resethdr(m);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = rtableid;
  if (ia == ((void *)0)) {
   __builtin_memset((&sin), (0), (sizeof(sin)));
   sin.sin_len = sizeof(sin);
