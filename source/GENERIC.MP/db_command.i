@@ -3544,8 +3544,10 @@ db_show_all_mounts(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  struct mount *mp;
  if (modif[0] == 'f')
   full = 1;
- for((mp) = ((&mountlist)->tqh_first); (mp) != ((void *)0); (mp) = ((mp)->mnt_list.tqe_next))
+ for((mp) = ((&mountlist)->tqh_first); (mp) != ((void *)0); (mp) = ((mp)->mnt_list.tqe_next)) {
+  db_printf("mountpoint %p\n", mp);
   vfs_mount_print(mp, full, db_printf);
+ }
 }
 extern struct pool vnode_pool;
 void

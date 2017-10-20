@@ -1694,6 +1694,7 @@ struct pkthdr {
  u_int ph_rtableid;
  u_int ph_ifidx;
  u_int8_t ph_loopcnt;
+ u_int8_t ph_family;
  struct pkthdr_pf pf;
 };
 struct mbuf_ext {

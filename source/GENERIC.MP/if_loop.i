@@ -1277,6 +1277,7 @@ struct pkthdr {
  u_int ph_rtableid;
  u_int ph_ifidx;
  u_int8_t ph_loopcnt;
+ u_int8_t ph_family;
  struct pkthdr_pf pf;
 };
 struct mbuf_ext {
@@ -2675,6 +2676,7 @@ u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
 int loioctl(struct ifnet *, u_long, caddr_t);
 void loopattach(int);
 void lortrequest(struct ifnet *, int, struct rtentry *);
+int loinput(struct ifnet *, struct mbuf *, void *);
 int looutput(struct ifnet *,
      struct mbuf *, struct sockaddr *, struct rtentry *);
 int loop_clone_create(struct if_clone *, int);
@@ -2714,6 +2716,7 @@ loop_clone_create(struct if_clone *ifc, int unit)
   if_attach(ifp);
  if_alloc_sadl(ifp);
  bpfattach(&ifp->if_bpf, ifp, 12, sizeof(u_int32_t));
+ if_ih_insert(ifp, loinput, ((void *)0));
  return (0);
 }
 int
@@ -2721,22 +2724,40 @@ loop_clone_destroy(struct ifnet *ifp)
 {
  if (ifp->if_index == rtable_loindex(ifp->if_data.ifi_rdomain))
   return (1);
+ if_ih_remove(ifp, loinput, ((void *)0));
  if_detach(ifp);
  free(ifp, 2, sizeof(*ifp));
  return (0);
+}
+int
+loinput(struct ifnet *ifp, struct mbuf *m, void *cookie)
+{
+ int error;
+ if ((m->m_hdr.mh_flags & 0x0002) == 0)
+  panic("%s: no header mbuf", __func__);
+ error = if_input_local(ifp, m, m->M_dat.MH.MH_pkthdr.ph_family);
+ if (error)
+  ifp->if_data.ifi_ierrors++;
+ return (1);
 }
 int
 looutput(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
     struct rtentry *rt)
 {
  if ((m->m_hdr.mh_flags & 0x0002) == 0)
-  panic("looutput: no header mbuf");
+  panic("%s: no header mbuf", __func__);
  if (rt && rt->rt_flags & (0x8|0x1000)) {
   m_freem(m);
   return (rt->rt_flags & 0x1000 ? 0 :
    rt->rt_flags & 0x4 ? 65 : 51);
  }
- return (if_input_local(ifp, m, dst->sa_family));
+ if ((m->m_hdr.mh_flags & 0x0040) == 0)
+  return (if_input_local(ifp, m, dst->sa_family));
+ m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
+ if (mq_enqueue(&ifp->if_inputqueue, m))
+  return 55;
+ task_add(softnettq, ifp->if_inputtask);
+ return (0);
 }
 void
 lortrequest(struct ifnet *ifp, int cmd, struct rtentry *rt)
