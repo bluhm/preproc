@@ -3820,8 +3820,6 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   dohooks(ifp->if_addrhooks, 0);
   break;
  default:
-  if (ifp->if_ioctl == ((void *)0))
-   return (45);
   error = ((*ifp->if_ioctl)(ifp, cmd, data));
   return (error);
  }
@@ -4282,10 +4280,6 @@ in6_addmulti(struct in6_addr *maddr6, struct ifnet *ifp, int *errorp)
  if (in6m != ((void *)0)) {
   in6m->in6m_ifma.ifma_refcnt++;
  } else {
-  if (ifp->if_ioctl == ((void *)0)) {
-   *errorp = 6;
-   return (((void *)0));
-  }
   in6m = malloc(sizeof(*in6m), 54, 0x0002 | 0x0008);
   if (in6m == ((void *)0)) {
    *errorp = 55;

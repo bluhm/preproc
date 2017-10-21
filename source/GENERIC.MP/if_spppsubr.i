@@ -3361,12 +3361,6 @@ sppp_ioctl(struct ifnet *ifp, u_long cmd, void *data)
   }
   ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((126))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_mtu;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((165))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_hardmtu;
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
