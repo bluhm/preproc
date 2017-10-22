@@ -3807,6 +3807,7 @@ struct ieee80211_rxinfo;
 struct ieee80211_rsnparams;
 extern void ieee80211_set_link_state(struct ieee80211com *, int);
 extern u_int ieee80211_get_hdrlen(const struct ieee80211_frame *);
+extern int ieee80211_classify(struct ieee80211com *, struct mbuf *);
 extern void ieee80211_input(struct ifnet *, struct mbuf *,
   struct ieee80211_node *, struct ieee80211_rxinfo *);
 extern int ieee80211_output(struct ifnet *, struct mbuf *, struct sockaddr *,
@@ -4112,7 +4113,6 @@ struct ieee80211_rsnparams {
  u_int8_t rsn_npmkids;
  const u_int8_t *rsn_pmkids;
 };
-int ieee80211_classify(struct ieee80211com *, struct mbuf *);
 int ieee80211_mgmt_output(struct ifnet *, struct ieee80211_node *,
      struct mbuf *, int);
 u_int8_t *ieee80211_add_rsn_body(u_int8_t *, struct ieee80211com *,
@@ -4791,7 +4791,7 @@ u_int8_t *
 ieee80211_add_xrates(u_int8_t *frm, const struct ieee80211_rateset *rs)
 {
  int nrates;
- ((rs->rs_nrates > 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1045, "rs->rs_nrates > IEEE80211_RATE_SIZE"));
+ ((rs->rs_nrates > 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1044, "rs->rs_nrates > IEEE80211_RATE_SIZE"));
  *frm++ = IEEE80211_ELEMID_XRATES;
  nrates = rs->rs_nrates - 8;
  *frm++ = nrates;
@@ -5393,7 +5393,7 @@ ieee80211_pwrsave(struct ieee80211com *ic, struct mbuf *m,
 {
  const struct ieee80211_frame *wh;
  int pssta = 0;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1897, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1896, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  if (!(ic->ic_caps & 0x00000020))
   return 0;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
