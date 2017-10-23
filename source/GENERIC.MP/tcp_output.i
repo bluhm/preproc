@@ -4091,7 +4091,7 @@ again:
   }
  }
  if (!sack_rxmit) {
- len = ulmin(so->so_snd.sb_cc, win) - off;
+  len = ulmin(so->so_snd.sb_cc, win) - off;
  }
  if (len < 0) {
   len = 0;

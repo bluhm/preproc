@@ -6755,7 +6755,8 @@ findpcb:
   if (cw > tp->snd_ssthresh)
    incr = incr * incr / cw;
   if (tp->t_dupacks < tcprexmtthresh)
-  tp->snd_cwnd = ulmin(cw + incr, 65535<<tp->snd_scale);
+   tp->snd_cwnd = ulmin(cw + incr,
+       65535 << tp->snd_scale);
   }
   do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
   if (acked > so->so_snd.sb_cc) {
