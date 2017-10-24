@@ -6428,7 +6428,7 @@ cpu_startup(void)
  vaddr_t minaddr, maxaddr;
  extern struct user *proc0paddr;
  proc0.p_addr = proc0paddr;
- printf(version);
+ printf("%s", version);
  printf("real mem = %lu (%luMB)\n", ((paddr_t)((psize_t)physmem) << 13),
      ((paddr_t)((psize_t)physmem) << 13)/1024/1024);
  minaddr = ((kernel_map)->min_offset);
