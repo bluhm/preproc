@@ -5783,7 +5783,7 @@ vxlan_lookup(struct mbuf *m, struct udphdr *uh, int iphlen,
   __builtin_memcpy((&brtag->brtag_local.sa), (dstsa), (dstsa->sa_len));
   brtag->brtag_id = vni;
  }
- m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  pf_pkt_addr_changed(m);
  if ((m->m_hdr.mh_len < sizeof(struct ether_header)) &&
      (m = m_pullup(m, sizeof(struct ether_header))) == ((void *)0))
@@ -5810,6 +5810,7 @@ vxlan_encap4(struct ifnet *ifp, struct mbuf *m,
 {
  struct vxlan_softc *sc = (struct vxlan_softc *)ifp->if_softc;
  struct ip *ip;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  (m) = m_prepend((m), (sizeof(*ip)), (0x0002));
  if (m == ((void *)0))
   return (((void *)0));
@@ -5836,6 +5837,7 @@ vxlan_encap6(struct ifnet *ifp, struct mbuf *m,
  struct vxlan_softc *sc = (struct vxlan_softc *)ifp->if_softc;
  struct ip6_hdr *ip6;
  struct in6_addr *in6a;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  (m) = m_prepend((m), (sizeof(struct ip6_hdr)), (0x0002));
  if (m == ((void *)0))
   return (((void *)0));

@@ -3703,9 +3703,6 @@ struct tcpcb {
  int sack_enable;
  int snd_numholes;
  struct sackhole *snd_holes;
- tcp_seq snd_fack;
- u_long snd_awnd;
- int retran_data;
  tcp_seq snd_last;
  u_long rcv_wnd;
  tcp_seq rcv_nxt;
