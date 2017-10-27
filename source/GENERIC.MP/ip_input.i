@@ -6162,7 +6162,6 @@ ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
  }
  if (ipsec_in_use) {
   int rv;
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 485, "_kernel_lock_held()"));
   rv = ipsec_forward_check(m, hlen, 2);
   if (rv != 0) {
    ipstat_inc(ips_cantforward);
@@ -6258,7 +6257,7 @@ ip_deliver(struct mbuf **mp, int *offp, int nxt, int af)
  struct protosw *psw;
  int naf = af;
  int nest = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 640, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 638, "_kernel_lock_held()"));
  switch (af) {
  case 2:
   in_proto_cksum_out(*mp, ((void *)0));
@@ -6565,7 +6564,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1098);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1096);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
@@ -7091,24 +7090,14 @@ ip_send_dispatch(void *xmq)
  struct mbuf_queue *mq = xmq;
  struct mbuf *m;
  struct mbuf_list ml;
- int locked = 0;
  mq_delist(mq, &ml);
  if (((&ml)->ml_len == 0))
   return;
  do { _rw_enter_write(&netlock ); } while (0);
- extern int ipsec_in_use;
- if (ipsec_in_use) {
-  do { _rw_exit_write(&netlock ); } while (0);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1847);
-  do { _rw_enter_write(&netlock ); } while (0);
-  locked = 1;
- }
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip_output(m, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), 0);
  }
  do { _rw_exit_write(&netlock ); } while (0);
- if (locked)
-  _kernel_unlock();
 }
 void
 ip_send(struct mbuf *m)

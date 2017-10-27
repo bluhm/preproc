@@ -4205,6 +4205,14 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ic->ic_flags = (ic->ic_flags & ~0xf0000000) | flags;
   error = 52;
   break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
+  error = (cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49)))) ?
+      ether_addmulti(ifr, &ic->ic_ac) :
+      ether_delmulti(ifr, &ic->ic_ac);
+  if (error == 52)
+   error = 0;
+  break;
  default:
   error = ether_ioctl(ifp, &ic->ic_ac, cmd, data);
  }

@@ -6408,9 +6408,6 @@ uath_watchdog(struct ifnet *ifp)
 int
 uath_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
- struct uath_softc *sc = ifp->if_softc;
- struct ieee80211com *ic = &sc->sc_ic;
- struct ifreq *ifr;
  int s, error = 0;
  s = _splraise(6);
  switch (cmd) {
@@ -6424,15 +6421,6 @@ uath_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    if (ifp->if_flags & 0x40)
     uath_stop(ifp, 1);
   }
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
-  ifr = (struct ifreq *)data;
-  error = (cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49)))) ?
-      ether_addmulti(ifr, &ic->ic_ac) :
-      ether_delmulti(ifr, &ic->ic_ac);
-  if (error == 52)
-   error = 0;
   break;
  default:
   error = ieee80211_ioctl(ifp, cmd, data);

@@ -6779,7 +6779,6 @@ rtwn_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
  struct rtwn_softc *sc = ifp->if_softc;
  struct ieee80211com *ic = &sc->sc_ic;
- struct ifreq *ifr;
  int s, error = 0;
  s = _splraise(6);
  while ((sc->sc_flags & 0x02) && error == 0)
@@ -6800,15 +6799,6 @@ rtwn_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    if (ifp->if_flags & 0x40)
     rtwn_stop(ifp);
   }
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
-  ifr = (struct ifreq *)data;
-  error = (cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49)))) ?
-      ether_addmulti(ifr, &ic->ic_ac) :
-      ether_delmulti(ifr, &ic->ic_ac);
-  if (error == 52)
-   error = 0;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211chanreq) & 0x1fff) << 16) | ((('i')) << 8) | ((238))):
   error = ieee80211_ioctl(ifp, cmd, data);

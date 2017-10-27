@@ -6016,7 +6016,6 @@ reroute:
    ip->ip_src = ia->ia_addr.sin_addr;
  }
  if (ipsec_in_use || inp != ((void *)0)) {
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 236, "_kernel_lock_held()"));
   tdb = ip_output_ipsec_lookup(m, hlen, &error, inp,
       ipsecflowinfo);
   if (error != 0) {
@@ -6065,7 +6064,7 @@ reroute:
   else {
    if (ipmforwarding && ip_mrouter[ifp->if_data.ifi_rdomain] &&
        (flags & 0x1) == 0) {
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 342);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 341);
     rv = ip_mforward(m, ifp);
     _kernel_unlock();
     if (rv != 0) {
@@ -6102,7 +6101,6 @@ sendit:
      (ro->ro_rt->rt_rmx.rmx_locks & 0x1) == 0)
   ip->ip_off |= ((__uint16_t)(0x4000));
  if (tdb != ((void *)0)) {
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 407, "_kernel_lock_held()"));
   error = ip_output_ipsec_send(tdb, m, ifp, ro);
   goto done;
  }

@@ -3631,12 +3631,6 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  if (ifp == ((void *)0))
   return (45);
  switch (cmd) {
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((77))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((79))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((80))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((87))):
-  if (!privileged)
-   return (1);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_nbrinfo) & 0x1fff) << 16) | ((('i')) << 8) | ((78))):
   return (nd6_ioctl(cmd, data, ifp));
@@ -3645,17 +3639,11 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  case ((unsigned long)0x80000000 | ((sizeof(struct in6_aliasreq) & 0x1fff) << 16) | ((('i')) << 8) | ((26))):
   sa6 = &ifra->ifra_ifrau.ifrau_addr;
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
  case ((unsigned long)0x80000000 | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((25))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((77))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((79))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((80))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((81))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((83))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((84))):
   sa6 = &ifr->ifr_ifru.ifru_addr;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
@@ -3697,7 +3685,6 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   if (!privileged)
    return (1);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
@@ -3707,9 +3694,6 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   break;
  }
  switch (cmd) {
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
-  ifr->ifr_ifru.ifru_addr = ia6->ia_addr;
-  break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
   if ((ifp->if_flags & 0x10) == 0)
    return (22);
@@ -3721,9 +3705,6 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
   ifr->ifr_ifru.ifru_flags6 = ia6->ia6_flags;
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((83))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((84))):
-  return (45);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((81))):
   ifr->ifr_ifru.ifru_lifetime = ia6->ia6_lifetime;
   if (ia6->ia6_lifetime.ia6t_vltime != 0xffffffff) {

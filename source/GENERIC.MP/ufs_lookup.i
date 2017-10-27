@@ -2981,7 +2981,7 @@ struct ufid {
  int32_t ufid_gen;
 };
 struct dirhash {
- struct mutex dh_mtx;
+ struct rwlock dh_mtx;
  int32_t **dh_hash;
  int dh_narrays;
  int dh_hlen;

@@ -4525,22 +4525,6 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
   ndi->ndi = *(((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((87))):
-  error = 91;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((77))):
-  error = 91;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((79))):
- {
-  error = 91;
-  break;
- }
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((80))):
- {
-  error = 91;
-  break;
- }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_nbrinfo) & 0x1fff) << 16) | ((('i')) << 8) | ((78))):
  {
   struct llinfo_nd6 *ln;
@@ -4739,7 +4723,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1359, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1340, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

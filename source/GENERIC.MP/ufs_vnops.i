@@ -3460,7 +3460,7 @@ void softdep_setup_directory_change(struct buf *, struct inode *,
 void softdep_change_linkcnt(struct inode *, int);
 int softdep_slowdown(struct vnode *);
 struct dirhash {
- struct mutex dh_mtx;
+ struct rwlock dh_mtx;
  int32_t **dh_hash;
  int dh_narrays;
  int dh_hlen;

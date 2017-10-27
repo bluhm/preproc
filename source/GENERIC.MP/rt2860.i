@@ -6052,7 +6052,6 @@ rt2860_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
  struct rt2860_softc *sc = ifp->if_softc;
  struct ieee80211com *ic = &sc->sc_ic;
- struct ifreq *ifr;
  int s, error = 0;
  s = _splraise(6);
  switch (cmd) {
@@ -6066,15 +6065,6 @@ rt2860_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    if (ifp->if_flags & 0x40)
     rt2860_stop(ifp, 1);
   }
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
-  ifr = (struct ifreq *)data;
-  error = (cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49)))) ?
-      ether_addmulti(ifr, &ic->ic_ac) :
-      ether_delmulti(ifr, &ic->ic_ac);
-  if (error == 52)
-   error = 0;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211chanreq) & 0x1fff) << 16) | ((('i')) << 8) | ((238))):
   error = ieee80211_ioctl(ifp, cmd, data);
@@ -6414,7 +6404,7 @@ rt3090_set_chan(struct rt2860_softc *sc, u_int chan)
  int8_t txpow1, txpow2;
  uint8_t rf;
  int i;
- ((chan >= 1 && chan <= 14) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rt2860.c", 2250, "chan >= 1 && chan <= 14"));
+ ((chan >= 1 && chan <= 14) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rt2860.c", 2238, "chan >= 1 && chan <= 14"));
  for (i = 0; rt2860_rf2850[i].chan != chan; i++);
  txpow1 = sc->txpow1[i];
  txpow2 = sc->txpow2[i];
@@ -6460,7 +6450,7 @@ rt5390_set_chan(struct rt2860_softc *sc, u_int chan)
  uint8_t h20mhz, rf, tmp;
  int8_t txpow1, txpow2;
  int i;
- ((chan >= 1 && chan <= 14) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rt2860.c", 2315, "chan >= 1 && chan <= 14"));
+ ((chan >= 1 && chan <= 14) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/rt2860.c", 2303, "chan >= 1 && chan <= 14"));
  for (i = 0; rt2860_rf2850[i].chan != chan; i++);
  txpow1 = sc->txpow1[i];
  txpow2 = sc->txpow2[i];

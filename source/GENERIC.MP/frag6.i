@@ -3344,7 +3344,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   for ((af6) = ((&q6->ip6q_asfrag)->lh_first); (af6) && ((naf6) = ((af6)->ip6af_list.le_next), 1); (af6) = (naf6)) {
    if (q6->ip6q_unfrglen + af6->ip6af_off +
        af6->ip6af_frglen > 65535) {
-    struct mbuf *merr = ((af6)->ip6af_m);
+    struct mbuf *merr = af6->ip6af_m;
     struct ip6_hdr *ip6err;
     int erroff = af6->ip6af_offset;
     do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
@@ -3367,7 +3367,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  ip6af->ip6af_off = fragoff;
  ip6af->ip6af_frglen = frgpartlen;
  ip6af->ip6af_offset = offset;
- ((ip6af)->ip6af_m) = m;
+ ip6af->ip6af_m = m;
  if (first_frag) {
   paf6 = ((void *)0);
   goto insert;
@@ -3429,12 +3429,12 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  }
  ip6af = ((&q6->ip6q_asfrag)->lh_first);
  do { if ((ip6af)->ip6af_list.le_next != ((void *)0)) (ip6af)->ip6af_list.le_next->ip6af_list.le_prev = (ip6af)->ip6af_list.le_prev; *(ip6af)->ip6af_list.le_prev = (ip6af)->ip6af_list.le_next; ((ip6af)->ip6af_list.le_prev) = ((void *)-1); ((ip6af)->ip6af_list.le_next) = ((void *)-1); } while (0);
- t = m = ((ip6af)->ip6af_m);
+ t = m = ip6af->ip6af_m;
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
   while (t->m_hdr.mh_next)
    t = t->m_hdr.mh_next;
-  t->m_hdr.mh_next = ((af6)->ip6af_m);
+  t->m_hdr.mh_next = af6->ip6af_m;
   m_adj(t->m_hdr.mh_next, af6->ip6af_offset);
   free(af6, 7, sizeof(*af6));
  }
@@ -3474,7 +3474,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  flushfrags:
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
-  m_freem(((af6)->ip6af_m));
+  m_freem(af6->ip6af_m);
   free(af6, 7, sizeof(*af6));
  }
  ip6stat_add(ip6s_fragdropped, q6->ip6q_nfrag);
@@ -3510,7 +3510,7 @@ frag6_freef(struct ip6q *q6)
  struct ip6asfrag *af6;
  do { if (ip6q_locked == 0) { printf("%s:%d: ip6q lock not held\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 563); panic("ip6q lock check"); } } while (0);
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
-  struct mbuf *m = ((af6)->ip6af_m);
+  struct mbuf *m = af6->ip6af_m;
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
   if (af6->ip6af_off == 0) {
    struct ip6_hdr *ip6;
