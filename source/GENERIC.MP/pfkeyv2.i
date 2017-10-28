@@ -3022,6 +3022,8 @@ extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
+int spd_table_walk(unsigned int,
+    int (*walker)(struct ipsec_policy *, void *, unsigned int), void *);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
   union sockaddr_union *, u_int8_t, int *);
 struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
@@ -3250,9 +3252,7 @@ int pfkeyv2_flush_walker(struct tdb *, void *, int);
 int pfkeyv2_get_proto_alg(u_int8_t, u_int8_t *, int *);
 int pfkeyv2_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pfkeyv2_sysctl_walker(struct tdb *, void *, int);
-int pfkeyv2_ipo_walk(u_int, int (*)(struct ipsec_policy *, void *), void *);
 int pfkeyv2_sysctl_dump(void *);
-int pfkeyv2_sysctl_policydumper(struct ipsec_policy *, void *);
 int pfdatatopacket(void *, int, struct mbuf **);
 void export_address(void **, struct sockaddr *);
 void export_identities(void **, struct ipsec_ids *, int, void **);
@@ -4724,6 +4724,7 @@ int pfkeyv2_usrreq(struct socket *, int, struct mbuf *, struct mbuf *,
 int pfkeyv2_output(struct mbuf *, struct socket *, struct sockaddr *,
     struct mbuf *);
 int pfkey_sendup(struct keycb *, struct mbuf *, int);
+int pfkeyv2_sysctl_policydumper(struct ipsec_policy *, void *, unsigned int);
 int
 pfdatatopacket(void *data, int len, struct mbuf **packet)
 {
@@ -6309,21 +6310,8 @@ ret:
  return (rval);
 }
 int
-pfkeyv2_ipo_walk(u_int rdomain, int (*walker)(struct ipsec_policy *, void *),
-    void *arg)
-{
- int rval = 0;
- struct ipsec_policy *ipo;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
- for((ipo) = ((&ipsec_policy_head)->tqh_first); (ipo) != ((void *)0); (ipo) = ((ipo)->ipo_list.tqe_next)) {
-  if (ipo->ipo_rdomain != rdomain)
-   continue;
-  rval = walker(ipo, (void *)arg);
- }
- return (rval);
-}
-int
-pfkeyv2_sysctl_policydumper(struct ipsec_policy *ipo, void *arg)
+pfkeyv2_sysctl_policydumper(struct ipsec_policy *ipo, void *arg,
+    unsigned int tableid)
 {
  struct pfkeyv2_sysctl_walk *w = (struct pfkeyv2_sysctl_walk *)arg;
  void *buffer = 0;
@@ -6405,7 +6393,7 @@ pfkeyv2_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   break;
  case 2:
   do { _rw_enter_write(&netlock ); } while (0);
-  error = pfkeyv2_ipo_walk(rdomain,
+  error = spd_table_walk(rdomain,
       pfkeyv2_sysctl_policydumper, &w);
   do { _rw_exit_write(&netlock ); } while (0);
   if (oldp)

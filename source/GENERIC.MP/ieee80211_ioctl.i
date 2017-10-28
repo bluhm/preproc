@@ -2905,10 +2905,6 @@ struct ieee80211_wpaparams {
  u_int i_ciphers;
  u_int i_groupcipher;
 };
-struct ieee80211_wmmparams {
- char i_name[16];
- int i_enabled;
-};
 struct ieee80211_keyavail {
  char i_name[16];
  u_int8_t i_macaddr[6];
@@ -3816,7 +3812,6 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  int i, error = 0;
  struct ieee80211_nwid nwid;
  struct ieee80211_wpapsk *psk;
- struct ieee80211_wmmparams *wmm;
  struct ieee80211_keyavail *ka;
  struct ieee80211_keyrun *kr;
  struct ieee80211_power *power;
@@ -3872,24 +3867,6 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_nwkey) & 0x1fff) << 16) | ((('i')) << 8) | ((233))):
   error = ieee80211_ioctl_getnwkeys(ic, (void *)data);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_wmmparams) & 0x1fff) << 16) | ((('i')) << 8) | ((249))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
-   break;
-  if (!(ic->ic_flags & 0x00000800)) {
-   error = 19;
-   break;
-  }
-  wmm = (struct ieee80211_wmmparams *)data;
-  if (wmm->i_enabled)
-   ic->ic_flags |= 0x00080000;
-  else
-   ic->ic_flags &= ~0x00080000;
-  error = 52;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_wmmparams) & 0x1fff) << 16) | ((('i')) << 8) | ((250))):
-  wmm = (struct ieee80211_wmmparams *)data;
-  wmm->i_enabled = (ic->ic_flags & 0x00080000) ? 1 : 0;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_wpaparams) & 0x1fff) << 16) | ((('i')) << 8) | ((247))):
   if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)

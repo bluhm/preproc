@@ -2859,6 +2859,8 @@ extern struct comp_algo comp_algo_deflate;
 extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
 struct radix_node_head *spd_table_add(unsigned int);
 struct radix_node_head *spd_table_get(unsigned int);
+int spd_table_walk(unsigned int,
+    int (*walker)(struct ipsec_policy *, void *, unsigned int), void *);
 uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
   union sockaddr_union *, u_int8_t, int *);
 struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
@@ -3113,9 +3115,7 @@ int pfkeyv2_flush_walker(struct tdb *, void *, int);
 int pfkeyv2_get_proto_alg(u_int8_t, u_int8_t *, int *);
 int pfkeyv2_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pfkeyv2_sysctl_walker(struct tdb *, void *, int);
-int pfkeyv2_ipo_walk(u_int, int (*)(struct ipsec_policy *, void *), void *);
 int pfkeyv2_sysctl_dump(void *);
-int pfkeyv2_sysctl_policydumper(struct ipsec_policy *, void *);
 int pfdatatopacket(void *, int, struct mbuf **);
 void export_address(void **, struct sockaddr *);
 void export_identities(void **, struct ipsec_ids *, int, void **);

@@ -3578,10 +3578,6 @@ struct ieee80211_wpaparams {
  u_int i_ciphers;
  u_int i_groupcipher;
 };
-struct ieee80211_wmmparams {
- char i_name[16];
- int i_enabled;
-};
 struct ieee80211_keyavail {
  char i_name[16];
  u_int8_t i_macaddr[6];

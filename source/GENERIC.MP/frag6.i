@@ -1219,48 +1219,6 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct kmemstats {
- long ks_inuse;
- long ks_calls;
- long ks_memuse;
- u_short ks_limblocks;
- u_short ks_mapblocks;
- long ks_maxused;
- long ks_limit;
- long ks_size;
- long ks_spare;
-};
-struct kmemusage {
- short ku_indx;
- union {
-  u_short freecnt;
-  u_short pagecnt;
- } ku_un;
-};
-struct kmem_freelist;
-struct kmembuckets {
- struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
- u_int64_t kb_calls;
- u_int64_t kb_total;
- u_int64_t kb_totalfree;
- u_int64_t kb_elmpercl;
- u_int64_t kb_highwat;
- u_int64_t kb_couldfree;
-};
-extern struct kmemstats kmemstats[];
-extern struct kmemusage *kmemusage;
-extern char *kmembase;
-extern struct kmembuckets bucket[];
-void *malloc(size_t, int, int);
-void *mallocarray(size_t, size_t, int, int);
-void free(void *, int, size_t);
-int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-size_t malloc_roundup(size_t);
-void malloc_printit(int (*)(const char *, ...));
-void poison_mem(void *, size_t);
-int poison_check(void *, size_t, size_t *, uint32_t *);
-uint32_t poison_value(void *);
 struct m_tag {
  struct { struct m_tag *sle_next; } m_tag_link;
  u_int16_t m_tag_id;
@@ -1322,6 +1280,48 @@ struct mbuf {
   char M_databuf[(256 - sizeof(struct m_hdr))];
  } M_dat;
 };
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+struct kmem_freelist;
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
 u_int mextfree_register(void (*)(caddr_t, u_int, void *));
 struct mbstat {
  u_long m_drops;
@@ -1553,6 +1553,196 @@ void log(int, const char *, ...)
 int addlog(const char *, ...)
     __attribute__((__format__(__kprintf__,1,2)));
 void logwakeup(void);
+struct kinfo_pool {
+ unsigned int pr_size;
+ unsigned int pr_pgsize;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_hardlimit;
+ unsigned int pr_npages;
+ unsigned int pr_nout;
+ unsigned int pr_nitems;
+ unsigned long pr_nget;
+ unsigned long pr_nput;
+ unsigned long pr_nfail;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+};
+struct kinfo_pool_cache {
+ uint64_t pr_ngc;
+ unsigned int pr_len;
+ unsigned int pr_nitems;
+ unsigned int pr_contention;
+};
+struct kinfo_pool_cache_cpu {
+ unsigned int pr_cpu;
+ uint64_t pr_nget;
+ uint64_t pr_nfail;
+ uint64_t pr_nput;
+ uint64_t pr_nlget;
+ uint64_t pr_nlfail;
+ uint64_t pr_nlput;
+};
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
+struct pool;
+struct pool_request;
+struct pool_lock_ops;
+struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
+struct pool_allocator {
+ void *(*pa_alloc)(struct pool *, int, int *);
+ void (*pa_free)(struct pool *, void *);
+ size_t pa_pagesz;
+};
+struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
+struct pool_cache_item;
+struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
+struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
+struct pool {
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
+ struct { struct pool *sqe_next; }
+   pr_poollist;
+ struct pool_pagelist
+   pr_emptypages;
+ struct pool_pagelist
+   pr_fullpages;
+ struct pool_pagelist
+   pr_partpages;
+ struct pool_page_header *
+   pr_curpage;
+ unsigned int pr_size;
+ unsigned int pr_minitems;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_npages;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_slack;
+ unsigned int pr_nitems;
+ unsigned int pr_nout;
+ unsigned int pr_hardlimit;
+ unsigned int pr_serial;
+ unsigned int pr_pgsize;
+ vaddr_t pr_pgmask;
+ struct pool_allocator *
+   pr_alloc;
+ const char * pr_wchan;
+ int pr_flags;
+ int pr_ipl;
+ struct phtree { struct rb_tree rbh_root; }
+   pr_phtree;
+ struct cpumem * pr_cache;
+ unsigned long pr_cache_magic[2];
+ union pool_lock pr_cache_lock;
+ struct pool_cache_lists
+   pr_cache_lists;
+ u_int pr_cache_nitems;
+ u_int pr_cache_items;
+ u_int pr_cache_contention;
+ u_int pr_cache_contention_prev;
+ int pr_cache_tick;
+ int pr_cache_nout;
+ uint64_t pr_cache_ngc;
+ u_int pr_align;
+ u_int pr_maxcolors;
+ int pr_phoffset;
+ const char *pr_hardlimit_warning;
+ struct timeval pr_hardlimit_ratecap;
+ struct timeval pr_hardlimit_warning_last;
+ union pool_lock pr_requests_lock;
+ struct pool_requests
+   pr_requests;
+ unsigned int pr_requesting;
+ unsigned long pr_nget;
+ unsigned long pr_nfail;
+ unsigned long pr_nput;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+ const struct kmem_pa_mode *
+   pr_crange;
+};
+extern struct pool_allocator pool_allocator_single;
+extern struct pool_allocator pool_allocator_multi;
+struct pool_request {
+ struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
+ void (*pr_handler)(struct pool *, void *, void *);
+ void *pr_cookie;
+ void *pr_item;
+};
+void pool_init(struct pool *, size_t, u_int, int, int,
+      const char *, struct pool_allocator *);
+void pool_cache_init(struct pool *);
+void pool_destroy(struct pool *);
+void pool_setlowat(struct pool *, int);
+void pool_sethiwat(struct pool *, int);
+int pool_sethardlimit(struct pool *, u_int, const char *, int);
+struct uvm_constraint_range;
+void pool_set_constraints(struct pool *,
+      const struct kmem_pa_mode *mode);
+void *pool_get(struct pool *, int) __attribute__((__malloc__));
+void pool_request_init(struct pool_request *,
+      void (*)(struct pool *, void *, void *), void *);
+void pool_request(struct pool *, struct pool_request *);
+void pool_put(struct pool *, void *);
+int pool_reclaim(struct pool *);
+void pool_reclaim_all(void);
+int pool_prime(struct pool *, int);
+void pool_printit(struct pool *, const char *,
+      int (*)(const char *, ...));
+void pool_walk(struct pool *, int, int (*)(const char *, ...),
+      void (*)(void *, int, int (*)(const char *, ...)));
+void dma_alloc_init(void);
+void *dma_alloc(size_t size, int flags);
+void dma_free(void *m, size_t size);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -3227,6 +3417,8 @@ static int ip6q_locked;
 u_int frag6_nfragpackets;
 u_int frag6_nfrags;
 struct ip6q_head { struct ip6q *tqh_first; struct ip6q **tqh_last; } frag6_queue;
+struct pool ip6af_pool;
+struct pool ip6q_pool;
 static __inline int ip6q_lock_try(void);
 static __inline void ip6q_unlock(void);
 static __inline int
@@ -3253,6 +3445,10 @@ ip6q_unlock(void)
 void
 frag6_init(void)
 {
+ pool_init(&ip6af_pool, sizeof(struct ip6asfrag),
+     0, 2, 0, "ip6af", ((void *)0));
+ pool_init(&ip6q_pool, sizeof(struct ip6q),
+     0, 2, 0, "ip6q", ((void *)0));
  do { (&frag6_queue)->tqh_first = ((void *)0); (&frag6_queue)->tqh_last = &(&frag6_queue)->tqh_first; } while (0);
 }
 int
@@ -3293,7 +3489,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   m_freem(m);
   return 257;
  }
- do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 217); panic("ip6q_lock"); } } while (0);
+ do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 224); panic("ip6q_lock"); } } while (0);
  if (ip6_maxfrags >= 0 && frag6_nfrags >= (u_int)ip6_maxfrags)
   goto dropfrag;
  for((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0); (q6) = ((q6)->ip6q_queue.tqe_next))
@@ -3307,7 +3503,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
       frag6_nfragpackets >= (u_int)ip6_maxfragpackets)
    goto dropfrag;
   frag6_nfragpackets++;
-  q6 = malloc(sizeof(*q6), 7, 0x0002 | 0x0008);
+  q6 = pool_get(&ip6q_pool, 0x0002 | 0x0008);
   if (q6 == ((void *)0))
    goto dropfrag;
   do { if (((q6)->ip6q_queue.tqe_next = (&frag6_queue)->tqh_first) != ((void *)0)) (&frag6_queue)->tqh_first->ip6q_queue.tqe_prev = &(q6)->ip6q_queue.tqe_next; else (&frag6_queue)->tqh_last = &(q6)->ip6q_queue.tqe_next; (&frag6_queue)->tqh_first = (q6); (q6)->ip6q_queue.tqe_prev = &(&frag6_queue)->tqh_first; } while (0);
@@ -3348,7 +3544,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
     struct ip6_hdr *ip6err;
     int erroff = af6->ip6af_offset;
     do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
-    free(af6, 7, sizeof(*af6));
+    pool_put(&ip6af_pool, af6);
     ip6err = ((struct ip6_hdr *)((merr)->m_hdr.mh_data));
     ip6err->ip6_src = q6->ip6q_src;
     ip6err->ip6_dst = q6->ip6q_dst;
@@ -3359,7 +3555,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
    }
   }
  }
- ip6af = malloc(sizeof(*ip6af), 7, 0x0002 | 0x0008);
+ ip6af = pool_get(&ip6af_pool, 0x0002 | 0x0008);
  if (ip6af == ((void *)0))
   goto dropfrag;
  ip6af->ip6af_flow = ip6->ip6_ctlun.ip6_un1.ip6_un1_flow;
@@ -3377,14 +3573,14 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  ecn0 = (((__uint32_t)(af6->ip6af_flow)) >> 20) & 0x03;
  if (ecn == 0x03) {
   if (ecn0 == 0x00) {
-   free(ip6af, 7, sizeof(*ip6af));
+   pool_put(&ip6af_pool, ip6af);
    goto dropfrag;
   }
   if (ecn0 != 0x03)
    af6->ip6af_flow |= ((__uint32_t)(0x03 << 20));
  }
  if (ecn == 0x00 && ecn0 != 0x00) {
-  free(ip6af, 7, sizeof(*ip6af));
+  pool_put(&ip6af_pool, ip6af);
   goto dropfrag;
  }
  for (paf6 = ((void *)0), af6 = ((&q6->ip6q_asfrag)->lh_first);
@@ -3395,14 +3591,14 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  if (paf6 != ((void *)0)) {
   i = (paf6->ip6af_off + paf6->ip6af_frglen) - ip6af->ip6af_off;
   if (i > 0) {
-   free(ip6af, 7, sizeof(*ip6af));
+   pool_put(&ip6af_pool, ip6af);
    goto flushfrags;
   }
  }
  if (af6 != ((void *)0)) {
   i = (ip6af->ip6af_off + ip6af->ip6af_frglen) - af6->ip6af_off;
   if (i > 0) {
-   free(ip6af, 7, sizeof(*ip6af));
+   pool_put(&ip6af_pool, ip6af);
    goto flushfrags;
   }
  }
@@ -3436,10 +3632,10 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
    t = t->m_hdr.mh_next;
   t->m_hdr.mh_next = af6->ip6af_m;
   m_adj(t->m_hdr.mh_next, af6->ip6af_offset);
-  free(af6, 7, sizeof(*af6));
+  pool_put(&ip6af_pool, af6);
  }
  offset = ip6af->ip6af_offset - sizeof(struct ip6_frag);
- free(ip6af, 7, sizeof(*ip6af));
+ pool_put(&ip6af_pool, ip6af);
  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)((u_short)next + offset - sizeof(struct ip6_hdr)));
  ip6->ip6_src = q6->ip6q_src;
@@ -3448,7 +3644,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  if (frag6_deletefraghdr(m, offset) != 0) {
   do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
   frag6_nfrags -= q6->ip6q_nfrag;
-  free(q6, 7, sizeof(*q6));
+  pool_put(&ip6q_pool, q6);
   frag6_nfragpackets--;
   goto dropfrag;
  }
@@ -3458,7 +3654,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  }
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;
- free(q6, 7, sizeof(*q6));
+ pool_put(&ip6q_pool, q6);
  frag6_nfragpackets--;
  if (m->m_hdr.mh_flags & 0x0002) {
   int plen = 0;
@@ -3475,12 +3671,12 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
   m_freem(af6->ip6af_m);
-  free(af6, 7, sizeof(*af6));
+  pool_put(&ip6af_pool, af6);
  }
  ip6stat_add(ip6s_fragdropped, q6->ip6q_nfrag);
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;
- free(q6, 7, sizeof(*q6));
+ pool_put(&ip6q_pool, q6);
  frag6_nfragpackets--;
  dropfrag:
  ip6stat_inc(ip6s_fragdropped);
@@ -3508,7 +3704,7 @@ void
 frag6_freef(struct ip6q *q6)
 {
  struct ip6asfrag *af6;
- do { if (ip6q_locked == 0) { printf("%s:%d: ip6q lock not held\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 563); panic("ip6q lock check"); } } while (0);
+ do { if (ip6q_locked == 0) { printf("%s:%d: ip6q lock not held\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 570); panic("ip6q lock check"); } } while (0);
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   struct mbuf *m = af6->ip6af_m;
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
@@ -3521,11 +3717,11 @@ frag6_freef(struct ip6q *q6)
         1, 0);
   } else
    m_freem(m);
-  free(af6, 7, sizeof(*af6));
+  pool_put(&ip6af_pool, af6);
  }
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;
- free(q6, 7, sizeof(*q6));
+ pool_put(&ip6q_pool, q6);
  frag6_nfragpackets--;
 }
 void
@@ -3533,7 +3729,7 @@ frag6_slowtimo(void)
 {
  struct ip6q *q6, *nq6;
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
- do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 608); panic("ip6q_lock"); } } while (0);
+ do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 615); panic("ip6q_lock"); } } while (0);
  for ((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0) && ((nq6) = ((q6)->ip6q_queue.tqe_next), 1); (q6) = (nq6))
   if (--q6->ip6q_ttl == 0) {
    ip6stat_inc(ip6s_fragtimeout);
