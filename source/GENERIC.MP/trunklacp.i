@@ -2466,7 +2466,6 @@ struct lacp_port {
  int lp_flags;
  u_int lp_media;
  int lp_timer[3];
- struct ifmultiaddr *lp_ifma;
  struct mbuf_queue lp_mq;
  struct lacp_aggregator *lp_aggregator;
 };

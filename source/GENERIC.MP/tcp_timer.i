@@ -4216,10 +4216,11 @@ tcp_delack(void *arg)
 void
 tcp_slowtimo(void)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  tcp_maxidle = 8 * tcp_keepintvl;
  tcp_iss += (1*1024*1024)/2;
  tcp_now++;
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 tcp_canceltimers(struct tcpcb *tp)

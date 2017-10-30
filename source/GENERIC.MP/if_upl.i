@@ -2881,7 +2881,7 @@ upl_attach(struct device *parent, struct device *self, void *aux)
  ifp->if_softc = sc;
  ifp->if_data.ifi_mtu = 1024;
  ifp->if_hardmtu = 1024;
- ifp->if_flags = 0x10 | 0x80 | 0x800;
+ ifp->if_flags = 0x10 | 0x800;
  ifp->if_ioctl = upl_ioctl;
  ifp->if_start = upl_start;
  ifp->if_watchdog = upl_watchdog;

@@ -2014,13 +2014,11 @@ pfslowtimo(void *arg)
  struct domain *dp;
  struct protosw *pr;
  int i;
- do { _rw_enter_write(&netlock ); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_slowtimo)
     (*pr->pr_slowtimo)();
  }
- do { _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 500);
 }
 void
@@ -2030,12 +2028,10 @@ pffasttimo(void *arg)
  struct domain *dp;
  struct protosw *pr;
  int i;
- do { _rw_enter_write(&netlock ); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_fasttimo)
     (*pr->pr_fasttimo)();
  }
- do { _rw_exit_write(&netlock ); } while (0);
  timeout_add_msec(to, 200);
 }

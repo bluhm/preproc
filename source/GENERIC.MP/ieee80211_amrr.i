@@ -3482,7 +3482,6 @@ struct ieee80211com {
  u_int8_t ic_aselcaps;
  u_int8_t ic_dialog_token;
  int ic_fixed_mcs;
- struct { struct ieee80211_vap *lh_first; } ic_vaps;
 };
 struct ieee80211com_head { struct ieee80211com *lh_first; };
 extern struct ieee80211com_head ieee80211com_head;

@@ -3078,11 +3078,14 @@ void
 mld6_fasttimeo(void)
 {
  struct ifnet *ifp;
+ do { _rw_enter_write(&netlock ); } while (0);
  if (!mld_timers_are_running)
-  return;
+  goto out;
  mld_timers_are_running = 0;
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next))
   mld6_checktimer(ifp);
+out:
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 mld6_checktimer(struct ifnet *ifp)

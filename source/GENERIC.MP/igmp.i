@@ -3181,12 +3181,14 @@ void
 igmp_fasttimo(void)
 {
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  if (!igmp_timers_are_running)
-  return;
+  goto out;
  igmp_timers_are_running = 0;
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next))
   igmp_checktimer(ifp);
+out:
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 igmp_checktimer(struct ifnet *ifp)
@@ -3218,13 +3220,14 @@ void
 igmp_slowtimo(void)
 {
  struct router_info *rti;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
  for (rti = rti_head; rti != 0; rti = rti->rti_next) {
   if (rti->rti_type == 1 &&
       ++rti->rti_age >= 540) {
    rti->rti_type = 2;
   }
  }
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 void
 igmp_sendpkt(struct ifnet *ifp, struct in_multi *inm, int type,
