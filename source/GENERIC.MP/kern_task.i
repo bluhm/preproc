@@ -1758,7 +1758,7 @@ taskq_create(const char *name, unsigned int nthreads, int ipl,
  tq->tq_nthreads = nthreads;
  tq->tq_name = name;
  tq->tq_flags = flags;
- do { (void)(((void *)0)); (void)(0); __mtx_init((&tq->tq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl)))); } while (0);
+ do { (void)(name); (void)(0); __mtx_init((&tq->tq_mtx), ((((ipl)) > 0 && ((ipl)) < 12) ? 12 : ((ipl)))); } while (0);
  do { (&tq->tq_worklist)->tqh_first = ((void *)0); (&tq->tq_worklist)->tqh_last = &(&tq->tq_worklist)->tqh_first; } while (0);
  kthread_create_deferred(taskq_create_thread, tq);
  return (tq);

@@ -7063,9 +7063,9 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    return (13);
   }
  do { _rw_enter_write(&netlock ); } while (0);
- (void)(0);
  switch (cmd) {
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('D')) << 8) | ((1))):
+  (void)(0);
   if (pf_status.running)
    error = 17;
   else {
@@ -7079,8 +7079,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    pf_create_queues();
    do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("pf: started"); addlog("\n"); } } while (0);
   }
+  (void)(0);
   break;
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('D')) << 8) | ((2))):
+  (void)(0);
   if (!pf_status.running)
    error = 2;
   else {
@@ -7089,11 +7091,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    pf_remove_queues();
    do { if (pf_status.debug >= (5)) { log(5, "pf: "); addlog("pf: stopped"); addlog("\n"); } } while (0);
   }
+  (void)(0);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_queue) & 0x1fff) << 16) | ((('D')) << 8) | ((94))): {
   struct pfioc_queue *pq = (struct pfioc_queue *)addr;
   struct pf_queuespec *qs;
   u_int32_t nr = 0;
+  (void)(0);
   pq->ticket = pf_main_anchor.ruleset.rules.active.ticket;
   qs = ((pf_queues_active)->tqh_first);
   while (qs != ((void *)0)) {
@@ -7101,14 +7105,17 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    nr++;
   }
   pq->nr = nr;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_queue) & 0x1fff) << 16) | ((('D')) << 8) | ((95))): {
   struct pfioc_queue *pq = (struct pfioc_queue *)addr;
   struct pf_queuespec *qs;
   u_int32_t nr = 0;
+  (void)(0);
   if (pq->ticket != pf_main_anchor.ruleset.rules.active.ticket) {
    error = 16;
+   (void)(0);
    break;
   }
   qs = ((pf_queues_active)->tqh_first);
@@ -7116,9 +7123,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    qs = ((qs)->entries.tqe_next);
   if (qs == ((void *)0)) {
    error = 16;
+   (void)(0);
    break;
   }
   __builtin_bcopy((qs), (&pq->queue), (sizeof(pq->queue)));
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_qstats) & 0x1fff) << 16) | ((('D')) << 8) | ((96))): {
@@ -7126,8 +7135,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pf_queuespec *qs;
   u_int32_t nr;
   int nbytes;
+  (void)(0);
   if (pq->ticket != pf_main_anchor.ruleset.rules.active.ticket) {
    error = 16;
+   (void)(0);
    break;
   }
   nbytes = pq->nbytes;
@@ -7137,6 +7148,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    qs = ((qs)->entries.tqe_next);
   if (qs == ((void *)0)) {
    error = 16;
+   (void)(0);
    break;
   }
   __builtin_bcopy((qs), (&pq->queue), (sizeof(pq->queue)));
@@ -7149,18 +7161,22 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
        &nbytes);
   if (error == 0)
    pq->nbytes = nbytes;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_queue) & 0x1fff) << 16) | ((('D')) << 8) | ((93))): {
   struct pfioc_queue *q = (struct pfioc_queue *)addr;
   struct pf_queuespec *qs;
+  (void)(0);
   if (q->ticket != pf_main_anchor.ruleset.rules.inactive.ticket) {
    error = 16;
+   (void)(0);
    break;
   }
   qs = pool_get(&pf_queue_pl, 0x0001|0x0004|0x0008);
   if (qs == ((void *)0)) {
    error = 12;
+   (void)(0);
    break;
   }
   __builtin_bcopy((&q->queue), (qs), (sizeof(*qs)));
@@ -7169,44 +7185,53 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
       pf_qname2qid(qs->parent, 0)) == 0) {
    pool_put(&pf_queue_pl, qs);
    error = 3;
+   (void)(0);
    break;
   }
   qs->kif = pfi_kif_get(qs->ifname);
   if (qs->kif == ((void *)0)) {
    pool_put(&pf_queue_pl, qs);
    error = 3;
+   (void)(0);
    break;
   }
   pfi_kif_ref(qs->kif, PFI_KIF_REF_RULE);
   do { (qs)->entries.tqe_next = ((void *)0); (qs)->entries.tqe_prev = (pf_queues_inactive)->tqh_last; *(pf_queues_inactive)->tqh_last = (qs); (pf_queues_inactive)->tqh_last = &(qs)->entries.tqe_next; } while (0);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_rule) & 0x1fff) << 16) | ((('D')) << 8) | ((4))): {
   struct pfioc_rule *pr = (struct pfioc_rule *)addr;
   struct pf_ruleset *ruleset;
   struct pf_rule *rule, *tail;
+  (void)(0);
   pr->anchor[sizeof(pr->anchor) - 1] = 0;
   ruleset = pf_find_ruleset(pr->anchor);
   if (ruleset == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   if (pr->rule.return_icmp >> 8 > 40) {
    error = 22;
+   (void)(0);
    break;
   }
   if (pr->ticket != ruleset->rules.inactive.ticket) {
    error = 16;
+   (void)(0);
    break;
   }
   rule = pool_get(&pf_rule_pl, 0x0001|0x0004|0x0008);
   if (rule == ((void *)0)) {
    error = 12;
+   (void)(0);
    break;
   }
   if ((error = pf_rule_copyin(&pr->rule, rule, ruleset))) {
    pf_rm_rule(((void *)0), rule);
    rule = ((void *)0);
+   (void)(0);
    break;
   }
   rule->cuid = p->p_ucred->cr_ruid;
@@ -7222,6 +7247,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    pf_rm_rule(((void *)0), rule);
    rule = ((void *)0);
    error = 47;
+   (void)(0);
    goto fail;
   }
   tail = (*(((struct pf_rulequeue *)((ruleset->rules.inactive.ptr)->tqh_last))->tqh_last));
@@ -7252,21 +7278,25 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
   if (error) {
    pf_rm_rule(((void *)0), rule);
+   (void)(0);
    break;
   }
   do { (rule)->entries.tqe_next = ((void *)0); (rule)->entries.tqe_prev = (ruleset->rules.inactive.ptr)->tqh_last; *(ruleset->rules.inactive.ptr)->tqh_last = (rule); (ruleset->rules.inactive.ptr)->tqh_last = &(rule)->entries.tqe_next; } while (0);
   rule->ruleset = ruleset;
   ruleset->rules.inactive.rcount++;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_rule) & 0x1fff) << 16) | ((('D')) << 8) | ((6))): {
   struct pfioc_rule *pr = (struct pfioc_rule *)addr;
   struct pf_ruleset *ruleset;
   struct pf_rule *tail;
+  (void)(0);
   pr->anchor[sizeof(pr->anchor) - 1] = 0;
   ruleset = pf_find_ruleset(pr->anchor);
   if (ruleset == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   tail = (*(((struct pf_rulequeue *)((ruleset->rules.active.ptr)->tqh_last))->tqh_last));
@@ -7275,6 +7305,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   else
    pr->nr = 0;
   pr->ticket = ruleset->rules.active.ticket;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_rule) & 0x1fff) << 16) | ((('D')) << 8) | ((7))): {
@@ -7282,14 +7313,17 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pf_ruleset *ruleset;
   struct pf_rule *rule;
   int i;
+  (void)(0);
   pr->anchor[sizeof(pr->anchor) - 1] = 0;
   ruleset = pf_find_ruleset(pr->anchor);
   if (ruleset == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   if (pr->ticket != ruleset->rules.active.ticket) {
    error = 16;
+   (void)(0);
    break;
   }
   rule = ((ruleset->rules.active.ptr)->tqh_first);
@@ -7297,6 +7331,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    rule = ((rule)->entries.tqe_next);
   if (rule == ((void *)0)) {
    error = 16;
+   (void)(0);
    break;
   }
   __builtin_bcopy((rule), (&pr->rule), (sizeof(struct pf_rule)));
@@ -7312,6 +7347,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   pr->rule.ruleset = ((void *)0);
   if (pf_anchor_copyout(ruleset, rule, pr)) {
    error = 16;
+   (void)(0);
    break;
   }
   pf_addr_copyout(&pr->rule.src.addr);
@@ -7331,6 +7367,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    rule->bytes[0] = rule->bytes[1] = 0;
    rule->states_tot = 0;
   }
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_rule) & 0x1fff) << 16) | ((('D')) << 8) | ((26))): {
@@ -7343,22 +7380,27 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
    break;
   }
+  (void)(0);
   ruleset = pf_find_ruleset(pcr->anchor);
   if (ruleset == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   if (pcr->action == PF_CHANGE_GET_TICKET) {
    pcr->ticket = ++ruleset->rules.active.ticket;
+   (void)(0);
    break;
   } else {
    if (pcr->ticket !=
        ruleset->rules.active.ticket) {
     error = 22;
+    (void)(0);
     break;
    }
    if (pcr->rule.return_icmp >> 8 > 40) {
     error = 22;
+    (void)(0);
     break;
    }
   }
@@ -7367,6 +7409,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
        0x0001|0x0004|0x0008);
    if (newrule == ((void *)0)) {
     error = 12;
+    (void)(0);
     break;
    }
    pf_rule_copyin(&pcr->rule, newrule, ruleset);
@@ -7382,6 +7425,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    default:
     pool_put(&pf_rule_pl, newrule);
     error = 47;
+    (void)(0);
     goto fail;
    }
    if (newrule->rt && !newrule->direction)
@@ -7400,6 +7444,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     error = 22;
    if (error) {
     pf_rm_rule(((void *)0), newrule);
+    (void)(0);
     break;
    }
   }
@@ -7415,6 +7460,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     if (newrule != ((void *)0))
      pf_rm_rule(((void *)0), newrule);
     error = 22;
+    (void)(0);
     break;
    }
   }
@@ -7437,12 +7483,14 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   ruleset->rules.active.ticket++;
   pf_calc_skip_steps(ruleset->rules.active.ptr);
   pf_remove_if_empty_ruleset(ruleset);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_state_kill) & 0x1fff) << 16) | ((('D')) << 8) | ((18))): {
   struct pf_state *s, *nexts;
   struct pfioc_state_kill *psk = (struct pfioc_state_kill *)addr;
   u_int killed = 0;
+  (void)(0);
   for (s = pf_state_tree_id_RB_MINMAX(&tree_id, -1); s; s = nexts) {
    nexts = pf_state_tree_id_RB_NEXT(s);
    if (!psk->psk_ifname[0] || !strcmp(psk->psk_ifname,
@@ -7454,6 +7502,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   psk->psk_killed = killed;
   pfsync_clear_states(pf_status.hostid, psk->psk_ifname);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_state_kill) & 0x1fff) << 16) | ((('D')) << 8) | ((41))): {
@@ -7469,10 +7518,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   if (psk->psk_pfcmp.id) {
    if (psk->psk_pfcmp.creatorid == 0)
     psk->psk_pfcmp.creatorid = pf_status.hostid;
+   (void)(0);
    if ((s = pf_find_state_byid(&psk->psk_pfcmp))) {
     pf_remove_state(s);
     psk->psk_killed = 1;
    }
+   (void)(0);
    break;
   }
   if (psk->psk_af && psk->psk_proto &&
@@ -7481,6 +7532,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    key.af = psk->psk_af;
    key.proto = psk->psk_proto;
    key.rdomain = psk->psk_rdomain;
+   (void)(0);
    for (i = 0; i < (sizeof((dirs)) / sizeof((dirs)[0])); i++) {
     if (dirs[i] == PF_IN) {
      sidx = 0;
@@ -7517,8 +7569,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
    if (killed)
     psk->psk_killed = killed;
+   (void)(0);
    break;
   }
+  (void)(0);
   for (s = pf_state_tree_id_RB_MINMAX(&tree_id, -1); s;
       s = nexts) {
    nexts = pf_state_tree_id_RB_NEXT(s);
@@ -7557,6 +7611,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
   }
   psk->psk_killed = killed;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_state) & 0x1fff) << 16) | ((('D')) << 8) | ((37))): {
@@ -7566,7 +7621,9 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
    break;
   }
+  (void)(0);
   error = pfsync_state_import(sp, 0x01);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_state) & 0x1fff) << 16) | ((('D')) << 8) | ((19))): {
@@ -7576,12 +7633,15 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   __builtin_bzero((&id_key), (sizeof(id_key)));
   id_key.id = ps->state.id;
   id_key.creatorid = ps->state.creatorid;
+  (void)(0);
   s = pf_find_state_byid(&id_key);
   if (s == ((void *)0)) {
    error = 2;
+   (void)(0);
    break;
   }
   pf_state_export(&ps->state, s);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_states) & 0x1fff) << 16) | ((('D')) << 8) | ((25))): {
@@ -7596,6 +7656,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   pstore = malloc(sizeof(*pstore), 127, 0x0001);
   p = ps->ps_u.psu_states;
+  (void)(0);
   state = ((&state_list)->tqh_first);
   while (state) {
    if (state->timeout != PFTM_UNLINKED) {
@@ -7612,36 +7673,45 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
    state = ((state)->entry_list.tqe_next);
   }
+  (void)(0);
   ps->ps_len = sizeof(struct pfsync_state) * nr;
   free(pstore, 127, sizeof(*pstore));
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pf_status) & 0x1fff) << 16) | ((('D')) << 8) | ((21))): {
   struct pf_status *s = (struct pf_status *)addr;
+  (void)(0);
   __builtin_bcopy((&pf_status), (s), (sizeof(struct pf_status)));
   pfi_update_status(s->ifname, s);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((20))): {
   struct pfioc_iface *pi = (struct pfioc_iface *)addr;
+  (void)(0);
   if (pi->pfiio_name[0] == 0) {
    __builtin_bzero((pf_status.ifname), (16));
+   (void)(0);
    break;
   }
   strlcpy(pf_trans_set.statusif, pi->pfiio_name, 16);
   pf_trans_set.mask |= 0x01;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((22))): {
   struct pfioc_iface *pi = (struct pfioc_iface *)addr;
+  (void)(0);
   if (pi->pfiio_name[0]) {
    pfi_update_status(pi->pfiio_name, ((void *)0));
+   (void)(0);
    break;
   }
   __builtin_bzero((pf_status.counters), (sizeof(pf_status.counters)));
   __builtin_bzero((pf_status.fcounters), (sizeof(pf_status.fcounters)));
   __builtin_bzero((pf_status.scounters), (sizeof(pf_status.scounters)));
   pf_status.since = time_uptime;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_natlook) & 0x1fff) << 16) | ((('D')) << 8) | ((23))): {
@@ -7669,6 +7739,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    key.port[sidx] = pnl->sport;
    pf_addrcpy(&key.addr[didx], &pnl->daddr, pnl->af);
    key.port[didx] = pnl->dport;
+   (void)(0);
    state = pf_find_state_all(&key, direction, &m);
    if (m > 1)
     error = 7;
@@ -7681,6 +7752,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     pnl->rrdomain = sk->rdomain;
    } else
     error = 2;
+   (void)(0);
   }
   break;
  }
@@ -7691,10 +7763,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
    goto fail;
   }
+  (void)(0);
   if (pt->timeout == PFTM_INTERVAL && pt->seconds == 0)
    pt->seconds = 1;
   pf_default_rule_new.timeout[pt->timeout] = pt->seconds;
   pt->seconds = pf_default_rule.timeout[pt->timeout];
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_tm) & 0x1fff) << 16) | ((('D')) << 8) | ((30))): {
@@ -7703,7 +7777,9 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
    goto fail;
   }
+  (void)(0);
   pt->seconds = pf_default_rule.timeout[pt->timeout];
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_limit) & 0x1fff) << 16) | ((('D')) << 8) | ((39))): {
@@ -7712,42 +7788,53 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 22;
    goto fail;
   }
+  (void)(0);
   pl->limit = pf_pool_limits[pl->index].limit;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_limit) & 0x1fff) << 16) | ((('D')) << 8) | ((40))): {
   struct pfioc_limit *pl = (struct pfioc_limit *)addr;
+  (void)(0);
   if (pl->index < 0 || pl->index >= PF_LIMIT_MAX ||
       pf_pool_limits[pl->index].pp == ((void *)0)) {
    error = 22;
+   (void)(0);
    goto fail;
   }
   if (((struct pool *)pf_pool_limits[pl->index].pp)->pr_nout >
       pl->limit) {
    error = 16;
+   (void)(0);
    goto fail;
   }
   if (pl->index == PF_LIMIT_FRAGS && pl->limit > nmbclust) {
    error = 22;
+   (void)(0);
    goto fail;
   }
   pf_pool_limits[pl->index].limit_new = pl->limit;
   pl->limit = pf_pool_limits[pl->index].limit;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(u_int32_t) & 0x1fff) << 16) | ((('D')) << 8) | ((24))): {
   u_int32_t *level = (u_int32_t *)addr;
+  (void)(0);
   pf_trans_set.debug = *level;
   pf_trans_set.mask |= 0x02;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_ruleset) & 0x1fff) << 16) | ((('D')) << 8) | ((58))): {
   struct pfioc_ruleset *pr = (struct pfioc_ruleset *)addr;
   struct pf_ruleset *ruleset;
   struct pf_anchor *anchor;
+  (void)(0);
   pr->path[sizeof(pr->path) - 1] = 0;
   if ((ruleset = pf_find_ruleset(pr->path)) == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   pr->nr = 0;
@@ -7759,6 +7846,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    for ((anchor) = pf_anchor_node_RB_MINMAX(&ruleset->anchor->children, -1); (anchor) != ((void *)0); (anchor) = pf_anchor_node_RB_NEXT(anchor))
     pr->nr++;
   }
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_ruleset) & 0x1fff) << 16) | ((('D')) << 8) | ((59))): {
@@ -7766,9 +7854,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pf_ruleset *ruleset;
   struct pf_anchor *anchor;
   u_int32_t nr = 0;
+  (void)(0);
   pr->path[sizeof(pr->path) - 1] = 0;
   if ((ruleset = pf_find_ruleset(pr->path)) == ((void *)0)) {
    error = 22;
+   (void)(0);
    break;
   }
   pr->name[0] = 0;
@@ -7777,6 +7867,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     if (anchor->parent == ((void *)0) && nr++ == pr->nr) {
      strlcpy(pr->name, anchor->name,
          sizeof(pr->name));
+     (void)(0);
      break;
     }
   } else {
@@ -7784,11 +7875,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     if (nr++ == pr->nr) {
      strlcpy(pr->name, anchor->name,
          sizeof(pr->name));
+     (void)(0);
      break;
     }
   }
   if (!pr->name[0])
    error = 16;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((60))): {
@@ -7797,8 +7890,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_clr_tables(&io->pfrio_table, &io->pfrio_ndel,
       io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((61))): {
@@ -7807,8 +7902,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_add_tables(io->pfrio_buffer, io->pfrio_size,
       &io->pfrio_nadd, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((62))): {
@@ -7817,8 +7914,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_del_tables(io->pfrio_buffer, io->pfrio_size,
       &io->pfrio_ndel, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((63))): {
@@ -7827,8 +7926,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_get_tables(&io->pfrio_table, io->pfrio_buffer,
       &io->pfrio_size, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((64))): {
@@ -7837,8 +7938,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_get_tstats(&io->pfrio_table, io->pfrio_buffer,
       &io->pfrio_size, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((65))): {
@@ -7847,8 +7950,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_clr_tstats(io->pfrio_buffer, io->pfrio_size,
       &io->pfrio_nadd, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((74))): {
@@ -7857,9 +7962,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_set_tflags(io->pfrio_buffer, io->pfrio_size,
       io->pfrio_size2, io->pfrio_nadd, &io->pfrio_nchange,
       &io->pfrio_ndel, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((66))): {
@@ -7868,8 +7975,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_clr_addrs(&io->pfrio_table, &io->pfrio_ndel,
       io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((67))): {
@@ -7878,9 +7987,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_add_addrs(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_nadd, io->pfrio_flags |
       0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((68))): {
@@ -7889,9 +8000,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_del_addrs(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_ndel, io->pfrio_flags |
       0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((69))): {
@@ -7900,10 +8013,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_set_addrs(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_size2, &io->pfrio_nadd,
       &io->pfrio_ndel, &io->pfrio_nchange, io->pfrio_flags |
       0x10000000, 0);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((70))): {
@@ -7912,8 +8027,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_get_addrs(&io->pfrio_table, io->pfrio_buffer,
       &io->pfrio_size, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((71))): {
@@ -7922,8 +8039,10 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_get_astats(&io->pfrio_table, io->pfrio_buffer,
       &io->pfrio_size, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((72))): {
@@ -7932,9 +8051,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_clr_astats(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_nadd, io->pfrio_flags |
       0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((73))): {
@@ -7943,9 +8064,11 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_tst_addrs(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_nadd, io->pfrio_flags |
       0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((77))): {
@@ -7954,19 +8077,25 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfr_ina_define(&io->pfrio_table, io->pfrio_buffer,
       io->pfrio_size, &io->pfrio_nadd, &io->pfrio_size2,
       io->pfrio_ticket, io->pfrio_flags | 0x10000000);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pf_osfp_ioctl) & 0x1fff) << 16) | ((('D')) << 8) | ((79))): {
   struct pf_osfp_ioctl *io = (struct pf_osfp_ioctl *)addr;
+  (void)(0);
   error = pf_osfp_add(io);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pf_osfp_ioctl) & 0x1fff) << 16) | ((('D')) << 8) | ((80))): {
   struct pf_osfp_ioctl *io = (struct pf_osfp_ioctl *)addr;
+  (void)(0);
   error = pf_osfp_get(io);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_trans) & 0x1fff) << 16) | ((('D')) << 8) | ((81))): {
@@ -7978,6 +8107,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    goto fail;
   }
+  (void)(0);
   ioe = malloc(sizeof(*ioe), 127, 0x0001);
   table = malloc(sizeof(*table), 127, 0x0001);
   pf_default_rule_new = pf_default_rule;
@@ -7987,6 +8117,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    (void)(0);
     goto fail;
    }
    if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
@@ -7994,6 +8125,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 63;
+    (void)(0);
     goto fail;
    }
    switch (ioe->type) {
@@ -8005,6 +8137,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         &ioe->ticket, ((void *)0), 0))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8013,6 +8146,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8021,11 +8155,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    (void)(0);
     goto fail;
    }
   }
   free(table, 127, sizeof(*table));
   free(ioe, 127, sizeof(*ioe));
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_trans) & 0x1fff) << 16) | ((('D')) << 8) | ((83))): {
@@ -8037,6 +8173,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    goto fail;
   }
+  (void)(0);
   ioe = malloc(sizeof(*ioe), 127, 0x0001);
   table = malloc(sizeof(*table), 127, 0x0001);
   for (i = 0; i < io->size; i++) {
@@ -8044,6 +8181,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    (void)(0);
     goto fail;
    }
    if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
@@ -8051,6 +8189,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 63;
+    (void)(0);
     goto fail;
    }
    switch (ioe->type) {
@@ -8062,6 +8201,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         ioe->ticket, ((void *)0), 0))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8070,6 +8210,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8077,6 +8218,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   free(table, 127, sizeof(*table));
   free(ioe, 127, sizeof(*ioe));
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_trans) & 0x1fff) << 16) | ((('D')) << 8) | ((82))): {
@@ -8089,6 +8231,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    goto fail;
   }
+  (void)(0);
   ioe = malloc(sizeof(*ioe), 127, 0x0001);
   table = malloc(sizeof(*table), 127, 0x0001);
   for (i = 0; i < io->size; i++) {
@@ -8096,6 +8239,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    (void)(0);
     goto fail;
    }
    if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
@@ -8103,6 +8247,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 63;
+    (void)(0);
     goto fail;
    }
    switch (ioe->type) {
@@ -8113,6 +8258,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
      error = 16;
+     (void)(0);
      goto fail;
     }
     break;
@@ -8125,6 +8271,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
      error = 16;
+     (void)(0);
      goto fail;
     }
     break;
@@ -8136,6 +8283,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 16;
+    (void)(0);
     goto fail;
    }
   }
@@ -8144,6 +8292,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 14;
+    (void)(0);
     goto fail;
    }
    if (strnlen(ioe->anchor, sizeof(ioe->anchor)) ==
@@ -8151,6 +8300,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 63;
+    (void)(0);
     goto fail;
    }
    switch (ioe->type) {
@@ -8162,6 +8312,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         ((void *)0), ((void *)0), 0))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8170,6 +8321,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
      free(ioe, 127, sizeof(*ioe));
+     (void)(0);
      goto fail;
     }
     break;
@@ -8183,6 +8335,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     free(table, 127, sizeof(*table));
     free(ioe, 127, sizeof(*ioe));
     error = 16;
+    (void)(0);
     goto fail;
    }
    pf_pool_limits[i].limit = pf_pool_limits[i].limit_new;
@@ -8199,6 +8352,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   pf_trans_set_commit();
   free(table, 127, sizeof(*table));
   free(ioe, 127, sizeof(*ioe));
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_src_nodes) & 0x1fff) << 16) | ((('D')) << 8) | ((84))): {
@@ -8206,10 +8360,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pf_src_node *n, *p, *pstore;
   u_int32_t nr = 0;
   int space = psn->psn_len;
+  (void)(0);
   if (space == 0) {
    for ((n) = pf_src_tree_RB_MINMAX(&tree_src_tracking, -1); (n) != ((void *)0); (n) = pf_src_tree_RB_NEXT(n))
     nr++;
    psn->psn_len = sizeof(struct pf_src_node) * nr;
+   (void)(0);
    break;
   }
   pstore = malloc(sizeof(*pstore), 127, 0x0001);
@@ -8238,6 +8394,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = copyout(pstore, p, sizeof(*p));
    if (error) {
     free(pstore, 127, sizeof(*pstore));
+    (void)(0);
     goto fail;
    }
    p++;
@@ -8245,16 +8402,19 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   psn->psn_len = sizeof(struct pf_src_node) * nr;
   free(pstore, 127, sizeof(*pstore));
+  (void)(0);
   break;
  }
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('D')) << 8) | ((85))): {
   struct pf_src_node *n;
   struct pf_state *state;
+  (void)(0);
   for ((state) = pf_state_tree_id_RB_MINMAX(&tree_id, -1); (state) != ((void *)0); (state) = pf_state_tree_id_RB_NEXT(state))
    pf_src_tree_remove_state(state);
   for ((n) = pf_src_tree_RB_MINMAX(&tree_src_tracking, -1); (n) != ((void *)0); (n) = pf_src_tree_RB_NEXT(n))
    n->expire = 1;
   pf_purge_expired_src_nodes(1);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_src_node_kill) & 0x1fff) << 16) | ((('D')) << 8) | ((91))): {
@@ -8263,6 +8423,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pfioc_src_node_kill *psnk =
       (struct pfioc_src_node_kill *)addr;
   u_int killed = 0;
+  (void)(0);
   for ((sn) = pf_src_tree_RB_MINMAX(&tree_src_tracking, -1); (sn) != ((void *)0); (sn) = pf_src_tree_RB_NEXT(sn)) {
    if (pf_match_addr(psnk->psnk_src.neg, &psnk->psnk_src.addr.v.a.addr, &psnk->psnk_src.addr.v.a.mask, &sn->addr, sn->af) &&
        pf_match_addr(psnk->psnk_dst.neg, &psnk->psnk_dst.addr.v.a.addr, &psnk->psnk_dst.addr.v.a.mask, &sn->raddr, sn->af)) {
@@ -8276,19 +8437,24 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   if (killed > 0)
    pf_purge_expired_src_nodes(1);
   psnk->psnk_killed = killed;
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(u_int32_t) & 0x1fff) << 16) | ((('D')) << 8) | ((86))): {
   u_int32_t *hostid = (u_int32_t *)addr;
+  (void)(0);
   if (*hostid == 0)
    pf_trans_set.hostid = arc4random();
   else
    pf_trans_set.hostid = *hostid;
   pf_trans_set.mask |= 0x04;
+  (void)(0);
   break;
  }
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('D')) << 8) | ((78))):
+  (void)(0);
   pf_osfp_flush();
+  (void)(0);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((87))): {
   struct pfioc_iface *io = (struct pfioc_iface *)addr;
@@ -8296,24 +8462,32 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    error = 19;
    break;
   }
+  (void)(0);
   error = pfi_get_ifaces(io->pfiio_name, io->pfiio_buffer,
       &io->pfiio_size);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((89))): {
   struct pfioc_iface *io = (struct pfioc_iface *)addr;
+  (void)(0);
   error = pfi_set_flags(io->pfiio_name, io->pfiio_flags);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((90))): {
   struct pfioc_iface *io = (struct pfioc_iface *)addr;
+  (void)(0);
   error = pfi_clear_flags(io->pfiio_name, io->pfiio_flags);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(u_int32_t) & 0x1fff) << 16) | ((('D')) << 8) | ((92))): {
   u_int32_t *reass = (u_int32_t *)addr;
+  (void)(0);
   pf_trans_set.reass = *reass;
   pf_trans_set.mask |= 0x08;
+  (void)(0);
   break;
  }
  default:
@@ -8321,7 +8495,6 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   break;
  }
 fail:
- (void)(0);
  do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
