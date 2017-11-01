@@ -2270,6 +2270,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
 struct bpf_program {
@@ -2793,7 +2794,6 @@ void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
 extern struct ifnet_head ifnet;
-extern struct taskq *softnettq;
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -6282,7 +6282,7 @@ pfsync_state_import(struct pfsync_state *sp, int flags)
   ((st->state_flags) &= ~(0x0008));
   if (((st->state_flags) & (0x0010))) {
    pfsync_q_ins(st, 0x00);
-   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
   }
  }
  ((st->state_flags) &= ~(0x0010));
@@ -6524,7 +6524,7 @@ pfsync_in_upd(caddr_t buf, int len, int count, int flags)
   if (sync) {
    pfsyncstat_inc(pfsyncs_stale);
    pfsync_update_state(st);
-   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
   }
  }
  return (0);
@@ -6578,7 +6578,7 @@ pfsync_in_upd_c(caddr_t buf, int len, int count, int flags)
   if (sync) {
    pfsyncstat_inc(pfsyncs_stale);
    pfsync_update_state(st);
-   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
   }
  }
  return (0);
@@ -7119,7 +7119,7 @@ pfsync_defer(struct pf_state *st, struct mbuf *m)
  do { (pd)->pd_entry.tqe_next = ((void *)0); (pd)->pd_entry.tqe_prev = (&sc->sc_deferrals)->tqh_last; *(&sc->sc_deferrals)->tqh_last = (pd); (&sc->sc_deferrals)->tqh_last = &(pd)->pd_entry.tqe_next; } while (0);
  timeout_set_proc(&pd->pd_tmo, pfsync_defer_tmo, pd);
  timeout_add_msec(&pd->pd_tmo, 20);
- do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+ do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
  return (1);
 }
 void
@@ -7229,7 +7229,7 @@ pfsync_update_state(struct pf_state *st)
       st->sync_state);
  }
  if (sync || (time_uptime - st->pfsync_time) < 2)
-  do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+  do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
 }
 void
 pfsync_cancel_full_update(struct pfsync_softc *sc)
@@ -7292,7 +7292,7 @@ pfsync_request_update(u_int32_t creatorid, u_int64_t id)
  }
  do { (item)->ur_entry.tqe_next = ((void *)0); (item)->ur_entry.tqe_prev = (&sc->sc_upd_req_list)->tqh_last; *(&sc->sc_upd_req_list)->tqh_last = (item); (&sc->sc_upd_req_list)->tqh_last = &(item)->ur_entry.tqe_next; } while (0);
  sc->sc_len += nlen;
- do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+ do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
 }
 void
 pfsync_update_state_req(struct pf_state *st)
@@ -7311,7 +7311,7 @@ pfsync_update_state_req(struct pf_state *st)
   pfsync_q_del(st);
  case 0xff:
   pfsync_q_ins(st, 0x04);
-  do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+  do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
   return;
  case 0x03:
  case 0x04:
@@ -7422,7 +7422,7 @@ pfsync_update_tdb(struct tdb *t, int output)
   t->tdb_updates = 0;
  } else {
   if (++t->tdb_updates >= sc->sc_maxupdates)
-   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+   do { atomic_setbits_int(&netisr, (1 << (5))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
  }
  if (output)
   ((t->tdb_flags) |= (0x80000));

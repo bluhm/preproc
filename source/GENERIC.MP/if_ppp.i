@@ -2126,6 +2126,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 struct taskq;
 struct task {
  struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
@@ -2333,7 +2334,6 @@ void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
 extern struct ifnet_head ifnet;
-extern struct taskq *softnettq;
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -3640,7 +3640,7 @@ ppp_restart(struct ppp_softc *sc)
 {
  int s = _splraise(6);
  sc->sc_flags &= ~0x10000000;
- do { atomic_setbits_int(&netisr, (1 << (28))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+ do { atomic_setbits_int(&netisr, (1 << (28))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
  _splx(s);
 }
 struct mbuf *
@@ -3860,7 +3860,7 @@ ppppktin(struct ppp_softc *sc, struct ppp_pkt *pkt, int lost)
 {
  pkt->p_hdr.ph_errmark = lost;
  if (ppp_pkt_enqueue(&sc->sc_rawq, pkt) == 0)
-  do { atomic_setbits_int(&netisr, (1 << (28))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+  do { atomic_setbits_int(&netisr, (1 << (28))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
 }
 static void
 ppp_inproc(struct ppp_softc *sc, struct mbuf *m)

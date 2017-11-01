@@ -2790,6 +2790,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 struct rt_kmetrics {
  u_int64_t rmx_pksent;
  int64_t rmx_expire;

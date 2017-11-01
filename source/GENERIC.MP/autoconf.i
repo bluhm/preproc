@@ -2172,6 +2172,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 struct consdev {
  void (*cn_probe)(struct consdev *);
  void (*cn_init)(struct consdev *);

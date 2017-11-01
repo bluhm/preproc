@@ -1718,6 +1718,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 struct taskq;
 struct task {
  struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
@@ -1925,7 +1926,6 @@ void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
 extern struct ifnet_head ifnet;
-extern struct taskq *softnettq;
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -2755,7 +2755,7 @@ looutput(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
  m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
  if (mq_enqueue(&ifp->if_inputqueue, m))
   return 55;
- task_add(softnettq, ifp->if_inputtask);
+ task_add(net_tq(ifp->if_index), ifp->if_inputtask);
  return (0);
 }
 void

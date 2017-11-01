@@ -3103,6 +3103,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 struct ifnet;
 struct ifq_ops;
 struct ifqueue {
@@ -3295,7 +3296,6 @@ void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
 extern struct ifnet_head ifnet;
-extern struct taskq *softnettq;
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -8346,7 +8346,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
        pf_default_rule_new.timeout[i];
    if (pf_default_rule.timeout[i] == PFTM_INTERVAL &&
        pf_default_rule.timeout[i] < old)
-    task_add(softnettq, &pf_purge_task);
+    task_add(net_tq(0), &pf_purge_task);
   }
   pfi_xcommit();
   pf_trans_set_commit();

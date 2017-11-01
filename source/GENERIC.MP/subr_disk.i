@@ -2919,6 +2919,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 void random_start(void);
 void enqueue_randomness(unsigned int, unsigned int);
 void suspend_randomness(void);

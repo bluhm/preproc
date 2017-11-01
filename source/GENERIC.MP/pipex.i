@@ -2392,6 +2392,7 @@ void if_congestion(void);
 int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
+struct taskq * net_tq(unsigned int);
 typedef __in_addr_t in_addr_t;
 typedef __in_port_t in_port_t;
 struct in_addr {
@@ -2786,7 +2787,6 @@ void niq_init(struct niqueue *, u_int, u_int);
 int niq_enqueue(struct niqueue *, struct mbuf *);
 int niq_enlist(struct niqueue *, struct mbuf_list *);
 extern struct ifnet_head ifnet;
-extern struct taskq *softnettq;
 void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
@@ -5799,7 +5799,7 @@ pipex_ppp_enqueue(struct mbuf *m0, struct pipex_session *session,
  m0->M_dat.MH.MH_pkthdr.ether_vtag = 0x21;
  if (mq_enqueue(mq, m0) != 0)
   return (1);
- do { atomic_setbits_int(&netisr, (1 << (27))); task_add(softnettq, &if_input_task_locked); } while ( 0);
+ do { atomic_setbits_int(&netisr, (1 << (27))); task_add(net_tq(0), &if_input_task_locked); } while ( 0);
  return (0);
 }
  void
