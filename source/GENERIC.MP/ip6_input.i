@@ -6702,5 +6702,5 @@ void
 ip6_send(struct mbuf *m)
 {
  mq_enqueue(&ip6send_mq, m);
- task_add(0, &ip6send_task);
+ task_add(net_tq(0), &ip6send_task);
 }

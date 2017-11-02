@@ -7105,5 +7105,5 @@ void
 ip_send(struct mbuf *m)
 {
  mq_enqueue(&ipsend_mq, m);
- task_add(0, &ipsend_task);
+ task_add(net_tq(0), &ipsend_task);
 }

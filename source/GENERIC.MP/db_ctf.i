@@ -2692,8 +2692,6 @@ db_ctf_type_by_name(const char *name, unsigned int kind)
   }
   if ((((ctt->_ctt_stype.cts_info) & 0xf800) >> 11) != kind)
    continue;
-  if (kind == 6 && ctt->_ctt_stype._ST._size == 0)
-   continue;
   tname = db_ctf_off2name(ctt->_ctt_stype.cts_name);
   if (tname == ((void *)0))
    continue;
