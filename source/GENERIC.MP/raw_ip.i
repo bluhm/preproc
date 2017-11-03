@@ -1490,6 +1490,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -3027,6 +3028,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct ip6_hdr {
  union {
@@ -3305,6 +3307,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -5410,9 +5413,8 @@ rip_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   }
  case 10:
   soisdisconnected(so);
- case 1:
   if (inp == ((void *)0))
-   panic("rip_detach");
+   panic("rip_abort");
   if (so == ip_mrouter[inp->inp_rtableid])
    ip_mrouter_done(so);
   in_pcbdetach(inp);
@@ -5514,4 +5516,16 @@ rip_attach(struct socket *so, int proto)
  inp = ((struct inpcb *)(so)->so_pcb);
  inp->inp_hu.hu_ip.ip_p = proto;
  return 0;
+}
+int
+rip_detach(struct socket *so)
+{
+ struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
+ soassertlocked(so);
+ if (inp == ((void *)0))
+  return (22);
+ if (so == ip_mrouter[inp->inp_rtableid])
+  ip_mrouter_done(so);
+ in_pcbdetach(inp);
+ return (0);
 }

@@ -2163,6 +2163,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 extern int in_cksum_internal(struct mbuf *, int len, int offset, int sum);
 int

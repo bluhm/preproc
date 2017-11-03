@@ -1037,6 +1037,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -2468,6 +2469,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct ip6_hdr {
  union {
@@ -2746,6 +2748,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -3936,6 +3939,7 @@ int tcp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int tcp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int tcp_attach(struct socket *, int);
+int tcp_detach(struct socket *);
 void tcp_xmit_timer(struct tcpcb *, int);
 void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
 void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);
@@ -4013,6 +4017,7 @@ int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
 struct ahstat {
     u_int32_t ahs_hdrops;
     u_int32_t ahs_nopf;
@@ -4510,6 +4515,7 @@ int divert6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int divert6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert6_attach(struct socket *, int);
+int divert6_detach(struct socket *);
 int ip_etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
 int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
@@ -4535,6 +4541,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = ip6_ctloutput,
   .pr_usrreq = udp_usrreq,
   .pr_attach = udp_attach,
+  .pr_detach = udp_detach,
   .pr_sysctl = udp_sysctl
 },
 {
@@ -4547,6 +4554,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = tcp_ctloutput,
   .pr_usrreq = tcp_usrreq,
   .pr_attach = tcp_attach,
+  .pr_detach = tcp_detach,
   .pr_sysctl = tcp_sysctl
 },
 {
@@ -4559,6 +4567,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = rip6_sysctl
 },
 {
@@ -4571,6 +4580,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_init = icmp6_init,
   .pr_fasttimo = icmp6_fasttimo,
   .pr_sysctl = icmp6_sysctl
@@ -4605,6 +4615,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = ah_sysctl
 },
 {
@@ -4616,6 +4627,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = esp_sysctl
 },
 {
@@ -4627,6 +4639,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = ipcomp_sysctl
 },
 {
@@ -4637,7 +4650,8 @@ struct protosw inet6sw[] = {
   .pr_input = in6_gif_input,
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
-  .pr_attach = rip6_attach
+  .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
 },
 {
   .pr_type = 3,
@@ -4648,6 +4662,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
 },
 {
   .pr_type = 3,
@@ -4658,6 +4673,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = etherip_sysctl
 },
 {
@@ -4669,6 +4685,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = carp_sysctl
 },
 {
@@ -4679,6 +4696,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = divert6_usrreq,
   .pr_attach = divert6_attach,
+  .pr_detach = divert6_detach,
   .pr_init = divert6_init,
   .pr_sysctl = divert6_sysctl
 },
@@ -4691,6 +4709,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_sysctl = ip_etherip_sysctl
 },
 {
@@ -4701,6 +4720,7 @@ struct protosw inet6sw[] = {
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
   .pr_init = rip6_init
 }
 };

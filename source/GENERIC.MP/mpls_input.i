@@ -2662,6 +2662,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct icmp_ra_addr {
  u_int32_t ira_addr;

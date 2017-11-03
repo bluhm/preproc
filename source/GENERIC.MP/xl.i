@@ -1438,6 +1438,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);

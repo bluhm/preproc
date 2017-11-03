@@ -4017,6 +4017,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct icmp_ra_addr {
  u_int32_t ira_addr;
@@ -4522,6 +4523,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);

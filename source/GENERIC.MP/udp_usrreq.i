@@ -1438,6 +1438,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -3462,6 +3463,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -4343,6 +4345,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct icmp_ra_addr {
  u_int32_t ira_addr;
@@ -4468,6 +4471,7 @@ int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
 struct espstat {
     u_int32_t esps_hdrops;
     u_int32_t esps_nopf;
@@ -6603,9 +6607,6 @@ udp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
   goto release;
  }
  switch (req) {
- case 1:
-  in_pcbdetach(inp);
-  break;
  case 2:
   error = in_pcbbind(inp, addr, p);
   break;
@@ -6737,6 +6738,17 @@ udp_attach(struct socket *so, int proto)
  else
   ((struct inpcb *)(so)->so_pcb)->inp_hu.hu_ip.ip_ttl = ip_defttl;
  return 0;
+}
+int
+udp_detach(struct socket *so)
+{
+ struct inpcb *inp;
+ soassertlocked(so);
+ inp = ((struct inpcb *)(so)->so_pcb);
+ if (inp == ((void *)0))
+  return (22);
+ in_pcbdetach(inp);
+ return (0);
 }
 int
 udp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,

@@ -1037,6 +1037,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -1291,6 +1292,7 @@ struct fdpass {
 int uipc_usrreq(struct socket *, int , struct mbuf *,
     struct mbuf *, struct mbuf *, struct proc *);
 int uipc_attach(struct socket *, int);
+int uipc_detach(struct socket *);
 int unp_bind(struct unpcb *, struct mbuf *, struct proc *);
 int unp_connect(struct socket *, struct mbuf *, struct proc *);
 int unp_connect2(struct socket *, struct socket *);
@@ -1644,7 +1646,8 @@ struct rawcb {
  struct sockproto rcb_proto;
 };
 int raw_attach(struct socket *, int);
-void raw_detach(struct rawcb *);
+int raw_detach(struct socket *);
+void raw_do_detach(struct rawcb *);
 void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
@@ -1658,6 +1661,7 @@ struct protosw unixsw[] = {
   .pr_flags = 0x04|0x08|0x10,
   .pr_usrreq = uipc_usrreq,
   .pr_attach = uipc_attach,
+  .pr_detach = uipc_detach,
 },
 {
   .pr_type = 5,
@@ -1666,6 +1670,7 @@ struct protosw unixsw[] = {
   .pr_flags = 0x01|0x04|0x08|0x10,
   .pr_usrreq = uipc_usrreq,
   .pr_attach = uipc_attach,
+  .pr_detach = uipc_detach,
 },
 {
   .pr_type = 2,
@@ -1674,6 +1679,7 @@ struct protosw unixsw[] = {
   .pr_flags = 0x01|0x02|0x10,
   .pr_usrreq = uipc_usrreq,
   .pr_attach = uipc_attach,
+  .pr_detach = uipc_detach,
 }
 };
 struct domain unixdomain = {

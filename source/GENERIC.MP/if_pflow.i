@@ -3394,6 +3394,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct udphdr {
  u_int16_t uh_sport;
@@ -3454,6 +3455,7 @@ int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -3731,6 +3733,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);

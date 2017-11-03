@@ -1238,6 +1238,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -3464,6 +3465,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -5850,7 +5852,6 @@ rip6_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   break;
  case 10:
   soisdisconnected(so);
- case 1:
   if (in6p == ((void *)0))
    panic("rip6_detach");
   if (so == ip6_mrouter[in6p->inp_rtableid])
@@ -5963,6 +5964,20 @@ rip6_attach(struct socket *so, int proto)
  }
  __builtin_memset((in6p->inp_icmp6filt), (0xff), (sizeof(struct icmp6_filter)));
  return 0;
+}
+int
+rip6_detach(struct socket *so)
+{
+ struct inpcb *in6p = ((struct inpcb *)(so)->so_pcb);
+ soassertlocked(so);
+ if (in6p == ((void *)0))
+  panic("rip6_detach");
+ if (so == ip6_mrouter[in6p->inp_rtableid])
+  ip6_mrouter_done(so);
+ free(in6p->inp_icmp6filt, 4, sizeof(struct icmp6_filter));
+ in6p->inp_icmp6filt = ((void *)0);
+ in_pcbdetach(in6p);
+ return (0);
 }
 int
 rip6_sysctl_rip6stat(void *oldp, size_t *oldplen, void *newp)

@@ -1438,6 +1438,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -2611,6 +2612,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -3492,6 +3494,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 typedef u_int32_t tcp_seq;
 struct tcphdr {
@@ -3946,6 +3949,7 @@ int tcp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int tcp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int tcp_attach(struct socket *, int);
+int tcp_detach(struct socket *);
 void tcp_xmit_timer(struct tcpcb *, int);
 void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
 void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);

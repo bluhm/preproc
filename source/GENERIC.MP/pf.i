@@ -3518,6 +3518,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -4358,6 +4359,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct icmp_ra_addr {
  u_int32_t ira_addr;
@@ -4907,6 +4909,7 @@ int tcp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int tcp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int tcp_attach(struct socket *, int);
+int tcp_detach(struct socket *);
 void tcp_xmit_timer(struct tcpcb *, int);
 void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
 void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);
@@ -4984,6 +4987,7 @@ int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
 struct divstat {
  u_long divs_ipackets;
  u_long divs_noport;
@@ -5012,6 +5016,7 @@ int divert_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int divert_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert_attach(struct socket *, int);
+int divert_detach(struct socket *);
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -5132,6 +5137,7 @@ int divert6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int divert6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert6_attach(struct socket *, int);
+int divert6_detach(struct socket *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;

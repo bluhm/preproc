@@ -1037,6 +1037,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -2448,6 +2449,7 @@ int rip_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip_attach(struct socket *, int);
+int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
 struct icmp_ra_addr {
  u_int32_t ira_addr;
@@ -2791,6 +2793,7 @@ int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
 int rip6_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
 int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int dest6_input(struct mbuf **, int *, int, int);
 int none_input(struct mbuf **, int *, int);
@@ -4017,6 +4020,7 @@ int tcp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int tcp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int tcp_attach(struct socket *, int);
+int tcp_detach(struct socket *);
 void tcp_xmit_timer(struct tcpcb *, int);
 void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
 void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);
@@ -4094,6 +4098,7 @@ int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
 struct gif_softc {
  struct ifnet gif_if;
  struct sockaddr *gif_psrc;
@@ -5517,6 +5522,7 @@ int divert_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int divert_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert_attach(struct socket *, int);
+int divert_detach(struct socket *);
 int ip_etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
 int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
@@ -5541,6 +5547,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = ip_ctloutput,
   .pr_usrreq = udp_usrreq,
   .pr_attach = udp_attach,
+  .pr_detach = udp_detach,
   .pr_init = udp_init,
   .pr_sysctl = udp_sysctl
 },
@@ -5554,6 +5561,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = tcp_ctloutput,
   .pr_usrreq = tcp_usrreq,
   .pr_attach = tcp_attach,
+  .pr_detach = tcp_detach,
   .pr_init = tcp_init,
   .pr_slowtimo = tcp_slowtimo,
   .pr_sysctl = tcp_sysctl
@@ -5566,7 +5574,8 @@ struct protosw inetsw[] = {
   .pr_input = rip_input,
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
-  .pr_attach = rip_attach
+  .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
 },
 {
   .pr_type = 3,
@@ -5577,6 +5586,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_init = icmp_init,
   .pr_sysctl = icmp_sysctl
 },
@@ -5589,6 +5599,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = ipip_sysctl,
   .pr_init = ipip_init
 },
@@ -5600,7 +5611,8 @@ struct protosw inetsw[] = {
   .pr_input = in_gif_input,
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
-  .pr_attach = rip_attach
+  .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
 },
 {
   .pr_type = 3,
@@ -5611,6 +5623,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = etherip_sysctl
 },
 {
@@ -5620,7 +5633,8 @@ struct protosw inetsw[] = {
   .pr_flags = 0x01|0x02,
   .pr_input = etherip_input,
   .pr_usrreq = rip_usrreq,
-  .pr_attach = rip_attach
+  .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
 },
 {
   .pr_type = 3,
@@ -5631,6 +5645,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_init = igmp_init,
   .pr_fasttimo = igmp_fasttimo,
   .pr_slowtimo = igmp_slowtimo,
@@ -5646,6 +5661,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = ah_sysctl
 },
 {
@@ -5658,6 +5674,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = esp_sysctl
 },
 {
@@ -5669,6 +5686,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = ipcomp_sysctl
 },
 {
@@ -5680,6 +5698,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = gre_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = gre_sysctl
 },
 {
@@ -5691,6 +5710,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = ipmobile_sysctl
 },
 {
@@ -5702,6 +5722,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = carp_sysctl
 },
 {
@@ -5713,6 +5734,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = pfsync_sysctl
 },
 {
@@ -5723,6 +5745,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = divert_usrreq,
   .pr_attach = divert_attach,
+  .pr_detach = divert_detach,
   .pr_init = divert_init,
   .pr_sysctl = divert_sysctl
 },
@@ -5735,6 +5758,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_sysctl = ip_etherip_sysctl
 },
 {
@@ -5745,6 +5769,7 @@ struct protosw inetsw[] = {
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
+  .pr_detach = rip_detach,
   .pr_init = rip_init
 }
 };

@@ -1206,6 +1206,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -1852,7 +1853,8 @@ struct rawcb {
  struct sockproto rcb_proto;
 };
 int raw_attach(struct socket *, int);
-void raw_detach(struct rawcb *);
+int raw_detach(struct socket *);
+void raw_do_detach(struct rawcb *);
 void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
@@ -1876,9 +1878,6 @@ raw_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   return (22);
  }
  switch (req) {
- case 1:
-  raw_detach(rp);
-  break;
  case 4:
  case 2:
  case 17:

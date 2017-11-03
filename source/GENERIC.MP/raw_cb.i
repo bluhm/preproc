@@ -1761,6 +1761,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -1780,7 +1781,8 @@ struct rawcb {
  struct sockproto rcb_proto;
 };
 int raw_attach(struct socket *, int);
-void raw_detach(struct rawcb *);
+int raw_detach(struct socket *);
+void raw_do_detach(struct rawcb *);
 void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
@@ -1957,8 +1959,18 @@ raw_attach(struct socket *so, int proto)
  rp->rcb_proto.sp_protocol = proto;
  return (0);
 }
+int
+raw_detach(struct socket *so)
+{
+ struct rawcb *rp = ((struct rawcb *)(so)->so_pcb);
+ soassertlocked(so);
+ if (rp == ((void *)0))
+  return (22);
+ raw_do_detach(rp);
+ return (0);
+}
 void
-raw_detach(struct rawcb *rp)
+raw_do_detach(struct rawcb *rp)
 {
  struct socket *so = rp->rcb_socket;
  so->so_pcb = 0;
@@ -1969,5 +1981,5 @@ void
 raw_disconnect(struct rawcb *rp)
 {
  if (rp->rcb_socket->so_state & 0x001)
-  raw_detach(rp);
+  raw_do_detach(rp);
 }

@@ -1372,6 +1372,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -3284,7 +3285,8 @@ struct rawcb {
  struct sockproto rcb_proto;
 };
 int raw_attach(struct socket *, int);
-void raw_detach(struct rawcb *);
+int raw_detach(struct socket *);
+void raw_do_detach(struct rawcb *);
 void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
@@ -4719,7 +4721,7 @@ static int nregistered = 0;
 static int npromisc = 0;
 void pfkey_init(void);
 int pfkeyv2_attach(struct socket *, int);
-int pfkeyv2_detach(struct socket *, struct proc *);
+int pfkeyv2_detach(struct socket *);
 int pfkeyv2_usrreq(struct socket *, int, struct mbuf *, struct mbuf *,
     struct mbuf *, struct proc *);
 int pfkeyv2_output(struct mbuf *, struct socket *, struct sockaddr *,
@@ -4743,6 +4745,7 @@ static struct protosw pfkeysw[] = {
   .pr_output = pfkeyv2_output,
   .pr_usrreq = pfkeyv2_usrreq,
   .pr_attach = pfkeyv2_attach,
+  .pr_detach = pfkeyv2_detach,
   .pr_sysctl = pfkeyv2_sysctl,
 }
 };
@@ -4783,7 +4786,7 @@ pfkeyv2_attach(struct socket *so, int proto)
  return (0);
 }
 int
-pfkeyv2_detach(struct socket *so, struct proc *p)
+pfkeyv2_detach(struct socket *so)
 {
  struct keycb *kp;
  kp = ((struct keycb *)(so)->so_pcb);
@@ -4799,19 +4802,14 @@ pfkeyv2_detach(struct socket *so, struct proc *p)
    npromisc--;
   __mtx_leave(&pfkeyv2_mtx );
  }
- raw_detach(&kp->rcb);
+ raw_do_detach(&kp->rcb);
  return (0);
 }
 int
 pfkeyv2_usrreq(struct socket *so, int req, struct mbuf *mbuf,
     struct mbuf *nam, struct mbuf *control, struct proc *p)
 {
- switch (req) {
- case 1:
-  return (pfkeyv2_detach(so, p));
- default:
-  return (raw_usrreq(so, req, mbuf, nam, control, p));
- }
+ return (raw_usrreq(so, req, mbuf, nam, control, p));
 }
 int
 pfkeyv2_output(struct mbuf *mbuf, struct socket *so,

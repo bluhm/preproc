@@ -1946,6 +1946,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -2265,6 +2266,7 @@ struct fdpass {
 int uipc_usrreq(struct socket *, int , struct mbuf *,
     struct mbuf *, struct mbuf *, struct proc *);
 int uipc_attach(struct socket *, int);
+int uipc_detach(struct socket *);
 int unp_bind(struct unpcb *, struct mbuf *, struct proc *);
 int unp_connect(struct socket *, struct mbuf *, struct proc *);
 int unp_connect2(struct socket *, struct socket *);

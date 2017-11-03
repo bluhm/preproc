@@ -1717,6 +1717,7 @@ struct protosw {
  int (*pr_usrreq)(struct socket *, int, struct mbuf *,
       struct mbuf *, struct mbuf *, struct proc *);
  int (*pr_attach)(struct socket *, int);
+ int (*pr_detach)(struct socket *);
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
@@ -1977,6 +1978,7 @@ struct fdpass {
 int uipc_usrreq(struct socket *, int , struct mbuf *,
     struct mbuf *, struct mbuf *, struct proc *);
 int uipc_attach(struct socket *, int);
+int uipc_detach(struct socket *);
 int unp_bind(struct unpcb *, struct mbuf *, struct proc *);
 int unp_connect(struct socket *, struct mbuf *, struct proc *);
 int unp_connect2(struct socket *, struct socket *);
@@ -3017,9 +3019,6 @@ uipc_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
  }
  do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0);
  switch (req) {
- case 1:
-  unp_detach(unp);
-  break;
  case 2:
   error = unp_bind(unp, nam, p);
   break;
@@ -3201,6 +3200,16 @@ uipc_attach(struct socket *so, int proto)
  so->so_pcb = unp;
  getnanotime(&unp->unp_ctime);
  do { if (((unp)->unp_link.le_next = (&unp_head)->lh_first) != ((void *)0)) (&unp_head)->lh_first->unp_link.le_prev = &(unp)->unp_link.le_next; (&unp_head)->lh_first = (unp); (unp)->unp_link.le_prev = &(&unp_head)->lh_first; } while (0);
+ return (0);
+}
+int
+uipc_detach(struct socket *so)
+{
+ struct unpcb *unp = ((struct unpcb *)((so)->so_pcb));
+ if (unp == ((void *)0))
+  return (22);
+ do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0);
+ unp_detach(unp);
  return (0);
 }
 void
