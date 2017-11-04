@@ -3063,8 +3063,7 @@ void nd6_ns_output(struct ifnet *, struct in6_addr *,
 caddr_t nd6_ifptomac(struct ifnet *);
 void nd6_dad_start(struct ifaddr *);
 void nd6_dad_stop(struct ifaddr *);
-void nd6_ra_input(struct mbuf *, int, int);
-void nd6_rs_input(struct mbuf *, int, int);
+void nd6_rtr_cache(struct mbuf *, int, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
 void nd6_expire_timer_update(struct in6_ifaddr *);
@@ -3291,84 +3290,50 @@ void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
 extern int icmp6_redirtimeout;
 int rt6_deleteroute(struct rtentry *, void *, unsigned int);
 void
-nd6_rs_input(struct mbuf *m, int off, int icmp6len)
+nd6_rtr_cache(struct mbuf *m, int off, int icmp6len, int icmp6_type)
 {
  struct ifnet *ifp;
  struct ip6_hdr *ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  struct nd_router_solicit *nd_rs;
- struct in6_addr saddr6 = ip6->ip6_src;
- char *lladdr = ((void *)0);
- int lladdrlen = 0;
- union nd_opts ndopts;
- char src[46], dst[46];
- if (!ip6_forwarding)
-  goto freeit;
- if (ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim != 255) {
-  do { if (nd6_debug) log (3, "nd6_rs_input: invalid hlim (%d) from %s to %s on %u\n", ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim, inet_ntop(24, &ip6->ip6_src, src, sizeof(src)), inet_ntop(24, &ip6->ip6_dst, dst, sizeof(dst)), m->M_dat.MH.MH_pkthdr.ph_ifidx); } while (0);
-  goto bad;
- }
- if (((*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[12]) == 0)))
-  goto freeit;
- do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (off) + (icmp6len)) (nd_rs) = (struct nd_router_solicit *)(((caddr_t)(((m))->m_hdr.mh_data)) + (off)); else { t = m_pulldown((m), (off), (icmp6len), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (icmp6len)) panic("m_pulldown malfunction"); (nd_rs) = (struct nd_router_solicit *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (nd_rs) = (struct nd_router_solicit *)((void *)0); (m) = ((void *)0); } } } while ( 0);
- if (nd_rs == ((void *)0)) {
-  icmp6stat_inc(icp6s_tooshort);
-  return;
- }
- icmp6len -= sizeof(*nd_rs);
- nd6_option_init(nd_rs + 1, icmp6len, &ndopts);
- if (nd6_options(&ndopts) < 0) {
-  do { if (nd6_debug) log (6, "nd6_rs_input: invalid ND option, ignored\n"); } while (0);
-  goto freeit;
- }
- if (ndopts.nd_opt_each.src_lladdr) {
-  lladdr = (char *)(ndopts.nd_opt_each.src_lladdr + 1);
-  lladdrlen = ndopts.nd_opt_each.src_lladdr->nd_opt_len << 3;
- }
- ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
- if (ifp == ((void *)0))
-  goto freeit;
- if (lladdr && ((ifp->if_data.ifi_addrlen + 2 + 7) & ~7) != lladdrlen) {
-  do { if (nd6_debug) log (6, "nd6_rs_input: lladdrlen mismatch for %s " "(if %d, RS packet %d)\n", inet_ntop(24, &saddr6, src, sizeof(src)), ifp->if_data.ifi_addrlen, lladdrlen - 2); } while (0);
-  if_put(ifp);
-  goto bad;
- }
- nd6_cache_lladdr(ifp, &saddr6, lladdr, lladdrlen, 133, 0);
- if_put(ifp);
- freeit:
- m_freem(m);
- return;
- bad:
- icmp6stat_inc(icp6s_badrs);
- m_freem(m);
-}
-void
-nd6_ra_input(struct mbuf *m, int off, int icmp6len)
-{
- struct ifnet *ifp;
- struct ip6_hdr *ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  struct nd_router_advert *nd_ra;
  struct in6_addr saddr6 = ip6->ip6_src;
  char *lladdr = ((void *)0);
  int lladdrlen = 0;
  union nd_opts ndopts;
  char src[46], dst[46];
+ ((icmp6_type == 133 || icmp6_type == 134) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6_rtr.c", 80, "icmp6_type == ND_ROUTER_SOLICIT || icmp6_type == ND_ROUTER_ADVERT"));
  if (ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim != 255) {
-  do { if (nd6_debug) log (3, "nd6_ra_input: invalid hlim (%d) from %s to %s on %u\n", ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim, inet_ntop(24, &ip6->ip6_src, src, sizeof(src)), inet_ntop(24, &ip6->ip6_dst, dst, sizeof(dst)), m->M_dat.MH.MH_pkthdr.ph_ifidx); } while (0);
+  do { if (nd6_debug) log (3, "%s: invalid hlim (%d) from %s to %s on %u\n", __func__, ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim, inet_ntop(24, &ip6->ip6_src, src, sizeof(src)), inet_ntop(24, &ip6->ip6_dst, dst, sizeof(dst)), m->M_dat.MH.MH_pkthdr.ph_ifidx); } while (0);
   goto bad;
  }
- if (!(((&saddr6)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&saddr6)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
-  do { if (nd6_debug) log (3, "nd6_ra_input: src %s is not link-local\n", inet_ntop(24, &saddr6, src, sizeof(src))); } while (0);
-  goto bad;
+ switch (icmp6_type) {
+ case 133:
+  if (((*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&saddr6)->__u6_addr.__u6_addr8[12]) == 0)))
+   goto freeit;
+  do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (off) + (icmp6len)) (nd_rs) = (struct nd_router_solicit *)(((caddr_t)(((m))->m_hdr.mh_data)) + (off)); else { t = m_pulldown((m), (off), (icmp6len), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (icmp6len)) panic("m_pulldown malfunction"); (nd_rs) = (struct nd_router_solicit *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (nd_rs) = (struct nd_router_solicit *)((void *)0); (m) = ((void *)0); } } } while ( 0);
+  if (nd_rs == ((void *)0)) {
+   icmp6stat_inc(icp6s_tooshort);
+   return;
+  }
+  icmp6len -= sizeof(*nd_rs);
+  nd6_option_init(nd_rs + 1, icmp6len, &ndopts);
+  break;
+ case 134:
+  if (!(((&saddr6)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&saddr6)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
+   do { if (nd6_debug) log (3, "%s: src %s is not link-local\n", __func__, inet_ntop(24, &saddr6, src, sizeof(src))); } while (0);
+   goto bad;
+  }
+  do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (off) + (icmp6len)) (nd_ra) = (struct nd_router_advert *)(((caddr_t)(((m))->m_hdr.mh_data)) + (off)); else { t = m_pulldown((m), (off), (icmp6len), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (icmp6len)) panic("m_pulldown malfunction"); (nd_ra) = (struct nd_router_advert *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (nd_ra) = (struct nd_router_advert *)((void *)0); (m) = ((void *)0); } } } while ( 0);
+  if (nd_ra == ((void *)0)) {
+   icmp6stat_inc(icp6s_tooshort);
+   return;
+  }
+  icmp6len -= sizeof(*nd_ra);
+  nd6_option_init(nd_ra + 1, icmp6len, &ndopts);
+  break;
  }
- do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (off) + (icmp6len)) (nd_ra) = (struct nd_router_advert *)(((caddr_t)(((m))->m_hdr.mh_data)) + (off)); else { t = m_pulldown((m), (off), (icmp6len), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (icmp6len)) panic("m_pulldown malfunction"); (nd_ra) = (struct nd_router_advert *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (nd_ra) = (struct nd_router_advert *)((void *)0); (m) = ((void *)0); } } } while ( 0);
- if (nd_ra == ((void *)0)) {
-  icmp6stat_inc(icp6s_tooshort);
-  return;
- }
- icmp6len -= sizeof(*nd_ra);
- nd6_option_init(nd_ra + 1, icmp6len, &ndopts);
  if (nd6_options(&ndopts) < 0) {
-  do { if (nd6_debug) log (6, "nd6_ra_input: invalid ND option, ignored\n"); } while (0);
+  do { if (nd6_debug) log (6, "%s: invalid ND option, ignored\n", __func__); } while (0);
   goto freeit;
  }
  if (ndopts.nd_opt_each.src_lladdr) {
@@ -3379,17 +3344,18 @@ nd6_ra_input(struct mbuf *m, int off, int icmp6len)
  if (ifp == ((void *)0))
   goto freeit;
  if (lladdr && ((ifp->if_data.ifi_addrlen + 2 + 7) & ~7) != lladdrlen) {
-  do { if (nd6_debug) log (6, "nd6_ra_input: lladdrlen mismatch for %s " "(if %d, RA packet %d)\n", inet_ntop(24, &saddr6, src, sizeof(src)), ifp->if_data.ifi_addrlen, lladdrlen - 2); } while (0);
+  do { if (nd6_debug) log (6, "%s: lladdrlen mismatch for %s (if %d, RA/RS packet %d)\n", __func__, inet_ntop(24, &saddr6, src, sizeof(src)), ifp->if_data.ifi_addrlen, lladdrlen - 2); } while (0);
   if_put(ifp);
   goto bad;
  }
- nd6_cache_lladdr(ifp, &saddr6, lladdr, lladdrlen, 134, 0);
+ nd6_cache_lladdr(ifp, &saddr6, lladdr, lladdrlen, icmp6_type, 0);
  if_put(ifp);
  freeit:
  m_freem(m);
  return;
  bad:
- icmp6stat_inc(icp6s_badra);
+ icmp6stat_inc(icmp6_type == 133 ? icp6s_badrs :
+     icp6s_badra);
  m_freem(m);
 }
 void

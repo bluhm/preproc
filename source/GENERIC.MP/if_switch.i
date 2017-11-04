@@ -3018,8 +3018,7 @@ void nd6_ns_output(struct ifnet *, struct in6_addr *,
 caddr_t nd6_ifptomac(struct ifnet *);
 void nd6_dad_start(struct ifaddr *);
 void nd6_dad_stop(struct ifaddr *);
-void nd6_ra_input(struct mbuf *, int, int);
-void nd6_rs_input(struct mbuf *, int, int);
+void nd6_rtr_cache(struct mbuf *, int, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
 void nd6_expire_timer_update(struct in6_ifaddr *);

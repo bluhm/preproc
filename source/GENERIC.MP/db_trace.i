@@ -2691,8 +2691,9 @@ db_stack_trace_print(db_expr_t addr, int have_addr, db_expr_t count,
   }
   db_symbol_values(db_search_symbol(pc,0,&offset),&name,0);
   if (name == ((void *)0))
-   name = "?";
-  (*pr)("%s(", name);
+   (*pr)("%lx(", pc);
+  else
+   (*pr)("%s(", name);
   if ((frame & 1) == 0) {
    db_printf(")\nWARNING: corrupt frame at %lx\n", frame);
    break;

@@ -3284,10 +3284,6 @@ struct rawcb {
  struct sockaddr *rcb_laddr;
  struct sockproto rcb_proto;
 };
-int raw_attach(struct socket *, int);
-int raw_detach(struct socket *);
-void raw_do_detach(struct rawcb *);
-void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
@@ -4772,11 +4768,14 @@ pfkeyv2_attach(struct socket *so, int proto)
  kp = malloc(sizeof(struct keycb), 4, 0x0001 | 0x0008);
  rp = &kp->rcb;
  so->so_pcb = rp;
- error = raw_attach(so, proto);
+ error = soreserve(so, 8192, 8192);
  if (error) {
   free(kp, 4, sizeof(struct keycb));
   return (error);
  }
+ rp->rcb_socket = so;
+ rp->rcb_proto.sp_family = so->so_proto->pr_domain->dom_family;
+ rp->rcb_proto.sp_protocol = proto;
  so->so_options |= 0x0040;
  soisconnected(so);
  rp->rcb_faddr = &pfkey_addr;
@@ -4802,7 +4801,9 @@ pfkeyv2_detach(struct socket *so)
    npromisc--;
   __mtx_leave(&pfkeyv2_mtx );
  }
- raw_do_detach(&kp->rcb);
+ so->so_pcb = ((void *)0);
+ sofree(so);
+ free(kp, 4, sizeof(struct keycb));
  return (0);
 }
 int

@@ -1852,10 +1852,6 @@ struct rawcb {
  struct sockaddr *rcb_laddr;
  struct sockproto rcb_proto;
 };
-int raw_attach(struct socket *, int);
-int raw_detach(struct socket *);
-void raw_do_detach(struct rawcb *);
-void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
@@ -1888,7 +1884,6 @@ raw_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    error = 57;
    break;
   }
-  raw_disconnect(rp);
   soisdisconnected(so);
   break;
  case 7:
@@ -1911,8 +1906,6 @@ raw_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    rp->rcb_faddr = 0;
   break;
  case 10:
-  raw_disconnect(rp);
-  sofree(so);
   soisdisconnected(so);
   break;
  case 12:

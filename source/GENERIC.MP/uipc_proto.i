@@ -1645,10 +1645,6 @@ struct rawcb {
  struct sockaddr *rcb_laddr;
  struct sockproto rcb_proto;
 };
-int raw_attach(struct socket *, int);
-int raw_detach(struct socket *);
-void raw_do_detach(struct rawcb *);
-void raw_disconnect(struct rawcb *);
 void raw_init(void);
 int raw_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);

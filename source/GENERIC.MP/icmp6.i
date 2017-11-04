@@ -4379,8 +4379,7 @@ void nd6_ns_output(struct ifnet *, struct in6_addr *,
 caddr_t nd6_ifptomac(struct ifnet *);
 void nd6_dad_start(struct ifaddr *);
 void nd6_dad_stop(struct ifaddr *);
-void nd6_ra_input(struct mbuf *, int, int);
-void nd6_rs_input(struct mbuf *, int, int);
+void nd6_rtr_cache(struct mbuf *, int, int, int);
 int in6_ifdel(struct ifnet *, struct in6_addr *);
 void rt6_flush(struct in6_addr *, struct ifnet *);
 void nd6_expire_timer_update(struct in6_ifaddr *);
@@ -5909,28 +5908,21 @@ icmp6_input(struct mbuf **mp, int *offp, int proto, int af)
  case 140:
   break;
  case 133:
-  if (code != 0)
-   goto badcode;
-  if (icmp6len < sizeof(struct nd_router_solicit))
-   goto badlen;
-  if ((n = m_copym(m, 0, 1000000000, 0x0002)) == ((void *)0)) {
-   nd6_rs_input(m, off, icmp6len);
-   m = ((void *)0);
-   goto freeit;
-  }
-  nd6_rs_input(n, off, icmp6len);
-  break;
  case 134:
   if (code != 0)
    goto badcode;
-  if (icmp6len < sizeof(struct nd_router_advert))
+  if ((icmp6->icmp6_type == 133 && icmp6len <
+      sizeof(struct nd_router_solicit)) ||
+      (icmp6->icmp6_type == 134 && icmp6len <
+      sizeof(struct nd_router_advert)))
    goto badlen;
   if ((n = m_copym(m, 0, 1000000000, 0x0002)) == ((void *)0)) {
-   nd6_ra_input(m, off, icmp6len);
+   nd6_rtr_cache(m, off, icmp6len,
+       icmp6->icmp6_type);
    m = ((void *)0);
    goto freeit;
   }
-  nd6_ra_input(n, off, icmp6len);
+  nd6_rtr_cache(n, off, icmp6len, icmp6->icmp6_type);
   break;
  case 135:
   if (code != 0)
@@ -6199,7 +6191,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
  u_int rtableid;
  extern char _ctassert[(sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr) <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? 1 : -1 ] __attribute__((__unused__));
  if (off < sizeof(struct ip6_hdr)) {
-  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1056); } while (0);
+  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1047); } while (0);
   goto bad;
  }
  if (m->M_dat.MH.MH_pkthdr.ph_loopcnt++ >= 128)
