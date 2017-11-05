@@ -1260,6 +1260,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -3284,7 +3285,6 @@ struct rawcb {
  struct sockaddr *rcb_laddr;
  struct sockproto rcb_proto;
 };
-void raw_init(void);
 int raw_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 struct ahstat {

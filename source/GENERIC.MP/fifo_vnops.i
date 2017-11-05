@@ -2170,6 +2170,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -2793,7 +2794,9 @@ int
 filt_fiforead(struct knote *kn, long hint)
 {
  struct socket *so = (struct socket *)kn->kn_hook;
- int rv;
+ int s, rv;
+ if (!(hint & 0x01000000))
+  s = solock(so);
  kn->kn_kevent.data = so->so_rcv.sb_cc;
  if (so->so_state & 0x020) {
   kn->kn_kevent.flags |= 0x8000;
@@ -2802,6 +2805,8 @@ filt_fiforead(struct knote *kn, long hint)
   kn->kn_kevent.flags &= ~0x8000;
   rv = (kn->kn_kevent.data > 0);
  }
+ if (!(hint & 0x01000000))
+  sounlock(s);
  return (rv);
 }
 void
@@ -2816,7 +2821,9 @@ int
 filt_fifowrite(struct knote *kn, long hint)
 {
  struct socket *so = (struct socket *)kn->kn_hook;
- int rv;
+ int s, rv;
+ if (!(hint & 0x01000000))
+  s = solock(so);
  kn->kn_kevent.data = sbspace(so, &so->so_snd);
  if (so->so_state & 0x010) {
   kn->kn_kevent.flags |= 0x8000;
@@ -2825,5 +2832,7 @@ filt_fifowrite(struct knote *kn, long hint)
   kn->kn_kevent.flags &= ~0x8000;
   rv = (kn->kn_kevent.data >= so->so_snd.sb_lowat);
  }
+ if (!(hint & 0x01000000))
+  sounlock(s);
  return (rv);
 }

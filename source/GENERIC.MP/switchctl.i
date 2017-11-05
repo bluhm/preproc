@@ -3745,7 +3745,7 @@ filt_switch_rdetach(struct knote *kn)
 {
  struct switch_softc *sc = (struct switch_softc *)kn->kn_hook;
  struct klist *klist = &sc->sc_swdev->swdev_rsel.si_note;
- if (((kn->kn_status) & (0x08)))
+ if (((kn->kn_status) & (0x0008)))
   return;
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
 }
@@ -3753,7 +3753,7 @@ int
 filt_switch_read(struct knote *kn, long hint)
 {
  struct switch_softc *sc = (struct switch_softc *)kn->kn_hook;
- if (((kn->kn_status) & (0x08))) {
+ if (((kn->kn_status) & (0x0008))) {
   kn->kn_kevent.data = 0;
   return (1);
  }
@@ -3770,7 +3770,7 @@ filt_switch_wdetach(struct knote *kn)
 {
  struct switch_softc *sc = (struct switch_softc *)kn->kn_hook;
  struct klist *klist = &sc->sc_swdev->swdev_wsel.si_note;
- if (((kn->kn_status) & (0x08)))
+ if (((kn->kn_status) & (0x0008)))
   return;
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
 }

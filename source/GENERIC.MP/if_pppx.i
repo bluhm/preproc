@@ -4792,7 +4792,7 @@ filt_pppx_rdetach(struct knote *kn)
 {
  struct pppx_dev *pxd = (struct pppx_dev *)kn->kn_hook;
  struct klist *klist = &pxd->pxd_rsel.si_note;
- if (((kn->kn_status) & (0x08)))
+ if (((kn->kn_status) & (0x0008)))
   return;
  __mtx_enter(&pxd->pxd_rsel_mtx );
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
@@ -4802,7 +4802,7 @@ int
 filt_pppx_read(struct knote *kn, long hint)
 {
  struct pppx_dev *pxd = (struct pppx_dev *)kn->kn_hook;
- if (((kn->kn_status) & (0x08))) {
+ if (((kn->kn_status) & (0x0008))) {
   kn->kn_kevent.data = 0;
   return (1);
  }
@@ -4814,7 +4814,7 @@ filt_pppx_wdetach(struct knote *kn)
 {
  struct pppx_dev *pxd = (struct pppx_dev *)kn->kn_hook;
  struct klist *klist = &pxd->pxd_wsel.si_note;
- if (((kn->kn_status) & (0x08)))
+ if (((kn->kn_status) & (0x0008)))
   return;
  __mtx_enter(&pxd->pxd_wsel_mtx );
  do { if ((klist)->slh_first == (kn)) { do { ((klist))->slh_first = ((klist))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (klist)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);

@@ -4587,7 +4587,7 @@ filt_tunrdetach(struct knote *kn)
  struct tun_softc *tp;
  tp = (struct tun_softc *)kn->kn_hook;
  s = _splraise(15);
- if (!(kn->kn_status & 0x08))
+ if (!(kn->kn_status & 0x0008))
   do { if ((&tp->tun_rsel.si_note)->slh_first == (kn)) { do { ((&tp->tun_rsel.si_note))->slh_first = ((&tp->tun_rsel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&tp->tun_rsel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  _splx(s);
 }
@@ -4597,7 +4597,7 @@ filt_tunread(struct knote *kn, long hint)
  struct tun_softc *tp;
  struct ifnet *ifp;
  unsigned int len;
- if (kn->kn_status & 0x08) {
+ if (kn->kn_status & 0x0008) {
   kn->kn_kevent.data = 0;
   return (1);
  }
@@ -4619,7 +4619,7 @@ filt_tunwdetach(struct knote *kn)
  struct tun_softc *tp;
  tp = (struct tun_softc *)kn->kn_hook;
  s = _splraise(15);
- if (!(kn->kn_status & 0x08))
+ if (!(kn->kn_status & 0x0008))
   do { if ((&tp->tun_wsel.si_note)->slh_first == (kn)) { do { ((&tp->tun_wsel.si_note))->slh_first = ((&tp->tun_wsel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&tp->tun_wsel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  _splx(s);
 }
@@ -4628,7 +4628,7 @@ filt_tunwrite(struct knote *kn, long hint)
 {
  struct tun_softc *tp;
  struct ifnet *ifp;
- if (kn->kn_status & 0x08) {
+ if (kn->kn_status & 0x0008) {
   kn->kn_kevent.data = 0;
   return (1);
  }

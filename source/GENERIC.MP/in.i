@@ -1481,6 +1481,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -2995,7 +2996,7 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  int error;
  int newifaddr;
  if (ifp == ((void *)0))
-  return (45);
+  return (6);
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
   if (ifa->ifa_addr->sa_family == 2) {
@@ -3147,8 +3148,7 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   dohooks(ifp->if_addrhooks, 0);
   break;
  default:
-  error = ((*ifp->if_ioctl)(ifp, cmd, data));
-  return (error);
+  return (45);
  }
  return (0);
 }

@@ -1630,6 +1630,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -5427,6 +5428,7 @@ int if_setrdomain(struct ifnet *, int);
 void if_slowtimo(void *);
 void if_detached_qstart(struct ifqueue *);
 int if_detached_ioctl(struct ifnet *, u_long, caddr_t);
+int ifioctl_get(u_long, caddr_t);
 int if_getgroup(caddr_t, struct ifnet *);
 int if_getgroupmembers(caddr_t);
 int if_getgroupattribs(caddr_t);
@@ -5509,7 +5511,7 @@ if_idxmap_insert(struct ifnet *ifp)
  struct srp *map;
  unsigned int index, i;
  refcnt_init(&ifp->if_refcnt);
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 306, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 308, "_kernel_lock_held()"));
  if (++if_idxmap.count > 0xffff)
   panic("too many interfaces");
  if_map = srp_get_locked(&if_idxmap.map);
@@ -5556,11 +5558,11 @@ if_idxmap_remove(struct ifnet *ifp)
  struct srp *map;
  unsigned int index;
  index = ifp->if_index;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 370, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 372, "_kernel_lock_held()"));
  if_map = srp_get_locked(&if_idxmap.map);
- ((index < if_map->limit) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 373, "index < if_map->limit"));
+ ((index < if_map->limit) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 375, "index < if_map->limit"));
  map = (struct srp *)(if_map + 1);
- ((ifp == (struct ifnet *)srp_get_locked(&map[index])) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 376, "ifp == (struct ifnet *)srp_get_locked(&map[index])"));
+ ((ifp == (struct ifnet *)srp_get_locked(&map[index])) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 378, "ifp == (struct ifnet *)srp_get_locked(&map[index])"));
  srp_update_locked(&if_ifp_gc, &map[index], ((void *)0));
  if_idxmap.count--;
  refcnt_finalize(&ifp->if_refcnt, "ifidxrm");
@@ -5592,7 +5594,7 @@ if_attachsetup(struct ifnet *ifp)
  timeout_set(ifp->if_slowtimo, if_slowtimo, ifp);
  if_slowtimo(ifp);
  if_idxmap_insert(ifp);
- ((if_get(0) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 433, "if_get(0) == NULL"));
+ ((if_get(0) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 435, "if_get(0) == NULL"));
  ifidx = ifp->if_index;
  mq_init(&ifp->if_inputqueue, 8192, 6);
  task_set(ifp->if_inputtask, if_input_process, (void *)ifidx);
@@ -5668,8 +5670,8 @@ if_attach_queues(struct ifnet *ifp, unsigned int nqs)
  struct ifqueue **map;
  struct ifqueue *ifq;
  int i;
- ((ifp->if_ifqs == ifp->if_snd._ifq_ptr._ifq_ifqs) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 543, "ifp->if_ifqs == ifp->if_snd.ifq_ifqs"));
- ((nqs != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 544, "nqs != 0"));
+ ((ifp->if_ifqs == ifp->if_snd._ifq_ptr._ifq_ifqs) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 545, "ifp->if_ifqs == ifp->if_snd.ifq_ifqs"));
+ ((nqs != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 546, "nqs != 0"));
  map = mallocarray(sizeof(*map), nqs, 2, 0x0001);
  ifp->if_snd._ifq_ptr._ifq_softc = ((void *)0);
  map[0] = &ifp->if_snd;
@@ -5685,15 +5687,15 @@ if_attach_queues(struct ifnet *ifp, unsigned int nqs)
 void
 if_attach_common(struct ifnet *ifp)
 {
- ((ifp->if_ioctl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 565, "ifp->if_ioctl != NULL"));
+ ((ifp->if_ioctl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 567, "ifp->if_ioctl != NULL"));
  do { (&ifp->if_addrlist)->tqh_first = ((void *)0); (&ifp->if_addrlist)->tqh_last = &(&ifp->if_addrlist)->tqh_first; } while (0);
  do { (&ifp->if_maddrlist)->tqh_first = ((void *)0); (&ifp->if_maddrlist)->tqh_last = &(&ifp->if_maddrlist)->tqh_first; } while (0);
  if (!((ifp->if_xflags) & (0x1))) {
-  ((ifp->if_qstart == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart set without MPSAFE set", "diagnostic ", "ifp->if_qstart == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 572, ifp->if_xname));
+  ((ifp->if_qstart == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart set without MPSAFE set", "diagnostic ", "ifp->if_qstart == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 574, ifp->if_xname));
   ifp->if_qstart = if_qstart_compat;
  } else {
-  ((ifp->if_start == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_start set with MPSAFE set", "diagnostic ", "ifp->if_start == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 576, ifp->if_xname));
-  ((ifp->if_qstart != ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart not set with MPSAFE set", "diagnostic ", "ifp->if_qstart != NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 578, ifp->if_xname));
+  ((ifp->if_start == ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_start set with MPSAFE set", "diagnostic ", "ifp->if_start == NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 578, ifp->if_xname));
+  ((ifp->if_qstart != ((void *)0)) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: if_qstart not set with MPSAFE set", "diagnostic ", "ifp->if_qstart != NULL", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 580, ifp->if_xname));
  }
  ifq_init(&ifp->if_snd, ifp, 0);
  ifp->if_snd._ifq_ptr._ifq_ifqs[0] = &ifp->if_snd;
@@ -5729,7 +5731,7 @@ if_attach_ifq(struct ifnet *ifp, const struct ifq_ops *newops, void *args)
 void
 if_start(struct ifnet *ifp)
 {
- ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 630, "ifp->if_qstart == if_qstart_compat"));
+ ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 632, "ifp->if_qstart == if_qstart_compat"));
  if_qstart_compat(&ifp->if_snd);
 }
 void
@@ -5737,7 +5739,7 @@ if_qstart_compat(struct ifqueue *ifq)
 {
  struct ifnet *ifp = ifq->ifq_if;
  int s;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 648);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 650);
  s = _splraise(6);
  (*ifp->if_start)(ifp);
  _splx(s);
@@ -5750,7 +5752,7 @@ if_enqueue(struct ifnet *ifp, struct mbuf *m)
  struct ifqueue *ifq;
  int error;
  if (ifp->if_bridgeport && (m->m_hdr.mh_flags & 0x0010) == 0) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 664);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 666);
   error = bridge_output(ifp, m, ((void *)0), ((void *)0));
   _kernel_unlock();
   return (error);
@@ -5846,7 +5848,7 @@ if_ih_insert(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 810, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 812, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie) {
    ifih->ifih_refcnt++;
@@ -5879,12 +5881,12 @@ if_ih_remove(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 854, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 856, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie)
    break;
  }
- ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 861, "ifih != NULL"));
+ ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 863, "ifih != NULL"));
  if (--ifih->ifih_refcnt == 0) {
   do { struct srp *ref; struct ifih *c, *n; ref = &(&ifp->if_inputs)->sl_head; while ((c = srp_get_locked(ref)) != (ifih)) ref = &c->ifih_next.se_next; n = srp_get_locked(&(c)->ifih_next.se_next); if (n != ((void *)0)) (&ifih_rc)->srpl_ref(&(&ifih_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&ifih_rc)->srpl_gc, ref, n); srp_update_locked(&(&ifih_rc)->srpl_gc, &c->ifih_next.se_next, ((void *)0)); } while (0);
   refcnt_finalize(&ifih->ifih_srpcnt, "ifihrm");
@@ -5929,7 +5931,7 @@ void
 if_netisr(void *unused)
 {
  int n, t = 0;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 933);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 935);
  do { _rw_enter_write(&netlock ); } while (0);
  while ((n = netisr) != 0) {
   if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) {
@@ -6198,7 +6200,7 @@ ifa_ifwithaddr(struct sockaddr *addr, u_int rtableid)
  struct ifnet *ifp;
  struct ifaddr *ifa;
  u_int rdomain;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1361, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1363, "_kernel_lock_held()"));
  rdomain = rtable_l2(rtableid);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6217,7 +6219,7 @@ ifa_ifwithdstaddr(struct sockaddr *addr, u_int rdomain)
 {
  struct ifnet *ifp;
  struct ifaddr *ifa;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1387, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1389, "_kernel_lock_held()"));
  rdomain = rtable_l2(rdomain);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6286,9 +6288,9 @@ p2p_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   }
   if (ifa == ((void *)0))
    break;
-  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1473, "ifa == rt->rt_ifa"));
+  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1475, "ifa == rt->rt_ifa"));
   lo0ifp = if_get(rtable_loindex(ifp->if_data.ifi_rdomain));
-  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1476, "lo0ifp != NULL"));
+  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1478, "lo0ifp != NULL"));
   for((lo0ifa) = ((&lo0ifp->if_addrlist)->tqh_first); (lo0ifa) != ((void *)0); (lo0ifa) = ((lo0ifa)->ifa_list.tqe_next)) {
    if (lo0ifa->ifa_addr->sa_family ==
        ifa->ifa_addr->sa_family)
@@ -6344,7 +6346,7 @@ if_linkstate_task(void *xifidx)
 {
  unsigned int ifidx = (unsigned long)xifidx;
  struct ifnet *ifp;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1564);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1566);
  do { _rw_enter_write(&netlock ); } while (0);
  ifp = if_get(ifidx);
  if (ifp != ((void *)0))
@@ -6387,7 +6389,7 @@ if_watchdog_task(void *xifidx)
  ifp = if_get(ifidx);
  if (ifp == ((void *)0))
   return;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1625);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1627);
  s = _splraise(6);
  if (ifp->if_watchdog)
   (*ifp->if_watchdog)(ifp);
@@ -6417,7 +6419,7 @@ if_get(unsigned int index)
   map = (struct srp *)(if_map + 1);
   ifp = srp_follow(&sr, &map[index]);
   if (ifp != ((void *)0)) {
-   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1667, "ifp->if_index == index"));
+   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1669, "ifp->if_index == index"));
    if_ref(ifp);
   }
  }
@@ -6510,10 +6512,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  int s, error = 0, oif_xflags;
  size_t bytesdone;
  unsigned short oif_flags;
- const char *label;
  switch (cmd) {
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
-  return (ifconf(cmd, data));
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((121))):
   if ((error = suser(p, 0)) != 0)
@@ -6521,16 +6520,27 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   return ((cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122)))) ?
       if_clone_create(ifr->ifr_name, 0) :
       if_clone_destroy(ifr->ifr_name));
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_clonereq) & 0x1fff) << 16) | ((('i')) << 8) | ((120))):
-  return (if_clone_list((struct if_clonereq *)data));
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((138))):
-  return (if_getgroupmembers(data));
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((139))):
-  return (if_getgroupattribs(data));
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((140))):
   if ((error = suser(p, 0)) != 0)
    return (error);
   return (if_setgroupattribs(data));
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_clonereq) & 0x1fff) << 16) | ((('i')) << 8) | ((120))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((138))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((139))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((158))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((23))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((126))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((165))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((27))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((129))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((131))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((156))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((160))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((136))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((182))):
+  return (ifioctl_get(cmd, data));
  }
  ifp = ifunit(ifr->ifr_name);
  if (ifp == ((void *)0))
@@ -6557,29 +6567,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    error = 47;
   }
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))):
-  ifr->ifr_ifru.ifru_flags = ifp->if_flags;
-  if (ifq_is_oactive(&ifp->if_snd))
-   ifr->ifr_ifru.ifru_flags |= 0x400;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((158))):
-  ifr->ifr_ifru.ifru_flags = ifp->if_xflags & ~(0x1|0x2);
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((23))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_metric;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((126))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_mtu;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((165))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_hardmtu;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((27))): {
-  struct if_data ifdata;
-  if_getdata(ifp, &ifdata);
-  error = copyout(&ifdata, ifr->ifr_ifru.ifru_data, sizeof(ifdata));
-  break;
- }
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
   if ((error = suser(p, 0)) != 0)
    break;
@@ -6661,33 +6648,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   if (!error)
    rtm_ifchg(ifp);
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
- case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((176))):
- case ((unsigned long)0x80000000 | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((178))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((180))):
-  if ((error = suser(p, 0)) != 0)
-   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifmediareq) & 0x1fff) << 16) | ((('i')) << 8) | ((56))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((177))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((179))):
-  error = (*ifp->if_ioctl)(ifp, cmd, data);
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((129))):
-  strlcpy(ifdescrbuf, ifp->if_description, 64);
-  error = copyoutstr(ifdescrbuf, ifr->ifr_ifru.ifru_data, 64,
-      &bytesdone);
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((128))):
   if ((error = suser(p, 0)) != 0)
    break;
@@ -6697,15 +6657,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    (void)__builtin_memset((ifp->if_description), (0), (64));
    strlcpy(ifp->if_description, ifdescrbuf, 64);
   }
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((131))):
-  if (ifp->if_rtlabelid &&
-      (label = rtlabel_id2name(ifp->if_rtlabelid)) != ((void *)0)) {
-   strlcpy(ifrtlabelbuf, label, 32);
-   error = copyoutstr(ifrtlabelbuf, ifr->ifr_ifru.ifru_data,
-       32, &bytesdone);
-  } else
-   error = 2;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((130))):
   if ((error = suser(p, 0)) != 0)
@@ -6717,9 +6668,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    ifp->if_rtlabelid = rtlabel_name2id(ifrtlabelbuf);
   }
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((156))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_priority;
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((155))):
   if ((error = suser(p, 0)) != 0)
    break;
@@ -6728,9 +6676,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    break;
   }
   ifp->if_priority = ifr->ifr_ifru.ifru_metric;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((160))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_rdomain;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
   if ((error = suser(p, 0)) != 0)
@@ -6745,9 +6690,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   error = (*ifp->if_ioctl)(ifp, cmd, data);
   if (error == 25)
    error = 0;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((136))):
-  error = if_getgroup(data, ifp);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((137))):
   if ((error = suser(p, 0)))
@@ -6785,9 +6727,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   if (error == 0)
    ifnewlladdr(ifp);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((182))):
-  ifr->ifr_ifru.ifru_metric = ifp->if_llprio;
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((181))):
   if ((error = suser(p, 0)))
    break;
@@ -6797,16 +6736,109 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   }
   ifp->if_llprio = ifr->ifr_ifru.ifru_metric;
   break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((176))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((178))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((180))):
+  if ((error = suser(p, 0)) != 0)
+   break;
  default:
   error = ((*so->so_proto->pr_usrreq)(so, 11,
    (struct mbuf *) cmd, (struct mbuf *) data,
    (struct mbuf *) ifp, p));
+  if (error == 45)
+   error = ((*ifp->if_ioctl)(ifp, cmd, data));
   break;
  }
  if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)
   rtm_ifchg(ifp);
  if (((oif_flags ^ ifp->if_flags) & 0x1) != 0)
   getmicrotime(&ifp->if_data.ifi_lastchange);
+ return (error);
+}
+int
+ifioctl_get(u_long cmd, caddr_t data)
+{
+ struct ifnet *ifp;
+ struct ifreq *ifr = (struct ifreq *)data;
+ char ifdescrbuf[64];
+ char ifrtlabelbuf[32];
+ int error = 0;
+ size_t bytesdone;
+ const char *label;
+ switch(cmd) {
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
+  return (ifconf(cmd, data));
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_clonereq) & 0x1fff) << 16) | ((('i')) << 8) | ((120))):
+  return (if_clone_list((struct if_clonereq *)data));
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((138))):
+  return (if_getgroupmembers(data));
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((139))):
+  return (if_getgroupattribs(data));
+ }
+ ifp = ifunit(ifr->ifr_name);
+ if (ifp == ((void *)0))
+  return (6);
+ switch(cmd) {
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))):
+  ifr->ifr_ifru.ifru_flags = ifp->if_flags;
+  if (ifq_is_oactive(&ifp->if_snd))
+   ifr->ifr_ifru.ifru_flags |= 0x400;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((158))):
+  ifr->ifr_ifru.ifru_flags = ifp->if_xflags & ~(0x1|0x2);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((23))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((126))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_mtu;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((165))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_hardmtu;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((27))): {
+  struct if_data ifdata;
+  if_getdata(ifp, &ifdata);
+  error = copyout(&ifdata, ifr->ifr_ifru.ifru_data, sizeof(ifdata));
+  break;
+ }
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((129))):
+  strlcpy(ifdescrbuf, ifp->if_description, 64);
+  error = copyoutstr(ifdescrbuf, ifr->ifr_ifru.ifru_data, 64,
+      &bytesdone);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((131))):
+  if (ifp->if_rtlabelid &&
+      (label = rtlabel_id2name(ifp->if_rtlabelid)) != ((void *)0)) {
+   strlcpy(ifrtlabelbuf, label, 32);
+   error = copyoutstr(ifrtlabelbuf, ifr->ifr_ifru.ifru_data,
+       32, &bytesdone);
+  } else
+   error = 2;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((156))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_priority;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((160))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_data.ifi_rdomain;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((136))):
+  error = if_getgroup(data, ifp);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((182))):
+  ifr->ifr_ifru.ifru_metric = ifp->if_llprio;
+  break;
+ default:
+  panic("invalid ioctl %lu", cmd);
+ }
  return (error);
 }
 int

@@ -2155,6 +2155,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -4772,7 +4773,9 @@ int
 filt_soread(struct knote *kn, long hint)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
- int rv;
+ int s, rv;
+ if (!(hint & 0x01000000))
+  s = solock(so);
  kn->kn_kevent.data = so->so_rcv.sb_cc;
  if (((so)->so_sp && (so)->so_sp->ssp_socket)) {
   rv = 0;
@@ -4788,13 +4791,15 @@ filt_soread(struct knote *kn, long hint)
  } else {
   rv = (kn->kn_kevent.data >= so->so_rcv.sb_lowat);
  }
+ if (!(hint & 0x01000000))
+  sounlock(s);
  return rv;
 }
 void
 filt_sowdetach(struct knote *kn)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1953, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1957, "_kernel_lock_held()"));
  do { if ((&so->so_snd.sb_sel.si_note)->slh_first == (kn)) { do { ((&so->so_snd.sb_sel.si_note))->slh_first = ((&so->so_snd.sb_sel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&so->so_snd.sb_sel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  if ((((&so->so_snd.sb_sel.si_note)->slh_first) == ((void *)0)))
   so->so_snd.sb_flags &= ~0x80;
@@ -4803,7 +4808,9 @@ int
 filt_sowrite(struct knote *kn, long hint)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
- int rv;
+ int s, rv;
+ if (!(hint & 0x01000000))
+  s = solock(so);
  kn->kn_kevent.data = sbspace(so, &so->so_snd);
  if (so->so_state & 0x010) {
   kn->kn_kevent.flags |= 0x8000;
@@ -4819,13 +4826,20 @@ filt_sowrite(struct knote *kn, long hint)
  } else {
   rv = (kn->kn_kevent.data >= so->so_snd.sb_lowat);
  }
+ if (!(hint & 0x01000000))
+  sounlock(s);
  return (rv);
 }
 int
 filt_solisten(struct knote *kn, long hint)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
+ int s;
+ if (!(hint & 0x01000000))
+  s = solock(so);
  kn->kn_kevent.data = so->so_qlen;
+ if (!(hint & 0x01000000))
+  sounlock(s);
  return (kn->kn_kevent.data != 0);
 }
 void

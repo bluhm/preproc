@@ -1312,6 +1312,7 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -3627,9 +3628,9 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  struct in6_ifaddr *ia6 = ((void *)0);
  struct in6_aliasreq *ifra = (struct in6_aliasreq *)data;
  struct sockaddr_in6 *sa6;
- int error;
  if (ifp == ((void *)0))
-  return (45);
+  return (6);
+ do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_nbrinfo) & 0x1fff) << 16) | ((('i')) << 8) | ((78))):
@@ -3650,7 +3651,7 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((14))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((19))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((22))):
-  return (45);
+  return (22);
  default:
   sa6 = ((void *)0);
   break;
@@ -3791,8 +3792,7 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   dohooks(ifp->if_addrhooks, 0);
   break;
  default:
-  error = ((*ifp->if_ioctl)(ifp, cmd, data));
-  return (error);
+  return (45);
  }
  return (0);
 }
