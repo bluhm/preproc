@@ -2422,7 +2422,6 @@ extern struct pool ipqent_pool;
 struct route;
 struct inpcb;
 int ip_ctloutput(int, struct socket *, int, int, struct mbuf *);
-void ip_drain(void);
 void ip_flush(void);
 int ip_fragment(struct mbuf *, struct ifnet *, u_long);
 void ip_freef(struct ipq *);

@@ -1494,7 +1494,6 @@ struct protosw {
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
- void (*pr_drain)(void);
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
@@ -2780,7 +2779,6 @@ extern struct pool ipqent_pool;
 struct route;
 struct inpcb;
 int ip_ctloutput(int, struct socket *, int, int, struct mbuf *);
-void ip_drain(void);
 void ip_flush(void);
 int ip_fragment(struct mbuf *, struct ifnet *, u_long);
 void ip_freef(struct ipq *);

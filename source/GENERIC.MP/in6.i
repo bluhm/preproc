@@ -3245,7 +3245,6 @@ void frag6_init(void);
 int frag6_input(struct mbuf **, int *, int, int);
 int frag6_deletefraghdr(struct mbuf *, int);
 void frag6_slowtimo(void);
-void frag6_drain(void);
 void rip6_init(void);
 int rip6_input(struct mbuf **, int *, int, int);
 void rip6_ctlinput(int, struct sockaddr *, u_int, void *);

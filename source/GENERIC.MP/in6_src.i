@@ -1442,7 +1442,6 @@ struct protosw {
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
- void (*pr_drain)(void);
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
@@ -3033,7 +3032,6 @@ void frag6_init(void);
 int frag6_input(struct mbuf **, int *, int, int);
 int frag6_deletefraghdr(struct mbuf *, int);
 void frag6_slowtimo(void);
-void frag6_drain(void);
 void rip6_init(void);
 int rip6_input(struct mbuf **, int *, int, int);
 void rip6_ctlinput(int, struct sockaddr *, u_int, void *);

@@ -3842,6 +3842,8 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   __builtin_memset((ic->ic_des_essid), (0), (32));
   ic->ic_des_esslen = nwid.i_len;
   __builtin_memcpy((ic->ic_des_essid), (nwid.i_nwid), (nwid.i_len));
+  ieee80211_disable_rsn(ic);
+  ieee80211_disable_wep(ic);
   error = 52;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((231))):

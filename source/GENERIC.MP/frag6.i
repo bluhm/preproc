@@ -1462,7 +1462,6 @@ struct protosw {
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
- void (*pr_drain)(void);
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
@@ -3135,7 +3134,6 @@ void frag6_init(void);
 int frag6_input(struct mbuf **, int *, int, int);
 int frag6_deletefraghdr(struct mbuf *, int);
 void frag6_slowtimo(void);
-void frag6_drain(void);
 void rip6_init(void);
 int rip6_input(struct mbuf **, int *, int, int);
 void rip6_ctlinput(int, struct sockaddr *, u_int, void *);
@@ -3744,16 +3742,4 @@ frag6_slowtimo(void)
  }
  ip6q_unlock();
  do { _rw_exit_write(&netlock ); } while (0);
-}
-void
-frag6_drain(void)
-{
- struct ip6q *q6;
- if (ip6q_lock_try() == 0)
-  return;
- while ((q6 = ((&frag6_queue)->tqh_first)) != ((void *)0)) {
-  ip6stat_inc(ip6s_fragdropped);
-  frag6_freef(q6);
- }
- ip6q_unlock();
 }

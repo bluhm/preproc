@@ -1462,7 +1462,6 @@ struct protosw {
  void (*pr_init)(void);
  void (*pr_fasttimo)(void);
  void (*pr_slowtimo)(void);
- void (*pr_drain)(void);
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
@@ -3673,7 +3672,6 @@ void frag6_init(void);
 int frag6_input(struct mbuf **, int *, int, int);
 int frag6_deletefraghdr(struct mbuf *, int);
 void frag6_slowtimo(void);
-void frag6_drain(void);
 void rip6_init(void);
 int rip6_input(struct mbuf **, int *, int, int);
 void rip6_ctlinput(int, struct sockaddr *, u_int, void *);
@@ -4533,7 +4531,6 @@ extern struct pool ipqent_pool;
 struct route;
 struct inpcb;
 int ip_ctloutput(int, struct socket *, int, int, struct mbuf *);
-void ip_drain(void);
 void ip_flush(void);
 int ip_fragment(struct mbuf *, struct ifnet *, u_long);
 void ip_freef(struct ipq *);
@@ -6535,16 +6532,6 @@ ip_slowtimo(void)
  __mtx_leave(&ipq_mutex );
 }
 void
-ip_drain(void)
-{
- __mtx_enter(&ipq_mutex );
- while (!(((&ipq)->lh_first) == ((void *)0))) {
-  ipstat_inc(ips_fragdropped);
-  ip_freef(((&ipq)->lh_first));
- }
- __mtx_leave(&ipq_mutex );
-}
-void
 ip_flush(void)
 {
  int max = 50;
@@ -6570,7 +6557,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1096);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1082);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
