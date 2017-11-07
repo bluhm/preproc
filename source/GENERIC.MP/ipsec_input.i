@@ -5814,7 +5814,7 @@ ipcomp6_input(struct mbuf **mp, int *offp, int proto, int af)
    else
     l = (ip6e.ip6e_len + 1) << 3;
    if (l <= 0)
-    panic("ipcomp6_input: l went zero or negative");
+    panic("l went zero or negative");
    nxt = ip6e.ip6e_nxt;
   } while (protoff + l < *offp);
   if (protoff + l != *offp) {

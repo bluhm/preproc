@@ -4949,6 +4949,8 @@ int ieee80211_setmode(struct ieee80211com *, enum ieee80211_phymode);
 enum ieee80211_phymode ieee80211_next_mode(struct ifnet *);
 enum ieee80211_phymode ieee80211_chan2mode(struct ieee80211com *,
   const struct ieee80211_channel *);
+void ieee80211_disable_wep(struct ieee80211com *);
+void ieee80211_disable_rsn(struct ieee80211com *);
 extern int ieee80211_cache_size;
 struct ieee80211_radiotap_header {
  u_int8_t it_version;

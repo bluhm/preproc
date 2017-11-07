@@ -3513,13 +3513,13 @@ int ieee80211_setmode(struct ieee80211com *, enum ieee80211_phymode);
 enum ieee80211_phymode ieee80211_next_mode(struct ifnet *);
 enum ieee80211_phymode ieee80211_chan2mode(struct ieee80211com *,
   const struct ieee80211_channel *);
+void ieee80211_disable_wep(struct ieee80211com *);
+void ieee80211_disable_rsn(struct ieee80211com *);
 extern int ieee80211_cache_size;
 void ieee80211_node2req(struct ieee80211com *,
      const struct ieee80211_node *, struct ieee80211_nodereq *);
 void ieee80211_req2node(struct ieee80211com *,
      const struct ieee80211_nodereq *, struct ieee80211_node *);
-void ieee80211_disable_wep(struct ieee80211com *);
-void ieee80211_disable_rsn(struct ieee80211com *);
 void
 ieee80211_node2req(struct ieee80211com *ic, const struct ieee80211_node *ni,
     struct ieee80211_nodereq *nr)
