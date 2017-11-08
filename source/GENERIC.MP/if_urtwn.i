@@ -5777,7 +5777,8 @@ urtwn_open_pipes(struct urtwn_softc *sc)
    rx_no = ed->bEndpointAddress;
    nrx++;
   } else {
-   epaddr[sc->ntx] = ed->bEndpointAddress;
+   if (sc->ntx < 3)
+    epaddr[sc->ntx] = ed->bEndpointAddress;
    sc->ntx++;
   }
  }
@@ -5934,7 +5935,7 @@ urtwn_do_async(struct urtwn_softc *sc,
  s = splraise(2);
  cmd = &ring->cmd[ring->cur];
  cmd->cb = cb;
- ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 727, "len <= sizeof(cmd->data)"));
+ ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 728, "len <= sizeof(cmd->data)"));
  __builtin_memcpy((cmd->data), (arg), (len));
  ring->cur = (ring->cur + 1) % 32;
  if (++ring->queued == 1)

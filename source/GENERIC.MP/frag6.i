@@ -3412,36 +3412,14 @@ struct ippseudo {
  u_int8_t ippseudo_p;
  u_int16_t ippseudo_len;
 };
-void frag6_freef(struct ip6q *);
-static int ip6q_locked;
+struct mutex frag6_mutex = { ((void *)0), ((((2)) > 0 && ((2)) < 12) ? 12 : ((2))), 0 };
 u_int frag6_nfragpackets;
 u_int frag6_nfrags;
 struct ip6q_head { struct ip6q *tqh_first; struct ip6q **tqh_last; } frag6_queue;
+void frag6_freef(struct ip6q *);
+void frag6_unlink(struct ip6q *, struct ip6q_head *);
 struct pool ip6af_pool;
 struct pool ip6q_pool;
-static __inline int ip6q_lock_try(void);
-static __inline void ip6q_unlock(void);
-static __inline int
-ip6q_lock_try(void)
-{
- int s;
- s = _splraise(7);
- if (ip6q_locked) {
-  _splx(s);
-  return (0);
- }
- ip6q_locked = 1;
- _splx(s);
- return (1);
-}
-static __inline void
-ip6q_unlock(void)
-{
- int s;
- s = _splraise(7);
- ip6q_locked = 0;
- _splx(s);
-}
 void
 frag6_init(void)
 {
@@ -3489,9 +3467,11 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   m_freem(m);
   return 257;
  }
- do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 224); panic("ip6q_lock"); } } while (0);
- if (ip6_maxfrags >= 0 && frag6_nfrags >= (u_int)ip6_maxfrags)
+ __mtx_enter(&frag6_mutex );
+ if (ip6_maxfrags >= 0 && frag6_nfrags >= (u_int)ip6_maxfrags) {
+  __mtx_leave(&frag6_mutex );
   goto dropfrag;
+ }
  for((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0); (q6) = ((q6)->ip6q_queue.tqe_next))
   if (ip6f->ip6f_ident == q6->ip6q_ident &&
       (__builtin_memcmp((&(&ip6->ip6_src)->__u6_addr.__u6_addr8[0]), (&(&q6->ip6q_src)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
@@ -3500,12 +3480,16 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  if (q6 == ((void *)0)) {
   first_frag = 1;
   if (ip6_maxfragpackets >= 0 &&
-      frag6_nfragpackets >= (u_int)ip6_maxfragpackets)
+      frag6_nfragpackets >= (u_int)ip6_maxfragpackets) {
+   __mtx_leave(&frag6_mutex );
    goto dropfrag;
+  }
   frag6_nfragpackets++;
   q6 = pool_get(&ip6q_pool, 0x0002 | 0x0008);
-  if (q6 == ((void *)0))
+  if (q6 == ((void *)0)) {
+   __mtx_leave(&frag6_mutex );
    goto dropfrag;
+  }
   do { if (((q6)->ip6q_queue.tqe_next = (&frag6_queue)->tqh_first) != ((void *)0)) (&frag6_queue)->tqh_first->ip6q_queue.tqe_prev = &(q6)->ip6q_queue.tqe_next; else (&frag6_queue)->tqh_last = &(q6)->ip6q_queue.tqe_next; (&frag6_queue)->tqh_first = (q6); (q6)->ip6q_queue.tqe_prev = &(&frag6_queue)->tqh_first; } while (0);
   do { ((&q6->ip6q_asfrag)->lh_first) = ((void *)0); } while (0);
   q6->ip6q_ident = ip6f->ip6f_ident;
@@ -3523,17 +3507,17 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  frgpartlen = sizeof(struct ip6_hdr) + ((__uint16_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_plen)) - offset;
  if (q6->ip6q_unfrglen >= 0) {
   if (q6->ip6q_unfrglen + fragoff + frgpartlen > 65535) {
+   __mtx_leave(&frag6_mutex );
    icmp6_error(m, 4, 0,
        offset - sizeof(struct ip6_frag) +
        __builtin_offsetof(struct ip6_frag, ip6f_offlg));
-   ip6q_unlock();
    return (257);
   }
  } else if (fragoff + frgpartlen > 65535) {
+  __mtx_leave(&frag6_mutex );
   icmp6_error(m, 4, 0,
        offset - sizeof(struct ip6_frag) +
     __builtin_offsetof(struct ip6_frag, ip6f_offlg));
-  ip6q_unlock();
   return (257);
  }
  if (fragoff == 0) {
@@ -3556,8 +3540,10 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   }
  }
  ip6af = pool_get(&ip6af_pool, 0x0002 | 0x0008);
- if (ip6af == ((void *)0))
+ if (ip6af == ((void *)0)) {
+  __mtx_leave(&frag6_mutex );
   goto dropfrag;
+ }
  ip6af->ip6af_flow = ip6->ip6_ctlun.ip6_un1.ip6_un1_flow;
  ip6af->ip6af_mff = ip6f->ip6f_offlg & 0x0001;
  ip6af->ip6af_off = fragoff;
@@ -3573,6 +3559,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  ecn0 = (((__uint32_t)(af6->ip6af_flow)) >> 20) & 0x03;
  if (ecn == 0x03) {
   if (ecn0 == 0x00) {
+   __mtx_leave(&frag6_mutex );
    pool_put(&ip6af_pool, ip6af);
    goto dropfrag;
   }
@@ -3580,6 +3567,7 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
    af6->ip6af_flow |= ((__uint32_t)(0x03 << 20));
  }
  if (ecn == 0x00 && ecn0 != 0x00) {
+  __mtx_leave(&frag6_mutex );
   pool_put(&ip6af_pool, ip6af);
   goto dropfrag;
  }
@@ -3591,14 +3579,12 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  if (paf6 != ((void *)0)) {
   i = (paf6->ip6af_off + paf6->ip6af_frglen) - ip6af->ip6af_off;
   if (i > 0) {
-   pool_put(&ip6af_pool, ip6af);
    goto flushfrags;
   }
  }
  if (af6 != ((void *)0)) {
   i = (ip6af->ip6af_off + ip6af->ip6af_frglen) - af6->ip6af_off;
   if (i > 0) {
-   pool_put(&ip6af_pool, ip6af);
    goto flushfrags;
   }
  }
@@ -3614,13 +3600,13 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
      af6 != ((void *)0);
      paf6 = af6, af6 = ((af6)->ip6af_list.le_next)) {
   if (af6->ip6af_off != next) {
-   ip6q_unlock();
+   __mtx_leave(&frag6_mutex );
    return 257;
   }
   next += af6->ip6af_frglen;
  }
  if (paf6->ip6af_mff) {
-  ip6q_unlock();
+  __mtx_leave(&frag6_mutex );
   return 257;
  }
  ip6af = ((&q6->ip6q_asfrag)->lh_first);
@@ -3644,8 +3630,9 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  if (frag6_deletefraghdr(m, offset) != 0) {
   do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
   frag6_nfrags -= q6->ip6q_nfrag;
-  pool_put(&ip6q_pool, q6);
   frag6_nfragpackets--;
+  __mtx_leave(&frag6_mutex );
+  pool_put(&ip6q_pool, q6);
   goto dropfrag;
  }
  {
@@ -3654,8 +3641,9 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  }
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;
- pool_put(&ip6q_pool, q6);
  frag6_nfragpackets--;
+ __mtx_leave(&frag6_mutex );
+ pool_put(&ip6q_pool, q6);
  if (m->m_hdr.mh_flags & 0x0002) {
   int plen = 0;
   for (t = m; t; t = t->m_hdr.mh_next)
@@ -3665,23 +3653,25 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
  ip6stat_inc(ip6s_reassembled);
  *mp = m;
  *offp = offset;
- ip6q_unlock();
  return nxt;
  flushfrags:
+ do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
+ frag6_nfrags -= q6->ip6q_nfrag;
+ frag6_nfragpackets--;
+ __mtx_leave(&frag6_mutex );
+ pool_put(&ip6af_pool, ip6af);
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
   m_freem(af6->ip6af_m);
   pool_put(&ip6af_pool, af6);
  }
- ip6stat_add(ip6s_fragdropped, q6->ip6q_nfrag);
- do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
- frag6_nfrags -= q6->ip6q_nfrag;
+ ip6stat_add(ip6s_fragdropped, q6->ip6q_nfrag + 1);
  pool_put(&ip6q_pool, q6);
- frag6_nfragpackets--;
+ m_freem(m);
+ return 257;
  dropfrag:
  ip6stat_inc(ip6s_fragdropped);
  m_freem(m);
- ip6q_unlock();
  return 257;
 }
 int
@@ -3704,7 +3694,6 @@ void
 frag6_freef(struct ip6q *q6)
 {
  struct ip6asfrag *af6;
- do { if (ip6q_locked == 0) { printf("%s:%d: ip6q lock not held\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 570); panic("ip6q lock check"); } } while (0);
  while ((af6 = ((&q6->ip6q_asfrag)->lh_first)) != ((void *)0)) {
   struct mbuf *m = af6->ip6af_m;
   do { if ((af6)->ip6af_list.le_next != ((void *)0)) (af6)->ip6af_list.le_next->ip6af_list.le_prev = (af6)->ip6af_list.le_prev; *(af6)->ip6af_list.le_prev = (af6)->ip6af_list.le_next; ((af6)->ip6af_list.le_prev) = ((void *)-1); ((af6)->ip6af_list.le_next) = ((void *)-1); } while (0);
@@ -3719,27 +3708,38 @@ frag6_freef(struct ip6q *q6)
    m_freem(m);
   pool_put(&ip6af_pool, af6);
  }
- do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
- frag6_nfrags -= q6->ip6q_nfrag;
  pool_put(&ip6q_pool, q6);
+}
+void
+frag6_unlink(struct ip6q *q6, struct ip6q_head *rmq6)
+{
+ do { if ((&frag6_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&frag6_mutex), __func__); } while (0);
+ do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
+ do { if (((q6)->ip6q_queue.tqe_next = (rmq6)->tqh_first) != ((void *)0)) (rmq6)->tqh_first->ip6q_queue.tqe_prev = &(q6)->ip6q_queue.tqe_next; else (rmq6)->tqh_last = &(q6)->ip6q_queue.tqe_next; (rmq6)->tqh_first = (q6); (q6)->ip6q_queue.tqe_prev = &(rmq6)->tqh_first; } while (0);
+ frag6_nfrags -= q6->ip6q_nfrag;
  frag6_nfragpackets--;
 }
 void
 frag6_slowtimo(void)
 {
+ struct ip6q_head rmq6;
  struct ip6q *q6, *nq6;
- do { _rw_enter_write(&netlock ); } while (0);
- do { if (ip6q_lock_try() == 0) { printf("%s:%d: ip6q already locked\n", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/frag6.c", 615); panic("ip6q_lock"); } } while (0);
- for ((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0) && ((nq6) = ((q6)->ip6q_queue.tqe_next), 1); (q6) = (nq6))
+ do { (&rmq6)->tqh_first = ((void *)0); (&rmq6)->tqh_last = &(&rmq6)->tqh_first; } while (0);
+ __mtx_enter(&frag6_mutex );
+ for ((q6) = ((&frag6_queue)->tqh_first); (q6) != ((void *)0) && ((nq6) = ((q6)->ip6q_queue.tqe_next), 1); (q6) = (nq6)) {
   if (--q6->ip6q_ttl == 0) {
    ip6stat_inc(ip6s_fragtimeout);
-   frag6_freef(q6);
+   frag6_unlink(q6, &rmq6);
   }
+ }
  while (frag6_nfragpackets > (u_int)ip6_maxfragpackets &&
      !(((&frag6_queue)->tqh_first) == ((void *)0))) {
   ip6stat_inc(ip6s_fragoverflow);
-  frag6_freef((*(((struct ip6q_head *)((&frag6_queue)->tqh_last))->tqh_last)));
+  frag6_unlink((*(((struct ip6q_head *)((&frag6_queue)->tqh_last))->tqh_last)), &rmq6);
  }
- ip6q_unlock();
- do { _rw_exit_write(&netlock ); } while (0);
+ __mtx_leave(&frag6_mutex );
+ while ((q6 = ((&rmq6)->tqh_first)) != ((void *)0)) {
+  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&rmq6)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
+  frag6_freef(q6);
+ }
 }
