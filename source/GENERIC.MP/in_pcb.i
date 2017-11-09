@@ -4081,6 +4081,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -6023,10 +6024,47 @@ struct espstat {
  uint64_t esps_udpneeded;
  uint64_t esps_outfail;
 };
+enum espstat_counters {
+ esps_hdrops,
+ esps_nopf,
+ esps_notdb,
+ esps_badkcr,
+ esps_qfull,
+ esps_noxform,
+ esps_badilen,
+ esps_wrap,
+ esps_badenc,
+ esps_badauth,
+ esps_replay,
+ esps_input,
+ esps_output,
+ esps_invalid,
+ esps_ibytes,
+ esps_obytes,
+ esps_toobig,
+ esps_pdrops,
+ esps_crypto,
+ esps_udpencin,
+ esps_udpencout,
+ esps_udpinval,
+ esps_udpneeded,
+ esps_outfail,
+ esps_ncounters
+};
+extern struct cpumem *espcounters;
+static inline void
+espstat_inc(enum espstat_counters c)
+{
+ counters_inc(espcounters, c);
+}
+static inline void
+espstat_add(enum espstat_counters c, uint64_t v)
+{
+ counters_add(espcounters, c, v);
+}
 extern int esp_enable;
 extern int udpencap_enable;
 extern int udpencap_port;
-extern struct espstat espstat;
 struct in_addr zeroin_addr;
 union {
  struct in_addr za_in;

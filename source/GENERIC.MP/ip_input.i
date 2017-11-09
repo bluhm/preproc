@@ -4231,6 +4231,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -6000,6 +6001,7 @@ ip_init(void)
  strlcpy(ipsec_def_auth, "hmac-sha1", sizeof(ipsec_def_auth));
  strlcpy(ipsec_def_comp, "deflate", sizeof(ipsec_def_comp));
  mq_init(&ipsend_mq, 64, 2);
+ ipsec_init();
 }
 int
 ip_ours(struct mbuf **mp, int *offp, int nxt, int af)
@@ -6020,7 +6022,7 @@ ipintr(void)
    panic("ipintr no HDR");
   off = 0;
   nxt = ip_local(&m, &off, 4, 0);
-  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 254, "nxt == IPPROTO_DONE"));
+  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 258, "nxt == IPPROTO_DONE"));
  }
 }
 void
@@ -6029,7 +6031,7 @@ ipv4_input(struct ifnet *ifp, struct mbuf *m)
  int off, nxt;
  off = 0;
  nxt = ip_input_if(&m, &off, 4, 0, ifp);
- ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 270, "nxt == IPPROTO_DONE"));
+ ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 274, "nxt == IPPROTO_DONE"));
 }
 int
 ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
@@ -6039,7 +6041,7 @@ ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
  struct ip *ip;
  int hlen, len;
  in_addr_t pfrdr = 0;
- ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 282, "*offp == 0"));
+ ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 286, "*offp == 0"));
  ipstat_inc(ips_total);
  if (m->m_hdr.mh_len < sizeof (struct ip) &&
      (m = *mp = m_pullup(m, sizeof (struct ip))) == ((void *)0)) {
@@ -6134,7 +6136,7 @@ ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
     }
     ip = ((struct ip *)((m)->m_hdr.mh_data));
    }
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 435);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 439);
    error = ip_mforward(m, ifp);
    _kernel_unlock();
    if (error) {
@@ -6260,7 +6262,7 @@ ip_deliver(struct mbuf **mp, int *offp, int nxt, int af)
  struct protosw *psw;
  int naf = af;
  int nest = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 638, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 642, "_kernel_lock_held()"));
  switch (af) {
  case 2:
   in_proto_cksum_out(*mp, ((void *)0));
@@ -6557,7 +6559,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1082);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1086);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)

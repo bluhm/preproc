@@ -5077,6 +5077,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -5111,10 +5112,47 @@ struct espstat {
  uint64_t esps_udpneeded;
  uint64_t esps_outfail;
 };
+enum espstat_counters {
+ esps_hdrops,
+ esps_nopf,
+ esps_notdb,
+ esps_badkcr,
+ esps_qfull,
+ esps_noxform,
+ esps_badilen,
+ esps_wrap,
+ esps_badenc,
+ esps_badauth,
+ esps_replay,
+ esps_input,
+ esps_output,
+ esps_invalid,
+ esps_ibytes,
+ esps_obytes,
+ esps_toobig,
+ esps_pdrops,
+ esps_crypto,
+ esps_udpencin,
+ esps_udpencout,
+ esps_udpinval,
+ esps_udpneeded,
+ esps_outfail,
+ esps_ncounters
+};
+extern struct cpumem *espcounters;
+static inline void
+espstat_inc(enum espstat_counters c)
+{
+ counters_inc(espcounters, c);
+}
+static inline void
+espstat_add(enum espstat_counters c, uint64_t v)
+{
+ counters_add(espcounters, c, v);
+}
 extern int esp_enable;
 extern int udpencap_enable;
 extern int udpencap_port;
-extern struct espstat espstat;
 struct ahstat {
  uint64_t ahs_hdrops;
  uint64_t ahs_nopf;
@@ -5143,8 +5181,40 @@ struct ah {
     u_int32_t ah_spi;
     u_int32_t ah_rpl;
 };
+enum ahstat_counters {
+ ahs_hdrops,
+ ahs_nopf,
+ ahs_notdb,
+ ahs_badkcr,
+ ahs_badauth,
+ ahs_noxform,
+ ahs_qfull,
+ ahs_wrap,
+ ahs_replay,
+ ahs_badauthl,
+ ahs_input,
+ ahs_output,
+ ahs_invalid,
+ ahs_ibytes,
+ ahs_obytes,
+ ahs_toobig,
+ ahs_pdrops,
+ ahs_crypto,
+ ahs_outfail,
+ ahs_ncounters
+};
+extern struct cpumem *ahcounters;
+static inline void
+ahstat_inc(enum ahstat_counters c)
+{
+ counters_inc(ahcounters, c);
+}
+static inline void
+ahstat_add(enum ahstat_counters c, uint64_t v)
+{
+ counters_add(ahcounters, c, v);
+}
 extern int ah_enable;
-extern struct ahstat ahstat;
 struct ipcompstat {
  uint64_t ipcomps_hdrops;
  uint64_t ipcomps_nopf;
@@ -5169,8 +5239,38 @@ struct ipcomp {
  u_int8_t ipcomp_flags;
  u_int16_t ipcomp_cpi;
 };
+enum ipcomp_counters {
+ ipcomps_hdrops,
+ ipcomps_nopf,
+ ipcomps_notdb,
+ ipcomps_badkcr,
+ ipcomps_qfull,
+ ipcomps_noxform,
+ ipcomps_wrap,
+ ipcomps_input,
+ ipcomps_output,
+ ipcomps_invalid,
+ ipcomps_ibytes,
+ ipcomps_obytes,
+ ipcomps_toobig,
+ ipcomps_pdrops,
+ ipcomps_crypto,
+ ipcomps_minlen,
+ ipcomps_outfail,
+ ipcomps_ncounters
+};
+extern struct cpumem *ipcompcounters;
+static inline void
+ipcompstat_inc(enum ipcomp_counters c)
+{
+ counters_inc(ipcompcounters, c);
+}
+static inline void
+ipcompstat_add(enum ipcomp_counters c, uint64_t v)
+{
+ counters_add(ipcompcounters, c, v);
+}
 extern int ipcomp_enable;
-extern struct ipcompstat ipcompstat;
 struct enchdr {
  u_int32_t af;
  u_int32_t spi;
@@ -5190,6 +5290,19 @@ int ipcomp_enable = 0;
 int *espctl_vars[5] = { ((void *)0), &esp_enable, &udpencap_enable, &udpencap_port, ((void *)0) };
 int *ahctl_vars[3] = { ((void *)0), &ah_enable, ((void *)0) };
 int *ipcompctl_vars[3] = { ((void *)0), &ipcomp_enable, ((void *)0) };
+struct cpumem *espcounters;
+struct cpumem *ahcounters;
+struct cpumem *ipcompcounters;
+int esp_sysctl_espstat(void *, size_t *, void *);
+int ah_sysctl_ahstat(void *, size_t *, void *);
+int ipcomp_sysctl_ipcompstat(void *, size_t *, void *);
+void
+ipsec_init(void)
+{
+ espcounters = counters_alloc(esps_ncounters);
+ ahcounters = counters_alloc(ahs_ncounters);
+ ipcompcounters = counters_alloc(ipcomps_ncounters);
+}
 int
 ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
     int udpencap)
@@ -5201,10 +5314,10 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
  u_int16_t cpi;
  int error;
  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
- (sproto == 50 ? (espstat.esps_input)++ : sproto == 51 ? (ahstat.ahs_input)++ : (ipcompstat.ipcomps_input)++);
+ do { if (sproto == 50) espstat_inc(esps_input); else if (sproto == 51) ahstat_inc(ahs_input); else ipcompstat_inc(ipcomps_input); } while (0);
  if (m == ((void *)0)) {
   ;
-  (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+  do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
   return 22;
  }
  if ((sproto == 50 && !esp_enable) ||
@@ -5221,20 +5334,20 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
   default:
    ;
    m_freem(m);
-   (sproto == 50 ? (espstat.esps_nopf)++ : sproto == 51 ? (ahstat.ahs_nopf)++ : (ipcompstat.ipcomps_nopf)++);
+   do { if (sproto == 50) espstat_inc(esps_nopf); else if (sproto == 51) ahstat_inc(ahs_nopf); else ipcompstat_inc(ipcomps_nopf); } while (0);
    return 46;
   }
   return 0;
  }
  if ((sproto == 108) && (m->m_hdr.mh_flags & 0x4000)) {
   m_freem(m);
-  ipcompstat.ipcomps_pdrops++;
+  ipcompstat_inc(ipcomps_pdrops);
   ;
   return 22;
  }
  if (m->M_dat.MH.MH_pkthdr.len - skip < 2 * sizeof(u_int32_t)) {
   m_freem(m);
-  (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+  do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
   ;
   return 22;
  }
@@ -5275,7 +5388,7 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
  default:
   ;
   m_freem(m);
-  (sproto == 50 ? (espstat.esps_nopf)++ : sproto == 51 ? (ahstat.ahs_nopf)++ : (ipcompstat.ipcomps_nopf)++);
+  do { if (sproto == 50) espstat_inc(esps_nopf); else if (sproto == 51) ahstat_inc(ahs_nopf); else ipcompstat_inc(ipcomps_nopf); } while (0);
   return 46;
  }
  tdbp = gettdb(rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid),
@@ -5283,31 +5396,31 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
  if (tdbp == ((void *)0)) {
   ;
   m_freem(m);
-  (sproto == 50 ? (espstat.esps_notdb)++ : sproto == 51 ? (ahstat.ahs_notdb)++ : (ipcompstat.ipcomps_notdb)++);
+  do { if (sproto == 50) espstat_inc(esps_notdb); else if (sproto == 51) ahstat_inc(ahs_notdb); else ipcompstat_inc(ipcomps_notdb); } while (0);
   return 2;
  }
  if (tdbp->tdb_flags & 0x00010) {
   ;
   m_freem(m);
-  (sproto == 50 ? (espstat.esps_invalid)++ : sproto == 51 ? (ahstat.ahs_invalid)++ : (ipcompstat.ipcomps_invalid)++);
+  do { if (sproto == 50) espstat_inc(esps_invalid); else if (sproto == 51) ahstat_inc(ahs_invalid); else ipcompstat_inc(ipcomps_invalid); } while (0);
   return 22;
  }
  if (udpencap && !(tdbp->tdb_flags & 0x20000)) {
   ;
   m_freem(m);
-  espstat.esps_udpinval++;
+  espstat_inc(esps_udpinval);
   return 22;
  }
  if (!udpencap && (tdbp->tdb_flags & 0x20000)) {
   ;
   m_freem(m);
-  espstat.esps_udpneeded++;
+  espstat_inc(esps_udpneeded);
   return 22;
  }
  if (tdbp->tdb_xform == ((void *)0)) {
   ;
   m_freem(m);
-  (sproto == 50 ? (espstat.esps_noxform)++ : sproto == 51 ? (ahstat.ahs_noxform)++ : (ipcompstat.ipcomps_noxform)++);
+  do { if (sproto == 50) espstat_inc(esps_noxform); else if (sproto == 51) ahstat_inc(ahs_noxform); else ipcompstat_inc(ipcomps_noxform); } while (0);
   return 6;
  }
  if (sproto != 108) {
@@ -5315,7 +5428,7 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
       tdbp->tdb_tap)) == ((void *)0)) {
    ;
    m_freem(m);
-   (sproto == 50 ? (espstat.esps_pdrops)++ : sproto == 51 ? (ahstat.ahs_pdrops)++ : (ipcompstat.ipcomps_pdrops)++);
+   do { if (sproto == 50) espstat_inc(esps_pdrops); else if (sproto == 51) ahstat_inc(ahs_pdrops); else ipcompstat_inc(ipcomps_pdrops); } while (0);
    return 13;
   }
   m->M_dat.MH.MH_pkthdr.ph_ifidx = encif->if_index;
@@ -5346,13 +5459,13 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
  sproto = tdbp->tdb_sproto;
  tdbp->tdb_last_used = time_second;
  if (m == ((void *)0)) {
-  (sproto == 50 ? (espstat.esps_badkcr)++ : sproto == 51 ? (ahstat.ahs_badkcr)++ : (ipcompstat.ipcomps_badkcr)++);
+  do { if (sproto == 50) espstat_inc(esps_badkcr); else if (sproto == 51) ahstat_inc(ahs_badkcr); else ipcompstat_inc(ipcomps_badkcr); } while (0);
   return;
  }
  if (af == 2) {
   if ((m->m_hdr.mh_len < skip) && ((m = m_pullup(m, skip)) == ((void *)0))) {
    ;
-   (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+   do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
    return;
   }
   ip = ((struct ip *)((m)->m_hdr.mh_data));
@@ -5363,7 +5476,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (prot == 4) {
    if (m->M_dat.MH.MH_pkthdr.len - skip < sizeof(struct ip)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    m_copydata(m, skip, sizeof(struct ip),
@@ -5372,7 +5485,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (prot == 41) {
    if (m->M_dat.MH.MH_pkthdr.len - skip < sizeof(struct ip6_hdr)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    m_copydata(m, skip, sizeof(struct ip6_hdr),
@@ -5384,7 +5497,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (m->m_hdr.mh_len < sizeof(struct ip6_hdr) &&
       (m = m_pullup(m, sizeof(struct ip6_hdr))) == ((void *)0)) {
    ;
-   (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+   do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
    return;
   }
   ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
@@ -5393,7 +5506,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (prot == 4) {
    if (m->M_dat.MH.MH_pkthdr.len - skip < sizeof(struct ip)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    m_copydata(m, skip, sizeof(struct ip), (caddr_t) &ipn);
@@ -5401,7 +5514,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (prot == 41) {
    if (m->M_dat.MH.MH_pkthdr.len - skip < sizeof(struct ip6_hdr)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    m_copydata(m, skip, sizeof(struct ip6_hdr),
@@ -5416,7 +5529,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   case 17:
    if (m->M_dat.MH.MH_pkthdr.len < skip + sizeof(struct udphdr)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    cksum = 0;
@@ -5431,7 +5544,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   case 6:
    if (m->M_dat.MH.MH_pkthdr.len < skip + sizeof(struct tcphdr)) {
     m_freem(m);
-    (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+    do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
     return;
    }
    cksum = 0;
@@ -5454,7 +5567,7 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
   if (mtag == ((void *)0)) {
    m_freem(m);
    ;
-   (sproto == 50 ? (espstat.esps_hdrops)++ : sproto == 51 ? (ahstat.ahs_hdrops)++ : (ipcompstat.ipcomps_hdrops)++);
+   do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
    return;
   }
   tdbi = (struct tdb_ident *)(mtag + 1);
@@ -5523,13 +5636,7 @@ esp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   return (20);
  switch (name[0]) {
  case 4:
-  if (newp != ((void *)0))
-   return (1);
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_struct(oldp, oldlenp, newp, newlen,
-      &espstat, sizeof(espstat));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
+  return (esp_sysctl_espstat(oldp, oldlenp, newp));
  default:
   if (name[0] < 5) {
    do { _rw_enter_write(&netlock ); } while (0);
@@ -5542,6 +5649,16 @@ esp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  }
 }
 int
+esp_sysctl_espstat(void *oldp, size_t *oldlenp, void *newp)
+{
+ struct espstat espstat;
+ extern char _ctassert[(sizeof(espstat) == (esps_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
+ __builtin_memset((&espstat), (0), (sizeof espstat));
+ counters_read(espcounters, (uint64_t *)&espstat, esps_ncounters);
+ return (sysctl_rdstruct(oldp, oldlenp, newp, &espstat,
+     sizeof(espstat)));
+}
+int
 ah_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
@@ -5550,13 +5667,7 @@ ah_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   return (20);
  switch (name[0]) {
  case 2:
-  if (newp != ((void *)0))
-   return (1);
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_struct(oldp, oldlenp, newp, newlen,
-      &ahstat, sizeof(ahstat));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
+  return ah_sysctl_ahstat(oldp, oldlenp, newp);
  default:
   if (name[0] < 3) {
    do { _rw_enter_write(&netlock ); } while (0);
@@ -5569,6 +5680,15 @@ ah_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  }
 }
 int
+ah_sysctl_ahstat(void *oldp, size_t *oldlenp, void *newp)
+{
+ struct ahstat ahstat;
+ extern char _ctassert[(sizeof(ahstat) == (ahs_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
+ __builtin_memset((&ahstat), (0), (sizeof ahstat));
+ counters_read(ahcounters, (uint64_t *)&ahstat, ahs_ncounters);
+ return (sysctl_rdstruct(oldp, oldlenp, newp, &ahstat, sizeof(ahstat)));
+}
+int
 ipcomp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
 {
@@ -5577,13 +5697,7 @@ ipcomp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   return (20);
  switch (name[0]) {
  case 2:
-  if (newp != ((void *)0))
-   return (1);
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_struct(oldp, oldlenp, newp, newlen,
-      &ipcompstat, sizeof(ipcompstat));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
+  return ipcomp_sysctl_ipcompstat(oldp, oldlenp, newp);
  default:
   if (name[0] < 3) {
    do { _rw_enter_write(&netlock ); } while (0);
@@ -5594,6 +5708,17 @@ ipcomp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   }
   return (42);
  }
+}
+int
+ipcomp_sysctl_ipcompstat(void *oldp, size_t *oldlenp, void *newp)
+{
+ struct ipcompstat ipcompstat;
+ extern char _ctassert[(sizeof(ipcompstat) == (ipcomps_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
+ __builtin_memset((&ipcompstat), (0), (sizeof ipcompstat));
+ counters_read(ipcompcounters, (uint64_t *)&ipcompstat,
+     ipcomps_ncounters);
+ return (sysctl_rdstruct(oldp, oldlenp, newp, &ipcompstat,
+     sizeof(ipcompstat)));
 }
 int
 ah4_input(struct mbuf **mp, int *offp, int proto, int af)
@@ -5719,7 +5844,7 @@ ah6_input(struct mbuf **mp, int *offp, int proto, int af)
  struct ip6_ext ip6e;
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
-  ahstat.ahs_hdrops++;
+  ahstat_inc(ahs_hdrops);
   m_freemp(mp);
   return 257;
  } else if (*offp == sizeof(struct ip6_hdr)) {
@@ -5741,7 +5866,7 @@ ah6_input(struct mbuf **mp, int *offp, int proto, int af)
   } while (protoff + l < *offp);
   if (protoff + l != *offp) {
    ;
-   ahstat.ahs_hdrops++;
+   ahstat_inc(ahs_hdrops);
    m_freemp(mp);
    return 257;
   }
@@ -5758,7 +5883,7 @@ esp6_input(struct mbuf **mp, int *offp, int proto, int af)
  struct ip6_ext ip6e;
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
-  espstat.esps_hdrops++;
+  espstat_inc(esps_hdrops);
   m_freemp(mp);
   return 257;
  } else if (*offp == sizeof(struct ip6_hdr)) {
@@ -5780,7 +5905,7 @@ esp6_input(struct mbuf **mp, int *offp, int proto, int af)
   } while (protoff + l < *offp);
   if (protoff + l != *offp) {
    ;
-   espstat.esps_hdrops++;
+   espstat_inc(esps_hdrops);
    m_freemp(mp);
    return 257;
   }
@@ -5797,7 +5922,7 @@ ipcomp6_input(struct mbuf **mp, int *offp, int proto, int af)
  struct ip6_ext ip6e;
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
-  ipcompstat.ipcomps_hdrops++;
+  ipcompstat_inc(ipcomps_hdrops);
   m_freemp(mp);
   return 257;
  } else if (*offp == sizeof(struct ip6_hdr)) {
@@ -5819,7 +5944,7 @@ ipcomp6_input(struct mbuf **mp, int *offp, int proto, int af)
   } while (protoff + l < *offp);
   if (protoff + l != *offp) {
    ;
-   ipcompstat.ipcomps_hdrops++;
+   ipcompstat_inc(ipcomps_hdrops);
    m_freemp(mp);
    return 257;
   }

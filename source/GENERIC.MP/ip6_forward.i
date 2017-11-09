@@ -4902,6 +4902,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -4938,8 +4939,40 @@ struct ah {
     u_int32_t ah_spi;
     u_int32_t ah_rpl;
 };
+enum ahstat_counters {
+ ahs_hdrops,
+ ahs_nopf,
+ ahs_notdb,
+ ahs_badkcr,
+ ahs_badauth,
+ ahs_noxform,
+ ahs_qfull,
+ ahs_wrap,
+ ahs_replay,
+ ahs_badauthl,
+ ahs_input,
+ ahs_output,
+ ahs_invalid,
+ ahs_ibytes,
+ ahs_obytes,
+ ahs_toobig,
+ ahs_pdrops,
+ ahs_crypto,
+ ahs_outfail,
+ ahs_ncounters
+};
+extern struct cpumem *ahcounters;
+static inline void
+ahstat_inc(enum ahstat_counters c)
+{
+ counters_inc(ahcounters, c);
+}
+static inline void
+ahstat_add(enum ahstat_counters c, uint64_t v)
+{
+ counters_add(ahcounters, c, v);
+}
 extern int ah_enable;
-extern struct ahstat ahstat;
 struct espstat {
  uint64_t esps_hdrops;
  uint64_t esps_nopf;
@@ -4966,10 +4999,47 @@ struct espstat {
  uint64_t esps_udpneeded;
  uint64_t esps_outfail;
 };
+enum espstat_counters {
+ esps_hdrops,
+ esps_nopf,
+ esps_notdb,
+ esps_badkcr,
+ esps_qfull,
+ esps_noxform,
+ esps_badilen,
+ esps_wrap,
+ esps_badenc,
+ esps_badauth,
+ esps_replay,
+ esps_input,
+ esps_output,
+ esps_invalid,
+ esps_ibytes,
+ esps_obytes,
+ esps_toobig,
+ esps_pdrops,
+ esps_crypto,
+ esps_udpencin,
+ esps_udpencout,
+ esps_udpinval,
+ esps_udpneeded,
+ esps_outfail,
+ esps_ncounters
+};
+extern struct cpumem *espcounters;
+static inline void
+espstat_inc(enum espstat_counters c)
+{
+ counters_inc(espcounters, c);
+}
+static inline void
+espstat_add(enum espstat_counters c, uint64_t v)
+{
+ counters_add(espcounters, c, v);
+}
 extern int esp_enable;
 extern int udpencap_enable;
 extern int udpencap_port;
-extern struct espstat espstat;
 struct udphdr {
  u_int16_t uh_sport;
  u_int16_t uh_dport;

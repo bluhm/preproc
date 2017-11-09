@@ -4053,6 +4053,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -4496,10 +4497,47 @@ struct espstat {
  uint64_t esps_udpneeded;
  uint64_t esps_outfail;
 };
+enum espstat_counters {
+ esps_hdrops,
+ esps_nopf,
+ esps_notdb,
+ esps_badkcr,
+ esps_qfull,
+ esps_noxform,
+ esps_badilen,
+ esps_wrap,
+ esps_badenc,
+ esps_badauth,
+ esps_replay,
+ esps_input,
+ esps_output,
+ esps_invalid,
+ esps_ibytes,
+ esps_obytes,
+ esps_toobig,
+ esps_pdrops,
+ esps_crypto,
+ esps_udpencin,
+ esps_udpencout,
+ esps_udpinval,
+ esps_udpneeded,
+ esps_outfail,
+ esps_ncounters
+};
+extern struct cpumem *espcounters;
+static inline void
+espstat_inc(enum espstat_counters c)
+{
+ counters_inc(espcounters, c);
+}
+static inline void
+espstat_add(enum espstat_counters c, uint64_t v)
+{
+ counters_add(espcounters, c, v);
+}
 extern int esp_enable;
 extern int udpencap_enable;
 extern int udpencap_port;
-extern struct espstat espstat;
 struct in6_addrlifetime {
  time_t ia6t_expire;
  time_t ia6t_preferred;
@@ -6059,7 +6097,7 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
    __builtin_bcopy((((u_char *)((m)->m_hdr.mh_data))), (((u_char *)((m)->m_hdr.mh_data)) + sizeof(struct udphdr)), (iphlen));
    m_adj(m, sizeof(struct udphdr));
    skip -= sizeof(struct udphdr);
-   espstat.esps_udpencin++;
+   espstat_inc(esps_udpencin);
    protoff = af == 2 ? __builtin_offsetof(struct ip, ip_p) :
        __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_nxt);
    ipsec_common_input(m, skip, protoff,

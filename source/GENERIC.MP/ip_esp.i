@@ -2931,6 +2931,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -2965,10 +2966,47 @@ struct espstat {
  uint64_t esps_udpneeded;
  uint64_t esps_outfail;
 };
+enum espstat_counters {
+ esps_hdrops,
+ esps_nopf,
+ esps_notdb,
+ esps_badkcr,
+ esps_qfull,
+ esps_noxform,
+ esps_badilen,
+ esps_wrap,
+ esps_badenc,
+ esps_badauth,
+ esps_replay,
+ esps_input,
+ esps_output,
+ esps_invalid,
+ esps_ibytes,
+ esps_obytes,
+ esps_toobig,
+ esps_pdrops,
+ esps_crypto,
+ esps_udpencin,
+ esps_udpencout,
+ esps_udpinval,
+ esps_udpneeded,
+ esps_outfail,
+ esps_ncounters
+};
+extern struct cpumem *espcounters;
+static inline void
+espstat_inc(enum espstat_counters c)
+{
+ counters_inc(espcounters, c);
+}
+static inline void
+espstat_add(enum espstat_counters c, uint64_t v)
+{
+ counters_add(espcounters, c, v);
+}
 extern int esp_enable;
 extern int udpencap_enable;
 extern int udpencap_port;
-extern struct espstat espstat;
 struct sadb_msg {
  uint8_t sadb_msg_version;
  uint8_t sadb_msg_type;
@@ -4794,7 +4832,6 @@ extern struct comp_algo comp_algo_deflate;
 extern struct comp_algo comp_algo_lzs;
 void esp_output_cb(struct cryptop *);
 void esp_input_cb(struct cryptop *);
-struct espstat espstat;
 int
 esp_attach(void)
 {
@@ -4985,14 +5022,14 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  plen = m->M_dat.MH.MH_pkthdr.len - (skip + hlen + alen);
  if (plen <= 0) {
   ;
-  espstat.esps_badilen++;
+  espstat_inc(esps_badilen);
   m_freem(m);
   return 22;
  }
  if (espx) {
   if (plen & (espx->blocksize - 1)) {
    ;
-   espstat.esps_badilen++;
+   espstat_inc(esps_badilen);
    m_freem(m);
    return 22;
   }
@@ -5007,27 +5044,27 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   case 1:
    m_freem(m);
    ;
-   espstat.esps_wrap++;
+   espstat_inc(esps_wrap);
    return 13;
   case 2:
    m_freem(m);
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    return 13;
   case 3:
    m_freem(m);
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    return 13;
   default:
    m_freem(m);
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    return 13;
   }
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip - hlen - alen;
- espstat.esps_ibytes += m->M_dat.MH.MH_pkthdr.len - skip - hlen - alen;
+ espstat_add(esps_ibytes, m->M_dat.MH.MH_pkthdr.len - skip - hlen - alen);
  if ((tdb->tdb_flags & 0x00004) &&
      (tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes)) {
   pfkeyv2_expire(tdb, 3);
@@ -5044,7 +5081,7 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   return 55;
  }
  if (esph == ((void *)0))
@@ -5055,7 +5092,7 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   m_freem(m);
   crypto_freereq(crp);
   ;
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   return 55;
  }
  if (esph) {
@@ -5123,7 +5160,7 @@ esp_input_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   ;
   return;
  }
@@ -5131,7 +5168,7 @@ esp_input_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  espstat.esps_notdb++;
+  espstat_inc(esps_notdb);
   ;
   goto baddone;
  }
@@ -5145,7 +5182,7 @@ esp_input_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  espstat.esps_noxform++;
+  espstat_inc(esps_noxform);
   ;
   goto baddone;
  }
@@ -5156,7 +5193,7 @@ esp_input_cb(struct cryptop *crp)
   if (timingsafe_bcmp(ptr, aalg, esph->authsize)) {
    free(tc, 76, 0);
    ;
-   espstat.esps_badauth++;
+   espstat_inc(esps_badauth);
    goto baddone;
   }
   m_adj(m, -(esph->authsize));
@@ -5172,19 +5209,19 @@ esp_input_cb(struct cryptop *crp)
    break;
   case 1:
    ;
-   espstat.esps_wrap++;
+   espstat_inc(esps_wrap);
    goto baddone;
   case 2:
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    goto baddone;
   case 3:
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    goto baddone;
   default:
    ;
-   espstat.esps_replay++;
+   espstat_inc(esps_replay);
    goto baddone;
   }
  }
@@ -5192,7 +5229,7 @@ esp_input_cb(struct cryptop *crp)
  hlen = 2 * sizeof(u_int32_t) + tdb->tdb_ivlen;
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
-  espstat.esps_hdrops++;
+  espstat_inc(esps_hdrops);
   do { _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
@@ -5220,14 +5257,14 @@ esp_input_cb(struct cryptop *crp)
  }
  m_copydata(m, m->M_dat.MH.MH_pkthdr.len - 3, 3, lastthree);
  if (lastthree[1] + 2 > m->M_dat.MH.MH_pkthdr.len - skip) {
-  espstat.esps_badilen++;
+  espstat_inc(esps_badilen);
   do { _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
   return;
  }
  if ((lastthree[1] != lastthree[0]) && (lastthree[1] != 0)) {
-  espstat.esps_badenc++;
+  espstat_inc(esps_badenc);
   do { _rw_exit_write(&netlock ); } while (0);
   ;
   m_freem(m);
@@ -5282,13 +5319,13 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   blks = 4;
  padding = ((blks - ((rlen + 2) % blks)) % blks) + 2;
  alen = esph ? esph->authsize : 0;
- espstat.esps_output++;
+ espstat_inc(esps_output);
  switch (tdb->tdb_dst.sa.sa_family) {
  case 2:
   if (skip + hlen + rlen + padding + alen > 65535) {
    ;
    m_freem(m);
-   espstat.esps_toobig++;
+   espstat_inc(esps_toobig);
    return 40;
   }
   break;
@@ -5296,18 +5333,18 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   if (skip + hlen + rlen + padding + alen > 65535) {
    ;
    m_freem(m);
-   espstat.esps_toobig++;
+   espstat_inc(esps_toobig);
    return 40;
   }
   break;
  default:
   ;
   m_freem(m);
-  espstat.esps_nopf++;
+  espstat_inc(esps_nopf);
   return 46;
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip;
- espstat.esps_obytes += m->M_dat.MH.MH_pkthdr.len - skip;
+ espstat_add(esps_obytes, m->M_dat.MH.MH_pkthdr.len - skip);
  if (tdb->tdb_flags & 0x00004 &&
      tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes) {
   pfkeyv2_expire(tdb, 3);
@@ -5327,7 +5364,7 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   struct mbuf *n = m_dup_pkt(m, 0, 0x0002);
   if (n == ((void *)0)) {
    ;
-   espstat.esps_hdrops++;
+   espstat_inc(esps_hdrops);
    m_freem(m);
    return 55;
   }
@@ -5338,7 +5375,7 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (mo == ((void *)0)) {
   ;
   m_freem(m);
-  espstat.esps_hdrops++;
+  espstat_inc(esps_hdrops);
   return 55;
  }
  __builtin_memcpy((((caddr_t)((mo)->m_hdr.mh_data)) + roff), ((caddr_t) &tdb->tdb_spi), (sizeof(u_int32_t)));
@@ -5363,7 +5400,7 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   return 55;
  }
  if (espx) {
@@ -5386,7 +5423,7 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   m_freem(m);
   crypto_freereq(crp);
   ;
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   return 55;
  }
  tc->tc_spi = tdb->tdb_spi;
@@ -5431,7 +5468,7 @@ esp_output_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  espstat.esps_crypto++;
+  espstat_inc(esps_crypto);
   ;
   return;
  }
@@ -5439,7 +5476,7 @@ esp_output_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  espstat.esps_notdb++;
+  espstat_inc(esps_notdb);
   ;
   goto baddone;
  }
@@ -5452,14 +5489,14 @@ esp_output_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  espstat.esps_noxform++;
+  espstat_inc(esps_noxform);
   ;
   goto baddone;
  }
  free(tc, 76, 0);
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
-  espstat.esps_outfail++;
+  espstat_inc(esps_outfail);
  do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:

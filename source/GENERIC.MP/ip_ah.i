@@ -2931,6 +2931,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -2967,8 +2968,40 @@ struct ah {
     u_int32_t ah_spi;
     u_int32_t ah_rpl;
 };
+enum ahstat_counters {
+ ahs_hdrops,
+ ahs_nopf,
+ ahs_notdb,
+ ahs_badkcr,
+ ahs_badauth,
+ ahs_noxform,
+ ahs_qfull,
+ ahs_wrap,
+ ahs_replay,
+ ahs_badauthl,
+ ahs_input,
+ ahs_output,
+ ahs_invalid,
+ ahs_ibytes,
+ ahs_obytes,
+ ahs_toobig,
+ ahs_pdrops,
+ ahs_crypto,
+ ahs_outfail,
+ ahs_ncounters
+};
+extern struct cpumem *ahcounters;
+static inline void
+ahstat_inc(enum ahstat_counters c)
+{
+ counters_inc(ahcounters, c);
+}
+static inline void
+ahstat_add(enum ahstat_counters c, uint64_t v)
+{
+ counters_add(ahcounters, c, v);
+}
 extern int ah_enable;
-extern struct ahstat ahstat;
 struct sadb_msg {
  uint8_t sadb_msg_version;
  uint8_t sadb_msg_type;
@@ -4795,7 +4828,6 @@ extern struct comp_algo comp_algo_lzs;
 void ah_output_cb(struct cryptop *);
 void ah_input_cb(struct cryptop *);
 int ah_massage_headers(struct mbuf **, int, int, int, int);
-struct ahstat ahstat;
 unsigned char ipseczeroes[256];
 int
 ah_attach(void)
@@ -4880,7 +4912,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
   *m0 = m = m_pullup(m, skip);
   if (m == ((void *)0)) {
    ;
-   ahstat.ahs_hdrops++;
+   ahstat_inc(ahs_hdrops);
    return 55;
   }
   ip = ((struct ip *)((m)->m_hdr.mh_data));
@@ -4895,7 +4927,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
     ;
    else {
     ;
-    ahstat.ahs_hdrops++;
+    ahstat_inc(ahs_hdrops);
     m_freem(m);
     return 22;
    }
@@ -4913,7 +4945,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    case 0x95:
     if (ptr[off + 1] < 2) {
      ;
-     ahstat.ahs_hdrops++;
+     ahstat_inc(ahs_hdrops);
      m_freem(m);
      return 22;
     }
@@ -4923,7 +4955,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    case 137:
     if (ptr[off + 1] < 2) {
      ;
-     ahstat.ahs_hdrops++;
+     ahstat_inc(ahs_hdrops);
      m_freem(m);
      return 22;
     }
@@ -4932,7 +4964,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    default:
     if (ptr[off + 1] < 2) {
      ;
-     ahstat.ahs_hdrops++;
+     ahstat_inc(ahs_hdrops);
      m_freem(m);
      return 22;
     }
@@ -4943,7 +4975,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    }
    if (off > skip) {
     ;
-    ahstat.ahs_hdrops++;
+    ahstat_inc(ahs_hdrops);
     m_freem(m);
     return 22;
    }
@@ -4953,7 +4985,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
   m_copydata(m, 0, sizeof(ip6), (caddr_t) &ip6);
   if (ip6.ip6_ctlun.ip6_un1.ip6_un1_plen == 0) {
    ;
-   ahstat.ahs_hdrops++;
+   ahstat_inc(ahs_hdrops);
    m_freem(m);
    return 40;
   }
@@ -4972,7 +5004,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
         76, 0x0002);
     if (ptr == ((void *)0)) {
      ;
-     ahstat.ahs_hdrops++;
+     ahstat_inc(ahs_hdrops);
      m_freem(m);
      return 55;
     }
@@ -5000,7 +5032,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
      }
      if (count > off +
          ((ip6e->ip6e_len + 1) << 3)) {
-      ahstat.ahs_hdrops++;
+      ahstat_inc(ahs_hdrops);
       m_freem(m);
       if (alloc)
        free(ptr, 76, 0);
@@ -5012,7 +5044,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
      count += ad;
      if (count >
          skip - sizeof(struct ip6_hdr)) {
-      ahstat.ahs_hdrops++;
+      ahstat_inc(ahs_hdrops);
       m_freem(m);
       if (alloc)
        free(ptr, 76, 0);
@@ -5054,7 +5086,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
     ;
     if (alloc)
      free(ptr, 76, 0);
-    ahstat.ahs_hdrops++;
+    ahstat_inc(ahs_hdrops);
     m_freem(m);
     return 22;
    }
@@ -5091,34 +5123,34 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   case 1:
    m_freem(m);
    ;
-   ahstat.ahs_wrap++;
+   ahstat_inc(ahs_wrap);
    return 55;
   case 2:
    m_freem(m);
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    return 55;
   case 3:
    m_freem(m);
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    return 55;
   default:
    m_freem(m);
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    return 55;
   }
  }
  if (hl * sizeof(u_int32_t) != ahx->authsize + rplen - 8) {
   ;
-  ahstat.ahs_badauthl++;
+  ahstat_inc(ahs_badauthl);
   m_freem(m);
   return 13;
  }
  tdb->tdb_cur_bytes +=
      (m->M_dat.MH.MH_pkthdr.len - skip - hl * sizeof(u_int32_t));
- ahstat.ahs_ibytes += (m->M_dat.MH.MH_pkthdr.len - skip - hl * sizeof(u_int32_t));
+ ahstat_add(ahs_ibytes, m->M_dat.MH.MH_pkthdr.len - skip - hl * sizeof(u_int32_t));
  if (tdb->tdb_flags & 0x00004 &&
      tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes) {
   pfkeyv2_expire(tdb, 3);
@@ -5135,7 +5167,7 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   return 55;
  }
  crda = &crp->crp_desc[0];
@@ -5156,7 +5188,7 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   m_freem(m);
   crypto_freereq(crp);
   ;
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   return 55;
  }
  m_copydata(m, 0, skip + rplen + ahx->authsize, (caddr_t) (tc + 1));
@@ -5199,7 +5231,7 @@ ah_input_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   ;
   return;
  }
@@ -5207,7 +5239,7 @@ ah_input_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  ahstat.ahs_notdb++;
+  ahstat_inc(ahs_notdb);
   ;
   goto baddone;
  }
@@ -5221,7 +5253,7 @@ ah_input_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  ahstat.ahs_noxform++;
+  ahstat_inc(ahs_noxform);
   ;
   goto baddone;
  } else {
@@ -5234,7 +5266,7 @@ ah_input_cb(struct cryptop *crp)
  if (timingsafe_bcmp(ptr + skip + rplen, calc, ahx->authsize)) {
   free(tc, 76, 0);
   ;
-  ahstat.ahs_badauth++;
+  ahstat_inc(ahs_badauth);
   goto baddone;
  }
  ((u_int8_t *) ptr)[protoff] = ((u_int8_t *) ptr)[skip];
@@ -5250,26 +5282,26 @@ ah_input_cb(struct cryptop *crp)
    break;
   case 1:
    ;
-   ahstat.ahs_wrap++;
+   ahstat_inc(ahs_wrap);
    goto baddone;
   case 2:
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    goto baddone;
   case 3:
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    goto baddone;
   default:
    ;
-   ahstat.ahs_replay++;
+   ahstat_inc(ahs_replay);
    goto baddone;
   }
  }
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
-  ahstat.ahs_hdrops++;
   do { _rw_exit_write(&netlock ); } while (0);
+  ahstat_inc(ahs_hdrops);
   m_freem(m);
   ;
   return;
@@ -5333,11 +5365,11 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
        12, m, (1<<1), ((void *)0));
   }
  }
- ahstat.ahs_output++;
+ ahstat_inc(ahs_output);
  if ((tdb->tdb_rpl == 0) && (tdb->tdb_wnd > 0)) {
   ;
   m_freem(m);
-  ahstat.ahs_wrap++;
+  ahstat_inc(ahs_wrap);
   return 22;
  }
  rplen = 8 + sizeof(u_int32_t);
@@ -5346,7 +5378,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   if (rplen + ahx->authsize + m->M_dat.MH.MH_pkthdr.len > 65535) {
    ;
    m_freem(m);
-   ahstat.ahs_toobig++;
+   ahstat_inc(ahs_toobig);
    return 40;
   }
   break;
@@ -5354,18 +5386,18 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   if (rplen + ahx->authsize + m->M_dat.MH.MH_pkthdr.len > 65535) {
    ;
    m_freem(m);
-   ahstat.ahs_toobig++;
+   ahstat_inc(ahs_toobig);
    return 40;
   }
   break;
  default:
   ;
   m_freem(m);
-  ahstat.ahs_nopf++;
+  ahstat_inc(ahs_nopf);
   return 46;
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip;
- ahstat.ahs_obytes += m->M_dat.MH.MH_pkthdr.len - skip;
+ ahstat_add(ahs_obytes, m->M_dat.MH.MH_pkthdr.len - skip);
  if (tdb->tdb_flags & 0x00004 &&
      tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes) {
   pfkeyv2_expire(tdb, 3);
@@ -5384,7 +5416,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (mi != ((void *)0)) {
   struct mbuf *n = m_dup_pkt(m, 0, 0x0002);
   if (n == ((void *)0)) {
-   ahstat.ahs_hdrops++;
+   ahstat_inc(ahs_hdrops);
    m_freem(m);
    return 55;
   }
@@ -5395,7 +5427,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (mi == ((void *)0)) {
   ;
   m_freem(m);
-  ahstat.ahs_hdrops++;
+  ahstat_inc(ahs_hdrops);
   return 55;
  }
  ah = (struct ah *)(((caddr_t)((mi)->m_hdr.mh_data)) + roff);
@@ -5411,7 +5443,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   return 55;
  }
  crda = &crp->crp_desc[0];
@@ -5432,7 +5464,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   m_freem(m);
   crypto_freereq(crp);
   ;
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   return 55;
  }
  m_copydata(m, 0, skip, (caddr_t) (tc + 1));
@@ -5488,7 +5520,7 @@ ah_output_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  ahstat.ahs_crypto++;
+  ahstat_inc(ahs_crypto);
   ;
   return;
  }
@@ -5496,7 +5528,7 @@ ah_output_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  ahstat.ahs_notdb++;
+  ahstat_inc(ahs_notdb);
   ;
   goto baddone;
  }
@@ -5509,7 +5541,7 @@ ah_output_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  ahstat.ahs_noxform++;
+  ahstat_inc(ahs_noxform);
   ;
   goto baddone;
  }
@@ -5517,7 +5549,7 @@ ah_output_cb(struct cryptop *crp)
  free(tc, 76, 0);
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
-  ahstat.ahs_outfail++;
+  ahstat_inc(ahs_outfail);
  do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:

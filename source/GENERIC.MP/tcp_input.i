@@ -3791,6 +3791,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -6456,7 +6457,9 @@ findpcb:
   }
   if (tiflags & 0x10 && ((int)((tp->snd_una)-(tp->iss)) > 0)) {
    tcpstat_inc(tcps_connects);
+   tp->t_flags |= 0x01000000;
    soisconnected(so);
+   tp->t_flags &= ~0x01000000;
    tp->t_state = 4;
    timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
    if ((tp->t_flags & (0x0040|0x0020)) ==
@@ -6603,7 +6606,9 @@ findpcb:
  switch (tp->t_state) {
  case 3:
   tcpstat_inc(tcps_connects);
+  tp->t_flags |= 0x01000000;
   soisconnected(so);
+  tp->t_flags &= ~0x01000000;
   tp->t_state = 4;
   timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
   if ((tp->t_flags & (0x0040|0x0020)) ==
@@ -6776,7 +6781,9 @@ findpcb:
   case 6:
    if (ourfinisacked) {
     if (so->so_state & 0x020) {
+     tp->t_flags |= 0x01000000;
      soisdisconnected(so);
+     tp->t_flags &= ~0x01000000;
      timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2));
     }
     tp->t_state = 9;
@@ -6787,7 +6794,9 @@ findpcb:
     tp->t_state = 10;
     tcp_canceltimers(tp);
     timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+    tp->t_flags |= 0x01000000;
     soisdisconnected(so);
+    tp->t_flags &= ~0x01000000;
    }
    break;
   case 8:
@@ -6872,7 +6881,9 @@ dodata:
  }
  if ((tiflags & 0x01) && ((tp->t_state) >= 4)) {
   if (((tp->t_state) >= 10) == 0) {
+   tp->t_flags |= 0x01000000;
    socantrcvmore(so);
+   tp->t_flags &= ~0x01000000;
    tp->t_flags |= 0x0001;
    tp->rcv_nxt++;
   }
@@ -6887,7 +6898,9 @@ dodata:
    tp->t_state = 10;
    tcp_canceltimers(tp);
    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+   tp->t_flags |= 0x01000000;
    soisdisconnected(so);
+   tp->t_flags &= ~0x01000000;
    break;
   case 10:
    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));

@@ -2931,6 +2931,7 @@ int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
+void ipsec_init(void);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -2963,8 +2964,38 @@ struct ipcomp {
  u_int8_t ipcomp_flags;
  u_int16_t ipcomp_cpi;
 };
+enum ipcomp_counters {
+ ipcomps_hdrops,
+ ipcomps_nopf,
+ ipcomps_notdb,
+ ipcomps_badkcr,
+ ipcomps_qfull,
+ ipcomps_noxform,
+ ipcomps_wrap,
+ ipcomps_input,
+ ipcomps_output,
+ ipcomps_invalid,
+ ipcomps_ibytes,
+ ipcomps_obytes,
+ ipcomps_toobig,
+ ipcomps_pdrops,
+ ipcomps_crypto,
+ ipcomps_minlen,
+ ipcomps_outfail,
+ ipcomps_ncounters
+};
+extern struct cpumem *ipcompcounters;
+static inline void
+ipcompstat_inc(enum ipcomp_counters c)
+{
+ counters_inc(ipcompcounters, c);
+}
+static inline void
+ipcompstat_add(enum ipcomp_counters c, uint64_t v)
+{
+ counters_add(ipcompcounters, c, v);
+}
 extern int ipcomp_enable;
-extern struct ipcompstat ipcompstat;
 struct sadb_msg {
  uint8_t sadb_msg_version;
  uint8_t sadb_msg_type;
@@ -3375,7 +3406,6 @@ extern struct comp_algo comp_algo_deflate;
 extern struct comp_algo comp_algo_lzs;
 void ipcomp_output_cb(struct cryptop *);
 void ipcomp_input_cb(struct cryptop *);
-struct ipcompstat ipcompstat;
 int
 ipcomp_attach(void)
 {
@@ -3425,7 +3455,7 @@ ipcomp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   return 55;
  }
  tc = malloc(sizeof(*tc), 76, 0x0002 | 0x0008);
@@ -3433,7 +3463,7 @@ ipcomp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   m_freem(m);
   crypto_freereq(crp);
   ;
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   return 55;
  }
  crdc = &crp->crp_desc[0];
@@ -3472,7 +3502,7 @@ ipcomp_input_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   ;
   return;
  }
@@ -3480,12 +3510,12 @@ ipcomp_input_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  ipcompstat.ipcomps_notdb++;
+  ipcompstat_inc(ipcomps_notdb);
   ;
   goto baddone;
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - (skip + hlen);
- ipcompstat.ipcomps_ibytes += m->M_dat.MH.MH_pkthdr.len - (skip + hlen);
+ ipcompstat_add(ipcomps_ibytes, m->M_dat.MH.MH_pkthdr.len - (skip + hlen));
  if ((tdb->tdb_flags & 0x00004) &&
      (tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes)) {
   free(tc, 76, 0);
@@ -3507,7 +3537,7 @@ ipcomp_input_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  ipcompstat.ipcomps_noxform++;
+  ipcompstat_inc(ipcomps_noxform);
   ;
   goto baddone;
  }
@@ -3519,7 +3549,7 @@ ipcomp_input_cb(struct cryptop *crp)
  }
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
-  ipcompstat.ipcomps_hdrops++;
+  ipcompstat_inc(ipcomps_hdrops);
   ;
   goto baddone;
  }
@@ -3580,13 +3610,13 @@ ipcomp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   }
  }
  hlen = 4;
- ipcompstat.ipcomps_output++;
+ ipcompstat_inc(ipcomps_output);
  switch (tdb->tdb_dst.sa.sa_family) {
  case 2:
   if (m->M_dat.MH.MH_pkthdr.len + hlen > 65535) {
    ;
    m_freem(m);
-   ipcompstat.ipcomps_toobig++;
+   ipcompstat_inc(ipcomps_toobig);
    return 40;
   }
   break;
@@ -3594,18 +3624,18 @@ ipcomp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   if (m->M_dat.MH.MH_pkthdr.len + hlen > 65535) {
    ;
    m_freem(m);
-   ipcompstat.ipcomps_toobig++;
+   ipcompstat_inc(ipcomps_toobig);
    return 40;
   }
   break;
  default:
   ;
   m_freem(m);
-  ipcompstat.ipcomps_nopf++;
+  ipcompstat_inc(ipcomps_nopf);
   return 46;
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip;
- ipcompstat.ipcomps_obytes += m->M_dat.MH.MH_pkthdr.len - skip;
+ ipcompstat_add(ipcomps_obytes, m->M_dat.MH.MH_pkthdr.len - skip);
  if ((tdb->tdb_flags & 0x00004) &&
      (tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes)) {
   pfkeyv2_expire(tdb, 3);
@@ -3625,7 +3655,7 @@ ipcomp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   struct mbuf *n = m_dup_pkt(m, 0, 0x0002);
   if (n == ((void *)0)) {
    ;
-   ipcompstat.ipcomps_hdrops++;
+   ipcompstat_inc(ipcomps_hdrops);
    m_freem(m);
    return 55;
   }
@@ -3636,7 +3666,7 @@ ipcomp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  if (crp == ((void *)0)) {
   m_freem(m);
   ;
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   return 55;
  }
  crdc = &crp->crp_desc[0];
@@ -3650,7 +3680,7 @@ ipcomp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   m_freem(m);
   crypto_freereq(crp);
   ;
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   return 55;
  }
  tc->tc_spi = tdb->tdb_spi;
@@ -3684,7 +3714,7 @@ ipcomp_output_cb(struct cryptop *crp)
  if (m == ((void *)0)) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  ipcompstat.ipcomps_crypto++;
+  ipcompstat_inc(ipcomps_crypto);
   ;
   return;
  }
@@ -3692,7 +3722,7 @@ ipcomp_output_cb(struct cryptop *crp)
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
   free(tc, 76, 0);
-  ipcompstat.ipcomps_notdb++;
+  ipcompstat_inc(ipcomps_notdb);
   ;
   goto baddone;
  }
@@ -3705,7 +3735,7 @@ ipcomp_output_cb(struct cryptop *crp)
    return;
   }
   free(tc, 76, 0);
-  ipcompstat.ipcomps_noxform++;
+  ipcompstat_inc(ipcomps_noxform);
   ;
   goto baddone;
  }
@@ -3713,14 +3743,14 @@ ipcomp_output_cb(struct cryptop *crp)
  if (rlen < crp->crp_olen) {
   crypto_freereq(crp);
   if (ipsp_process_done(m, tdb))
-   ipcompstat.ipcomps_outfail++;
+   ipcompstat_inc(ipcomps_outfail);
   do { _rw_exit_write(&netlock ); } while (0);
   return;
  }
  mo = m_makespace(m, skip, 4, &roff);
  if (mo == ((void *)0)) {
   ;
-  ipcompstat.ipcomps_wrap++;
+  ipcompstat_inc(ipcomps_wrap);
   goto baddone;
  }
  ipcomp = (struct ipcomp *)(((caddr_t)((mo)->m_hdr.mh_data)) + roff);
@@ -3740,13 +3770,13 @@ ipcomp_output_cb(struct cryptop *crp)
   break;
  default:
   ;
-  ipcompstat.ipcomps_nopf++;
+  ipcompstat_inc(ipcomps_nopf);
   goto baddone;
   break;
  }
  crypto_freereq(crp);
  if (ipsp_process_done(m, tdb))
-  ipcompstat.ipcomps_outfail++;
+  ipcompstat_inc(ipcomps_outfail);
  do { _rw_exit_write(&netlock ); } while (0);
  return;
 baddone:
