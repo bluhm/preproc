@@ -2015,7 +2015,6 @@ void if_down(struct ifnet *);
 void if_downall(void);
 void if_link_state_change(struct ifnet *);
 void if_up(struct ifnet *);
-int ifconf(u_long, caddr_t);
 void if_getdata(struct ifnet *, struct if_data *);
 void ifinit(void);
 int ifioctl(struct socket *, u_long, caddr_t, struct proc *);
