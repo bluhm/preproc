@@ -6692,11 +6692,11 @@ ip6_send_dispatch(void *xmq)
  mq_delist(mq, &ml);
  if (((&ml)->ml_len == 0))
   return;
- do { _rw_enter_write(&netlock ); } while (0);
+ do { _rw_enter_read(&netlock ); } while (0);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip6_output(m, ((void *)0), ((void *)0), 0x04, ((void *)0), ((void *)0));
  }
- do { _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_read(&netlock ); } while (0);
 }
 void
 ip6_send(struct mbuf *m)

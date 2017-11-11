@@ -3091,7 +3091,7 @@ mld6_checktimer(struct ifnet *ifp)
 {
  struct in6_multi *in6m;
  struct ifmaddr *ifma;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((ifma) = ((&ifp->if_maddrlist)->tqh_first); (ifma) != ((void *)0); (ifma) = ((ifma)->ifma_list.tqe_next)) {
   if (ifma->ifma_addr->sa_family != 24)
    continue;

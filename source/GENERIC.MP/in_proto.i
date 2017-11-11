@@ -4123,12 +4123,42 @@ struct etherip_header {
  u_int eip_res:4;
  u_int8_t eip_pad;
 } __attribute__((__packed__));
+enum etheripstat_counters {
+ etherips_hdrops,
+ etherips_qfull,
+ etherips_noifdrops,
+ etherips_pdrops,
+ etherips_adrops,
+ etherips_ipackets,
+ etherips_opackets,
+ etherips_ibytes,
+ etherips_obytes,
+ etherips_ncounters
+};
+extern struct cpumem *etheripcounters;
+static inline void
+etheripstat_inc(enum etheripstat_counters c)
+{
+ counters_inc(etheripcounters, c);
+}
+static inline void
+etheripstat_add(enum etheripstat_counters c, uint64_t v)
+{
+ counters_add(etheripcounters, c, v);
+}
+static inline void
+etheripstat_pkt(enum etheripstat_counters pcounter,
+    enum etheripstat_counters bcounter, uint64_t v)
+{
+ counters_pkt(etheripcounters, pcounter, bcounter, v);
+}
 struct tdb;
+void etherip_init(void);
 int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
 int etherip_input(struct mbuf **, int *, int, int);
 int etherip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int etherip_sysctl_etheripstat(void *, size_t *, void *);
 extern int etherip_allow;
-extern struct etheripstat etheripstat;
 struct ipipstat {
     u_int64_t ipips_ipackets;
     u_int64_t ipips_opackets;
@@ -5620,6 +5650,7 @@ struct protosw inetsw[] = {
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
   .pr_detach = rip_detach,
+  .pr_init = etherip_init,
   .pr_sysctl = etherip_sysctl
 },
 {

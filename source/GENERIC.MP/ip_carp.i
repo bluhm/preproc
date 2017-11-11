@@ -5267,7 +5267,7 @@ carp_send_ad(struct carp_vhost_entry *vhe)
  int error, len, advbase, advskew;
  struct ifaddr *ifa;
  struct sockaddr sa;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc->sc_ac.ac_if.if_carp_ptr.carp_d == ((void *)0)) {
   sc->sc_ac.ac_if.if_data.ifi_oerrors++;
   return;
@@ -5648,7 +5648,7 @@ void
 carp_master_down(struct carp_vhost_entry *vhe)
 {
  struct carp_softc *sc = vhe->parent_sc;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  switch (vhe->state) {
  case INIT:
   printf("%s: master_down event in INIT state\n",

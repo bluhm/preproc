@@ -3722,7 +3722,7 @@ rt_match(struct sockaddr *dst, uint32_t *src, int flags, unsigned int tableid)
 {
  struct rtentry *rt0, *rt = ((void *)0);
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rt = rtable_match(tableid, dst, src);
  if (rt != ((void *)0)) {
   if ((rt->rt_flags & 0x100) && ((flags) & (1))) {
@@ -3808,7 +3808,7 @@ int
 rt_setgwroute(struct rtentry *rt, u_int rtableid)
 {
  struct rtentry *nhrt;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ((((rt->rt_flags) & (0x2))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 378, "ISSET(rt->rt_flags, RTF_GATEWAY)"));
  nhrt = rt_match(rt->rt_gateway, ((void *)0), 1, rtable_l2(rtableid));
  if (nhrt == ((void *)0))
@@ -3834,7 +3834,7 @@ void
 rt_putgwroute(struct rtentry *rt)
 {
  struct rtentry *nhrt = rt->RT_gw._nh;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!((rt->rt_flags) & (0x2)) || nhrt == ((void *)0))
   return;
  ((((nhrt->rt_flags) & (0x20000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 438, "ISSET(nhrt->rt_flags, RTF_CACHED)"));
@@ -3900,7 +3900,7 @@ rtredirect(struct sockaddr *dst, struct sockaddr *gateway,
  unsigned int ifidx = 0;
  int flags = 0x2|0x4;
  uint8_t prio = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rt = rtalloc(gateway, 0, rdomain);
  if (!rtisvalid(rt) || ((rt->rt_flags) & (0x2))) {
   rtfree(rt);
@@ -4031,7 +4031,7 @@ rtrequest_delete(struct rt_addrinfo *info, u_int8_t prio, struct ifnet *ifp,
 {
  struct rtentry *rt;
  int error;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!rtable_exists(tableid))
   return (47);
  rt = rtable_lookup(tableid, info->rti_info[0],
@@ -4075,7 +4075,7 @@ rtrequest(int req, struct rt_addrinfo *info, u_int8_t prio,
  struct sockaddr_dl sa_dl = { sizeof(sa_dl), 18 };
  int dlen, error;
  struct sockaddr_mpls *sa_mpls;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!rtable_exists(tableid))
   return (47);
  if (info->rti_flags & 0x4)
@@ -4451,7 +4451,7 @@ void
 rt_timer_queue_destroy(struct rttimer_queue *rtq)
 {
  struct rttimer *r;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  while ((r = ((&rtq->rtq_head)->tqh_first)) != ((void *)0)) {
   do { if ((r)->rtt_link.le_next != ((void *)0)) (r)->rtt_link.le_next->rtt_link.le_prev = (r)->rtt_link.le_prev; *(r)->rtt_link.le_prev = (r)->rtt_link.le_next; ((r)->rtt_link.le_prev) = ((void *)-1); ((r)->rtt_link.le_next) = ((void *)-1); } while (0);
   do { if (((r)->rtt_next.tqe_next) != ((void *)0)) (r)->rtt_next.tqe_next->rtt_next.tqe_prev = (r)->rtt_next.tqe_prev; else (&rtq->rtq_head)->tqh_last = (r)->rtt_next.tqe_prev; *(r)->rtt_next.tqe_prev = (r)->rtt_next.tqe_next; ((r)->rtt_next.tqe_prev) = ((void *)-1); ((r)->rtt_next.tqe_next) = ((void *)-1); } while (0);

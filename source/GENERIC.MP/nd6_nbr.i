@@ -3759,7 +3759,7 @@ nd6_na_input(struct mbuf *m, int off, int icmp6len)
  struct sockaddr_dl *sdl;
  union nd_opts ndopts;
  char addr[46], addr0[46];
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
  if (ifp == ((void *)0))
   goto freeit;
@@ -4084,7 +4084,7 @@ nd6_dad_start(struct ifaddr *ifa)
  struct in6_ifaddr *ia6 = ifatoia6(ifa);
  struct dadq *dp;
  char addr[46];
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!dad_init) {
   do { (&dadq)->tqh_first = ((void *)0); (&dadq)->tqh_last = &(&dadq)->tqh_first; } while (0);
   dad_init++;

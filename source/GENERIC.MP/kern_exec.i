@@ -5361,7 +5361,7 @@ sys_execve(struct proc *p, void *v, register_t *retval)
   if (attr.va_mode & 02000)
    cred->cr_gid = attr.va_gid;
   error = 0;
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
   for (i = 0; i < 3; i++) {
    struct file *fp = ((void *)0);
    fp = fd_getfile(p->p_fd, i);
@@ -5451,7 +5451,7 @@ bad:
  kill_vmcmds(&pack.ep_vmcmds);
  if (pack.ep_flags & 0x0002) {
   pack.ep_flags &= ~0x0002;
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
   (void) fdrelease(p, pack.ep_fd);
   _rw_exit_write(&(p->p_fd)->fd_lock );
  }

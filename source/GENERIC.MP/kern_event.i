@@ -4005,7 +4005,7 @@ sys_kqueue(struct proc *p, void *v, register_t *retval)
  struct kqueue *kq;
  struct file *fp;
  int fd, error;
- do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = falloc(p, 0, &fp, &fd);
  _rw_exit_write(&(fdp)->fd_lock );
  if (error)

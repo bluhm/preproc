@@ -3867,7 +3867,7 @@ struct radix_node_head *
 spd_table_get(unsigned int rtableid)
 {
  unsigned int rdomain;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (spd_tables == ((void *)0))
   return (((void *)0));
  rdomain = rtable_l2(rtableid);
@@ -3881,7 +3881,7 @@ spd_table_add(unsigned int rtableid)
  struct radix_node_head *rnh = ((void *)0);
  unsigned int rdomain;
  void *p;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rdomain = rtable_l2(rtableid);
  if (spd_tables == ((void *)0) || rdomain > spd_table_max) {
   if ((p = mallocarray(rdomain + 1, sizeof(*rnh),
@@ -3925,7 +3925,7 @@ ipsp_spd_lookup(struct mbuf *m, int af, int hlen, int *error, int direction,
  struct ipsec_ids *ids = ((void *)0);
  int signore = 0, dignore = 0;
  u_int rdomain = rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid);
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!ipsec_in_use && inp == ((void *)0)) {
   *error = 0;
   return ((void *)0);
@@ -4218,7 +4218,7 @@ ipsec_delete_policy(struct ipsec_policy *ipo)
  struct radix_node_head *rnh;
  struct radix_node *rn = (struct radix_node *)ipo;
  int err = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (--ipo->ipo_ref_count > 0)
   return 0;
  if ((rnh = spd_table_get(ipo->ipo_rdomain)) == ((void *)0) ||
@@ -4246,7 +4246,7 @@ ipsp_delete_acquire_timo(void *v)
 void
 ipsp_delete_acquire(struct ipsec_acquire *ipa)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  timeout_del(&ipa->ipa_timeout);
  do { if (((ipa)->ipa_next.tqe_next) != ((void *)0)) (ipa)->ipa_next.tqe_next->ipa_next.tqe_prev = (ipa)->ipa_next.tqe_prev; else (&ipsec_acquire_head)->tqh_last = (ipa)->ipa_next.tqe_prev; *(ipa)->ipa_next.tqe_prev = (ipa)->ipa_next.tqe_next; ((ipa)->ipa_next.tqe_prev) = ((void *)-1); ((ipa)->ipa_next.tqe_next) = ((void *)-1); } while (0);
  if (ipa->ipa_policy != ((void *)0))
@@ -4257,7 +4257,7 @@ struct ipsec_acquire *
 ipsp_pending_acquire(struct ipsec_policy *ipo, union sockaddr_union *gw)
 {
  struct ipsec_acquire *ipa;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((ipa) = ((&ipo->ipo_acquires)->tqh_first); (ipa) != ((void *)0); (ipa) = ((ipa)->ipa_ipo_next.tqe_next)) {
   if (!__builtin_memcmp((gw), (&ipa->ipa_addr), (gw->sa.sa_len)))
    return ipa;
@@ -4269,7 +4269,7 @@ ipsp_acquire_sa(struct ipsec_policy *ipo, union sockaddr_union *gw,
     union sockaddr_union *laddr, struct sockaddr_encap *ddst, struct mbuf *m)
 {
  struct ipsec_acquire *ipa;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if ((ipa = ipsp_pending_acquire(ipo, gw)) != ((void *)0))
   return 0;
  if (ipsec_acquire_pool_initialized == 0) {

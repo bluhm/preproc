@@ -5539,7 +5539,7 @@ tcp_ident(void *oldp, size_t *oldlenp, void *newp, size_t newlen, int dodrop)
  struct sockaddr_in *fin, *lin;
  struct sockaddr_in6 *fin6, *lin6;
  struct in6_addr f6, l6;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (dodrop) {
   if (oldp != ((void *)0) || *oldlenp != 0)
    return (22);

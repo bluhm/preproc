@@ -2000,7 +2000,7 @@ pfctlinput(int cmd, struct sockaddr *sa)
  struct domain *dp;
  struct protosw *pr;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
    if (pr->pr_ctlinput)

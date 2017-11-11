@@ -4619,7 +4619,7 @@ ip6_mrouter_done(struct socket *so)
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  struct ifnet *ifp;
  unsigned int rtableid = inp->inp_rtableid;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rtable_walk(rtableid, 24, mrouter6_rtwalk_delete, ((void *)0));
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rtableid)
@@ -4655,7 +4655,7 @@ add_m6if(struct socket *so, struct mif6ctl *mifcp)
  struct in6_ifreq ifr;
  int error;
  unsigned int rtableid = inp->inp_rtableid;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (mifcp->mif6c_mifi >= 64)
   return 22;
  if (mrt6_iflookupbymif(mifcp->mif6c_mifi, rtableid) != ((void *)0))
@@ -4689,7 +4689,7 @@ del_m6if(struct socket *so, mifi_t *mifip)
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (*mifip >= 64)
   return 22;
  if ((ifp = mrt6_iflookupbymif(*mifip, inp->inp_rtableid)) == ((void *)0))
@@ -4812,7 +4812,7 @@ add_m6fc(struct socket *so, struct mf6cctl *mfccp)
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  unsigned int rtableid = inp->inp_rtableid;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  return mf6c_add(mfccp, &mfccp->mf6cc_origin.sin6_addr,
      &mfccp->mf6cc_mcastgrp.sin6_addr, mfccp->mf6cc_parent,
      rtableid, 0x0001);
@@ -4823,7 +4823,7 @@ del_m6fc(struct socket *so, struct mf6cctl *mfccp)
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  struct rtentry *rt;
  unsigned int rtableid = inp->inp_rtableid;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  while ((rt = mf6c_find(((void *)0), &mfccp->mf6cc_origin.sin6_addr,
      &mfccp->mf6cc_mcastgrp.sin6_addr, rtableid)) != ((void *)0)) {
   rt_timer_remove_all(rt);
@@ -4851,7 +4851,7 @@ ip6_mforward(struct ip6_hdr *ip6, struct ifnet *ifp, struct mbuf *m)
  struct mbuf *mm;
  struct sockaddr_in6 sin6;
  unsigned int rtableid = ifp->if_data.ifi_rdomain;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim <= 1 || (((&ip6->ip6_dst)->__u6_addr.__u6_addr8[0] == 0xff) && (((&ip6->ip6_dst)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x01)) ||
      (((&ip6->ip6_dst)->__u6_addr.__u6_addr8[0] == 0xff) && (((&ip6->ip6_dst)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x02)))
   return 0;
@@ -4996,7 +4996,7 @@ phyint_send6(struct ifnet *ifp, struct ip6_hdr *ip6, struct mbuf *m)
  struct mbuf *mb_copy;
  struct sockaddr_in6 *dst6, sin6;
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  mb_copy = m_dup_pkt(m, max_linkhdr, 0x0002);
  if (mb_copy == ((void *)0))
   return;

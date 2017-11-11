@@ -7653,7 +7653,7 @@ syn_cache_insert(struct syn_cache *sc, struct tcpcb *tp)
  struct syn_cache_head *scp;
  struct syn_cache *sc2;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (set->scs_count == 0 && set->scs_use <= 0) {
   set->scs_use = tcp_syn_use_limit;
   if (set->scs_size != tcp_syn_hash_size) {
@@ -7756,7 +7756,7 @@ void
 syn_cache_cleanup(struct tcpcb *tp)
 {
  struct syn_cache *sc, *nsc;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for ((sc) = ((&tp->t_sc)->lh_first); (sc) && ((nsc) = ((sc)->sc_tpq.le_next), 1); (sc) = (nsc)) {
   if (sc->sc_tp != tp)
    panic("invalid sc_tp in syn_cache_cleanup");
@@ -7774,7 +7774,7 @@ syn_cache_lookup(struct sockaddr *src, struct sockaddr *dst,
  struct syn_cache_head *scp;
  u_int32_t hash;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  sets[0] = &tcp_syn_cache[tcp_syn_cache_active];
  sets[1] = &tcp_syn_cache[!tcp_syn_cache_active];
  for (i = 0; i < 2; i++) {
@@ -7805,7 +7805,7 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  struct mbuf *am;
  struct socket *oso;
  struct pf_divert *divert = ((void *)0);
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  sc = syn_cache_lookup(src, dst, &scp, ((struct inpcb *)(so)->so_pcb)->inp_rtableid);
  if (sc == ((void *)0))
   return (((void *)0));
@@ -7949,7 +7949,7 @@ syn_cache_reset(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
 {
  struct syn_cache *sc;
  struct syn_cache_head *scp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if ((sc = syn_cache_lookup(src, dst, &scp, rtableid)) == ((void *)0))
   return;
  if (((int)((th->th_seq)-(sc->sc_irs)) < 0) ||
@@ -7965,7 +7965,7 @@ syn_cache_unreach(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
 {
  struct syn_cache *sc;
  struct syn_cache_head *scp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if ((sc = syn_cache_lookup(src, dst, &scp, rtableid)) == ((void *)0))
   return;
  if (((__uint32_t)(th->th_seq)) != sc->sc_iss) {

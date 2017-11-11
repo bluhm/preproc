@@ -4152,7 +4152,7 @@ dopipe(struct proc *p, int *ufds, int flags)
  error = pipe_create(wpipe);
  if (error != 0)
   goto free1;
- do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = falloc(p, cloexec, &rf, &fds[0]);
  if (error != 0)
   goto free2;

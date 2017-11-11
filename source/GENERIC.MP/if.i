@@ -5584,7 +5584,7 @@ void
 if_attachsetup(struct ifnet *ifp)
 {
  unsigned long ifidx;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  do { (&ifp->if_groups)->tqh_first = ((void *)0); (&ifp->if_groups)->tqh_last = &(&ifp->if_groups)->tqh_first; } while (0);
  if_addgroup(ifp, "all");
  if_attachdomain(ifp);
@@ -5909,7 +5909,7 @@ if_input_process(void *xifidx)
   goto out;
  if (!((ifp->if_xflags) & (0x2)))
   enqueue_randomness(5, (int)(((&ml)->ml_len)));
- do { _rw_enter_write(&netlock ); } while (0);
+ do { _rw_enter_read(&netlock ); } while (0);
  s = _splraise(6);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   for ((ifih) = srp_enter((&sr), &(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_follow((&sr), &(ifih)->ifih_next.se_next)) {
@@ -5921,7 +5921,7 @@ if_input_process(void *xifidx)
    m_freem(m);
  }
  _splx(s);
- do { _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_read(&netlock ); } while (0);
 out:
  if_put(ifp);
 }
@@ -6060,7 +6060,7 @@ if_clone_create(const char *name, int rdomain)
  struct if_clone *ifc;
  struct ifnet *ifp;
  int unit, ret;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifc = if_clone_lookup(name, &unit);
  if (ifc == ((void *)0))
   return (22);
@@ -6082,7 +6082,7 @@ if_clone_destroy(const char *name)
  struct if_clone *ifc;
  struct ifnet *ifp;
  int ret;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifc = if_clone_lookup(name, ((void *)0));
  if (ifc == ((void *)0))
   return (22);
@@ -6323,7 +6323,7 @@ if_downall(void)
 void
 if_down(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp->if_flags &= ~0x1;
  getmicrotime(&ifp->if_data.ifi_lastchange);
  do { (void)ifq_purge(&ifp->if_snd); } while ( 0);
@@ -6332,7 +6332,7 @@ if_down(struct ifnet *ifp)
 void
 if_up(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp->if_flags |= 0x1;
  getmicrotime(&ifp->if_data.ifi_lastchange);
  if (ifp->if_index == rtable_loindex(ifp->if_data.ifi_rdomain))
@@ -6356,7 +6356,7 @@ if_linkstate_task(void *xifidx)
 void
 if_linkstate(struct ifnet *ifp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rtm_ifchg(ifp);
  rt_if_track(ifp);
  dohooks(ifp->if_linkstatehooks, 0);

@@ -6362,7 +6362,7 @@ in_ouraddr(struct mbuf *m, struct ifnet *ifp, struct rtentry **prt)
    return (0);
   if (ifp->if_data.ifi_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid))
    return (0);
-  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+  do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
   for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
    if (ifa->ifa_addr->sa_family != 2)
     continue;
@@ -7087,11 +7087,11 @@ ip_send_dispatch(void *xmq)
  mq_delist(mq, &ml);
  if (((&ml)->ml_len == 0))
   return;
- do { _rw_enter_write(&netlock ); } while (0);
+ do { _rw_enter_read(&netlock ); } while (0);
  while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   ip_output(m, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), 0);
  }
- do { _rw_exit_write(&netlock ); } while (0);
+ do { _rw_exit_read(&netlock ); } while (0);
 }
 void
 ip_send(struct mbuf *m)

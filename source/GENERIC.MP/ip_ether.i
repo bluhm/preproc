@@ -3857,12 +3857,42 @@ struct etherip_header {
  u_int eip_res:4;
  u_int8_t eip_pad;
 } __attribute__((__packed__));
+enum etheripstat_counters {
+ etherips_hdrops,
+ etherips_qfull,
+ etherips_noifdrops,
+ etherips_pdrops,
+ etherips_adrops,
+ etherips_ipackets,
+ etherips_opackets,
+ etherips_ibytes,
+ etherips_obytes,
+ etherips_ncounters
+};
+extern struct cpumem *etheripcounters;
+static inline void
+etheripstat_inc(enum etheripstat_counters c)
+{
+ counters_inc(etheripcounters, c);
+}
+static inline void
+etheripstat_add(enum etheripstat_counters c, uint64_t v)
+{
+ counters_add(etheripcounters, c, v);
+}
+static inline void
+etheripstat_pkt(enum etheripstat_counters pcounter,
+    enum etheripstat_counters bcounter, uint64_t v)
+{
+ counters_pkt(etheripcounters, pcounter, bcounter, v);
+}
 struct tdb;
+void etherip_init(void);
 int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
 int etherip_input(struct mbuf **, int *, int, int);
 int etherip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int etherip_sysctl_etheripstat(void *, size_t *, void *);
 extern int etherip_allow;
-extern struct etheripstat etheripstat;
 struct ether_addr {
  u_int8_t ether_addr_octet[6];
 };
@@ -5576,7 +5606,12 @@ void etherip_decap(struct mbuf *, int);
 void mplsip_decap(struct mbuf *, int);
 struct gif_softc *etherip_getgif(struct mbuf *);
 int etherip_allow = 0;
-struct etheripstat etheripstat;
+struct cpumem *etheripcounters;
+void
+etherip_init(void)
+{
+ etheripcounters = counters_alloc(etherips_ncounters);
+}
 int
 etherip_input(struct mbuf **mp, int *offp, int proto, int af)
 {
@@ -5584,7 +5619,7 @@ etherip_input(struct mbuf **mp, int *offp, int proto, int af)
  case 97:
   if (!etherip_allow && ((*mp)->m_hdr.mh_flags & (0x0800|0x0400)) == 0) {
    ;
-   etheripstat.etherips_pdrops++;
+   etheripstat_inc(etherips_pdrops);
    m_freemp(mp);
    return 257;
   }
@@ -5595,7 +5630,7 @@ etherip_input(struct mbuf **mp, int *offp, int proto, int af)
   return 257;
  default:
   ;
-  etheripstat.etherips_pdrops++;
+  etheripstat_inc(etherips_pdrops);
   m_freemp(mp);
   return 257;
  }
@@ -5606,11 +5641,11 @@ etherip_decap(struct mbuf *m, int iphlen)
  struct etherip_header eip;
  struct gif_softc *sc;
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- etheripstat.etherips_ipackets++;
+ etheripstat_inc(etherips_ipackets);
  if (m->M_dat.MH.MH_pkthdr.len < iphlen + sizeof(struct ether_header) +
      sizeof(struct etherip_header)) {
   ;
-  etheripstat.etherips_hdrops++;
+  etheripstat_inc(etherips_hdrops);
   m_freem(m);
   return;
  }
@@ -5618,13 +5653,13 @@ etherip_decap(struct mbuf *m, int iphlen)
  if (eip.eip_ver == 0x03) {
  } else {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return;
  }
  if (eip.eip_pad) {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return;
  }
@@ -5633,7 +5668,7 @@ etherip_decap(struct mbuf *m, int iphlen)
   if ((m = m_pullup(m, iphlen + sizeof(struct ether_header) +
       sizeof(struct etherip_header))) == ((void *)0)) {
    ;
-   etheripstat.etherips_adrops++;
+   etheripstat_inc(etherips_adrops);
    return;
   }
  }
@@ -5642,12 +5677,12 @@ etherip_decap(struct mbuf *m, int iphlen)
   return;
  if (sc->gif_if.if_bridgeport == ((void *)0)) {
   ;
-  etheripstat.etherips_noifdrops++;
+  etheripstat_inc(etherips_noifdrops);
   m_freem(m);
   return;
  }
  m_adj(m, iphlen + sizeof(struct etherip_header));
- etheripstat.etherips_ibytes += m->M_dat.MH.MH_pkthdr.len;
+ etheripstat_add(etherips_ibytes, m->M_dat.MH.MH_pkthdr.len);
  m->m_hdr.mh_flags &= ~(0x0100|0x0200|0x0800|0x0400|0x0010);
  pf_pkt_addr_changed(m);
  ml_enqueue(&ml, m);
@@ -5657,10 +5692,10 @@ void
 mplsip_decap(struct mbuf *m, int iphlen)
 {
  struct gif_softc *sc;
- etheripstat.etherips_ipackets++;
+ etheripstat_inc(etherips_ipackets);
  if (m->M_dat.MH.MH_pkthdr.len < iphlen + sizeof(struct shim_hdr)) {
   ;
-  etheripstat.etherips_hdrops++;
+  etheripstat_inc(etherips_hdrops);
   m_freem(m);
   return;
  }
@@ -5668,7 +5703,7 @@ mplsip_decap(struct mbuf *m, int iphlen)
   if ((m = m_pullup(m, iphlen + sizeof(struct shim_hdr))) ==
       ((void *)0)) {
    ;
-   etheripstat.etherips_adrops++;
+   etheripstat_inc(etherips_adrops);
    return;
   }
  }
@@ -5676,7 +5711,7 @@ mplsip_decap(struct mbuf *m, int iphlen)
  if (sc == ((void *)0))
   return;
  m_adj(m, iphlen);
- etheripstat.etherips_ibytes += m->M_dat.MH.MH_pkthdr.len;
+ etheripstat_add(etherips_ibytes, m->M_dat.MH.MH_pkthdr.len);
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  if (sc->gif_if.if_bpf)
   bpf_mtap_af(sc->gif_if.if_bpf, 33, m, 1);
@@ -5718,7 +5753,7 @@ etherip_getgif(struct mbuf *m)
  default:
   ;
   m_freem(m);
-  etheripstat.etherips_hdrops++;
+  etheripstat_inc(etherips_hdrops);
   return ((void *)0);
  }
  for((sc) = ((&gif_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->gif_list.le_next)) {
@@ -5732,7 +5767,7 @@ etherip_getgif(struct mbuf *m)
  }
  if (sc == ((void *)0)) {
   ;
-  etheripstat.etherips_noifdrops++;
+  etheripstat_inc(etherips_noifdrops);
   m_freem(m);
   return ((void *)0);
  }
@@ -5749,20 +5784,20 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
      (tdb->tdb_src.sa.sa_family != 2) &&
      (tdb->tdb_src.sa.sa_family != 24)) {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
  if ((tdb->tdb_dst.sa.sa_family != 2) &&
      (tdb->tdb_dst.sa.sa_family != 24)) {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
  if (tdb->tdb_dst.sa.sa_family != tdb->tdb_src.sa.sa_family) {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
@@ -5775,7 +5810,7 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
   break;
  default:
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
@@ -5784,7 +5819,7 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
  (m) = m_prepend((m), (hlen), (0x0002));
  if (m == ((void *)0)) {
   ;
-  etheripstat.etherips_adrops++;
+  etheripstat_inc(etherips_adrops);
   return 55;
  }
  if ((long)((caddr_t)((m)->m_hdr.mh_data)) & 0x03) {
@@ -5794,8 +5829,8 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
   m->m_hdr.mh_data -= off;
   __builtin_memmove((((caddr_t)((m)->m_hdr.mh_data))), (((caddr_t)((m)->m_hdr.mh_data)) + off), (m->m_hdr.mh_len));
  }
- etheripstat.etherips_opackets++;
- etheripstat.etherips_obytes += m->M_dat.MH.MH_pkthdr.len - hlen;
+ etheripstat_pkt(etherips_opackets, etherips_obytes,
+     m->M_dat.MH.MH_pkthdr.len - hlen);
  switch (tdb->tdb_dst.sa.sa_family) {
  case 2:
   ipo = ((struct ip *)((m)->m_hdr.mh_data));
@@ -5848,14 +5883,19 @@ etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   do { _rw_exit_write(&netlock ); } while (0);
   return (error);
  case 2:
-  if (newp != ((void *)0))
-   return (1);
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_struct(oldp, oldlenp, newp, newlen,
-      &etheripstat, sizeof(etheripstat));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
+  return (etherip_sysctl_etheripstat(oldp, oldlenp, newp));
  default:
   return (42);
  }
+}
+int
+etherip_sysctl_etheripstat(void *oldp, size_t *oldlenp, void *newp)
+{
+ struct etheripstat etheripstat;
+ extern char _ctassert[(sizeof(etheripstat) == (etherips_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
+ __builtin_memset((&etheripstat), (0), (sizeof etheripstat));
+ counters_read(etheripcounters, (uint64_t *)&etheripstat,
+     etherips_ncounters);
+ return (sysctl_rdstruct(oldp, oldlenp, newp, &etheripstat,
+     sizeof(etheripstat)));
 }

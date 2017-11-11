@@ -5943,7 +5943,7 @@ ip_output(struct mbuf *m0, struct mbuf *opt, struct route *ro, int flags,
  struct tdb *tdb = ((void *)0);
  u_long mtu;
  int rv;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (inp && (inp->inp_flags & 0x100) != 0)
   panic("ip_output: IPv6 pcb is passed");
  if ((m->m_hdr.mh_flags & 0x0002) == 0)
@@ -5990,7 +5990,7 @@ reroute:
   mtu = ifp->if_data.ifi_mtu;
   if (ip->ip_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
    struct in_ifaddr *ia;
-   do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+   do { struct ifaddr *ifa; do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
    if (ia != ((void *)0))
     ip->ip_src = ia->ia_addr.sin_addr;
   }
@@ -6057,7 +6057,7 @@ reroute:
   }
   if (ip->ip_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
    struct in_ifaddr *ia;
-   do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+   do { struct ifaddr *ifa; do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
    if (ia != ((void *)0))
     ip->ip_src = ia->ia_addr.sin_addr;
   }
@@ -7017,7 +7017,7 @@ ip_getmoptions(int optname, struct ip_moptions *imo, struct mbuf *m)
   if (imo == ((void *)0) || (ifp = if_get(imo->imo_ifidx)) == ((void *)0))
    addr->s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
   else {
-   do { struct ifaddr *ifa; do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+   do { struct ifaddr *ifa; do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
    if_put(ifp);
    addr->s_addr = (ia == ((void *)0)) ? ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))
      : ia->ia_addr.sin_addr.s_addr;

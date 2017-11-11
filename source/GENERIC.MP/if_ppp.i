@@ -3736,7 +3736,7 @@ pppintr(void)
  int s;
  struct ppp_pkt *pkt;
  struct mbuf *m;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((sc) = ((&ppp_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_list.le_next)) {
   if (!(sc->sc_flags & 0x10000000) &&
       (!(((&sc->sc_if.if_snd)->ifq_len) == 0))) {

@@ -2517,7 +2517,7 @@ yield(void)
 {
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  int s;
- do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0);
+ do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0);
  do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
  p->p_priority = p->p_usrpri;
  p->p_stat = 2;

@@ -4236,7 +4236,7 @@ void
 nd6_purge(struct ifnet *ifp)
 {
  struct llinfo_nd6 *ln, *nln;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for ((ln) = ((&nd6_list)->tqh_first); (ln) != ((void *)0) && ((nln) = ((ln)->ln_list.tqe_next), 1); (ln) = (nln)) {
   struct rtentry *rt;
   struct sockaddr_dl *sdl;
@@ -4345,7 +4345,7 @@ nd6_free(struct rtentry *rt)
  struct llinfo_nd6 *ln = (struct llinfo_nd6 *)rt->rt_llinfo;
  struct in6_addr in6 = satosin6(((rt)->rt_dest))->sin6_addr;
  struct ifnet *ifp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp = if_get(rt->rt_ifidx);
  if (!ip6_forwarding) {
   if (ln->ln_router) {
@@ -4521,7 +4521,7 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
  struct in6_nbrinfo *nbi = (struct in6_nbrinfo *)data;
  struct rtentry *rt;
  int error = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
   ndi->ndi = *(((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);

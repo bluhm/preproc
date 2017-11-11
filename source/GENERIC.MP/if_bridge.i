@@ -6256,7 +6256,7 @@ bridge_ipsec(struct bridge_softc *sc, struct ifnet *ifp,
    spi = ((__uint32_t)(((__uint16_t)(cpi))));
    break;
   }
-  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+  do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
   tdb = gettdb(ifp->if_data.ifi_rdomain, spi, &dst, proto);
   if (tdb != ((void *)0) && (tdb->tdb_flags & 0x00010) == 0 &&
       tdb->tdb_xform != ((void *)0)) {

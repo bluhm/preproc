@@ -2218,7 +2218,7 @@ soassertlocked(struct socket *so)
  switch (so->so_proto->pr_domain->dom_family) {
  case 2:
  case 24:
-  do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+  do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
   break;
  case 1:
  case 17:

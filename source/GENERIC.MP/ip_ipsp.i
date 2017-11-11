@@ -4949,7 +4949,7 @@ tdb_hash(u_int rdomain, u_int32_t spi, union sockaddr_union *dst,
     u_int8_t proto)
 {
  SIPHASH_CTX ctx;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  SipHash_Init((&ctx), (&tdbkey));
  SipHash_Update((&ctx), 2, 4, (&rdomain), (sizeof(rdomain)));
  SipHash_Update((&ctx), 2, 4, (&spi), (sizeof(spi)));
@@ -4965,7 +4965,7 @@ reserve_spi(u_int rdomain, u_int32_t sspi, u_int32_t tspi,
  struct tdb *tdbp, *exists;
  u_int32_t spi;
  int nums;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sproto != 108 &&
      (tspi < sspi || tspi <= 255)) {
   (*errval) = 22;
@@ -5030,7 +5030,7 @@ gettdb(u_int rdomain, u_int32_t spi, union sockaddr_union *dst, u_int8_t proto)
 {
  u_int32_t hashval;
  struct tdb *tdbp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbh == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, spi, dst, proto);
@@ -5048,7 +5048,7 @@ gettdbbysrcdst(u_int rdomain, u_int32_t spi, union sockaddr_union *src,
  u_int32_t hashval;
  struct tdb *tdbp;
  union sockaddr_union su_null;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbsrc == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, src, proto);
@@ -5102,7 +5102,7 @@ gettdbbydst(u_int rdomain, union sockaddr_union *dst, u_int8_t sproto,
 {
  u_int32_t hashval;
  struct tdb *tdbp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbdst == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, dst, sproto);
@@ -5124,7 +5124,7 @@ gettdbbysrc(u_int rdomain, union sockaddr_union *src, u_int8_t sproto,
 {
  u_int32_t hashval;
  struct tdb *tdbp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbsrc == ((void *)0))
   return (struct tdb *) ((void *)0);
  hashval = tdb_hash(rdomain, 0, src, sproto);
@@ -5168,7 +5168,7 @@ tdb_walk(u_int rdomain, int (*walker)(struct tdb *, void *, int), void *arg)
 {
  int i, rval = 0;
  struct tdb *tdbp, *next;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbh == ((void *)0))
   return 2;
  for (i = 0; i <= tdb_hashmask; i++)
@@ -5236,7 +5236,7 @@ tdb_rehash(void)
  struct tdb **new_tdbh, **new_tdbdst, **new_srcaddr, *tdbp, *tdbnp;
  u_int i, old_hashmask = tdb_hashmask;
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  tdb_hashmask = (tdb_hashmask << 1) | 1;
  arc4random_buf(&tdbkey, sizeof(tdbkey));
  new_tdbh = mallocarray(tdb_hashmask + 1, sizeof(struct tdb *), 75,
@@ -5282,7 +5282,7 @@ void
 puttdb(struct tdb *tdbp)
 {
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbh == ((void *)0)) {
   arc4random_buf(&tdbkey, sizeof(tdbkey));
   tdbh = mallocarray(tdb_hashmask + 1, sizeof(struct tdb *),
@@ -5318,7 +5318,7 @@ tdb_unlink(struct tdb *tdbp)
 {
  struct tdb *tdbpp;
  u_int32_t hashval;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbh == ((void *)0))
   return;
  hashval = tdb_hash(tdbp->tdb_rdomain, tdbp->tdb_spi,
@@ -5369,7 +5369,7 @@ tdb_unlink(struct tdb *tdbp)
 void
 tdb_delete(struct tdb *tdbp)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  tdb_unlink(tdbp);
  tdb_free(tdbp);
 }
@@ -5377,7 +5377,7 @@ struct tdb *
 tdb_alloc(u_int rdomain)
 {
  struct tdb *tdbp;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  tdbp = malloc(sizeof(*tdbp), 75, 0x0001 | 0x0008);
  do { (&tdbp->tdb_policy_head)->tqh_first = ((void *)0); (&tdbp->tdb_policy_head)->tqh_last = &(&tdbp->tdb_policy_head)->tqh_first; } while (0);
  tdbp->tdb_established = time_second;
@@ -5392,7 +5392,7 @@ void
 tdb_free(struct tdb *tdbp)
 {
  struct ipsec_policy *ipo;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (tdbp->tdb_xform) {
   (*(tdbp->tdb_xform->xf_zeroize))(tdbp);
   tdbp->tdb_xform = ((void *)0);
@@ -5467,7 +5467,7 @@ ipsp_ids_insert(struct ipsec_ids *ids)
 {
  struct ipsec_ids *found;
  u_int32_t start_flow;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  found = ipsec_ids_tree_RBT_INSERT(&ipsec_ids_tree, ids);
  if (found) {
   if (found->id_refcount++ == 0)
@@ -5496,7 +5496,7 @@ struct ipsec_ids *
 ipsp_ids_lookup(u_int32_t ipsecflowinfo)
 {
  struct ipsec_ids key;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  key.id_flow = ipsecflowinfo;
  return ipsec_ids_flows_RBT_FIND(&ipsec_ids_flows, &key);
 }

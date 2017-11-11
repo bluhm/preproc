@@ -4563,7 +4563,7 @@ pflogifs_resize(size_t n)
 {
  struct ifnet **p;
  int i;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (n > 0xffffffffffffffffUL / sizeof(*p))
   return (22);
  if (n == 0)

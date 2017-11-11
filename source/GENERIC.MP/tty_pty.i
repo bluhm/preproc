@@ -4317,7 +4317,7 @@ ptmioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
  struct ptmget *ptm = (struct ptmget *)data;
  switch (cmd) {
  case ((unsigned long)0x40000000 | ((sizeof(struct ptmget) & 0x1fff) << 16) | ((('t')) << 8) | ((1))):
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   if ((error = falloc(p, 0, &cfp, &cindx)) != 0) {
    _rw_exit_write(&(fdp)->fd_lock );
    break;

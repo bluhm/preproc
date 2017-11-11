@@ -5574,7 +5574,7 @@ pipex_add_session(struct pipex_session_req *req,
    return (22);
   }
  }
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!((session->ip_address.sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
   if (pipex_lookup_by_ip_address(session->ip_address.sin_addr)
       != ((void *)0)) {
@@ -5613,7 +5613,7 @@ pipex_add_session(struct pipex_session_req *req,
 int
 pipex_notify_close_session(struct pipex_session *session)
 {
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  session->state = 0x0002;
  session->stat.idle_time = 0;
  do { if (((session)->state_list.le_next = (&pipex_close_wait_list)->lh_first) != ((void *)0)) (&pipex_close_wait_list)->lh_first->state_list.le_prev = &(session)->state_list.le_next; (&pipex_close_wait_list)->lh_first = (session); (session)->state_list.le_prev = &(&pipex_close_wait_list)->lh_first; } while (0);
@@ -5623,7 +5623,7 @@ int
 pipex_notify_close_session_all(void)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((session) = ((&pipex_session_list)->lh_first); (session)!= ((void *)0); (session) = ((session)->session_list.le_next))
   if (session->state == 0x0001)
    pipex_notify_close_session(session);
@@ -5633,7 +5633,7 @@ pipex_notify_close_session_all(void)
 pipex_close_session(struct pipex_session_close_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0))
@@ -5648,7 +5648,7 @@ pipex_close_session(struct pipex_session_close_req *req)
 pipex_config_session(struct pipex_session_config_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0))
@@ -5660,7 +5660,7 @@ pipex_config_session(struct pipex_session_config_req *req)
 pipex_get_stat(struct pipex_session_stat_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  session = pipex_lookup_by_session_id(req->psr_protocol,
      req->psr_session_id);
  if (session == ((void *)0)) {
@@ -5673,7 +5673,7 @@ pipex_get_stat(struct pipex_session_stat_req *req)
 pipex_get_closed(struct pipex_session_list_req *req)
 {
  struct pipex_session *session;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  __builtin_bzero((req), (sizeof(*req)));
  while (!(((&pipex_close_wait_list)->lh_first) == ((void *)0))) {
   session = ((&pipex_close_wait_list)->lh_first);
@@ -5692,7 +5692,7 @@ pipex_get_closed(struct pipex_session_list_req *req)
 pipex_destroy_session(struct pipex_session *session)
 {
  struct radix_node *rn;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!((session->ip_address.sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
   rn = rn_delete(&session->ip_address, &session->ip_netmask,
       pipex_rd_head4, (struct radix_node *)session);

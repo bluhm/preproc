@@ -5223,7 +5223,7 @@ ipsec_adjust_mtu(struct mbuf *m, u_int32_t mtu)
  struct tdb *tdbp;
  struct m_tag *mtag;
  ssize_t adjust;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for (mtag = m_tag_find(m, 0x0002, ((void *)0)); mtag;
       mtag = m_tag_find(m, 0x0002, mtag)) {
   tdbi = (struct tdb_ident *)(mtag + 1);

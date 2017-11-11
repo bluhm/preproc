@@ -2767,7 +2767,7 @@ check_shell:
   struct file *fp;
   if (epp->ep_flags & 0x0002)
    panic("exec_script_makecmds: epp already has a fd");
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
   error = falloc(p, 0, &fp, &epp->ep_fd);
   _rw_exit_write(&(p->p_fd)->fd_lock );
   if (error)
@@ -2823,7 +2823,7 @@ fail:
  epp->ep_flags |= 0x0010;
  if (epp->ep_flags & 0x0002) {
   epp->ep_flags &= ~0x0002;
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
   (void) fdrelease(p, epp->ep_fd);
   _rw_exit_write(&(p->p_fd)->fd_lock );
  } else

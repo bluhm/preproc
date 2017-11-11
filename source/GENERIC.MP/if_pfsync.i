@@ -6707,7 +6707,7 @@ void
 pfsync_update_net_tdb(struct pfsync_tdb *pt)
 {
  struct tdb *tdb;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (((__uint32_t)(pt->spi)) <= 255 ||
      (pt->dst.sa.sa_family != 2 &&
       pt->dst.sa.sa_family != 24))
@@ -7078,7 +7078,7 @@ void
 pfsync_insert_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (((st->rule.ptr->rule_flag) & (0x0010)) ||
      st->key[PF_SK_WIRE]->proto == 240) {
   ((st->state_flags) |= (0x0008));
@@ -7097,7 +7097,7 @@ pfsync_defer(struct pf_state *st, struct mbuf *m)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!sc->sc_defer ||
      ((st->state_flags) & (0x0008)) ||
      m->m_hdr.mh_flags & (0x0100|0x0200))
@@ -7126,7 +7126,7 @@ pfsync_undefer(struct pfsync_deferral *pd, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pf_pdesc pdesc;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  do { if (((pd)->pd_entry.tqe_next) != ((void *)0)) (pd)->pd_entry.tqe_next->pd_entry.tqe_prev = (pd)->pd_entry.tqe_prev; else (&sc->sc_deferrals)->tqh_last = (pd)->pd_entry.tqe_prev; *(pd)->pd_entry.tqe_prev = (pd)->pd_entry.tqe_next; ((pd)->pd_entry.tqe_prev) = ((void *)-1); ((pd)->pd_entry.tqe_next) = ((void *)-1); } while (0);
  sc->sc_deferred--;
  ((pd->pd_st->state_flags) &= ~(0x0010));
@@ -7180,7 +7180,7 @@ pfsync_deferred(struct pf_state *st, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((pd) = ((&sc->sc_deferrals)->tqh_first); (pd) != ((void *)0); (pd) = ((pd)->pd_entry.tqe_next)) {
    if (pd->pd_st == st) {
    if (timeout_del(&pd->pd_tmo))
@@ -7195,7 +7195,7 @@ pfsync_update_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int sync = 0;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7325,7 +7325,7 @@ void
 pfsync_delete_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7361,7 +7361,7 @@ pfsync_clear_states(u_int32_t creatorid, const char *ifname)
   struct pfsync_subheader subh;
   struct pfsync_clr clr;
  } __attribute__((__packed__)) r;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  __builtin_bzero((&r), (sizeof(r)));

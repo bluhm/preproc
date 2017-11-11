@@ -4241,7 +4241,7 @@ sys_socket(struct proc *p, void *v, register_t *retval)
  error = pledge_socket(p, domain, ss);
  if (error)
   return (error);
- do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = falloc(p, (type & 0x8000) ? 0x01 : 0, &fp, &fd);
  _rw_exit_write(&(fdp)->fd_lock );
  if (error != 0)
@@ -4252,7 +4252,7 @@ sys_socket(struct proc *p, void *v, register_t *retval)
  error = socreate(((uap)->domain.be.datum), &so,
      type & ~(0x8000 | 0x4000 | 0x1000), ((uap)->protocol.be.datum));
  if (error) {
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   fdremove(fdp, fd);
   closef(fp, p);
   _rw_exit_write(&(fdp)->fd_lock );
@@ -4388,7 +4388,7 @@ doaccept(struct proc *p, int sock, struct sockaddr *name, socklen_t *anamelen,
  if ((error = getsock(p, sock, &fp)) != 0)
   return (error);
  headfp = fp;
- do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = falloc(p, (flags & 0x8000) ? 0x01 : 0, &fp, &tmpfd);
  _rw_exit_write(&(fdp)->fd_lock );
  if (error) {
@@ -4449,7 +4449,7 @@ out:
  sounlock(s);
  m_freem(nam);
  if (error) {
-  do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   fdremove(fdp, tmpfd);
   closef(fp, p);
   _rw_exit_write(&(fdp)->fd_lock );
@@ -4551,7 +4551,7 @@ sys_socketpair(struct proc *p, void *v, register_t *retval)
   if (error != 0)
    goto free2;
  }
- do { do { if (rw_status(&netlock) == 0x0001UL) splassert_fail(0, rw_status(&netlock), __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = falloc(p, cloexec, &fp1, &sv[0])) != 0)
   goto free3;
  fp1->f_flag = fflag;

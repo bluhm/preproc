@@ -2774,7 +2774,7 @@ void
 pppoeintr(void)
 {
  struct mbuf *m;
- do { if (rw_status(&netlock) != 0x0001UL) splassert_fail(0x0001UL, rw_status(&netlock), __func__);} while (0);
+ do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
  while ((m = mq_dequeue(&(&pppoediscinq)->ni_q)) != ((void *)0))
   pppoe_disc_input(m);
  while ((m = mq_dequeue(&(&pppoeinq)->ni_q)) != ((void *)0))
