@@ -5463,7 +5463,7 @@ void net_tick(void *);
 int net_livelocked(void);
 int ifq_congestion;
 int netisr;
-struct taskq *softnettq[1];
+struct taskq *nettqmp[1];
 struct task if_input_task_locked = {{ ((void *)0), ((void *)0) }, (if_netisr), (((void *)0)), 0 };
 struct rwlock netlock = { 0, "netlock" };
 void
@@ -5473,9 +5473,9 @@ ifinit(void)
  if_idxmap_init(8);
  timeout_set(&net_tick_to, net_tick, &net_tick_to);
  for (i = 0; i < 1; i++) {
-  softnettq[i] = taskq_create("softnet", 1, 6, (1 << 0));
-  if (softnettq[i] == ((void *)0))
-   panic("unable to create softnet taskq");
+  nettqmp[i] = taskq_create("softnet", 1, 6, (1 << 0));
+  if (nettqmp[i] == ((void *)0))
+   panic("unable to create network taskq %d", i);
  }
  net_tick(&net_tick_to);
 }
@@ -7381,10 +7381,11 @@ unhandled_af(int af)
 {
  panic("unhandled af %d", af);
 }
+int nettaskqs = 1;
 struct taskq *
 net_tq(unsigned int ifindex)
 {
  struct taskq *t = ((void *)0);
- t = softnettq[ifindex % 1];
+ t = nettqmp[ifindex % nettaskqs];
  return (t);
 }

@@ -5969,6 +5969,8 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    }
    do { if (((ipo)->ipo_list.tqe_next = (&ipsec_policy_head)->tqh_first) != ((void *)0)) (&ipsec_policy_head)->tqh_first->ipo_list.tqe_prev = &(ipo)->ipo_list.tqe_next; else (&ipsec_policy_head)->tqh_last = &(ipo)->ipo_list.tqe_next; (&ipsec_policy_head)->tqh_first = (ipo); (ipo)->ipo_list.tqe_prev = &(&ipsec_policy_head)->tqh_first; } while (0);
    ipsec_in_use++;
+   extern int nettaskqs;
+   nettaskqs = 1;
   } else {
    ipo->ipo_last_searched = ipo->ipo_flags = 0;
   }
