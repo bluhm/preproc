@@ -5388,7 +5388,7 @@ doopenat(struct proc *p, int fd, const char *path, int oflags, mode_t mode,
   if (error != 0)
    return (error);
  }
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = falloc(p, (oflags & 0x10000) ? 0x01 : 0, &fp,
      &indx)) != 0)
   goto out;
@@ -5523,7 +5523,7 @@ sys_fhopen(struct proc *p, void *v, register_t *retval)
   return (22);
  if ((flags & 0x0200))
   return (22);
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = falloc(p, (flags & 0x10000) ? 0x01 : 0, &fp,
      &indx)) != 0) {
   fp = ((void *)0);

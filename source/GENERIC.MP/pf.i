@@ -1535,6 +1535,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -5228,6 +5229,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -5315,6 +5322,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -5388,12 +5396,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -6062,6 +6064,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -7252,8 +7255,6 @@ struct pf_test_ctx {
 struct pool pf_src_tree_pl, pf_rule_pl, pf_queue_pl;
 struct pool pf_state_pl, pf_state_key_pl, pf_state_item_pl;
 struct pool pf_rule_item_pl, pf_sn_item_pl;
-void pf_init_threshold(struct pf_threshold *, u_int32_t,
-       u_int32_t);
 void pf_add_threshold(struct pf_threshold *);
 int pf_check_threshold(struct pf_threshold *);
 int pf_check_tcp_cksum(struct mbuf *, int, int,
@@ -7688,7 +7689,7 @@ pf_state_key_attach(struct pf_state_key *sk, struct pf_state *s, int idx)
  struct pf_state_item *si;
  struct pf_state_key *cur;
  struct pf_state *olds = ((void *)0);
- ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 698, "s->key[idx] == NULL"));
+ ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 703, "s->key[idx] == NULL"));
  if ((cur = pf_state_tree_RB_INSERT(&pf_statetbl, sk)) != ((void *)0)) {
   for((si) = ((&cur->states)->tqh_first); (si) != ((void *)0); (si) = ((si)->entry.tqe_next))
    if (si->s->kif == s->kif &&
@@ -8125,7 +8126,7 @@ pf_purge_expired_rules(void)
   return;
  while ((r = ((&pf_rule_gcl)->slh_first)) != ((void *)0)) {
   do { if ((&pf_rule_gcl)->slh_first == (r)) { do { ((&pf_rule_gcl))->slh_first = ((&pf_rule_gcl))->slh_first->gcle.sle_next; } while (0); } else { struct pf_rule *curelm = (&pf_rule_gcl)->slh_first; while (curelm->gcle.sle_next != (r)) curelm = curelm->gcle.sle_next; curelm->gcle.sle_next = curelm->gcle.sle_next->gcle.sle_next; } ((r)->gcle.sle_next) = ((void *)-1); } while (0);
-  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1217, "r->rule_flag & PFRULE_EXPIRED"));
+  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1222, "r->rule_flag & PFRULE_EXPIRED"));
   pf_purge_rule(r);
  }
 }
@@ -8138,7 +8139,7 @@ void
 pf_purge(void *xnloops)
 {
  int *nloops = xnloops;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1233);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1238);
  do { _rw_enter_write(&netlock ); } while (0);
  (void)(0);
  pf_purge_expired_states(1 + (pf_status.states
@@ -8165,8 +8166,8 @@ pf_state_expires(const struct pf_state *state)
  u_int32_t states;
  if (state->timeout == PFTM_PURGE)
   return (0);
- ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1273, "state->timeout != PFTM_UNLINKED"));
- ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1274, "state->timeout < PFTM_MAX"));
+ ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1278, "state->timeout != PFTM_UNLINKED"));
+ ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1279, "state->timeout < PFTM_MAX"));
  timeout = state->rule.ptr->timeout[state->timeout];
  if (!timeout)
   timeout = pf_default_rule.timeout[state->timeout];
@@ -8262,7 +8263,7 @@ pf_free_state(struct pf_state *cur)
  (void)(0);
  if (pfsync_state_in_use(cur))
   return;
- ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1396, "cur->timeout == PFTM_UNLINKED"));
+ ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1401, "cur->timeout == PFTM_UNLINKED"));
  if (--cur->rule.ptr->states_cur == 0 &&
      cur->rule.ptr->src_nodes == 0)
   pf_rm_rule(((void *)0), cur->rule.ptr);
@@ -9911,6 +9912,10 @@ pf_match_rule(struct pf_test_ctx *ctx, struct pf_ruleset *ruleset)
   if ((r->match_tag && !pf_match_tag(ctx->pd->m, r, &ctx->tag))) { r = ((r)->entries.tqe_next); continue; } else do { } while (0);
   if ((r->rcv_kif && pf_match_rcvif(ctx->pd->m, r) == r->rcvifnot)) { r = ((r)->entries.tqe_next); continue; } else do { } while (0);
   if ((r->prio && (r->prio == 0xff ? 0 : r->prio) != ctx->pd->m->M_dat.MH.MH_pkthdr.pf.prio)) { r = ((r)->entries.tqe_next); continue; } else do { } while (0);
+  if (r->pktrate.limit) {
+   pf_add_threshold(&r->pktrate);
+   if ((pf_check_threshold(&r->pktrate))) { r = ((r)->entries.tqe_next); continue; } else do { } while (0);
+  }
   if (r->tag)
    ctx->tag = r->tag;
   if (r->anchor == ((void *)0)) {
@@ -10766,7 +10771,7 @@ pf_test_state(struct pf_pdesc *pd, struct pf_state **state, u_short *reason)
  key.port[pd->sidx] = pd->osport;
  key.port[pd->didx] = pd->odport;
  inp = pd->m->M_dat.MH.MH_pkthdr.pf.inp;
- do { *state = pf_find_state(pd->kif, &key, pd->dir, pd->m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if (pd->dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd->kif) return (PF_PASS); } while (0);
+ do { *state = pf_find_state(pd->kif, &key, pd->dir, pd->m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if ((*state)->rule.ptr->pktrate.limit && pd->dir == (*state)->direction) { pf_add_threshold(&(*state)->rule.ptr->pktrate); if (pf_check_threshold(&(*state)->rule.ptr->pktrate)) { *state = ((void *)0); return (PF_DROP); } } if (pd->dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd->kif) return (PF_PASS); } while (0);
  if (pd->dir == (*state)->direction) {
   src = &(*state)->src;
   dst = &(*state)->dst;
@@ -10891,7 +10896,7 @@ pf_icmp_state_lookup(struct pf_pdesc *pd, struct pf_state_key_cmp *key,
  if (pf_state_key_addr_setup(pd, key, pd->sidx, pd->src, pd->didx,
      pd->dst, pd->af, multi))
   return (PF_DROP);
- do { *state = pf_find_state(pd->kif, key, pd->dir, pd->m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if (pd->dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd->kif) return (PF_PASS); } while (0);
+ do { *state = pf_find_state(pd->kif, key, pd->dir, pd->m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if ((*state)->rule.ptr->pktrate.limit && pd->dir == (*state)->direction) { pf_add_threshold(&(*state)->rule.ptr->pktrate); if (pf_check_threshold(&(*state)->rule.ptr->pktrate)) { *state = ((void *)0); return (PF_DROP); } } if (pd->dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd->kif) return (PF_PASS); } while (0);
  if ((*state)->state_flags & 0x0002)
   return (-1);
  if ((*state)->key[PF_SK_WIRE]->af != (*state)->key[PF_SK_STACK]->af)
@@ -11068,7 +11073,7 @@ pf_test_state_icmp(struct pf_pdesc *pd, struct pf_state **state,
    pf_addrcpy(&key.addr[pd2.didx], pd2.dst, key.af);
    key.port[pd2.sidx] = th->th_sport;
    key.port[pd2.didx] = th->th_dport;
-   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
+   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if ((*state)->rule.ptr->pktrate.limit && pd2.dir == (*state)->direction) { pf_add_threshold(&(*state)->rule.ptr->pktrate); if (pf_check_threshold(&(*state)->rule.ptr->pktrate)) { *state = ((void *)0); return (PF_DROP); } } if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
    if (pd2.dir == (*state)->direction) {
     if ((((*state)->key[PF_SK_WIRE]->af != (*state)->key[PF_SK_STACK]->af) && ((*state)->key[PF_SK_WIRE]->af != (pd->af)))) {
      src = &(*state)->src;
@@ -11214,7 +11219,7 @@ pf_test_state_icmp(struct pf_pdesc *pd, struct pf_state **state,
    pf_addrcpy(&key.addr[pd2.didx], pd2.dst, key.af);
    key.port[pd2.sidx] = uh->uh_sport;
    key.port[pd2.didx] = uh->uh_dport;
-   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
+   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if ((*state)->rule.ptr->pktrate.limit && pd2.dir == (*state)->direction) { pf_add_threshold(&(*state)->rule.ptr->pktrate); if (pf_check_threshold(&(*state)->rule.ptr->pktrate)) { *state = ((void *)0); return (PF_DROP); } } if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
    if ((*state)->key[PF_SK_WIRE] !=
        (*state)->key[PF_SK_STACK]) {
     struct pf_state_key *nk;
@@ -11478,7 +11483,7 @@ pf_test_state_icmp(struct pf_pdesc *pd, struct pf_state **state,
    pf_addrcpy(&key.addr[pd2.sidx], pd2.src, key.af);
    pf_addrcpy(&key.addr[pd2.didx], pd2.dst, key.af);
    key.port[0] = key.port[1] = 0;
-   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
+   do { *state = pf_find_state(pd2.kif, &key, pd2.dir, pd2.m); if (*state == ((void *)0) || (*state)->timeout == PFTM_PURGE) return (PF_DROP); if ((*state)->rule.ptr->pktrate.limit && pd2.dir == (*state)->direction) { pf_add_threshold(&(*state)->rule.ptr->pktrate); if (pf_check_threshold(&(*state)->rule.ptr->pktrate)) { *state = ((void *)0); return (PF_DROP); } } if (pd2.dir == PF_OUT && (((*state)->rule.ptr->rt == PF_ROUTETO && (*state)->rule.ptr->direction == PF_OUT) || ((*state)->rule.ptr->rt == PF_REPLYTO && (*state)->rule.ptr->direction == PF_IN)) && (*state)->rt_kif != ((void *)0) && (*state)->rt_kif != pd2.kif) return (PF_PASS); } while (0);
    if ((*state)->key[PF_SK_WIRE] !=
        (*state)->key[PF_SK_STACK]) {
     struct pf_state_key *nk =
@@ -12638,8 +12643,6 @@ pf_ouraddr(struct mbuf *m)
  if (sk != ((void *)0)) {
   if (sk->inp != ((void *)0))
    return (1);
-  if (sk->reverse != ((void *)0))
-   return (0);
  }
  return (-1);
 }
@@ -12659,7 +12662,7 @@ pf_inp_lookup(struct mbuf *m)
  else
   inp = m->M_dat.MH.MH_pkthdr.pf.statekey->inp;
  if (inp && inp->inp_pf_sk)
-  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7124, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
+  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7132, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
  return (inp);
 }
 void
@@ -12687,7 +12690,7 @@ pf_inp_unlink(struct inpcb *inp)
 void
 pf_state_key_link(struct pf_state_key *sk, struct pf_state_key *pkt_sk)
 {
- (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7167, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
+ (((pkt_sk->reverse == ((void *)0)) && (sk->reverse == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7175, "(pkt_sk->reverse == NULL) && (sk->reverse == NULL)"));
  pkt_sk->reverse = pf_state_key_ref(sk);
  sk->reverse = pf_state_key_ref(pkt_sk);
 }
@@ -12713,9 +12716,9 @@ void
 pf_state_key_unref(struct pf_state_key *sk)
 {
  if ((sk != ((void *)0)) && refcnt_rele(&(sk->refcnt))) {
-  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7203, "!pf_state_key_isvalid(sk)"));
-  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7205, "sk->reverse == NULL"));
-  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7207, "sk->inp == NULL"));
+  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7211, "!pf_state_key_isvalid(sk)"));
+  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7213, "sk->reverse == NULL"));
+  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7215, "sk->inp == NULL"));
   pool_put(&pf_state_key_pl, sk);
  }
 }

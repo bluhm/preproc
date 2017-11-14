@@ -1788,6 +1788,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3359,7 +3360,7 @@ nd6_rtr_cache(struct mbuf *m, int off, int icmp6len, int icmp6_type)
 void
 rt6_flush(struct in6_addr *gateway, struct ifnet *ifp)
 {
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!(((gateway)->__u6_addr.__u6_addr8[0] == 0xfe) && (((gateway)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80)))
   return;
  gateway->__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifp->if_index));

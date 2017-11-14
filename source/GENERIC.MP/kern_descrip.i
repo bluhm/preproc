@@ -2446,6 +2446,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -4479,7 +4480,7 @@ restart:
  if ((fp = fd_getfile(fdp, old)) == ((void *)0))
   return (9);
  do { (fp)->f_count++; } while (0);
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = fdalloc(p, 0, &new)) != 0) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   if (error == 28) {
@@ -4528,7 +4529,7 @@ restart:
   return (0);
  }
  do { (fp)->f_count++; } while (0);
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if (new >= fdp->fd_nfiles) {
   if ((error = fdalloc(p, new, &i)) != 0) {
    (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
@@ -4577,7 +4578,7 @@ restart:
    error = 22;
    break;
   }
-  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   if ((error = fdalloc(p, newmin, &i)) != 0) {
    (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
    if (error == 28) {
@@ -4596,7 +4597,7 @@ restart:
   *retval = fdp->fd_ofileflags[fd] & 0x01 ? 1 : 0;
   break;
  case 2:
-  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   if ((long)((uap)->arg.be.datum) & 1)
    fdp->fd_ofileflags[fd] |= 0x01;
   else
@@ -4826,7 +4827,7 @@ sys_close(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  if (fd_getfile(fdp, fd) == ((void *)0))
   return (9);
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = fdrelease(p, fd);
  _rw_exit_write(&(fdp)->fd_lock );
  return (error);
@@ -5047,7 +5048,7 @@ fdcopy(struct process *pr)
  struct filedesc *newfdp, *fdp = pr->ps_fd;
  struct file **fpp;
  int i;
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  newfdp = pool_get(&fdesc_pool, 0x0001);
  __builtin_memcpy((newfdp), (fdp), (sizeof(struct filedesc)));
  if (newfdp->fd_cdir)
@@ -5085,7 +5086,7 @@ fdcopy(struct process *pr)
  __builtin_memcpy((newfdp->fd_himap), (fdp->fd_himap), ((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) * sizeof(u_int)));
  __builtin_memcpy((newfdp->fd_lomap), (fdp->fd_lomap), (((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) << 5) * sizeof(u_int)));
  _rw_exit_write(&(fdp)->fd_lock );
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(newfdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(newfdp)->fd_lock ); } while (0);
  fpp = newfdp->fd_ofiles;
  for (i = 0; i <= newfdp->fd_lastfile; i++, fpp++)
   if (*fpp != ((void *)0)) {
@@ -5258,7 +5259,7 @@ fdcloseexec(struct proc *p)
 {
  struct filedesc *fdp = p->p_fd;
  int fd;
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  for (fd = 0; fd <= fdp->fd_lastfile; fd++) {
   fdp->fd_ofileflags[fd] &= ~0x02;
   if (fdp->fd_ofileflags[fd] & 0x01)
@@ -5273,7 +5274,7 @@ sys_closefrom(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  u_int startfd, i;
  startfd = ((uap)->fd.be.datum);
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if (startfd > fdp->fd_lastfile) {
   _rw_exit_write(&(fdp)->fd_lock );
   return (9);

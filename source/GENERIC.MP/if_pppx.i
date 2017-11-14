@@ -2815,6 +2815,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -5096,7 +5097,7 @@ pppx_if_destroy(struct pppx_dev *pxd, struct pppx_if *pxi)
 {
  struct ifnet *ifp;
  struct pipex_session *session;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  session = &pxi->pxi_session;
  ifp = &pxi->pxi_if;
  do { if ((session)->id_chain.le_next != ((void *)0)) (session)->id_chain.le_next->id_chain.le_prev = (session)->id_chain.le_prev; *(session)->id_chain.le_prev = (session)->id_chain.le_next; ((session)->id_chain.le_prev) = ((void *)-1); ((session)->id_chain.le_next) = ((void *)-1); } while (0);
@@ -5146,7 +5147,7 @@ pppx_if_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
  struct pppx_hdr *th;
  int error = 0;
  int proto;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!((ifp->if_flags) & (0x1))) {
   m_freem(m);
   error = 50;

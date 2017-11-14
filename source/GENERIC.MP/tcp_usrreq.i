@@ -1535,6 +1535,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -5539,7 +5540,7 @@ tcp_ident(void *oldp, size_t *oldlenp, void *newp, size_t newlen, int dodrop)
  struct sockaddr_in *fin, *lin;
  struct sockaddr_in6 *fin6, *lin6;
  struct in6_addr f6, l6;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (dodrop) {
   if (oldp != ((void *)0) || *oldlenp != 0)
    return (22);

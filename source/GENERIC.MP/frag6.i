@@ -1541,18 +1541,6 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-struct syslog_data {
- int log_stat;
- const char *log_tag;
- int log_fac;
- int log_mask;
-};
-void logpri(int);
-void log(int, const char *, ...)
-    __attribute__((__format__(__kprintf__,2,3)));
-int addlog(const char *, ...)
-    __attribute__((__format__(__kprintf__,1,2)));
-void logwakeup(void);
 struct kinfo_pool {
  unsigned int pr_size;
  unsigned int pr_pgsize;
@@ -1971,6 +1959,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3577,15 +3566,13 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
    break;
  if (paf6 != ((void *)0)) {
   i = (paf6->ip6af_off + paf6->ip6af_frglen) - ip6af->ip6af_off;
-  if (i > 0) {
+  if (i > 0)
    goto flushfrags;
-  }
  }
  if (af6 != ((void *)0)) {
   i = (ip6af->ip6af_off + ip6af->ip6af_frglen) - af6->ip6af_off;
-  if (i > 0) {
+  if (i > 0)
    goto flushfrags;
-  }
  }
  insert:
  if (paf6 != ((void *)0))

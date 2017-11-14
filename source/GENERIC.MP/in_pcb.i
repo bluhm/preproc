@@ -1565,6 +1565,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -4511,6 +4512,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -4598,6 +4605,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -4671,12 +4679,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -5345,6 +5347,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -6171,7 +6174,7 @@ in_pcballoc(struct socket *so, struct inpcbtable *table)
 {
  struct inpcb *inp;
  struct inpcbhead *head;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (inpcb_pool_initialized == 0) {
   pool_init(&inpcb_pool, sizeof(struct inpcb), 0,
       2, 0, "inpcbpl", ((void *)0));
@@ -6419,7 +6422,7 @@ void
 in_pcbdetach(struct inpcb *inp)
 {
  struct socket *so = inp->inp_socket;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  so->so_pcb = 0;
  sofree(so);
  m_freem(inp->inp_options);
@@ -6476,7 +6479,7 @@ in_pcbnotifyall(struct inpcbtable *table, struct sockaddr *dst, u_int rdomain,
 {
  struct inpcb *inp, *ninp;
  struct in_addr faddr;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (dst->sa_family != 2)
   return;
  faddr = satosin(dst)->sin_addr;
@@ -6641,7 +6644,7 @@ in_pcbselsrc(struct in_addr **insrc, struct sockaddr_in *sin,
   ifp = if_get(mopts->imo_ifidx);
   if (ifp != ((void *)0)) {
    if (ifp->if_data.ifi_rdomain == rtable_l2(rtableid))
-    do { struct ifaddr *ifa; do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
+    do { struct ifaddr *ifa; do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0); for((ifa) = ((&(ifp)->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) { if (ifa->ifa_addr->sa_family == 2) break; } (ia) = ifatoia(ifa); } while ( 0);
    if (ia == ((void *)0)) {
     if_put(ifp);
     return (49);
@@ -6677,7 +6680,7 @@ in_pcbrehash(struct inpcb *inp)
 {
  struct inpcbtable *table = inp->inp_table;
  struct inpcbhead *head;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  do { if ((inp)->inp_lhash.le_next != ((void *)0)) (inp)->inp_lhash.le_next->inp_lhash.le_prev = (inp)->inp_lhash.le_prev; *(inp)->inp_lhash.le_prev = (inp)->inp_lhash.le_next; ((inp)->inp_lhash.le_prev) = ((void *)-1); ((inp)->inp_lhash.le_next) = ((void *)-1); } while (0);
  head = in_pcblhash(table, inp->inp_rtableid, inp->inp_lport);
  do { if (((inp)->inp_lhash.le_next = (head)->lh_first) != ((void *)0)) (head)->lh_first->inp_lhash.le_prev = &(inp)->inp_lhash.le_next; (head)->lh_first = (inp); (inp)->inp_lhash.le_prev = &(head)->lh_first; } while (0);

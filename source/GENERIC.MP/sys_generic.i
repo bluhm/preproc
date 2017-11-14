@@ -1764,6 +1764,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -4439,7 +4440,7 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
  switch (com) {
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('f')) << 8) | ((2))):
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('f')) << 8) | ((1))):
-  do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
   if (com == ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('f')) << 8) | ((2))))
    fdp->fd_ofileflags[((uap)->fd.be.datum)] &= ~0x01;
   else

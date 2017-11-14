@@ -1720,6 +1720,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -2152,7 +2153,7 @@ struct ifnet *
 enc_getif(u_int id, u_int unit)
 {
  struct ifnet *ifp;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (unit > 0) {
   if (unit > enc_max_unit)
    return (((void *)0));
@@ -2185,7 +2186,7 @@ enc_setif(struct ifnet *ifp, u_int id)
 {
  struct ifnet **new;
  size_t newlen;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  enc_unsetif(ifp);
  if (enc_getif(id, 0) != ((void *)0))
   return (0);

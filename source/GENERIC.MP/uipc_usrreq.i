@@ -1792,6 +1792,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3017,7 +3018,7 @@ uipc_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   error = 22;
   goto release;
  }
- do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0);
  switch (req) {
  case 2:
   error = unp_bind(unp, nam, p);
@@ -3208,7 +3209,7 @@ uipc_detach(struct socket *so)
  struct unpcb *unp = ((struct unpcb *)((so)->so_pcb));
  if (unp == ((void *)0))
   return (22);
- do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0);
  unp_detach(unp);
  return (0);
 }
@@ -3474,7 +3475,7 @@ unp_externalize(struct mbuf *rights, socklen_t controllen, int flags)
  }
  fdp = mallocarray(nfds, sizeof(int), 127, 0x0001);
 restart:
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(p->p_fd)->fd_lock ); } while (0);
  if (error != 0) {
   if (nfds > 0) {
    rp = ((struct fdpass *)((unsigned char *)(cm) + (((unsigned long)(sizeof(struct cmsghdr)) + 0xf) & ~0xf)));

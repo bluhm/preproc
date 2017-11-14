@@ -2054,6 +2054,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3414,6 +3415,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -3501,6 +3508,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -3574,12 +3582,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -4248,6 +4250,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -5055,7 +5058,7 @@ void
 icmp_mtudisc_timeout(struct rtentry *rt, struct rttimer *r)
 {
  struct ifnet *ifp;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp = if_get(rt->rt_ifidx);
  if (ifp == ((void *)0))
   return;
@@ -5086,7 +5089,7 @@ void
 icmp_redirect_timeout(struct rtentry *rt, struct rttimer *r)
 {
  struct ifnet *ifp;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp = if_get(rt->rt_ifidx);
  if (ifp == ((void *)0))
   return;

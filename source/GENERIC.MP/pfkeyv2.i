@@ -1082,6 +1082,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3798,6 +3799,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -3885,6 +3892,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -3958,12 +3966,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -4632,6 +4634,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -4940,7 +4943,7 @@ pfkey_sendup(struct keycb *kp, struct mbuf *packet, int more)
 {
  struct socket *so = kp->rcb.rcb_socket;
  struct mbuf *packet2;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (more) {
   if (!(packet2 = m_dup_pkt(packet, 0, 0x0002)))
    return (12);
@@ -4998,15 +5001,18 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 431);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 2) &&
        (s->rcb.rcb_socket != so) &&
        (s->rdomain == rdomain))
     pfkey_sendup(s, packet, 1);
   }
+  _kernel_unlock();
   m_freem(packet);
   break;
  case 2:
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 447);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 1) &&
        (s->rdomain == rdomain)) {
@@ -5018,6 +5024,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
     }
    }
   }
+  _kernel_unlock();
   m_freem(packet);
   __builtin_bzero((buffer), (sizeof(struct sadb_msg)));
   smsg = (struct sadb_msg *) buffer;
@@ -5029,19 +5036,23 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 479);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 2) &&
        !(s->flags & 1) &&
        (s->rdomain == rdomain))
     pfkey_sendup(s, packet, 1);
   }
+  _kernel_unlock();
   m_freem(packet);
   break;
  case 3:
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 492);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if (s->rdomain == rdomain)
     pfkey_sendup(s, packet, 1);
   }
+  _kernel_unlock();
   m_freem(packet);
   break;
  }
@@ -5406,11 +5417,13 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   if ((rval = pfdatatopacket(freeme,
       sizeof(struct sadb_msg) + len, &packet)) != 0)
    goto ret;
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1021);
   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
    if ((bkp->flags & 2) &&
        (bkp->rdomain == rdomain))
     pfkey_sendup(bkp, packet, 1);
   }
+  _kernel_unlock();
   m_freem(packet);
   explicit_bzero(freeme, sizeof(struct sadb_msg) + len);
   free(freeme, 74, 0);
@@ -5981,12 +5994,15 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    struct mbuf *packet;
    if ((rval = pfdatatopacket(message, len, &packet)) != 0)
     goto ret;
-   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next))
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1801);
+   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
     if ((bkp != kp) &&
         (bkp->rdomain == rdomain) &&
         (!smsg->sadb_msg_seq ||
         (smsg->sadb_msg_seq == kp->pid)))
      pfkey_sendup(bkp, packet, 1);
+   }
+   _kernel_unlock();
    m_freem(packet);
   } else {
    if (len != sizeof(struct sadb_msg)) {

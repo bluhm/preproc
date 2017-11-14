@@ -1757,6 +1757,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3283,7 +3284,7 @@ in6_ifattach_linklocal(struct ifnet *ifp, struct in6_addr *ifid)
  struct in6_aliasreq ifra;
  struct in6_ifaddr *ia6;
  int error, flags;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  __builtin_bzero((&ifra), (sizeof(ifra)));
  strncpy(ifra.ifra_name, ifp->if_xname, sizeof(ifra.ifra_name));
  ifra.ifra_ifrau.ifrau_addr.sin6_family = 24;

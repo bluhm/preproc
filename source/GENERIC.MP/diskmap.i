@@ -2935,7 +2935,7 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  if ((error = getvnode(p, fd, &fp)) != 0)
   goto invalid;
  fdp = p->p_fd;
- do { do { int _s = rw_status(&netlock); if (_s == 0x0001UL) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  ndinitat(&ndp, 0, 0, UIO_SYSSPACE, -100, devname, p);
  ndp.ni_pledge = 0x0000000000000001ULL;
  if ((error = vn_open(&ndp, fp->f_flag, 0)) != 0)

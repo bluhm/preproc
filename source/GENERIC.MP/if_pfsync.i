@@ -2339,6 +2339,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -4753,6 +4754,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -4840,6 +4847,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -4913,12 +4921,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -5587,6 +5589,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -6707,7 +6710,7 @@ void
 pfsync_update_net_tdb(struct pfsync_tdb *pt)
 {
  struct tdb *tdb;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (((__uint32_t)(pt->spi)) <= 255 ||
      (pt->dst.sa.sa_family != 2 &&
       pt->dst.sa.sa_family != 24))
@@ -7078,7 +7081,7 @@ void
 pfsync_insert_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (((st->rule.ptr->rule_flag) & (0x0010)) ||
      st->key[PF_SK_WIRE]->proto == 240) {
   ((st->state_flags) |= (0x0008));
@@ -7097,7 +7100,7 @@ pfsync_defer(struct pf_state *st, struct mbuf *m)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!sc->sc_defer ||
      ((st->state_flags) & (0x0008)) ||
      m->m_hdr.mh_flags & (0x0100|0x0200))
@@ -7126,7 +7129,7 @@ pfsync_undefer(struct pfsync_deferral *pd, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pf_pdesc pdesc;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  do { if (((pd)->pd_entry.tqe_next) != ((void *)0)) (pd)->pd_entry.tqe_next->pd_entry.tqe_prev = (pd)->pd_entry.tqe_prev; else (&sc->sc_deferrals)->tqh_last = (pd)->pd_entry.tqe_prev; *(pd)->pd_entry.tqe_prev = (pd)->pd_entry.tqe_next; ((pd)->pd_entry.tqe_prev) = ((void *)-1); ((pd)->pd_entry.tqe_next) = ((void *)-1); } while (0);
  sc->sc_deferred--;
  ((pd->pd_st->state_flags) &= ~(0x0010));
@@ -7180,7 +7183,7 @@ pfsync_deferred(struct pf_state *st, int drop)
 {
  struct pfsync_softc *sc = pfsyncif;
  struct pfsync_deferral *pd;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((pd) = ((&sc->sc_deferrals)->tqh_first); (pd) != ((void *)0); (pd) = ((pd)->pd_entry.tqe_next)) {
    if (pd->pd_st == st) {
    if (timeout_del(&pd->pd_tmo))
@@ -7195,7 +7198,7 @@ pfsync_update_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int sync = 0;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7325,7 +7328,7 @@ void
 pfsync_delete_state(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  if (((st->state_flags) & (0x0010)))
@@ -7361,7 +7364,7 @@ pfsync_clear_states(u_int32_t creatorid, const char *ifname)
   struct pfsync_subheader subh;
   struct pfsync_clr clr;
  } __attribute__((__packed__)) r;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)))
   return;
  __builtin_bzero((&r), (sizeof(r)));

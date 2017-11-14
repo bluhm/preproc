@@ -2138,6 +2138,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -3736,7 +3737,7 @@ pppintr(void)
  int s;
  struct ppp_pkt *pkt;
  struct mbuf *m;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((sc) = ((&ppp_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_list.le_next)) {
   if (!(sc->sc_flags & 0x10000000) &&
       (!(((&sc->sc_if.if_snd)->ifq_len) == 0))) {

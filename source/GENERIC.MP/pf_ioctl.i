@@ -1542,6 +1542,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -5188,6 +5189,12 @@ struct pf_rule_addr {
  u_int8_t port_op;
  u_int16_t weight;
 };
+struct pf_threshold {
+ u_int32_t limit;
+ u_int32_t seconds;
+ u_int32_t count;
+ u_int32_t last;
+};
 struct pf_poolhashkey {
  union {
   u_int8_t key8[16];
@@ -5275,6 +5282,7 @@ struct pf_rule {
  struct pf_pool nat;
  struct pf_pool rdr;
  struct pf_pool route;
+ struct pf_threshold pktrate;
  u_int64_t evaluations;
  u_int64_t packets[2];
  u_int64_t bytes[2];
@@ -5348,12 +5356,6 @@ struct pf_rule {
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
-};
-struct pf_threshold {
- u_int32_t limit;
- u_int32_t seconds;
- u_int32_t count;
- u_int32_t last;
 };
 struct pf_rule_item {
  struct { struct pf_rule_item *sle_next; } entry;
@@ -6022,6 +6024,7 @@ int pf_translate(struct pf_pdesc *, struct pf_addr *, u_int16_t,
 int pf_translate_af(struct pf_pdesc *);
 void pf_route(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
 void pf_route6(struct pf_pdesc *, struct pf_rule *, struct pf_state *);
+void pf_init_threshold(struct pf_threshold *, u_int32_t, u_int32_t);
 void pfr_initialize(void);
 int pfr_match_addr(struct pfr_ktable *, struct pf_addr *, sa_family_t);
 void pfr_update_stats(struct pfr_ktable *, struct pf_addr *,
@@ -7344,6 +7347,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   pr->rule.rcv_kif = ((void *)0);
   pr->rule.anchor = ((void *)0);
   pr->rule.overload_tbl = ((void *)0);
+  pr->rule.pktrate.limit /= 1000;
   __builtin_bzero((&pr->rule.gcle), (sizeof(pr->rule.gcle)));
   pr->rule.ruleset = ((void *)0);
   if (pf_anchor_copyout(ruleset, rule, pr)) {
@@ -8572,6 +8576,8 @@ pf_rule_copyin(struct pf_rule *from, struct pf_rule *to,
  to->max_src_conn = from->max_src_conn;
  to->max_src_conn_rate.limit = from->max_src_conn_rate.limit;
  to->max_src_conn_rate.seconds = from->max_src_conn_rate.seconds;
+ pf_init_threshold(&to->pktrate, from->pktrate.limit,
+     from->pktrate.seconds);
  if (to->qname[0] != 0) {
   if ((to->qid = pf_qname2qid(to->qname, 0)) == 0)
    return (16);

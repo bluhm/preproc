@@ -1695,6 +1695,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -1735,6 +1736,7 @@ struct taskq *const systq = &taskq_sys;
 struct taskq *const systqmp = &taskq_sys_mp;
 void taskq_init(void);
 void taskq_create_thread(void *);
+void taskq_barrier_task(void *);
 int taskq_sleep(const volatile void *, struct mutex *, int,
      const char *, int);
 int taskq_next_work(struct taskq *, struct task *, sleepfn);
@@ -1818,6 +1820,25 @@ taskq_create_thread(void *arg)
   }
  } while (tq->tq_running < tq->tq_nthreads);
  __mtx_leave(&tq->tq_mtx );
+}
+void
+taskq_barrier(struct taskq *tq)
+{
+ struct sleep_state sls;
+ unsigned int notdone = 1;
+ struct task t = {{ ((void *)0), ((void *)0) }, (taskq_barrier_task), (&notdone), 0 };
+ task_add(tq, &t);
+ while (notdone) {
+  sleep_setup(&sls, &notdone, 32, "tqbar");
+  sleep_finish(&sls, notdone);
+ }
+}
+void
+taskq_barrier_task(void *p)
+{
+ unsigned int *notdone = p;
+ *notdone = 0;
+ wakeup_n((notdone), 1);
 }
 void
 task_set(struct task *t, void (*fn)(void *), void *arg)
@@ -1913,7 +1934,7 @@ taskq_thread(void *xtq)
  if (((tq->tq_flags) & ((1 << 1))))
   atomic_clearbits_int(&(__curcpu->ci_self)->ci_curproc->p_flag, 0x00000010);
  if (((tq->tq_flags) & ((1 << 0))))
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_task.c", 302);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_task.c", 328);
  if (last)
   wakeup_n((&tq->tq_running), 1);
  kthread_exit(0);

@@ -1535,6 +1535,7 @@ extern struct taskq *const systq;
 extern struct taskq *const systqmp;
 struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
 void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
@@ -4391,7 +4392,7 @@ ip_mrouter_done(struct socket *so)
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  struct ifnet *ifp;
  unsigned int rtableid = inp->inp_rtableid;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  rtable_walk(rtableid, 2, mrouter_rtwalk_delete, ((void *)0));
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rtableid)
@@ -4471,7 +4472,7 @@ add_vif(struct socket *so, struct mbuf *m)
  struct ifreq ifr;
  int error;
  unsigned int rtableid = inp->inp_rtableid;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (m == ((void *)0) || m->m_hdr.mh_len < sizeof(struct vifctl))
   return (22);
  vifcp = ((struct vifctl *)((m)->m_hdr.mh_data));
@@ -4519,7 +4520,7 @@ del_vif(struct socket *so, struct mbuf *m)
  struct ifnet *ifp;
  vifi_t *vifip;
  unsigned int rtableid = inp->inp_rtableid;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (m == ((void *)0) || m->m_hdr.mh_len < sizeof(vifi_t))
   return (22);
  vifip = ((vifi_t *)((m)->m_hdr.mh_data));
@@ -4687,7 +4688,7 @@ add_mfc(struct socket *so, struct mbuf *m)
  struct mfcctl2 mfcctl2;
  int mfcctl_size = sizeof(struct mfcctl);
  unsigned int rtableid = inp->inp_rtableid;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (mrt_api_config & (((1 << 0)) | (1 << 8) | (1 << 9)))
   mfcctl_size = sizeof(struct mfcctl2);
  if (m == ((void *)0) || m->m_hdr.mh_len < mfcctl_size)
@@ -4714,7 +4715,7 @@ del_mfc(struct socket *so, struct mbuf *m)
  int mfcctl_size = sizeof(struct mfcctl);
  struct mfcctl *mp;
  unsigned int rtableid = inp->inp_rtableid;
- do { int _s = rw_status(&netlock); if (_s != 0x0001UL && _s != 0x0002UL) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (m == ((void *)0) || m->m_hdr.mh_len < mfcctl_size)
   return (22);
  mp = ((struct mfcctl *)((m)->m_hdr.mh_data));
