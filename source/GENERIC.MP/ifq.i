@@ -2154,6 +2154,7 @@ struct ifq_ops {
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
@@ -2489,6 +2490,16 @@ ifq_destroy(struct ifqueue *ifq)
  ifq->ifq_ops->ifqop_free(ifq->ifq_idx, ifq->ifq_q);
  ml_purge(&ml);
 }
+void
+ifq_add_data(struct ifqueue *ifq, struct if_data *data)
+{
+ __mtx_enter(&ifq->ifq_mtx );
+ data->ifi_opackets += ifq->ifq_packets;
+ data->ifi_obytes += ifq->ifq_bytes;
+ data->ifi_oqdrops += ifq->ifq_qdrops;
+ data->ifi_omcasts += ifq->ifq_mcasts;
+ __mtx_leave(&ifq->ifq_mtx );
+}
 int
 ifq_enqueue(struct ifqueue *ifq, struct mbuf *m)
 {
@@ -2543,7 +2554,7 @@ void
 ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 {
  void *cookie;
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 320, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 332, "m != NULL"));
  cookie = m->M_dat.MH.MH_pkthdr.ph_cookie;
  ifq->ifq_ops->ifqop_deq_commit(ifq, m, cookie);
  ifq->ifq_len--;
@@ -2552,7 +2563,7 @@ ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 void
 ifq_deq_rollback(struct ifqueue *ifq, struct mbuf *m)
 {
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 331, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 343, "m != NULL"));
  ifq_deq_leave(ifq);
 }
 struct mbuf *
@@ -2576,7 +2587,7 @@ ifq_purge(struct ifqueue *ifq)
  ifq->ifq_len = 0;
  ifq->ifq_qdrops += rv;
  __mtx_leave(&ifq->ifq_mtx );
- ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 363, "rv == ml_len(&ml)"));
+ ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 375, "rv == ml_len(&ml)"));
  ml_purge(&ml);
  return (rv);
 }
@@ -2592,7 +2603,7 @@ ifq_q_enter(struct ifqueue *ifq, const struct ifq_ops *ops)
 void
 ifq_q_leave(struct ifqueue *ifq, void *q)
 {
- ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 385, "q == ifq->ifq_q"));
+ ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 397, "q == ifq->ifq_q"));
  __mtx_leave(&ifq->ifq_mtx );
 }
 void
@@ -2642,7 +2653,7 @@ priq_enq(struct ifqueue *ifq, struct mbuf *m)
  struct mbuf *n = ((void *)0);
  unsigned int prio;
  pq = ifq->ifq_q;
- ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 451, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
+ ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 463, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
  if (((ifq)->ifq_len) >= ifq->ifq_maxlen) {
   for (prio = 0; prio < m->M_dat.MH.MH_pkthdr.pf.prio; prio++) {
    pl = &pq->pq_lists[prio];
@@ -2679,7 +2690,7 @@ void
 priq_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
 {
  struct mbuf_list *pl = cookie;
- ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 501, "MBUF_LIST_FIRST(pl) == m"));
+ ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 513, "MBUF_LIST_FIRST(pl) == m"));
  ml_dequeue(pl);
 }
 void

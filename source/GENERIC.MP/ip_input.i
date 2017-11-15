@@ -2547,6 +2547,7 @@ struct ifq_ops {
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
@@ -4232,6 +4233,7 @@ struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
 void ipsec_init(void);
+int ipsec_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -5910,21 +5912,6 @@ int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
 int carp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int carp_lsdrop(struct mbuf *, sa_family_t, u_int32_t *,
        u_int32_t *, int);
-int encdebug = 0;
-int ipsec_keep_invalid = 60;
-int ipsec_require_pfs = 1;
-int ipsec_soft_allocations = 0;
-int ipsec_exp_allocations = 0;
-int ipsec_soft_bytes = 0;
-int ipsec_exp_bytes = 0;
-int ipsec_soft_timeout = 80000;
-int ipsec_exp_timeout = 86400;
-int ipsec_soft_first_use = 3600;
-int ipsec_exp_first_use = 7200;
-int ipsec_expire_acquire = 30;
-char ipsec_def_enc[20];
-char ipsec_def_auth[20];
-char ipsec_def_comp[20];
 int ipforwarding = 0;
 int ipmforwarding = 0;
 int ipmultipath = 0;
@@ -5939,7 +5926,7 @@ struct mutex ipq_mutex = { ((void *)0), ((((2)) > 0 && ((2)) < 12) ? 12 : ((2)))
 struct { struct ipq *lh_first; } ipq;
 int ip_maxqueue = 300;
 int ip_frags = 0;
-int *ipctl_vars[41] = { ((void *)0), &ipforwarding, &ipsendredirects, &ip_defttl, ((void *)0), ((void *)0), &ip_directedbcast, &ipport_firstauto, &ipport_lastauto, &ipport_hifirstauto, &ipport_hilastauto, &ip_maxqueue, &encdebug, ((void *)0), &ipsec_expire_acquire, &ipsec_keep_invalid, &ipsec_require_pfs, &ipsec_soft_allocations, &ipsec_exp_allocations, &ipsec_soft_bytes, &ipsec_exp_bytes, &ipsec_exp_timeout, &ipsec_soft_timeout, &ipsec_soft_first_use, &ipsec_exp_first_use, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ipmforwarding, &ipmultipath, ((void *)0), ((void *)0), ((void *)0), &la_hold_total, ((void *)0), ((void *)0), &arpt_keep, &arpt_down, };
+int *ipctl_vars[41] = { ((void *)0), &ipforwarding, &ipsendredirects, &ip_defttl, ((void *)0), ((void *)0), &ip_directedbcast, &ipport_firstauto, &ipport_lastauto, &ipport_hifirstauto, &ipport_hilastauto, &ip_maxqueue, ((void *)0) , ((void *)0), ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0) , ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ipmforwarding, &ipmultipath, ((void *)0), ((void *)0), ((void *)0), &la_hold_total, ((void *)0), ((void *)0), &arpt_keep, &arpt_down, };
 struct niqueue ipintrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((2048)), 0 }, (2) };
 struct pool ipqent_pool;
 struct pool ipq_pool;
@@ -5999,9 +5986,6 @@ ip_init(void)
   ((rootonlyports.tcp)[(defrootonlyports_tcp[i]) / (sizeof(u_int32_t) * 8)] |= (1 << ((defrootonlyports_tcp[i]) % (sizeof(u_int32_t) * 8))));
  for (i = 0; defrootonlyports_udp[i] != 0; i++)
   ((rootonlyports.udp)[(defrootonlyports_udp[i]) / (sizeof(u_int32_t) * 8)] |= (1 << ((defrootonlyports_udp[i]) % (sizeof(u_int32_t) * 8))));
- strlcpy(ipsec_def_enc, "aes", sizeof(ipsec_def_enc));
- strlcpy(ipsec_def_auth, "hmac-sha1", sizeof(ipsec_def_auth));
- strlcpy(ipsec_def_comp, "deflate", sizeof(ipsec_def_comp));
  mq_init(&ipsend_mq, 64, 2);
  ipsec_init();
 }
@@ -6024,7 +6008,7 @@ ipintr(void)
    panic("ipintr no HDR");
   off = 0;
   nxt = ip_local(&m, &off, 4, 0);
-  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 258, "nxt == IPPROTO_DONE"));
+  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 238, "nxt == IPPROTO_DONE"));
  }
 }
 void
@@ -6033,7 +6017,7 @@ ipv4_input(struct ifnet *ifp, struct mbuf *m)
  int off, nxt;
  off = 0;
  nxt = ip_input_if(&m, &off, 4, 0, ifp);
- ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 274, "nxt == IPPROTO_DONE"));
+ ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 254, "nxt == IPPROTO_DONE"));
 }
 int
 ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
@@ -6043,7 +6027,7 @@ ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
  struct ip *ip;
  int hlen, len;
  in_addr_t pfrdr = 0;
- ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 286, "*offp == 0"));
+ ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 266, "*offp == 0"));
  ipstat_inc(ips_total);
  if (m->m_hdr.mh_len < sizeof (struct ip) &&
      (m = *mp = m_pullup(m, sizeof (struct ip))) == ((void *)0)) {
@@ -6138,7 +6122,7 @@ ip_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
     }
     ip = ((struct ip *)((m)->m_hdr.mh_data));
    }
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 439);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 419);
    error = ip_mforward(m, ifp);
    _kernel_unlock();
    if (error) {
@@ -6264,7 +6248,7 @@ ip_deliver(struct mbuf **mp, int *offp, int nxt, int af)
  struct protosw *psw;
  int naf = af;
  int nest = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 642, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 622, "_kernel_lock_held()"));
  switch (af) {
  case 2:
   in_proto_cksum_out(*mp, ((void *)0));
@@ -6561,7 +6545,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1086);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1066);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)
@@ -6957,26 +6941,23 @@ ip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
            ip_mtudisc_timeout);
   do { _rw_exit_write(&netlock ); } while (0);
   return (error);
+ case 12:
+ case 14:
+ case 15:
+ case 16:
+ case 17:
+ case 18:
+ case 19:
+ case 20:
+ case 21:
+ case 22:
+ case 23:
+ case 24:
  case 25:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
-           ipsec_def_enc, sizeof(ipsec_def_enc));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
  case 26:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
-           ipsec_def_auth,
-           sizeof(ipsec_def_auth));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
  case 29:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
-           ipsec_def_comp,
-           sizeof(ipsec_def_comp));
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
+  return (ipsec_sysctl(name, namelen, oldp, oldlenp, newp,
+      newlen));
  case 30:
   return (sysctl_mq((name + 1), (namelen - 1), (oldp), (oldlenp), (newp), (newlen), &(&ipintrq)->ni_q));
  case 33:

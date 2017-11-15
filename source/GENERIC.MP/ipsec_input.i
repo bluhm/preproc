@@ -2146,6 +2146,7 @@ struct ifq_ops {
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
@@ -5080,6 +5081,7 @@ struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
 struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
 void ipsp_ids_free(struct ipsec_ids *);
 void ipsec_init(void);
+int ipsec_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int ipsec_common_input(struct mbuf *, int, int, int, int, int);
 void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
 int ipsec_delete_policy(struct ipsec_policy *);
@@ -5286,6 +5288,18 @@ struct enc_softc {
 struct ifnet *enc_getif(u_int, u_int);
 struct ifaddr *enc_getifa(u_int, u_int);
 void ipsec_common_ctlinput(u_int, int, struct sockaddr *, void *, int);
+int encdebug = 0;
+int ipsec_keep_invalid = 60;
+int ipsec_require_pfs = 1;
+int ipsec_soft_allocations = 0;
+int ipsec_exp_allocations = 0;
+int ipsec_soft_bytes = 0;
+int ipsec_exp_bytes = 0;
+int ipsec_soft_timeout = 80000;
+int ipsec_exp_timeout = 86400;
+int ipsec_soft_first_use = 3600;
+int ipsec_exp_first_use = 7200;
+int ipsec_expire_acquire = 30;
 int esp_enable = 1;
 int ah_enable = 1;
 int ipcomp_enable = 0;
@@ -5295,6 +5309,10 @@ int *ipcompctl_vars[3] = { ((void *)0), &ipcomp_enable, ((void *)0) };
 struct cpumem *espcounters;
 struct cpumem *ahcounters;
 struct cpumem *ipcompcounters;
+char ipsec_def_enc[20];
+char ipsec_def_auth[20];
+char ipsec_def_comp[20];
+int *ipsecctl_vars[25] = { ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &encdebug, ((void *)0), &ipsec_expire_acquire, &ipsec_keep_invalid, &ipsec_require_pfs, &ipsec_soft_allocations, &ipsec_exp_allocations, &ipsec_soft_bytes, &ipsec_exp_bytes, &ipsec_exp_timeout, &ipsec_soft_timeout, &ipsec_soft_first_use, &ipsec_exp_first_use, };
 int esp_sysctl_espstat(void *, size_t *, void *);
 int ah_sysctl_ahstat(void *, size_t *, void *);
 int ipcomp_sysctl_ipcompstat(void *, size_t *, void *);
@@ -5304,6 +5322,9 @@ ipsec_init(void)
  espcounters = counters_alloc(esps_ncounters);
  ahcounters = counters_alloc(ahs_ncounters);
  ipcompcounters = counters_alloc(ipcomps_ncounters);
+ strlcpy(ipsec_def_enc, "aes", sizeof(ipsec_def_enc));
+ strlcpy(ipsec_def_auth, "hmac-sha1", sizeof(ipsec_def_auth));
+ strlcpy(ipsec_def_comp, "deflate", sizeof(ipsec_def_comp));
 }
 int
 ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
@@ -5628,6 +5649,41 @@ ipsec_common_input_cb(struct mbuf *m, struct tdb *tdbp, int skip, int protoff)
    return;
  }
  ip_deliver(&m, &skip, prot, af);
+}
+int
+ipsec_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
+    size_t newlen)
+{
+ int error;
+ switch (name[0]) {
+ case 25:
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
+      ipsec_def_enc, sizeof(ipsec_def_enc));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
+ case 26:
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
+      ipsec_def_auth, sizeof(ipsec_def_auth));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
+ case 29:
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_tstring(oldp, oldlenp, newp, newlen,
+      ipsec_def_comp, sizeof(ipsec_def_comp));
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
+ default:
+  if (name[0] < 25) {
+   do { _rw_enter_write(&netlock ); } while (0);
+   error = sysctl_int_arr(ipsecctl_vars, name, namelen,
+       oldp, oldlenp, newp, newlen);
+   do { _rw_exit_write(&netlock ); } while (0);
+   return (error);
+  }
+  return (45);
+ }
 }
 int
 esp_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,

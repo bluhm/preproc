@@ -2005,6 +2005,7 @@ struct ifq_ops {
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
@@ -3724,8 +3725,12 @@ frag6_slowtimo(void)
   frag6_unlink((*(((struct ip6q_head *)((&frag6_queue)->tqh_last))->tqh_last)), &rmq6);
  }
  __mtx_leave(&frag6_mutex );
- while ((q6 = ((&rmq6)->tqh_first)) != ((void *)0)) {
-  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&rmq6)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
-  frag6_freef(q6);
+ if (!(((&rmq6)->tqh_first) == ((void *)0))) {
+  do { _rw_enter_write(&netlock ); } while (0);
+  while ((q6 = ((&rmq6)->tqh_first)) != ((void *)0)) {
+   do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&rmq6)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
+   frag6_freef(q6);
+  }
+  do { _rw_exit_write(&netlock ); } while (0);
  }
 }

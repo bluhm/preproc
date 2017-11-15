@@ -1362,6 +1362,48 @@ void malloc_printit(int (*)(const char *, ...));
 void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
+struct taskq;
+struct task {
+ struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
+ void (*t_func)(void *);
+ void *t_arg;
+ unsigned int t_flags;
+};
+struct task_list { struct task *tqh_first; struct task **tqh_last; };
+extern struct taskq *const systq;
+extern struct taskq *const systqmp;
+struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
+void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
+void task_set(struct task *, void (*)(void *), void *);
+int task_add(struct taskq *, struct task *);
+int task_del(struct taskq *, struct task *);
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
 static inline unsigned int
 _atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
@@ -2076,32 +2118,6 @@ struct sparc_bus_dmamap {
  int dm_nsegs;
  bus_dma_segment_t dm_segs[1];
 };
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
 typedef void *pckbc_tag_t;
 typedef int pckbc_slot_t;
 struct pckbc_internal {
@@ -2470,6 +2486,9 @@ struct pms_softc {
  int sc_state;
  struct rwlock sc_state_lock;
  int sc_dev_enable;
+ struct task sc_rsttask;
+ struct timeout sc_rsttimo;
+ int sc_rststate;
  int poll;
  int inputstate;
  const struct pms_protocol *protocol;
@@ -2544,6 +2563,9 @@ int pms_reset(struct pms_softc *);
 int pms_dev_enable(struct pms_softc *);
 int pms_dev_disable(struct pms_softc *);
 void pms_protocol_lookup(struct pms_softc *);
+void pms_reset_detect(struct pms_softc *, int);
+void pms_reset_task(void *);
+void pms_reset_timo(void *);
 int pms_enable_intelli(struct pms_softc *);
 int pms_ioctl_mouse(struct pms_softc *, u_long, caddr_t, int, struct proc *);
 int pms_sync_mouse(struct pms_softc *, int);
@@ -2783,6 +2805,51 @@ pms_protocol_lookup(struct pms_softc *sc)
  }
  ;
 }
+void
+pms_reset_detect(struct pms_softc *sc, int data)
+{
+ switch (sc->sc_rststate) {
+ case 0x01:
+  if (data == 0x0) {
+   sc->sc_rststate = 0x02;
+   timeout_add_msec(&sc->sc_rsttimo, 100);
+  } else if (data != 0xaa) {
+   sc->sc_rststate = 0;
+  }
+  break;
+ default:
+  if (data == 0xaa)
+   sc->sc_rststate = 0x01;
+  else
+   sc->sc_rststate = 0;
+ }
+}
+void
+pms_reset_timo(void *v)
+{
+ struct pms_softc *sc = v;
+ int s = _splraise(6);
+ if (sc->sc_rststate == 0x02 &&
+     sc->sc_state != 0)
+  task_add(systq, &sc->sc_rsttask);
+ _splx(s);
+}
+void
+pms_reset_task(void *v)
+{
+ struct pms_softc *sc = v;
+ int s = _splraise(6);
+ printf("%s: device reset (state = %d)\n", ((sc)->sc_dev.dv_xname), sc->sc_rststate);
+ _rw_enter_write(&sc->sc_state_lock );
+ if (sc->sc_sec_wsmousedev != ((void *)0))
+  pms_change_state(sc, 0, 0x02);
+ pms_change_state(sc, 0, 0x01);
+ pms_change_state(sc, 1, 0x01);
+ if (sc->sc_sec_wsmousedev != ((void *)0))
+  pms_change_state(sc, 1, 0x02);
+ _rw_exit_write(&sc->sc_state_lock );
+ _splx(s);
+}
 int
 pms_enable_intelli(struct pms_softc *sc)
 {
@@ -2881,6 +2948,8 @@ pmsattach(struct device *parent, struct device *self, void *aux)
  a.accesscookie = sc;
  _rw_init_flags(&sc->sc_state_lock, "pmsst", 0, ((void *)0));
  sc->sc_wsmousedev = config_found_sm((self), (&a), (wsmousedevprint), ((void *)0));
+ task_set(&sc->sc_rsttask, pms_reset_task, sc);
+ timeout_set(&sc->sc_rsttimo, pms_reset_timo, sc);
  sc->poll = 1;
  sc->sc_dev_enable = 0;
  pms_protocol_lookup(sc);
@@ -2926,6 +2995,7 @@ pms_change_state(struct pms_softc *sc, int newstate, int dev)
  switch (newstate) {
  case 1:
   sc->inputstate = 0;
+  sc->sc_rststate = 0;
   pckbc_slot_enable(sc->sc_kbctag, 1, 1);
   if (sc->poll)
    pckbc_flush(sc->sc_kbctag, 1);
@@ -3012,9 +3082,11 @@ pmsinput(void *vsc, int data)
   return;
  }
  sc->packet[sc->inputstate] = data;
+ pms_reset_detect(sc, data);
  if (sc->protocol->sync(sc, data)) {
-  printf("%s: not in sync yet, discard input (state %d)\n",
-      ((sc)->sc_dev.dv_xname), sc->inputstate);
+  printf("%s: not in sync yet, discard input "
+      "(state = %d, data = %#x)\n",
+      ((sc)->sc_dev.dv_xname), sc->inputstate, data);
   sc->inputstate = 0;
   return;
  }

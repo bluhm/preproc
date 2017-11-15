@@ -2320,10 +2320,10 @@ malloc(size_t size, int type, int flags)
  if (freshalloc == 0 && ((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first))))) {
   int rv;
   vaddr_t addr = (vaddr_t)((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first))));
-  vm_map_lock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 306);
+  vm_map_lock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 298);
   rv = uvm_map_checkprot(kmem_map, addr,
       addr + sizeof(struct kmem_freelist), 0x02);
-  vm_map_unlock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 309);
+  vm_map_unlock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 301);
   if (!rv) {
    printf("%s %zd of object %p size 0x%lx %s %s"
        " (invalid addr %p)\n",

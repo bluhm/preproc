@@ -2926,6 +2926,7 @@ struct ifq_ops {
 void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
 void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
@@ -6515,16 +6516,26 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  unsigned short oif_flags;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122))):
+  if ((error = suser(p, 0)) != 0)
+   return (error);
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = if_clone_create(ifr->ifr_name, 0);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((121))):
   if ((error = suser(p, 0)) != 0)
    return (error);
-  return ((cmd == ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122)))) ?
-      if_clone_create(ifr->ifr_name, 0) :
-      if_clone_destroy(ifr->ifr_name));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = if_clone_destroy(ifr->ifr_name);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((140))):
   if ((error = suser(p, 0)) != 0)
    return (error);
-  return (if_setgroupattribs(data));
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = if_setgroupattribs(data);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_clonereq) & 0x1fff) << 16) | ((('i')) << 8) | ((120))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((138))):
@@ -6548,6 +6559,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   return (6);
  oif_flags = ifp->if_flags;
  oif_xflags = ifp->if_xflags;
+ do { _rw_enter_write(&netlock ); } while (0);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((171))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))):
@@ -6762,6 +6774,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   rtm_ifchg(ifp);
  if (((oif_flags ^ ifp->if_flags) & 0x1) != 0)
   getmicrotime(&ifp->if_data.ifi_lastchange);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int
@@ -6776,17 +6789,30 @@ ifioctl_get(u_long cmd, caddr_t data)
  const char *label;
  switch(cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36))):
-  return (ifconf(data));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = ifconf(data);
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (error);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_clonereq) & 0x1fff) << 16) | ((('i')) << 8) | ((120))):
-  return (if_clone_list((struct if_clonereq *)data));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = if_clone_list((struct if_clonereq *)data);
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (error);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((138))):
-  return (if_getgroupmembers(data));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = if_getgroupmembers(data);
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (error);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((139))):
-  return (if_getgroupattribs(data));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = if_getgroupattribs(data);
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (error);
  }
  ifp = ifunit(ifr->ifr_name);
  if (ifp == ((void *)0))
   return (6);
+ do { _rw_enter_read(&netlock ); } while (0);
  switch(cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((17))):
   ifr->ifr_ifru.ifru_flags = ifp->if_flags;
@@ -6840,6 +6866,7 @@ ifioctl_get(u_long cmd, caddr_t data)
  default:
   panic("invalid ioctl %lu", cmd);
  }
+ do { _rw_exit_read(&netlock ); } while (0);
  return (error);
 }
 int
@@ -6915,25 +6942,11 @@ void
 if_getdata(struct ifnet *ifp, struct if_data *data)
 {
  unsigned int i;
- struct ifqueue *ifq;
- uint64_t opackets = 0;
- uint64_t obytes = 0;
- uint64_t omcasts = 0;
- uint64_t oqdrops = 0;
- for (i = 0; i < ifp->if_nifqs; i++) {
-  ifq = ifp->if_ifqs[i];
-  __mtx_enter(&ifq->ifq_mtx );
-  opackets += ifq->ifq_packets;
-  obytes += ifq->ifq_bytes;
-  oqdrops += ifq->ifq_qdrops;
-  omcasts += ifq->ifq_mcasts;
-  __mtx_leave(&ifq->ifq_mtx );
- }
  *data = ifp->if_data;
- data->ifi_opackets += opackets;
- data->ifi_obytes += obytes;
- data->ifi_oqdrops += oqdrops;
- data->ifi_omcasts += omcasts;
+ for (i = 0; i < ifp->if_nifqs; i++) {
+  struct ifqueue *ifq = ifp->if_ifqs[i];
+  ifq_add_data(ifq, data);
+ }
 }
 void
 if_detached_qstart(struct ifqueue *ifq)
