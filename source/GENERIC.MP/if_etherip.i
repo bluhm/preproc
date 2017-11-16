@@ -2910,7 +2910,6 @@ extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
-extern int encdebug;
 extern int ipforwarding;
 extern int ipmforwarding;
 extern int ipmultipath;
@@ -3089,8 +3088,6 @@ struct tdb;
 void etherip_init(void);
 int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
 int etherip_input(struct mbuf **, int *, int, int);
-int etherip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int etherip_sysctl_etheripstat(void *, size_t *, void *);
 extern int etherip_allow;
 struct ip6_hdr {
  union {
@@ -5221,6 +5218,17 @@ ip6_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
  ml_enqueue(&ml, m);
  if_input(ifp, &ml);
  return 257;
+}
+int
+etherip_sysctl_etheripstat(void *oldp, size_t *oldlenp, void *newp)
+{
+ struct etheripstat etheripstat;
+ extern char _ctassert[(sizeof(etheripstat) == (etherips_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
+ __builtin_memset((&etheripstat), (0), (sizeof etheripstat));
+ counters_read(etheripcounters, (uint64_t *)&etheripstat,
+     etherips_ncounters);
+ return (sysctl_rdstruct(oldp, oldlenp, newp, &etheripstat,
+     sizeof(etheripstat)));
 }
 int
 ip_etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,

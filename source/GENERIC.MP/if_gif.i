@@ -2595,8 +2595,6 @@ struct tdb;
 void etherip_init(void);
 int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
 int etherip_input(struct mbuf **, int *, int, int);
-int etherip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int etherip_sysctl_etheripstat(void *, size_t *, void *);
 extern int etherip_allow;
 struct ipovly {
  u_int8_t ih_x1[9];
@@ -2715,7 +2713,6 @@ extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
-extern int encdebug;
 extern int ipforwarding;
 extern int ipmforwarding;
 extern int ipmultipath;
@@ -3089,6 +3086,7 @@ struct xformsw {
 extern int ipsec_in_use;
 extern u_int64_t ipsec_last_added;
 extern int ipsec_policy_pool_initialized;
+extern int encdebug;
 extern int ipsec_keep_invalid;
 extern int ipsec_require_pfs;
 extern int ipsec_expire_acquire;

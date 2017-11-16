@@ -3973,7 +3973,6 @@ extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
-extern int encdebug;
 extern int ipforwarding;
 extern int ipmforwarding;
 extern int ipmultipath;

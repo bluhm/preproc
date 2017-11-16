@@ -2427,7 +2427,6 @@ extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
-extern int encdebug;
 extern int ipforwarding;
 extern int ipmforwarding;
 extern int ipmultipath;
@@ -2835,6 +2834,7 @@ struct xformsw {
 extern int ipsec_in_use;
 extern u_int64_t ipsec_last_added;
 extern int ipsec_policy_pool_initialized;
+extern int encdebug;
 extern int ipsec_keep_invalid;
 extern int ipsec_require_pfs;
 extern int ipsec_expire_acquire;

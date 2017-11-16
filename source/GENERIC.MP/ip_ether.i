@@ -3452,6 +3452,7 @@ struct xformsw {
 extern int ipsec_in_use;
 extern u_int64_t ipsec_last_added;
 extern int ipsec_policy_pool_initialized;
+extern int encdebug;
 extern int ipsec_keep_invalid;
 extern int ipsec_require_pfs;
 extern int ipsec_expire_acquire;
@@ -3795,7 +3796,6 @@ extern int ipport_firstauto;
 extern int ipport_lastauto;
 extern int ipport_hifirstauto;
 extern int ipport_hilastauto;
-extern int encdebug;
 extern int ipforwarding;
 extern int ipmforwarding;
 extern int ipmultipath;
@@ -3892,8 +3892,6 @@ struct tdb;
 void etherip_init(void);
 int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
 int etherip_input(struct mbuf **, int *, int, int);
-int etherip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int etherip_sysctl_etheripstat(void *, size_t *, void *);
 extern int etherip_allow;
 struct ether_addr {
  u_int8_t ether_addr_octet[6];
@@ -5872,35 +5870,4 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
  }
  *mp = m;
  return 0;
-}
-int
-etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
-    void *newp, size_t newlen)
-{
- int error;
- if (namelen != 1)
-  return (20);
- switch (name[0]) {
- case 1:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_int(oldp, oldlenp, newp, newlen,
-      &etherip_allow);
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
- case 2:
-  return (etherip_sysctl_etheripstat(oldp, oldlenp, newp));
- default:
-  return (42);
- }
-}
-int
-etherip_sysctl_etheripstat(void *oldp, size_t *oldlenp, void *newp)
-{
- struct etheripstat etheripstat;
- extern char _ctassert[(sizeof(etheripstat) == (etherips_ncounters * sizeof(uint64_t))) ? 1 : -1 ] __attribute__((__unused__));
- __builtin_memset((&etheripstat), (0), (sizeof etheripstat));
- counters_read(etheripcounters, (uint64_t *)&etheripstat,
-     etherips_ncounters);
- return (sysctl_rdstruct(oldp, oldlenp, newp, &etheripstat,
-     sizeof(etheripstat)));
 }
