@@ -1720,6 +1720,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
@@ -4156,10 +4157,8 @@ etheripstat_pkt(enum etheripstat_counters pcounter,
  counters_pkt(etheripcounters, pcounter, bcounter, v);
 }
 struct tdb;
-void etherip_init(void);
-int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
-int etherip_input(struct mbuf **, int *, int, int);
-extern int etherip_allow;
+int mplsip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
+int mplsip_input(struct mbuf **, int *, int, int);
 struct ipipstat {
     u_int64_t ipips_ipackets;
     u_int64_t ipips_opackets;
@@ -5553,7 +5552,7 @@ int divert_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert_attach(struct socket *, int);
 int divert_detach(struct socket *);
-int ip_etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
+int etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
 int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
@@ -5646,21 +5645,9 @@ struct protosw inetsw[] = {
 {
   .pr_type = 3,
   .pr_domain = &inetdomain,
-  .pr_protocol = 97,
-  .pr_flags = 0x01|0x02,
-  .pr_input = etherip_input,
-  .pr_ctloutput = rip_ctloutput,
-  .pr_usrreq = rip_usrreq,
-  .pr_attach = rip_attach,
-  .pr_detach = rip_detach,
-  .pr_init = etherip_init,
-},
-{
-  .pr_type = 3,
-  .pr_domain = &inetdomain,
   .pr_protocol = 137,
   .pr_flags = 0x01|0x02,
-  .pr_input = etherip_input,
+  .pr_input = mplsip_input,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
   .pr_detach = rip_detach,
@@ -5788,7 +5775,7 @@ struct protosw inetsw[] = {
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
   .pr_detach = rip_detach,
-  .pr_sysctl = ip_etherip_sysctl
+  .pr_sysctl = etherip_sysctl
 },
 {
   .pr_type = 3,

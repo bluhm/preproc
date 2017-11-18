@@ -1935,6 +1935,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
@@ -2592,10 +2593,8 @@ etheripstat_pkt(enum etheripstat_counters pcounter,
  counters_pkt(etheripcounters, pcounter, bcounter, v);
 }
 struct tdb;
-void etherip_init(void);
-int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
-int etherip_input(struct mbuf **, int *, int, int);
-extern int etherip_allow;
+int mplsip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
+int mplsip_input(struct mbuf **, int *, int, int);
 struct ipovly {
  u_int8_t ih_x1[9];
  u_int8_t ih_pr;
@@ -5149,7 +5148,7 @@ in_gif_output(struct ifnet *ifp, int family, struct mbuf **m0)
  }
  *m0 = ((void *)0);
  if (family == 33)
-  error = etherip_output(m, &tdb, m0, 137);
+  error = mplsip_output(m, &tdb, m0, 137);
  else
  error = ipip_output(m, &tdb, m0, 0, 0);
  if (error)
@@ -5240,7 +5239,7 @@ in6_gif_output(struct ifnet *ifp, int family, struct mbuf **m0)
  }
  *m0 = ((void *)0);
  if (family == 33)
-  error = etherip_output(m, &tdb, m0, 137);
+  error = mplsip_output(m, &tdb, m0, 137);
  else
  error = ipip_output(m, &tdb, m0, 0, 0);
  if (error)

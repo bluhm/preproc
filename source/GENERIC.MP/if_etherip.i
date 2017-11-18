@@ -2348,6 +2348,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
@@ -3085,10 +3086,8 @@ etheripstat_pkt(enum etheripstat_counters pcounter,
  counters_pkt(etheripcounters, pcounter, bcounter, v);
 }
 struct tdb;
-void etherip_init(void);
-int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
-int etherip_input(struct mbuf **, int *, int, int);
-extern int etherip_allow;
+int mplsip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
+int mplsip_input(struct mbuf **, int *, int, int);
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -4773,7 +4772,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
-int ip_etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
+int etherip_sysctl(int *, uint, void *, size_t *, void *, size_t);
 int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
@@ -4787,6 +4786,8 @@ struct etherip_softc {
  struct { struct etherip_softc *le_next; struct etherip_softc **le_prev; } sc_entry;
 };
 struct { struct etherip_softc *lh_first; } etherip_softc_list;
+int etherip_allow = 0;
+struct cpumem *etheripcounters;
 void etheripattach(int);
 int etherip_clone_create(struct if_clone *, int);
 int etherip_clone_destroy(struct ifnet *);
@@ -4801,6 +4802,7 @@ void
 etheripattach(int count)
 {
  if_clone_attach(&etherip_cloner);
+ etheripcounters = counters_alloc(etherips_ncounters);
 }
 int
 etherip_clone_create(struct if_clone *ifc, int unit)
@@ -5073,7 +5075,9 @@ ip_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
   break;
  }
  if (ifp == ((void *)0)) {
-  return etherip_input(mp, offp, proto, af);
+  etheripstat_inc(etherips_noifdrops);
+  m_freem(m);
+  return 257;
  }
  m_adj(m, *offp);
  m = *mp = m_pullup(m, sizeof(struct etherip_header));
@@ -5191,7 +5195,9 @@ ip6_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
   }
  }
  if (ifp == ((void *)0)) {
-  return etherip_input(mp, offp, proto, af);
+  etheripstat_inc(etherips_noifdrops);
+  m_freem(m);
+  return 257;
  }
  m_adj(m, *offp);
  m = *mp = m_pullup(m, sizeof(struct etherip_header));
@@ -5231,7 +5237,7 @@ etherip_sysctl_etheripstat(void *oldp, size_t *oldlenp, void *newp)
      sizeof(etheripstat)));
 }
 int
-ip_etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
+etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
     void *newp, size_t newlen)
 {
  int error;

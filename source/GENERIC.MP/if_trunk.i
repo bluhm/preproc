@@ -2235,6 +2235,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);

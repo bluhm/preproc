@@ -3889,10 +3889,8 @@ etheripstat_pkt(enum etheripstat_counters pcounter,
  counters_pkt(etheripcounters, pcounter, bcounter, v);
 }
 struct tdb;
-void etherip_init(void);
-int etherip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
-int etherip_input(struct mbuf **, int *, int, int);
-extern int etherip_allow;
+int mplsip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
+int mplsip_input(struct mbuf **, int *, int, int);
 struct ether_addr {
  u_int8_t ether_addr_octet[6];
 };
@@ -4143,6 +4141,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
@@ -4210,6 +4209,50 @@ extern struct gif_softc_head { struct gif_softc *lh_first; } gif_softc_list;
 int gif_encap(struct ifnet *, struct mbuf **, sa_family_t);
 int in_gif_input(struct mbuf **, int *, int, int);
 int in6_gif_input(struct mbuf **, int *, int, int);
+struct shim_hdr {
+ u_int32_t shim_label;
+};
+struct sockaddr_mpls {
+ u_int8_t smpls_len;
+ u_int8_t smpls_family;
+ u_int16_t smpls_pad0;
+ u_int32_t smpls_label;
+ u_int32_t smpls_pad1[2];
+};
+struct rt_mpls {
+ u_int32_t mpls_label;
+ u_int8_t mpls_operation;
+ u_int8_t mpls_exp;
+};
+struct ifmpwreq {
+ uint32_t imr_flags;
+ uint32_t imr_type;
+ struct shim_hdr imr_lshim;
+ struct shim_hdr imr_rshim;
+ struct sockaddr_storage imr_nexthop;
+};
+extern struct domain mplsdomain;
+struct mpe_softc {
+ struct ifnet sc_if;
+ struct ifaddr sc_ifa;
+ int sc_unit;
+ struct sockaddr_mpls sc_smpls;
+ struct { struct mpe_softc *le_next; struct mpe_softc **le_prev; } sc_list;
+};
+void mpe_input(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+void mpe_input6(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+extern int mpls_defttl;
+extern int mpls_mapttl_ip;
+extern int mpls_mapttl_ip6;
+extern int mpls_inkloop;
+struct mbuf *mpls_shim_pop(struct mbuf *);
+struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
+struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
+int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+      struct rtentry *);
+void mpls_input(struct mbuf *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -5276,429 +5319,27 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
-struct ifbreq {
- char ifbr_name[16];
- char ifbr_ifsname[16];
- u_int32_t ifbr_ifsflags;
- u_int32_t ifbr_portno;
- u_int8_t ifbr_state;
- u_int8_t ifbr_priority;
- u_int32_t ifbr_path_cost;
- u_int32_t ifbr_stpflags;
- u_int8_t ifbr_proto;
- u_int8_t ifbr_role;
- u_int32_t ifbr_fwd_trans;
- u_int64_t ifbr_desg_bridge;
- u_int32_t ifbr_desg_port;
- u_int64_t ifbr_root_bridge;
- u_int32_t ifbr_root_cost;
- u_int32_t ifbr_root_port;
-};
-struct ifbifconf {
- char ifbic_name[16];
- u_int32_t ifbic_len;
- union {
-  caddr_t ifbicu_buf;
-  struct ifbreq *ifbicu_req;
- } ifbic_ifbicu;
-};
-struct ifbareq {
- char ifba_name[16];
- char ifba_ifsname[16];
- u_int8_t ifba_age;
- u_int8_t ifba_flags;
- struct ether_addr ifba_dst;
- struct sockaddr_storage ifba_dstsa;
-};
-struct ifbaconf {
- char ifbac_name[16];
- u_int32_t ifbac_len;
- union {
-  caddr_t ifbacu_buf;
-  struct ifbareq *ifbacu_req;
- } ifbac_ifbacu;
-};
-struct ifbrparam {
- char ifbrp_name[16];
- union {
-  u_int32_t ifbrpu_csize;
-  int ifbrpu_ctime;
-  u_int16_t ifbrpu_prio;
-  u_int8_t ifbrpu_hellotime;
-  u_int8_t ifbrpu_fwddelay;
-  u_int8_t ifbrpu_maxage;
-  u_int8_t ifbrpu_proto;
-  u_int8_t ifbrpu_txhc;
-  u_int64_t ifbrpu_datapath;
-  u_int32_t ifbrpu_maxgroup;
- } ifbrp_ifbrpu;
-};
-struct ifbropreq {
- char ifbop_name[16];
- u_int8_t ifbop_holdcount;
- u_int8_t ifbop_maxage;
- u_int8_t ifbop_hellotime;
- u_int8_t ifbop_fwddelay;
- u_int8_t ifbop_protocol;
- u_int16_t ifbop_priority;
- u_int64_t ifbop_root_bridge;
- u_int16_t ifbop_root_port;
- u_int32_t ifbop_root_path_cost;
- u_int64_t ifbop_desg_bridge;
- struct timeval ifbop_last_tc_time;
-};
-struct ifbrlreq {
- char ifbr_name[16];
- char ifbr_ifsname[16];
- u_int8_t ifbr_action;
- u_int8_t ifbr_flags;
- struct ether_addr ifbr_src;
- struct ether_addr ifbr_dst;
- char ifbr_tagname[64];
-};
-struct ifbrlconf {
- char ifbrl_name[16];
- char ifbrl_ifsname[16];
- u_int32_t ifbrl_len;
- union {
-  caddr_t ifbrlu_buf;
-  struct ifbrlreq *ifbrlu_req;
- } ifbrl_ifbrlu;
-};
-struct brl_head { struct brl_node *sqh_first; struct brl_node **sqh_last; };
-struct brl_node {
- struct { struct brl_node *sqe_next; } brl_next;
- struct ether_addr brl_src;
- struct ether_addr brl_dst;
- u_int16_t brl_tag;
- u_int8_t brl_action;
- u_int8_t brl_flags;
-};
-struct bstp_timer {
- u_int16_t active;
- u_int16_t value;
- u_int32_t latched;
-};
-struct bstp_pri_vector {
- u_int64_t pv_root_id;
- u_int32_t pv_cost;
- u_int64_t pv_dbridge_id;
- u_int16_t pv_dport_id;
- u_int16_t pv_port_id;
-};
-struct bstp_config_unit {
- struct bstp_pri_vector cu_pv;
- u_int16_t cu_message_age;
- u_int16_t cu_max_age;
- u_int16_t cu_forward_delay;
- u_int16_t cu_hello_time;
- u_int8_t cu_message_type;
- u_int8_t cu_topology_change_ack;
- u_int8_t cu_topology_change;
- u_int8_t cu_proposal;
- u_int8_t cu_agree;
- u_int8_t cu_learning;
- u_int8_t cu_forwarding;
- u_int8_t cu_role;
-};
-struct bstp_tcn_unit {
- u_int8_t tu_message_type;
-};
-struct bstp_port {
- struct { struct bstp_port *le_next; struct bstp_port **le_prev; } bp_next;
- struct ifnet *bp_ifp;
- struct bstp_state *bp_bs;
- void *bp_lhcookie;
- u_int8_t bp_active;
- u_int8_t bp_protover;
- u_int32_t bp_flags;
- u_int32_t bp_path_cost;
- u_int16_t bp_port_msg_age;
- u_int16_t bp_port_max_age;
- u_int16_t bp_port_fdelay;
- u_int16_t bp_port_htime;
- u_int16_t bp_desg_msg_age;
- u_int16_t bp_desg_max_age;
- u_int16_t bp_desg_fdelay;
- u_int16_t bp_desg_htime;
- struct bstp_timer bp_edge_delay_timer;
- struct bstp_timer bp_forward_delay_timer;
- struct bstp_timer bp_hello_timer;
- struct bstp_timer bp_message_age_timer;
- struct bstp_timer bp_migrate_delay_timer;
- struct bstp_timer bp_recent_backup_timer;
- struct bstp_timer bp_recent_root_timer;
- struct bstp_timer bp_tc_timer;
- struct bstp_config_unit bp_msg_cu;
- struct bstp_pri_vector bp_desg_pv;
- struct bstp_pri_vector bp_port_pv;
- u_int16_t bp_port_id;
- u_int8_t bp_state;
- u_int8_t bp_tcstate;
- u_int8_t bp_role;
- u_int8_t bp_infois;
- u_int8_t bp_tc_ack;
- u_int8_t bp_tc_prop;
- u_int8_t bp_fdbflush;
- u_int8_t bp_priority;
- u_int8_t bp_ptp_link;
- u_int8_t bp_agree;
- u_int8_t bp_agreed;
- u_int8_t bp_sync;
- u_int8_t bp_synced;
- u_int8_t bp_proposing;
- u_int8_t bp_proposed;
- u_int8_t bp_operedge;
- u_int8_t bp_reroot;
- u_int8_t bp_rcvdtc;
- u_int8_t bp_rcvdtca;
- u_int8_t bp_rcvdtcn;
- u_int32_t bp_forward_transitions;
- u_int8_t bp_txcount;
-};
-struct bstp_state {
- struct ifnet *bs_ifp;
- struct bstp_pri_vector bs_bridge_pv;
- struct bstp_pri_vector bs_root_pv;
- struct bstp_port *bs_root_port;
- u_int8_t bs_protover;
- u_int16_t bs_migration_delay;
- u_int16_t bs_edge_delay;
- u_int16_t bs_bridge_max_age;
- u_int16_t bs_bridge_fdelay;
- u_int16_t bs_bridge_htime;
- u_int16_t bs_root_msg_age;
- u_int16_t bs_root_max_age;
- u_int16_t bs_root_fdelay;
- u_int16_t bs_root_htime;
- u_int16_t bs_hold_time;
- u_int16_t bs_bridge_priority;
- u_int8_t bs_txholdcount;
- u_int8_t bs_allsynced;
- struct timeout bs_bstptimeout;
- struct bstp_timer bs_link_timer;
- struct timeval bs_last_tc_time;
- struct { struct bstp_port *lh_first; } bs_bplist;
-};
-struct bridge_iflist {
- struct { struct bridge_iflist *tqe_next; struct bridge_iflist **tqe_prev; } next;
- struct bridge_softc *bridge_sc;
- struct bstp_port *bif_stp;
- struct brl_head bif_brlin;
- struct brl_head bif_brlout;
- struct ifnet *ifp;
- u_int32_t bif_flags;
- void *bif_dhcookie;
-};
-union brsockaddr_union {
- struct sockaddr sa;
- struct sockaddr_in sin;
- struct sockaddr_in6 sin6;
-};
-struct bridge_tunneltag {
- union brsockaddr_union brtag_peer;
- union brsockaddr_union brtag_local;
- u_int32_t brtag_id;
-};
-struct bridge_rtnode {
- struct { struct bridge_rtnode *le_next; struct bridge_rtnode **le_prev; } brt_next;
- struct ifnet *brt_if;
- u_int8_t brt_flags;
- u_int8_t brt_age;
- struct ether_addr brt_addr;
- struct bridge_tunneltag brt_tunnel;
-};
-struct bridge_softc {
- struct ifnet sc_if;
- u_int32_t sc_brtmax;
- u_int32_t sc_brtcnt;
- int sc_brttimeout;
- u_int64_t sc_hashkey[2];
- struct timeout sc_brtimeout;
- struct bstp_state *sc_stp;
- struct { struct bridge_iflist *tqh_first; struct bridge_iflist **tqh_last; } sc_iflist;
- struct { struct bridge_iflist *tqh_first; struct bridge_iflist **tqh_last; } sc_spanlist;
- struct { struct bridge_rtnode *lh_first; } sc_rts[1024];
-};
-extern const u_int8_t bstp_etheraddr[];
-struct llc;
-int bridge_output(struct ifnet *, struct mbuf *, struct sockaddr *,
-    struct rtentry *);
-void bridge_update(struct ifnet *, struct ether_addr *, int);
-void bridge_rtdelete(struct bridge_softc *, struct ifnet *, int);
-void bridge_rtagenode(struct ifnet *, int);
-struct bridge_tunneltag *bridge_tunnel(struct mbuf *);
-struct bridge_tunneltag *bridge_tunneltag(struct mbuf *);
-void bridge_tunneluntag(struct mbuf *);
-void bridge_copyaddr(struct sockaddr *, struct sockaddr *);
-void bridge_copytag(struct bridge_tunneltag *, struct bridge_tunneltag *);
-struct bstp_state *bstp_create(struct ifnet *);
-void bstp_destroy(struct bstp_state *);
-void bstp_initialization(struct bstp_state *);
-void bstp_stop(struct bstp_state *);
-int bstp_ioctl(struct ifnet *, u_long, caddr_t);
-struct bstp_port *bstp_add(struct bstp_state *, struct ifnet *);
-void bstp_delete(struct bstp_port *);
-struct mbuf *bstp_input(struct bstp_state *, struct bstp_port *,
-    struct ether_header *, struct mbuf *);
-void bstp_ifstate(void *);
-u_int8_t bstp_getstate(struct bstp_state *, struct bstp_port *);
-void bstp_ifsflags(struct bstp_port *, u_int);
-void bridge_send_icmp_err(struct bridge_softc *, struct ifnet *,
-    struct ether_header *, struct mbuf *, int, struct llc *, int, int, int);
-int bridgectl_ioctl(struct ifnet *, u_long, caddr_t);
-struct ifnet *bridge_rtupdate(struct bridge_softc *,
-    struct ether_addr *, struct ifnet *ifp, int, u_int8_t, struct mbuf *);
-struct bridge_rtnode *bridge_rtlookup(struct bridge_softc *,
-    struct ether_addr *);
-void bridge_rtflush(struct bridge_softc *, int);
-void bridge_rtage(void *);
-u_int8_t bridge_filterrule(struct brl_head *, struct ether_header *,
-    struct mbuf *);
-void bridge_flushrule(struct bridge_iflist *);
-struct mbuf *bridge_ip(struct bridge_softc *, int, struct ifnet *,
-    struct ether_header *, struct mbuf *);
-void bridge_fragment(struct bridge_softc *, struct ifnet *,
-    struct ether_header *, struct mbuf *);
-int bridge_ifenqueue(struct bridge_softc *, struct ifnet *, struct mbuf *);
-struct shim_hdr {
- u_int32_t shim_label;
-};
-struct sockaddr_mpls {
- u_int8_t smpls_len;
- u_int8_t smpls_family;
- u_int16_t smpls_pad0;
- u_int32_t smpls_label;
- u_int32_t smpls_pad1[2];
-};
-struct rt_mpls {
- u_int32_t mpls_label;
- u_int8_t mpls_operation;
- u_int8_t mpls_exp;
-};
-struct ifmpwreq {
- uint32_t imr_flags;
- uint32_t imr_type;
- struct shim_hdr imr_lshim;
- struct shim_hdr imr_rshim;
- struct sockaddr_storage imr_nexthop;
-};
-extern struct domain mplsdomain;
-struct mpe_softc {
- struct ifnet sc_if;
- struct ifaddr sc_ifa;
- int sc_unit;
- struct sockaddr_mpls sc_smpls;
- struct { struct mpe_softc *le_next; struct mpe_softc **le_prev; } sc_list;
-};
-void mpe_input(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
-     u_int8_t);
-void mpe_input6(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
-     u_int8_t);
-extern int mpls_defttl;
-extern int mpls_mapttl_ip;
-extern int mpls_mapttl_ip6;
-extern int mpls_inkloop;
-struct mbuf *mpls_shim_pop(struct mbuf *);
-struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
-struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
-int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
-      struct rtentry *);
-void mpls_input(struct mbuf *);
-void etherip_decap(struct mbuf *, int);
 void mplsip_decap(struct mbuf *, int);
-struct gif_softc *etherip_getgif(struct mbuf *);
-int etherip_allow = 0;
-struct cpumem *etheripcounters;
-void
-etherip_init(void)
-{
- etheripcounters = counters_alloc(etherips_ncounters);
-}
+struct gif_softc *mplsip_getgif(struct mbuf *);
 int
-etherip_input(struct mbuf **mp, int *offp, int proto, int af)
+mplsip_input(struct mbuf **mp, int *offp, int proto, int af)
 {
  switch (proto) {
- case 97:
-  if (!etherip_allow && ((*mp)->m_hdr.mh_flags & (0x0800|0x0400)) == 0) {
-   ;
-   etheripstat_inc(etherips_pdrops);
-   m_freemp(mp);
-   return 257;
-  }
-  etherip_decap(*mp, *offp);
-  return 257;
  case 137:
   mplsip_decap(*mp, *offp);
   return 257;
  default:
   ;
-  etheripstat_inc(etherips_pdrops);
   m_freemp(mp);
   return 257;
  }
 }
 void
-etherip_decap(struct mbuf *m, int iphlen)
-{
- struct etherip_header eip;
- struct gif_softc *sc;
- struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- etheripstat_inc(etherips_ipackets);
- if (m->M_dat.MH.MH_pkthdr.len < iphlen + sizeof(struct ether_header) +
-     sizeof(struct etherip_header)) {
-  ;
-  etheripstat_inc(etherips_hdrops);
-  m_freem(m);
-  return;
- }
- m_copydata(m, iphlen, sizeof(struct etherip_header), (caddr_t)&eip);
- if (eip.eip_ver == 0x03) {
- } else {
-  ;
-  etheripstat_inc(etherips_adrops);
-  m_freem(m);
-  return;
- }
- if (eip.eip_pad) {
-  ;
-  etheripstat_inc(etherips_adrops);
-  m_freem(m);
-  return;
- }
- if (m->m_hdr.mh_len < iphlen + sizeof(struct ether_header) +
-     sizeof(struct etherip_header)) {
-  if ((m = m_pullup(m, iphlen + sizeof(struct ether_header) +
-      sizeof(struct etherip_header))) == ((void *)0)) {
-   ;
-   etheripstat_inc(etherips_adrops);
-   return;
-  }
- }
- sc = etherip_getgif(m);
- if (sc == ((void *)0))
-  return;
- if (sc->gif_if.if_bridgeport == ((void *)0)) {
-  ;
-  etheripstat_inc(etherips_noifdrops);
-  m_freem(m);
-  return;
- }
- m_adj(m, iphlen + sizeof(struct etherip_header));
- etheripstat_add(etherips_ibytes, m->M_dat.MH.MH_pkthdr.len);
- m->m_hdr.mh_flags &= ~(0x0100|0x0200|0x0800|0x0400|0x0010);
- pf_pkt_addr_changed(m);
- ml_enqueue(&ml, m);
- if_input(&sc->gif_if, &ml);
-}
-void
 mplsip_decap(struct mbuf *m, int iphlen)
 {
  struct gif_softc *sc;
- etheripstat_inc(etherips_ipackets);
  if (m->M_dat.MH.MH_pkthdr.len < iphlen + sizeof(struct shim_hdr)) {
   ;
-  etheripstat_inc(etherips_hdrops);
   m_freem(m);
   return;
  }
@@ -5706,15 +5347,13 @@ mplsip_decap(struct mbuf *m, int iphlen)
   if ((m = m_pullup(m, iphlen + sizeof(struct shim_hdr))) ==
       ((void *)0)) {
    ;
-   etheripstat_inc(etherips_adrops);
    return;
   }
  }
- sc = etherip_getgif(m);
+ sc = mplsip_getgif(m);
  if (sc == ((void *)0))
   return;
  m_adj(m, iphlen);
- etheripstat_add(etherips_ibytes, m->M_dat.MH.MH_pkthdr.len);
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  if (sc->gif_if.if_bpf)
   bpf_mtap_af(sc->gif_if.if_bpf, 33, m, 1);
@@ -5724,7 +5363,7 @@ mplsip_decap(struct mbuf *m, int iphlen)
  mpls_input(m);
 }
 struct gif_softc *
-etherip_getgif(struct mbuf *m)
+mplsip_getgif(struct mbuf *m)
 {
  union sockaddr_union ssrc, sdst;
  struct gif_softc *sc;
@@ -5756,7 +5395,6 @@ etherip_getgif(struct mbuf *m)
  default:
   ;
   m_freem(m);
-  etheripstat_inc(etherips_hdrops);
   return ((void *)0);
  }
  for((sc) = ((&gif_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->gif_list.le_next)) {
@@ -5770,37 +5408,32 @@ etherip_getgif(struct mbuf *m)
  }
  if (sc == ((void *)0)) {
   ;
-  etheripstat_inc(etherips_noifdrops);
   m_freem(m);
   return ((void *)0);
  }
  return sc;
 }
 int
-etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
+mplsip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
 {
  struct ip *ipo;
  struct ip6_hdr *ip6;
- struct etherip_header eip;
  ushort hlen;
  if ((tdb->tdb_src.sa.sa_family != 0) &&
      (tdb->tdb_src.sa.sa_family != 2) &&
      (tdb->tdb_src.sa.sa_family != 24)) {
   ;
-  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
  if ((tdb->tdb_dst.sa.sa_family != 2) &&
      (tdb->tdb_dst.sa.sa_family != 24)) {
   ;
-  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
  if (tdb->tdb_dst.sa.sa_family != tdb->tdb_src.sa.sa_family) {
   ;
-  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
@@ -5813,27 +5446,21 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
   break;
  default:
   ;
-  etheripstat_inc(etherips_adrops);
   m_freem(m);
   return 22;
  }
- if (proto == 97)
-  hlen += sizeof(struct etherip_header);
  (m) = m_prepend((m), (hlen), (0x0002));
  if (m == ((void *)0)) {
   ;
-  etheripstat_inc(etherips_adrops);
   return 55;
  }
  if ((long)((caddr_t)((m)->m_hdr.mh_data)) & 0x03) {
   int off = (long)((caddr_t)((m)->m_hdr.mh_data)) & 0x03;
   if (m_leadingspace(m) < off)
-   panic("etherip_output: no space for align fixup");
+   panic("mplsip_output: no space for align fixup");
   m->m_hdr.mh_data -= off;
   __builtin_memmove((((caddr_t)((m)->m_hdr.mh_data))), (((caddr_t)((m)->m_hdr.mh_data)) + off), (m->m_hdr.mh_len));
  }
- etheripstat_pkt(etherips_opackets, etherips_obytes,
-     m->M_dat.MH.MH_pkthdr.len - hlen);
  switch (tdb->tdb_dst.sa.sa_family) {
  case 2:
   ipo = ((struct ip *)((m)->m_hdr.mh_data));
@@ -5860,13 +5487,6 @@ etherip_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int proto)
   ip6->ip6_dst = tdb->tdb_dst.sin6.sin6_addr;
   ip6->ip6_src = tdb->tdb_src.sin6.sin6_addr;
   break;
- }
- if (proto == 97) {
-  eip.eip_ver = 0x03;
-  eip.eip_res = 0;
-  eip.eip_pad = 0;
-  m_copyback(m, hlen - sizeof(struct etherip_header),
-      sizeof(struct etherip_header), &eip, 0x0002);
  }
  *mp = m;
  return 0;

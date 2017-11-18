@@ -3831,7 +3831,7 @@ fusefs_readdir(void *v)
  struct vnode *vp;
  struct proc *p;
  struct uio *uio;
- int error = 0, eofflag = 0;
+ int error = 0, eofflag = 0, diropen = 0;
  vp = ap->a_vp;
  uio = ap->a_uio;
  p = uio->uio_procp;
@@ -3841,17 +3841,21 @@ fusefs_readdir(void *v)
   return (6);
  if (uio->uio_resid < sizeof(struct dirent))
   return (22);
+ if (ip->fufh[FUFH_RDONLY].fh_type == FUFH_INVALID) {
+  error = fusefs_file_open(fmp, ip, FUFH_RDONLY, 0x0000, 1, p);
+  if (error)
+   return (error);
+  diropen = 1;
+ }
  while (uio->uio_resid > 0) {
   fbuf = fb_setup(0, ip->ufs_ino.i_number, 21, p);
-  if (ip->fufh[FUFH_RDONLY].fh_type == FUFH_INVALID) {
-   fb_delete(fbuf);
-   return (error);
-  }
   fbuf->FD.FD_io.fi_fd = ip->fufh[FUFH_RDONLY].fh_id;
   fbuf->FD.FD_io.fi_off = uio->uio_offset;
   fbuf->FD.FD_io.fi_len = (((uio->uio_resid)<(fmp->max_read))?(uio->uio_resid):(fmp->max_read));
   error = fb_queue(fmp->dev, fbuf);
   if (error) {
+   if (error == 55 && fbuf->fb_hdr.fh_len == 0)
+    error = 0;
    fb_delete(fbuf);
    break;
   }
@@ -3868,6 +3872,8 @@ fusefs_readdir(void *v)
  }
  if (!error && ap->a_eofflag != ((void *)0))
   *ap->a_eofflag = eofflag;
+ if (diropen)
+  fusefs_file_close(fmp, ip, FUFH_RDONLY, 0x0000, 1, p);
  return (error);
 }
 int

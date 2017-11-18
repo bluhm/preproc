@@ -3103,6 +3103,7 @@ void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
 void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
      void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
 void if_rxr_init(struct if_rxring *, u_int, u_int);
 u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
@@ -7319,6 +7320,16 @@ if_rxr_adjust_cwm(struct if_rxring *rxr)
  else if (rxr->rxr_cwm < rxr->rxr_hwm)
   rxr->rxr_cwm++;
  rxr->rxr_adjusted = ticks;
+}
+void
+if_rxr_livelocked(struct if_rxring *rxr)
+{
+ extern int ticks;
+ if (ticks - rxr->rxr_adjusted >= 1) {
+  if (rxr->rxr_cwm > rxr->rxr_lwm)
+   rxr->rxr_cwm--;
+  rxr->rxr_adjusted = ticks;
+ }
 }
 u_int
 if_rxr_get(struct if_rxring *rxr, u_int max)
