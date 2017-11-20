@@ -3791,12 +3791,14 @@ struct process;
 struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
-struct mutex entropylock = { ((void *)0), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))), 0 };
 struct rand_event {
  u_int re_time;
  u_int re_val;
-} rnd_event_space[(1024 / sizeof(struct rand_event))];
-u_int rnd_event_idx;
+} rnd_event_space[128];
+u_int rnd_event_cons;
+u_int rnd_event_prod;
+struct mutex rnd_enqlck = { ((void *)0), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))), 0 };
+struct mutex rnd_deqlck = { ((void *)0), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))), 0 };
 struct timeout rnd_timeout;
 static u_int32_t entropy_pool[2048];
 u_int32_t entropy_pool0[2048] __attribute__((section(".openbsd.randomdata")));
@@ -3815,45 +3817,48 @@ struct filterops randomread_filtops =
  { 1, ((void *)0), filt_randomdetach, filt_randomread };
 struct filterops randomwrite_filtops =
  { 1, ((void *)0), filt_randomdetach, filt_randomwrite };
-static __inline struct rand_event *
+static inline struct rand_event *
 rnd_get(void)
 {
- if (rnd_event_idx == 0)
+ u_int idx;
+ if (rnd_event_prod == rnd_event_cons)
   return ((void *)0);
- if (rnd_event_idx > (1024 / sizeof(struct rand_event)))
-  rnd_event_idx = (1024 / sizeof(struct rand_event));
- return &rnd_event_space[--rnd_event_idx];
+ if (rnd_event_prod - rnd_event_cons > 128)
+  rnd_event_cons = rnd_event_prod - 128;
+ idx = rnd_event_cons++;
+ return &rnd_event_space[idx & (128 - 1)];
 }
-static __inline struct rand_event *
+static inline struct rand_event *
 rnd_put(void)
 {
- u_int idx = rnd_event_idx++;
- idx = idx % (1024 / sizeof(struct rand_event));
- return &rnd_event_space[idx];
+ u_int idx = rnd_event_prod++;
+ return &rnd_event_space[idx & (128 - 1)];
 }
-static __inline u_int
+static inline u_int
 rnd_qlen(void)
 {
- return rnd_event_idx;
+ return rnd_event_prod - rnd_event_cons;
 }
 void
 enqueue_randomness(u_int state, u_int val)
 {
  struct rand_event *rep;
  struct timespec ts;
+ u_int qlen;
  if (state >= 8)
   return;
  if (((&rnd_timeout)->to_flags & 4))
   nanotime(&ts);
  val += state << 13;
- __mtx_enter(&entropylock );
+ __mtx_enter(&rnd_enqlck );
  rep = rnd_put();
  rep->re_time += ts.tv_nsec ^ (ts.tv_sec << 20);
  rep->re_val += val;
- if (rnd_qlen() > ((1024 / sizeof(struct rand_event)) * 3 / 4)/2 && ((&rnd_timeout)->to_flags & 4) &&
+ qlen = rnd_qlen();
+ __mtx_leave(&rnd_enqlck );
+ if (qlen > (128 * 3 / 4)/2 && ((&rnd_timeout)->to_flags & 4) &&
      !((&rnd_timeout)->to_flags & 2))
   timeout_add(&rnd_timeout, 1);
- __mtx_leave(&entropylock );
 }
 void
 add_entropy_words(const u_int32_t *buf, u_int n)
@@ -3883,17 +3888,17 @@ dequeue_randomness(void *v)
 {
  struct rand_event *rep;
  u_int32_t buf[2];
- __mtx_enter(&entropylock );
  if (((&rnd_timeout)->to_flags & 4))
   timeout_del(&rnd_timeout);
+ __mtx_enter(&rnd_deqlck );
  while ((rep = rnd_get())) {
   buf[0] = rep->re_time;
   buf[1] = rep->re_val;
-  __mtx_leave(&entropylock );
+  __mtx_leave(&rnd_deqlck );
   add_entropy_words(buf, 2);
-  __mtx_enter(&entropylock );
+  __mtx_enter(&rnd_deqlck );
  }
- __mtx_leave(&entropylock );
+ __mtx_leave(&rnd_deqlck );
 }
 void
 extract_entropy(u_int8_t *buf)
@@ -3948,7 +3953,7 @@ static inline void _rs_rekey(u_char *dat, size_t datlen);
 static inline void
 _rs_init(u_char *buf, size_t n)
 {
- ((n >= 32 + 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rnd.c", 483, "n >= KEYSZ + IVSZ"));
+ ((n >= 32 + 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rnd.c", 478, "n >= KEYSZ + IVSZ"));
  chacha_keysetup(&rs, buf, 32 * 8);
  chacha_ivsetup(&rs, buf + 32, ((void *)0));
 }
