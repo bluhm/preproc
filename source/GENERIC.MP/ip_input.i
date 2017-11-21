@@ -3195,7 +3195,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -3251,7 +3251,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -6778,7 +6778,7 @@ ip_stripoptions(struct mbuf *m)
  ip->ip_hl = sizeof(struct ip) >> 2;
  ip->ip_len = ((__uint16_t)(((__uint16_t)(ip->ip_len)) - olen));
 }
-int inetctlerrmap[21] = {
+const int inetctlerrmap[21] = {
  0, 0, 0, 0,
  0, 40, 64, 65,
  65, 65, 61, 61,

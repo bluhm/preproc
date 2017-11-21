@@ -2049,7 +2049,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2105,7 +2105,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -2552,73 +2552,6 @@ struct ip6_frag {
  u_int32_t ip6f_ident;
 } __attribute__((__packed__));
 struct m_tag;
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -2695,6 +2628,73 @@ struct sockaddr_encap {
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct ipsec_id {
  u_int16_t type;
  int16_t len;
@@ -3156,7 +3156,6 @@ int pfkeyv2_send(struct socket *, void *, int);
 int pfkeyv2_sendmessage(void **, int, struct socket *, u_int8_t, int, u_int);
 int pfkeyv2_dump_policy(struct ipsec_policy *, void **, void **, int *);
 int pfkeyv2_dump_walker(struct tdb *, void *, int);
-int pfkeyv2_flush_walker(struct tdb *, void *, int);
 int pfkeyv2_get_proto_alg(u_int8_t, u_int8_t *, int *);
 int pfkeyv2_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pfkeyv2_sysctl_walker(struct tdb *, void *, int);

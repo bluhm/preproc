@@ -2348,7 +2348,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2404,7 +2404,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -2749,47 +2749,6 @@ u_int32_t ether_crc32_be_update(u_int32_t crc, const u_int8_t *, size_t);
 u_int32_t ether_crc32_le(const u_int8_t *, size_t);
 u_int32_t ether_crc32_be(const u_int8_t *, size_t);
 struct m_tag;
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -2866,6 +2825,47 @@ struct sockaddr_encap {
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct ipsec_id {
  u_int16_t type;
  int16_t len;

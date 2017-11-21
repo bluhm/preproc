@@ -2760,7 +2760,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2816,7 +2816,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -7191,9 +7191,11 @@ int
 ifpromisc(struct ifnet *ifp, int pswitch)
 {
  struct ifreq ifr;
+ unsigned short oif_flags;
+ int oif_pcount, error;
+ oif_flags = ifp->if_flags;
+ oif_pcount = ifp->if_pcount;
  if (pswitch) {
-  if ((ifp->if_flags & 0x1) == 0)
-   return (50);
   if (ifp->if_pcount++ != 0)
    return (0);
   ifp->if_flags |= 0x100;
@@ -7201,11 +7203,17 @@ ifpromisc(struct ifnet *ifp, int pswitch)
   if (--ifp->if_pcount > 0)
    return (0);
   ifp->if_flags &= ~0x100;
-  if ((ifp->if_flags & 0x1) == 0)
-   return (0);
  }
+ if ((ifp->if_flags & 0x1) == 0)
+  return (0);
+ __builtin_memset((&ifr), (0), (sizeof(ifr)));
  ifr.ifr_ifru.ifru_flags = ifp->if_flags;
- return ((*ifp->if_ioctl)(ifp, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))), (caddr_t)&ifr));
+ error = ((*ifp->if_ioctl)(ifp, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))), (caddr_t)&ifr));
+ if (error) {
+  ifp->if_flags = oif_flags;
+  ifp->if_pcount = oif_pcount;
+ }
+ return (error);
 }
 void
 ifa_add(struct ifnet *ifp, struct ifaddr *ifa)

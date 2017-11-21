@@ -2102,7 +2102,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2158,7 +2158,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -5700,7 +5700,6 @@ switch_port_add(struct switch_softc *sc, struct ifbreq *req)
 {
  struct ifnet *ifs;
  struct switch_port *swpo;
- struct ifreq ifreq;
  int error;
  if ((ifs = ifunit(req->ifbr_ifsname)) == ((void *)0))
   return (2);
@@ -5714,27 +5713,8 @@ switch_port_add(struct switch_softc *sc, struct ifbreq *req)
    return (16);
  }
  if (ifs->if_data.ifi_type == 0x06) {
-  if ((ifs->if_flags & 0x1) == 0) {
-   strlcpy(ifreq.ifr_name, req->ifbr_ifsname, 16);
-   ifs->if_flags |= 0x1;
-   ifreq.ifr_ifru.ifru_flags = ifs->if_flags;
-   if ((error = (*ifs->if_ioctl)(ifs, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))),
-       (caddr_t)&ifreq)) != 0)
-    return (error);
-   if ((error = ifpromisc(ifs, 1)) != 0)
-    return (error);
-   strlcpy(ifreq.ifr_name, req->ifbr_ifsname, 16);
-   ifs->if_flags &= ~0x1;
-   ifreq.ifr_ifru.ifru_flags = ifs->if_flags;
-   if ((error = (*ifs->if_ioctl)(ifs, ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))),
-       (caddr_t)&ifreq)) != 0) {
-    ifpromisc(ifs, 0);
-    return (error);
-   }
-  } else {
-   if ((error = ifpromisc(ifs, 1)) != 0)
-    return (error);
-  }
+  if ((error = ifpromisc(ifs, 1)) != 0)
+   return (error);
  }
  swpo = malloc(sizeof(*swpo), 2, 0x0002|0x0008);
  if (swpo == ((void *)0)) {
@@ -5829,7 +5809,7 @@ switch_port_del(struct switch_softc *sc, struct ifbreq *req)
 int
 switch_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_switch.c", 651, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_switch.c", 626, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);

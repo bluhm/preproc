@@ -2532,7 +2532,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2588,7 +2588,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -5061,6 +5061,7 @@ ip_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
   etheripstat_inc(etherips_pdrops);
   return 257;
  }
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((sc) = ((&etherip_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_entry.le_next)) {
   if (sc->sc_src.ss_family != 2 ||
       sc->sc_dst.ss_family != 2)
@@ -5180,6 +5181,7 @@ ip6_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
  ip6 = ((const struct ip6_hdr *)((m)->m_hdr.mh_data));
  in6_recoverscope(&ipsrc, &ip6->ip6_src);
  in6_recoverscope(&ipdst, &ip6->ip6_dst);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((sc) = ((&etherip_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_entry.le_next)) {
   if (sc->sc_src.ss_family != 24 ||
       sc->sc_dst.ss_family != 24)

@@ -2346,7 +2346,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2402,7 +2402,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -2920,6 +2920,7 @@ struct router_info *
 rti_find(struct ifnet *ifp)
 {
  struct router_info *rti;
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/igmp.c", 180, "_kernel_lock_held()"));
  for (rti = rti_head; rti != 0; rti = rti->rti_next) {
   if (rti->rti_ifidx == ifp->if_index)
    return (rti);
@@ -2957,7 +2958,9 @@ igmp_input(struct mbuf **mp, int *offp, int proto, int af)
   m_freemp(mp);
   return 257;
  }
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/igmp.c", 225);
  proto = igmp_input_if(ifp, mp, offp, proto, af);
+ _kernel_unlock();
  if_put(ifp);
  return proto;
 }

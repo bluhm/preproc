@@ -2831,7 +2831,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2887,7 +2887,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -5834,6 +5834,7 @@ ipsec_common_ctlinput(u_int rdomain, int cmd, struct sockaddr *sa,
       proto);
   if (tdbp == ((void *)0) || tdbp->tdb_flags & 0x00010)
    return;
+  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
   for (; tdbp; tdbp = tdbp->tdb_inext) {
    if (tdbp->tdb_flags & 0x00010 ||
        (adjust = ipsec_hdrsz(tdbp)) == -1)

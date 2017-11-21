@@ -2478,7 +2478,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2534,7 +2534,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -6320,6 +6320,7 @@ pfsync_input(struct mbuf **mp, int *offp, int proto, int af)
  struct pfsync_subheader subh;
  int offset, noff, len, count, mlen, flags = 0;
  int e;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  pfsyncstat_inc(pfsyncs_ipackets);
  if (sc == ((void *)0) || !((sc->sc_if.if_flags) & (0x40)) ||
      sc->sc_sync_if == ((void *)0) || !pf_status.running)
@@ -7383,7 +7384,7 @@ pfsync_q_ins(struct pf_state *st, int q)
 {
  struct pfsync_softc *sc = pfsyncif;
  size_t nlen = pfsync_qs[q].len;
- ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2066, "st->sync_state == PFSYNC_S_NONE"));
+ ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2068, "st->sync_state == PFSYNC_S_NONE"));
  if ((((&sc->sc_qs[q])->tqh_first) == ((void *)0)))
   nlen += sizeof(struct pfsync_subheader);
  if (sc->sc_len + nlen > sc->sc_if.if_data.ifi_mtu) {
@@ -7399,7 +7400,7 @@ pfsync_q_del(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int q = st->sync_state;
- ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2092, "st->sync_state != PFSYNC_S_NONE"));
+ ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2094, "st->sync_state != PFSYNC_S_NONE"));
  sc->sc_len -= pfsync_qs[q].len;
  do { if (((st)->sync_list.tqe_next) != ((void *)0)) (st)->sync_list.tqe_next->sync_list.tqe_prev = (st)->sync_list.tqe_prev; else (&sc->sc_qs[q])->tqh_last = (st)->sync_list.tqe_prev; *(st)->sync_list.tqe_prev = (st)->sync_list.tqe_next; ((st)->sync_list.tqe_prev) = ((void *)-1); ((st)->sync_list.tqe_next) = ((void *)-1); } while (0);
  st->sync_state = 0xff;

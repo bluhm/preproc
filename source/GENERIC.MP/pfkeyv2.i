@@ -2690,7 +2690,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2746,7 +2746,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -3253,7 +3253,6 @@ int pfkeyv2_send(struct socket *, void *, int);
 int pfkeyv2_sendmessage(void **, int, struct socket *, u_int8_t, int, u_int);
 int pfkeyv2_dump_policy(struct ipsec_policy *, void **, void **, int *);
 int pfkeyv2_dump_walker(struct tdb *, void *, int);
-int pfkeyv2_flush_walker(struct tdb *, void *, int);
 int pfkeyv2_get_proto_alg(u_int8_t, u_int8_t *, int *);
 int pfkeyv2_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pfkeyv2_sysctl_walker(struct tdb *, void *, int);
@@ -4826,6 +4825,8 @@ int pfkeyv2_usrreq(struct socket *, int, struct mbuf *, struct mbuf *,
 int pfkeyv2_output(struct mbuf *, struct socket *, struct sockaddr *,
     struct mbuf *);
 int pfkey_sendup(struct keycb *, struct mbuf *, int);
+int pfkeyv2_sa_flush(struct tdb *, void *, int);
+int pfkeyv2_policy_flush(struct ipsec_policy *, void *, unsigned int);
 int pfkeyv2_sysctl_policydumper(struct ipsec_policy *, void *, unsigned int);
 int
 pfdatatopacket(void *data, int len, struct mbuf **packet)
@@ -5003,7 +5004,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 431);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 433);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 2) &&
        (s->rcb.rcb_socket != so) &&
@@ -5014,7 +5015,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   m_freem(packet);
   break;
  case 2:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 447);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 449);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 1) &&
        (s->rdomain == rdomain)) {
@@ -5038,7 +5039,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 479);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 481);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if ((s->flags & 2) &&
        !(s->flags & 1) &&
@@ -5049,7 +5050,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   m_freem(packet);
   break;
  case 3:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 492);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 494);
   for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
    if (s->rdomain == rdomain)
     pfkey_sendup(s, packet, 1);
@@ -5321,7 +5322,7 @@ pfkeyv2_dump_walker(struct tdb *sa, void *state, int last)
  return (0);
 }
 int
-pfkeyv2_flush_walker(struct tdb *sa, void *satype_vp, int last)
+pfkeyv2_sa_flush(struct tdb *sa, void *satype_vp, int last)
 {
  if (!(*((u_int8_t *) satype_vp)) ||
      sa->tdb_satype == *((u_int8_t *) satype_vp))
@@ -5374,7 +5375,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  int i, j, rval = 0, mode = 3;
  int delflag = 0;
  struct sockaddr_encap encapdst, encapnetmask;
- struct ipsec_policy *ipo, *tmpipo;
+ struct ipsec_policy *ipo;
  struct ipsec_acquire *ipa;
  struct radix_node_head *rnh;
  struct radix_node *rn = ((void *)0);
@@ -5419,7 +5420,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   if ((rval = pfdatatopacket(freeme,
       sizeof(struct sadb_msg) + len, &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1021);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1023);
   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
    if ((bkp->flags & 2) &&
        (bkp->rdomain == rdomain))
@@ -5772,18 +5773,13 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   rval = 0;
   switch (smsg->sadb_msg_satype) {
   case 0:
-   for (ipo = ((&ipsec_policy_head)->tqh_first);
-       ipo != ((void *)0); ipo = tmpipo) {
-    tmpipo = ((ipo)->ipo_list.tqe_next);
-    if (ipo->ipo_rdomain == rdomain)
-     ipsec_delete_policy(ipo);
-   }
+   spd_table_walk(rdomain, pfkeyv2_policy_flush, ((void *)0));
   case 1:
   case 2:
   case 7:
   case 9:
   case 8:
-   tdb_walk(rdomain, pfkeyv2_flush_walker,
+   tdb_walk(rdomain, pfkeyv2_sa_flush,
        (u_int8_t *) &(smsg->sadb_msg_satype));
    break;
   default:
@@ -5996,7 +5992,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    struct mbuf *packet;
    if ((rval = pfdatatopacket(message, len, &packet)) != 0)
     goto ret;
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1801);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1798);
    for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
     if ((bkp != kp) &&
         (bkp->rdomain == rdomain) &&
@@ -6479,6 +6475,15 @@ pfkeyv2_sysctl_policydumper(struct ipsec_policy *ipo, void *arg,
 done:
  if (buffer)
   free(buffer, 74, 0);
+ return (error);
+}
+int
+pfkeyv2_policy_flush(struct ipsec_policy *ipo, void *arg, unsigned int tableid)
+{
+ int error;
+ error = ipsec_delete_policy(ipo);
+ if (error == 0)
+  error = 35;
  return (error);
 }
 int

@@ -3016,7 +3016,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -3072,7 +3072,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -3701,47 +3701,6 @@ void icmp6_mtudisc_update(struct ip6ctlparam *, int);
 void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
 extern int icmp6_redirtimeout;
 struct m_tag;
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -3818,6 +3777,47 @@ struct sockaddr_encap {
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct ipsec_id {
  u_int16_t type;
  int16_t len;
@@ -6144,6 +6144,7 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
   struct inpcb *last;
   iphlen += sizeof(struct udphdr);
   last = ((void *)0);
+  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
   for((inp) = ((&udbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next)) {
    if (inp->inp_socket->so_state & 0x020)
     continue;
@@ -6279,7 +6280,8 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
    return 257;
   }
  }
- ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/udp_usrreq.c", 566, "sotoinpcb(inp->inp_socket) == inp"));
+ ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/udp_usrreq.c", 567, "sotoinpcb(inp->inp_socket) == inp"));
+ soassertlocked(inp->inp_socket);
  if (ip6 && inp->inp_ip_minttl &&
      inp->inp_ip_minttl > ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim) {
   goto bad;
@@ -6771,8 +6773,10 @@ udp_attach(struct socket *so, int proto)
  int error;
  if (so->so_pcb != ((void *)0))
   return 22;
- if ((error = soreserve(so, udp_sendspace, udp_recvspace)) ||
-     (error = in_pcballoc(so, &udbtable)))
+ if ((error = soreserve(so, udp_sendspace, udp_recvspace)))
+  return error;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if ((error = in_pcballoc(so, &udbtable)))
   return error;
  if (((struct inpcb *)(so)->so_pcb)->inp_flags & 0x100)
   ((struct inpcb *)(so)->so_pcb)->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = ip6_defhlim;

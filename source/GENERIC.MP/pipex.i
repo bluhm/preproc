@@ -2455,7 +2455,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2511,7 +2511,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -5739,6 +5739,7 @@ pipex_lookup_by_session_id(int protocol, int session_id)
 {
  struct pipex_hash_head *list;
  struct pipex_session *session;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  list = (&pipex_id_hashtable[(session_id) & ((512/8)-1)]);
  for((session) = ((list)->lh_first); (session)!= ((void *)0); (session) = ((session)->id_chain.le_next)) {
   if (session->protocol == protocol &&
@@ -5974,12 +5975,12 @@ pipex_ppp_input(struct mbuf *m0, struct pipex_session *session, int decrypted)
 {
  int proto, hlen = 0;
  struct mbuf *n;
- ((m0->M_dat.MH.MH_pkthdr.len >= 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 962, "m0->m_pkthdr.len >= PIPEX_PPPMINLEN"));
+ ((m0->M_dat.MH.MH_pkthdr.len >= 5) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 963, "m0->m_pkthdr.len >= PIPEX_PPPMINLEN"));
  proto = pipex_ppp_proto(m0, session, 0, &hlen);
  if (proto == 0xfd) {
   if (decrypted)
    goto drop;
-  (((((session)->ppp_flags & 0x0010)? 1 : 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 970, "pipex_session_is_mppe_accepted(session)"));
+  (((((session)->ppp_flags & 0x0010)? 1 : 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 971, "pipex_session_is_mppe_accepted(session)"));
   m_adj(m0, hlen);
   pipex_mppe_input(m0, session);
   return;
@@ -6022,7 +6023,7 @@ pipex_ppp_input(struct mbuf *m0, struct pipex_session *session, int decrypted)
  default:
   if (decrypted)
    goto drop;
-  ((0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1030, "0"));
+  ((0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1031, "0"));
   goto drop;
  }
  return;
@@ -6040,7 +6041,7 @@ pipex_ip_input(struct mbuf *m0, struct pipex_session *session)
  ifp = session->pipex_iface->ifnet_this;
  m0->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  if (((session->ppp_flags) & (0x0200))) {
-  if ((m0)->m_hdr.mh_len < (sizeof(struct ip))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(struct ip))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(struct ip))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1053, "(m0) != NULL")); } };
+  if ((m0)->m_hdr.mh_len < (sizeof(struct ip))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(struct ip))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(struct ip))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1054, "(m0) != NULL")); } };
   if (m0 == ((void *)0))
    goto drop;
   ip = ((struct ip *)((m0)->m_hdr.mh_data));
@@ -6110,7 +6111,7 @@ pipex_common_input(struct pipex_session *session, struct mbuf *m0, int hlen,
  switch (proto) {
  case 0x80fd:
   code = 0;
-  ((m0->M_dat.MH.MH_pkthdr.len >= hlen + ppphlen + 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1168, "m0->m_pkthdr.len >= hlen + ppphlen + 1"));
+  ((m0->M_dat.MH.MH_pkthdr.len >= hlen + ppphlen + 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1169, "m0->m_pkthdr.len >= hlen + ppphlen + 1"));
   m_copydata(m0, hlen + ppphlen, 1, (caddr_t)&code);
   if (code != 14 && code != 15)
    goto not_ours;
@@ -6157,7 +6158,7 @@ pipex_ppp_proto(struct mbuf *m0, struct pipex_session *session, int off,
 {
  int proto;
  u_char *cp, pktbuf[4];
- ((m0->M_dat.MH.MH_pkthdr.len > sizeof(pktbuf)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1232, "m0->m_pkthdr.len > sizeof(pktbuf)"));
+ ((m0->M_dat.MH.MH_pkthdr.len > sizeof(pktbuf)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1233, "m0->m_pkthdr.len > sizeof(pktbuf)"));
  m_copydata(m0, off, sizeof(pktbuf), pktbuf);
  cp = pktbuf;
  if ((((session)->ppp_flags & 0x0080)? 1 : 0)) {
@@ -6198,7 +6199,7 @@ pipex_pppoe_input(struct mbuf *m0, struct pipex_session *session)
 {
  int hlen;
  struct pipex_pppoe_header pppoe;
- ((m0->M_dat.MH.MH_pkthdr.len >= (sizeof(struct ether_header) + sizeof(pppoe))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1304, "m0->m_pkthdr.len >= (sizeof(struct ether_header) + sizeof(pppoe))"));
+ ((m0->M_dat.MH.MH_pkthdr.len >= (sizeof(struct ether_header) + sizeof(pppoe))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1305, "m0->m_pkthdr.len >= (sizeof(struct ether_header) + sizeof(pppoe))"));
  m_copydata(m0, sizeof(struct ether_header),
      sizeof(struct pipex_pppoe_header), (caddr_t)&pppoe);
  hlen = sizeof(struct ether_header) + sizeof(struct pipex_pppoe_header);
@@ -6358,7 +6359,7 @@ pipex_pptp_input(struct mbuf *m0, struct pipex_session *session)
  struct pipex_gre_header *gre;
  struct pipex_pptp_session *pptp_session;
  int rewind = 0;
- ((m0->M_dat.MH.MH_pkthdr.len >= (sizeof(struct ip) + sizeof(struct pipex_gre_header))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1536, "m0->m_pkthdr.len >= PIPEX_IPGRE_HDRLEN"));
+ ((m0->M_dat.MH.MH_pkthdr.len >= (sizeof(struct ip) + sizeof(struct pipex_gre_header))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1537, "m0->m_pkthdr.len >= PIPEX_IPGRE_HDRLEN"));
  pptp_session = &session->proto.pptp;
  ip = ((struct ip *)((m0)->m_hdr.mh_data));
  hlen = ip->ip_hl << 2;
@@ -6518,7 +6519,7 @@ pipex_pptp_userland_output(struct mbuf *m0, struct pipex_session *session)
   len += 4;
  if ((flags & 0x0080) != 0)
   len += 4;
- if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1766, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1767, "(m0) != NULL")); } };
  if (m0 == ((void *)0)) {
   ;
   return (((void *)0));
@@ -6567,7 +6568,7 @@ pipex_l2tp_output(struct mbuf *m0, struct pipex_session *session)
   m0 = m_gethdr((0x0002), (1));
   if (m0 == ((void *)0))
    goto drop;
-  ((hlen <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1836, "hlen <= MHLEN"));
+  ((hlen <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1837, "hlen <= MHLEN"));
   m0->M_dat.MH.MH_pkthdr.len = m0->m_hdr.mh_len = hlen;
  }
  hlen = (session->peer.sin6.sin6_family == 24)
@@ -6684,7 +6685,7 @@ pipex_l2tp_input(struct mbuf *m0, int off0, struct pipex_session *session,
  nsp = nrp = ((void *)0);
  m_copydata(m0, off0, sizeof(flags), (caddr_t)&flags);
  flags = ((__uint16_t)(flags)) & 0xfff0;
- (((flags & 0x8000) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1996, "(flags & PIPEX_L2TP_FLAG_TYPE) == 0"));
+ (((flags & 0x8000) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 1997, "(flags & PIPEX_L2TP_FLAG_TYPE) == 0"));
  hlen = 2;
  if (flags & 0x4000)
   hlen += 2;
@@ -6693,7 +6694,7 @@ pipex_l2tp_input(struct mbuf *m0, int off0, struct pipex_session *session,
   hlen += 4;
  if (flags & 0x0200)
   hlen += 2;
- if ((m0)->m_hdr.mh_len < (off0 + hlen)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (off0 + hlen)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (off0 + hlen)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2007, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (off0 + hlen)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (off0 + hlen)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (off0 + hlen)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2008, "(m0) != NULL")); } };
  if (m0 == ((void *)0))
   goto drop;
  cp = ((u_char *)((m0)->m_hdr.mh_data)) + off0;
@@ -6819,11 +6820,11 @@ pipex_l2tp_userland_output(struct mbuf *m0, struct pipex_session *session)
  struct pipex_l2tp_header *l2tp;
  struct pipex_l2tp_seq_header *seq;
  uint16_t ns, nr;
- if ((m0)->m_hdr.mh_len < (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2193, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(struct pipex_l2tp_header) + sizeof(struct pipex_l2tp_seq_header))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2194, "(m0) != NULL")); } };
  if (m0 == ((void *)0))
   return (((void *)0));
  l2tp = ((struct pipex_l2tp_header *)((m0)->m_hdr.mh_data));
- ((((__uint16_t)(l2tp->flagsver)) & 0x0800) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2198, "ntohs(l2tp->flagsver) & PIPEX_L2TP_FLAG_SEQUENCE"));
+ ((((__uint16_t)(l2tp->flagsver)) & 0x0800) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2199, "ntohs(l2tp->flagsver) & PIPEX_L2TP_FLAG_SEQUENCE"));
   seq = (struct pipex_l2tp_seq_header *)(l2tp + 1);
   ns = ((__uint16_t)(seq->ns));
   nr = ((__uint16_t)(seq->nr));
@@ -6955,7 +6956,7 @@ pipex_mppe_input(struct mbuf *m0, struct pipex_session *session)
  struct mbuf *m1;
  u_char *cp;
  int rewind = 0;
- if ((m0)->m_hdr.mh_len < (sizeof(coher_cnt))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(coher_cnt))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(coher_cnt))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2357, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (sizeof(coher_cnt))) { if ((m0)->M_dat.MH.MH_pkthdr.len < (sizeof(coher_cnt))) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (sizeof(coher_cnt))); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2358, "(m0) != NULL")); } };
  if (m0 == ((void *)0))
   goto drop;
  mppe = &session->mppe_recv;
@@ -7172,7 +7173,7 @@ adjust_tcp_mss(struct mbuf *m0, int mtu)
  u_int16_t ip_off;
  lpktp = sizeof(struct ip) + sizeof(struct tcphdr) + 40;
  lpktp = (((lpktp)<(m0->M_dat.MH.MH_pkthdr.len))?(lpktp):(m0->M_dat.MH.MH_pkthdr.len));
- if ((m0)->m_hdr.mh_len < (lpktp)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (lpktp)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (lpktp)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2702, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (lpktp)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (lpktp)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (lpktp)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2703, "(m0) != NULL")); } };
  if (m0 == ((void *)0))
   goto drop;
  pktp = ((char *)((m0)->m_hdr.mh_data));
@@ -7235,7 +7236,7 @@ ip_is_idle_packet(struct mbuf *m0, int *ris_idle)
  struct ip *pip;
  int len;
  len = sizeof(struct ip);
- if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2790, "(m0) != NULL")); } };
+ if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2791, "(m0) != NULL")); } };
  if (m0 == ((void *)0))
   goto error;
  pip = ((struct ip *)((m0)->m_hdr.mh_data));
@@ -7247,7 +7248,7 @@ ip_is_idle_packet(struct mbuf *m0, int *ris_idle)
   goto is_active;
  case 1:
   len = pip->ip_hl * 4 + 8;
-  if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2807, "(m0) != NULL")); } };
+  if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2808, "(m0) != NULL")); } };
   if (m0 == ((void *)0))
    goto error;
   pip = ((struct ip *)((m0)->m_hdr.mh_data));
@@ -7261,7 +7262,7 @@ ip_is_idle_packet(struct mbuf *m0, int *ris_idle)
  case 17:
  case 6:
   len = pip->ip_hl * 4 + sizeof(struct udphdr);
-  if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2823, "(m0) != NULL")); } };
+  if ((m0)->m_hdr.mh_len < (len)) { if ((m0)->M_dat.MH.MH_pkthdr.len < (len)) { ; m_freem(m0); (m0) = ((void *)0); } else { (m0) = m_pullup((m0), (len)); (((m0) != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2824, "(m0) != NULL")); } };
   if (m0 == ((void *)0))
    goto error;
   pip = ((struct ip *)((m0)->m_hdr.mh_data));
@@ -7358,7 +7359,7 @@ pipex_mppe_setkey(struct pipex_mppe *mppe)
  inline int
 pipex_mppe_setoldkey(struct pipex_mppe *mppe, uint16_t coher_cnt)
 {
- ((mppe->old_session_keys != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2940, "mppe->old_session_keys != NULL"));
+ ((mppe->old_session_keys != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pipex.c", 2941, "mppe->old_session_keys != NULL"));
  rc4_keysetup(&mppe->rc4ctx,
      mppe->old_session_keys[coher_cnt & (64 - 1)],
      mppe->keylen);

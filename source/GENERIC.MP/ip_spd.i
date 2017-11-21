@@ -2430,7 +2430,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2486,7 +2486,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -3822,7 +3822,6 @@ int pfkeyv2_send(struct socket *, void *, int);
 int pfkeyv2_sendmessage(void **, int, struct socket *, u_int8_t, int, u_int);
 int pfkeyv2_dump_policy(struct ipsec_policy *, void **, void **, int *);
 int pfkeyv2_dump_walker(struct tdb *, void *, int);
-int pfkeyv2_flush_walker(struct tdb *, void *, int);
 int pfkeyv2_get_proto_alg(u_int8_t, u_int8_t *, int *);
 int pfkeyv2_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pfkeyv2_sysctl_walker(struct tdb *, void *, int);
@@ -3906,14 +3905,17 @@ spd_table_add(unsigned int rtableid)
 }
 int
 spd_table_walk(unsigned int rtableid,
-    int (*walker)(struct ipsec_policy *, void *, unsigned int), void *arg)
+    int (*func)(struct ipsec_policy *, void *, unsigned int), void *arg)
 {
  struct radix_node_head *rnh;
+ int (*walker)(struct radix_node *, void *, u_int) = (void *)func;
+ int error;
  rnh = spd_table_get(rtableid);
  if (rnh == ((void *)0))
   return (0);
- return (rn_walktree(rnh,
-     (int (*)(struct radix_node *, void *, u_int))walker, arg));
+ while ((error = rn_walktree(rnh, walker, arg)) == 35)
+  continue;
+ return (error);
 }
 struct tdb *
 ipsp_spd_lookup(struct mbuf *m, int af, int hlen, int *error, int direction,

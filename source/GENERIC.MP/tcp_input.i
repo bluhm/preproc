@@ -2841,7 +2841,7 @@ struct ip6_mtuinfo {
  struct sockaddr_in6 ip6m_addr;
  u_int32_t ip6m_mtu;
 };
-extern u_char inet6ctlerrmap[];
+extern const u_char inet6ctlerrmap[];
 extern struct in6_addr zeroin6_addr;
 struct mbuf;
 struct ifnet;
@@ -2897,7 +2897,7 @@ extern int inet6_rth_reverse(const void *, void *);
 extern int inet6_rth_segments(const void *);
 extern struct in6_addr *inet6_rth_getaddr(const void *, int);
 
-extern int inetctlerrmap[];
+extern const int inetctlerrmap[];
 extern struct in_addr zeroin_addr;
 struct mbuf;
 struct sockaddr;
@@ -6148,6 +6148,7 @@ findpcb:
  }
  ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 580, "sotoinpcb(inp->inp_socket) == inp"));
  ((((struct tcpcb *)(inp)->inp_ppcb) == ((void *)0) || ((struct tcpcb *)(inp)->inp_ppcb)->t_inpcb == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 581, "intotcpcb(inp) == NULL || intotcpcb(inp)->t_inpcb == inp"));
+ soassertlocked(inp->inp_socket);
  switch (af) {
  case 2:
   if (inp->inp_ip_minttl && inp->inp_ip_minttl > ip->ip_ttl)
