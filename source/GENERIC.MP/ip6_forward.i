@@ -5159,6 +5159,8 @@ reroute:
  if (rt->rt_flags & 0x2)
   dst = satosin6(rt->rt_gateway);
  ifp = if_get(rt->rt_ifidx);
+ if (ifp == ((void *)0))
+  goto freecopy;
  if (rt->rt_ifidx == m->M_dat.MH.MH_pkthdr.ph_ifidx && !srcrt &&
      ip6_sendredirects &&
      (rt->rt_flags & (0x10|0x20)) == 0) {
