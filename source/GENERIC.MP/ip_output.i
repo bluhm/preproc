@@ -5933,8 +5933,7 @@ struct tdb *
 ip_output_ipsec_lookup(struct mbuf *m, int hlen, int *error, struct inpcb *inp,
     int ipsecflowinfo);
 int
-ip_output_ipsec_send(struct tdb *tdb, struct mbuf *m, struct ifnet *ifp,
-    struct route *ro);
+ip_output_ipsec_send(struct tdb *, struct mbuf *, struct route *, int);
 int
 ip_output(struct mbuf *m0, struct mbuf *opt, struct route *ro, int flags,
     struct ip_moptions *imo, struct inpcb *inp, u_int32_t ipsecflowinfo)
@@ -6075,7 +6074,7 @@ reroute:
   else {
    if (ipmforwarding && ip_mrouter[ifp->if_data.ifi_rdomain] &&
        (flags & 0x1) == 0) {
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 341);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 340);
     rv = ip_mforward(m, ifp);
     _kernel_unlock();
     if (rv != 0) {
@@ -6112,10 +6111,12 @@ sendit:
      (ro->ro_rt->rt_rmx.rmx_locks & 0x1) == 0)
   ip->ip_off |= ((__uint16_t)(0x4000));
  if (tdb != ((void *)0)) {
-  error = ip_output_ipsec_send(tdb, m, ifp, ro);
+  error = ip_output_ipsec_send(tdb, m, ro,
+      (flags & 0x1) ? 1 : 0);
   goto done;
  }
- if (pf_test(2, PF_OUT, ifp, &m) != PF_PASS) {
+ if (pf_test(2, (flags & 0x1) ? PF_FWD : PF_OUT,
+     ifp, &m) != PF_PASS) {
   error = 13;
   m_freem(m);
   goto done;
@@ -6215,13 +6216,12 @@ ip_output_ipsec_lookup(struct mbuf *m, int hlen, int *error, struct inpcb *inp,
  return tdb;
 }
 int
-ip_output_ipsec_send(struct tdb *tdb, struct mbuf *m, struct ifnet *ifp,
-    struct route *ro)
+ip_output_ipsec_send(struct tdb *tdb, struct mbuf *m, struct route *ro, int fwd)
 {
  struct ifnet *encif;
  struct ip *ip;
  if ((encif = enc_getif(tdb->tdb_rdomain, tdb->tdb_tap)) == ((void *)0) ||
-     pf_test(2, PF_OUT, encif, &m) != PF_PASS) {
+     pf_test(2, fwd ? PF_FWD : PF_OUT, encif, &m) != PF_PASS) {
   m_freem(m);
   return 13;
  }
