@@ -1171,7 +1171,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -1326,7 +1326,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -3540,7 +3540,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -4309,7 +4308,7 @@ in6_ifawithscope(struct ifnet *oifp, struct in6_addr *dst, u_int rdomain)
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
    continue;
-  if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch6(ifp))
+  if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch(ifp))
    continue;
   if (in6_addr2scopeid(ifp->if_index, dst) !=
       in6_addr2scopeid(oifp->if_index, dst))

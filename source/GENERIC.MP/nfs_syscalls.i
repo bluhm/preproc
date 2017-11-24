@@ -3077,7 +3077,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -3149,7 +3149,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -3239,7 +3239,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -3275,11 +3275,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 struct nameidata {
  const char *ni_dirp;
  int ni_dirfd;

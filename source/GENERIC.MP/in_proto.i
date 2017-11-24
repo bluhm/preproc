@@ -1044,11 +1044,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 struct mbuf;
 struct ifnet;
 struct domain {
@@ -1057,7 +1057,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -4334,7 +4334,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -5558,7 +5557,7 @@ int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
 int ip6_etherip_input(struct mbuf **, int *, int, int);
 u_char ip_protox[256];
-struct protosw inetsw[] = {
+const struct protosw inetsw[] = {
 {
   .pr_domain = &inetdomain,
   .pr_init = ip_init,

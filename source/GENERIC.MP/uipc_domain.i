@@ -1044,11 +1044,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 struct mbuf;
 struct ifnet;
 struct domain {
@@ -1057,7 +1057,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -1893,7 +1893,7 @@ void
 domaininit(void)
 {
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  static struct timeout pffast_timeout;
  static struct timeout pfslow_timeout;
  int i;
@@ -1923,11 +1923,11 @@ pffinddomain(int family)
  }
  return (((void *)0));
 }
-struct protosw *
+const struct protosw *
 pffindtype(int family, int type)
 {
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  dp = pffinddomain(family);
  if (dp == ((void *)0))
   return (((void *)0));
@@ -1936,12 +1936,12 @@ pffindtype(int family, int type)
    return (pr);
  return (((void *)0));
 }
-struct protosw *
+const struct protosw *
 pffindproto(int family, int protocol, int type)
 {
  struct domain *dp;
- struct protosw *pr;
- struct protosw *maybe = ((void *)0);
+ const struct protosw *pr;
+ const struct protosw *maybe = ((void *)0);
  if (family == 0)
   return (((void *)0));
  dp = pffinddomain(family);
@@ -1961,7 +1961,7 @@ net_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen, struct proc *p)
 {
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  int error, family, protocol;
  if (namelen < 2)
   return (21);
@@ -1998,7 +1998,7 @@ void
 pfctlinput(int cmd, struct sockaddr *sa)
 {
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  int i;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
@@ -2012,7 +2012,7 @@ pfslowtimo(void *arg)
 {
  struct timeout *to = (struct timeout *)arg;
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  int i;
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)
@@ -2026,7 +2026,7 @@ pffasttimo(void *arg)
 {
  struct timeout *to = (struct timeout *)arg;
  struct domain *dp;
- struct protosw *pr;
+ const struct protosw *pr;
  int i;
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   for (pr = dp->dom_protosw; pr < dp->dom_protoswNPROTOSW; pr++)

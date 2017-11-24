@@ -2062,6 +2062,7 @@ struct mt_state {
  u_int ptr;
  u_int ptr_cycle;
  u_int prev_ptr;
+ u_int ptr_mask;
  int *matrix;
 };
 struct axis_filter {
@@ -2173,6 +2174,7 @@ struct wstpad {
  struct tpad_touch *t;
  struct tpad_touch *tpad_touches;
  u_int mtcycle;
+ u_int ignore;
  int dx;
  int dy;
  int contacts;
@@ -2207,6 +2209,7 @@ struct wstpad {
  struct {
   enum tap_state state;
   int contacts;
+  int centered;
   u_int button;
   int maxdist;
   struct timeout to;
@@ -2294,7 +2297,7 @@ get_2nd_touch(struct wsmouseinput *input)
  struct wstpad *tp = input->tp;
  int slot;
  if (((tp)->features & (1 << 31))) {
-  slot = ffs(input->mt.touches & ~input->mt.ptr);
+  slot = ffs(input->mt.touches & ~(input->mt.ptr | tp->ignore));
   if (slot)
    return &tp->tpad_touches[--slot];
  }
@@ -2353,13 +2356,20 @@ wstpad_f2scroll(struct wsmouseinput *input, u_int *cmds)
 {
  struct wstpad *tp = input->tp;
  struct tpad_touch *t2;
- int dir, dx, dy;
- if (tp->contacts != 2 || !chk_scroll_state(tp))
+ int dir, dx, dy, centered;
+ if (tp->ignore == 0) {
+  if (tp->contacts != 2)
+   return;
+ } else if (tp->contacts != 3 || (tp->ignore == input->mt.ptr)) {
+  return;
+ }
+ if (!chk_scroll_state(tp))
   return;
  dir = tp->t->dir;
  dy = ((dir) == 0 || (dir) == 11) || ((dir) == 5 || (dir) == 6) ? tp->dy : 0;
  dx = ((dir) == 2 || (dir) == 3) || ((dir) == 8 || (dir) == 9) ? tp->dx : 0;
  if (dx || dy) {
+  centered = (((tp->t)->flags & ((1 << 0) | (1 << 1) | (1 << 2))) == 0);
   if (((tp)->features & (1 << 31))) {
    t2 = get_2nd_touch(input);
    if (t2 == ((void *)0))
@@ -2369,9 +2379,12 @@ wstpad_f2scroll(struct wsmouseinput *input, u_int *cmds)
     return;
    if ((dx > 0 && !((dir) == 2 || (dir) == 3)) || (dx < 0 && !((dir) == 8 || (dir) == 9)))
     return;
+   centered |= (((t2)->flags & ((1 << 0) | (1 << 1) | (1 << 2))) == 0);
   }
-  wstpad_scroll(tp, dx, dy, cmds);
-  set_freeze_ts(tp, 0, 100);
+  if (centered) {
+   wstpad_scroll(tp, dx, dy, cmds);
+   set_freeze_ts(tp, 0, 100);
+  }
  }
 }
 void
@@ -2454,8 +2467,6 @@ wstpad_is_tap(struct wstpad *tp, struct tpad_touch *t)
 {
  struct timespec ts;
  int dx, dy, dist = 0;
- if (t->flags & ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3)))
-  return (0);
  if (((tp)->features & (1 << 31)) || tp->tap.contacts < 2) {
   dx = abs(t->x - t->orig.x) << 12;
   dy = abs(t->y - t->orig.y) * tp->ratio;
@@ -2467,47 +2478,88 @@ wstpad_is_tap(struct wstpad *tp, struct tpad_touch *t)
  }
  return (0);
 }
+struct tpad_touch *
+wstpad_tap_touch(struct wsmouseinput *input)
+{
+ struct wstpad *tp = input->tp;
+ struct tpad_touch *s, *t = ((void *)0);
+ u_int lifted;
+ int slot;
+ if (((tp)->features & (1 << 31))) {
+  lifted = (input->mt.sync[0] & ~input->mt.touches);
+  for ((slot) = ffs(lifted) - 1; (slot) != -1; (slot) = ffs((lifted) & (~1 << (slot))) - 1) {
+   s = &tp->tpad_touches[slot];
+   if (tp->tap.state == TAP_DETECT)
+    tp->tap.centered |= (((s)->flags & ((1 << 0) | (1 << 1) | (1 << 2))) == 0);
+   if (t == ((void *)0) || (((&t->orig.time)->tv_sec == (&s->orig.time)->tv_sec) ? ((&t->orig.time)->tv_nsec > (&s->orig.time)->tv_nsec) : ((&t->orig.time)->tv_sec > (&s->orig.time)->tv_sec)))
+    t = s;
+  }
+ } else {
+  if (tp->t->state == TOUCH_END) {
+   t = tp->t;
+   if (tp->tap.state == TAP_DETECT)
+    tp->tap.centered = (((t)->flags & ((1 << 0) | (1 << 1) | (1 << 2))) == 0);
+  }
+ }
+ return (t);
+}
+static inline int
+tap_finished(struct wstpad *tp, int nmasked)
+{
+ return (tp->contacts == nmasked
+     && (nmasked == 0 || !wstpad_is_tap(tp, tp->t)));
+}
+static inline u_int
+tap_btn(struct wstpad *tp, int nmasked)
+{
+ int n = tp->tap.contacts - nmasked;
+ return (n == 2 ? (1 << 2) : (n == 3 ? (1 << 1) : (1 << 0)));
+}
 void
 wstpad_tap(struct wsmouseinput *input, u_int *cmds)
 {
  struct wstpad *tp = input->tp;
- struct tpad_touch *t = tp->t;
- int err = 0;
+ struct tpad_touch *t;
+ int nmasked, err = 0;
  if (tp->btns) {
   if (tp->tap.state > TAP_IGNORE) {
    timeout_del(&tp->tap.to);
    *cmds |= 1 << TAPBUTTON_UP;
   }
   tp->tap.state = TAP_IGNORE;
+  tp->tap.contacts = 0;
+  tp->tap.centered = 0;
  }
+ nmasked = (input->mt.ptr_mask ? 1 : 0);
+ t = wstpad_tap_touch(input);
  switch (tp->tap.state) {
  case TAP_DETECT:
-  if (t->state == TOUCH_END) {
-   if (wstpad_is_tap(tp, t)) {
-    tp->tap.button = (tp->tap.contacts == 2
-        ? (1 << 2) : (tp->tap.contacts == 3
-        ? (1 << 1) : (1 << 0)));
-    *cmds |= 1 << TAPBUTTON_DOWN;
-    tp->tap.state = TAP_LIFTED;
-    err = !timeout_add_msec(
-        &tp->tap.to, tp->tap.clicktime);
-   }
-   tp->tap.contacts = 0;
-  } else if (tp->contacts != tp->tap.contacts) {
-   if (!wstpad_is_tap(tp, t)) {
+  if (tp->contacts > tp->tap.contacts)
+   tp->tap.contacts = tp->contacts;
+  if (t) {
+   if (!wstpad_is_tap(tp, t))
     tp->tap.state = TAP_IGNORE;
+   else if (tap_finished(tp, nmasked))
+    tp->tap.state = (tp->tap.centered
+        ? TAP_LIFTED : TAP_IGNORE);
+   if (tp->tap.state != TAP_DETECT) {
+    if (tp->tap.state == TAP_LIFTED) {
+     tp->tap.button = tap_btn(tp, nmasked);
+     *cmds |= 1 << TAPBUTTON_DOWN;
+     err = !timeout_add_msec(&tp->tap.to,
+         tp->tap.clicktime);
+    }
     tp->tap.contacts = 0;
-   } else if (tp->contacts > tp->tap.contacts) {
-    tp->tap.contacts = tp->contacts;
+    tp->tap.centered = 0;
    }
   }
   break;
  case TAP_IGNORE:
-  if (t->state != TOUCH_UPDATE)
+  if (tp->contacts == nmasked)
    tp->tap.state = TAP_DETECT;
   break;
  case TAP_LIFTED:
-  if (t->state >= TOUCH_BEGIN) {
+  if (tp->contacts > nmasked) {
    timeout_del(&tp->tap.to);
    if (tp->tap.button == (1 << 0)) {
     tp->tap.state = TAP_2ND_TOUCH;
@@ -2518,42 +2570,44 @@ wstpad_tap(struct wsmouseinput *input, u_int *cmds)
   }
   break;
  case TAP_2ND_TOUCH:
-  if (t->state == TOUCH_END) {
+  if (t) {
    if (wstpad_is_tap(tp, t)) {
     *cmds |= 1 << TAPBUTTON_DOUBLECLK;
     tp->tap.state = TAP_LIFTED;
-    err = !timeout_add_msec(
-        &tp->tap.to, 20);
-   } else if (tp->tap.locktime == 0) {
-    *cmds |= 1 << TAPBUTTON_UP;
-    tp->tap.state = TAP_DETECT;
-   } else {
-    tp->tap.state = TAP_LOCKED;
-    err = !timeout_add_msec(
-        &tp->tap.to, tp->tap.locktime);
+    err = !timeout_add_msec(&tp->tap.to,
+        20);
+   } else if (tp->contacts == nmasked) {
+    if (tp->tap.locktime == 0) {
+     *cmds |= 1 << TAPBUTTON_UP;
+     tp->tap.state = TAP_DETECT;
+    } else {
+     tp->tap.state = TAP_LOCKED;
+     err = !timeout_add_msec(&tp->tap.to,
+         tp->tap.locktime);
+    }
    }
-  } else if (tp->contacts > 1) {
+  } else if (tp->contacts != nmasked + 1) {
    *cmds |= 1 << TAPBUTTON_UP;
    tp->tap.state = TAP_DETECT;
   }
   break;
  case TAP_LOCKED:
-  if (t->state >= TOUCH_BEGIN) {
+  if (tp->contacts > nmasked) {
    timeout_del(&tp->tap.to);
    tp->tap.state = TAP_NTH_TOUCH;
   }
   break;
  case TAP_NTH_TOUCH:
-  if (t->state == TOUCH_END) {
+  if (t) {
    if (wstpad_is_tap(tp, t)) {
     *cmds |= 1 << TAPBUTTON_UP;
     tp->tap.state = TAP_DETECT;
-   } else {
+   } else if (tp->contacts == nmasked) {
     tp->tap.state = TAP_LOCKED;
-    err = !timeout_add_msec(
-        &tp->tap.to, tp->tap.locktime);
+    err = !timeout_add_msec(&tp->tap.to,
+        tp->tap.locktime);
    }
-  } else if (tp->contacts > 1) {
+  } else if (tp->contacts != nmasked + 1) {
    *cmds |= 1 << TAPBUTTON_UP;
    tp->tap.state = TAP_DETECT;
   }
@@ -2713,6 +2767,36 @@ wstpad_mt_inputs(struct wsmouseinput *input)
  clear_touchstates(input, TOUCH_END);
 }
 void
+wstpad_mt_masks(struct wsmouseinput *input)
+{
+ struct wstpad *tp = input->tp;
+ struct tpad_touch *t;
+ u_int mask;
+ int d, slot;
+ tp->ignore &= input->mt.touches;
+ if (tp->contacts < 2 || tp->ignore)
+  return;
+ if (input->mt.ptr_mask == 0) {
+  mask = ~0;
+  for ((slot) = ffs(input->mt.touches) - 1; (slot) != -1; (slot) = ffs((input->mt.touches) & (~1 << (slot))) - 1) {
+   t = &tp->tpad_touches[slot];
+   if (t->flags & (1 << 3)) {
+    mask &= (1 << slot);
+    input->mt.ptr_mask = mask;
+   }
+  }
+ }
+ if ((tp->dx || tp->dy) && (input->mt.ptr_mask & ~input->mt.ptr)) {
+  slot = ffs(input->mt.ptr_mask) - 1;
+  t = &tp->tpad_touches[slot];
+  if (t->flags & (1 << 3)) {
+   d = tp->t->matches - t->matches;
+   if (d > 3 && (!((t->dir) == 0 || (t->dir) == 11) || d > 2 * 3))
+    tp->ignore = input->mt.ptr_mask;
+  }
+ }
+}
+void
 wstpad_touch_inputs(struct wsmouseinput *input)
 {
  struct wstpad *tp = input->tp;
@@ -2736,6 +2820,7 @@ wstpad_touch_inputs(struct wsmouseinput *input)
    slot = ffs(input->mt.ptr) - 1;
    tp->t = &tp->tpad_touches[slot];
   }
+  wstpad_mt_masks(input);
  } else {
   t = tp->t;
   t->x = normalize_abs(&input->filter.h, input->motion.x);
@@ -2759,6 +2844,12 @@ wstpad_touch_inputs(struct wsmouseinput *input)
       normalize_rel(&input->filter.v, input->motion.y_delta),
       input->filter.ratio);
  }
+}
+static inline int
+t2_ignore(struct wsmouseinput *input)
+{
+ return (input->tp->contacts == 2 && ((input->tp->btns & (1 << 0))
+     || (input->tp->ignore & ~input->mt.ptr)));
 }
 void
 wstpad_process_input(struct wsmouseinput *input, struct evq_access *evq)
@@ -2795,8 +2886,7 @@ wstpad_process_input(struct wsmouseinput *input, struct evq_access *evq)
   if (((tp)->features & (1 << 7))
       || (tp->t->flags & tp->freeze)
       || (((&tp->time)->tv_sec == (&tp->freeze_ts)->tv_sec) ? ((&tp->time)->tv_nsec < (&tp->freeze_ts)->tv_nsec) : ((&tp->time)->tv_sec < (&tp->freeze_ts)->tv_sec))
-      || tp->contacts > 2
-      || (tp->contacts == 2 && !(tp->btns & (1 << 0)))) {
+      || (tp->contacts > 1 && !t2_ignore(input))) {
    cmds |= 1 << CLEAR_MOTION_DELTAS;
   }
  }
@@ -2884,14 +2974,11 @@ wstpad_weak_hysteresis(int *dx, int *dy,
 {
  *h_acc += *dx;
  *v_acc += *dy;
- if ((*dx > 0 && *h_acc < *dx)
-     || (*dx < 0 && *h_acc > *dx))
+ if ((*dx > 0 && *h_acc < *dx) || (*dx < 0 && *h_acc > *dx))
   *h_acc = *dx;
- if ((*dy > 0 && *v_acc < *dy)
-     || (*dy < 0 && *v_acc > *dy))
+ if ((*dy > 0 && *v_acc < *dy) || (*dy < 0 && *v_acc > *dy))
   *v_acc = *dy;
- if (abs(*h_acc) < h_threshold
-     && abs(*v_acc) < v_threshold)
+ if (abs(*h_acc) < h_threshold && abs(*v_acc) < v_threshold)
   *dx = *dy = 0;
 }
 void

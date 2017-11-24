@@ -4534,7 +4534,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;

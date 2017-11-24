@@ -1572,7 +1572,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -1644,7 +1644,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -4554,7 +4554,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -5513,22 +5512,12 @@ carp_iamatch(struct ifnet *ifp)
  srp_leave((&sr));
  return (match);
 }
-int
-carp_iamatch6(struct ifnet *ifp)
-{
- struct carp_softc *sc = ifp->if_softc;
- struct carp_vhost_entry *vhe = srp_get_locked(&(&sc->carp_vhosts)->sl_head);
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1362, "_kernel_lock_held()"));
- if (vhe->state == MASTER)
-  return (1);
- return (0);
-}
 struct ifnet *
 carp_ourether(void *v, u_int8_t *ena)
 {
  struct carp_if *cif = (struct carp_if *)v;
  struct carp_softc *vh;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1377, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1361, "_kernel_lock_held()"));
  for ((vh) = srp_get_locked(&(&cif->vhif_vrs)->sl_head); (vh) != ((void *)0); (vh) = srp_get_locked(&((vh))->sc_list.se_next)) {
   struct carp_vhost_entry *vhe;
   if ((vh->sc_ac.ac_if.if_flags & (0x1|0x40)) !=
@@ -5565,7 +5554,7 @@ carp_input(struct ifnet *ifp0, struct mbuf *m, void *cookie)
   return (0);
  eh = ((struct ether_header *)((m)->m_hdr.mh_data));
  cif = (struct carp_if *)cookie;
- ((cif == (struct carp_if *)ifp0->if_carp_ptr.carp_s) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1427, "cif == (struct carp_if *)ifp0->if_carp"));
+ ((cif == (struct carp_if *)ifp0->if_carp_ptr.carp_s) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1411, "cif == (struct carp_if *)ifp0->if_carp"));
  for ((sc) = srp_enter((&sr), &(&cif->vhif_vrs)->sl_head); (sc) != ((void *)0); (sc) = srp_follow((&sr), &(sc)->sc_list.se_next)) {
   if ((sc->sc_ac.ac_if.if_flags & (0x1|0x40)) !=
       (0x1|0x40))
@@ -5618,7 +5607,7 @@ carp_lsdrop(struct mbuf *m, sa_family_t af, u_int32_t *src, u_int32_t *dst,
  u_int32_t fold;
  struct m_tag *mtag;
  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1504, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1488, "ifp != NULL"));
  sc = ifp->if_softc;
  if (sc->sc_balancing == 0)
   goto done;
@@ -5681,7 +5670,7 @@ void
 carp_setrun_all(struct carp_softc *sc, sa_family_t af)
 {
  struct carp_vhost_entry *vhe;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1597, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1581, "_kernel_lock_held()"));
  for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next)) {
   carp_setrun(vhe, af);
  }
@@ -5777,8 +5766,8 @@ carp_set_ifp(struct carp_softc *sc, struct ifnet *ifp0)
  struct carp_if *cif, *ncif = ((void *)0);
  struct carp_softc *vr, *last = ((void *)0), *after = ((void *)0);
  int myself = 0, error = 0;
- ((ifp0 != sc->sc_ac.ac_if.if_carp_ptr.carp_d) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1718, "ifp0 != sc->sc_carpdev"));
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1719, "_kernel_lock_held()"));
+ ((ifp0 != sc->sc_ac.ac_if.if_carp_ptr.carp_d) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1702, "ifp0 != sc->sc_carpdev"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1703, "_kernel_lock_held()"));
  if ((ifp0->if_flags & 0x8000) == 0)
   return (49);
  if (ifp0->if_data.ifi_type == 0xf7)
@@ -5854,7 +5843,7 @@ void
 carp_set_enaddr(struct carp_softc *sc)
 {
  struct carp_vhost_entry *vhe;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1819, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1803, "_kernel_lock_held()"));
  for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next))
   carp_set_vhe_enaddr(vhe);
  vhe = srp_get_locked(&(&sc->carp_vhosts)->sl_head);
@@ -5913,7 +5902,7 @@ carp_set_addr(struct carp_softc *sc, struct sockaddr_in *sin)
 {
  struct in_addr *in = &sin->sin_addr;
  int error;
- ((sc->sc_ac.ac_if.if_carp_ptr.carp_d != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1909, "sc->sc_carpdev != NULL"));
+ ((sc->sc_ac.ac_if.if_carp_ptr.carp_d != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1893, "sc->sc_carpdev != NULL"));
  if (in->s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
   carp_setrun_all(sc, 0);
   return (0);
@@ -5945,7 +5934,7 @@ int
 carp_set_addr6(struct carp_softc *sc, struct sockaddr_in6 *sin6)
 {
  int error;
- ((sc->sc_ac.ac_if.if_carp_ptr.carp_d != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1954, "sc->sc_carpdev != NULL"));
+ ((sc->sc_ac.ac_if.if_carp_ptr.carp_d != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1938, "sc->sc_carpdev != NULL"));
  if (((*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0))) {
   carp_setrun_all(sc, 0);
   return (0);
@@ -6021,7 +6010,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2051, "_kernel_lock_held()"));
+  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2035, "_kernel_lock_held()"));
   vhe = srp_get_locked(&(&sc->carp_vhosts)->sl_head);
   if (vhe->state != INIT && !(ifr->ifr_ifru.ifru_flags & 0x1)) {
    carp_del_all_timeouts(sc);
@@ -6038,7 +6027,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
   }
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((245))):
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2072, "_kernel_lock_held()"));
+  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2056, "_kernel_lock_held()"));
   vhe = srp_get_locked(&(&sc->carp_vhosts)->sl_head);
   if ((error = suser(p, 0)) != 0)
    break;
@@ -6064,7 +6053,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
     carp_setrun_all(sc, 0);
     break;
    case MASTER:
-    ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2098, "_kernel_lock_held()"));
+    ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2082, "_kernel_lock_held()"));
     for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next))
      carp_master_down(vhe);
     break;
@@ -6084,7 +6073,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
   }
   if (__builtin_memcmp((sc->sc_advskews), (carpr.carpr_advskews), (sizeof(sc->sc_advskews)))) {
    i = 0;
-   ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2121, "_kernel_lock_held()"));
+   ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2105, "_kernel_lock_held()"));
    for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next))
     vhe->advskew = carpr.carpr_advskews[i++];
    __builtin_bcopy((carpr.carpr_advskews), (sc->sc_advskews), (sizeof(sc->sc_advskews)));
@@ -6112,7 +6101,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
   if (ifp0 != ((void *)0))
    strlcpy(carpr.carpr_carpdev, ifp0->if_xname, 16);
   i = 0;
-  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2152, "_kernel_lock_held()"));
+  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2136, "_kernel_lock_held()"));
   for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next)) {
    carpr.carpr_vhids[i] = vhe->vhid;
    carpr.carpr_advskews[i] = vhe->advskew;
@@ -6154,7 +6143,7 @@ carp_check_dup_vhids(struct carp_softc *sc, struct carp_if *cif,
  struct carp_softc *vr;
  struct carp_vhost_entry *vhe, *vhe0;
  int i;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2200, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2184, "_kernel_lock_held()"));
  for ((vr) = srp_get_locked(&(&cif->vhif_vrs)->sl_head); (vr) != ((void *)0); (vr) = srp_get_locked(&((vr))->sc_list.se_next)) {
   if (vr == sc)
    continue;
@@ -6308,7 +6297,7 @@ void
 carp_set_state_all(struct carp_softc *sc, int state)
 {
  struct carp_vhost_entry *vhe;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2395, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2379, "_kernel_lock_held()"));
  for ((vhe) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe) != ((void *)0); (vhe) = srp_get_locked(&((vhe))->vhost_entries.se_next)) {
   if (vhe->state == state)
    continue;
@@ -6322,7 +6311,7 @@ carp_set_state(struct carp_vhost_entry *vhe, int state)
  static const char *carp_states[] = { "INIT", "BACKUP", "MASTER" };
  int loglevel;
  struct carp_vhost_entry *vhe0;
- ((vhe->state != state) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2413, "vhe->state != state"));
+ ((vhe->state != state) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2397, "vhe->state != state"));
  if (vhe->state == INIT || state == INIT)
   loglevel = 4;
  else
@@ -6333,7 +6322,7 @@ carp_set_state(struct carp_vhost_entry *vhe, int state)
   do { if (carp_opts[3] >= loglevel) { if (sc) log(loglevel, "%s: ", (sc)->sc_ac.ac_if.if_xname); else log(loglevel, "carp: "); addlog ("state transition: %s -> %s", carp_states[vhe->state], carp_states[state]); addlog("\n"); } } while (0);
  vhe->state = state;
  carp_update_lsmask(sc);
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2432, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2416, "_kernel_lock_held()"));
  sc->sc_ac.ac_if.if_data.ifi_link_state = 1;
  for ((vhe0) = srp_get_locked(&(&sc->carp_vhosts)->sl_head); (vhe0) != ((void *)0); (vhe0) = srp_get_locked(&((vhe0))->vhost_entries.se_next)) {
   if (vhe0->state == MASTER) {
@@ -6394,7 +6383,7 @@ carp_carpdev_state(void *v)
  if (ifp0->if_data.ifi_type == 0xf7)
   return;
  cif = (struct carp_if *)ifp0->if_carp_ptr.carp_s;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2514, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2498, "_kernel_lock_held()"));
  for ((sc) = srp_get_locked(&(&cif->vhif_vrs)->sl_head); (sc) != ((void *)0); (sc) = srp_get_locked(&((sc))->sc_list.se_next)) {
   int suppressed = sc->sc_suppress;
   if (sc->sc_ac.ac_if.if_carp_ptr.carp_d->if_data.ifi_link_state == 2 ||

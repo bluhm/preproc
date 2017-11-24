@@ -3333,14 +3333,12 @@ audio_read(struct audio_softc *sc, struct uio *uio, int ioflag)
  do {} while(0);
  while (sc->quiesce)
   tsleep(&sc->quiesce, 0, "au_qrd", 0);
- __mtx_enter(&audio_lock );
  if (audio_canstart(sc)) {
-  __mtx_leave(&audio_lock );
   error = audio_start(sc);
   if (error)
    return error;
-  __mtx_enter(&audio_lock );
  }
+ __mtx_enter(&audio_lock );
  while (sc->rec.used == 0) {
   if (ioflag & 0x10) {
    __mtx_leave(&audio_lock );

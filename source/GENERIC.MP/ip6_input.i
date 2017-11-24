@@ -1429,7 +1429,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -1789,11 +1789,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 typedef __sa_family_t sa_family_t;
 struct linger {
  int l_onoff;
@@ -1945,7 +1945,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -2017,7 +2017,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -4557,7 +4557,7 @@ struct ip6ctlparam {
  u_int8_t ip6c_nxt;
 };
 extern u_char ip6_protox[];
-extern struct protosw inet6sw[];
+extern const struct protosw inet6sw[];
 typedef u_short mifi_t;
 typedef struct if_set {
  uint32_t ifs_bits[(((256) + (((sizeof(uint32_t) * 8)) - 1)) / ((sizeof(uint32_t) * 8)))];
@@ -5793,7 +5793,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -5815,7 +5814,7 @@ static struct task ip6send_task =
 void
 ip6_init(void)
 {
- struct protosw *pr;
+ const struct protosw *pr;
  int i;
  pr = pffindproto(24, 255, 3);
  if (pr == ((void *)0))

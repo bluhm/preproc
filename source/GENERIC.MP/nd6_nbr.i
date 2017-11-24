@@ -3443,7 +3443,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -3545,7 +3544,7 @@ nd6_ns_input(struct mbuf *m, int off, int icmp6len)
  else
   tlladdr = 1;
  ifa = &in6ifa_ifpwithaddr(ifp, &taddr6)->ia_ifa;
- if (ifp->if_data.ifi_type == 0xf7 && ifa && !carp_iamatch6(ifp))
+ if (ifp->if_data.ifi_type == 0xf7 && ifa && !carp_iamatch(ifp))
   ifa = ((void *)0);
  if (!ifa) {
   struct rtentry *rt;
@@ -3816,7 +3815,7 @@ nd6_na_input(struct mbuf *m, int off, int icmp6len)
   goto freeit;
  }
  if (ifa) {
-  if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch6(ifp))
+  if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch(ifp))
    goto freeit;
   log(3,
       "nd6_na_input: duplicate IP6 address %s\n",
@@ -4032,7 +4031,7 @@ nd6_na_output(struct ifnet *ifp, struct in6_addr *daddr6,
   __builtin_bcopy((mac), ((caddr_t)(nd_opt + 1)), (ifp->if_data.ifi_addrlen));
  } else
   flags &= ~((__uint32_t)(0x20000000));
- if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch6(ifp))
+ if (ifp->if_data.ifi_type == 0xf7 && !carp_iamatch(ifp))
   goto bad;
  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)((u_short)icmp6len));
  nd_na->nd_na_hdr.icmp6_dataun.icmp6_un_data32[0] = flags;

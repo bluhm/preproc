@@ -1927,7 +1927,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -1983,11 +1983,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 typedef __sa_family_t sa_family_t;
 struct linger {
  int l_onoff;
@@ -2096,7 +2096,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -2168,7 +2168,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -3356,7 +3356,7 @@ int
 socreate(int dom, struct socket **aso, int type, int proto)
 {
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
- struct protosw *prp;
+ const struct protosw *prp;
  struct socket *so;
  int error, s;
  if (proto)
@@ -3620,7 +3620,7 @@ restart:
       (atomic || space < so->so_snd.sb_lowat))) {
    if ((so->so_state & 0x100) || (flags & 0x80))
     { error = 35; goto release; };
-   sbunlock(&so->so_snd);
+   sbunlock(so, &so->so_snd);
    error = sbwait(so, &so->so_snd);
    so->so_state &= ~0x2000;
    if (error)
@@ -3660,7 +3660,7 @@ restart:
  } while (resid);
 release:
  so->so_state &= ~0x2000;
- sbunlock(&so->so_snd);
+ sbunlock(so, &so->so_snd);
 out:
  sounlock(s);
  m_freem(top);
@@ -3739,7 +3739,7 @@ soreceive(struct socket *so, struct mbuf **paddr, struct uio *uio,
  struct mbuf *cm;
  u_long len, offset, moff;
  int flags, error, s, type, uio_error = 0;
- struct protosw *pr = so->so_proto;
+ const struct protosw *pr = so->so_proto;
  struct mbuf *nextrecord;
  size_t resid, orig_resid = uio->uio_resid;
  mp = mp0;
@@ -3822,7 +3822,7 @@ restart:
   }
   ;
   ;
-  sbunlock(&so->so_rcv);
+  sbunlock(so, &so->so_rcv);
   error = sbwait(so, &so->so_rcv);
   sounlock(s);
   if (error)
@@ -4000,7 +4000,7 @@ dontblock:
    ;
    error = sbwait(so, &so->so_rcv);
    if (error) {
-    sbunlock(&so->so_rcv);
+    sbunlock(so, &so->so_rcv);
     sounlock(s);
     return (0);
    }
@@ -4030,7 +4030,7 @@ dontblock:
  }
  if (orig_resid == uio->uio_resid && orig_resid &&
      (flags & 0x8) == 0 && (so->so_state & 0x020) == 0) {
-  sbunlock(&so->so_rcv);
+  sbunlock(so, &so->so_rcv);
   sounlock(s);
   goto restart;
  }
@@ -4039,14 +4039,14 @@ dontblock:
  if (flagsp)
   *flagsp |= flags;
 release:
- sbunlock(&so->so_rcv);
+ sbunlock(so, &so->so_rcv);
  sounlock(s);
  return (error);
 }
 int
 soshutdown(struct socket *so, int how)
 {
- struct protosw *pr = so->so_proto;
+ const struct protosw *pr = so->so_proto;
  int s, error = 0;
  s = solock(so);
  switch (how) {
@@ -4070,14 +4070,14 @@ void
 sorflush(struct socket *so)
 {
  struct sockbuf *sb = &so->so_rcv;
- struct protosw *pr = so->so_proto;
+ const struct protosw *pr = so->so_proto;
  struct socket aso;
  int error;
  sb->sb_flags |= 0x40;
  error = sblock(so, sb, 0x0001);
  ((error == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1050, "error == 0"));
  socantrcvmore(so);
- sbunlock(sb);
+ sbunlock(so, sb);
  aso.so_proto = pr;
  aso.so_rcv = *sb;
  __builtin_memset((sb), (0), (sizeof (*sb)));
@@ -4122,7 +4122,7 @@ sosplice(struct socket *so, int fd, off_t max, struct timeval *tv)
   }
   if (so->so_sp->ssp_socket)
    sounsplice(so, so->so_sp->ssp_socket, 1);
-  sbunlock(&so->so_rcv);
+  sbunlock(so, &so->so_rcv);
   return (0);
  }
  if (max && max < 0)
@@ -4145,7 +4145,7 @@ sosplice(struct socket *so, int fd, off_t max, struct timeval *tv)
   return (error);
  }
  if ((error = sblock(so, &sosp->so_snd, 0x0001)) != 0) {
-  sbunlock(&so->so_rcv);
+  sbunlock(so, &so->so_rcv);
   (--(fp)->f_count == 0 ? fdrop(fp, (__curcpu->ci_self)->ci_curproc) : 0);
   return (error);
  }
@@ -4180,8 +4180,8 @@ sosplice(struct socket *so, int fd, off_t max, struct timeval *tv)
   sosp->so_snd.sb_flagsintr |= 0x20;
  }
  release:
- sbunlock(&sosp->so_snd);
- sbunlock(&so->so_rcv);
+ sbunlock(sosp, &sosp->so_snd);
+ sbunlock(so, &so->so_rcv);
  (--(fp)->f_count == 0 ? fdrop(fp, (__curcpu->ci_self)->ci_curproc) : 0);
  return (error);
 }

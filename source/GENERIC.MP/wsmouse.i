@@ -3098,6 +3098,7 @@ struct mt_state {
  u_int ptr;
  u_int ptr_cycle;
  u_int prev_ptr;
+ u_int ptr_mask;
  int *matrix;
 };
 struct axis_filter {
@@ -3619,6 +3620,7 @@ wsmouse_mtstate(struct device *sc, int slot, int x, int y, int pressure)
    mt->num_touches--;
    mt->touches ^= bit;
    mt->sync[0] |= bit;
+   mt->ptr_mask &= mt->touches;
   }
  }
 }
@@ -3714,7 +3716,7 @@ wsmouse_ptr_ctrl(struct mt_state *mt)
   mt->ptr_cycle = mt->ptr;
   return;
  }
- select = ((mt->ptr & mt->touches) == 0);
+ select = ((mt->ptr & mt->touches & ~mt->ptr_mask) == 0);
  updates = (mt->sync[1] | mt->sync[2]) & ~mt->sync[0];
  mt->ptr_cycle &= ~(mt->frame ^ updates);
  if (mt->ptr_cycle & updates) {
@@ -3724,8 +3726,12 @@ wsmouse_ptr_ctrl(struct mt_state *mt)
   mt->ptr_cycle |= updates;
  }
  if (select) {
-  slot = (mt->ptr_cycle
-      ? ffs(mt->ptr_cycle) - 1 : ffs(mt->touches) - 1);
+  if (mt->ptr_cycle & ~mt->ptr_mask)
+   slot = ffs(mt->ptr_cycle & ~mt->ptr_mask) - 1;
+  else if (mt->touches & ~mt->ptr_mask)
+   slot = ffs(mt->touches & ~mt->ptr_mask) - 1;
+  else
+   slot = ffs(mt->touches) - 1;
   mt->ptr = (1 << slot);
  }
 }

@@ -1429,7 +1429,7 @@ struct domain {
  void (*dom_init)(void);
  int (*dom_externalize)(struct mbuf *, socklen_t, int);
  void (*dom_dispose)(struct mbuf *);
- struct protosw *dom_protosw, *dom_protoswNPROTOSW;
+ const struct protosw *dom_protosw, *dom_protoswNPROTOSW;
  unsigned int dom_rtkeylen;
  unsigned int dom_rtoffset;
  unsigned int dom_maxplen;
@@ -1465,11 +1465,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 typedef __sa_family_t sa_family_t;
 struct linger {
  int l_onoff;
@@ -1621,7 +1621,7 @@ struct socket {
  short so_linger;
  short so_state;
  void *so_pcb;
- struct protosw *so_proto;
+ const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -1693,7 +1693,7 @@ soreadable(struct socket *so)
      so->so_rcv.sb_cc >= so->so_rcv.sb_lowat;
 }
 int sblock(struct socket *, struct sockbuf *, int);
-void sbunlock(struct sockbuf *);
+void sbunlock(struct socket *, struct sockbuf *);
 extern u_long sb_max;
 extern struct pool socket_pool;
 struct mbuf;
@@ -4658,7 +4658,7 @@ struct ip6ctlparam {
  u_int8_t ip6c_nxt;
 };
 extern u_char ip6_protox[];
-extern struct protosw inet6sw[];
+extern const struct protosw inet6sw[];
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -5906,7 +5906,6 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-int carp_iamatch6(struct ifnet *);
 struct ifnet *carp_ourether(void *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -5951,7 +5950,7 @@ void save_rte(struct mbuf *, u_char *, struct in_addr);
 void
 ip_init(void)
 {
- struct protosw *pr;
+ const struct protosw *pr;
  int i;
  const u_int16_t defbaddynamicports_tcp[] = { 587, 749, 750, 751, 871, 2049, 6000, 6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 0 };
  const u_int16_t defbaddynamicports_udp[] = { 623, 664, 749, 750, 751, 2049, 3784, 3785, 7784, 0 };
@@ -6246,10 +6245,9 @@ ip_local(struct mbuf **mp, int *offp, int nxt, int af)
 int
 ip_deliver(struct mbuf **mp, int *offp, int nxt, int af)
 {
- struct protosw *psw;
+ const struct protosw *psw;
  int naf = af;
  int nest = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 622, "_kernel_lock_held()"));
  switch (af) {
  case 2:
   in_proto_cksum_out(*mp, ((void *)0));
@@ -6546,7 +6544,7 @@ ip_dooptions(struct mbuf *m, struct ifnet *ifp)
  dst = ip->ip_dst;
  cp = (u_char *)(ip + 1);
  cnt = (ip->ip_hl << 2) - sizeof (struct ip);
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1066);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1064);
  for (; cnt > 0; cnt -= optlen, cp += optlen) {
   opt = cp[0];
   if (opt == 0)

@@ -1244,11 +1244,11 @@ struct protosw {
  int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
 };
 struct sockaddr;
-struct protosw *pffindproto(int, int, int);
-struct protosw *pffindtype(int, int);
+const struct protosw *pffindproto(int, int, int);
+const struct protosw *pffindtype(int, int);
 void pfctlinput(int, struct sockaddr *);
 extern u_char ip_protox[];
-extern struct protosw inetsw[];
+extern const struct protosw inetsw[];
 struct m_tag {
  struct { struct m_tag *sle_next; } m_tag_link;
  u_int16_t m_tag_id;
@@ -4812,7 +4812,7 @@ struct ip6ctlparam {
  u_int8_t ip6c_nxt;
 };
 extern u_char ip6_protox[];
-extern struct protosw inet6sw[];
+extern const struct protosw inet6sw[];
 struct m_tag;
 union sockaddr_union {
  struct sockaddr sa;
