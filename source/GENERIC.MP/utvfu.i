@@ -1325,6 +1325,7 @@ int timeout_add_msec(struct timeout *, int);
 int timeout_add_usec(struct timeout *, int);
 int timeout_add_nsec(struct timeout *, int);
 int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
@@ -2881,7 +2882,6 @@ struct v4l2_decoder_cmd {
    u_int64_t pts;
   } stop;
   struct {
-
    int32_t speed;
    u_int32_t format;
   } start;
