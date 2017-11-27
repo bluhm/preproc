@@ -3133,8 +3133,12 @@ wstpad_configure(struct wsmouseinput *input)
    tp->features &= ~(1 << 3);
    tp->features |= (1 << 4);
   }
-  tp->params.left_edge = 0;
-  tp->params.right_edge = 0;
+  if (input->hw.type == 19) {
+   tp->features &= ~(1 << 0);
+   tp->features |= (1 << 2);
+  }
+  tp->params.left_edge = 205;
+  tp->params.right_edge = 205;
   tp->params.bottom_edge = 0;
   tp->params.top_edge = 0;
   tp->params.center_width = 0;
@@ -3143,39 +3147,31 @@ wstpad_configure(struct wsmouseinput *input)
   tp->tap.locktime = 0;
   tp->scroll.hdist = 4 * h_unit;
   tp->scroll.vdist = 4 * v_unit;
-  tp->tap.maxdist = 3 * h_unit;
+  tp->tap.maxdist = 4 * h_unit;
  }
- tp->freeze = 0;
+ tp->freeze = ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
  if ((ratio = tp->params.left_edge) == 0
      && (tp->features & (1 << 4))
      && (tp->features & (1 << 6)))
-  ratio = (4096 / 16);
+  ratio = 205;
  tp->edge.left = input->hw.x_min + width * ratio / 4096;
- if (ratio)
-  tp->freeze |= (1 << 0);
  if ((ratio = tp->params.right_edge) == 0
      && (tp->features & (1 << 4))
      && !(tp->features & (1 << 6)))
-  ratio = (4096 / 16);
+  ratio = 205;
  tp->edge.right = input->hw.x_max - width * ratio / 4096;
- if (ratio)
-  tp->freeze |= (1 << 1);
  if ((ratio = tp->params.bottom_edge) == 0
      && ((tp->features & (1 << 0))
      || ((tp->features & (1 << 4))
      && (tp->features & (1 << 5)))))
-  ratio = (4096 / 16);
+  ratio = 410;
  tp->edge.bottom = input->hw.y_min + height * ratio / 4096;
- if (ratio)
-  tp->freeze |= (1 << 3);
  if ((ratio = tp->params.top_edge) == 0
      && (tp->features & (1 << 2)))
-  ratio = (4096 / 16);
+  ratio = 410;
  tp->edge.top = input->hw.y_max - height * ratio / 4096;
- if (ratio)
-  tp->freeze |= (1 << 2);
  if ((ratio = abs(tp->params.center_width)) == 0)
-  ratio = (4096 / 8);
+  ratio = 512;
  tp->edge.center = (input->hw.x_min + input->hw.x_max) / 2;
  tp->edge.center_left = tp->edge.center - width * ratio / 8192;
  tp->edge.center_right = tp->edge.center + width * ratio / 8192;
