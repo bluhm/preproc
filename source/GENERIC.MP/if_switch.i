@@ -2936,33 +2936,6 @@ struct in6_ndifreq {
  char ifname[16];
  u_long ifindex;
 };
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_barrier(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
 struct llinfo_nd6 {
  struct { struct llinfo_nd6 *tqe_next; struct llinfo_nd6 **tqe_prev; } ln_list;
  struct rtentry *ln_rt;
@@ -2971,7 +2944,6 @@ struct llinfo_nd6 {
  int ln_byhint;
  short ln_state;
  short ln_router;
- struct timeout ln_timer_ch;
 };
 extern int nd6_delay;
 extern int nd6_umaxtries;
@@ -3003,7 +2975,7 @@ struct nd_opt_hdr *nd6_option(union nd_opts *);
 int nd6_options(union nd_opts *);
 struct rtentry *nd6_lookup(struct in6_addr *, int, struct ifnet *, u_int);
 void nd6_setmtu(struct ifnet *);
-void nd6_llinfo_settimer(struct llinfo_nd6 *, int);
+void nd6_llinfo_settimer(struct llinfo_nd6 *, unsigned int);
 void nd6_purge(struct ifnet *);
 void nd6_nud_hint(struct rtentry *);
 void nd6_rtrequest(struct ifnet *, int, struct rtentry *);
@@ -4094,6 +4066,12 @@ struct pf_divert {
  u_int16_t port;
  u_int16_t rdomain;
 };
+enum pf_divert_types {
+ PF_DIVERT_NONE,
+ PF_DIVERT_TO,
+ PF_DIVERT_REPLY,
+ PF_DIVERT_PACKET
+};
 struct pfioc_rule {
  u_int32_t action;
  u_int32_t ticket;
@@ -4878,6 +4856,33 @@ struct dlt_openflow_hdr {
  uint32_t of_direction;
  uint64_t of_datapath_id;
 } __attribute__((__packed__));
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
 struct ifbreq {
  char ifbr_name[16];
  char ifbr_ifsname[16];

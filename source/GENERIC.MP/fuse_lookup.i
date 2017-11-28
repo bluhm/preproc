@@ -2828,8 +2828,9 @@ fusefs_lookup(void *v)
     return (error);
    if ((nameiop == 1 || nameiop == 3) &&
        (flags & 0x008000)) {
-    if (vdp->v_mount->mnt_flag & 0x00000001)
-     return (30);
+    if ((error = VOP_ACCESS(vdp, 00200, cred,
+        cnp->cn_proc)) != 0)
+     return (error);
     cnp->cn_flags |= 0x000800;
     if (!lockparent) {
      VOP_UNLOCK(vdp, p);

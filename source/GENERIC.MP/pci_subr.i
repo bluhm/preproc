@@ -21424,6 +21424,30 @@ static const struct pci_known_product pci_known_products[] = {
      "53c895A",
  },
  {
+     0x1000, 0x0014,
+     "MegaRAID SAS3516",
+ },
+ {
+     0x1000, 0x0015,
+     "MegaRAID SAS3416",
+ },
+ {
+     0x1000, 0x0016,
+     "MegaRAID SAS3508",
+ },
+ {
+     0x1000, 0x0017,
+     "MegaRAID SAS3408",
+ },
+ {
+     0x1000, 0x001b,
+     "MegaRAID SAS3504",
+ },
+ {
+     0x1000, 0x001c,
+     "MegaRAID SAS3404",
+ },
+ {
      0x1000, 0x0020,
      "53c1010-33",
  },

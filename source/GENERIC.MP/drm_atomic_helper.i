@@ -4254,7 +4254,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4652,6 +4652,25 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
+inline void
+prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
+{
+ if (*wait == ((void *)0)) {
+  __mtx_enter(&wq->lock );
+  *wait = wq;
+ }
+}
+inline void
+finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
+{
+ if (*wait)
+  __mtx_leave(&wq->lock );
+}
+inline long
+schedule_timeout(long timeout, wait_queue_head_t **wait)
+{
+ return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+}
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
  int id;
@@ -4923,7 +4942,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8763,7 +8782,7 @@ drm_atomic_helper_wait_for_vblanks(struct drm_device *dev,
  for ((i) = 0; (i) < (old_state)->dev->mode_config.num_crtc && ((crtc) = (old_state)->crtcs[i], (old_crtc_state) = (old_state)->crtc_states[i], 1); (i)++) if (old_crtc_state) {
   if (!old_crtc_state->enable)
    continue;
-  ret = ({ long __ret = (((uint64_t)(50)) * hz / 1000); if (!(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic_helper.c", 990, "!cold")); ((void)_atomic_add_int_nv((&(dev->vblank[i].queue).count), 1)); sleep_setup(&sls, &dev->vblank[i].queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(dev->vblank[i].queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) { __ret = 1; break; } } while (__ret > 0 && !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __ret; });
+  ret = ({ long __ret = (((uint64_t)(50)) * hz / 1000); if (!(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) __ret = ({ long ret = (((uint64_t)(50)) * hz / 1000); __mtx_enter(&(dev->vblank[i].queue).lock ); do { int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic_helper.c", 990, "!cold")); ((void)_atomic_add_int_nv((&(dev->vblank[i].queue).count), 1)); deadline = ticks + ret; __error = msleep(&dev->vblank[i].queue, &(dev->vblank[i].queue).lock, 0, "drmweti", ret); ret = deadline - ticks; ((void)_atomic_sub_int_nv((&(dev->vblank[i].queue).count), 1)); if (__error == -1 || __error == 4) { ret = -4; break; } if ((((uint64_t)(50)) * hz / 1000) && (ret <= 0 || __error == 35)) { ret = ((old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))) ? 1 : 0; break; } } while (ret > 0 && !(old_crtc_state->last_vblank_count != drm_crtc_vblank_count(crtc))); __mtx_leave(&(dev->vblank[i].queue).lock ); ret; }); __ret; });
   drm_crtc_vblank_put(crtc);
  }
 }

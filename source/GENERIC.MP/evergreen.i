@@ -4254,7 +4254,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4652,6 +4652,25 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
+inline void
+prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
+{
+ if (*wait == ((void *)0)) {
+  __mtx_enter(&wq->lock );
+  *wait = wq;
+ }
+}
+inline void
+finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
+{
+ if (*wait)
+  __mtx_leave(&wq->lock );
+}
+inline long
+schedule_timeout(long timeout, wait_queue_head_t **wait)
+{
+ return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+}
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
  int id;
@@ -4923,7 +4942,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -17968,7 +17987,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[0]) {
       drm_handle_vblank(rdev->ddev, 0);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[0])))
       radeon_crtc_handle_flip(rdev, 0);
@@ -17994,7 +18013,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[1]) {
       drm_handle_vblank(rdev->ddev, 1);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[1])))
       radeon_crtc_handle_flip(rdev, 1);
@@ -18020,7 +18039,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[2]) {
       drm_handle_vblank(rdev->ddev, 2);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[2])))
       radeon_crtc_handle_flip(rdev, 2);
@@ -18046,7 +18065,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[3]) {
       drm_handle_vblank(rdev->ddev, 3);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[3])))
       radeon_crtc_handle_flip(rdev, 3);
@@ -18072,7 +18091,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[4]) {
       drm_handle_vblank(rdev->ddev, 4);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[4])))
       radeon_crtc_handle_flip(rdev, 4);
@@ -18098,7 +18117,7 @@ restart_ih:
      if (rdev->irq.crtc_vblank_int[5]) {
       drm_handle_vblank(rdev->ddev, 5);
       rdev->pm.vblank_sync = 1;
-      wakeup(&rdev->irq.vblank_queue);
+      do { __mtx_enter(&(&rdev->irq.vblank_queue)->lock ); wakeup(&rdev->irq.vblank_queue); __mtx_leave(&(&rdev->irq.vblank_queue)->lock ); } while (0);
      }
      if ((*(&rdev->irq.pflip[5])))
       radeon_crtc_handle_flip(rdev, 5);

@@ -3680,8 +3680,7 @@ static int
 ieee80211_ioctl_getnwkeys(struct ieee80211com *ic,
     struct ieee80211_nwkey *nwkey)
 {
- struct ieee80211_key *k;
- int error, i;
+ int i;
  if (ic->ic_flags & 0x00000100)
   nwkey->i_wepon = 1;
  else
@@ -3690,18 +3689,7 @@ ieee80211_ioctl_getnwkeys(struct ieee80211com *ic,
  for (i = 0; i < 4; i++) {
   if (nwkey->i_key[i].i_keydat == ((void *)0))
    continue;
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
-   return error;
-  k = &ic->ic_nw_keys[i];
-  if (k->k_cipher != IEEE80211_CIPHER_WEP40 &&
-      k->k_cipher != IEEE80211_CIPHER_WEP104)
-   nwkey->i_key[i].i_keylen = 0;
-  else
-   nwkey->i_key[i].i_keylen = k->k_len;
-  error = copyout(k->k_key, nwkey->i_key[i].i_keydat,
-      nwkey->i_key[i].i_keylen);
-  if (error != 0)
-   return error;
+  return 1;
  }
  return 0;
 }
@@ -3898,13 +3886,9 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_wpapsk) & 0x1fff) << 16) | ((('i')) << 8) | ((246))):
   psk = (struct ieee80211_wpapsk *)data;
   if (ic->ic_flags & 0x00400000) {
-   psk->i_enabled = 1;
-   if (suser((__curcpu->ci_self)->ci_curproc, 0) != 0) {
-    psk->i_enabled = 2;
-    __builtin_memset((psk->i_psk), (0), (sizeof(psk->i_psk)));
-    break;
-   }
-   __builtin_memcpy((psk->i_psk), (ic->ic_psk), (sizeof(psk->i_psk)));
+   psk->i_enabled = 2;
+   __builtin_memset((psk->i_psk), (0), (sizeof(psk->i_psk)));
+   break;
   } else
    psk->i_enabled = 0;
   break;

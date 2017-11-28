@@ -4245,7 +4245,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4643,6 +4643,25 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
+inline void
+prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
+{
+ if (*wait == ((void *)0)) {
+  __mtx_enter(&wq->lock );
+  *wait = wq;
+ }
+}
+inline void
+finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
+{
+ if (*wait)
+  __mtx_leave(&wq->lock );
+}
+inline long
+schedule_timeout(long timeout, wait_queue_head_t **wait)
+{
+ return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+}
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
  int id;
@@ -4914,7 +4933,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8371,7 +8390,7 @@ int ttm_bo_reserve_locked(struct ttm_buffer_object *bo,
  (*(&bo->reserved) = (1));
  if (use_sequence) {
   if (__builtin_expect(!!((bo->val_seq - sequence < (1 << 31)) || !bo->seq_valid), 0))
-   wakeup(&bo->event_queue);
+   do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
   bo->val_seq = sequence;
   bo->seq_valid = 1;
  } else {
@@ -8410,7 +8429,7 @@ void ttm_bo_unreserve_locked(struct ttm_buffer_object *bo)
 {
  ttm_bo_add_to_lru(bo);
  (*(&bo->reserved) = (0));
- wakeup(&bo->event_queue);
+ do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
 }
 void ttm_bo_unreserve(struct ttm_buffer_object *bo)
 {
@@ -8555,7 +8574,7 @@ static void ttm_bo_cleanup_memtype_use(struct ttm_buffer_object *bo)
  }
  ttm_bo_mem_put(bo, &bo->mem);
  (*(&bo->reserved) = (0));
- wakeup(&bo->event_queue);
+ do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
  __asm volatile("membar " "#Sync" ::: "memory");
 }
 static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
@@ -8583,7 +8602,7 @@ static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
  __mtx_leave(&bdev->fence_lock );
  if (!ret) {
   (*(&bo->reserved) = (0));
-  wakeup(&bo->event_queue);
+  do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
  }
  kref_get(&bo->list_kref);
  list_add_tail(&bo->ddestroy, &bdev->ddestroy);
@@ -8611,7 +8630,7 @@ static int ttm_bo_cleanup_refs_and_unlock(struct ttm_buffer_object *bo,
   sync_obj = driver->sync_obj_ref(bo->sync_obj);
   __mtx_leave(&bdev->fence_lock );
   (*(&bo->reserved) = (0));
-  wakeup(&bo->event_queue);
+  do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
   __mtx_leave(&glob->lru_lock );
   ret = driver->sync_obj_wait(sync_obj, 0, interruptible);
   driver->sync_obj_unref(&sync_obj);
@@ -8633,7 +8652,7 @@ static int ttm_bo_cleanup_refs_and_unlock(struct ttm_buffer_object *bo,
   __mtx_leave(&bdev->fence_lock );
  if (ret || __builtin_expect(!!(list_empty(&bo->ddestroy)), 0)) {
   (*(&bo->reserved) = (0));
-  wakeup(&bo->event_queue);
+  do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
   __mtx_leave(&glob->lru_lock );
   return ret;
  }
@@ -9551,7 +9570,7 @@ static int ttm_bo_swapout(struct ttm_mem_shrink *shrink)
  ret = ttm_tt_swapout(bo->ttm, bo->persistent_swap_storage);
 out:
  (*(&bo->reserved) = (0));
- wakeup(&bo->event_queue);
+ do { __mtx_enter(&(&bo->event_queue)->lock ); wakeup(&bo->event_queue); __mtx_leave(&(&bo->event_queue)->lock ); } while (0);
  kref_put(&bo->list_kref, ttm_bo_release_list);
  return ret;
 }

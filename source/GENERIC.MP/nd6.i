@@ -3662,7 +3662,6 @@ struct llinfo_nd6 {
  int ln_byhint;
  short ln_state;
  short ln_router;
- struct timeout ln_timer_ch;
 };
 extern int nd6_delay;
 extern int nd6_umaxtries;
@@ -3694,7 +3693,7 @@ struct nd_opt_hdr *nd6_option(union nd_opts *);
 int nd6_options(union nd_opts *);
 struct rtentry *nd6_lookup(struct in6_addr *, int, struct ifnet *, u_int);
 void nd6_setmtu(struct ifnet *);
-void nd6_llinfo_settimer(struct llinfo_nd6 *, int);
+void nd6_llinfo_settimer(struct llinfo_nd6 *, unsigned int);
 void nd6_purge(struct ifnet *);
 void nd6_nud_hint(struct rtentry *);
 void nd6_rtrequest(struct ifnet *, int, struct rtentry *);
@@ -3937,7 +3936,8 @@ struct ip6ctlparam;
 void icmp6_mtudisc_update(struct ip6ctlparam *, int);
 void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
 extern int icmp6_redirtimeout;
-time_t nd6_expire_time = -1;
+int nd6_timer_next = -1;
+time_t nd6_expire_next = -1;
 int nd6_delay = 5;
 int nd6_umaxtries = 3;
 int nd6_mmaxtries = 3;
@@ -3949,12 +3949,14 @@ struct llinfo_nd6_head { struct llinfo_nd6 *tqh_first; struct llinfo_nd6 **tqh_l
 struct pool nd6_pool;
 int nd6_inuse, nd6_allocated;
 int nd6_recalc_reachtm_interval = (60 * 120);
+void nd6_timer(void *);
 void nd6_slowtimo(void *);
 void nd6_expire(void *);
 void nd6_expire_timer(void *);
 void nd6_invalidate(struct rtentry *);
 void nd6_free(struct rtentry *);
-void nd6_llinfo_timer(void *);
+int nd6_llinfo_timer(struct rtentry *);
+struct timeout nd6_timer_to;
 struct timeout nd6_slowtimo_ch;
 struct timeout nd6_expire_timeout;
 struct task nd6_expire_task;
@@ -3971,6 +3973,7 @@ nd6_init(void)
      2, 0, "nd6", ((void *)0));
  task_set(&nd6_expire_task, nd6_expire, ((void *)0));
  nd6_init_done = 1;
+ timeout_set_proc(&nd6_timer_to, nd6_timer, &nd6_timer_to);
  timeout_set_proc(&nd6_slowtimo_ch, nd6_slowtimo, ((void *)0));
  timeout_add_sec(&nd6_slowtimo_ch, (60 * 60));
  timeout_set(&nd6_expire_timeout, nd6_expire_timer, ((void *)0));
@@ -4092,39 +4095,49 @@ skip1:
  return 0;
 }
 void
-nd6_llinfo_settimer(struct llinfo_nd6 *ln, int secs)
+nd6_llinfo_settimer(struct llinfo_nd6 *ln, unsigned int secs)
 {
- if (secs < 0) {
-  ln->ln_rt->rt_rmx.rmx_expire = 0;
-  timeout_del(&ln->ln_timer_ch);
- } else {
-  ln->ln_rt->rt_rmx.rmx_expire = time_uptime + secs;
-  timeout_add_sec(&ln->ln_timer_ch, secs);
+ time_t expire = time_uptime + secs;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ ln->ln_rt->rt_rmx.rmx_expire = expire;
+ if (!((&nd6_timer_to)->to_flags & 2) || expire < nd6_timer_next) {
+  nd6_timer_next = expire;
+  timeout_add_sec(&nd6_timer_to, secs);
  }
 }
 void
-nd6_llinfo_timer(void *arg)
+nd6_timer(void *arg)
 {
- struct llinfo_nd6 *ln;
- struct rtentry *rt;
- struct sockaddr_in6 *dst;
+ struct llinfo_nd6 *ln, *nln;
+ time_t expire = time_uptime + nd6_gctimer;
+ int secs;
+ do { _rw_enter_write(&netlock ); } while (0);
+ for ((ln) = ((&nd6_list)->tqh_first); (ln) != ((void *)0) && ((nln) = ((ln)->ln_list.tqe_next), 1); (ln) = (nln)) {
+  struct rtentry *rt = ln->ln_rt;
+  if (rt->rt_rmx.rmx_expire && rt->rt_rmx.rmx_expire <= time_uptime)
+   if (nd6_llinfo_timer(rt))
+    continue;
+  if (rt->rt_rmx.rmx_expire && rt->rt_rmx.rmx_expire < expire)
+   expire = rt->rt_rmx.rmx_expire;
+ }
+ secs = expire - time_uptime;
+ if (secs < 0)
+  secs = 0;
+ if (!(((&nd6_list)->tqh_first) == ((void *)0)))
+  timeout_add_sec(&nd6_timer_to, secs);
+ do { _rw_exit_write(&netlock ); } while (0);
+}
+int
+nd6_llinfo_timer(struct rtentry *rt)
+{
+ struct llinfo_nd6 *ln = (struct llinfo_nd6 *)rt->rt_llinfo;
+ struct sockaddr_in6 *dst = satosin6(((rt)->rt_dest));
  struct ifnet *ifp;
  struct nd_ifinfo *ndi = ((void *)0);
- do { _rw_enter_write(&netlock ); } while (0);
- ln = (struct llinfo_nd6 *)arg;
- if ((rt = ln->ln_rt) == ((void *)0))
-  panic("ln->ln_rt == NULL");
- if ((ifp = if_get(rt->rt_ifidx)) == ((void *)0)) {
-  do { _rw_exit_write(&netlock ); } while (0);
-  return;
- }
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if ((ifp = if_get(rt->rt_ifidx)) == ((void *)0))
+  return 1;
  ndi = (((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
- dst = satosin6(((rt)->rt_dest));
- if (rt->rt_llinfo != ((void *)0) && (struct llinfo_nd6 *)rt->rt_llinfo != ln)
-  panic("rt_llinfo(%p) is not equal to ln(%p)",
-        rt->rt_llinfo, ln);
- if (!dst)
-  panic("dst=0 in nd6_timer(ln=%p)", ln);
  switch (ln->ln_state) {
  case 0:
   if (ln->ln_asked < nd6_mmaxtries) {
@@ -4182,14 +4195,14 @@ nd6_llinfo_timer(void *arg)
   break;
  }
  if_put(ifp);
- do { _rw_exit_write(&netlock ); } while (0);
+ return (ln == ((void *)0));
 }
 void
 nd6_expire_timer_update(struct in6_ifaddr *ia6)
 {
  time_t expire_time = 0x7fffffffffffffffLL;
  int secs;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 420, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 446, "_kernel_lock_held()"));
  if (ia6->ia6_lifetime.ia6t_vltime != 0xffffffff)
   expire_time = ia6->ia6_lifetime.ia6t_expire;
  if (!(ia6->ia6_flags & 0x10) &&
@@ -4199,20 +4212,20 @@ nd6_expire_timer_update(struct in6_ifaddr *ia6)
  if (expire_time == 0x7fffffffffffffffLL)
   return;
  expire_time++;
- if (!((&nd6_expire_timeout)->to_flags & 2) || nd6_expire_time >
-     expire_time) {
+ if (!((&nd6_expire_timeout)->to_flags & 2) ||
+     nd6_expire_next > expire_time) {
   secs = expire_time - time_uptime;
-  if ( secs < 0)
+  if (secs < 0)
    secs = 0;
   timeout_add_sec(&nd6_expire_timeout, secs);
-  nd6_expire_time = expire_time;
+  nd6_expire_next = expire_time;
  }
 }
 void
 nd6_expire(void *unused)
 {
  struct ifnet *ifp;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 460);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 486);
  do { _rw_enter_write(&netlock ); } while (0);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   struct ifaddr *ifa, *nifa;
@@ -4433,7 +4446,6 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   nd6_inuse++;
   nd6_allocated++;
   ln->ln_rt = rt;
-  timeout_set_proc(&ln->ln_timer_ch, nd6_llinfo_timer, ln);
   if (req == 0x1) {
    ln->ln_state = 1;
    ln->ln_byhint = 0;
@@ -4465,14 +4477,14 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   ifa = &in6ifa_ifpwithaddr(ifp,
       &satosin6(((rt)->rt_dest))->sin6_addr)->ia_ifa;
   if (ifa) {
-   nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 919, "ifa == rt->rt_ifa"));
+   rt->rt_rmx.rmx_expire = 0;
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 944, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
-   nd6_llinfo_settimer(ln, -1);
    ln->ln_state = 1;
    ln->ln_byhint = 0;
+   rt->rt_rmx.rmx_expire = 0;
    if (ifp->if_flags & 0x8000) {
     struct in6_addr llsol;
     int error;
@@ -4508,7 +4520,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   }
   nd6_inuse--;
   do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
-  nd6_llinfo_settimer(ln, -1);
+  rt->rt_rmx.rmx_expire = 0;
   rt->rt_llinfo = ((void *)0);
   rt->rt_flags &= ~0x400;
   m_freem(ln->ln_hold);
@@ -4656,7 +4668,7 @@ fail:
     }
    }
   } else if (ln->ln_state == 0) {
-   nd6_llinfo_settimer((void *)ln, 0);
+   nd6_llinfo_settimer(ln, 0);
   }
  }
  switch (type & 0xff) {
@@ -4730,7 +4742,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1340, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1365, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

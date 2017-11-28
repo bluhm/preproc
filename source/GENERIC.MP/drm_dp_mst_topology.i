@@ -3514,7 +3514,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -3912,6 +3912,25 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
+inline void
+prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
+{
+ if (*wait == ((void *)0)) {
+  __mtx_enter(&wq->lock );
+  *wait = wq;
+ }
+}
+inline void
+finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
+{
+ if (*wait)
+  __mtx_leave(&wq->lock );
+}
+inline long
+schedule_timeout(long timeout, wait_queue_head_t **wait)
+{
+ return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+}
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
  int id;
@@ -4183,7 +4202,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8957,7 +8976,7 @@ static int drm_dp_mst_wait_tx_reply(struct drm_dp_mst_branch *mstb,
 {
  struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
  int ret;
- ret = ({ long __ret = (4 * hz); if (!(check_txmsg_state(mgr, txmsg))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 766, "!cold")); ((void)_atomic_add_int_nv((&(mgr->tx_waitq).count), 1)); sleep_setup(&sls, &mgr->tx_waitq, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(check_txmsg_state(mgr, txmsg))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(mgr->tx_waitq).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (check_txmsg_state(mgr, txmsg))) { __ret = 1; break; } } while (__ret > 0 && !(check_txmsg_state(mgr, txmsg))); __ret; });
+ ret = ({ long __ret = (4 * hz); if (!(check_txmsg_state(mgr, txmsg))) __ret = ({ long ret = (4 * hz); __mtx_enter(&(mgr->tx_waitq).lock ); do { int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 766, "!cold")); ((void)_atomic_add_int_nv((&(mgr->tx_waitq).count), 1)); deadline = ticks + ret; __error = msleep(&mgr->tx_waitq, &(mgr->tx_waitq).lock, 0, "drmweti", ret); ret = deadline - ticks; ((void)_atomic_sub_int_nv((&(mgr->tx_waitq).count), 1)); if (__error == -1 || __error == 4) { ret = -4; break; } if ((4 * hz) && (ret <= 0 || __error == 35)) { ret = ((check_txmsg_state(mgr, txmsg))) ? 1 : 0; break; } } while (ret > 0 && !(check_txmsg_state(mgr, txmsg))); __mtx_leave(&(mgr->tx_waitq).lock ); ret; }); __ret; });
  _rw_enter_write(&mstb->mgr->qlock );
  if (ret > 0) {
   if (txmsg->state == 4) {
@@ -9028,7 +9047,7 @@ static void drm_dp_destroy_mst_branch_device(struct kref *kref)
  }
  _rw_exit_write(&mstb->mgr->qlock );
  if (wake_tx)
-  wakeup(&mstb->mgr->tx_waitq);
+  do { __mtx_enter(&(&mstb->mgr->tx_waitq)->lock ); wakeup(&mstb->mgr->tx_waitq); __mtx_leave(&(&mstb->mgr->tx_waitq)->lock ); } while (0);
  kref_put(kref, drm_dp_free_mst_branch_device);
 }
 static void drm_dp_put_mst_branch_device(struct drm_dp_mst_branch *mstb)
@@ -9542,7 +9561,7 @@ static void process_single_down_tx_qlock(struct drm_dp_mst_topology_mgr *mgr)
   if (txmsg->seqno != -1)
    txmsg->dst->tx_slots[txmsg->seqno] = ((void *)0);
   txmsg->state = 4;
-  wakeup(&mgr->tx_waitq);
+  do { __mtx_enter(&(&mgr->tx_waitq)->lock ); wakeup(&mgr->tx_waitq); __mtx_leave(&(&mgr->tx_waitq)->lock ); } while (0);
  }
  if (list_empty(&mgr->tx_msg_downq)) {
   mgr->tx_down_in_progress = 0;
@@ -10094,7 +10113,7 @@ static int drm_dp_mst_handle_down_rep(struct drm_dp_mst_topology_mgr *mgr)
   txmsg->state = 3;
   mstb->tx_slots[slot] = ((void *)0);
   _rw_exit_write(&mgr->qlock );
-  wakeup(&mgr->tx_waitq);
+  do { __mtx_enter(&(&mgr->tx_waitq)->lock ); wakeup(&mgr->tx_waitq); __mtx_leave(&(&mgr->tx_waitq)->lock ); } while (0);
  }
  return ret;
 }

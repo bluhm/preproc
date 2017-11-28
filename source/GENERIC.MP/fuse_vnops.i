@@ -3737,7 +3737,7 @@ fusefs_link(void *v)
  }
  if (vp->v_type == VDIR) {
   VOP_ABORTOP(dvp, cnp);
-  error = 21;
+  error = 1;
   goto out2;
  }
  if (dvp->v_mount != vp->v_mount) {
@@ -4266,6 +4266,8 @@ abortit:
   vrele(tdvp);
  else
   vput(tdvp);
+ if (tvp)
+  vput(tvp);
  vrele(fdvp);
  vrele(fvp);
  return (error);

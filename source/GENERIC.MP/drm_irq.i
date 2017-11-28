@@ -4254,7 +4254,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 static inline void
 init_waitqueue_head(wait_queue_head_t *wq)
 {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
 }
 struct completion {
@@ -4652,6 +4652,25 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
+inline void
+prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
+{
+ if (*wait == ((void *)0)) {
+  __mtx_enter(&wq->lock );
+  *wait = wq;
+ }
+}
+inline void
+finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
+{
+ if (*wait)
+  __mtx_leave(&wq->lock );
+}
+inline long
+schedule_timeout(long timeout, wait_queue_head_t **wait)
+{
+ return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+}
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
  int id;
@@ -4923,7 +4942,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1659, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8087,7 +8106,7 @@ int drm_irq_uninstall(struct drm_device *dev)
     continue;
    ({ int __ret = !!(drm_core_check_feature(dev, 0x2000)); if (__ret) printf("WARNING %s failed at %s:%d\n", "drm_core_check_feature(dev, 0x2000)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 590); __builtin_expect(!!(__ret), 0); });
    vblank_disable_and_save(dev, i);
-   wakeup(&vblank->queue);
+   do { __mtx_enter(&(&vblank->queue)->lock ); wakeup(&vblank->queue); __mtx_leave(&(&vblank->queue)->lock ); } while (0);
   }
   _spin_unlock_irqrestore(&dev->vbl_lock, irqflags );
  }
@@ -8284,7 +8303,7 @@ static void send_vblank_event(struct drm_device *dev,
  e->event.tv_usec = now->tv_usec;
  list_add_tail(&e->base.link,
         &e->base.file_priv->event_list);
- wakeup(&e->base.file_priv->event_wait);
+ do { __mtx_enter(&(&e->base.file_priv->event_wait)->lock ); wakeup(&e->base.file_priv->event_wait); __mtx_leave(&(&e->base.file_priv->event_wait)->lock ); } while (0);
  selwakeup(&e->base.file_priv->rsel);
  trace_drm_vblank_event_delivered(e->base.pid, e->pipe,
       e->event.sequence);
@@ -8404,7 +8423,7 @@ void drm_wait_one_vblank(struct drm_device *dev, unsigned int pipe)
  if (({ int __ret = !!(ret); if (__ret) printf("vblank not available on crtc %i, ret=%i\n", pipe, ret); __builtin_expect(!!(__ret), 0); }))
   return;
  last = drm_vblank_count(dev, pipe);
- ret = ({ long __ret = (((uint64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) do { struct sleep_state sls; int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1331, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0, "drmwet"); sleep_setup_timeout(&sls, __ret); deadline = ticks + __ret; sleep_finish(&sls, !(last != drm_vblank_count(dev, pipe))); __ret = deadline - ticks; __error = sleep_finish_timeout(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error == 35) __ret = 0; if (__ret == 0 && (last != drm_vblank_count(dev, pipe))) { __ret = 1; break; } } while (__ret > 0 && !(last != drm_vblank_count(dev, pipe))); __ret; });
+ ret = ({ long __ret = (((uint64_t)(100)) * hz / 1000); if (!(last != drm_vblank_count(dev, pipe))) __ret = ({ long ret = (((uint64_t)(100)) * hz / 1000); __mtx_enter(&(vblank->queue).lock ); do { int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1331, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); deadline = ticks + ret; __error = msleep(&vblank->queue, &(vblank->queue).lock, 0, "drmweti", ret); ret = deadline - ticks; ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__error == -1 || __error == 4) { ret = -4; break; } if ((((uint64_t)(100)) * hz / 1000) && (ret <= 0 || __error == 35)) { ret = ((last != drm_vblank_count(dev, pipe))) ? 1 : 0; break; } } while (ret > 0 && !(last != drm_vblank_count(dev, pipe))); __mtx_leave(&(vblank->queue).lock ); ret; }); __ret; });
  ({ int __ret = !!(ret == 0); if (__ret) printf("vblank wait timed out on crtc %i\n", pipe); __builtin_expect(!!(__ret), 0); });
  drm_vblank_put(dev, pipe);
 }
@@ -8428,7 +8447,7 @@ void drm_vblank_off(struct drm_device *dev, unsigned int pipe)
  do {} while(0);
  if (drm_core_check_feature(dev, 0x10000) || !vblank->inmodeset)
   vblank_disable_and_save(dev, pipe);
- wakeup(&vblank->queue);
+ do { __mtx_enter(&(&vblank->queue)->lock ); wakeup(&vblank->queue); __mtx_leave(&(&vblank->queue)->lock ); } while (0);
  if (!vblank->inmodeset) {
   __sync_fetch_and_add(&vblank->refcount, 1);
   vblank->inmodeset = 1;
@@ -8657,7 +8676,7 @@ int drm_wait_vblank(struct drm_device *dev, void *data,
  }
  do { } while( 0);
  vblank->last_wait = vblwait->request.sequence;
- do { ret = ({ long __ret = 3 * hz; if (!((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) do { struct sleep_state sls; int deadline, __error, __error1; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1831, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); sleep_setup(&sls, &vblank->queue, 0x100, "drmweti"); sleep_setup_timeout(&sls, __ret); sleep_setup_signal(&sls, 0x100); deadline = ticks + __ret; sleep_finish(&sls, !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret = deadline - ticks; __error1 = sleep_finish_timeout(&sls); __error = sleep_finish_signal(&sls); ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__ret < 0 || __error1 == 35) __ret = 0; if (__error == -1) __ret = -4; else if (__error) __ret = -__error; if (__ret == 0 && ((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) { __ret = 1; break; } } while (__ret > 0 && !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __ret; }); if (ret == 0) ret = -16; if (ret > 0) ret = 0; } while (0);
+ do { ret = ({ long __ret = 3 * hz; if (!((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) __ret = ({ long ret = 3 * hz; __mtx_enter(&(vblank->queue).lock ); do { int deadline, __error; ((!cold) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_irq.c", 1831, "!cold")); ((void)_atomic_add_int_nv((&(vblank->queue).count), 1)); deadline = ticks + ret; __error = msleep(&vblank->queue, &(vblank->queue).lock, 0x100, "drmweti", ret); ret = deadline - ticks; ((void)_atomic_sub_int_nv((&(vblank->queue).count), 1)); if (__error == -1 || __error == 4) { ret = -4; break; } if (3 * hz && (ret <= 0 || __error == 35)) { ret = (((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))) ? 1 : 0; break; } } while (ret > 0 && !((((drm_vblank_count(dev, pipe) - vblwait->request.sequence) <= (1 << 23)) || !vblank->enabled || !dev->irq_enabled))); __mtx_leave(&(vblank->queue).lock ); ret; }); __ret; }); if (ret == 0) ret = -16; if (ret > 0) ret = 0; } while (0);
  if (ret != -4) {
   struct timeval now;
   vblwait->reply.sequence = drm_vblank_count_and_time(dev, pipe, &now);
@@ -8707,7 +8726,7 @@ _Bool drm_handle_vblank(struct drm_device *dev, unsigned int pipe)
  }
  drm_update_vblank_count(dev, pipe, 1);
  __mtx_leave(&dev->vblank_time_lock );
- wakeup(&vblank->queue);
+ do { __mtx_enter(&(&vblank->queue)->lock ); wakeup(&vblank->queue); __mtx_leave(&(&vblank->queue)->lock ); } while (0);
  drm_handle_vblank_events(dev, pipe);
  _spin_unlock_irqrestore(&dev->event_lock, irqflags );
  return 1;

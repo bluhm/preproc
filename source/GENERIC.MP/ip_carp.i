@@ -4339,7 +4339,6 @@ struct llinfo_nd6 {
  int ln_byhint;
  short ln_state;
  short ln_router;
- struct timeout ln_timer_ch;
 };
 extern int nd6_delay;
 extern int nd6_umaxtries;
@@ -4371,7 +4370,7 @@ struct nd_opt_hdr *nd6_option(union nd_opts *);
 int nd6_options(union nd_opts *);
 struct rtentry *nd6_lookup(struct in6_addr *, int, struct ifnet *, u_int);
 void nd6_setmtu(struct ifnet *);
-void nd6_llinfo_settimer(struct llinfo_nd6 *, int);
+void nd6_llinfo_settimer(struct llinfo_nd6 *, unsigned int);
 void nd6_purge(struct ifnet *);
 void nd6_nud_hint(struct rtentry *);
 void nd6_rtrequest(struct ifnet *, int, struct rtentry *);

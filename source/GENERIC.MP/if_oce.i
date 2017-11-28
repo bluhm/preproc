@@ -7152,7 +7152,7 @@ oce_cmd(struct oce_softc *sc, int subsys, int opcode, int version,
    __builtin_memcpy((payload), (&mbx->pld.data), (length));
  } else
   printf("%s: mailbox timeout, subsys %d op %d ver %d "
-      "%spayload lenght %d\n", sc->sc_dev.dv_xname, subsys,
+      "%spayload length %d\n", sc->sc_dev.dv_xname, subsys,
       opcode, version, epayload ? "ext " : "",
       length);
  return (err);

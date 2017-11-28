@@ -4201,6 +4201,12 @@ struct pf_divert {
  u_int16_t port;
  u_int16_t rdomain;
 };
+enum pf_divert_types {
+ PF_DIVERT_NONE,
+ PF_DIVERT_TO,
+ PF_DIVERT_REPLY,
+ PF_DIVERT_PACKET
+};
 struct pfioc_rule {
  u_int32_t action;
  u_int32_t ticket;
