@@ -5356,7 +5356,8 @@ struct pf_rule {
  struct {
   struct pf_addr addr;
   u_int16_t port;
- } divert, divert_packet;
+  u_int8_t type;
+ } divert;
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
@@ -5803,6 +5804,7 @@ struct pf_divert {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t rdomain;
+ u_int8_t type;
 };
 enum pf_divert_types {
  PF_DIVERT_NONE,
@@ -8641,8 +8643,7 @@ pf_rule_copyin(struct pf_rule *from, struct pf_rule *to,
  to->flush = from->flush;
  to->divert.addr = from->divert.addr;
  to->divert.port = from->divert.port;
- to->divert_packet.addr = from->divert_packet.addr;
- to->divert_packet.port = from->divert_packet.port;
+ to->divert.type = from->divert.type;
  to->prio = from->prio;
  to->set_prio[0] = from->set_prio[0];
  to->set_prio[1] = from->set_prio[1];

@@ -4910,7 +4910,8 @@ struct pf_rule {
  struct {
   struct pf_addr addr;
   u_int16_t port;
- } divert, divert_packet;
+  u_int8_t type;
+ } divert;
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
@@ -5357,6 +5358,7 @@ struct pf_divert {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t rdomain;
+ u_int8_t type;
 };
 enum pf_divert_types {
  PF_DIVERT_NONE,

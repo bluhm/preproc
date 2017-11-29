@@ -2447,7 +2447,7 @@ sched_exit(struct proc *p)
 void
 sched_init_runqueues(void)
 {
- sbartq = taskq_create("sbar", 1, 0,
+ sbartq = taskq_create("sbar", 1, 7,
      (1 << 0) | (1 << 1));
  if (sbartq == ((void *)0))
   panic("unable to create sbar taskq");

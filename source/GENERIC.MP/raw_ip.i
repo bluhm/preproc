@@ -4394,7 +4394,8 @@ struct pf_rule {
  struct {
   struct pf_addr addr;
   u_int16_t port;
- } divert, divert_packet;
+  u_int8_t type;
+ } divert;
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
@@ -4841,6 +4842,7 @@ struct pf_divert {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t rdomain;
+ u_int8_t type;
 };
 enum pf_divert_types {
  PF_DIVERT_NONE,
@@ -5244,7 +5246,7 @@ rip_input(struct mbuf **mp, int *offp, int proto, int af)
    struct pf_divert *divert;
    if ((divert = pf_find_divert(m)) == ((void *)0))
     continue;
-   if (!divert->addr.pfa.v4.s_addr)
+   if (divert->type == PF_DIVERT_REPLY)
     goto divert_reply;
    if (inp->inp_laddru.iau_a4u.inaddr.s_addr != divert->addr.pfa.v4.s_addr)
     continue;

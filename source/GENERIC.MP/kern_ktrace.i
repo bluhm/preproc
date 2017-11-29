@@ -3635,12 +3635,6 @@ struct sys_sendsyslog_args {
  union { register_t pad; struct { size_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (size_t)) ? 0 : sizeof (register_t) - sizeof (size_t)]; size_t datum; } be; } nbyte;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } flags;
 };
-struct sys_fktrace_args {
- union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } fd;
- union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } ops;
- union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } facs;
- union { register_t pad; struct { pid_t datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (pid_t)) ? 0 : sizeof (register_t) - sizeof (pid_t)]; pid_t datum; } be; } pid;
-};
 struct sys_getsockopt_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } s;
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } level;
@@ -4189,7 +4183,6 @@ int sys_ppoll(struct proc *, void *, register_t *);
 int sys_pselect(struct proc *, void *, register_t *);
 int sys_sigsuspend(struct proc *, void *, register_t *);
 int sys_sendsyslog(struct proc *, void *, register_t *);
-int sys_fktrace(struct proc *, void *, register_t *);
 int sys_getsockopt(struct proc *, void *, register_t *);
 int sys_thrkill(struct proc *, void *, register_t *);
 int sys_readv(struct proc *, void *, register_t *);
@@ -5133,27 +5126,6 @@ sys_ktrace(struct proc *p, void *v, register_t *retval)
      ((uap)->pid.be.datum), p);
  if (vp != ((void *)0))
   (void)vn_close(vp, 0x0002, cred, p);
- return error;
-}
-int
-sys_fktrace(struct proc *p, void *v, register_t *retval)
-{
- struct sys_fktrace_args *uap = v;
- struct vnode *vp = ((void *)0);
- int fd = ((uap)->fd.be.datum);
- struct file *fp;
- int error;
- if (fd != -1) {
-  if ((error = getvnode(p, fd, &fp)) != 0)
-   return error;
-  vp = fp->f_data;
-  vref(vp);
-  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
- }
- error = doktrace(vp, ((uap)->ops.be.datum), ((uap)->facs.be.datum),
-     ((uap)->pid.be.datum), p);
- if (vp != ((void *)0))
-  vrele(vp);
  return error;
 }
 int

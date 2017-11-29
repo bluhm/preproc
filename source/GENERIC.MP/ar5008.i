@@ -5725,6 +5725,7 @@ ar5008_rx_process(struct athn_softc *sc)
  m_adj(m, -4);
  rxi.rxi_flags = 0;
  rxi.rxi_rssi = (((uint32_t)(ds->ds_status4) & 0xff000000) >> 24);
+ rxi.rxi_rssi += (-95);
  rxi.rxi_tstamp = ds->ds_status2;
  ieee80211_input(ifp, m, ni, &rxi);
  ieee80211_release_node(ic, ni);
@@ -6003,7 +6004,7 @@ ar5008_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni,
  uint8_t txpower, type, encrtype, tid, ridx[4];
  int i, error, totlen, hasqos, qid;
  bf = ((&sc->txbufs)->sqh_first);
- ((bf != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ar5008.c", 1306, "bf != NULL"));
+ ((bf != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/ar5008.c", 1307, "bf != NULL"));
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
  if ((wh->i_fc[0] & 0x0c) ==
      0x00) {
@@ -6476,7 +6477,7 @@ ar5008_bb_load_noisefloor(struct athn_softc *sc)
   return;
  }
  for (i = 0; i < 3; i++)
-  nf[i] = nf_ext[i] = -50 * 2;
+  nf[i] = nf_ext[i] = (-95);
  ar5008_write_noisefloor(sc, nf, nf_ext);
 }
 void

@@ -3800,7 +3800,8 @@ struct pf_rule {
  struct {
   struct pf_addr addr;
   u_int16_t port;
- } divert, divert_packet;
+  u_int8_t type;
+ } divert;
  struct { struct pf_rule *sle_next; } gcle;
  struct pf_ruleset *ruleset;
  time_t exptime;
@@ -4247,6 +4248,7 @@ struct pf_divert {
  struct pf_addr addr;
  u_int16_t port;
  u_int16_t rdomain;
+ u_int8_t type;
 };
 enum pf_divert_types {
  PF_DIVERT_NONE,
@@ -5165,8 +5167,10 @@ reroute:
  if (rt->rt_flags & 0x2)
   dst = satosin6(rt->rt_gateway);
  ifp = if_get(rt->rt_ifidx);
- if (ifp == ((void *)0))
+ if (ifp == ((void *)0)) {
+  m_freem(m);
   goto freecopy;
+ }
  if (rt->rt_ifidx == m->M_dat.MH.MH_pkthdr.ph_ifidx && !srcrt &&
      ip6_sendredirects &&
      (rt->rt_flags & (0x10|0x20)) == 0) {
