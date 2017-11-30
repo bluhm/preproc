@@ -20704,6 +20704,46 @@ static const struct pci_known_product pci_known_products[] = {
      "GPS170PCI",
  },
  {
+     0x15b3, 0x1013,
+     "ConnectX-4",
+ },
+ {
+     0x15b3, 0x1014,
+     "ConnectX-4 VF",
+ },
+ {
+     0x15b3, 0x1015,
+     "ConnectX-4 Lx",
+ },
+ {
+     0x15b3, 0x1016,
+     "ConnectX-4 Lx VF",
+ },
+ {
+     0x15b3, 0x1017,
+     "ConnectX-5",
+ },
+ {
+     0x15b3, 0x1018,
+     "ConnectX-5 VF",
+ },
+ {
+     0x15b3, 0x1019,
+     "ConnectX-5 Ex",
+ },
+ {
+     0x15b3, 0x101a,
+     "ConnectX-5 Ex VF",
+ },
+ {
+     0x15b3, 0x101b,
+     "ConnectX-6",
+ },
+ {
+     0x15b3, 0x101c,
+     "ConnectX-6 VF",
+ },
+ {
      0x15b3, 0x6368,
      "ConnectX EN",
  },

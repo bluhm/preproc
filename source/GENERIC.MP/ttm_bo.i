@@ -4643,7 +4643,7 @@ static inline void
 kobject_del(struct kobject *obj)
 {
 }
-inline void
+static inline void
 prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
 {
  if (*wait == ((void *)0)) {
@@ -4651,13 +4651,13 @@ prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
   *wait = wq;
  }
 }
-inline void
+static inline void
 finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 {
  if (*wait)
   __mtx_leave(&wq->lock );
 }
-inline long
+static inline long
 schedule_timeout(long timeout, wait_queue_head_t **wait)
 {
  return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);

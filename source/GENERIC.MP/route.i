@@ -4274,8 +4274,10 @@ rt_ifa_add(struct ifaddr *ifa, int flags, struct sockaddr *dst)
  else
   info.rti_info[1] = ifa->ifa_addr;
  info.rti_info[10] = rtlabel_id2sa(ifp->if_rtlabelid, &sa_rl);
- if ((flags & 0x100000) == 0x100000)
+ if ((flags & 0x100000) == 0x100000) {
   info.rti_mpls = 0x1;
+  rtableid = 0;
+ }
  if ((flags & 0x4) == 0)
   info.rti_info[2] = ifa->ifa_netmask;
  if (flags & (0x200000|0x400000))
@@ -4394,7 +4396,7 @@ rt_ifa_purge(struct ifaddr *ifa)
  struct ifnet *ifp = ifa->ifa_ifp;
  unsigned int rtableid;
  int i;
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1219, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1222, "ifp != NULL"));
  for (rtableid = 0; rtableid < rtmap_limit; rtableid++) {
   if (rtable_l2(rtableid) != ifp->if_data.ifi_rdomain)
    continue;
@@ -4667,7 +4669,7 @@ rt_plentosa(sa_family_t af, int plen, struct sockaddr_in6 *sa_mask)
 {
  struct sockaddr_in *sin = (struct sockaddr_in *)sa_mask;
  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa_mask;
- ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1606, "plen >= 0 || plen == -1"));
+ ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1609, "plen >= 0 || plen == -1"));
  if (plen == -1)
   return (((void *)0));
  __builtin_memset((sa_mask), (0), (sizeof(*sa_mask)));

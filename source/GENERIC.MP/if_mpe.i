@@ -2830,6 +2830,7 @@ mpeoutput(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
  struct shim_hdr shim;
  int error;
  int off;
+ in_addr_t addr;
  u_int8_t op = 0;
  if (ifp->if_data.ifi_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid)) {
   printf("%s: trying to send packet on wrong domain. "
@@ -2841,12 +2842,15 @@ mpeoutput(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
  error = 0;
  switch (dst->sa_family) {
  case 2:
-  if (rt && rt->rt_flags & 0x100000) {
-   shim.shim_label =
-       ((struct rt_mpls *)rt->rt_llinfo)->mpls_label;
-   shim.shim_label |= ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U))));
-   op = ((struct rt_mpls *)rt->rt_llinfo)->mpls_operation;
+  if (!rt || !(rt->rt_flags & 0x100000)) {
+   m_freem(m);
+   error = 51;
+   goto out;
   }
+  shim.shim_label =
+      ((struct rt_mpls *)rt->rt_llinfo)->mpls_label;
+  shim.shim_label |= ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U))));
+  op = ((struct rt_mpls *)rt->rt_llinfo)->mpls_operation;
   if (op != 0x2) {
    m_freem(m);
    error = 51;
@@ -2865,8 +2869,9 @@ mpeoutput(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
    goto out;
   }
   *((sa_family_t *)((m)->m_hdr.mh_data)) = 2;
+  addr = satosin(rt->rt_gateway)->sin_addr.s_addr;
   m_copyback(m, sizeof(sa_family_t), sizeof(in_addr_t),
-      (caddr_t)&((satosin(dst)->sin_addr)), 0x0002);
+      &addr, 0x0002);
   break;
  default:
   m_freem(m);
@@ -2934,6 +2939,8 @@ mpeioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   if (error)
    break;
+  if (!((ifp->if_flags) & (0x1)))
+   if_up(ifp);
   ifm = ifp->if_softc;
   if (ifm->sc_smpls.smpls_label) {
    rt_ifa_del(&ifm->sc_ifa, 0x100000,
