@@ -1829,7 +1829,7 @@ void
 crypto_init(void)
 {
  crypto_taskq = taskq_create("crypto", 1, 7, 0);
- crypto_taskq_mpsafe = taskq_create("crynlk", 1, 7|0x100, 0);
+ crypto_taskq_mpsafe = taskq_create("crynlk", 1, 7, (1 << 0));
  pool_init(&cryptop_pool, sizeof(struct cryptop), 0, 7, 0,
      "cryptop", ((void *)0));
 }

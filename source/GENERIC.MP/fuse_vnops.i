@@ -3450,7 +3450,7 @@ fusefs_open(void *v)
  struct fusefs_node *ip;
  struct fusefs_mnt *fmp;
  enum fufh_type fufh_type = FUFH_RDONLY;
- int flags = 0x0000;
+ int flags;
  int error;
  int isdir;
  ap = v;
@@ -3462,19 +3462,15 @@ fusefs_open(void *v)
  if (ap->a_vp->v_type == VDIR)
   isdir = 1;
  else {
-  if ((ap->a_mode & 0x0001) && (ap->a_mode & 0x0002)) {
+  if ((ap->a_mode & 0x0001) && (ap->a_mode & 0x0002))
    fufh_type = FUFH_RDWR;
-   flags = 0x0002;
-  } else if (ap->a_mode & (0x0002)) {
+  else if (ap->a_mode & (0x0002))
    fufh_type = FUFH_WRONLY;
-   flags = 0x0001;
-  }
  }
  if (ip->fufh[fufh_type].fh_type != FUFH_INVALID)
   return (0);
+ flags = (((ap->a_mode) & ~0x0003) | (((ap->a_mode) - 1) & 0x0003)) & ~(0x0200|0x0800|0x0400);
  error = fusefs_file_open(fmp, ip, fufh_type, flags, isdir, ap->a_p);
- if (error)
-  return (error);
  return (error);
 }
 int
@@ -3996,20 +3992,19 @@ fusefs_create(void *v)
   error = 6;
   goto out;
  }
- if (fmp->undef_op & 1<<2) {
+ if (fmp->undef_op & 1<<10) {
   error = 78;
   goto out;
  }
  fbuf = fb_setup(cnp->cn_namelen + 1, ip->ufs_ino.i_number,
-     25, p);
+     5, p);
  fbuf->FD.FD_io.fi_mode = mode;
- fbuf->FD.FD_io.fi_flags = 0x0200 | 0x0002;
  __builtin_memcpy((fbuf->fb_dat), (cnp->cn_nameptr), (cnp->cn_namelen));
  fbuf->fb_dat[cnp->cn_namelen] = '\0';
  error = fb_queue(fmp->dev, fbuf);
  if (error) {
   if (error == 78)
-   fmp->undef_op |= 1<<2;
+   fmp->undef_op |= 1<<10;
   fb_delete(fbuf);
   goto out;
  }
