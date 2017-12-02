@@ -3891,15 +3891,14 @@ struct inpcb *
   in_pcbhashlookup(struct inpcbtable *, struct in_addr,
           u_int, struct in_addr, u_int, u_int);
 struct inpcb *
-  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int, int,
+  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int,
      struct mbuf *, u_int);
 struct inpcb *
   in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
           u_int, const struct in6_addr *, u_int, u_int);
 struct inpcb *
-  in6_pcblookup_listen(struct inpcbtable *,
-          struct in6_addr *, u_int, int, struct mbuf *,
-          u_int);
+  in6_pcblookup_listen(struct inpcbtable *, struct in6_addr *, u_int,
+     struct mbuf *, u_int);
 int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
      struct proc *);
 int in6_pcbconnect(struct inpcb *, struct mbuf *);
@@ -6133,20 +6132,15 @@ findpcb:
   }
  }
  if (inp == ((void *)0)) {
-  int inpl_reverse = 0;
-  if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x04)
-   inpl_reverse = 1;
   tcpstat_inc(tcps_pcbhashmiss);
   switch (af) {
   case 24:
-   inp = in6_pcblookup_listen(&tcbtable,
-       &ip6->ip6_dst, th->th_dport, inpl_reverse, m,
-       m->M_dat.MH.MH_pkthdr.ph_rtableid);
+   inp = in6_pcblookup_listen(&tcbtable, &ip6->ip6_dst,
+       th->th_dport, m, m->M_dat.MH.MH_pkthdr.ph_rtableid);
    break;
   case 2:
-   inp = in_pcblookup_listen(&tcbtable,
-       ip->ip_dst, th->th_dport, inpl_reverse, m,
-       m->M_dat.MH.MH_pkthdr.ph_rtableid);
+   inp = in_pcblookup_listen(&tcbtable, ip->ip_dst,
+       th->th_dport, m, m->M_dat.MH.MH_pkthdr.ph_rtableid);
    break;
   }
   if (inp == ((void *)0)) {
@@ -6154,8 +6148,8 @@ findpcb:
    goto dropwithreset_ratelim;
   }
  }
- ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 580, "sotoinpcb(inp->inp_socket) == inp"));
- ((((struct tcpcb *)(inp)->inp_ppcb) == ((void *)0) || ((struct tcpcb *)(inp)->inp_ppcb)->t_inpcb == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 581, "intotcpcb(inp) == NULL || intotcpcb(inp)->t_inpcb == inp"));
+ ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 575, "sotoinpcb(inp->inp_socket) == inp"));
+ ((((struct tcpcb *)(inp)->inp_ppcb) == ((void *)0) || ((struct tcpcb *)(inp)->inp_ppcb)->t_inpcb == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 576, "intotcpcb(inp) == NULL || intotcpcb(inp)->t_inpcb == inp"));
  soassertlocked(inp->inp_socket);
  switch (af) {
  case 2:

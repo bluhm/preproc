@@ -4298,15 +4298,14 @@ struct inpcb *
   in_pcbhashlookup(struct inpcbtable *, struct in_addr,
           u_int, struct in_addr, u_int, u_int);
 struct inpcb *
-  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int, int,
+  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int,
      struct mbuf *, u_int);
 struct inpcb *
   in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
           u_int, const struct in6_addr *, u_int, u_int);
 struct inpcb *
-  in6_pcblookup_listen(struct inpcbtable *,
-          struct in6_addr *, u_int, int, struct mbuf *,
-          u_int);
+  in6_pcblookup_listen(struct inpcbtable *, struct in6_addr *, u_int,
+     struct mbuf *, u_int);
 int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
      struct proc *);
 int in6_pcbconnect(struct inpcb *, struct mbuf *);
@@ -5608,11 +5607,11 @@ tcp_ident(void *oldp, size_t *oldlenp, void *newp, size_t newlen, int dodrop)
   switch (tir.faddr.ss_family) {
   case 24:
    inp = in6_pcblookup_listen(&tcbtable,
-       &l6, lin6->sin6_port, 0, ((void *)0), tir.rdomain);
+       &l6, lin6->sin6_port, ((void *)0), tir.rdomain);
    break;
   case 2:
    inp = in_pcblookup_listen(&tcbtable,
-       lin->sin_addr, lin->sin_port, 0, ((void *)0), tir.rdomain);
+       lin->sin_addr, lin->sin_port, ((void *)0), tir.rdomain);
    break;
   }
  }

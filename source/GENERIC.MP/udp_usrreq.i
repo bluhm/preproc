@@ -4153,15 +4153,14 @@ struct inpcb *
   in_pcbhashlookup(struct inpcbtable *, struct in_addr,
           u_int, struct in_addr, u_int, u_int);
 struct inpcb *
-  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int, int,
+  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int,
      struct mbuf *, u_int);
 struct inpcb *
   in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
           u_int, const struct in6_addr *, u_int, u_int);
 struct inpcb *
-  in6_pcblookup_listen(struct inpcbtable *,
-          struct in6_addr *, u_int, int, struct mbuf *,
-          u_int);
+  in6_pcblookup_listen(struct inpcbtable *, struct in6_addr *, u_int,
+     struct mbuf *, u_int);
 int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
      struct proc *);
 int in6_pcbconnect(struct inpcb *, struct mbuf *);
@@ -6257,18 +6256,13 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
       ip->ip_dst, uh->uh_dport, m->M_dat.MH.MH_pkthdr.ph_rtableid);
  }
  if (inp == 0) {
-  int inpl_reverse = 0;
-  if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x04)
-   inpl_reverse = 1;
   udpstat_inc(udps_pcbhashmiss);
   if (ip6) {
-   inp = in6_pcblookup_listen(&udbtable,
-       &ip6->ip6_dst, uh->uh_dport, inpl_reverse, m,
-       m->M_dat.MH.MH_pkthdr.ph_rtableid);
+   inp = in6_pcblookup_listen(&udbtable, &ip6->ip6_dst,
+       uh->uh_dport, m, m->M_dat.MH.MH_pkthdr.ph_rtableid);
   } else
-  inp = in_pcblookup_listen(&udbtable,
-      ip->ip_dst, uh->uh_dport, inpl_reverse, m,
-      m->M_dat.MH.MH_pkthdr.ph_rtableid);
+  inp = in_pcblookup_listen(&udbtable, ip->ip_dst,
+      uh->uh_dport, m, m->M_dat.MH.MH_pkthdr.ph_rtableid);
   if (inp == 0) {
    udpstat_inc(udps_noport);
    if (m->m_hdr.mh_flags & (0x0100 | 0x0200)) {
@@ -6289,7 +6283,7 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
    return 257;
   }
  }
- ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/udp_usrreq.c", 567, "sotoinpcb(inp->inp_socket) == inp"));
+ ((((struct inpcb *)(inp->inp_socket)->so_pcb) == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/udp_usrreq.c", 562, "sotoinpcb(inp->inp_socket) == inp"));
  soassertlocked(inp->inp_socket);
  if (ip6 && inp->inp_ip_minttl &&
      inp->inp_ip_minttl > ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim) {

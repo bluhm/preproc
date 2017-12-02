@@ -4181,15 +4181,14 @@ struct inpcb *
   in_pcbhashlookup(struct inpcbtable *, struct in_addr,
           u_int, struct in_addr, u_int, u_int);
 struct inpcb *
-  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int, int,
+  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int,
      struct mbuf *, u_int);
 struct inpcb *
   in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
           u_int, const struct in6_addr *, u_int, u_int);
 struct inpcb *
-  in6_pcblookup_listen(struct inpcbtable *,
-          struct in6_addr *, u_int, int, struct mbuf *,
-          u_int);
+  in6_pcblookup_listen(struct inpcbtable *, struct in6_addr *, u_int,
+     struct mbuf *, u_int);
 int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
      struct proc *);
 int in6_pcbconnect(struct inpcb *, struct mbuf *);
@@ -6757,8 +6756,8 @@ in_pcbhashlookup(struct inpcbtable *table, struct in_addr faddr,
   }
  }
  if (inp == ((void *)0) && in_pcbnotifymiss) {
-  printf("in_pcbhashlookup: faddr=%08x fport=%d laddr=%08x lport=%d rdom=%d\n",
-      ((__uint32_t)(faddr.s_addr)), ((__uint16_t)(fport)),
+  printf("%s: faddr=%08x fport=%d laddr=%08x lport=%d rdom=%d\n",
+      __func__, ((__uint32_t)(faddr.s_addr)), ((__uint16_t)(fport)),
       ((__uint32_t)(laddr.s_addr)), ((__uint16_t)(lport)), rdomain);
  }
  return (inp);
@@ -6796,26 +6795,24 @@ in6_pcbhashlookup(struct inpcbtable *table, const struct in6_addr *faddr,
 }
 struct inpcb *
 in_pcblookup_listen(struct inpcbtable *table, struct in_addr laddr,
-    u_int lport_arg, int reverse, struct mbuf *m, u_int rdomain)
+    u_int lport_arg, struct mbuf *m, u_int rdomain)
 {
  struct inpcbhead *head;
  struct in_addr *key1, *key2;
  struct inpcb *inp;
  u_int16_t lport = lport_arg;
  rdomain = rtable_l2(rdomain);
+ key1 = &laddr;
+ key2 = &zeroin_addr;
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
   if ((divert = pf_find_divert(m)) == ((void *)0))
    return (((void *)0));
   key1 = key2 = &divert->addr.pfa.v4;
   lport = divert->port;
- } else
- if (reverse) {
+ } else if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x04) {
   key1 = &zeroin_addr;
   key2 = &laddr;
- } else {
-  key1 = &laddr;
-  key2 = &zeroin_addr;
  }
  head = in_pcbhash(table, rdomain, &zeroin_addr, 0, key1, lport);
  for((inp) = ((head)->lh_first); (inp)!= ((void *)0); (inp) = ((inp)->inp_hash.le_next)) {
@@ -6851,26 +6848,24 @@ in_pcblookup_listen(struct inpcbtable *table, struct in_addr laddr,
 }
 struct inpcb *
 in6_pcblookup_listen(struct inpcbtable *table, struct in6_addr *laddr,
-    u_int lport_arg, int reverse, struct mbuf *m, u_int rtable)
+    u_int lport_arg, struct mbuf *m, u_int rtable)
 {
  struct inpcbhead *head;
  struct in6_addr *key1, *key2;
  struct inpcb *inp;
  u_int16_t lport = lport_arg;
  rtable = rtable_l2(rtable);
+ key1 = laddr;
+ key2 = &zeroin6_addr;
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
   if ((divert = pf_find_divert(m)) == ((void *)0))
    return (((void *)0));
   key1 = key2 = &divert->addr.pfa.v6;
   lport = divert->port;
- } else
- if (reverse) {
+ } else if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x04) {
   key1 = &zeroin6_addr;
   key2 = laddr;
- } else {
-  key1 = laddr;
-  key2 = &zeroin6_addr;
  }
  head = in6_pcbhash(table, rtable, &zeroin6_addr, 0, key1, lport);
  for((inp) = ((head)->lh_first); (inp)!= ((void *)0); (inp) = ((inp)->inp_hash.le_next)) {
