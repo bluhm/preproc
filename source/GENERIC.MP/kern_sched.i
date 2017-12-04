@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2652,7 +2652,7 @@ sched_proc_to_cpu_cost(struct cpu_info *ci, struct proc *p)
  }
  if (cpuset_isset(&sched_queued_cpus, ci))
   cost += spc->spc_nrun * sched_cost_runnable;
- if (((ci)->ci_number == 0))
+ if (((ci)->ci_cpuid == 0))
   cost += sched_cost_runnable;
  cost += ((sched_cost_load * spc->spc_ldavg) >> 11);
  if (p->p_cpu == ci && p->p_slptime == 0) {
@@ -2684,7 +2684,7 @@ sched_start_secondary_cpus(void)
  struct cpu_info *ci;
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   struct schedstate_percpu *spc = &ci->ci_schedstate;
-  if (((ci)->ci_number == 0))
+  if (((ci)->ci_cpuid == 0))
    continue;
   cpuset_add(&sched_all_cpus, ci);
   atomic_clearbits_int(&spc->spc_schedflags,
@@ -2698,7 +2698,7 @@ sched_stop_secondary_cpus(void)
  struct cpu_info *ci;
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   struct schedstate_percpu *spc = &ci->ci_schedstate;
-  if (((ci)->ci_number == 0))
+  if (((ci)->ci_cpuid == 0))
    continue;
   cpuset_del(&sched_all_cpus, ci);
   atomic_setbits_int(&spc->spc_schedflags, 0x0004);
@@ -2706,7 +2706,7 @@ sched_stop_secondary_cpus(void)
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   struct schedstate_percpu *spc = &ci->ci_schedstate;
   struct sleep_state sls;
-  if (((ci)->ci_number == 0))
+  if (((ci)->ci_cpuid == 0))
    continue;
   while ((spc->spc_schedflags & 0x0008) == 0) {
    sleep_setup(&sls, spc, 22, "schedstate");
@@ -2733,7 +2733,7 @@ sched_barrier(struct cpu_info *ci)
  struct schedstate_percpu *spc;
  if (ci == ((void *)0)) {
   for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-   if (((ci)->ci_number == 0))
+   if (((ci)->ci_cpuid == 0))
     break;
   }
  }
@@ -2755,7 +2755,7 @@ void
 cpuset_init_cpu(struct cpu_info *ci)
 {
  cpuset_add(&cpuset_all, ci);
- cpuset_infos[((ci)->ci_number)] = ci;
+ cpuset_infos[((ci)->ci_cpuid)] = ci;
 }
 void
 cpuset_clear(struct cpuset *cs)
@@ -2765,19 +2765,19 @@ cpuset_clear(struct cpuset *cs)
 void
 cpuset_add(struct cpuset *cs, struct cpu_info *ci)
 {
- unsigned int num = ((ci)->ci_number);
+ unsigned int num = ((ci)->ci_cpuid);
  atomic_setbits_int(&cs->cs_set[num/32], (1 << (num % 32)));
 }
 void
 cpuset_del(struct cpuset *cs, struct cpu_info *ci)
 {
- unsigned int num = ((ci)->ci_number);
+ unsigned int num = ((ci)->ci_cpuid);
  atomic_clearbits_int(&cs->cs_set[num/32], (1 << (num % 32)));
 }
 int
 cpuset_isset(struct cpuset *cs, struct cpu_info *ci)
 {
- unsigned int num = ((ci)->ci_number);
+ unsigned int num = ((ci)->ci_cpuid);
  return (cs->cs_set[num/32] & (1 << (num % 32)));
 }
 void

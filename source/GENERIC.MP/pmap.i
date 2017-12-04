@@ -917,7 +917,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3949,7 +3949,7 @@ remap_data:
   cpus->ci_curproc = &proc0;
   cpus->ci_cpcb = (struct pcb *)u0[0];
   cpus->ci_upaid = cpu_myid();
-  cpus->ci_number = 0;
+  cpus->ci_cpuid = 0;
   cpus->ci_flags = 0x0001;
   cpus->ci_fpproc = ((void *)0);
   cpus->ci_spinup = main;

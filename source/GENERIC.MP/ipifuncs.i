@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2510,7 +2510,7 @@ sun4u_broadcast_ipi(void (*func)(void), u_int64_t arg0, u_int64_t arg1)
 {
  struct cpu_info *ci;
  for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-  if (ci->ci_number == (__curcpu->ci_number))
+  if (ci->ci_cpuid == (__curcpu->ci_cpuid))
    continue;
   if ((ci->ci_flags & 0x0001) == 0)
    continue;
@@ -2524,7 +2524,7 @@ sun4v_broadcast_ipi(void (*func)(void), u_int64_t arg0, u_int64_t arg1)
  paddr_t cpuset = ci->ci_cpuset;
  int err, i, ncpus = 0;
  for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-  if (ci->ci_number == (__curcpu->ci_number))
+  if (ci->ci_cpuid == (__curcpu->ci_cpuid))
    continue;
   if ((ci->ci_flags & 0x0001) == 0)
    continue;

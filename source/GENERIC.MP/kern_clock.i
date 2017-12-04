@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2125,7 +2125,7 @@ hardclock(struct clockframe *frame)
   statclock(frame);
  if (--ci->ci_schedstate.spc_rrticks <= 0)
   roundrobin(ci);
- if (((ci)->ci_number == 0) == 0)
+ if (((ci)->ci_cpuid == 0) == 0)
   return;
  tc_ticktock();
  ticks++;

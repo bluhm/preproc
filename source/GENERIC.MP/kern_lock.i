@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -1350,7 +1350,7 @@ __mp_lock_spin(struct __mp_lock *mpl, u_int me)
 void
 ___mp_lock(struct __mp_lock *mpl )
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
  unsigned long s;
  s = intr_disable();
  if (cpu->mplc_depth++ == 0)
@@ -1363,7 +1363,7 @@ ___mp_lock(struct __mp_lock *mpl )
 void
 ___mp_unlock(struct __mp_lock *mpl )
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
  unsigned long s;
  (void)0;
  s = intr_disable();
@@ -1376,7 +1376,7 @@ ___mp_unlock(struct __mp_lock *mpl )
 int
 ___mp_release_all(struct __mp_lock *mpl )
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
  unsigned long s;
  int rv;
  s = intr_disable();
@@ -1390,7 +1390,7 @@ ___mp_release_all(struct __mp_lock *mpl )
 int
 ___mp_release_all_but_one(struct __mp_lock *mpl )
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
  int rv = cpu->mplc_depth - 1;
  cpu->mplc_depth = 1;
  return (rv);
@@ -1404,6 +1404,6 @@ ___mp_acquire_count(struct __mp_lock *mpl, int count )
 int
 __mp_lock_held(struct __mp_lock *mpl)
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_number)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
  return (cpu->mplc_ticket == mpl->mpl_ticket && cpu->mplc_depth > 0);
 }

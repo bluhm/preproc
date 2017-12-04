@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2755,7 +2755,7 @@ uvm_loadav(struct loadavg *avg)
   case 1:
    nrun++;
    if (p->p_cpu)
-    nrun_cpu[((p->p_cpu)->ci_number)]++;
+    nrun_cpu[((p->p_cpu)->ci_cpuid)]++;
   }
  }
  for (i = 0; i < 3; i++) {
@@ -2764,10 +2764,10 @@ uvm_loadav(struct loadavg *avg)
  }
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   struct schedstate_percpu *spc = &ci->ci_schedstate;
-  if (nrun_cpu[((ci)->ci_number)] == 0)
+  if (nrun_cpu[((ci)->ci_cpuid)] == 0)
    continue;
   spc->spc_ldavg = (cexp[0] * spc->spc_ldavg +
-      nrun_cpu[((ci)->ci_number)] * (1<<11) *
+      nrun_cpu[((ci)->ci_cpuid)] * (1<<11) *
       ((1<<11) - cexp[0])) >> 11;
  }
 }

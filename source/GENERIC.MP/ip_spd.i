@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2223,7 +2223,7 @@ void *cpumem_next(struct cpumem_iter *, struct cpumem *);
 static inline void *
 cpumem_enter(struct cpumem *cm)
 {
- return (cm[(__curcpu->ci_number)].mem);
+ return (cm[(__curcpu->ci_cpuid)].mem);
 }
 static inline void
 cpumem_leave(struct cpumem *cm, void *mem)

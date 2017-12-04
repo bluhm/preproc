@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -2863,7 +2863,7 @@ softclock_thread(void *arg)
  struct timeout *to;
  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 465, "_kernel_lock_held()"));
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-  if (((ci)->ci_number == 0))
+  if (((ci)->ci_cpuid == 0))
    break;
  }
  ((ci != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 472, "ci != NULL"));

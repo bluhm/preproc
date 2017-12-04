@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3024,7 +3024,7 @@ sys_reboot(struct proc *p, void *v, register_t *retval)
  if ((error = suser(p, 0)) != 0)
   return (error);
  sched_stop_secondary_cpus();
- (((((__curcpu->ci_self))->ci_number == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 56, "CPU_IS_PRIMARY(curcpu())"));
+ (((((__curcpu->ci_self))->ci_cpuid == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 56, "CPU_IS_PRIMARY(curcpu())"));
  reboot(((uap)->opt.be.datum));
  return (0);
 }

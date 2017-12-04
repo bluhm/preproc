@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3751,7 +3751,7 @@ db_command_loop(void)
   if (db_print_position() != 0)
    db_printf("\n");
   db_output_line = 0;
-  db_printf("ddb{%d}> ", (((__curcpu->ci_self))->ci_number));
+  db_printf("ddb{%d}> ", (((__curcpu->ci_self))->ci_cpuid));
   (void) db_read_line();
   db_command(&db_last_command, db_command_table);
  }

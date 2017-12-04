@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3514,7 +3514,7 @@ db_show_all_procs(db_expr_t addr, int haddr, db_expr_t count, char *modif)
          "  %-31s\n",
          pr->ps_pid, pr->ps_ucred->cr_ruid,
          pr->ps_flags, p->p_flag,
-         ((p->p_cpu)->ci_number),
+         ((p->p_cpu)->ci_cpuid),
          pr->ps_comm);
      break;
     }

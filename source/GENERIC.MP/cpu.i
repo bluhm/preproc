@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3781,7 +3781,7 @@ alloc_cpuinfo(struct mainbus_attach_args *ma)
  __builtin_memset(((void *)va0), (0), (sz));
  cpi->ci_next = ((void *)0);
  cpi->ci_curproc = ((void *)0);
- cpi->ci_number = ncpus++;
+ cpi->ci_cpuid = ncpus++;
  cpi->ci_upaid = portid;
  cpi->ci_fpproc = ((void *)0);
  cpi->ci_spinup = cpu_hatch;

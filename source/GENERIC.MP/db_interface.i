@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3261,7 +3261,7 @@ db_cpuinfo_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  struct cpu_info *ci;
  for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   db_printf("%c%4d: ", (ci == (__curcpu->ci_self)) ? '*' : ' ',
-      ci->ci_number);
+      ci->ci_cpuid);
   switch(ci->ci_ddb_paused) {
   case 0:
    db_printf("running\n");
@@ -3291,7 +3291,7 @@ db_startproc_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  struct cpu_info *ci;
  if (have_addr) {
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-   if (addr == ci->ci_number) {
+   if (addr == ci->ci_cpuid) {
     db_startcpu(ci);
     break;
    }
@@ -3311,7 +3311,7 @@ db_stopproc_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  struct cpu_info *ci;
  if (have_addr) {
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-   if (addr == ci->ci_number) {
+   if (addr == ci->ci_cpuid) {
     db_stopcpu(ci);
     break;
    }
@@ -3331,7 +3331,7 @@ db_ddbproc_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  struct cpu_info *ci;
  if (have_addr) {
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-   if (addr == ci->ci_number && ci != (__curcpu->ci_self)) {
+   if (addr == ci->ci_cpuid && ci != (__curcpu->ci_self)) {
     db_stopcpu(ci);
     db_switch_to_cpu = ci;
     db_switch_cpu = 1;
@@ -3351,7 +3351,7 @@ db_enter_ddb(void)
  struct cpu_info *ci;
  __mtx_enter(&ddb_mp_mutex );
  if (ddb_state == 0) {
-  ddb_active_cpu = (__curcpu->ci_number);
+  ddb_active_cpu = (__curcpu->ci_cpuid);
   ddb_state = 1;
   (__curcpu->ci_self)->ci_ddb_paused = 4;
   __mtx_leave(&ddb_mp_mutex );
@@ -3364,29 +3364,29 @@ db_enter_ddb(void)
   }
   return (1);
  }
- if (ddb_active_cpu == (__curcpu->ci_number) && ddb_state == 2) {
+ if (ddb_active_cpu == (__curcpu->ci_cpuid) && ddb_state == 2) {
   for (ci = cpus; ci != ((void *)0); ci = ci->ci_next)
    ci->ci_ddb_paused = 0;
   __mtx_leave(&ddb_mp_mutex );
   return (0);
  }
- if (ddb_active_cpu == (__curcpu->ci_number) && db_switch_cpu) {
+ if (ddb_active_cpu == (__curcpu->ci_cpuid) && db_switch_cpu) {
   (__curcpu->ci_self)->ci_ddb_paused = 1;
   db_switch_cpu = 0;
-  ddb_active_cpu = db_switch_to_cpu->ci_number;
+  ddb_active_cpu = db_switch_to_cpu->ci_cpuid;
   db_switch_to_cpu->ci_ddb_paused = 3;
  }
- while (ddb_active_cpu != (__curcpu->ci_number) &&
+ while (ddb_active_cpu != (__curcpu->ci_cpuid) &&
      (__curcpu->ci_self)->ci_ddb_paused != 0) {
   if ((__curcpu->ci_self)->ci_ddb_paused == 1)
    (__curcpu->ci_self)->ci_ddb_paused = 2;
   __mtx_leave(&ddb_mp_mutex );
-  while (ddb_active_cpu != (__curcpu->ci_number) &&
+  while (ddb_active_cpu != (__curcpu->ci_cpuid) &&
       (__curcpu->ci_self)->ci_ddb_paused != 0)
    do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
   __mtx_enter(&ddb_mp_mutex );
  }
- if (ddb_active_cpu == (__curcpu->ci_number) && ddb_state == 1) {
+ if (ddb_active_cpu == (__curcpu->ci_cpuid) && ddb_state == 1) {
   (__curcpu->ci_self)->ci_ddb_paused = 4;
   __mtx_leave(&ddb_mp_mutex );
   return (1);

@@ -864,7 +864,7 @@ struct cpu_info {
  struct pcb *ci_cpcb;
  struct cpu_info *ci_next;
  struct proc *ci_fpproc;
- int ci_number;
+ int ci_cpuid;
  int ci_flags;
  int ci_upaid;
  int ci_itid;
@@ -3758,7 +3758,7 @@ void *cpumem_next(struct cpumem_iter *, struct cpumem *);
 static inline void *
 cpumem_enter(struct cpumem *cm)
 {
- return (cm[(__curcpu->ci_number)].mem);
+ return (cm[(__curcpu->ci_cpuid)].mem);
 }
 static inline void
 cpumem_leave(struct cpumem *cm, void *mem)
@@ -9588,7 +9588,7 @@ fill_kproc(struct process *pr, struct kinfo_proc *ki, struct proc *p,
   ki->p_ustime_sec = st.tv_sec;
   ki->p_ustime_usec = st.tv_nsec/1000;
   if (p->p_cpu != ((void *)0))
-   ki->p_cpuid = ((p->p_cpu)->ci_number);
+   ki->p_cpuid = ((p->p_cpu)->ci_cpuid);
  }
  if (isthread) {
   ki->p_pctcpu = p->p_pctcpu;
@@ -10115,7 +10115,7 @@ sysctl_cptime2(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  if (namelen != 1)
   return (20);
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-  if (name[0] == ((ci)->ci_number)) {
+  if (name[0] == ((ci)->ci_cpuid)) {
    found = 1;
    break;
   }
