@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -1319,7 +1319,7 @@ _kernel_lock_init(void)
 void
 _kernel_lock(const char *file, int line)
 {
- ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 80, "__mp_lock_held(&sched_lock) == 0"));
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 80, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  ___mp_lock((&kernel_lock) );
 }
 void
@@ -1332,7 +1332,7 @@ _kernel_lock_held(void)
 {
  if (panicstr)
   return 1;
- return (__mp_lock_held(&kernel_lock));
+ return (__mp_lock_held(&kernel_lock, (__curcpu->ci_self)));
 }
 void
 ___mp_lock_init(struct __mp_lock *mpl, struct lock_type *type)
@@ -1402,8 +1402,8 @@ ___mp_acquire_count(struct __mp_lock *mpl, int count )
   ___mp_lock(mpl );
 }
 int
-__mp_lock_held(struct __mp_lock *mpl)
+__mp_lock_held(struct __mp_lock *mpl, struct cpu_info *ci)
 {
- struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[(__curcpu->ci_cpuid)];
+ struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[((ci)->ci_cpuid)];
  return (cpu->mplc_ticket == mpl->mpl_ticket && cpu->mplc_depth > 0);
 }

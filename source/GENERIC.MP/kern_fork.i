@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -5640,10 +5640,10 @@ freepid(pid_t pid)
 void
 proc_trampoline_mp(void)
 {
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "__mp_lock_held(&sched_lock)")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  ___mp_unlock((&sched_lock) );
  _spl(0);
- ((__mp_lock_held(&sched_lock) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "__mp_lock_held(&sched_lock) == 0"));
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 673, "!_kernel_lock_held()"));
  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 675);
 }

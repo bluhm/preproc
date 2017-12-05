@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 struct kmemstats {
  long ks_inuse;
@@ -5542,15 +5542,32 @@ rip6_input(struct mbuf **mp, int *offp, int proto, int af)
  struct ip6_hdr *ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  struct inpcb *in6p;
  struct inpcb *last = ((void *)0);
+ struct in6_addr *key;
  struct sockaddr_in6 rip6src;
  struct mbuf *opts = ((void *)0);
- ((af == 24) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/raw_ip6.c", 128, "af == AF_INET6"));
+ ((af == 24) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/raw_ip6.c", 129, "af == AF_INET6"));
  if (proto != 58)
   rip6stat_inc(rip6s_ipackets);
  __builtin_bzero((&rip6src), (sizeof(rip6src)));
  rip6src.sin6_len = sizeof(struct sockaddr_in6);
  rip6src.sin6_family = 24;
  in6_recoverscope(&rip6src, &ip6->ip6_src);
+ key = &ip6->ip6_dst;
+ if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
+  struct pf_divert *divert;
+  divert = pf_find_divert(m);
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/raw_ip6.c", 147, "divert != NULL"));
+  switch (divert->type) {
+  case PF_DIVERT_TO:
+   key = &divert->addr.pfa.v6;
+   break;
+  case PF_DIVERT_REPLY:
+   break;
+  default:
+   panic("%s: unknown divert type %d, mbuf %p, divert %p",
+       __func__, divert->type, m, divert);
+  }
+ }
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((in6p) = ((&rawin6pcbtable.inpt_queue)->tqh_first); (in6p) != ((void *)0); (in6p) = ((in6p)->inp_queue.tqe_next)) {
   if (in6p->inp_socket->so_state & 0x020)
@@ -5560,18 +5577,8 @@ rip6_input(struct mbuf **mp, int *offp, int proto, int af)
   if ((in6p->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_nxt || proto == 58) &&
       in6p->inp_hu.hu_ipv6.ip6_ctlun.ip6_un1.ip6_un1_nxt != proto)
    continue;
-  if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
-   struct pf_divert *divert;
-   if ((divert = pf_find_divert(m)) == ((void *)0))
-    continue;
-   if (divert->type == PF_DIVERT_REPLY)
-    goto divert_reply;
-   if (!(__builtin_memcmp((&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]), (&(&divert->addr.pfa.v6)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0))
-    continue;
-  } else
- divert_reply:
   if (!((*(const u_int32_t *)(const void *)(&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) &&
-      !(__builtin_memcmp((&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]), (&(&ip6->ip6_dst)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0))
+      !(__builtin_memcmp((&(&in6p->inp_laddru.iau_addr6)->__u6_addr.__u6_addr8[0]), (&(key)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0))
    continue;
   if (!((*(const u_int32_t *)(const void *)(&(&in6p->inp_faddru.iau_addr6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_faddru.iau_addr6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_faddru.iau_addr6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&in6p->inp_faddru.iau_addr6)->__u6_addr.__u6_addr8[12]) == 0)) &&
       !(__builtin_memcmp((&(&in6p->inp_faddru.iau_addr6)->__u6_addr.__u6_addr8[0]), (&(&ip6->ip6_src)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0))

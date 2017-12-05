@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 struct sigacts {
  sig_t ps_sigact[33];
@@ -5684,7 +5684,7 @@ proc_stop(struct proc *p, int sw)
 {
  struct process *pr = p->p_p;
  extern void *softclock_si;
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1288, "__mp_lock_held(&sched_lock)")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1288, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  p->p_stat = 4;
  atomic_clearbits_int(&pr->ps_flags, 0x00000400);
  atomic_setbits_int(&pr->ps_flags, 0x00008000);

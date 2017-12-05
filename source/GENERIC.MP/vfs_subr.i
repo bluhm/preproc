@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -6365,7 +6365,7 @@ vfs_syncwait(int verbose)
    break;
   if (verbose)
    printf("%d ", nbusy);
-  if (__mp_lock_held(&kernel_lock))
+  if (_kernel_lock_held())
    hold_count = ___mp_release_all((&kernel_lock) );
   else
    hold_count = 0;

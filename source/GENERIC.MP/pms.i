@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -2534,6 +2534,7 @@ static const struct alps_model {
  { 0x7321, 0xf8, (1 << 1) },
  { 0x7322, 0xf8, (1 << 1) },
  { 0x7325, 0xcf, (1 << 1) },
+ { 0x7331, 0x8f, (1 << 2) },
 };
 static struct wsmouse_param synaptics_params[] = {
  { WSMOUSECFG_PRESSURE_LO, 25 },

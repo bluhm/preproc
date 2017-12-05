@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -6806,10 +6806,19 @@ in_pcblookup_listen(struct inpcbtable *table, struct in_addr laddr,
  key2 = &zeroin_addr;
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
-  if ((divert = pf_find_divert(m)) == ((void *)0))
+  divert = pf_find_divert(m);
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1151, "divert != NULL"));
+  switch (divert->type) {
+  case PF_DIVERT_TO:
+   key1 = key2 = &divert->addr.pfa.v4;
+   lport = divert->port;
+   break;
+  case PF_DIVERT_REPLY:
    return (((void *)0));
-  key1 = key2 = &divert->addr.pfa.v4;
-  lport = divert->port;
+  default:
+   panic("%s: unknown divert type %d, mbuf %p, divert %p",
+       __func__, divert->type, m, divert);
+  }
  } else if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x04) {
   key1 = &zeroin_addr;
   key2 = &laddr;
@@ -6859,10 +6868,19 @@ in6_pcblookup_listen(struct inpcbtable *table, struct in6_addr *laddr,
  key2 = &zeroin6_addr;
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
-  if ((divert = pf_find_divert(m)) == ((void *)0))
+  divert = pf_find_divert(m);
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1231, "divert != NULL"));
+  switch (divert->type) {
+  case PF_DIVERT_TO:
+   key1 = key2 = &divert->addr.pfa.v6;
+   lport = divert->port;
+   break;
+  case PF_DIVERT_REPLY:
    return (((void *)0));
-  key1 = key2 = &divert->addr.pfa.v6;
-  lport = divert->port;
+  default:
+   panic("%s: unknown divert type %d, mbuf %p, divert %p",
+       __func__, divert->type, m, divert);
+  }
  } else if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x04) {
   key1 = &zeroin6_addr;
   key2 = laddr;

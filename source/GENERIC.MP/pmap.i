@@ -1018,7 +1018,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 struct kmemstats {
  long ks_inuse;
@@ -3887,9 +3887,7 @@ remap_data:
  }
  ;
  ;
- data = 0;
- if ((cputyp == 3) || (cputyp == 4))
-  data = 0x0000000000000100LL;
+ data = ((cputyp == 5) ? 0x0000000000000080LL : 0x0000000000000100LL);
  for (i = 0; i < prom_map_size; i++) {
   if (prom_map[i].vstart && ((prom_map[i].vstart>>32) == 0)) {
    for (j = 0; j < prom_map[i].vsize; j += (1 << 13)) {
@@ -4796,7 +4794,7 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
     smp_tlb_flush_pte(pv->pv_va & (~((1 << 13) - 1)), pv->pv_pmap->pm_ctx);
    }
    ((void)_atomic_sub_long_nv((&pv->pv_pmap->pm_stats.resident_count), 1));
-   ((pv->pv_next == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/pmap.c", 2571, "pv->pv_next == NULL"));
+   ((pv->pv_next == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/pmap.c", 2569, "pv->pv_next == NULL"));
    pv->pv_pmap = ((void *)0);
   }
   cacheinfo.c_dcache_flush_page(pa);

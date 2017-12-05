@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -3434,6 +3434,7 @@ db_show_all_procs(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
  char *mode;
  int skipzomb = 0;
+ int has_kernel_lock = 0;
  struct proc *p;
  struct process *pr, *ppr;
  if (modif[0] == 0)
@@ -3472,6 +3473,10 @@ db_show_all_procs(db_expr_t addr, int haddr, db_expr_t count, char *modif)
  while (pr != ((void *)0)) {
   ppr = pr->ps_pptr;
   for((p) = ((&pr->ps_threads)->tqh_first); (p) != ((void *)0); (p) = ((p)->p_thr_link.tqe_next)) {
+   if (__mp_lock_held(&kernel_lock, p->p_cpu))
+    has_kernel_lock = 1;
+   else
+    has_kernel_lock = 0;
    if (p->p_stat) {
     if (*mode == 'o') {
      if (p->p_stat != 7)
@@ -3511,10 +3516,11 @@ db_show_all_procs(db_expr_t addr, int haddr, db_expr_t count, char *modif)
      break;
     case 'o':
      db_printf("%5d  %5d  %#10x %#10x  %3d"
-         "  %-31s\n",
+         "%c %-31s\n",
          pr->ps_pid, pr->ps_ucred->cr_ruid,
          pr->ps_flags, p->p_flag,
          ((p->p_cpu)->ci_cpuid),
+         has_kernel_lock ? 'K' : ' ',
          pr->ps_comm);
      break;
     }

@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -5225,11 +5225,28 @@ rip_input(struct mbuf **mp, int *offp, int proto, int af)
  struct mbuf *m = *mp;
  struct ip *ip = ((struct ip *)((m)->m_hdr.mh_data));
  struct inpcb *inp, *last = ((void *)0);
+ struct in_addr *key;
  struct mbuf *opts = ((void *)0);
  struct counters_ref ref;
  uint64_t *counters;
- ((af == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/raw_ip.c", 128, "af == AF_INET"));
+ ((af == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/raw_ip.c", 129, "af == AF_INET"));
  ripsrc.sin_addr = ip->ip_src;
+ key = &ip->ip_dst;
+ if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
+  struct pf_divert *divert;
+  divert = pf_find_divert(m);
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/raw_ip.c", 138, "divert != NULL"));
+  switch (divert->type) {
+  case PF_DIVERT_TO:
+   key = &divert->addr.pfa.v4;
+   break;
+  case PF_DIVERT_REPLY:
+   break;
+  default:
+   panic("%s: unknown divert type %d, mbuf %p, divert %p",
+       __func__, divert->type, m, divert);
+  }
+ }
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  for((inp) = ((&rawcbtable.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next)) {
   if (inp->inp_socket->so_state & 0x020)
@@ -5241,18 +5258,8 @@ rip_input(struct mbuf **mp, int *offp, int proto, int af)
    continue;
   if (inp->inp_hu.hu_ip.ip_p && inp->inp_hu.hu_ip.ip_p != ip->ip_p)
    continue;
-  if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
-   struct pf_divert *divert;
-   if ((divert = pf_find_divert(m)) == ((void *)0))
-    continue;
-   if (divert->type == PF_DIVERT_REPLY)
-    goto divert_reply;
-   if (inp->inp_laddru.iau_a4u.inaddr.s_addr != divert->addr.pfa.v4.s_addr)
-    continue;
-  } else
- divert_reply:
   if (inp->inp_laddru.iau_a4u.inaddr.s_addr &&
-      inp->inp_laddru.iau_a4u.inaddr.s_addr != ip->ip_dst.s_addr)
+      inp->inp_laddru.iau_a4u.inaddr.s_addr != key->s_addr)
    continue;
   if (inp->inp_faddru.iau_a4u.inaddr.s_addr &&
       inp->inp_faddru.iau_a4u.inaddr.s_addr != ip->ip_src.s_addr)

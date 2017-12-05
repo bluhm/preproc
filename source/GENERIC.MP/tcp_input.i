@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -7813,7 +7813,6 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  struct tcpcb *tp = ((void *)0);
  struct mbuf *am;
  struct socket *oso;
- struct pf_divert *divert = ((void *)0);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  sc = syn_cache_lookup(src, dst, &scp, ((struct inpcb *)(so)->so_pcb)->inp_rtableid);
  if (sc == ((void *)0))
@@ -7840,10 +7839,12 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  {
   inp->inp_hu.hu_ip.ip_ttl = oldinp->inp_hu.hu_ip.ip_ttl;
  }
- if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08 &&
-     (divert = pf_find_divert(m)) != ((void *)0))
+ if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
+  struct pf_divert *divert;
+  divert = pf_find_divert(m);
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/tcp_input.c", 3521, "divert != NULL"));
   inp->inp_rtableid = divert->rdomain;
- else
+ } else
  inp->inp_rtableid = sc->sc_rtableid;
  inp->inp_lport = th->th_dport;
  switch (src->sa_family) {

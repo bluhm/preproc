@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -7059,10 +7059,12 @@ ip_savecontrol(struct inpcb *inp, struct mbuf **mp, struct ip *ip,
  }
  if (inp->inp_flags & 0x400) {
   u_int rtableid = inp->inp_rtableid;
-  struct pf_divert *divert;
-  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08 &&
-      (divert = pf_find_divert(m)) != ((void *)0))
+  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
+   struct pf_divert *divert;
+   divert = pf_find_divert(m);
+   ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_input.c", 1778, "divert != NULL"));
    rtableid = divert->rdomain;
+  }
   *mp = sbcreatecontrol((caddr_t) &rtableid,
       sizeof(u_int), 35, 0);
   if (*mp)

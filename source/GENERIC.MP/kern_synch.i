@@ -965,7 +965,7 @@ void ___mp_unlock(struct __mp_lock * );
 int ___mp_release_all(struct __mp_lock * );
 int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
-int __mp_lock_held(struct __mp_lock *);
+int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -3446,14 +3446,14 @@ tsleep(const volatile void *ident, int priority, const char *wmesg, int timo)
  int error, error1;
  int hold_count;
  (((priority & ~(0x0ff | 0x100)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 115, "(priority & ~(PRIMASK | PCATCH)) == 0"));
- ((timo || __mp_lock_held(&kernel_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 118, "timo || __mp_lock_held(&kernel_lock)"));
+ ((timo || _kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 118, "timo || _kernel_lock_held()"));
  if (cold == 2)
   db_stack_dump();
  if (cold || panicstr) {
   int s;
   s = _splraise(15);
   _splx(safepri);
-  if (__mp_lock_held(&kernel_lock)) {
+  if (_kernel_lock_held()) {
    hold_count = ___mp_release_all((&kernel_lock) );
    ___mp_acquire_count((&kernel_lock), (hold_count) );
   }
@@ -3484,7 +3484,7 @@ msleep(const volatile void *ident, struct mutex *mtx, int priority,
   spl = (mtx)->mtx_oldipl;
   (mtx)->mtx_oldipl = safepri;
   __mtx_leave(mtx );
-  if (__mp_lock_held(&kernel_lock)) {
+  if (_kernel_lock_held()) {
    hold_count = ___mp_release_all((&kernel_lock) );
    ___mp_acquire_count((&kernel_lock), (hold_count) );
   }
@@ -3568,7 +3568,7 @@ sleep_finish(struct sleep_state *sls, int do_sleep)
  if (sls->sls_do_sleep && do_sleep) {
   p->p_stat = 3;
   p->p_ru.ru_nvcsw++;
-  do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 309, "__mp_lock_held(&sched_lock)")); } while (0);
+  do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 309, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
   mi_switch();
  } else if (!do_sleep) {
   unsleep(p);
@@ -3648,7 +3648,7 @@ endtsleep(void *arg)
 void
 unsleep(struct proc *p)
 {
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 429, "__mp_lock_held(&sched_lock)")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 429, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  if (p->p_wchan) {
   do { if (((p)->p_runq.tqe_next) != ((void *)0)) (p)->p_runq.tqe_next->p_runq.tqe_prev = (p)->p_runq.tqe_prev; else (&slpque[(((long)(p->p_wchan) >> 8) & (128 - 1))])->tqh_last = (p)->p_runq.tqe_prev; *(p)->p_runq.tqe_prev = (p)->p_runq.tqe_next; ((p)->p_runq.tqe_prev) = ((void *)-1); ((p)->p_runq.tqe_next) = ((void *)-1); } while (0);
   p->p_wchan = ((void *)0);
