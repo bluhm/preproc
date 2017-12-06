@@ -26537,11 +26537,15 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x108e, 0x8186,
-     "SPARC PCIE",
+     "SPARC-T3/T4 PCIE",
+ },
+ {
+     0x108e, 0x818e,
+     "SPARC-M7 PCIE",
  },
  {
      0x108e, 0x8196,
-     "SPARC PCIE",
+     "SPARC-T5/M5/M6 PCIE",
  },
  {
      0x108e, 0x9000,
