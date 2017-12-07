@@ -2481,6 +2481,12 @@ int64_t hv_rng_ctl_write(paddr_t raddr, uint64_t state, uint64_t timeout,
  uint64_t *delta);
 int64_t hv_rng_data_read_diag(paddr_t raddr, uint64_t size, uint64_t *delta);
 int64_t hv_rng_data_read(paddr_t raddr, uint64_t *delta);
+extern uint64_t sun4v_group_interrupt_major;
+int64_t sun4v_intr_devino_to_sysino(uint64_t, uint64_t, uint64_t *);
+int64_t sun4v_intr_setcookie(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setenabled(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setstate(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_settarget(uint64_t, uint64_t, uint64_t);
 int openfirmware(void *);
 extern char OF_buf[];
 int OF_peer(int phandle);
@@ -2562,6 +2568,7 @@ struct vbus_softc {
  struct device sc_dv;
  bus_space_tag_t sc_bustag;
  bus_dma_tag_t sc_dmatag;
+ uint64_t sc_devhandle;
 };
 int vbus_cmp_cells(int *, int *, int *, int);
 int vbus_match(struct device *, void *, void *);
@@ -2593,6 +2600,7 @@ vbus_attach(struct device *parent, struct device *self, void *aux)
  int node;
  sc->sc_bustag = vbus_alloc_bus_tag(sc, ma->ma_bustag);
  sc->sc_dmatag = ma->ma_dmatag;
+ sc->sc_devhandle = (ma->ma_reg[0].ur_paddr >> 32) & 0x0fffffff;
  printf("\n");
  for (node = OF_child(ma->ma_node); node; node = OF_peer(node)) {
   struct vbus_attach_args va;
@@ -2650,7 +2658,7 @@ vbus_intr_map(int node, int ino, uint64_t *sysino)
  parent = OF_parent(node);
  address_cells = getpropint(parent, "#address-cells", 2);
  interrupt_cells = getpropint(parent, "#interrupt-cells", 1);
- ((interrupt_cells == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vbus.c", 148, "interrupt_cells == 1"));
+ ((interrupt_cells == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vbus.c", 151, "interrupt_cells == 1"));
  len = OF_getproplen(parent, "interrupt-map-mask");
  if (len < (address_cells + interrupt_cells) * sizeof(int))
   return (-1);
@@ -2673,10 +2681,10 @@ vbus_intr_map(int node, int ino, uint64_t *sysino)
    reg64 = ((void *)0);
    getprop(node, "reg", sizeof(*reg64), &nreg, (void **)&reg64);
    devhandle = reg64[0] & 0x0fffffff;
-   err = hv_intr_devino_to_sysino(devhandle, devino, sysino);
+   err = sun4v_intr_devino_to_sysino(devhandle, devino, sysino);
    if (err != 0)
     return (-1);
-   ((*sysino == ((*sysino)&(0x0000007c0LL|0x00000003fLL))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vbus.c", 181, "*sysino == INTVEC(*sysino)"));
+   ((*sysino == ((*sysino)&(0x0000007c0LL|0x00000003fLL))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vbus.c", 184, "*sysino == INTVEC(*sysino)"));
    return (0);
   }
   imap += address_cells + interrupt_cells + 2;
@@ -2688,6 +2696,8 @@ void *
 vbus_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
     int level, int flags, int (*handler)(void *), void *arg, const char *what)
 {
+ struct vbus_softc *sc = t->cookie;
+ uint64_t devhandle = sc->sc_devhandle;
  uint64_t sysino = ((ihandle)&(0x0000007c0LL|0x00000003fLL));
  struct intrhand *ih;
  int err;
@@ -2697,15 +2707,18 @@ vbus_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
   return (((void *)0));
  if (flags & 0x0001)
   ih->ih_mpsafe = 1;
+ err = sun4v_intr_setcookie(devhandle, sysino, (vaddr_t)ih);
+ if (err != 0)
+  return (((void *)0));
  intr_establish(ih->ih_pil, ih);
  ih->ih_ack = vbus_intr_ack;
- err = hv_intr_settarget(sysino, ih->ih_cpu->ci_upaid);
+ err = sun4v_intr_settarget(devhandle, sysino, ih->ih_cpu->ci_upaid);
  if (err != 0)
   return (((void *)0));
- err = hv_intr_setstate(sysino, 0);
+ err = sun4v_intr_setstate(devhandle, sysino, 0);
  if (err != 0)
   return (((void *)0));
- err = hv_intr_setenabled(sysino, 1);
+ err = sun4v_intr_setenabled(devhandle, sysino, 1);
  if (err != 0)
   return (((void *)0));
  return (ih);
@@ -2713,7 +2726,10 @@ vbus_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
 void
 vbus_intr_ack(struct intrhand *ih)
 {
- hv_intr_setstate(ih->ih_number, 0);
+ bus_space_tag_t t = ih->ih_bus;
+ struct vbus_softc *sc = t->cookie;
+ uint64_t devhandle = sc->sc_devhandle;
+ sun4v_intr_setstate(devhandle, ih->ih_number, 0);
 }
 bus_space_tag_t
 vbus_alloc_bus_tag(struct vbus_softc *sc, bus_space_tag_t parent)

@@ -3879,6 +3879,12 @@ int64_t hv_rng_ctl_write(paddr_t raddr, uint64_t state, uint64_t timeout,
  uint64_t *delta);
 int64_t hv_rng_data_read_diag(paddr_t raddr, uint64_t size, uint64_t *delta);
 int64_t hv_rng_data_read(paddr_t raddr, uint64_t *delta);
+extern uint64_t sun4v_group_interrupt_major;
+int64_t sun4v_intr_devino_to_sysino(uint64_t, uint64_t, uint64_t *);
+int64_t sun4v_intr_setcookie(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setenabled(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setstate(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_settarget(uint64_t, uint64_t, uint64_t);
 struct md_header {
  uint32_t transport_version;
  uint32_t node_blk_sz;
@@ -6139,6 +6145,7 @@ void sun4v_soft_state_init(void);
 void sun4v_set_soft_state(int, const char *);
 char sun4v_soft_state_booting[] __attribute__((__aligned__(32))) = "OpenBSD booting";
 char sun4v_soft_state_running[] __attribute__((__aligned__(32))) = "OpenBSD running";
+void sun4v_interrupt_init(void);
 static char *
 str2hex(char *str, long *vp)
 {
@@ -6299,6 +6306,7 @@ bootstrap(int nctx)
  if ((cputyp == 5)) {
   sun4v_soft_state_init();
   sun4v_set_soft_state(0x2, sun4v_soft_state_booting);
+  sun4v_interrupt_init();
  }
 }
 void
@@ -6501,6 +6509,14 @@ sun4v_set_soft_state(int state, const char *desc)
  err = hv_soft_state_set(state, pa);
  if (err != 0)
   printf("soft_state_set: %d\n", err);
+}
+void
+sun4v_interrupt_init(void)
+{
+ uint64_t minor;
+ if (prom_set_sun4v_api_version(0x002, 3, 0, &minor))
+  return;
+ sun4v_group_interrupt_major = 3;
 }
 void
 diskconf(void)

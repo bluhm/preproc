@@ -3064,6 +3064,12 @@ int64_t hv_rng_ctl_write(paddr_t raddr, uint64_t state, uint64_t timeout,
  uint64_t *delta);
 int64_t hv_rng_data_read_diag(paddr_t raddr, uint64_t size, uint64_t *delta);
 int64_t hv_rng_data_read(paddr_t raddr, uint64_t *delta);
+extern uint64_t sun4v_group_interrupt_major;
+int64_t sun4v_intr_devino_to_sysino(uint64_t, uint64_t, uint64_t *);
+int64_t sun4v_intr_setcookie(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setenabled(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setstate(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_settarget(uint64_t, uint64_t, uint64_t);
 int openfirmware(void *);
 extern char OF_buf[];
 int OF_peer(int phandle);
@@ -3483,11 +3489,11 @@ vpci_init_msi(struct vpci_softc *sc, struct vpci_pbm *pbm)
   goto free_queue;
  OF_getprop(sc->sc_node, "msi-eq-to-devino",
      msi_eq_devino, sizeof(msi_eq_devino));
- err = hv_intr_devino_to_sysino(pbm->vp_devhandle,
+ err = sun4v_intr_devino_to_sysino(pbm->vp_devhandle,
      msi_eq_devino[2], &sysino);
  if (err != 0)
   goto disable_queue;
- if (vpci_intr_establish(sc->sc_bust, sc->sc_bust, sysino,
+ if (vpci_intr_establish(pbm->vp_memt, pbm->vp_memt, sysino,
      15, 0, vpci_msi_eq_intr, pbm, sc->sc_dv.dv_xname) == ((void *)0))
   goto disable_queue;
  err = hv_pci_msiq_setvalid(pbm->vp_devhandle, 0, 1);
@@ -3547,7 +3553,7 @@ vpci_intr_map(struct pci_attach_args *pa, pci_intr_handle_t *ihp)
  uint64_t sysino;
  int err;
  if (*ihp != (pci_intr_handle_t)-1) {
-  err = hv_intr_devino_to_sysino(devhandle, devino, &sysino);
+  err = sun4v_intr_devino_to_sysino(devhandle, devino, &sysino);
   if (err != 0)
    return (-1);
   ((sysino == ((sysino)&(0x0000007c0LL|0x00000003fLL))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vpci.c", 340, "sysino == INTVEC(sysino)"));
@@ -3689,6 +3695,7 @@ vpci_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
     int level, int flags, int (*handler)(void *), void *arg, const char *what)
 {
  struct vpci_pbm *pbm = t->cookie;
+ uint64_t devhandle = pbm->vp_devhandle;
  uint64_t sysino = ((ihandle)&(0x0000007c0LL|0x00000003fLL));
  struct intrhand *ih;
  int err;
@@ -3724,15 +3731,18 @@ vpci_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
   }
   return (ih);
  }
+ err = sun4v_intr_setcookie(devhandle, sysino, (vaddr_t)ih);
+ if (err != 0)
+  return (((void *)0));
  intr_establish(ih->ih_pil, ih);
  ih->ih_ack = vpci_intr_ack;
- err = hv_intr_settarget(sysino, ih->ih_cpu->ci_upaid);
+ err = sun4v_intr_settarget(devhandle, sysino, ih->ih_cpu->ci_upaid);
  if (err != 0)
   return (((void *)0));
- err = hv_intr_setstate(sysino, 0);
+ err = sun4v_intr_setstate(devhandle, sysino, 0);
  if (err != 0)
   return (((void *)0));
- err = hv_intr_setenabled(sysino, 1);
+ err = sun4v_intr_setenabled(devhandle, sysino, 1);
  if (err != 0)
   return (((void *)0));
  return (ih);
@@ -3740,7 +3750,10 @@ vpci_intr_establish(bus_space_tag_t t, bus_space_tag_t t0, int ihandle,
 void
 vpci_intr_ack(struct intrhand *ih)
 {
- hv_intr_setstate(ih->ih_number, 0);
+ bus_space_tag_t t = ih->ih_bus;
+ struct vpci_pbm *pbm = t->cookie;
+ uint64_t devhandle = pbm->vp_devhandle;
+ sun4v_intr_setstate(devhandle, ih->ih_number, 0);
 }
 void
 vpci_msi_ack(struct intrhand *ih)

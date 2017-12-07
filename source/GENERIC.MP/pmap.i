@@ -2897,6 +2897,12 @@ int64_t hv_rng_ctl_write(paddr_t raddr, uint64_t state, uint64_t timeout,
  uint64_t *delta);
 int64_t hv_rng_data_read_diag(paddr_t raddr, uint64_t size, uint64_t *delta);
 int64_t hv_rng_data_read(paddr_t raddr, uint64_t *delta);
+extern uint64_t sun4v_group_interrupt_major;
+int64_t sun4v_intr_devino_to_sysino(uint64_t, uint64_t, uint64_t *);
+int64_t sun4v_intr_setcookie(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setenabled(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_setstate(uint64_t, uint64_t, uint64_t);
+int64_t sun4v_intr_settarget(uint64_t, uint64_t, uint64_t);
 enum devclass {
  DV_DULL,
  DV_CPU,
