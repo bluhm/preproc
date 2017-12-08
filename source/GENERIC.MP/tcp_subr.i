@@ -4253,6 +4253,8 @@ struct pool tcpcb_pool;
 struct pool tcpqe_pool;
 struct pool sackhl_pool;
 struct cpumem *tcpcounters;
+u_char tcp_secret[16];
+SHA2_CTX tcp_secret_ctx;
 tcp_seq tcp_iss;
 void
 tcp_init(void)
@@ -4268,6 +4270,9 @@ tcp_init(void)
  pool_sethardlimit(&sackhl_pool, tcp_sackhole_limit, ((void *)0), 0);
  in_pcbinit(&tcbtable, 128);
  tcpcounters = counters_alloc(tcps_ncounters);
+ arc4random_buf(tcp_secret, sizeof(tcp_secret));
+ SHA512Init(&tcp_secret_ctx);
+ SHA512Update(&tcp_secret_ctx, tcp_secret, sizeof(tcp_secret));
  if (max_protohdr < (sizeof(struct ip6_hdr) + sizeof(struct tcphdr)))
   max_protohdr = (sizeof(struct ip6_hdr) + sizeof(struct tcphdr));
  if ((max_linkhdr + sizeof(struct ip6_hdr) + sizeof(struct tcphdr)) >
@@ -4779,9 +4784,6 @@ tcp_mtudisc_increase(struct inpcb *inp, int errno)
   tcp_mss(tp, -1);
  }
 }
-int tcp_secret_init;
-u_char tcp_secret[16];
-SHA2_CTX tcp_secret_ctx;
 void
 tcp_set_iss_tsm(struct tcpcb *tp)
 {
@@ -4791,12 +4793,6 @@ tcp_set_iss_tsm(struct tcpcb *tp)
   uint32_t words[2];
  } digest;
  u_int rdomain = rtable_l2(tp->t_inpcb->inp_rtableid);
- if (tcp_secret_init == 0) {
-  arc4random_buf(tcp_secret, sizeof(tcp_secret));
-  SHA512Init(&tcp_secret_ctx);
-  SHA512Update(&tcp_secret_ctx, tcp_secret, sizeof(tcp_secret));
-  tcp_secret_init = 1;
- }
  ctx = tcp_secret_ctx;
  SHA512Update(&ctx, &rdomain, sizeof(rdomain));
  SHA512Update(&ctx, &tp->t_inpcb->inp_lport, sizeof(u_short));
