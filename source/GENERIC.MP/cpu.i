@@ -3803,23 +3803,29 @@ alloc_cpuinfo(struct mainbus_attach_args *ma)
  return (cpi);
 }
 int
-cpu_match(parent, vcf, aux)
- struct device *parent;
- void *vcf;
- void *aux;
+cpu_match(struct device *parent, void *match, void *aux)
 {
  struct mainbus_attach_args *ma = aux;
  char buf[32];
+ int portid;
  if (OF_getprop(ma->ma_node, "device_type", buf, sizeof(buf)) <= 0 ||
      strcmp(buf, "cpu") != 0)
   return (0);
- return (1);
+ portid = getpropint(ma->ma_node, "upa-portid", -1);
+ if (portid == -1)
+  portid = getpropint(ma->ma_node, "portid", -1);
+ if (portid == -1)
+  portid = getpropint(ma->ma_node, "cpuid", -1);
+ if (portid == -1 && ma->ma_nreg > 0)
+  portid = (ma->ma_reg[0].ur_paddr >> 32) & 0xff;
+ if (portid == -1)
+  return (0);
+ if (ncpus < 256 || portid == cpus->ci_upaid)
+  return (1);
+ return (0);
 }
 void
-cpu_attach(parent, dev, aux)
- struct device *parent;
- struct device *dev;
- void *aux;
+cpu_attach(struct device *parent, struct device *dev, void *aux)
 {
  int node;
  u_int clk;

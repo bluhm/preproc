@@ -3502,6 +3502,10 @@ struct ieee80211_node {
  int ni_txrate;
  int ni_state;
  u_int16_t ni_flags;
+ void (*ni_unref_cb)(struct ieee80211com *,
+     struct ieee80211_node *);
+ void * ni_unref_arg;
+ size_t ni_unref_arg_size;
 };
 struct ieee80211_tree { struct rb_tree rbh_root; };
 static __inline void
@@ -3779,6 +3783,9 @@ struct ieee80211com {
         struct ieee80211_node *, u_int8_t);
  void (*ic_update_htprot)(struct ieee80211com *,
      struct ieee80211_node *);
+ int (*ic_bgscan_start)(struct ieee80211com *);
+ struct timeout ic_bgscan_timeout;
+ uint32_t ic_bgscan_fail;
  u_int8_t ic_myaddr[6];
  struct ieee80211_rateset ic_sup_rates[(IEEE80211_MODE_11N+1)];
  struct ieee80211_channel ic_channels[255 +1];
@@ -3790,6 +3797,7 @@ struct ieee80211com {
  u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
+ u_int32_t ic_xflags;
  u_int32_t ic_caps;
  u_int16_t ic_modecaps;
  u_int16_t ic_curmode;
@@ -3814,6 +3822,8 @@ struct ieee80211com {
      struct ieee80211_node *,
      const struct ieee80211_node *);
  u_int8_t (*ic_node_getrssi)(struct ieee80211com *,
+     const struct ieee80211_node *);
+ int (*ic_node_checkrssi)(struct ieee80211com *,
      const struct ieee80211_node *);
  u_int8_t ic_max_rssi;
  struct ieee80211_tree ic_tree;
@@ -4421,6 +4431,7 @@ ieee80211_newstate(struct ieee80211com *ic, enum ieee80211_state nstate,
  ic->ic_state = nstate;
  ni = ic->ic_bss;
  ieee80211_set_link_state(ic, 2);
+ ic->ic_xflags &= ~0x00000001;
  switch (nstate) {
  case IEEE80211_S_INIT:
   switch (ostate) {
@@ -4467,6 +4478,8 @@ ieee80211_newstate(struct ieee80211com *ic, enum ieee80211_state nstate,
 justcleanup:
    if (ic->ic_opmode == IEEE80211_M_HOSTAP)
     timeout_del(&ic->ic_rsn_timeout);
+   timeout_del(&ic->ic_bgscan_timeout);
+   ic->ic_bgscan_fail = 0;
    ic->ic_mgt_timer = 0;
    mq_purge(&ic->ic_mgtq);
    mq_purge(&ic->ic_pwrsaveq);
@@ -4505,6 +4518,8 @@ justcleanup:
         " rescanning\n", ifp->if_xname,
         ether_sprintf(ic->ic_bss->ni_bssid));
    }
+   timeout_del(&ic->ic_bgscan_timeout);
+   ic->ic_bgscan_fail = 0;
    ieee80211_free_allnodes(ic);
   case IEEE80211_S_AUTH:
   case IEEE80211_S_ASSOC:
@@ -4539,6 +4554,8 @@ justcleanup:
    }
    break;
   case IEEE80211_S_RUN:
+   timeout_del(&ic->ic_bgscan_timeout);
+   ic->ic_bgscan_fail = 0;
    switch (mgt) {
    case 0xb0:
     ((*(ic)->ic_send_mgmt)(ic, ni, 0xb0, 2, 0));

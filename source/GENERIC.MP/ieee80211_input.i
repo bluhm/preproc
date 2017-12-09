@@ -3559,6 +3559,10 @@ struct ieee80211_node {
  int ni_txrate;
  int ni_state;
  u_int16_t ni_flags;
+ void (*ni_unref_cb)(struct ieee80211com *,
+     struct ieee80211_node *);
+ void * ni_unref_arg;
+ size_t ni_unref_arg_size;
 };
 struct ieee80211_tree { struct rb_tree rbh_root; };
 static __inline void
@@ -3836,6 +3840,9 @@ struct ieee80211com {
         struct ieee80211_node *, u_int8_t);
  void (*ic_update_htprot)(struct ieee80211com *,
      struct ieee80211_node *);
+ int (*ic_bgscan_start)(struct ieee80211com *);
+ struct timeout ic_bgscan_timeout;
+ uint32_t ic_bgscan_fail;
  u_int8_t ic_myaddr[6];
  struct ieee80211_rateset ic_sup_rates[(IEEE80211_MODE_11N+1)];
  struct ieee80211_channel ic_channels[255 +1];
@@ -3847,6 +3854,7 @@ struct ieee80211com {
  u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
+ u_int32_t ic_xflags;
  u_int32_t ic_caps;
  u_int16_t ic_modecaps;
  u_int16_t ic_curmode;
@@ -3871,6 +3879,8 @@ struct ieee80211com {
      struct ieee80211_node *,
      const struct ieee80211_node *);
  u_int8_t (*ic_node_getrssi)(struct ieee80211com *,
+     const struct ieee80211_node *);
+ int (*ic_node_checkrssi)(struct ieee80211com *,
      const struct ieee80211_node *);
  u_int8_t ic_max_rssi;
  struct ieee80211_tree ic_tree;
@@ -4123,6 +4133,12 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
   ni->ni_rssi = rxi->rxi_rssi;
   ni->ni_rstamp = rxi->rxi_tstamp;
   ni->ni_inact = 0;
+  if ((*ic->ic_node_checkrssi)(ic, ni))
+   timeout_del(&ic->ic_bgscan_timeout);
+  else if (!((&ic->ic_bgscan_timeout)->to_flags & 2) &&
+      (ic->ic_flags & 0x08000000) == 0)
+   timeout_add_msec(&ic->ic_bgscan_timeout,
+       500 * (ic->ic_bgscan_fail + 1));
  }
  if (ic->ic_opmode == IEEE80211_M_HOSTAP &&
      (ic->ic_caps & 0x00000020) &&
@@ -4443,7 +4459,7 @@ ieee80211_input_ba_seq(struct ieee80211com *ic, struct ieee80211_node *ni,
  while (i++ < ba->ba_winsize) {
   if (ba->ba_buf[ba->ba_head].m != ((void *)0)) {
    wh = ((struct ieee80211_frame *)((ba->ba_buf[ba->ba_head].m)->m_hdr.mh_data));
-   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 719, "ieee80211_has_seq(wh)"));
+   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 727, "ieee80211_has_seq(wh)"));
    seq = __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)wh->i_seq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) >>
        4;
    if (!((((u_int16_t)(seq) - (u_int16_t)(max_seq)) & 0xfff) > 2048))
@@ -5069,7 +5085,8 @@ ieee80211_recv_probe_resp(struct ieee80211com *ic, struct mbuf *m,
        ic->ic_curmode == IEEE80211_MODE_11A ||
        (capinfo & 0x0400));
   }
-   ic->ic_mgt_timer = 0;
+   if ((ic->ic_flags & 0x08000000) == 0)
+    ic->ic_mgt_timer = 0;
  }
  if (ni->ni_flags & 0x0002) {
   if ((edcaie != ((void *)0) &&
@@ -5080,7 +5097,8 @@ ieee80211_recv_probe_resp(struct ieee80211com *ic, struct mbuf *m,
   else
    ni->ni_flags &= ~0x0002;
  }
- if (ic->ic_state == IEEE80211_S_SCAN) {
+ if (ic->ic_state == IEEE80211_S_SCAN ||
+     (ic->ic_flags & 0x08000000)) {
   struct ieee80211_rsnparams rsn, wpa;
   ni->ni_rsnprotos = 0;
   ni->ni_supported_rsnprotos = 0;
@@ -5642,8 +5660,12 @@ ieee80211_recv_deauth(struct ieee80211com *ic, struct mbuf *m,
  reason = ((u_int16_t) ((((const u_int8_t *)(frm))[0]) | (((const u_int8_t *)(frm))[1] << 8)));
  ic->ic_stats.is_rx_deauth++;
  switch (ic->ic_opmode) {
- case IEEE80211_M_STA:
-  (((ic)->ic_newstate)((ic), (IEEE80211_S_AUTH), (0xc0)));
+ case IEEE80211_M_STA: {
+  int bgscan = ((ic->ic_flags & 0x08000000) &&
+      ic->ic_state == IEEE80211_S_RUN);
+  if (!bgscan)
+   (((ic)->ic_newstate)((ic), (IEEE80211_S_AUTH), (0xc0)));
+  }
   break;
  case IEEE80211_M_HOSTAP:
   if (ni != ic->ic_bss) {
@@ -5676,8 +5698,12 @@ ieee80211_recv_disassoc(struct ieee80211com *ic, struct mbuf *m,
  reason = ((u_int16_t) ((((const u_int8_t *)(frm))[0]) | (((const u_int8_t *)(frm))[1] << 8)));
  ic->ic_stats.is_rx_disassoc++;
  switch (ic->ic_opmode) {
- case IEEE80211_M_STA:
-  (((ic)->ic_newstate)((ic), (IEEE80211_S_ASSOC), (0xa0)));
+ case IEEE80211_M_STA: {
+  int bgscan = ((ic->ic_flags & 0x08000000) &&
+      ic->ic_state == IEEE80211_S_RUN);
+  if (!bgscan)
+   (((ic)->ic_newstate)((ic), (IEEE80211_S_ASSOC), (0xa0)));
+  }
   break;
  case IEEE80211_M_HOSTAP:
   if (ni != ic->ic_bss) {

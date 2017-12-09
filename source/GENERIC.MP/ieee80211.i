@@ -3520,6 +3520,10 @@ struct ieee80211_node {
  int ni_txrate;
  int ni_state;
  u_int16_t ni_flags;
+ void (*ni_unref_cb)(struct ieee80211com *,
+     struct ieee80211_node *);
+ void * ni_unref_arg;
+ size_t ni_unref_arg_size;
 };
 struct ieee80211_tree { struct rb_tree rbh_root; };
 static __inline void
@@ -3797,6 +3801,9 @@ struct ieee80211com {
         struct ieee80211_node *, u_int8_t);
  void (*ic_update_htprot)(struct ieee80211com *,
      struct ieee80211_node *);
+ int (*ic_bgscan_start)(struct ieee80211com *);
+ struct timeout ic_bgscan_timeout;
+ uint32_t ic_bgscan_fail;
  u_int8_t ic_myaddr[6];
  struct ieee80211_rateset ic_sup_rates[(IEEE80211_MODE_11N+1)];
  struct ieee80211_channel ic_channels[255 +1];
@@ -3808,6 +3815,7 @@ struct ieee80211com {
  u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
+ u_int32_t ic_xflags;
  u_int32_t ic_caps;
  u_int16_t ic_modecaps;
  u_int16_t ic_curmode;
@@ -3832,6 +3840,8 @@ struct ieee80211com {
      struct ieee80211_node *,
      const struct ieee80211_node *);
  u_int8_t (*ic_node_getrssi)(struct ieee80211com *,
+     const struct ieee80211_node *);
+ int (*ic_node_checkrssi)(struct ieee80211com *,
      const struct ieee80211_node *);
  u_int8_t ic_max_rssi;
  struct ieee80211_tree ic_tree;
@@ -3937,6 +3947,25 @@ struct ieee80211com_head ieee80211com_head =
 void ieee80211_setbasicrates(struct ieee80211com *);
 int ieee80211_findrate(struct ieee80211com *, enum ieee80211_phymode, int);
 void
+ieee80211_begin_bgscan(struct ifnet *ifp)
+{
+ struct ieee80211com *ic = (void *)ifp;
+ if ((ic->ic_flags & 0x08000000) ||
+     ic->ic_state != IEEE80211_S_RUN)
+  return;
+ if (ic->ic_bgscan_start != ((void *)0) && ic->ic_bgscan_start(ic) == 0) {
+  ic->ic_flags |= 0x08000000;
+  if (ifp->if_flags & 0x4)
+   printf("%s: begin background scan\n", ifp->if_xname);
+ }
+}
+void
+ieee80211_bgscan_timeout(void *arg)
+{
+ struct ifnet *ifp = arg;
+ ieee80211_begin_bgscan(ifp);
+}
+void
 ieee80211_channel_init(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
@@ -3995,6 +4024,7 @@ ieee80211_ifattach(struct ifnet *ifp)
  if_addgroup(ifp, "wlan");
  ifp->if_priority = 4;
  ieee80211_set_link_state(ic, 2);
+ timeout_set(&ic->ic_bgscan_timeout, ieee80211_bgscan_timeout, ifp);
 }
 void
 ieee80211_ifdetach(struct ifnet *ifp)

@@ -2849,8 +2849,8 @@ struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
 void mpls_input(struct mbuf *);
-int mpls_ip_adjttl(struct mbuf *, u_int8_t);
-int mpls_ip6_adjttl(struct mbuf *, u_int8_t);
+struct mbuf *mpls_ip_adjttl(struct mbuf *, u_int8_t);
+struct mbuf *mpls_ip6_adjttl(struct mbuf *, u_int8_t);
 struct mbuf *mpls_do_error(struct mbuf *, int, int, int);
 void
 mpls_input(struct mbuf *m)
@@ -2860,22 +2860,33 @@ mpls_input(struct mbuf *m)
  struct shim_hdr *shim;
  struct rtentry *rt;
  struct rt_mpls *rt_mpls;
- struct ifnet *ifp = ((void *)0);
+ struct ifnet *ifp;
  u_int8_t ttl;
  int hasbos;
+ if ((ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx)) == ((void *)0) ||
+     !((ifp->if_xflags) & (0x8))) {
+  m_freem(m);
+  if_put(ifp);
+  return;
+ }
  if (m->m_hdr.mh_flags & (0x0100 | 0x0200)) {
   m_freem(m);
+  if_put(ifp);
   return;
  }
  if (m->m_hdr.mh_len < sizeof(*shim))
-  if ((m = m_pullup(m, sizeof(*shim))) == ((void *)0))
+  if ((m = m_pullup(m, sizeof(*shim))) == ((void *)0)) {
+   if_put(ifp);
    return;
+  }
  shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
  ttl = ((__uint32_t)(shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0x000000ffU))))));
  if (ttl-- <= 1) {
   m = mpls_do_error(m, 11, 0, 0);
-  if (m == ((void *)0))
+  if (m == ((void *)0)) {
+   if_put(ifp);
    return;
+  }
   shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
   ttl = ((__uint32_t)(shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0x000000ffU))))));
  }
@@ -2887,6 +2898,10 @@ mpls_input(struct mbuf *m)
  hasbos = (((shim->shim_label) & ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U))))) == ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U)))));
  if (((__uint32_t)(smpls->smpls_label)) < 15) {
   m = mpls_shim_pop(m);
+  if (m == ((void *)0)) {
+   if_put(ifp);
+   return;
+  }
   if (!hasbos) {
    shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
    smpls->smpls_label = shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0xfffff000U))));
@@ -2895,11 +2910,8 @@ mpls_input(struct mbuf *m)
    switch (((__uint32_t)(smpls->smpls_label))) {
    case 0:
 do_v4:
-    if (mpls_ip_adjttl(m, ttl))
-     return;
-    ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-    if (ifp == ((void *)0)) {
-     m_freem(m);
+    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0)) {
+     if_put(ifp);
      return;
     }
     ipv4_input(ifp, m);
@@ -2907,17 +2919,19 @@ do_v4:
     return;
    case 2:
 do_v6:
-    if (mpls_ip6_adjttl(m, ttl))
-     return;
-    ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-    if (ifp == ((void *)0)) {
-     m_freem(m);
+    if ((m = mpls_ip6_adjttl(m, ttl)) == ((void *)0)) {
+     if_put(ifp);
      return;
     }
     ipv6_input(ifp, m);
     if_put(ifp);
     return;
    case 3:
+    if (m->m_hdr.mh_len < sizeof(u_char) &&
+        (m = m_pullup(m, sizeof(u_char))) == ((void *)0)) {
+     if_put(ifp);
+     return;
+    }
     switch (*((u_char *)((m)->m_hdr.mh_data)) >> 4) {
     case 4:
      goto do_v4;
@@ -2925,14 +2939,18 @@ do_v6:
      goto do_v6;
     default:
      m_freem(m);
+     if_put(ifp);
      return;
     }
    default:
     m_freem(m);
+    if_put(ifp);
     return;
    }
   }
  }
+ if_put(ifp);
+ ifp = ((void *)0);
  rt = rtalloc(((struct sockaddr *)(smpls)), 1, m->M_dat.MH.MH_pkthdr.ph_rtableid);
  if (rt == ((void *)0)) {
   m_freem(m);
@@ -2946,6 +2964,8 @@ do_v6:
  switch (rt_mpls->mpls_operation) {
  case 0x1:
   m = mpls_shim_pop(m);
+  if (m == ((void *)0))
+   goto done;
   if (!hasbos)
    break;
   ifp = if_get(rt->rt_ifidx);
@@ -2962,14 +2982,14 @@ do_v6:
    ifp->if_output(ifp, m, ((rt)->rt_dest), rt);
    goto done;
   }
-  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 210, "rt->rt_gateway"));
+  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 231, "rt->rt_gateway"));
   switch(rt->rt_gateway->sa_family) {
   case 2:
-   if (mpls_ip_adjttl(m, ttl))
+   if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0))
     goto done;
    break;
   case 24:
-   if (mpls_ip6_adjttl(m, ttl))
+   if ((m = mpls_ip6_adjttl(m, ttl)) == ((void *)0))
     goto done;
    break;
   default:
@@ -3009,7 +3029,7 @@ done:
  if_put(ifp);
  rtfree(rt);
 }
-int
+struct mbuf *
 mpls_ip_adjttl(struct mbuf *m, u_int8_t ttl)
 {
  struct ip *ip;
@@ -3017,36 +3037,36 @@ mpls_ip_adjttl(struct mbuf *m, u_int8_t ttl)
  if (mpls_mapttl_ip) {
   if (m->m_hdr.mh_len < sizeof(struct ip) &&
       (m = m_pullup(m, sizeof(struct ip))) == ((void *)0))
-   return -1;
+   return ((void *)0);
   ip = ((struct ip *)((m)->m_hdr.mh_data));
   hlen = ip->ip_hl << 2;
   if (m->m_hdr.mh_len < hlen) {
    if ((m = m_pullup(m, hlen)) == ((void *)0))
-    return -1;
+    return ((void *)0);
    ip = ((struct ip *)((m)->m_hdr.mh_data));
   }
   if (in_cksum(m, hlen) != 0) {
-   m_free(m);
-   return -1;
+   m_freem(m);
+   return ((void *)0);
   }
   ip->ip_ttl = ttl;
   ip->ip_sum = 0;
   ip->ip_sum = in_cksum(m, hlen);
  }
- return 0;
+ return m;
 }
-int
+struct mbuf *
 mpls_ip6_adjttl(struct mbuf *m, u_int8_t ttl)
 {
  struct ip6_hdr *ip6hdr;
  if (mpls_mapttl_ip6) {
   if (m->m_hdr.mh_len < sizeof(struct ip6_hdr) &&
       (m = m_pullup(m, sizeof(struct ip6_hdr))) == ((void *)0))
-   return -1;
+   return ((void *)0);
   ip6hdr = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
   ip6hdr->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
  }
- return 0;
+ return m;
 }
 struct mbuf *
 mpls_do_error(struct mbuf *m, int type, int code, int destmtu)
@@ -3062,7 +3082,7 @@ mpls_do_error(struct mbuf *m, int type, int code, int destmtu)
  int nstk, error;
  for (nstk = 0; nstk < 16; nstk++) {
   if (m->m_hdr.mh_len < sizeof(*shim) &&
-      (m = m_pullup(m, sizeof(*ip))) == ((void *)0))
+      (m = m_pullup(m, sizeof(*shim))) == ((void *)0))
    return (((void *)0));
   stack[nstk] = *((struct shim_hdr *)((m)->m_hdr.mh_data));
   m_adj(m, sizeof(*shim));
@@ -3070,6 +3090,9 @@ mpls_do_error(struct mbuf *m, int type, int code, int destmtu)
    break;
  }
  shim = &stack[0];
+ if (m->m_hdr.mh_len < sizeof(u_char) &&
+     (m = m_pullup(m, sizeof(u_char))) == ((void *)0))
+  return (((void *)0));
  switch (*((u_char *)((m)->m_hdr.mh_data)) >> 4) {
  case 4:
   if (m->m_hdr.mh_len < sizeof(*ip) &&

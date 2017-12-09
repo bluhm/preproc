@@ -5240,6 +5240,10 @@ struct ieee80211_node {
  int ni_txrate;
  int ni_state;
  u_int16_t ni_flags;
+ void (*ni_unref_cb)(struct ieee80211com *,
+     struct ieee80211_node *);
+ void * ni_unref_arg;
+ size_t ni_unref_arg_size;
 };
 struct ieee80211_tree { struct rb_tree rbh_root; };
 static __inline void
@@ -5517,6 +5521,9 @@ struct ieee80211com {
         struct ieee80211_node *, u_int8_t);
  void (*ic_update_htprot)(struct ieee80211com *,
      struct ieee80211_node *);
+ int (*ic_bgscan_start)(struct ieee80211com *);
+ struct timeout ic_bgscan_timeout;
+ uint32_t ic_bgscan_fail;
  u_int8_t ic_myaddr[6];
  struct ieee80211_rateset ic_sup_rates[(IEEE80211_MODE_11N+1)];
  struct ieee80211_channel ic_channels[255 +1];
@@ -5528,6 +5535,7 @@ struct ieee80211com {
  u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
+ u_int32_t ic_xflags;
  u_int32_t ic_caps;
  u_int16_t ic_modecaps;
  u_int16_t ic_curmode;
@@ -5552,6 +5560,8 @@ struct ieee80211com {
      struct ieee80211_node *,
      const struct ieee80211_node *);
  u_int8_t (*ic_node_getrssi)(struct ieee80211com *,
+     const struct ieee80211_node *);
+ int (*ic_node_checkrssi)(struct ieee80211com *,
      const struct ieee80211_node *);
  u_int8_t ic_max_rssi;
  struct ieee80211_tree ic_tree;
@@ -5658,12 +5668,16 @@ void ieee80211_node_copy(struct ieee80211com *, struct ieee80211_node *,
 void ieee80211_choose_rsnparams(struct ieee80211com *);
 u_int8_t ieee80211_node_getrssi(struct ieee80211com *,
     const struct ieee80211_node *);
+int ieee80211_node_checkrssi(struct ieee80211com *,
+    const struct ieee80211_node *);
 void ieee80211_setup_node(struct ieee80211com *, struct ieee80211_node *,
     const u_int8_t *);
 void ieee80211_free_node(struct ieee80211com *, struct ieee80211_node *);
 void ieee80211_ba_del(struct ieee80211_node *);
 struct ieee80211_node *ieee80211_alloc_node_helper(struct ieee80211com *);
 void ieee80211_node_cleanup(struct ieee80211com *, struct ieee80211_node *);
+void ieee80211_node_switch_bss(struct ieee80211com *, struct ieee80211_node *);
+void ieee80211_node_join_bss(struct ieee80211com *, struct ieee80211_node *);
 void ieee80211_needs_auth(struct ieee80211com *, struct ieee80211_node *);
 void ieee80211_node_join_ht(struct ieee80211com *, struct ieee80211_node *);
 void ieee80211_node_join_rsn(struct ieee80211com *, struct ieee80211_node *);
@@ -5708,6 +5722,7 @@ ieee80211_node_attach(struct ifnet *ifp)
  ic->ic_node_free = ieee80211_node_free;
  ic->ic_node_copy = ieee80211_node_copy;
  ic->ic_node_getrssi = ieee80211_node_getrssi;
+ ic->ic_node_checkrssi = ieee80211_node_checkrssi;
  ic->ic_scangen = 1;
  ic->ic_max_nnodes = ieee80211_cache_size;
  if (ic->ic_max_aid == 0)
@@ -6017,15 +6032,97 @@ ieee80211_match_bss(struct ieee80211com *ic, struct ieee80211_node *ni)
  }
  return fail;
 }
+struct ieee80211_node_switch_bss_arg {
+ u_int8_t cur_macaddr[6];
+ u_int8_t sel_macaddr[6];
+};
+void
+ieee80211_node_switch_bss(struct ieee80211com *ic, struct ieee80211_node *ni)
+{
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
+ struct ieee80211_node_switch_bss_arg *sba = ni->ni_unref_arg;
+ struct ieee80211_node *curbs, *selbs;
+ do { if (splassert_ctl > 0) { splassert_check(6, __func__); } } while (0);
+ if ((ic->ic_flags & 0x08000000) == 0) {
+  free(sba, 2, sizeof(*sba));
+  return;
+ }
+ ic->ic_xflags &= ~0x00000001;
+ selbs = ieee80211_find_node(ic, sba->sel_macaddr);
+ if (selbs == ((void *)0)) {
+  free(sba, 2, sizeof(*sba));
+  ic->ic_flags &= ~0x08000000;
+  (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
+  return;
+ }
+ curbs = ieee80211_find_node(ic, sba->cur_macaddr);
+ if (curbs == ((void *)0)) {
+  free(sba, 2, sizeof(*sba));
+  ic->ic_flags &= ~0x08000000;
+  (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
+  return;
+ }
+ if (ifp->if_flags & 0x4) {
+  printf("%s: roaming from %s chan %d ",
+      ifp->if_xname, ether_sprintf(curbs->ni_macaddr),
+      ieee80211_chan2ieee(ic, curbs->ni_chan));
+  printf("to %s chan %d\n", ether_sprintf(selbs->ni_macaddr),
+      ieee80211_chan2ieee(ic, selbs->ni_chan));
+ }
+ do { (curbs)->ni_state = (IEEE80211_STA_CACHE); } while (0);
+ ieee80211_node_join_bss(ic, selbs);
+}
+void
+ieee80211_node_join_bss(struct ieee80211com *ic, struct ieee80211_node *selbs)
+{
+ enum ieee80211_phymode mode;
+ struct ieee80211_node *ni;
+ mode = ieee80211_chan2mode(ic, selbs->ni_chan);
+ if (mode != ic->ic_curmode)
+  ieee80211_setmode(ic, mode);
+ (*ic->ic_node_copy)(ic, ic->ic_bss, selbs);
+ ni = ic->ic_bss;
+ ic->ic_curmode = ieee80211_chan2mode(ic, ni->ni_chan);
+ if (ic->ic_opmode == IEEE80211_M_STA)
+  ieee80211_fix_rate(ic, ni,
+      0x00000001 | 0x00000002 |
+      0x00000004 | 0x00000008);
+ if (ic->ic_flags & 0x00200000)
+  ieee80211_choose_rsnparams(ic);
+ else if (ic->ic_flags & 0x00000100)
+  ni->ni_rsncipher = IEEE80211_CIPHER_USEGROUP;
+ do { (selbs)->ni_state = (IEEE80211_STA_BSS); } while (0);
+ if (ic->ic_opmode == IEEE80211_M_IBSS) {
+  ieee80211_fix_rate(ic, ni, 0x00000002 |
+      0x00000004 | 0x00000008);
+  if (ni->ni_rates.rs_nrates == 0) {
+   (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
+   return;
+  }
+  (((ic)->ic_newstate)((ic), (IEEE80211_S_RUN), (-1)));
+ } else
+ {
+  int bgscan = ((ic->ic_flags & 0x08000000) &&
+      ic->ic_opmode == IEEE80211_M_STA &&
+      ic->ic_state == IEEE80211_S_RUN);
+  timeout_del(&ic->ic_bgscan_timeout);
+  ic->ic_flags &= ~0x08000000;
+  (((ic)->ic_newstate)((ic), (IEEE80211_S_AUTH), (bgscan ? 0xc0 : -1)));
+ }
+}
 void
 ieee80211_end_scan(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
- struct ieee80211_node *ni, *nextbs, *selbs;
+ struct ieee80211_node *ni, *nextbs, *selbs, *curbs;
+ int bgscan = ((ic->ic_flags & 0x08000000) &&
+     ic->ic_opmode == IEEE80211_M_STA &&
+     ic->ic_state == IEEE80211_S_RUN);
  if (ifp->if_flags & 0x4)
   printf("%s: end %s scan\n", ifp->if_xname,
-   (ic->ic_flags & 0x00000001) ?
-    "active" : "passive");
+      bgscan ? "background" :
+      ((ic->ic_flags & 0x00000001) ?
+      "active" : "passive"));
  if (ic->ic_scan_count)
   ic->ic_flags &= ~0x00000001;
  ni = ieee80211_tree_RBT_MIN(&ic->ic_tree);
@@ -6070,6 +6167,7 @@ ieee80211_end_scan(struct ifnet *ifp)
   return;
  }
  selbs = ((void *)0);
+ curbs = ((void *)0);
  for (; ni != ((void *)0); ni = nextbs) {
   nextbs = ieee80211_tree_RBT_NEXT(ni);
   if (ni->ni_fails) {
@@ -6077,6 +6175,8 @@ ieee80211_end_scan(struct ifnet *ifp)
     ieee80211_free_node(ic, ni);
    continue;
   }
+  if (bgscan && ieee80211_node_cmp(ic->ic_bss, ni) == 0)
+   curbs = ni;
   if (ieee80211_match_bss(ic, ni) != 0)
    continue;
   if (selbs == ((void *)0))
@@ -6085,42 +6185,49 @@ ieee80211_end_scan(struct ifnet *ifp)
       (((selbs->ni_chan)->ic_flags & 0x0100) != 0) &&
       (((ni->ni_chan)->ic_flags & 0x0080) != 0) &&
       ni->ni_rssi > selbs->ni_rssi) {
-       uint8_t min_rssi = 0, max_rssi = ic->ic_max_rssi;
-   if (max_rssi) {
-    if (ni->ni_rssi > max_rssi / 3)
-     min_rssi = ni->ni_rssi - (max_rssi / 3);
-   } else {
-    if (ni->ni_rssi > 10)
-         min_rssi = ni->ni_rssi - 10;
-   }
+       uint8_t min_rssi;
+   if (ic->ic_max_rssi)
+    min_rssi = 50;
+   else
+        min_rssi = (uint8_t)(-70);
    if (selbs->ni_rssi >= min_rssi)
     continue;
   }
   if (ni->ni_rssi > selbs->ni_rssi)
    selbs = ni;
  }
- if (selbs == ((void *)0))
-  goto notfound;
- (*ic->ic_node_copy)(ic, ic->ic_bss, selbs);
- ni = ic->ic_bss;
- ic->ic_curmode = ieee80211_chan2mode(ic, ni->ni_chan);
- if (ic->ic_opmode == IEEE80211_M_STA)
-  ieee80211_fix_rate(ic, ni,
-      0x00000001 | 0x00000002 |
-      0x00000004 | 0x00000008);
- if (ic->ic_flags & 0x00200000)
-  ieee80211_choose_rsnparams(ic);
- else if (ic->ic_flags & 0x00000100)
-  ni->ni_rsncipher = IEEE80211_CIPHER_USEGROUP;
- do { (selbs)->ni_state = (IEEE80211_STA_BSS); } while (0);
- if (ic->ic_opmode == IEEE80211_M_IBSS) {
-  ieee80211_fix_rate(ic, ni, 0x00000002 |
-      0x00000004 | 0x00000008);
-  if (ni->ni_rates.rs_nrates == 0)
+ if (bgscan) {
+  struct ieee80211_node_switch_bss_arg *arg;
+  if (selbs == ((void *)0) || curbs == ((void *)0)) {
+   ic->ic_flags &= ~0x08000000;
    goto notfound;
-  (((ic)->ic_newstate)((ic), (IEEE80211_S_RUN), (-1)));
- } else
-  (((ic)->ic_newstate)((ic), (IEEE80211_S_AUTH), (-1)));
+  }
+  if (selbs == curbs) {
+   if (ic->ic_bgscan_fail < 360)
+    ic->ic_bgscan_fail++;
+   ic->ic_flags &= ~0x08000000;
+   goto wakeup;
+  }
+  arg = malloc(sizeof(*arg), 2, 0x0002 | 0x0008);
+  if (arg == ((void *)0)) {
+   ic->ic_flags &= ~0x08000000;
+   goto wakeup;
+  }
+  ic->ic_bgscan_fail = 0;
+  if (((*(ic)->ic_send_mgmt)(ic, ic->ic_bss, 0xc0, IEEE80211_REASON_AUTH_LEAVE, 0)) != 0) {
+   ic->ic_flags &= ~0x08000000;
+   goto wakeup;
+  }
+  ic->ic_xflags |= 0x00000001;
+  __builtin_memcpy((arg->cur_macaddr), (curbs->ni_macaddr), (6));
+  __builtin_memcpy((arg->sel_macaddr), (selbs->ni_macaddr), (6));
+  ic->ic_bss->ni_unref_arg = arg;
+  ic->ic_bss->ni_unref_arg_size = sizeof(*arg);
+  ic->ic_bss->ni_unref_cb = ieee80211_node_switch_bss;
+  goto wakeup;
+ } else if (selbs == ((void *)0))
+  goto notfound;
+ ieee80211_node_join_bss(ic, selbs);
  wakeup:
  if (ic->ic_scan_lock & 0x2) {
   wakeup(&ic->ic_scan_lock);
@@ -6193,6 +6300,9 @@ ieee80211_node_cleanup(struct ieee80211com *ic, struct ieee80211_node *ni)
   ni->ni_rsnie = ((void *)0);
  }
  ieee80211_ba_del(ni);
+ free(ni->ni_unref_arg, 2, ni->ni_unref_arg_size);
+ ni->ni_unref_arg = ((void *)0);
+ ni->ni_unref_arg_size = 0;
 }
 void
 ieee80211_node_free(struct ieee80211com *ic, struct ieee80211_node *ni)
@@ -6215,6 +6325,22 @@ ieee80211_node_getrssi(struct ieee80211com *ic,
     const struct ieee80211_node *ni)
 {
  return ni->ni_rssi;
+}
+int
+ieee80211_node_checkrssi(struct ieee80211com *ic,
+    const struct ieee80211_node *ni)
+{
+ uint8_t thres;
+ if (ic->ic_max_rssi) {
+  thres = ((((ni->ni_chan)->ic_flags & 0x0080) != 0)) ?
+      60 :
+      50;
+  return ((ni->ni_rssi * 100) / ic->ic_max_rssi >= thres);
+ }
+ thres = ((((ni->ni_chan)->ic_flags & 0x0080) != 0)) ?
+     (-60) :
+     (-70);
+ return (ni->ni_rssi >= (u_int8_t)thres);
 }
 void
 ieee80211_setup_node(struct ieee80211com *ic,
@@ -6439,9 +6565,15 @@ ieee80211_release_node(struct ieee80211com *ic, struct ieee80211_node *ni)
  int s;
  ;
  s = _splraise(6);
- if (ieee80211_node_decref(ni) == 0 &&
-     ni->ni_state == IEEE80211_STA_COLLECT) {
-  ieee80211_free_node(ic, ni);
+ if (ieee80211_node_decref(ni) == 0) {
+  if (ni->ni_unref_cb) {
+   (*ni->ni_unref_cb)(ic, ni);
+   ni->ni_unref_cb = ((void *)0);
+   ni->ni_unref_arg = ((void *)0);
+   ni->ni_unref_arg_size = 0;
+  }
+      if (ni->ni_state == IEEE80211_STA_COLLECT)
+   ieee80211_free_node(ic, ni);
  }
  _splx(s);
 }
@@ -6986,7 +7118,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2008, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2184, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
