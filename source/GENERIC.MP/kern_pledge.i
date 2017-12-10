@@ -8376,7 +8376,7 @@ pledge_sysctl(struct proc *p, int miblen, int *mib, void *new)
  if (miblen == 2 &&
      mib[0] == 2 && mib[1] == 2)
   return (0);
- snprintf(buf, sizeof(buf), "%s(%d): sysctl %d:",
+ snprintf(buf, sizeof(buf), "%s(%d): pledge sysctl %d:",
      p->p_p->ps_comm, p->p_p->ps_pid, miblen);
  for (i = 0; i < miblen; i++) {
   char *p = buf + strlen(buf);
