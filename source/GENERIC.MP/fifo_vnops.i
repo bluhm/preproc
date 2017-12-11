@@ -2624,6 +2624,8 @@ fifo_poll(void *v)
  struct socket *wso = ap->a_vp->v_un.vu_fifoinfo->fi_writesock;
  int events = 0;
  int revents = 0;
+ int s;
+ s = solock(rso);
  if (ap->a_fflag & 0x0001)
   events |= ap->a_events & (0x0001 | 0x0040);
  if (ap->a_fflag & 0x0002)
@@ -2643,13 +2645,14 @@ fifo_poll(void *v)
    events = 0x0001;
   if (events & (0x0001 | 0x0040)) {
    selrecord(ap->a_p, &rso->so_rcv.sb_sel);
-   rso->so_rcv.sb_flagsintr |= 0x08;
+   rso->so_rcv.sb_flags |= 0x08;
   }
   if (events & (0x0004 | 0x0004)) {
    selrecord(ap->a_p, &wso->so_snd.sb_sel);
-   wso->so_snd.sb_flagsintr |= 0x08;
+   wso->so_snd.sb_flags |= 0x08;
   }
  }
+ sounlock(s);
  return (revents);
 }
 int
@@ -2780,7 +2783,7 @@ fifo_kqfilter(void *v)
  }
  ap->a_kn->kn_hook = so;
  do { (ap->a_kn)->kn_selnext.sle_next = (&sb->sb_sel.si_note)->slh_first; (&sb->sb_sel.si_note)->slh_first = (ap->a_kn); } while (0);
- sb->sb_flags |= 0x80;
+ sb->sb_flagsintr |= 0x80;
  return (0);
 }
 void
@@ -2789,7 +2792,7 @@ filt_fifordetach(struct knote *kn)
  struct socket *so = (struct socket *)kn->kn_hook;
  do { if ((&so->so_rcv.sb_sel.si_note)->slh_first == (kn)) { do { ((&so->so_rcv.sb_sel.si_note))->slh_first = ((&so->so_rcv.sb_sel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&so->so_rcv.sb_sel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  if ((((&so->so_rcv.sb_sel.si_note)->slh_first) == ((void *)0)))
-  so->so_rcv.sb_flags &= ~0x80;
+  so->so_rcv.sb_flagsintr &= ~0x80;
 }
 int
 filt_fiforead(struct knote *kn, long hint)
@@ -2816,7 +2819,7 @@ filt_fifowdetach(struct knote *kn)
  struct socket *so = (struct socket *)kn->kn_hook;
  do { if ((&so->so_snd.sb_sel.si_note)->slh_first == (kn)) { do { ((&so->so_snd.sb_sel.si_note))->slh_first = ((&so->so_snd.sb_sel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&so->so_snd.sb_sel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  if ((((&so->so_snd.sb_sel.si_note)->slh_first) == ((void *)0)))
-  so->so_snd.sb_flags &= ~0x80;
+  so->so_snd.sb_flagsintr &= ~0x80;
 }
 int
 filt_fifowrite(struct knote *kn, long hint)

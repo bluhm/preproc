@@ -4082,9 +4082,9 @@ sorflush(struct socket *so)
  aso.so_proto = pr;
  aso.so_rcv = *sb;
  __builtin_memset((sb), (0), (sizeof (*sb)));
- if (aso.so_rcv.sb_flags & 0x80) {
+ if (aso.so_rcv.sb_flagsintr & 0x80) {
   sb->sb_sel.si_note = aso.so_rcv.sb_sel.si_note;
-  sb->sb_flags = 0x80;
+  sb->sb_flagsintr = 0x80;
  }
  if (pr->pr_flags & 0x10 && pr->pr_domain->dom_dispose)
   (*pr->pr_domain->dom_dispose)(aso.so_rcv.sb_mb);
@@ -4177,8 +4177,8 @@ sosplice(struct socket *so, int fd, off_t max, struct timeval *tv)
  timeout_set_proc(&so->so_sp->ssp_idleto, soidle, so);
  task_set(&so->so_sp->ssp_task, sotask, so);
  if (somove(so, 0x0001)) {
-  so->so_rcv.sb_flagsintr |= 0x20;
-  sosp->so_snd.sb_flagsintr |= 0x20;
+  so->so_rcv.sb_flags |= 0x20;
+  sosp->so_snd.sb_flags |= 0x20;
  }
  release:
  sbunlock(sosp, &sosp->so_snd);
@@ -4192,8 +4192,8 @@ sounsplice(struct socket *so, struct socket *sosp, int wakeup)
  soassertlocked(so);
  task_del(sosplice_taskq, &so->so_sp->ssp_task);
  timeout_del(&so->so_sp->ssp_idleto);
- sosp->so_snd.sb_flagsintr &= ~0x20;
- so->so_rcv.sb_flagsintr &= ~0x20;
+ sosp->so_snd.sb_flags &= ~0x20;
+ so->so_rcv.sb_flags &= ~0x20;
  so->so_sp->ssp_socket = sosp->so_sp->ssp_soback = ((void *)0);
  if (wakeup && soreadable(so))
   sorwakeup(so);
@@ -4204,7 +4204,7 @@ soidle(void *arg)
  struct socket *so = arg;
  int s;
  s = solock(so);
- if (so->so_rcv.sb_flagsintr & 0x20) {
+ if (so->so_rcv.sb_flags & 0x20) {
   so->so_error = 60;
   sounsplice(so, so->so_sp->ssp_socket, 1);
  }
@@ -4216,7 +4216,7 @@ sotask(void *arg)
  struct socket *so = arg;
  int s;
  s = solock(so);
- if (so->so_rcv.sb_flagsintr & 0x20) {
+ if (so->so_rcv.sb_flags & 0x20) {
   somove(so, 0x0002);
  }
  sounlock(s);
@@ -4451,7 +4451,7 @@ void
 sorwakeup(struct socket *so)
 {
  soassertlocked(so);
- if (so->so_rcv.sb_flagsintr & 0x20) {
+ if (so->so_rcv.sb_flags & 0x20) {
   if (so->so_proto->pr_flags & 0x08)
    task_add(sosplice_taskq, &so->so_sp->ssp_task);
   else
@@ -4467,7 +4467,7 @@ void
 sowwakeup(struct socket *so)
 {
  soassertlocked(so);
- if (so->so_snd.sb_flagsintr & 0x20)
+ if (so->so_snd.sb_flags & 0x20)
   task_add(sosplice_taskq, &so->so_sp->ssp_soback->so_sp->ssp_task);
  sowakeup(so, &so->so_snd);
 }
@@ -4731,16 +4731,17 @@ sogetopt(struct socket *so, int level, int optname, struct mbuf *m)
 void
 sohasoutofband(struct socket *so)
 {
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1874, "_kernel_lock_held()"));
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1874);
  csignal(so->so_pgid, 16, so->so_siguid, so->so_sigeuid);
  selwakeup(&so->so_rcv.sb_sel);
+ _kernel_unlock();
 }
 int
 soo_kqfilter(struct file *fp, struct knote *kn)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
  struct sockbuf *sb;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1885, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1886, "_kernel_lock_held()"));
  switch (kn->kn_kevent.filter) {
  case (-1):
   if (so->so_options & 0x0002)
@@ -4757,17 +4758,17 @@ soo_kqfilter(struct file *fp, struct knote *kn)
   return (22);
  }
  do { (kn)->kn_selnext.sle_next = (&sb->sb_sel.si_note)->slh_first; (&sb->sb_sel.si_note)->slh_first = (kn); } while (0);
- sb->sb_flags |= 0x80;
+ sb->sb_flagsintr |= 0x80;
  return (0);
 }
 void
 filt_sordetach(struct knote *kn)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1914, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1915, "_kernel_lock_held()"));
  do { if ((&so->so_rcv.sb_sel.si_note)->slh_first == (kn)) { do { ((&so->so_rcv.sb_sel.si_note))->slh_first = ((&so->so_rcv.sb_sel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&so->so_rcv.sb_sel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  if ((((&so->so_rcv.sb_sel.si_note)->slh_first) == ((void *)0)))
-  so->so_rcv.sb_flags &= ~0x80;
+  so->so_rcv.sb_flagsintr &= ~0x80;
 }
 int
 filt_soread(struct knote *kn, long hint)
@@ -4799,10 +4800,10 @@ void
 filt_sowdetach(struct knote *kn)
 {
  struct socket *so = kn->kn_ptr.p_fp->f_data;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1957, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 1958, "_kernel_lock_held()"));
  do { if ((&so->so_snd.sb_sel.si_note)->slh_first == (kn)) { do { ((&so->so_snd.sb_sel.si_note))->slh_first = ((&so->so_snd.sb_sel.si_note))->slh_first->kn_selnext.sle_next; } while (0); } else { struct knote *curelm = (&so->so_snd.sb_sel.si_note)->slh_first; while (curelm->kn_selnext.sle_next != (kn)) curelm = curelm->kn_selnext.sle_next; curelm->kn_selnext.sle_next = curelm->kn_selnext.sle_next->kn_selnext.sle_next; } ((kn)->kn_selnext.sle_next) = ((void *)-1); } while (0);
  if ((((&so->so_snd.sb_sel.si_note)->slh_first) == ((void *)0)))
-  so->so_snd.sb_flags &= ~0x80;
+  so->so_snd.sb_flagsintr &= ~0x80;
 }
 int
 filt_sowrite(struct knote *kn, long hint)

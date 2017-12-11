@@ -2792,11 +2792,11 @@ soo_poll(struct file *fp, int events, struct proc *p)
  if (revents == 0) {
   if (events & (0x0001 | 0x0002 | 0x0040 | 0x0080)) {
    selrecord(p, &so->so_rcv.sb_sel);
-   so->so_rcv.sb_flagsintr |= 0x08;
+   so->so_rcv.sb_flags |= 0x08;
   }
   if (events & (0x0004 | 0x0004)) {
    selrecord(p, &so->so_snd.sb_sel);
-   so->so_snd.sb_flagsintr |= 0x08;
+   so->so_snd.sb_flags |= 0x08;
   }
  }
  sounlock(s);
