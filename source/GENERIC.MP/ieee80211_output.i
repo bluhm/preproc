@@ -4753,11 +4753,12 @@ ieee80211_add_rsn_body(u_int8_t *frm, struct ieee80211com *ic,
   do { ((u_int8_t *)(frm))[0] = (1) & 0xff; ((u_int8_t *)(frm))[1] = (1) >> 8; } while (0); frm += 2;
   __builtin_memcpy((frm), (ni->ni_pmkid), (16));
   frm += 16;
- } else {
-  do { ((u_int8_t *)(frm))[0] = (0) & 0xff; ((u_int8_t *)(frm))[1] = (0) >> 8; } while (0); frm += 2;
  }
  if (!(ic->ic_caps & 0x00002000))
   return frm;
+ if ((ni->ni_flags & 0x0200) == 0) {
+  do { ((u_int8_t *)(frm))[0] = (0) & 0xff; ((u_int8_t *)(frm))[1] = (0) >> 8; } while (0); frm += 2;
+ }
  __builtin_memcpy((frm), (oui), (3)); frm += 3;
  switch (ic->ic_rsngroupmgmtcipher) {
  case IEEE80211_CIPHER_BIP:
@@ -4796,7 +4797,7 @@ u_int8_t *
 ieee80211_add_xrates(u_int8_t *frm, const struct ieee80211_rateset *rs)
 {
  int nrates;
- ((rs->rs_nrates > 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1044, "rs->rs_nrates > IEEE80211_RATE_SIZE"));
+ ((rs->rs_nrates > 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1046, "rs->rs_nrates > IEEE80211_RATE_SIZE"));
  *frm++ = IEEE80211_ELEMID_XRATES;
  nrates = rs->rs_nrates - 8;
  *frm++ = nrates;
@@ -5398,7 +5399,7 @@ ieee80211_pwrsave(struct ieee80211com *ic, struct mbuf *m,
 {
  const struct ieee80211_frame *wh;
  int pssta = 0;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1896, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1898, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  if (!(ic->ic_caps & 0x00000020))
   return 0;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

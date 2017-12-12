@@ -2465,26 +2465,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2578,6 +2558,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2700,7 +2681,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2708,8 +2688,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -4902,16 +4882,13 @@ ffs_mount(struct mount *mp, const char *path, void *data,
     struct nameidata *ndp, struct proc *p)
 {
  struct vnode *devvp;
- struct ufs_args args;
+ struct ufs_args *args = data;
  struct ufsmount *ump = ((void *)0);
  struct fs *fs;
  char fname[90];
  char fspec[90];
  int error = 0, flags;
  int ronly;
- error = copyin(data, &args, sizeof(struct ufs_args));
- if (error)
-  return (error);
  if ((mp->mnt_flag & (0x04000000 | 0x00000040)) ==
      (0x04000000 | 0x00000040)) {
   return (22);
@@ -4927,6 +4904,8 @@ ffs_mount(struct mount *mp, const char *path, void *data,
    (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p);
    mp->mnt_flag |= 0x00000001;
    flags = 0x0004;
+   if (args == ((void *)0))
+    flags |= 0x0010;
    if (mp->mnt_flag & 0x00080000)
     flags |= 0x0002;
    if (fs->fs_flags & 0x02) {
@@ -4973,16 +4952,18 @@ ffs_mount(struct mount *mp, const char *path, void *data,
         28, 0x0001|0x0008);
    ronly = 0;
   }
-  if (args.fspec == ((void *)0)) {
+  if (args == ((void *)0))
+   goto success;
+  if (args->fspec == ((void *)0)) {
    error = vfs_export(mp, &ump->um_export,
-       &args.export_info);
+       &args->export_info);
    if (error)
     goto error_1;
    else
     goto success;
   }
  }
- error = copyinstr(args.fspec, fspec, sizeof(fspec), ((void *)0));
+ error = copyinstr(args->fspec, fspec, sizeof(fspec), ((void *)0));
  if (error)
   goto error_1;
  if (disk_map(fspec, fname, 90, 0x2) == -1)
@@ -5025,7 +5006,8 @@ ffs_mount(struct mount *mp, const char *path, void *data,
  }
  if (error)
   goto error_2;
- __builtin_memcpy((&mp->mnt_stat.mount_info.ufs_args), (&args), (sizeof(args)));
+ if (args)
+  __builtin_memcpy((&mp->mnt_stat.mount_info.ufs_args), (args), (sizeof(*args)));
  (*(mp)->mnt_op->vfs_statfs)(mp, &mp->mnt_stat, p);
 success:
  if (path && (mp->mnt_flag & 0x00010000)) {
@@ -5044,11 +5026,6 @@ success:
     fs->fs_flags &= ~0x02;
   }
   ffs_sbupdate(ump, 1);
-  if (ronly) {
-   int force = 0;
-   VOP_IOCTL(ump->um_devvp, ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('d')) << 8) | ((120))), &force,
-       0x0002, ((struct ucred *)-2), p);
-               }
  }
  return (0);
 error_2:

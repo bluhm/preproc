@@ -1975,26 +1975,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2088,6 +2068,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2262,7 +2243,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2270,8 +2250,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -3817,34 +3797,42 @@ db_fncall(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
      3, 1, 0));
 }
 void
+db_reboot(int howto)
+{
+ _spl(0);
+ if (!(__curcpu->ci_self)->ci_curproc)
+  (__curcpu->ci_self)->ci_curproc = &proc0;
+ reboot(howto);
+}
+void
 db_boot_sync_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0 | 0x0800 | 0x4000);
+ db_reboot(0 | 0x0800 | 0x4000);
 }
 void
 db_boot_crash_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0x0004 | 0x0100 | 0x0800 | 0x4000);
+ db_reboot(0x0004 | 0x0100 | 0x0800 | 0x4000);
 }
 void
 db_boot_dump_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0x0100 | 0x0800 | 0x4000);
+ db_reboot(0x0100 | 0x0800 | 0x4000);
 }
 void
 db_boot_halt_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0x0004 | 0x0008 | 0x0800 | 0x4000);
+ db_reboot(0x0004 | 0x0008 | 0x0800 | 0x4000);
 }
 void
 db_boot_reboot_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0 | 0x0004 | 0x0800 | 0x4000);
+ db_reboot(0 | 0x0004 | 0x0800 | 0x4000);
 }
 void
 db_boot_poweroff_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)
 {
- reboot(0x0004 | 0x0008 | 0x1000 | 0x0800 | 0x4000);
+ db_reboot(0x0004 | 0x0008 | 0x1000 | 0x0800 | 0x4000);
 }
 void
 db_dmesg_cmd(db_expr_t addr, int haddr, db_expr_t count, char *modif)

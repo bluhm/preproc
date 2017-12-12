@@ -2016,26 +2016,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2129,6 +2109,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2303,7 +2284,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2311,8 +2291,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -5820,7 +5800,8 @@ struct vflush_args {
  int flags;
 };
 int
-vflush_vnode(struct vnode *vp, void *arg) {
+vflush_vnode(struct vnode *vp, void *arg)
+{
  struct vflush_args *va = arg;
  struct proc *p = (__curcpu->ci_self)->ci_curproc;
  if (vp == va->skipvp) {
@@ -5845,6 +5826,11 @@ vflush_vnode(struct vnode *vp, void *arg) {
    vp->v_op = &spec_vops;
    insmntque(vp, ((void *)0));
   }
+  return (0);
+ }
+ if (va->flags & 0x0010) {
+  vp->v_op = &dead_vops;
+  vp->v_tag = VT_NON;
   return (0);
  }
  va->busy++;
@@ -6291,55 +6277,66 @@ vaccess(enum vtype type, mode_t file_mode, uid_t uid, gid_t gid,
   mask |= 0000002;
  return (file_mode & mask) == mask ? 0 : 13;
 }
+int
+vfs_readonly(struct mount *mp, struct proc *p)
+{
+ int error;
+ error = vfs_busy(mp, 0x02|0x08);
+ if (error) {
+  printf("%s: busy\n", mp->mnt_stat.f_mntonname);
+  return (error);
+ }
+ uvm_vnp_sync(mp);
+ error = (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p);
+ if (error) {
+  printf("%s: failed to sync\n", mp->mnt_stat.f_mntonname);
+  vfs_unbusy(mp);
+  return (error);
+ }
+ mp->mnt_flag |= 0x00010000 | 0x00000001;
+ mp->mnt_flag &= ~0x04000000;
+ error = (*(mp)->mnt_op->vfs_mount)(mp, mp->mnt_stat.f_mntonname, ((void *)0), ((void *)0), (__curcpu->ci_self)->ci_curproc);
+ if (error) {
+  printf("%s: failed to remount rdonly, error %d\n",
+      mp->mnt_stat.f_mntonname, error);
+  vfs_unbusy(mp);
+  return (error);
+ }
+ if (mp->mnt_syncer != ((void *)0))
+  vgone(mp->mnt_syncer);
+ mp->mnt_syncer = ((void *)0);
+ vfs_unbusy(mp);
+ return (error);
+}
 void
-vfs_unmountall(void)
+vfs_rofs(struct proc *p)
 {
  struct mount *mp, *nmp;
- int allerror, error, again = 1;
- retry:
- allerror = 0;
  for ((mp) = (*(((struct mntlist *)((&mountlist)->tqh_last))->tqh_last)); (mp) != ((void *)0) && ((nmp) = (*(((struct mntlist *)((mp)->mnt_list.tqe_prev))->tqh_last)), 1); (mp) = (nmp)) {
-  if (vfs_busy(mp, 0x02|0x04))
-   continue;
-  if ((error = dounmount(mp, 0x00080000, (__curcpu->ci_self)->ci_curproc)) != 0) {
-   printf("unmount of %s failed with error %d\n",
-       mp->mnt_stat.f_mntonname, error);
-   allerror = 1;
-  }
- }
- if (allerror) {
-  printf("WARNING: some file systems would not unmount\n");
-  if (again) {
-   printf("retrying\n");
-   again = 0;
-   goto retry;
-  }
+  (void) vfs_readonly(mp, p);
  }
 }
 void
-vfs_shutdown(void)
+vfs_shutdown(struct proc *p)
 {
  acct_shutdown();
- (void) _spl(0);
  printf("syncing disks... ");
  if (panicstr == 0) {
-  sys_sync(&proc0, ((void *)0), ((void *)0));
-  vfs_unmountall();
+  sys_sync(p, ((void *)0), ((void *)0));
+  vfs_rofs(p);
  }
- if (vfs_syncwait(1))
+ if (vfs_syncwait(p, 1))
   printf("giving up\n");
  else
   printf("done\n");
  sr_shutdown();
 }
 int
-vfs_syncwait(int verbose)
+vfs_syncwait(struct proc *p, int verbose)
 {
  struct buf *bp;
  int iter, nbusy, dcount, s;
- struct proc *p;
  int hold_count;
- p = (__curcpu->ci_self)->ci_curproc? (__curcpu->ci_self)->ci_curproc : &proc0;
  sys_sync(p, ((void *)0), ((void *)0));
  dcount = 10000;
  for (iter = 0; iter < 20; iter++) {
@@ -6782,7 +6779,7 @@ vfs_mount_print(struct mount *mp, int full,
 {
  struct vfsconf *vfc = mp->mnt_vfc;
  struct vnode *vp;
- int cnt = 0;
+ int cnt;
  (*pr)("flags %b\nvnodecovered %p syncer %p data %p\n",
      mp->mnt_flag, "\20\001RDONLY\002SYNCHRONOUS\003NOEXEC\004NOSUID\005NODEV\006NOPERM" "\007ASYNC\010EXRDONLY\011EXPORTED\012DEFEXPORTED\013EXPORTANON" "\014WXALLOWED\015LOCAL\016QUOTA\017ROOTFS\020NOATIME",
      mp->mnt_vnodecovered, mp->mnt_syncer, mp->mnt_data);
@@ -6805,25 +6802,31 @@ vfs_mount_print(struct mount *mp, int full,
      mp->mnt_stat.f_fstypename, mp->mnt_stat.f_mntonname,
      mp->mnt_stat.f_mntfromname, mp->mnt_stat.f_mntfromspec);
  (*pr)("locked vnodes:");
- for((vp) = ((&mp->mnt_vnodelist)->lh_first); (vp)!= ((void *)0); (vp) = ((vp)->v_mntvnodes.le_next))
+ cnt = 0;
+ for((vp) = ((&mp->mnt_vnodelist)->lh_first); (vp)!= ((void *)0); (vp) = ((vp)->v_mntvnodes.le_next)) {
   if (VOP_ISLOCKED(vp)) {
-   if (!((vp)->v_mntvnodes.le_next))
-    (*pr)(" %p", vp);
-   else if (!(cnt++ % (72 / (sizeof(void *) * 2 + 4))))
-    (*pr)("\n\t%p", vp);
+   if (cnt == 0)
+    (*pr)("\n  %p", vp);
+   else if ((cnt % (72 / (sizeof(void *) * 2 + 4))) == 0)
+    (*pr)(",\n  %p", vp);
    else
     (*pr)(", %p", vp);
+   cnt++;
   }
+ }
  (*pr)("\n");
  if (full) {
-  (*pr)("all vnodes:\n\t");
-  for((vp) = ((&mp->mnt_vnodelist)->lh_first); (vp)!= ((void *)0); (vp) = ((vp)->v_mntvnodes.le_next))
-   if (!((vp)->v_mntvnodes.le_next))
-    (*pr)(" %p", vp);
-   else if (!(cnt++ % (72 / (sizeof(void *) * 2 + 4))))
-    (*pr)(" %p,\n\t", vp);
+  (*pr)("all vnodes:");
+  cnt = 0;
+  for((vp) = ((&mp->mnt_vnodelist)->lh_first); (vp)!= ((void *)0); (vp) = ((vp)->v_mntvnodes.le_next)) {
+   if (cnt == 0)
+    (*pr)("\n  %p", vp);
+   else if ((cnt % (72 / (sizeof(void *) * 2 + 4))) == 0)
+    (*pr)(",\n  %p", vp);
    else
-    (*pr)(" %p,", vp);
+    (*pr)(", %p", vp);
+   cnt++;
+  }
   (*pr)("\n");
  }
 }

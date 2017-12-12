@@ -1022,26 +1022,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -1135,6 +1115,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -1309,7 +1290,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -1317,8 +1297,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -2244,14 +2224,22 @@ extern const struct vfsops ext2fs_vfsops;
 extern const struct vfsops udf_vfsops;
 extern const struct vfsops fusefs_vfsops;
 static struct vfsconf vfsconflist[] = {
-        { &ffs_vfsops, "ffs", 1, 0, 0x00001000, ((void *)0) },
-        { &mfs_vfsops, "mfs", 3, 0, 0x00001000, ((void *)0) },
- { &ext2fs_vfsops, "ext2fs", 17, 0, 0x00001000, ((void *)0) },
-        { &cd9660_vfsops, "cd9660", 14, 0, 0x00001000, ((void *)0) },
-        { &msdosfs_vfsops, "msdos", 4, 0, 0x00001000, ((void *)0) },
-        { &nfs_vfsops, "nfs", 2, 0, 0, ((void *)0) },
- { &udf_vfsops, "udf", 13, 0, 0x00001000, ((void *)0) },
- { &fusefs_vfsops, "fuse", 18, 0, 0x00001000, ((void *)0) },
+        { &ffs_vfsops, "ffs", 1, 0, 0x00001000, ((void *)0),
+     sizeof(struct ufs_args) },
+        { &mfs_vfsops, "mfs", 3, 0, 0x00001000, ((void *)0),
+     sizeof(struct mfs_args) },
+ { &ext2fs_vfsops, "ext2fs", 17, 0, 0x00001000, ((void *)0),
+     sizeof(struct ufs_args) },
+        { &cd9660_vfsops, "cd9660", 14, 0, 0x00001000, ((void *)0),
+     sizeof(struct iso_args) },
+        { &msdosfs_vfsops, "msdos", 4, 0, 0x00001000, ((void *)0),
+     sizeof(struct msdosfs_args) },
+        { &nfs_vfsops, "nfs", 2, 0, 0, ((void *)0),
+     sizeof(struct nfs_args) },
+ { &udf_vfsops, "udf", 13, 0, 0x00001000, ((void *)0),
+     sizeof(struct iso_args) },
+ { &fusefs_vfsops, "fuse", 18, 0, 0x00001000, ((void *)0),
+     sizeof(struct fusefs_args) },
 };
 int maxvfsconf = sizeof(vfsconflist) / sizeof(struct vfsconf);
 struct vfsconf *vfsconf = vfsconflist;

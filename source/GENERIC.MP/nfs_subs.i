@@ -1294,26 +1294,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -1407,6 +1387,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -1581,7 +1562,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -1589,8 +1569,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);

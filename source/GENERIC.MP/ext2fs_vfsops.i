@@ -2465,26 +2465,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2578,6 +2558,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2700,7 +2681,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2708,8 +2688,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -4088,15 +4068,12 @@ ext2fs_mount(struct mount *mp, const char *path, void *data,
     struct nameidata *ndp, struct proc *p)
 {
  struct vnode *devvp;
- struct ufs_args args;
+ struct ufs_args *args = data;
  struct ufsmount *ump = ((void *)0);
  struct m_ext2fs *fs;
  char fname[90];
  char fspec[90];
  int error, flags;
- error = copyin(data, &args, sizeof(struct ufs_args));
- if (error)
-  return (error);
  if (mp->mnt_flag & 0x00010000) {
   ump = ((struct ufsmount *)((mp)->mnt_data));
   fs = ump->ufsmount_u.e2fs;
@@ -4128,12 +4105,14 @@ ext2fs_mount(struct mount *mp, const char *path, void *data,
     fs->e2fs.e2fs_state = 0x02;
    fs->e2fs_fmod = 1;
   }
-  if (args.fspec == ((void *)0)) {
+  if (args && args->fspec == ((void *)0)) {
    return (vfs_export(mp, &ump->um_export,
-       &args.export_info));
+       &args->export_info));
   }
+  if (args == ((void *)0))
+   goto success;
  }
- error = copyinstr(args.fspec, fspec, sizeof(fspec), ((void *)0));
+ error = copyinstr(args->fspec, fspec, sizeof(fspec), ((void *)0));
  if (error)
   goto error;
  if (disk_map(fspec, fname, 90, 0x2) == -1)
@@ -4174,7 +4153,7 @@ ext2fs_mount(struct mount *mp, const char *path, void *data,
  strlcpy(mp->mnt_stat.f_mntfromname, fname, 90);
  __builtin_memset((mp->mnt_stat.f_mntfromspec), (0), (90));
  strlcpy(mp->mnt_stat.f_mntfromspec, fspec, 90);
- __builtin_memcpy((&mp->mnt_stat.mount_info.ufs_args), (&args), (sizeof(args)));
+ __builtin_memcpy((&mp->mnt_stat.mount_info.ufs_args), (args), (sizeof(*args)));
  if (fs->e2fs_fmod != 0) {
   fs->e2fs_fmod = 0;
   if (fs->e2fs.e2fs_state == 0)

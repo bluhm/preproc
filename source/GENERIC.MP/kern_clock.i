@@ -2159,7 +2159,7 @@ int
 tstohz(const struct timespec *ts)
 {
  struct timeval tv;
- { (&tv)->tv_sec = (ts)->tv_sec; (&tv)->tv_usec = (ts)->tv_nsec / 1000; };
+ do { (&tv)->tv_sec = (ts)->tv_sec; (&tv)->tv_usec = (ts)->tv_nsec / 1000; } while (0);
  if ((ts->tv_nsec % 1000) != 0) {
   tv.tv_usec += 1;
   if (tv.tv_usec >= 1000000) {

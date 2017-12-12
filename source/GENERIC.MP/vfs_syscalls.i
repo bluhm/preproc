@@ -2609,26 +2609,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2722,6 +2702,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2896,7 +2877,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2904,8 +2884,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -4838,6 +4818,7 @@ sys_mount(struct proc *p, void *v, register_t *retval)
  struct nameidata nd;
  struct vfsconf *vfsp;
  int flags = ((uap)->flags.be.datum);
+ void *args = ((void *)0);
  if ((error = suser(p, 0)))
   return (error);
  error = copyinstr(((uap)->path.be.datum), fspath, 90, ((void *)0));
@@ -4845,24 +4826,32 @@ sys_mount(struct proc *p, void *v, register_t *retval)
   return(error);
  ndinitat(&nd, 0, 0x0040 | 0x0004, UIO_SYSSPACE, -100, fspath, p);
  if ((error = namei(&nd)) != 0)
-  return (error);
+  goto fail;
  vp = nd.ni_vp;
  if (flags & 0x00010000) {
   if ((vp->v_flag & 0x0001) == 0) {
    vput(vp);
-   return (22);
+   error = 22;
+   goto fail;
   }
   mp = vp->v_mount;
   vfsp = mp->mnt_vfc;
+  args = malloc(vfsp->vfc_datasize, 127, 0x0001 | 0x0008);
+  error = copyin(((uap)->data.be.datum), args, vfsp->vfc_datasize);
+  if (error) {
+   vput(vp);
+   goto fail;
+  }
   mntflag = mp->mnt_flag;
   if ((flags & 0x00040000) &&
       ((mp->mnt_flag & 0x00000001) == 0)) {
    vput(vp);
-   return (45);
+   error = 45;
+   goto fail;
   }
   if ((error = vfs_busy(mp, 0x01|0x04)) != 0) {
    vput(vp);
-   return (error);
+   goto fail;
   }
   mp->mnt_flag |= flags & (0x00040000 | 0x00010000);
   goto update;
@@ -4870,20 +4859,21 @@ sys_mount(struct proc *p, void *v, register_t *retval)
  if ((flags & 0x00000020) &&
      (flags & (0x00000010 | 0x00000004)) != (0x00000010 | 0x00000004)) {
   vput(vp);
-  return (1);
+  error = 1;
+  goto fail;
  }
  if ((error = vinvalbuf(vp, 0x0001, p->p_ucred, p, 0, 0)) != 0) {
   vput(vp);
-  return (error);
+  goto fail;
  }
  if (vp->v_type != VDIR) {
   vput(vp);
-  return (20);
+  goto fail;
  }
  error = copyinstr(((uap)->type.be.datum), fstypename, 16, ((void *)0));
  if (error) {
   vput(vp);
-  return (error);
+  goto fail;
  }
  for (vfsp = vfsconf; vfsp; vfsp = vfsp->vfc_next) {
   if (!strcmp(vfsp->vfc_name, fstypename))
@@ -4891,11 +4881,19 @@ sys_mount(struct proc *p, void *v, register_t *retval)
  }
  if (vfsp == ((void *)0)) {
   vput(vp);
-  return (45);
+  error = 45;
+  goto fail;
+ }
+ args = malloc(vfsp->vfc_datasize, 127, 0x0001 | 0x0008);
+ error = copyin(((uap)->data.be.datum), args, vfsp->vfc_datasize);
+ if (error) {
+  vput(vp);
+  goto fail;
  }
  if (vp->v_un.vu_mountedhere != ((void *)0)) {
   vput(vp);
-  return (16);
+  error = 16;
+  goto fail;
  }
  mp = malloc(sizeof(*mp), 20, 0x0001|0x0008);
  (void) vfs_busy(mp, 0x01|0x04);
@@ -4916,7 +4914,7 @@ update:
    free(mp, 20, sizeof(*mp));
   }
   vput(vp);
-  return (error);
+  goto fail;
  }
  if (flags & 0x00000001)
   mp->mnt_flag |= 0x00000001;
@@ -4928,7 +4926,7 @@ update:
  mp->mnt_flag |= flags & (0x00000008 | 0x00000004 | 0x00000800 |
      0x00000010 | 0x00000002 | 0x00000040 | 0x04000000 |
      0x00008000 | 0x00000020 | 0x00080000);
- error = (*(mp)->mnt_op->vfs_mount)(mp, fspath, ((uap)->data.be.datum), &nd, p);
+ error = (*(mp)->mnt_op->vfs_mount)(mp, fspath, args, &nd, p);
  if (!error) {
   mp->mnt_stat.f_ctime = time_second;
  }
@@ -4950,7 +4948,7 @@ update:
    mp->mnt_syncer = ((void *)0);
   }
   vfs_unbusy(mp);
-  return (error);
+  goto fail;
  }
  vp->v_un.vu_mountedhere = mp;
  cache_purge(vp);
@@ -4973,6 +4971,9 @@ update:
   vfs_unbusy(vp->v_mount);
   vput(vp);
  }
+fail:
+ if (args)
+  free(args, 127, vfsp->vfc_datasize);
  return (error);
 }
 void
@@ -6423,8 +6424,8 @@ sys_utimes(struct proc *p, void *v, register_t *retval)
   error = copyin(tvp, tv, sizeof(tv));
   if (error)
    return (error);
-  { (&ts[0])->tv_sec = (&tv[0])->tv_sec; (&ts[0])->tv_nsec = (&tv[0])->tv_usec * 1000; };
-  { (&ts[1])->tv_sec = (&tv[1])->tv_sec; (&ts[1])->tv_nsec = (&tv[1])->tv_usec * 1000; };
+  do { (&ts[0])->tv_sec = (&tv[0])->tv_sec; (&ts[0])->tv_nsec = (&tv[0])->tv_usec * 1000; } while (0);
+  do { (&ts[1])->tv_sec = (&tv[1])->tv_sec; (&ts[1])->tv_nsec = (&tv[1])->tv_usec * 1000; } while (0);
  } else
   ts[0].tv_nsec = ts[1].tv_nsec = -2L;
  return (doutimensat(p, -100, ((uap)->path.be.datum), ts, 0));
@@ -6520,8 +6521,8 @@ sys_futimes(struct proc *p, void *v, register_t *retval)
   error = copyin(tvp, tv, sizeof(tv));
   if (error)
    return (error);
-  { (&ts[0])->tv_sec = (&tv[0])->tv_sec; (&ts[0])->tv_nsec = (&tv[0])->tv_usec * 1000; };
-  { (&ts[1])->tv_sec = (&tv[1])->tv_sec; (&ts[1])->tv_nsec = (&tv[1])->tv_usec * 1000; };
+  do { (&ts[0])->tv_sec = (&tv[0])->tv_sec; (&ts[0])->tv_nsec = (&tv[0])->tv_usec * 1000; } while (0);
+  do { (&ts[1])->tv_sec = (&tv[1])->tv_sec; (&ts[1])->tv_nsec = (&tv[1])->tv_usec * 1000; } while (0);
  } else
   ts[0].tv_nsec = ts[1].tv_nsec = -2L;
  return (dofutimens(p, ((uap)->fd.be.datum), ts));

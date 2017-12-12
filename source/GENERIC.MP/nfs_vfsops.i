@@ -2293,26 +2293,6 @@ struct nfs_args {
  int acdirmin;
  int acdirmax;
 };
-struct nfs_args3 {
- int version;
- struct sockaddr *addr;
- int addrlen;
- int sotype;
- int proto;
- u_char *fh;
- int fhsize;
- int flags;
- int wsize;
- int rsize;
- int readdirsize;
- int timeo;
- int retrans;
- int maxgrouplist;
- int readahead;
- int leaseterm;
- int deadthresh;
- char *hostname;
-};
 struct msdosfs_args {
  char *fspec;
  struct export_args export_info;
@@ -2406,6 +2386,7 @@ struct vfsconf {
  int vfc_refcount;
  int vfc_flags;
  struct vfsconf *vfc_next;
+ size_t vfc_datasize;
 };
 struct bcachestats {
  int64_t numbufs;
@@ -2580,7 +2561,6 @@ struct mount *vfs_getvfs(fsid_t *);
 int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
-void vfs_unmountall(void);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
@@ -2588,8 +2568,8 @@ struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
      struct mbuf *);
 int vfs_allocate_syncvnode(struct mount *);
 int speedup_syncer(void);
-int vfs_syncwait(int);
-void vfs_shutdown(void);
+int vfs_syncwait(struct proc *, int);
+void vfs_shutdown(struct proc *);
 int dounmount(struct mount *, int, struct proc *);
 void vfsinit(void);
 int vfs_register(struct vfsconf *);
@@ -4536,25 +4516,13 @@ nfs_mount(struct mount *mp, const char *path, void *data,
     struct nameidata *ndp, struct proc *p)
 {
  int error;
- struct nfs_args args;
+ struct nfs_args *args = data;
  struct mbuf *nam;
  char hst[90];
  size_t len;
  u_char nfh[64];
- error = copyin(data, &args, sizeof(args.version));
- if (error)
-  return (error);
- if (args.version == 3) {
-  error = copyin(data, &args, sizeof(struct nfs_args3));
-  args.flags &= ~(0xfffc0000|0x00008000);
- } else if (args.version == 4) {
-  error = copyin(data, &args, sizeof(struct nfs_args));
-  args.flags &= ~0x00008000;
- } else
-  return (75);
- if (error)
-  return (error);
- if ((args.flags & (0x00000200|0x00010000)) == 0x00010000)
+ if (args &&
+     (args->flags & (0x00000200|0x00010000)) == 0x00010000)
   return (22);
  if (nfs_niothreads < 0) {
   nfs_niothreads = 4;
@@ -4564,25 +4532,27 @@ nfs_mount(struct mount *mp, const char *path, void *data,
   struct nfsmount *nmp = ((struct nfsmount *)((mp)->mnt_data));
   if (nmp == ((void *)0))
    return (5);
-  args.flags = (args.flags & ~(0x00000200)) |
-      (nmp->nm_flag & (0x00000200));
-  nfs_decode_args(nmp, &args, &mp->mnt_stat.mount_info.nfs_args);
+  if (args) {
+   args->flags = (args->flags & ~(0x00000200)) |
+       (nmp->nm_flag & (0x00000200));
+   nfs_decode_args(nmp, args, &mp->mnt_stat.mount_info.nfs_args);
+  }
   return (0);
  }
- if (args.fhsize < 0 || args.fhsize > 64)
+ if (args->fhsize < 0 || args->fhsize > 64)
   return (22);
- error = copyin(args.fh, nfh, args.fhsize);
+ error = copyin(args->fh, nfh, args->fhsize);
  if (error)
   return (error);
- error = copyinstr(args.hostname, hst, 90 -1, &len);
+ error = copyinstr(args->hostname, hst, 90 -1, &len);
  if (error)
   return (error);
  __builtin_memset((&hst[len]), (0), (90 - len));
- error = sockargs(&nam, args.addr, args.addrlen, 3);
+ error = sockargs(&nam, args->addr, args->addrlen, 3);
  if (error)
   return (error);
- args.fh = nfh;
- error = mountnfs(&args, mp, nam, path, hst);
+ args->fh = nfh;
+ error = mountnfs(args, mp, nam, path, hst);
  return (error);
 }
 int
