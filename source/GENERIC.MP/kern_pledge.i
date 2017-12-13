@@ -1556,6 +1556,7 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
+ uint64_t ps_execpledge;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -6745,8 +6746,8 @@ struct sys_chflagsat_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } atflags;
 };
 struct sys_pledge_args {
- union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } request;
- union { register_t pad; struct { const char ** datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char **)) ? 0 : sizeof (register_t) - sizeof (const char **)]; const char ** datum; } be; } paths;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } promises;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } execpromises;
 };
 struct sys_ppoll_args {
  union { register_t pad; struct { struct pollfd * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (struct pollfd *)) ? 0 : sizeof (register_t) - sizeof (struct pollfd *)]; struct pollfd * datum; } be; } fds;
@@ -7746,6 +7747,7 @@ static struct {
  { 0x0000000040000000ULL, "vmm" },
  { 0x0000000100000000ULL, "chown" },
  { 0x0000000200000000ULL, "bpf" },
+ { 0x0000000400000000ULL, "error" },
  { 0, ((void *)0) },
 };
 int pledge_syscall(struct proc *, int, uint64_t *);
@@ -7770,6 +7772,8 @@ int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
 uint64_t pledgereq_flags(const char *req);
+int parsepledges(struct proc *p, const char *kname,
+     const char *promises, u_int64_t *fp);
 int canonpath(const char *input, char *buf, size_t bufsize);
 const uint64_t pledge_syscalls[331] = {
  [1] = 0xffffffffffffffffULL,
@@ -7957,6 +7961,7 @@ static const struct {
  { "dns", 0x0000000000000020ULL },
  { "dpath", 0x0000000010000000ULL },
  { "drm", 0x0000000020000000ULL },
+ { "error", 0x0000000400000000ULL },
  { "exec", 0x0000000000080000ULL },
  { "fattr", 0x0000000000004000ULL | 0x0000000080000000ULL },
  { "flock", 0x0000000000000080ULL },
@@ -7983,47 +7988,72 @@ static const struct {
  { "wpath", 0x0000000000000002ULL },
 };
 int
+parsepledges(struct proc *p, const char *kname, const char *promises, u_int64_t *fp)
+{
+ size_t rbuflen;
+ char *rbuf, *rp, *pn;
+ u_int64_t flags = 0, f;
+ int error;
+ rbuf = malloc(1024, 127, 0x0001);
+ error = copyinstr(promises, rbuf, 1024,
+     &rbuflen);
+ if (error) {
+  free(rbuf, 127, 1024);
+  return (error);
+ }
+ if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
+  ktrstruct(p, kname, rbuf, rbuflen-1);
+ for (rp = rbuf; rp && *rp && error == 0; rp = pn) {
+  pn = strchr(rp, ' ');
+  if (pn) {
+   while (*pn == ' ')
+    *pn++ = '\0';
+  }
+  if ((f = pledgereq_flags(rp)) == 0) {
+   free(rbuf, 127, 1024);
+   return (22);
+  }
+  flags |= f;
+ }
+ free(rbuf, 127, 1024);
+ *fp = flags;
+ return 0;
+}
+int
 sys_pledge(struct proc *p, void *v, register_t *retval)
 {
  struct sys_pledge_args *uap = v;
  struct process *pr = p->p_p;
- uint64_t flags = 0;
+ uint64_t promises, execpromises;
  int error;
- if (((uap)->request.be.datum)) {
-  size_t rbuflen;
-  char *rbuf, *rp, *pn;
-  uint64_t f;
-  rbuf = malloc(1024, 127, 0x0001);
-  error = copyinstr(((uap)->request.be.datum), rbuf, 1024,
-      &rbuflen);
-  if (error) {
-   free(rbuf, 127, 1024);
+ if (((uap)->promises.be.datum)) {
+  error = parsepledges(p, "pledgereq",
+      ((uap)->promises.be.datum), &promises);
+  if (error)
    return (error);
-  }
-  if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
-   ktrstruct(p, "pledgereq", rbuf, rbuflen-1);
-  for (rp = rbuf; rp && *rp && error == 0; rp = pn) {
-   pn = strchr(rp, ' ');
-   if (pn) {
-    while (*pn == ' ')
-     *pn++ = '\0';
-   }
-   if ((f = pledgereq_flags(rp)) == 0) {
-    free(rbuf, 127, 1024);
-    return (22);
-   }
-   flags |= f;
-  }
-  free(rbuf, 127, 1024);
   if (((pr->ps_flags) & (0x00100000)) &&
-      (((flags | pr->ps_pledge) != pr->ps_pledge)))
+      (pr->ps_pledge & 0x0000000400000000ULL))
+   promises &= (pr->ps_pledge & 0x0fffffffffffffffULL);
+  if (((pr->ps_flags) & (0x00100000)) &&
+      (((promises | pr->ps_pledge) != pr->ps_pledge)))
    return (1);
  }
- if (((uap)->paths.be.datum))
-  return (22);
- if (((uap)->request.be.datum)) {
-  pr->ps_pledge = flags;
+ if (((uap)->execpromises.be.datum)) {
+  error = parsepledges(p, "pledgeexecreq",
+      ((uap)->execpromises.be.datum), &execpromises);
+  if (error)
+   return (error);
+  if (((pr->ps_flags) & (0x00400000)) &&
+      (((execpromises | pr->ps_execpledge) != pr->ps_execpledge)))
+   return (1);
+ }
+ if (((uap)->promises.be.datum)) {
+  pr->ps_pledge = promises;
   pr->ps_flags |= 0x00100000;
+ }
+ if (((uap)->execpromises.be.datum)) {
+  pr->ps_execpledge = execpromises;
+  pr->ps_flags |= 0x00400000;
  }
  return (0);
 }
@@ -8052,11 +8082,13 @@ pledge_fail(struct proc *p, int error, uint64_t code)
    codes = pledgenames[i].name;
    break;
   }
+ if (((p)->p_p->ps_traceflag & (1<<(12)) && ((p)->p_flag & 0x00000001) == 0))
+  ktrpledge(p, error, code, p->p_pledge_syscall);
+ if (p->p_p->ps_pledge & 0x0000000400000000ULL)
+  return (78);
  log(3, "%s[%d]: pledge \"%s\", syscall %d\n",
      p->p_p->ps_comm, p->p_p->ps_pid, codes, p->p_pledge_syscall);
  p->p_p->ps_acflag |= 0x20;
- if (((p)->p_p->ps_traceflag & (1<<(12)) && ((p)->p_flag & 0x00000001) == 0))
-  ktrpledge(p, error, code, p->p_pledge_syscall);
  __builtin_memset((&sa), (0), (sizeof sa));
  sa.__sigaction_u.__sa_handler = (void (*)(int))0;
  setsigvec(p, 6, &sa);
@@ -8792,6 +8824,8 @@ int
 pledge_protexec(struct proc *p, int prot)
 {
  if ((p->p_p->ps_flags & 0x00100000) == 0)
+  return 0;
+ if (p->p_p->ps_kbind_addr == 0 && p->p_p->ps_kbind_cookie == 0)
   return 0;
  if (!(p->p_p->ps_pledge & 0x0000000000008000ULL) && (prot & 0x04))
   return pledge_fail(p, 1, 0x0000000000008000ULL);

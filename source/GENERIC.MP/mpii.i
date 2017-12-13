@@ -4916,7 +4916,6 @@ int
 mpii_portenable(struct mpii_softc *sc)
 {
  struct mpii_msg_portenable_request *peq;
- struct mpii_msg_portenable_repy *pep;
  struct mpii_ccb *ccb;
  ;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
@@ -4936,7 +4935,6 @@ mpii_portenable(struct mpii_softc *sc)
   ;
   return (1);
  }
- pep = ccb->ccb_rcb->rcb_reply;
  mpii_push_reply(sc, ccb->ccb_rcb);
  scsi_io_put(&sc->sc_iopool, ccb);
  return (0);
@@ -5216,7 +5214,7 @@ mpii_event_process(struct mpii_softc *sc, struct mpii_rcb *rcb)
   };
   if (cold)
    break;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1966);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1964);
   dev = mpii_find_dev(sc, __mswap16(&evd->vol_dev_handle));
   _kernel_unlock();
   if (dev == ((void *)0))
@@ -5242,7 +5240,7 @@ mpii_event_process(struct mpii_softc *sc, struct mpii_rcb *rcb)
   struct mpii_evt_ir_status *evs =
       (struct mpii_evt_ir_status *)(enp + 1);
   struct mpii_device *dev;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1995);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 1993);
   dev = mpii_find_dev(sc, __mswap16(&evs->vol_dev_handle));
   _kernel_unlock();
   if (dev != ((void *)0) &&
@@ -5674,7 +5672,7 @@ mpii_put_ccb(void *cookie, void *io)
  __mtx_enter(&sc->sc_ccb_free_mtx );
  do { if (((ccb)->ccb_link.sqe_next = (&sc->sc_ccb_free)->sqh_first) == ((void *)0)) (&sc->sc_ccb_free)->sqh_last = &(ccb)->ccb_link.sqe_next; (&sc->sc_ccb_free)->sqh_first = (ccb); } while (0);
  __mtx_leave(&sc->sc_ccb_free_mtx );
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2590);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2588);
 }
 void *
 mpii_get_ccb(void *cookie)
@@ -5689,7 +5687,7 @@ mpii_get_ccb(void *cookie)
   ccb->ccb_state = MPII_CCB_READY;
  }
  __mtx_leave(&sc->sc_ccb_free_mtx );
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2609);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2607);
  ;
  return (ccb);
 }
@@ -5919,10 +5917,10 @@ mpii_scsi_cmd(struct scsi_xfer *xs)
   timeout_add_msec(&xs->stimeout, xs->timeout);
   mpii_start(sc, ccb);
  }
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2930);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2928);
  return;
 done:
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2934);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 2932);
  scsi_done(xs);
 }
 void
@@ -6065,7 +6063,7 @@ mpii_scsi_cmd_done(struct mpii_ccb *ccb)
  ;
  mpii_push_reply(sc, ccb->ccb_rcb);
 done:
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 3128);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/mpii.c", 3126);
  scsi_done(xs);
  _kernel_unlock();
 }

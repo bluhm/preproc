@@ -2678,6 +2678,7 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
+ uint64_t ps_execpledge;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -3845,8 +3846,8 @@ struct sys_chflagsat_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } atflags;
 };
 struct sys_pledge_args {
- union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } request;
- union { register_t pad; struct { const char ** datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char **)) ? 0 : sizeof (register_t) - sizeof (const char **)]; const char ** datum; } be; } paths;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } promises;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } execpromises;
 };
 struct sys_ppoll_args {
  union { register_t pad; struct { struct pollfd * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (struct pollfd *)) ? 0 : sizeof (register_t) - sizeof (struct pollfd *)]; struct pollfd * datum; } be; } fds;

@@ -1505,6 +1505,7 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
+ uint64_t ps_execpledge;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;

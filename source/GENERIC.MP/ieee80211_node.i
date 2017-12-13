@@ -5771,7 +5771,7 @@ ieee80211_node_lateattach(struct ifnet *ifp)
  ni = ieee80211_alloc_node_helper(ic);
  if (ni == ((void *)0))
   panic("unable to setup inital BSS node");
- ni->ni_chan = ((struct ieee80211_channel *) 0xffff);
+ ni->ni_chan = ((struct ieee80211_channel *) ((void *)0));
  ic->ic_bss = ieee80211_ref_node(ni);
  ic->ic_txpower = 100;
  mq_init(&ni->ni_savedq, 50, 6);
@@ -5798,7 +5798,7 @@ ieee80211_reset_scan(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
  __builtin_memcpy((ic->ic_chan_scan), (ic->ic_chan_active), (sizeof(ic->ic_chan_active)));
- if (ic->ic_bss != ((void *)0) && ic->ic_bss->ni_chan == ((struct ieee80211_channel *) 0xffff))
+ if (ic->ic_bss != ((void *)0) && ic->ic_bss->ni_chan == ((struct ieee80211_channel *) ((void *)0)))
   ic->ic_bss->ni_chan = &ic->ic_channels[255];
 }
 void
@@ -5949,7 +5949,7 @@ ieee80211_match_bss(struct ieee80211com *ic, struct ieee80211_node *ni)
  fail = 0;
  if ((((ic->ic_chan_active)[(ieee80211_chan2ieee(ic, ni->ni_chan))>>3] & (1<<((ieee80211_chan2ieee(ic, ni->ni_chan))&(8 -1)))) == 0))
   fail |= 0x01;
- if (ic->ic_des_chan != ((struct ieee80211_channel *) 0xffff) &&
+ if (ic->ic_des_chan != ((struct ieee80211_channel *) ((void *)0)) &&
      ni->ni_chan != ic->ic_des_chan)
   fail |= 0x01;
  if (ic->ic_opmode == IEEE80211_M_IBSS) {
@@ -6114,10 +6114,12 @@ void
 ieee80211_end_scan(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
- struct ieee80211_node *ni, *nextbs, *selbs, *curbs;
+ struct ieee80211_node *ni, *nextbs, *selbs = ((void *)0), *curbs = ((void *)0),
+     *selbs2 = ((void *)0), *selbs5 = ((void *)0);
  int bgscan = ((ic->ic_flags & 0x08000000) &&
      ic->ic_opmode == IEEE80211_M_STA &&
      ic->ic_state == IEEE80211_S_RUN);
+ uint8_t min_5ghz_rssi;
  if (ifp->if_flags & 0x4)
   printf("%s: end %s scan\n", ifp->if_xname,
       bgscan ? "background" :
@@ -6166,8 +6168,6 @@ ieee80211_end_scan(struct ifnet *ifp)
   ieee80211_next_scan(ifp);
   return;
  }
- selbs = ((void *)0);
- curbs = ((void *)0);
  for (; ni != ((void *)0); ni = nextbs) {
   nextbs = ieee80211_tree_RBT_NEXT(ni);
   if (ni->ni_fails) {
@@ -6179,23 +6179,28 @@ ieee80211_end_scan(struct ifnet *ifp)
    curbs = ni;
   if (ieee80211_match_bss(ic, ni) != 0)
    continue;
-  if (selbs == ((void *)0))
-   selbs = ni;
-  else if ((ic->ic_caps & 0x00008000) &&
-      (((selbs->ni_chan)->ic_flags & 0x0100) != 0) &&
-      (((ni->ni_chan)->ic_flags & 0x0080) != 0) &&
-      ni->ni_rssi > selbs->ni_rssi) {
-       uint8_t min_rssi;
-   if (ic->ic_max_rssi)
-    min_rssi = 50;
-   else
-        min_rssi = (uint8_t)(-70);
-   if (selbs->ni_rssi >= min_rssi)
-    continue;
-  }
-  if (ni->ni_rssi > selbs->ni_rssi)
+  if (ic->ic_caps & 0x00008000) {
+   if ((((ni->ni_chan)->ic_flags & 0x0080) != 0) &&
+       (selbs2 == ((void *)0) || ni->ni_rssi > selbs2->ni_rssi))
+    selbs2 = ni;
+   else if ((((ni->ni_chan)->ic_flags & 0x0100) != 0) &&
+       (selbs5 == ((void *)0) || ni->ni_rssi > selbs5->ni_rssi))
+    selbs5 = ni;
+  } else if (selbs == ((void *)0) || ni->ni_rssi > selbs->ni_rssi)
    selbs = ni;
  }
+ if (ic->ic_max_rssi)
+  min_5ghz_rssi = 50;
+ else
+  min_5ghz_rssi = (uint8_t)(-70);
+ if (selbs5 && selbs5->ni_rssi > min_5ghz_rssi)
+  selbs = selbs5;
+ else if (selbs5 && selbs2)
+  selbs = (selbs5->ni_rssi >= selbs2->ni_rssi ? selbs5 : selbs2);
+ else if (selbs2)
+  selbs = selbs2;
+ else if (selbs5)
+  selbs = selbs5;
  if (bgscan) {
   struct ieee80211_node_switch_bss_arg *arg;
   if (selbs == ((void *)0) || curbs == ((void *)0)) {
@@ -6331,6 +6336,8 @@ ieee80211_node_checkrssi(struct ieee80211com *ic,
     const struct ieee80211_node *ni)
 {
  uint8_t thres;
+ if (ni->ni_chan == ((struct ieee80211_channel *) ((void *)0)))
+  return 0;
  if (ic->ic_max_rssi) {
   thres = ((((ni->ni_chan)->ic_flags & 0x0080) != 0)) ?
       60 :
@@ -7118,7 +7125,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2184, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2191, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

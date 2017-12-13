@@ -3988,7 +3988,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    break;
   chanreq = (struct ieee80211chanreq *)data;
   if (chanreq->i_channel == 0xffff)
-   ic->ic_des_chan = ((struct ieee80211_channel *) 0xffff);
+   ic->ic_des_chan = ((struct ieee80211_channel *) ((void *)0));
   else if (chanreq->i_channel > 255 ||
       (((ic->ic_chan_active)[(chanreq->i_channel)>>3] & (1<<((chanreq->i_channel)&(8 -1)))) == 0)) {
    error = 22;
@@ -4003,7 +4003,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    break;
   default:
    if (ic->ic_opmode == IEEE80211_M_STA) {
-    if (ic->ic_des_chan != ((struct ieee80211_channel *) 0xffff) &&
+    if (ic->ic_des_chan != ((struct ieee80211_channel *) ((void *)0)) &&
         ic->ic_bss->ni_chan != ic->ic_des_chan)
      error = 52;
    } else {

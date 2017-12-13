@@ -1535,6 +1535,7 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
+ uint64_t ps_execpledge;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -3808,8 +3809,8 @@ struct sys_chflagsat_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } atflags;
 };
 struct sys_pledge_args {
- union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } request;
- union { register_t pad; struct { const char ** datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char **)) ? 0 : sizeof (register_t) - sizeof (const char **)]; const char ** datum; } be; } paths;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } promises;
+ union { register_t pad; struct { const char * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (const char *)) ? 0 : sizeof (register_t) - sizeof (const char *)]; const char * datum; } be; } execpromises;
 };
 struct sys_ppoll_args {
  union { register_t pad; struct { struct pollfd * datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (struct pollfd *)) ? 0 : sizeof (register_t) - sizeof (struct pollfd *)]; struct pollfd * datum; } be; } fds;
@@ -5095,6 +5096,11 @@ check_exec(struct proc *p, struct exec_package *epp)
   error = 13;
   goto bad1;
  }
+ if ((epp->ep_vap->va_mode & (04000 | 02000)) &&
+     (p->p_p->ps_flags & 0x00400000)) {
+  error = 13;
+  goto bad1;
+ }
  if ((vp->v_mount->mnt_flag & 0x00000008))
   epp->ep_vap->va_mode &= ~(04000 | 02000);
  if ((error = VOP_ACCESS(vp, 00100, p->p_ucred, p)) != 0)
@@ -5323,7 +5329,13 @@ sys_execve(struct proc *p, void *v, register_t *retval)
   atomic_setbits_int(&pr->ps_flags, 0x00000020);
  else
   atomic_clearbits_int(&pr->ps_flags, 0x00000020);
- atomic_clearbits_int(&pr->ps_flags, 0x00100000);
+ if (pr->ps_flags & 0x00400000) {
+  pr->ps_pledge = pr->ps_execpledge;
+  atomic_setbits_int(&pr->ps_flags, 0x00100000);
+ } else {
+  atomic_clearbits_int(&pr->ps_flags, 0x00100000);
+  pr->ps_pledge = 0;
+ }
  if ((attr.va_mode & (04000 | 02000)) && proc_cansugid(p)) {
   int i;
   atomic_setbits_int(&pr->ps_flags, 0x00000010|0x00000020);

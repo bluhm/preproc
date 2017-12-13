@@ -3997,7 +3997,7 @@ ieee80211_channel_init(struct ifnet *ifp)
  }
  if ((ic->ic_modecaps & (1<<ic->ic_curmode)) == 0)
   ic->ic_curmode = IEEE80211_MODE_AUTO;
- ic->ic_des_chan = ((struct ieee80211_channel *) 0xffff);
+ ic->ic_des_chan = ((struct ieee80211_channel *) ((void *)0));
  ic->ic_scan_lock = 0x0;
 }
 void
@@ -4065,16 +4065,9 @@ ieee80211_chan2ieee(struct ieee80211com *ic, const struct ieee80211_channel *c)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  if (ic->ic_channels <= c && c <= &ic->ic_channels[255])
   return c - ic->ic_channels;
- else if (c == ((struct ieee80211_channel *) 0xffff))
+ else if (c == ((struct ieee80211_channel *) ((void *)0)))
   return 0xffff;
- else if (c != ((void *)0)) {
-  printf("%s: invalid channel freq %u flags %x\n",
-   ifp->if_xname, c->ic_freq, c->ic_flags);
-  return 0;
- } else {
-  printf("%s: invalid channel (NULL)\n", ifp->if_xname);
-  return 0;
- }
+ panic("%s: bogus channel pointer", ifp->if_xname);
 }
 u_int
 ieee80211_ieee2mhz(u_int chan, u_int flags)
@@ -4558,7 +4551,7 @@ ieee80211_chan2mode(struct ieee80211com *ic,
 {
  if (ic->ic_curmode != IEEE80211_MODE_11N &&
      (ic->ic_curmode != IEEE80211_MODE_AUTO ||
-     chan == ((struct ieee80211_channel *) 0xffff)))
+     chan == ((struct ieee80211_channel *) ((void *)0))))
   return ic->ic_curmode;
  if ((((chan)->ic_flags & 0x0100) != 0))
   return IEEE80211_MODE_11A;

@@ -6751,7 +6751,7 @@ athn_clock_rate(struct athn_softc *sc)
 {
  struct ieee80211com *ic = &sc->sc_ic;
  int clockrate;
- if (ic->ic_bss->ni_chan != ((struct ieee80211_channel *) 0xffff) &&
+ if (ic->ic_bss->ni_chan != ((struct ieee80211_channel *) ((void *)0)) &&
      (((ic->ic_bss->ni_chan)->ic_flags & 0x0100) != 0)) {
   if (sc->flags & (1 << 4))
    clockrate = 44;

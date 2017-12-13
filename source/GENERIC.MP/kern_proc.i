@@ -1492,6 +1492,7 @@ struct process {
  } ps_prof;
  u_short ps_acflag;
  uint64_t ps_pledge;
+ uint64_t ps_execpledge;
  int64_t ps_kbind_cookie;
  u_long ps_kbind_addr;
  int ps_refcnt;
@@ -2761,7 +2762,7 @@ proc_printit(struct proc *p, const char *modif,
   pst = pstat[(int)p->p_stat - 1];
  (*pr)("PROC (%s) pid=%d stat=%s\n", p->p_p->ps_comm, p->p_tid, pst);
  (*pr)("    flags process=%b proc=%b\n",
-     p->p_p->ps_flags, ("\20" "\01CONTROLT" "\02EXEC" "\03INEXEC" "\04EXITING" "\05SUGID" "\06SUGIDEXEC" "\07PPWAIT" "\010ISPWAIT" "\011PROFIL" "\012TRACED" "\013WAITED" "\014COREDUMP" "\015SINGLEEXIT" "\016SINGLEUNWIND" "\017NOZOMBIE" "\020STOPPED" "\021SYSTEM" "\022EMBRYO" "\023ZOMBIE" "\024NOBROADCASTKILL" "\025PLEDGE" "\026WXNEEDED"), p->p_flag, ("\20" "\01INKTR" "\02PROFPEND" "\03ALRMPEND" "\04SIGSUSPEND" "\05CANTSLEEP" "\07SELECT" "\010SINTR" "\012SYSTEM" "\013TIMEOUT" "\016WEXIT" "\020OWEUPC" "\024SUSPSINGLE" "\027XX" "\030CONTINUED" "\033THREAD" "\034SUSPSIG" "\035SOFTDEP" "\037CPUPEG"));
+     p->p_p->ps_flags, ("\20" "\01CONTROLT" "\02EXEC" "\03INEXEC" "\04EXITING" "\05SUGID" "\06SUGIDEXEC" "\07PPWAIT" "\010ISPWAIT" "\011PROFIL" "\012TRACED" "\013WAITED" "\014COREDUMP" "\015SINGLEEXIT" "\016SINGLEUNWIND" "\017NOZOMBIE" "\020STOPPED" "\021SYSTEM" "\022EMBRYO" "\023ZOMBIE" "\024NOBROADCASTKILL" "\025PLEDGE" "\026WXNEEDED" "\027EXECPLEDGE" ), p->p_flag, ("\20" "\01INKTR" "\02PROFPEND" "\03ALRMPEND" "\04SIGSUSPEND" "\05CANTSLEEP" "\07SELECT" "\010SINTR" "\012SYSTEM" "\013TIMEOUT" "\016WEXIT" "\020OWEUPC" "\024SUSPSINGLE" "\027XX" "\030CONTINUED" "\033THREAD" "\034SUSPSIG" "\035SOFTDEP" "\037CPUPEG"));
  (*pr)("    pri=%u, usrpri=%u, nice=%d\n",
      p->p_priority, p->p_usrpri, p->p_p->ps_nice);
  (*pr)("    forw=%p, list=%p,%p\n",

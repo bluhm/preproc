@@ -4502,7 +4502,7 @@ justcleanup:
   switch (ostate) {
   case IEEE80211_S_INIT:
    if (ic->ic_opmode == IEEE80211_M_HOSTAP &&
-       ic->ic_des_chan != ((struct ieee80211_channel *) 0xffff)) {
+       ic->ic_des_chan != ((struct ieee80211_channel *) ((void *)0))) {
     ieee80211_create_ibss(ic, ic->ic_des_chan);
    } else
     ieee80211_begin_scan(ifp);
