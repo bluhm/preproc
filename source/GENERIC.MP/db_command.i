@@ -3695,6 +3695,7 @@ struct db_command db_command_table[] = {
  { "next", db_trace_until_matching_cmd,0, ((void *)0) },
  { "match", db_trace_until_matching_cmd,0, ((void *)0) },
  { "trace", db_stack_trace_cmd, 0, ((void *)0) },
+ { "bt", db_stack_trace_cmd, 0, ((void *)0) },
  { "call", db_fncall, 0x1, ((void *)0) },
  { "ps", db_show_all_procs, 0, ((void *)0) },
  { "callout", db_show_callout, 0, ((void *)0) },

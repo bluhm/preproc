@@ -6626,6 +6626,8 @@ extern bus_space_tag_t mainbus_space_tag;
    hw_vendor = "Tadpole";
   if (strncmp(buf, "NATE,", 5) == 0)
    hw_vendor = "Naturetech";
+  if (strncmp(buf, "ORCL,", 5) == 0)
+   hw_vendor = "Oracle";
   if (OF_getprop(findroot(), "model", buf, sizeof(buf)) > 0 &&
       strncmp(buf, "MOMENTUM,", 9) == 0)
    hw_vendor = "Momentum";

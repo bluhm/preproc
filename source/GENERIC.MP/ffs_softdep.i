@@ -6457,6 +6457,7 @@ loop:
    break;
   case 11:
    nbp = ((struct mkdir *)(wk))->md_buf;
+   ((bp != nbp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ffs/ffs_softdep.c", 4853, "bp != nbp"));
    gotit = getdirtybuf(nbp, waitfor);
    if (gotit == 0)
     break;
@@ -6473,6 +6474,8 @@ loop:
    break;
   case 3:
    nbp = ((struct bmsafemap *)(wk))->sm_buf;
+   if (bp == nbp)
+    break;
    gotit = getdirtybuf(nbp, waitfor);
    if (gotit == 0)
     break;
