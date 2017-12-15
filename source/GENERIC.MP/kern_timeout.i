@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -1622,6 +1625,9 @@ struct sleep_state {
  int sls_catch;
  int sls_do_sleep;
  int sls_sig;
+};
+struct cond {
+ int c_wait;
 };
 void proc_trampoline_mp(void);
 struct cpuset {
@@ -2769,27 +2775,22 @@ timeout_barrier(struct timeout *to)
   _splx(_splraise(1));
   _kernel_unlock();
  } else {
-  int wait = 1;
+  struct cond c = { 1 };
   struct timeout barrier;
-  struct sleep_state sls;
-  timeout_set_proc(&barrier, timeout_proc_barrier, &wait);
+  timeout_set_proc(&barrier, timeout_proc_barrier, &c);
   __mtx_enter(&timeout_mutex );
   barrier.to_flags |= 2;
   do { (&barrier.to_list)->prev = (&timeout_proc)->prev; (&barrier.to_list)->next = (&timeout_proc); (&timeout_proc)->prev->next = (&barrier.to_list); (&timeout_proc)->prev = (&barrier.to_list); } while (0);
   __mtx_leave(&timeout_mutex );
   wakeup_n((&timeout_proc), 1);
-  while (wait) {
-   sleep_setup(&sls, &wait, 0, "tmobar");
-   sleep_finish(&sls, wait);
-  }
+  cond_wait(&c, "tmobar");
  }
 }
 void
 timeout_proc_barrier(void *arg)
 {
- int *wait = arg;
- *wait = 0;
- wakeup_n((wait), 1);
+ struct cond *c = arg;
+ cond_signal(c);
 }
 int
 timeout_hardclock_update(void)
@@ -2862,12 +2863,12 @@ softclock_thread(void *arg)
  struct cpu_info *ci;
  struct sleep_state sls;
  struct timeout *to;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 465, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 459, "_kernel_lock_held()"));
  for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
   if (((ci)->ci_cpuid == 0))
    break;
  }
- ((ci != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 472, "ci != NULL"));
+ ((ci != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_timeout.c", 466, "ci != NULL"));
  sched_peg_curproc(ci);
  for (;;) {
   sleep_setup(&sls, &timeout_proc, 0, "bored");

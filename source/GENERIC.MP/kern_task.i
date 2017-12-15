@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -1665,6 +1668,9 @@ struct sleep_state {
  int sls_do_sleep;
  int sls_sig;
 };
+struct cond {
+ int c_wait;
+};
 void proc_trampoline_mp(void);
 struct cpuset {
  int cs_set[(((256) - 1)/32 + 1)];
@@ -1826,21 +1832,16 @@ taskq_create_thread(void *arg)
 void
 taskq_barrier(struct taskq *tq)
 {
- struct sleep_state sls;
- unsigned int notdone = 1;
- struct task t = {{ ((void *)0), ((void *)0) }, (taskq_barrier_task), (&notdone), 0 };
+ struct cond c = { 1 };
+ struct task t = {{ ((void *)0), ((void *)0) }, (taskq_barrier_task), (&c), 0 };
  task_add(tq, &t);
- while (notdone) {
-  sleep_setup(&sls, &notdone, 32, "tqbar");
-  sleep_finish(&sls, notdone);
- }
+ cond_wait(&c, "tqbar");
 }
 void
 taskq_barrier_task(void *p)
 {
- unsigned int *notdone = p;
- *notdone = 0;
- wakeup_n((notdone), 1);
+ struct cond *c = p;
+ cond_signal(c);
 }
 void
 task_set(struct task *t, void (*fn)(void *), void *arg)
@@ -1936,7 +1937,7 @@ taskq_thread(void *xtq)
  if (((tq->tq_flags) & ((1 << 1))))
   atomic_clearbits_int(&(__curcpu->ci_self)->ci_curproc->p_flag, 0x00000010);
  if (((tq->tq_flags) & ((1 << 0))))
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_task.c", 328);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_task.c", 322);
  if (last)
   wakeup_n((&tq->tq_running), 1);
  kthread_exit(0);

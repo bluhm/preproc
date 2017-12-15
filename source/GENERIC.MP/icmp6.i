@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -5770,6 +5773,7 @@ icmp6_input(struct mbuf **mp, int *offp, int proto, int af)
   case 2:
   case 3:
   case 4:
+   m->M_dat.MH.MH_pkthdr.pf.flags &=~ 0x08;
    break;
   default:
    goto raw;
@@ -6203,7 +6207,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
  u_int rtableid;
  extern char _ctassert[(sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr) <= ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? 1 : -1 ] __attribute__((__unused__));
  if (off < sizeof(struct ip6_hdr)) {
-  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1047); } while (0);
+  do { if (nd6_debug) log (7, "sanity fail: off=%lx, sizeof(ip6)=%lx in %s:%d\n", (u_long)off, (u_long)sizeof(struct ip6_hdr), "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/icmp6.c", 1052); } while (0);
   goto bad;
  }
  if (m->M_dat.MH.MH_pkthdr.ph_loopcnt++ >= 128)

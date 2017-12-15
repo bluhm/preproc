@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;

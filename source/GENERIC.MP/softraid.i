@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -3331,6 +3334,9 @@ struct sleep_state {
  int sls_do_sleep;
  int sls_sig;
 };
+struct cond {
+ int c_wait;
+};
 void proc_trampoline_mp(void);
 struct cpuset {
  int cs_set[(((256) - 1)/32 + 1)];
@@ -4711,13 +4717,13 @@ int sr_ioctl_installboot(struct sr_softc *,
 void sr_chunks_unwind(struct sr_softc *,
        struct sr_chunk_head *);
 void sr_discipline_free(struct sr_discipline *);
-void sr_discipline_shutdown(struct sr_discipline *, int);
+void sr_discipline_shutdown(struct sr_discipline *, int, int);
 int sr_discipline_init(struct sr_discipline *, int);
 int sr_alloc_resources(struct sr_discipline *);
 void sr_free_resources(struct sr_discipline *);
 void sr_set_chunk_state(struct sr_discipline *, int, int);
 void sr_set_vol_state(struct sr_discipline *);
-void sr_shutdown(void);
+void sr_shutdown(int);
 void sr_uuid_generate(struct sr_uuid *);
 char *sr_uuid_format(struct sr_uuid *);
 void sr_uuid_print(struct sr_uuid *, int);
@@ -5909,7 +5915,7 @@ sr_detach(struct device *self, int flags)
  int rv;
  ;
  softraid_disk_attach = ((void *)0);
- sr_shutdown();
+ sr_shutdown(0);
  if (sc->sc_sensor_task != ((void *)0))
   sensor_task_unregister(sc->sc_sensor_task);
  sensordev_deinstall(&sc->sc_sensordev);
@@ -7213,7 +7219,7 @@ sr_ioctl_createraid(struct sr_softc *sc, struct bioc_createraid *bc,
  return (rv);
 unwind:
  free(dt, 2, bc->bc_dev_list_len);
- sr_discipline_shutdown(sd, 0);
+ sr_discipline_shutdown(sd, 0, 0);
  if (rv == 35)
   rv = 0;
  return (rv);
@@ -7237,7 +7243,7 @@ sr_ioctl_deleteraid(struct sr_softc *sc, struct sr_discipline *sd,
  }
  sd->sd_deleted = 1;
  sd->sd_meta->_sdd_invariant.ssd_vol_flags = 0x04;
- sr_discipline_shutdown(sd, 1);
+ sr_discipline_shutdown(sd, 1, 0);
  rv = 0;
 bad:
  return (rv);
@@ -7424,7 +7430,7 @@ sr_discipline_free(struct sr_discipline *sd)
  free(sd, 2, 0);
 }
 void
-sr_discipline_shutdown(struct sr_discipline *sd, int meta_save)
+sr_discipline_shutdown(struct sr_discipline *sd, int meta_save, int dying)
 {
  struct sr_softc *sc;
  int s;
@@ -7448,7 +7454,8 @@ sr_discipline_shutdown(struct sr_discipline *sd, int meta_save)
    break;
  sr_sensors_delete(sd);
  if (sd->sd_target != 0)
-  scsi_detach_lun(sc->sc_scsibus, sd->sd_target, 0, 0x01);
+  scsi_detach_lun(sc->sc_scsibus, sd->sd_target, 0,
+      dying ? 0 : 0x01);
  sr_chunks_unwind(sc, &sd->sd_vol.sv_chunk_list);
  if (sd->sd_taskq)
   taskq_destroy(sd->sd_taskq);
@@ -7650,7 +7657,7 @@ sr_schedule_wu(struct sr_workunit *wu)
  struct sr_workunit *wup;
  int s;
  ;
- ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4197, "wu->swu_io_count > 0"));
+ ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4198, "wu->swu_io_count > 0"));
  s = _splraise(5);
  if (wu->swu_state == 9)
   goto queued;
@@ -7896,14 +7903,14 @@ sr_validate_stripsize(u_int32_t b)
  return (s);
 }
 void
-sr_shutdown(void)
+sr_shutdown(int dying)
 {
  struct sr_softc *sc = softraid0;
  struct sr_discipline *sd;
  ;
  config_suspend((struct device *)sc, 6);
  while ((sd = (*(((struct sr_discipline_list *)((&sc->sc_dis_list)->tqh_last))->tqh_last))) != ((void *)0))
-  sr_discipline_shutdown(sd, 1);
+  sr_discipline_shutdown(sd, 1, dying);
 }
 int
 sr_validate_io(struct sr_workunit *wu, daddr_t *blkno, char *func)

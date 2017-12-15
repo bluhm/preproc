@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1371,6 +1370,9 @@ struct sleep_state {
  int sls_do_sleep;
  int sls_sig;
 };
+struct cond {
+ int c_wait;
+};
 void proc_trampoline_mp(void);
 struct cpuset {
  int cs_set[(((256) - 1)/32 + 1)];
@@ -1522,6 +1524,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -2448,17 +2454,13 @@ sched_exit(struct proc *p)
 void
 sched_init_runqueues(void)
 {
- sbartq = taskq_create("sbar", 1, 7,
-     (1 << 0) | (1 << 1));
- if (sbartq == ((void *)0))
-  panic("unable to create sbar taskq");
 }
 void
 setrunqueue(struct proc *p)
 {
  struct schedstate_percpu *spc;
  int queue = p->p_priority >> 2;
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 244, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 238, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  spc = &p->p_cpu->ci_schedstate;
  spc->spc_nrun++;
  do { (p)->p_runq.tqe_next = ((void *)0); (p)->p_runq.tqe_prev = (&spc->spc_qs[queue])->tqh_last; *(&spc->spc_qs[queue])->tqh_last = (p); (&spc->spc_qs[queue])->tqh_last = &(p)->p_runq.tqe_next; } while (0);
@@ -2472,7 +2474,7 @@ remrunqueue(struct proc *p)
 {
  struct schedstate_percpu *spc;
  int queue = p->p_priority >> 2;
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 262, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 256, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  spc = &p->p_cpu->ci_schedstate;
  spc->spc_nrun--;
  do { if (((p)->p_runq.tqe_next) != ((void *)0)) (p)->p_runq.tqe_next->p_runq.tqe_prev = (p)->p_runq.tqe_prev; else (&spc->spc_qs[queue])->tqh_last = (p)->p_runq.tqe_prev; *(p)->p_runq.tqe_prev = (p)->p_runq.tqe_next; ((p)->p_runq.tqe_prev) = ((void *)-1); ((p)->p_runq.tqe_next) = ((void *)-1); } while (0);
@@ -2488,7 +2490,7 @@ sched_chooseproc(void)
  struct schedstate_percpu *spc = &(__curcpu->ci_self)->ci_schedstate;
  struct proc *p;
  int queue;
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 281, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 275, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  if (spc->spc_schedflags & 0x0004) {
   if (spc->spc_whichqs) {
    for (queue = 0; queue < 32; queue++) {
@@ -2497,15 +2499,15 @@ sched_chooseproc(void)
      p->p_cpu = sched_choosecpu(p);
      setrunqueue(p);
      if (p->p_cpu == (__curcpu->ci_self)) {
-      ((p->p_flag & 0x40000000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 292, "p->p_flag & P_CPUPEG"));
+      ((p->p_flag & 0x40000000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 286, "p->p_flag & P_CPUPEG"));
       goto again;
      }
     }
    }
   }
   p = spc->spc_idleproc;
-  ((p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 299, "p"));
-  ((p->p_wchan == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 300, "p->p_wchan == NULL"));
+  ((p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 293, "p"));
+  ((p->p_wchan == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 294, "p->p_wchan == NULL"));
   p->p_stat = 2;
   return (p);
  }
@@ -2515,7 +2517,7 @@ again:
   p = ((&spc->spc_qs[queue])->tqh_first);
   remrunqueue(p);
   sched_noidle++;
-  ((p->p_stat == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 312, "p->p_stat == SRUN"));
+  ((p->p_stat == 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 306, "p->p_stat == SRUN"));
  } else if ((p = sched_steal_proc((__curcpu->ci_self))) == ((void *)0)) {
   p = spc->spc_idleproc;
   if (p == ((void *)0)) {
@@ -2526,10 +2528,10 @@ again:
    do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
    goto again;
                 }
-  ((p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 330, "p"));
+  ((p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 324, "p"));
   p->p_stat = 2;
  }
- ((p->p_wchan == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 334, "p->p_wchan == NULL"));
+ ((p->p_wchan == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 328, "p->p_wchan == NULL"));
  return (p);
 }
 struct cpu_info *
@@ -2600,7 +2602,7 @@ sched_steal_proc(struct cpu_info *self)
  int bestcost = 0x7fffffff;
  struct cpu_info *ci;
  struct cpuset set;
- (((self->ci_schedstate.spc_schedflags & 0x0004) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 471, "(self->ci_schedstate.spc_schedflags & SPCF_SHOULDHALT) == 0"));
+ (((self->ci_schedstate.spc_schedflags & 0x0004) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 465, "(self->ci_schedstate.spc_schedflags & SPCF_SHOULDHALT) == 0"));
  cpuset_copy(&set, &sched_queued_cpus);
  while ((ci = cpuset_first(&set)) != ((void *)0)) {
   struct proc *p;
@@ -2716,39 +2718,39 @@ sched_stop_secondary_cpus(void)
   }
  }
 }
+struct sched_barrier_state {
+ struct cpu_info *ci;
+ struct cond cond;
+};
 void
 sched_barrier_task(void *arg)
 {
- struct cpu_info *ci = arg;
+ struct sched_barrier_state *sb = arg;
+ struct cpu_info *ci = sb->ci;
  sched_peg_curproc(ci);
- ci->ci_schedstate.spc_barrier = 1;
- wakeup(&ci->ci_schedstate.spc_barrier);
+ cond_signal(&sb->cond);
  atomic_clearbits_int(&(__curcpu->ci_self)->ci_curproc->p_flag, 0x40000000);
 }
 void
 sched_barrier(struct cpu_info *ci)
 {
- struct sleep_state sls;
+ struct sched_barrier_state sb;
  struct task task;
  int cii;
- struct schedstate_percpu *spc;
  if (ci == ((void *)0)) {
   for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
    if (((ci)->ci_cpuid == 0))
     break;
   }
  }
- ((ci != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 686, "ci != NULL"));
+ ((ci != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sched.c", 684, "ci != NULL"));
  if (ci == (__curcpu->ci_self))
   return;
- task_set(&task, sched_barrier_task, ci);
- spc = &ci->ci_schedstate;
- spc->spc_barrier = 0;
- task_add(sbartq, &task);
- while (!spc->spc_barrier) {
-  sleep_setup(&sls, &spc->spc_barrier, 32, "sbar");
-  sleep_finish(&sls, !spc->spc_barrier);
- }
+ sb.ci = ci;
+ cond_init(&sb.cond);
+ task_set(&task, sched_barrier_task, &sb);
+ task_add(systqmp, &task);
+ cond_wait(&sb.cond, "sbar");
 }
 struct cpu_info *cpuset_infos[256];
 static struct cpuset cpuset_all;

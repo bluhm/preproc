@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1371,6 +1370,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -5615,7 +5618,8 @@ static const struct urtwn_type {
  { { 0x2001, 0x330f }, (0x00000020) | 0x80000000 },
  { { 0x056e, 0x4008 }, (0x00000020) | 0x80000000 },
  { { 0x0bda, 0x0179 }, (0x00000020) | 0x80000000 },
- { { 0x0bda, 0x8179 }, (0x00000020) | 0x80000000 }
+ { { 0x0bda, 0x8179 }, (0x00000020) | 0x80000000 },
+ { { 0x2357, 0x010C }, (0x00000020) | 0x80000000 }
 };
 int urtwn_match(struct device *, void *, void *);
 void urtwn_attach(struct device *, struct device *, void *);
@@ -5948,7 +5952,7 @@ urtwn_do_async(struct urtwn_softc *sc,
  s = splraise(2);
  cmd = &ring->cmd[ring->cur];
  cmd->cb = cb;
- ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 728, "len <= sizeof(cmd->data)"));
+ ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_urtwn.c", 729, "len <= sizeof(cmd->data)"));
  __builtin_memcpy((cmd->data), (arg), (len));
  ring->cur = (ring->cur + 1) % 32;
  if (++ring->queued == 1)

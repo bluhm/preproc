@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -5238,11 +5241,12 @@ ieee80211_send_mgmt(struct ieee80211com *ic, struct ieee80211_node *ni,
  case 0xc0:
   if ((m = ieee80211_get_deauth(ic, ni, arg1)) == ((void *)0))
    do { ic->ic_stats.is_tx_nombuf++; ret = 12; goto bad; } while (0);
-  if (ifp->if_flags & 0x4) {
+  if ((ifp->if_flags & 0x4) &&
+      (ic->ic_opmode == IEEE80211_M_HOSTAP ||
+      ic->ic_opmode == IEEE80211_M_IBSS))
    printf("%s: station %s deauthenticate (reason %d)\n",
        ifp->if_xname, ether_sprintf(ni->ni_macaddr),
        arg1);
-  }
   break;
  case 0x00:
  case 0x20:
@@ -5258,11 +5262,12 @@ ieee80211_send_mgmt(struct ieee80211com *ic, struct ieee80211_node *ni,
  case 0xa0:
   if ((m = ieee80211_get_disassoc(ic, ni, arg1)) == ((void *)0))
    do { ic->ic_stats.is_tx_nombuf++; ret = 12; goto bad; } while (0);
-  if (ifp->if_flags & 0x4) {
+  if ((ifp->if_flags & 0x4) &&
+      (ic->ic_opmode == IEEE80211_M_HOSTAP ||
+      ic->ic_opmode == IEEE80211_M_IBSS))
    printf("%s: station %s disassociate (reason %d)\n",
        ifp->if_xname, ether_sprintf(ni->ni_macaddr),
        arg1);
-  }
   break;
  case 0xd0:
   m = ieee80211_get_action(ic, ni, arg1 >> 16, arg1 & 0xffff,
@@ -5399,7 +5404,7 @@ ieee80211_pwrsave(struct ieee80211com *ic, struct mbuf *m,
 {
  const struct ieee80211_frame *wh;
  int pssta = 0;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1898, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_output.c", 1902, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  if (!(ic->ic_caps & 0x00000020))
   return 0;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

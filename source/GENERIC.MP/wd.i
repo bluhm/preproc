@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -3956,7 +3959,7 @@ wdclose(dev_t dev, int flag, int fmt, struct proc *p)
  disk_lock_nointr(&wd->sc_dk);
  disk_closepart(&wd->sc_dk, part, fmt);
  if (wd->sc_dk.dk_openmask == 0) {
-  wd_flushcache(wd, 0);
+  wd_flushcache(wd, 0x0008);
  }
  disk_unlock(&wd->sc_dk);
  device_unref(&wd->sc_dev);
@@ -4228,11 +4231,7 @@ wd_flushcache(struct wd_softc *wd, int flags)
      0xe7);
  wdc_c.r_st_bmask = 0x40;
  wdc_c.r_st_pmask = 0x40;
- if (flags != 0) {
-  wdc_c.flags = 0x0010;
- } else {
-  wdc_c.flags = 0x0008;
- }
+ wdc_c.flags = flags;
  wdc_c.timeout = 30000;
  if (wdc_exec_command(wd->drvp, &wdc_c) != 0x01) {
   printf("%s: flush cache command didn't complete\n",
@@ -4268,11 +4267,7 @@ wd_standby(struct wd_softc *wd, int flags)
  wdc_c.r_command = 0xe0;
  wdc_c.r_st_bmask = 0x40;
  wdc_c.r_st_pmask = 0x40;
- if (flags != 0) {
-  wdc_c.flags = 0x0010;
- } else {
-  wdc_c.flags = 0x0008;
- }
+ wdc_c.flags = flags;
  wdc_c.timeout = 30000;
  if (wdc_exec_command(wd->drvp, &wdc_c) != 0x01) {
   printf("%s: standby command didn't complete\n",

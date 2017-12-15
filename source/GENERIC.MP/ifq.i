@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -1867,6 +1870,9 @@ struct sleep_state {
  int sls_do_sleep;
  int sls_sig;
 };
+struct cond {
+ int c_wait;
+};
 void proc_trampoline_mp(void);
 struct cpuset {
  int cs_set[(((256) - 1)/32 + 1)];
@@ -2413,24 +2419,19 @@ ifq_restart_task(void *p)
 void
 ifq_barrier(struct ifqueue *ifq)
 {
- struct sleep_state sls;
- unsigned int notdone = 1;
- struct task t = {{ ((void *)0), ((void *)0) }, (ifq_barrier_task), (&notdone), 0 };
- ((((ifq->ifq_if->if_xflags) & (0x1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 141, "ISSET(ifq->ifq_if->if_xflags, IFXF_MPSAFE)"));
+ struct cond c = { 1 };
+ struct task t = {{ ((void *)0), ((void *)0) }, (ifq_barrier_task), (&c), 0 };
+ ((((ifq->ifq_if->if_xflags) & (0x1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 140, "ISSET(ifq->ifq_if->if_xflags, IFXF_MPSAFE)"));
  if (ifq->ifq_serializer == ((void *)0))
   return;
  ifq_serialize(ifq, &t);
- while (notdone) {
-  sleep_setup(&sls, &notdone, 32, "ifqbar");
-  sleep_finish(&sls, notdone);
- }
+ cond_wait(&c, "ifqbar");
 }
 void
 ifq_barrier_task(void *p)
 {
- unsigned int *notdone = p;
- *notdone = 0;
- wakeup_n((notdone), 1);
+ struct cond *c = p;
+ cond_signal(c);
 }
 void
 ifq_init(struct ifqueue *ifq, struct ifnet *ifp, unsigned int idx)
@@ -2557,7 +2558,7 @@ void
 ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 {
  void *cookie;
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 332, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 327, "m != NULL"));
  cookie = m->M_dat.MH.MH_pkthdr.ph_cookie;
  ifq->ifq_ops->ifqop_deq_commit(ifq, m, cookie);
  ifq->ifq_len--;
@@ -2566,7 +2567,7 @@ ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 void
 ifq_deq_rollback(struct ifqueue *ifq, struct mbuf *m)
 {
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 343, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 338, "m != NULL"));
  ifq_deq_leave(ifq);
 }
 struct mbuf *
@@ -2590,7 +2591,7 @@ ifq_purge(struct ifqueue *ifq)
  ifq->ifq_len = 0;
  ifq->ifq_qdrops += rv;
  __mtx_leave(&ifq->ifq_mtx );
- ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 375, "rv == ml_len(&ml)"));
+ ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 370, "rv == ml_len(&ml)"));
  ml_purge(&ml);
  return (rv);
 }
@@ -2606,7 +2607,7 @@ ifq_q_enter(struct ifqueue *ifq, const struct ifq_ops *ops)
 void
 ifq_q_leave(struct ifqueue *ifq, void *q)
 {
- ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 397, "q == ifq->ifq_q"));
+ ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 392, "q == ifq->ifq_q"));
  __mtx_leave(&ifq->ifq_mtx );
 }
 void
@@ -2656,7 +2657,7 @@ priq_enq(struct ifqueue *ifq, struct mbuf *m)
  struct mbuf *n = ((void *)0);
  unsigned int prio;
  pq = ifq->ifq_q;
- ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 463, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
+ ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 458, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
  if (((ifq)->ifq_len) >= ifq->ifq_maxlen) {
   for (prio = 0; prio < m->M_dat.MH.MH_pkthdr.pf.prio; prio++) {
    pl = &pq->pq_lists[prio];
@@ -2693,7 +2694,7 @@ void
 priq_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
 {
  struct mbuf_list *pl = cookie;
- ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 513, "MBUF_LIST_FIRST(pl) == m"));
+ ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 508, "MBUF_LIST_FIRST(pl) == m"));
  ml_dequeue(pl);
 }
 void

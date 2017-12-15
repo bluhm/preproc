@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -4563,12 +4566,12 @@ icmp_input_if(struct ifnet *ifp, struct mbuf **mp, int *offp, int proto, int af)
   goto raw;
  if (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   switch (icp->icmp_type) {
+  case 5:
   case 3:
   case 11:
   case 12:
   case 4:
-   break;
-  case 5:
+   m->M_dat.MH.MH_pkthdr.pf.flags &=~ 0x08;
    break;
   default:
    goto raw;
@@ -4622,8 +4625,6 @@ icmp_input_if(struct ifnet *ifp, struct mbuf **mp, int *offp, int proto, int af)
    goto badcode;
   code = 4;
  deliver:
-  if (m->m_hdr.mh_flags & 0x0002)
-   m_tag_delete_chain(m);
   if (icmplen < (8 + sizeof (struct ip) + 8) || icmplen < (8 + ((icp)->icmp_dun.id_ip.idi_ip.ip_hl << 2) + 8) ||
       icp->icmp_dun.id_ip.idi_ip.ip_hl < (sizeof(struct ip) >> 2)) {
    icmpstat_inc(icps_badlen);
@@ -4724,8 +4725,6 @@ reflect:
       carp_lsdrop(m, 2, &ip->ip_src.s_addr,
       &ip->ip_dst.s_addr, 1))
    goto freeit;
-  if (m->m_hdr.mh_flags & 0x0002)
-   m_tag_delete_chain(m);
   icmpstat_inc(icps_reflect);
   icmpstat_inc(icps_outhist + icp->icmp_type);
   if (!icmp_reflect(m, &opts, ((void *)0))) {
@@ -4739,8 +4738,6 @@ reflect:
   struct sockaddr_in sgw;
   struct sockaddr_in ssrc;
   struct rtentry *newrt = ((void *)0);
-  if (m->m_hdr.mh_flags & 0x0002)
-   m_tag_delete_chain(m);
   if (icmp_rediraccept == 0 || ipforwarding == 1)
    goto freeit;
   if (code > 3)

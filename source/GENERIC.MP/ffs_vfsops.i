@@ -786,7 +786,6 @@ struct schedstate_percpu {
  struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
  struct { struct proc *lh_first; } spc_deadproc;
- volatile int spc_barrier;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -1098,6 +1097,10 @@ void sleep_finish(struct sleep_state *, int);
 int sleep_finish_timeout(struct sleep_state *);
 int sleep_finish_signal(struct sleep_state *);
 void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
 struct mutex;
 struct rwlock;
 void wakeup_n(const volatile void *, int);
@@ -1728,6 +1731,9 @@ struct sleep_state {
  int sls_catch;
  int sls_do_sleep;
  int sls_sig;
+};
+struct cond {
+ int c_wait;
 };
 void proc_trampoline_mp(void);
 struct cpuset {
@@ -4901,9 +4907,7 @@ ffs_mount(struct mount *mp, const char *path, void *data,
   error = 0;
   ronly = fs->fs_ronly;
   if (ronly == 0 && (mp->mnt_flag & 0x00000001)) {
-   mp->mnt_flag &= ~0x00000001;
    (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p);
-   mp->mnt_flag |= 0x00000001;
    flags = 0x0004;
    if (args == ((void *)0))
     flags |= 0x0010;
@@ -4914,6 +4918,7 @@ ffs_mount(struct mount *mp, const char *path, void *data,
     mp->mnt_flag &= ~0x04000000;
    } else
     error = ffs_flushfiles(mp, flags, p);
+   mp->mnt_flag |= 0x00000001;
    ronly = 1;
   }
   if ((fs->fs_flags & 0x02) &&
@@ -5485,11 +5490,16 @@ ffs_sync_vnode(struct vnode *vp, void *arg) {
  struct ffs_sync_args *fsa = arg;
  struct inode *ip;
  int error;
+ if (vp->v_type == VNON)
+  return (0);
  ip = ((struct inode *)(vp)->v_data);
- if (vp->v_type == VNON ||
-     ((ip->i_flag &
+ if (fsa->waitfor == 1 && (ip->i_flag & 0x0080)) {
+  ip->i_flag |= 0x0008;
+  ((ip)->i_vtbl->iv_update)((ip), (1));
+ }
+ if ((ip->i_flag &
   (0x0001 | 0x0002 | 0x0008 | 0x0004)) == 0 &&
-  (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) ) {
+  (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) {
   return (0);
  }
  if (vget(vp, 0x0001UL | 0x0040UL, fsa->p))
