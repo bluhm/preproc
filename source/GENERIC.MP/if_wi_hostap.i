@@ -3151,6 +3151,24 @@ struct ifqueue {
  unsigned int ifq_maxlen;
  unsigned int ifq_idx;
 };
+struct ifiqueue {
+ struct ifnet *ifiq_if;
+ struct taskq *ifiq_softnet;
+ union {
+  void *_ifiq_softc;
+  struct ifiqueue *_ifiq_ifiqs[1];
+ } _ifiq_ptr;
+ struct mutex ifiq_mtx;
+ struct mbuf_list ifiq_ml;
+ struct task ifiq_task;
+ uint64_t ifiq_packets;
+ uint64_t ifiq_bytes;
+ uint64_t ifiq_qdrops;
+ uint64_t ifiq_errors;
+ uint64_t ifiq_mcasts;
+ uint64_t ifiq_noproto;
+ unsigned int ifiq_idx;
+};
 struct ifq_ops {
  unsigned int (*ifqop_idx)(unsigned int,
         const struct mbuf *);
@@ -3211,6 +3229,12 @@ ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
  return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
 }
 extern const struct ifq_ops * const ifq_priq_ops;
+void ifiq_init(struct ifiqueue *, struct ifnet *, unsigned int);
+void ifiq_destroy(struct ifiqueue *);
+int ifiq_input(struct ifiqueue *, struct mbuf_list *,
+       unsigned int);
+int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
+void ifiq_add_data(struct ifiqueue *, struct if_data *);
 struct rtentry;
 struct timeout;
 struct ifnet;
@@ -3259,8 +3283,6 @@ struct ifnet {
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;
- struct mbuf_queue if_inputqueue;
- struct task *if_inputtask;
  struct srpl if_inputs;
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -3274,6 +3296,9 @@ struct ifnet {
  struct ifqueue **if_ifqs;
  void (*if_qstart)(struct ifqueue *);
  unsigned int if_nifqs;
+ struct ifiqueue if_rcv;
+ struct ifiqueue **if_iqs;
+ unsigned int if_niqs;
  struct sockaddr_dl *if_sadl;
  void *if_afdata[36];
 };
@@ -3321,7 +3346,9 @@ void if_start(struct ifnet *);
 int if_enqueue_try(struct ifnet *, struct mbuf *);
 int if_enqueue(struct ifnet *, struct mbuf *);
 void if_input(struct ifnet *, struct mbuf_list *);
+void if_input_process(struct ifnet *, struct mbuf_list *);
 int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
+int if_output_local(struct ifnet *, struct mbuf *, sa_family_t);
 void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
 void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
 struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
