@@ -1825,6 +1825,8 @@ _rw_exit(struct rwlock *rwl )
  unsigned long owner = rwl->rwl_owner;
  int wrlock = owner & 0x04UL;
  unsigned long set;
+ if (panicstr)
+  return;
  if (wrlock)
   rw_assert_wrlock(rwl);
  else
@@ -1918,7 +1920,7 @@ _rrw_exit(struct rrwlock *rrwl )
 {
  if (((struct proc *)((&rrwl->rrwl_lock)->rwl_owner & ~0x07UL)) ==
      (struct proc *)(((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL)) {
-  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 405, "rrwl->rrwl_wcnt > 0"));
+  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 409, "rrwl->rrwl_wcnt > 0"));
   rrwl->rrwl_wcnt--;
   if (rrwl->rrwl_wcnt != 0) {
    (void)0;

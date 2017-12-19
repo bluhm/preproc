@@ -3926,6 +3926,7 @@ clock_gettime(struct proc *p, clockid_t clock_id, struct timespec *tp)
   bintime2timespec(&bt, tp);
   break;
  case 3:
+ case 6:
   nanouptime(tp);
   break;
  case 2:
@@ -3962,7 +3963,7 @@ sys_clock_gettime(struct proc *p, void *v, register_t *retval)
   return (error);
  error = copyout(&ats, ((uap)->tp.be.datum), sizeof(ats));
  if (error == 0 && ((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 171);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 172);
   ktrstruct((p), "abstimespec", (&ats), sizeof(struct timespec));
   _kernel_unlock();
  }
@@ -4003,6 +4004,7 @@ sys_clock_getres(struct proc *p, void *v, register_t *retval)
  switch (clock_id) {
  case 0:
  case 3:
+ case 6:
  case 5:
  case 2:
  case 4:
@@ -4022,7 +4024,7 @@ sys_clock_getres(struct proc *p, void *v, register_t *retval)
  if (((uap)->tp.be.datum)) {
   error = copyout(&ts, ((uap)->tp.be.datum), sizeof (ts));
   if (error == 0 && ((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0)) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 248);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 250);
    ktrstruct((p), "reltimespec", (&ts), sizeof(struct timespec));
    _kernel_unlock();
   }
@@ -4044,7 +4046,7 @@ sys_nanosleep(struct proc *p, void *v, register_t *retval)
  if (error)
   return (error);
         if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 278);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 280);
   ktrstruct((p), "reltimespec", (&rqt), sizeof(struct timespec));
   _kernel_unlock();
  }
@@ -4070,7 +4072,7 @@ sys_nanosleep(struct proc *p, void *v, register_t *retval)
   if (error1 != 0)
    error = error1;
   if (error1 == 0 && ((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0)) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 313);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 315);
    ktrstruct((p), "reltimespec", (&rmt), sizeof(struct timespec));
    _kernel_unlock();
   }
@@ -4093,7 +4095,7 @@ sys_gettimeofday(struct proc *p, void *v, register_t *retval)
   if ((error = copyout(&atv, tp, sizeof (atv))))
    return (error);
   if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0)) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 345);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_time.c", 347);
    ktrstruct((p), "abstimeval", (&atv), sizeof(struct timeval));
    _kernel_unlock();
   }

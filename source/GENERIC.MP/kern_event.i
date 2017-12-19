@@ -2236,7 +2236,6 @@ static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
  ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
- soassertlocked(so);
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -3759,8 +3758,6 @@ void knote_attach(struct knote *kn, struct filedesc *fdp);
 void knote_drop(struct knote *kn, struct proc *p, struct filedesc *fdp);
 void knote_enqueue(struct knote *kn);
 void knote_dequeue(struct knote *kn);
-int knote_acquire(struct knote *kn);
-int knote_release(struct knote *kn);
 void filt_kqdetach(struct knote *kn);
 int filt_kqueue(struct knote *kn, long hint);
 int filt_procattach(struct knote *kn);
@@ -4242,38 +4239,25 @@ start:
    error = 0;
   goto done;
  }
- marker.kn_kevent.filter = 0xF;
- marker.kn_status = 0x0010;
  do { (&marker)->kn_tqe.tqe_next = ((void *)0); (&marker)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (&marker); (&kq->kq_head)->tqh_last = &(&marker)->kn_tqe.tqe_next; } while (0);
  while (count) {
   kn = ((&kq->kq_head)->tqh_first);
   if (kn == &marker) {
-   do { if (((&marker)->kn_tqe.tqe_next) != ((void *)0)) (&marker)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (&marker)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (&marker)->kn_tqe.tqe_prev; *(&marker)->kn_tqe.tqe_prev = (&marker)->kn_tqe.tqe_next; ((&marker)->kn_tqe.tqe_prev) = ((void *)-1); ((&marker)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
+   do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
    _splx(s);
    if (count == maxevents)
     goto retry;
    goto done;
   }
-  if (kn->kn_kevent.filter == 0xF) {
-   struct knote *other_marker = kn;
-   kn = ((other_marker)->kn_tqe.tqe_next);
-   do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
-   do { (kn)->kn_tqe.tqe_prev = (other_marker)->kn_tqe.tqe_prev; (kn)->kn_tqe.tqe_next = (other_marker); *(other_marker)->kn_tqe.tqe_prev = (kn); (other_marker)->kn_tqe.tqe_prev = &(kn)->kn_tqe.tqe_next; } while (0);
-   continue;
-  }
-  if (!knote_acquire(kn))
-   continue;
   do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
   kq->kq_count--;
   if (kn->kn_status & 0x0004) {
    kn->kn_status &= ~0x0002;
-   knote_release(kn);
    continue;
   }
   if ((kn->kn_kevent.flags & 0x0010) == 0 &&
       kn->kn_fop->f_event(kn, 0) == 0) {
    kn->kn_status &= ~(0x0002 | 0x0001);
-   knote_release(kn);
    continue;
   }
   *kevp = kn->kn_kevent;
@@ -4293,11 +4277,9 @@ start:
    if (kn->kn_kevent.flags & 0x0080)
     kn->kn_status |= 0x0004;
    kn->kn_status &= ~(0x0002 | 0x0001);
-   knote_release(kn);
   } else {
    do { (kn)->kn_tqe.tqe_next = ((void *)0); (kn)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (kn); (&kq->kq_head)->tqh_last = &(kn)->kn_tqe.tqe_next; } while (0);
    kq->kq_count++;
-   knote_release(kn);
   }
   count--;
   if (nkev == 8) {
@@ -4427,27 +4409,6 @@ kqueue_wakeup(struct kqueue *kq)
  } else
   do { struct klist *list = (&kq->kq_sel.si_note); if ((list) != ((void *)0)) knote((list), (0)); } while (0);
 }
-int
-knote_acquire(struct knote *kn)
-{
- if (kn->kn_status & 0x0010) {
-  kn->kn_status |= 0x0020;
-  tsleep(kn, 0, "kqepts", hz);
-  return (0);
- }
- kn->kn_status |= 0x0010;
- return (1);
-}
-int
-knote_release(struct knote *kn)
-{
- if (kn->kn_status & 0x0020) {
-  kn->kn_status &= ~0x0020;
-  wakeup(kn);
- }
- kn->kn_status &= ~0x0010;
- return (0);
-}
 void
 knote_activate(struct knote *kn)
 {
@@ -4466,8 +4427,6 @@ knote_remove(struct proc *p, struct klist *list)
 {
  struct knote *kn;
  while ((kn = ((list)->slh_first)) != ((void *)0)) {
-  if (!knote_acquire(kn))
-   continue;
   kn->kn_fop->f_detach(kn);
   knote_drop(kn, p, p->p_fd);
  }
@@ -4536,7 +4495,7 @@ knote_enqueue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1142, "(kn->kn_status & KN_QUEUED) == 0"));
+ (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1085, "(kn->kn_status & KN_QUEUED) == 0"));
  do { (kn)->kn_tqe.tqe_next = ((void *)0); (kn)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (kn); (&kq->kq_head)->tqh_last = &(kn)->kn_tqe.tqe_next; } while (0);
  kn->kn_status |= 0x0002;
  kq->kq_count++;
@@ -4548,7 +4507,7 @@ knote_dequeue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1157, "kn->kn_status & KN_QUEUED"));
+ ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1100, "kn->kn_status & KN_QUEUED"));
  do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
  kn->kn_status &= ~0x0002;
  kq->kq_count--;
