@@ -1461,7 +1461,6 @@ struct process {
  struct emul *ps_emul;
  char ps_comm[16 +1];
  vaddr_t ps_strings;
- vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
  vaddr_t ps_sigcoderet;
  u_long ps_sigcookie;
@@ -3114,18 +3113,19 @@ uipc_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    }
    so2 = unp->unp_conn->unp_socket;
    if (control) {
-    if (sbappendcontrol(so2, (&so2->so_rcv), m, control))
+    if (sbappendcontrol(so2, &so2->so_rcv, m,
+        control)) {
      control = ((void *)0);
-    else {
+    } else {
      error = 55;
      break;
     }
    } else if (so->so_type == 5)
-    sbappendrecord(so2, (&so2->so_rcv), m);
+    sbappendrecord(so2, &so2->so_rcv, m);
    else
-    sbappend(so2, (&so2->so_rcv), m);
-   (&so->so_snd)->sb_mbcnt = (&so2->so_rcv)->sb_mbcnt;
-   (&so->so_snd)->sb_cc = (&so2->so_rcv)->sb_cc;
+    sbappend(so2, &so2->so_rcv, m);
+   so->so_snd.sb_mbcnt = so2->so_rcv.sb_mbcnt;
+   so->so_snd.sb_cc = so2->so_rcv.sb_cc;
    sorwakeup(so2);
    m = ((void *)0);
    break;

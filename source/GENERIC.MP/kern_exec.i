@@ -1524,7 +1524,6 @@ struct process {
  struct emul *ps_emul;
  char ps_comm[16 +1];
  vaddr_t ps_strings;
- vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
  vaddr_t ps_sigcoderet;
  u_long ps_sigcookie;
@@ -5293,7 +5292,6 @@ sys_execve(struct proc *p, void *v, register_t *retval)
  error = exec_process_vmcmds(p, &pack);
  if (error)
   goto exec_abort;
- pr->ps_stackgap = 0;
  pr->ps_strings = (vaddr_t)vm->vm_minsaddr - sizeof(arginfo) - sgap;
         if (uvm_map_protect(&vm->vm_map,
             (((pr->ps_strings + sizeof(arginfo)) + ((1 << 13) - 1)) & ~((1 << 13) - 1)),

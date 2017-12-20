@@ -1488,7 +1488,6 @@ struct process {
  struct emul *ps_emul;
  char ps_comm[16 +1];
  vaddr_t ps_strings;
- vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
  vaddr_t ps_sigcoderet;
  u_long ps_sigcookie;
@@ -2897,6 +2896,7 @@ struct v4l2_decoder_cmd {
   } raw;
  };
 };
+
 
 
 

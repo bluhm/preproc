@@ -1461,7 +1461,6 @@ struct process {
  struct emul *ps_emul;
  char ps_comm[16 +1];
  vaddr_t ps_strings;
- vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
  vaddr_t ps_sigcoderet;
  u_long ps_sigcookie;
@@ -3779,8 +3778,8 @@ bad:
  }
  if (mp)
   *mp = ((void *)0);
-restart:
  s = solock(so);
+restart:
  if ((error = sblock(so, &so->so_rcv, (((flags) & 0x80) ? 0x0002 : 0x0001))) != 0) {
   sounlock(s);
   return (error);
@@ -3831,15 +3830,16 @@ restart:
   ;
   sbunlock(so, &so->so_rcv);
   error = sbwait(so, &so->so_rcv);
-  sounlock(s);
-  if (error)
+  if (error) {
+   sounlock(s);
    return (error);
+  }
   goto restart;
  }
 dontblock:
  if (uio->uio_procp)
   uio->uio_procp->p_ru.ru_msgrcv++;
- ((m == so->so_rcv.sb_mb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 762, "m == so->so_rcv.sb_mb"));
+ ((m == so->so_rcv.sb_mb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 763, "m == so->so_rcv.sb_mb"));
  ;
  ;
  nextrecord = m->m_hdr.mh_nextpkt;
@@ -3960,7 +3960,7 @@ dontblock:
      so->so_rcv.sb_mb = m_free(m);
      m = so->so_rcv.sb_mb;
     }
-    ((so->so_rcv.sb_mb == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 906, "so->so_rcv.sb_mb == m"));
+    ((so->so_rcv.sb_mb == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket.c", 907, "so->so_rcv.sb_mb == m"));
     if (m) {
      m->m_hdr.mh_nextpkt = nextrecord;
      if (nextrecord == ((void *)0))
@@ -4038,7 +4038,6 @@ dontblock:
  if (orig_resid == uio->uio_resid && orig_resid &&
      (flags & 0x8) == 0 && (so->so_state & 0x020) == 0) {
   sbunlock(so, &so->so_rcv);
-  sounlock(s);
   goto restart;
  }
  if (uio_error)

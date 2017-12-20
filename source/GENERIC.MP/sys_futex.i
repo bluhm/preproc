@@ -1461,7 +1461,6 @@ struct process {
  struct emul *ps_emul;
  char ps_comm[16 +1];
  vaddr_t ps_strings;
- vaddr_t ps_stackgap;
  vaddr_t ps_sigcode;
  vaddr_t ps_sigcoderet;
  u_long ps_sigcookie;
@@ -3388,10 +3387,11 @@ sys_futex(struct proc *p, void *v, register_t *retval)
 struct futex *
 futex_get(uint32_t *uaddr, int flag)
 {
+ struct proc *p = (__curcpu->ci_self)->ci_curproc;
  struct futex *f;
  rw_assert_wrlock(&ftlock);
  for((f) = ((&ftlist)->lh_first); (f)!= ((void *)0); (f) = ((f)->ft_list.le_next)) {
-  if (f->ft_uaddr == uaddr && f->ft_pid == (__curcpu->ci_self)->ci_curproc->p_p->ps_pid) {
+  if (f->ft_uaddr == uaddr && f->ft_pid == p->p_p->ps_pid) {
    f->ft_refcnt++;
    break;
   }
@@ -3400,7 +3400,7 @@ futex_get(uint32_t *uaddr, int flag)
   f = pool_get(&ftpool, 0x0001);
   do { (&f->ft_threads)->tqh_first = ((void *)0); (&f->ft_threads)->tqh_last = &(&f->ft_threads)->tqh_first; } while (0);
   f->ft_uaddr = uaddr;
-  f->ft_pid = (__curcpu->ci_self)->ci_curproc->p_p->ps_pid;
+  f->ft_pid = p->p_p->ps_pid;
   f->ft_refcnt = 1;
   do { if (((f)->ft_list.le_next = (&ftlist)->lh_first) != ((void *)0)) (&ftlist)->lh_first->ft_list.le_prev = &(f)->ft_list.le_next; (&ftlist)->lh_first = (f); (f)->ft_list.le_prev = &(&ftlist)->lh_first; } while (0);
  }
@@ -3410,10 +3410,10 @@ void
 futex_put(struct futex *f)
 {
  rw_assert_wrlock(&ftlock);
- ((f->ft_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_futex.c", 167, "f->ft_refcnt > 0"));
+ ((f->ft_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_futex.c", 168, "f->ft_refcnt > 0"));
  --f->ft_refcnt;
  if (f->ft_refcnt == 0) {
-  (((((&f->ft_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_futex.c", 171, "TAILQ_EMPTY(&f->ft_threads)"));
+  (((((&f->ft_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_futex.c", 172, "TAILQ_EMPTY(&f->ft_threads)"));
   do { if ((f)->ft_list.le_next != ((void *)0)) (f)->ft_list.le_next->ft_list.le_prev = (f)->ft_list.le_prev; *(f)->ft_list.le_prev = (f)->ft_list.le_next; ((f)->ft_list.le_prev) = ((void *)-1); ((f)->ft_list.le_next) = ((void *)-1); } while (0);
   pool_put(&ftpool, f);
  }
