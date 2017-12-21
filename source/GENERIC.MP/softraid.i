@@ -7110,6 +7110,11 @@ sr_ioctl_createraid(struct sr_softc *sc, struct bioc_createraid *bc,
        sd->sd_vol.sv_chunk_maxsz -
        sd->sd_vol.sv_chunk_minsz);
  } else {
+  if (sd->sd_meta->_sdd_invariant.ssd_chunk_no != no_chunk) {
+   sr_error(sc, "volume chunk count does not match metadata "
+       "chunk count");
+   goto unwind;
+  }
   if (sd->sd_meta->_sdd_invariant.ssd_level != bc->bc_level) {
    sr_error(sc, "volume level does not match metadata "
        "level");
@@ -7416,7 +7421,7 @@ sr_discipline_free(struct sr_discipline *sd)
   free(omi, 2, 0);
  }
  if (sd->sd_target != 0) {
-  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3877, "sc->sc_targets[sd->sd_target] == sd"));
+  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3884, "sc->sc_targets[sd->sd_target] == sd"));
   sc->sc_targets[sd->sd_target] = ((void *)0);
  }
  for((sdtmp1) = ((&sc->sc_dis_list)->tqh_first); (sdtmp1) != ((void *)0); (sdtmp1) = ((sdtmp1)->sd_link.tqe_next)) {
@@ -7656,7 +7661,7 @@ sr_schedule_wu(struct sr_workunit *wu)
  struct sr_workunit *wup;
  int s;
  ;
- ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4198, "wu->swu_io_count > 0"));
+ ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4205, "wu->swu_io_count > 0"));
  s = _splraise(5);
  if (wu->swu_state == 9)
   goto queued;
