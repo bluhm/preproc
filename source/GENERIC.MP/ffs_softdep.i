@@ -1600,8 +1600,8 @@ struct mdproc {
 struct kevent {
  __uintptr_t ident;
  short filter;
- u_short flags;
- u_int fflags;
+ unsigned short flags;
+ unsigned int fflags;
  __int64_t data;
  void *udata;
 };

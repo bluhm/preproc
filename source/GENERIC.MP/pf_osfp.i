@@ -1867,6 +1867,7 @@ void if_alloc_sadl(struct ifnet *);
 void if_free_sadl(struct ifnet *);
 void if_attach(struct ifnet *);
 void if_attach_queues(struct ifnet *, unsigned int);
+void if_attach_iqueues(struct ifnet *, unsigned int);
 void if_attach_ifq(struct ifnet *, const struct ifq_ops *, void *);
 void if_attachtail(struct ifnet *);
 void if_attachhead(struct ifnet *);

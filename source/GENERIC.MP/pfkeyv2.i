@@ -1021,8 +1021,8 @@ sstosa(struct sockaddr_storage *ss)
 struct kevent {
  __uintptr_t ident;
  short filter;
- u_short flags;
- u_int fflags;
+ unsigned short flags;
+ unsigned int fflags;
  __int64_t data;
  void *udata;
 };
@@ -3688,6 +3688,7 @@ void if_alloc_sadl(struct ifnet *);
 void if_free_sadl(struct ifnet *);
 void if_attach(struct ifnet *);
 void if_attach_queues(struct ifnet *, unsigned int);
+void if_attach_iqueues(struct ifnet *, unsigned int);
 void if_attach_ifq(struct ifnet *, const struct ifq_ops *, void *);
 void if_attachtail(struct ifnet *);
 void if_attachhead(struct ifnet *);

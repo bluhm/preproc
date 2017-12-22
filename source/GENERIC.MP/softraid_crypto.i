@@ -1956,8 +1956,8 @@ int udf_disklabelspoof(dev_t dev, void (*strat)(struct buf *),
 struct kevent {
  __uintptr_t ident;
  short filter;
- u_short flags;
- u_int fflags;
+ unsigned short flags;
+ unsigned int fflags;
  __int64_t data;
  void *udata;
 };

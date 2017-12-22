@@ -1685,6 +1685,7 @@ void if_alloc_sadl(struct ifnet *);
 void if_free_sadl(struct ifnet *);
 void if_attach(struct ifnet *);
 void if_attach_queues(struct ifnet *, unsigned int);
+void if_attach_iqueues(struct ifnet *, unsigned int);
 void if_attach_ifq(struct ifnet *, const struct ifq_ops *, void *);
 void if_attachtail(struct ifnet *);
 void if_attachhead(struct ifnet *);
@@ -2126,6 +2127,7 @@ int ifiq_input(struct ifiqueue *, struct mbuf_list *,
        unsigned int);
 int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
 void ifiq_add_data(struct ifiqueue *, struct if_data *);
+void ifiq_barrier(struct ifiqueue *);
 struct rtentry;
 struct timeout;
 struct ifnet;
@@ -3678,7 +3680,7 @@ ieee80211_send_eapol_key(struct ieee80211com *ic, struct mbuf *m,
  struct ether_header *eh;
  struct ieee80211_eapol_key *key;
  u_int16_t info;
- int len;
+ int len, error;
  (m) = m_prepend((m), (sizeof(struct ether_header)), (0x0002));
  if (m == ((void *)0))
   return 12;
@@ -3718,7 +3720,11 @@ ieee80211_send_eapol_key(struct ieee80211com *ic, struct mbuf *m,
   ieee80211_eapol_key_mic(key, ptk->kck);
  if (info & (1 << 7))
   timeout_add_msec(&ni->ni_eapol_to, 100);
- return if_enqueue(ifp, m);
+ do { (error) = ifq_enqueue((&ifp->if_snd), (m)); } while ( 0);
+ if (error)
+  return (error);
+ if_start(ifp);
+ return 0;
 }
 void
 ieee80211_eapol_timeout(void *arg)
@@ -3748,7 +3754,7 @@ u_int8_t *
 ieee80211_add_gtk_kde(u_int8_t *frm, struct ieee80211_node *ni,
     const struct ieee80211_key *k)
 {
- ((k->k_flags & 0x00000001) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_pae_output.c", 171, "k->k_flags & IEEE80211_KEY_GROUP"));
+ ((k->k_flags & 0x00000001) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_pae_output.c", 176, "k->k_flags & IEEE80211_KEY_GROUP"));
  *frm++ = IEEE80211_ELEMID_VENDOR;
  *frm++ = 6 + k->k_len;
  __builtin_memcpy((frm), (((const u_int8_t[]){ 0x00, 0x0f, 0xac })), (3)); frm += 3;
@@ -3774,7 +3780,7 @@ ieee80211_add_pmkid_kde(u_int8_t *frm, const u_int8_t *pmkid)
 u_int8_t *
 ieee80211_add_igtk_kde(u_int8_t *frm, const struct ieee80211_key *k)
 {
- ((k->k_flags & 0x00000004) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_pae_output.c", 210, "k->k_flags & IEEE80211_KEY_IGTK"));
+ ((k->k_flags & 0x00000004) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_pae_output.c", 215, "k->k_flags & IEEE80211_KEY_IGTK"));
  *frm++ = IEEE80211_ELEMID_VENDOR;
  *frm++ = 4 + 24;
  __builtin_memcpy((frm), (((const u_int8_t[]){ 0x00, 0x0f, 0xac })), (3)); frm += 3;
