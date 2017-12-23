@@ -3552,14 +3552,13 @@ vpci_intr_map(struct pci_attach_args *pa, pci_intr_handle_t *ihp)
 {
  struct vpci_pbm *pbm = pa->pa_pc->cookie;
  uint64_t devhandle = pbm->vp_devhandle;
- uint64_t devino = ((*ihp)&0x00000003fLL);
+ uint64_t devino = ((*ihp)&(0x0000007c0LL|0x00000003fLL));
  uint64_t sysino;
  int err;
  if (*ihp != (pci_intr_handle_t)-1) {
   err = sun4v_intr_devino_to_sysino(devhandle, devino, &sysino);
   if (err != 0)
    return (-1);
-  ((sysino == ((sysino)&(0x0000007c0LL|0x00000003fLL))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vpci.c", 340, "sysino == INTVEC(sysino)"));
   *ihp = sysino;
   return (0);
  }
@@ -3756,7 +3755,8 @@ vpci_intr_ack(struct intrhand *ih)
  bus_space_tag_t t = ih->ih_bus;
  struct vpci_pbm *pbm = t->cookie;
  uint64_t devhandle = pbm->vp_devhandle;
- sun4v_intr_setstate(devhandle, ih->ih_number, 0);
+ uint64_t sysino = ((ih->ih_number)&(0x0000007c0LL|0x00000003fLL));
+ sun4v_intr_setstate(devhandle, sysino, 0);
 }
 void
 vpci_msi_ack(struct intrhand *ih)

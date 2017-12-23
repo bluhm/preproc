@@ -1586,7 +1586,7 @@ intr_handler(struct trapframe64 *tf, struct intrhand *ih)
  else
   need_lock = tf->tf_pil < 14 && tf->tf_pil != 10;
  if (need_lock)
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intr.c", 129);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intr.c", 131);
  rc = (*ih->ih_fun)(ih->ih_arg ? ih->ih_arg : tf);
  if (need_lock)
   _kernel_unlock();
@@ -1634,12 +1634,16 @@ intr_establish(int level, struct intrhand *ih)
   ih->ih_ack = intr_ack;
  else
   ih->ih_ack = ((void *)0);
- if (ih->ih_number <= 0 || ih->ih_number >= (1<<11))
-  panic("intr_establish: bad intr number %x", ih->ih_number);
  if (strlen(ih->ih_name) == 0)
   evcount_attach(&ih->ih_count, "unknown", ((void *)0));
  else
   evcount_attach(&ih->ih_count, ih->ih_name, ((void *)0));
+ if (ih->ih_number & 0x8000) {
+  _splx(s);
+  return;
+ }
+ if (ih->ih_number <= 0 || ih->ih_number >= (1<<11))
+  panic("intr_establish: bad intr number %x", ih->ih_number);
  q = intrlev[ih->ih_number];
  if (q == ((void *)0)) {
   intrlev[ih->ih_number] = ih;
@@ -1896,7 +1900,8 @@ sun4v_intr_devino_to_sysino(uint64_t devhandle, uint64_t devino, uint64_t *ino)
 {
  if (sun4v_group_interrupt_major < 3)
   return hv_intr_devino_to_sysino(devhandle, devino, ino);
- *ino = devino;
+ ((((devino)&(0x0000007c0LL|0x00000003fLL)) == devino) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intr.c", 398, "INTVEC(devino) == devino"));
+ *ino = devino | 0x8000;
  return 0;
 }
 int64_t

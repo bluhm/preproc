@@ -2244,6 +2244,16 @@ normalize_rel(struct axis_filter *filter, int val)
  return (filter->inv ? -val : val);
 }
 static inline int
+raw_dx(struct wsmouseinput *input)
+{
+ return ((input->motion.sync & (1 << 1)) ? input->motion.x_delta : 0);
+}
+static inline int
+raw_dy(struct wsmouseinput *input)
+{
+ return ((input->motion.sync & (1 << 2)) ? input->motion.y_delta : 0);
+}
+static inline int
 direction(int dx, int dy, int ratio)
 {
  int rdy, dir = -1;
@@ -2334,10 +2344,8 @@ wstpad_scroll(struct wstpad *tp, int dx, int dy, u_int *cmds)
  sign = (dy > 0) - (dy < 0);
  if (sign) {
   if (tp->scroll.dz != -sign) {
-   if (tp->t->matches < 3)
-    return;
    tp->scroll.dz = -sign;
-   tp->scroll.acc_dy = -tp->scroll.vdist / 2;
+   tp->scroll.acc_dy = -tp->scroll.vdist;
   }
   tp->scroll.acc_dy += abs(dy);
   if (tp->scroll.acc_dy >= 0) {
@@ -2346,10 +2354,8 @@ wstpad_scroll(struct wstpad *tp, int dx, int dy, u_int *cmds)
   }
  } else if ((sign = (dx > 0) - (dx < 0))) {
   if (tp->scroll.dw != sign) {
-   if (tp->t->matches < 3)
-    return;
    tp->scroll.dw = sign;
-   tp->scroll.acc_dx = -tp->scroll.hdist / 2;
+   tp->scroll.acc_dx = -tp->scroll.hdist;
   }
   tp->scroll.acc_dx += abs(dx);
   if (tp->scroll.acc_dx >= 0) {
@@ -2390,7 +2396,8 @@ wstpad_f2scroll(struct wsmouseinput *input, u_int *cmds)
   }
   if (centered) {
    wstpad_scroll(tp, dx, dy, cmds);
-   set_freeze_ts(tp, 0, 100);
+   if (tp->t->matches > 3)
+    set_freeze_ts(tp, 0, 100);
   }
  }
 }
@@ -2399,18 +2406,14 @@ wstpad_edgescroll(struct wsmouseinput *input, u_int *cmds)
 {
  struct wstpad *tp = input->tp;
  struct tpad_touch *t = tp->t;
- int dx = 0, dy = 0;
+ u_int v_edge, b_edge;
+ int dx, dy;
  if (tp->contacts != 1 || !chk_scroll_state(tp))
   return;
- if (tp->features & (1 << 6)) {
-  if (t->flags & (1 << 0))
-   dy = tp->dy;
- } else if (t->flags & (1 << 1)) {
-  dy = tp->dy;
- } else if ((t->flags & (1 << 3)) &&
-     (tp->features & (1 << 5))) {
-  dx = tp->dx;
- }
+ v_edge = (tp->features & (1 << 6)) ? (1 << 0) : (1 << 1);
+ b_edge = (tp->features & (1 << 5)) ? (1 << 3) : 0;
+ dy = (t->flags & v_edge) ? tp->dy : 0;
+ dx = (t->flags & b_edge) ? tp->dx : 0;
  if (dx || dy)
   wstpad_scroll(tp, dx, dy, cmds);
 }
@@ -2809,8 +2812,8 @@ wstpad_touch_inputs(struct wsmouseinput *input)
  struct wstpad *tp = input->tp;
  struct tpad_touch *t;
  int slot;
- tp->dx = normalize_rel(&input->filter.h, input->motion.dx);
- tp->dy = normalize_rel(&input->filter.v, input->motion.dy);
+ tp->dx = normalize_rel(&input->filter.h, raw_dx(input));
+ tp->dy = normalize_rel(&input->filter.v, raw_dy(input));
  tp->btns = input->btn.buttons;
  tp->btns_sync = input->btn.sync;
  tp->prev_contacts = tp->contacts;
@@ -2846,10 +2849,7 @@ wstpad_touch_inputs(struct wsmouseinput *input)
   } else {
    t->flags &= (~((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3)) | edge_flags(tp, t->x, t->y));
   }
-  wstpad_set_direction(t,
-      normalize_rel(&input->filter.h, input->motion.x_delta),
-      normalize_rel(&input->filter.v, input->motion.y_delta),
-      input->filter.ratio);
+  wstpad_set_direction(t, tp->dx, tp->dy, input->filter.ratio);
  }
 }
 static inline int
@@ -2889,7 +2889,7 @@ wstpad_process_input(struct wsmouseinput *input, struct evq_access *evq)
    continue;
   }
  }
- if (tp->dx || tp->dy) {
+ if (input->motion.dx || input->motion.dy) {
   if (((tp)->features & (1 << 7))
       || (tp->t->flags & tp->freeze)
       || (((&tp->time)->tv_sec == (&tp->freeze_ts)->tv_sec) ? ((&tp->time)->tv_nsec < (&tp->freeze_ts)->tv_nsec) : ((&tp->time)->tv_sec < (&tp->freeze_ts)->tv_sec))
@@ -3022,8 +3022,8 @@ wstpad_compat_convert(struct wsmouseinput *input, struct evq_access *evq)
  int dx, dy;
  if (input->flags & (1 << 17))
   wstpad_track_interval(input, &evq->ts);
- dx = (input->motion.sync & (1 << 1)) ? input->motion.x_delta : 0;
- dy = (input->motion.sync & (1 << 2)) ? input->motion.y_delta : 0;
+ dx = raw_dx(input);
+ dy = raw_dy(input);
  if ((input->touch.sync & (1 << 1))
      || input->mt.ptr != input->mt.prev_ptr) {
   input->filter.h.acc = input->filter.v.acc = 0;
@@ -3107,7 +3107,7 @@ int
 wstpad_configure(struct wsmouseinput *input)
 {
  struct wstpad *tp;
- int width, height, diag, ratio, h_res, v_res, h_unit, v_unit;
+ int width, height, diag, offset, h_res, v_res, h_unit, v_unit;
  width = abs(input->hw.x_max - input->hw.x_min);
  height = abs(input->hw.y_max - input->hw.y_min);
  if (width == 0 || height == 0)
@@ -3131,23 +3131,25 @@ wstpad_configure(struct wsmouseinput *input)
   input->filter.dclr = h_unit - h_unit / 5;
   wstpad_init_deceleration(input);
   tp->features &= ((1 << 31) | (1 << 7));
-  if (input->hw.hw_type == WSMOUSEHW_TOUCHPAD)
-   tp->features |= ((1 << 3));
+  if (input->hw.contacts_max != 1)
+   tp->features |= (1 << 3);
   else
-   tp->features |= ((1 << 0) | (1 << 1) | (1 << 3));
-  if (input->hw.contacts_max == 1) {
-   tp->features &= ~(1 << 3);
    tp->features |= (1 << 4);
-  }
-  if (input->hw.type == 19) {
-   tp->features &= ~(1 << 0);
-   tp->features |= (1 << 2);
+  if (input->hw.hw_type == WSMOUSEHW_CLICKPAD) {
+   if (input->hw.type == 19) {
+    tp->features |= (1 << 2);
+   } else {
+    tp->features |= (1 << 0);
+    tp->features |= (1 << 1);
+   }
   }
   tp->params.left_edge = 205;
   tp->params.right_edge = 205;
-  tp->params.bottom_edge = 0;
-  tp->params.top_edge = 0;
-  tp->params.center_width = 0;
+  tp->params.bottom_edge = ((tp->features & (1 << 0))
+      ? 410 : 0);
+  tp->params.top_edge = ((tp->features & (1 << 2))
+      ? 512 : 0);
+  tp->params.center_width = 512;
   tp->tap.maxtime.tv_nsec = 180 * 1000000;
   tp->tap.clicktime = 180;
   tp->tap.locktime = 0;
@@ -3156,31 +3158,18 @@ wstpad_configure(struct wsmouseinput *input)
   tp->tap.maxdist = 4 * h_unit;
  }
  tp->freeze = ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
- if ((ratio = tp->params.left_edge) == 0
-     && (tp->features & (1 << 4))
-     && (tp->features & (1 << 6)))
-  ratio = 205;
- tp->edge.left = input->hw.x_min + width * ratio / 4096;
- if ((ratio = tp->params.right_edge) == 0
-     && (tp->features & (1 << 4))
-     && !(tp->features & (1 << 6)))
-  ratio = 205;
- tp->edge.right = input->hw.x_max - width * ratio / 4096;
- if ((ratio = tp->params.bottom_edge) == 0
-     && ((tp->features & (1 << 0))
-     || ((tp->features & (1 << 4))
-     && (tp->features & (1 << 5)))))
-  ratio = 410;
- tp->edge.bottom = input->hw.y_min + height * ratio / 4096;
- if ((ratio = tp->params.top_edge) == 0
-     && (tp->features & (1 << 2)))
-  ratio = 410;
- tp->edge.top = input->hw.y_max - height * ratio / 4096;
- if ((ratio = abs(tp->params.center_width)) == 0)
-  ratio = 512;
+ offset = width * tp->params.left_edge / 4096;
+ tp->edge.left = input->hw.x_min + offset;
+ offset = width * tp->params.right_edge / 4096;
+ tp->edge.right = input->hw.x_max - offset;
+ offset = height * tp->params.bottom_edge / 4096;
+ tp->edge.bottom = input->hw.y_min + offset;
+ offset = height * tp->params.top_edge / 4096;
+ tp->edge.top = input->hw.y_max - offset;
+ offset = width * abs(tp->params.center_width) / 8192;
  tp->edge.center = (input->hw.x_min + input->hw.x_max) / 2;
- tp->edge.center_left = tp->edge.center - width * ratio / 8192;
- tp->edge.center_right = tp->edge.center + width * ratio / 8192;
+ tp->edge.center_left = tp->edge.center - offset;
+ tp->edge.center_right = tp->edge.center + offset;
  tp->edge.middle = (input->hw.y_max - input->hw.y_min) / 2;
  tp->handlers = 0;
  if (tp->features & (1 << 0))

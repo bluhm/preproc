@@ -2687,7 +2687,6 @@ vbus_intr_map(int node, int ino, uint64_t *sysino)
    err = sun4v_intr_devino_to_sysino(devhandle, devino, sysino);
    if (err != 0)
     return (-1);
-   ((*sysino == ((*sysino)&(0x0000007c0LL|0x00000003fLL))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vbus.c", 184, "*sysino == INTVEC(*sysino)"));
    return (0);
   }
   imap += address_cells + interrupt_cells + 2;
@@ -2732,7 +2731,8 @@ vbus_intr_ack(struct intrhand *ih)
  bus_space_tag_t t = ih->ih_bus;
  struct vbus_softc *sc = t->cookie;
  uint64_t devhandle = sc->sc_devhandle;
- sun4v_intr_setstate(devhandle, ih->ih_number, 0);
+ uint64_t sysino = ((ih->ih_number)&(0x0000007c0LL|0x00000003fLL));
+ sun4v_intr_setstate(devhandle, sysino, 0);
 }
 bus_space_tag_t
 vbus_alloc_bus_tag(struct vbus_softc *sc, bus_space_tag_t parent)
