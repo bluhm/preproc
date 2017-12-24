@@ -2345,7 +2345,7 @@ wstpad_scroll(struct wstpad *tp, int dx, int dy, u_int *cmds)
  if (sign) {
   if (tp->scroll.dz != -sign) {
    tp->scroll.dz = -sign;
-   tp->scroll.acc_dy = -tp->scroll.vdist;
+   tp->scroll.acc_dy = -tp->scroll.vdist * 2;
   }
   tp->scroll.acc_dy += abs(dy);
   if (tp->scroll.acc_dy >= 0) {
@@ -2355,7 +2355,7 @@ wstpad_scroll(struct wstpad *tp, int dx, int dy, u_int *cmds)
  } else if ((sign = (dx > 0) - (dx < 0))) {
   if (tp->scroll.dw != sign) {
    tp->scroll.dw = sign;
-   tp->scroll.acc_dx = -tp->scroll.hdist;
+   tp->scroll.acc_dx = -tp->scroll.hdist * 2;
   }
   tp->scroll.acc_dx += abs(dx);
   if (tp->scroll.acc_dx >= 0) {
@@ -2391,6 +2391,8 @@ wstpad_f2scroll(struct wsmouseinput *input, u_int *cmds)
    if ((dy > 0 && !((dir) == 0 || (dir) == 11)) || (dy < 0 && !((dir) == 5 || (dir) == 6)))
     return;
    if ((dx > 0 && !((dir) == 2 || (dir) == 3)) || (dx < 0 && !((dir) == 8 || (dir) == 9)))
+    return;
+   if (t2->matches < imin(3, tp->t->matches / 4))
     return;
    centered |= (((t2)->flags & ((1 << 0) | (1 << 1) | (1 << 2))) == 0);
   }

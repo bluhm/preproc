@@ -17591,6 +17591,34 @@ static const struct pci_known_product pci_known_products[] = {
      "E5 SAD",
  },
  {
+     0x8086, 0x3e1f,
+     "Core 8G Host",
+ },
+ {
+     0x8086, 0x3e81,
+     "Core 8G PCIE",
+ },
+ {
+     0x8086, 0x3e85,
+     "Core 8G PCIE",
+ },
+ {
+     0x8086, 0x3e89,
+     "Core 8G PCIE",
+ },
+ {
+     0x8086, 0x3e91,
+     "Core 8G GMM",
+ },
+ {
+     0x8086, 0x3e92,
+     "UHD Graphics 630",
+ },
+ {
+     0x8086, 0x3ec2,
+     "Core 8G Host",
+ },
+ {
      0x8086, 0x4000,
      "5400 Host",
  },
@@ -19703,6 +19731,14 @@ static const struct pci_known_product pci_known_products[] = {
      "CM236 LPC",
  },
  {
+     0x8086, 0xa160,
+     "100 Series I2C",
+ },
+ {
+     0x8086, 0xa161,
+     "100 Series I2C",
+ },
+ {
      0x8086, 0xa167,
      "100 Series PCIE",
  },
@@ -19721,6 +19757,174 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x8086, 0xa170,
      "100 Series HD Audio",
+ },
+ {
+     0x8086, 0xa282,
+     "200 Series AHCI",
+ },
+ {
+     0x8086, 0xa286,
+     "200 Series RAID",
+ },
+ {
+     0x8086, 0xa290,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa291,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa292,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa293,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa294,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa295,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa296,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa297,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa298,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa299,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29a,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29b,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29c,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29d,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29e,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa29f,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2a1,
+     "200 Series PMC",
+ },
+ {
+     0x8086, 0xa2a3,
+     "200 Series SMBus",
+ },
+ {
+     0x8086, 0xa2af,
+     "200 Series xHCI",
+ },
+ {
+     0x8086, 0xa2b1,
+     "200 Series Thermal",
+ },
+ {
+     0x8086, 0xa2ba,
+     "200 Series MEI",
+ },
+ {
+     0x8086, 0xa2bb,
+     "200 Series MEI",
+ },
+ {
+     0x8086, 0xa2bc,
+     "200 Series IDER",
+ },
+ {
+     0x8086, 0xa2bd,
+     "200 Series KT",
+ },
+ {
+     0x8086, 0xa2c4,
+     "H270 LPC",
+ },
+ {
+     0x8086, 0xa2c5,
+     "Z270 LPC",
+ },
+ {
+     0x8086, 0xa2c6,
+     "Q270 LPC",
+ },
+ {
+     0x8086, 0xa2c7,
+     "Q250 LPC",
+ },
+ {
+     0x8086, 0xa2c8,
+     "B250 LPC",
+ },
+ {
+     0x8086, 0xa2c9,
+     "Z370 LPC",
+ },
+ {
+     0x8086, 0xa2d2,
+     "X299 LPC",
+ },
+ {
+     0x8086, 0xa2e7,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2e8,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2e9,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2ea,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2eb,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2ec,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2ed,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2ee,
+     "200 Series PCIE",
+ },
+ {
+     0x8086, 0xa2f0,
+     "200 Series HD Audio",
  },
  {
      0x8086, 0xb152,
