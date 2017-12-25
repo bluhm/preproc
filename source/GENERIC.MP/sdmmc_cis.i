@@ -2591,6 +2591,7 @@ struct sdmmcbus_attach_args {
  sdmmc_chipset_tag_t sct;
  sdmmc_chipset_handle_t sch;
  bus_dma_tag_t dmat;
+ bus_dmamap_t dmap;
  int flags;
  int caps;
  long max_xfer;

@@ -2985,6 +2985,7 @@ struct sdmmcbus_attach_args {
  sdmmc_chipset_tag_t sct;
  sdmmc_chipset_handle_t sch;
  bus_dma_tag_t dmat;
+ bus_dmamap_t dmap;
  int flags;
  int caps;
  long max_xfer;
@@ -3207,10 +3208,11 @@ sdmmc_attach(struct device *parent, struct device *self, void *aux)
  sc->sct = saa->sct;
  sc->sch = saa->sch;
  sc->sc_dmat = saa->dmat;
+ sc->sc_dmap = saa->dmap;
  sc->sc_flags = saa->flags;
  sc->sc_caps = saa->caps;
  sc->sc_max_xfer = saa->max_xfer;
- if (((sc->sc_caps) & (0x0004))) {
+ if (((sc->sc_caps) & (0x0004)) && sc->sc_dmap == ((void *)0)) {
   error = bus_dmamap_create(sc->sc_dmat, (64 * 1024), (((64 * 1024) / (1 << 13)) + 1),
       (64 * 1024), 0, 0x0001|0x0002, &sc->sc_dmap);
   if (error) {
