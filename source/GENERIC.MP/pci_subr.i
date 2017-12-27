@@ -10940,11 +10940,19 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x111d, 0x803c,
-     "89HPES5T5ZB",
+     "89HPES5T5",
  },
  {
      0x111d, 0x806a,
      "89HPES24T3G2",
+ },
+ {
+     0x111d, 0x8077,
+     "89HPES64H16G2",
+ },
+ {
+     0x111d, 0x807a,
+     "89HPES48H12G2",
  },
  {
      0x111d, 0x80bf,
