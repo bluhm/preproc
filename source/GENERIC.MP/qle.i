@@ -2367,6 +2367,7 @@ int OF_getproplen(int handle, char *prop);
 int OF_getprop(int handle, char *prop, void *buf, int buflen);
 uint32_t OF_getpropint(int handle, char *, uint32_t);
 int OF_getpropintarray(int, char *, uint32_t *, int);
+uint64_t OF_getpropint64(int handle, char *, uint64_t);
 int OF_setprop(int, char *, const void *, int);
 int OF_nextprop(int, char *, void *);
 int OF_finddevice(char *name);
