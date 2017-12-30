@@ -4710,11 +4710,9 @@ int pf_map_addr(sa_family_t, struct pf_rule *,
        struct pf_addr *, struct pf_src_node **,
        struct pf_pool *, enum pf_sn_types);
 int pf_postprocess_addr(struct pf_state *);
-struct pf_state_key *pf_state_key_ref(struct pf_state_key *);
-void pf_state_key_unref(struct pf_state_key *);
-int pf_state_key_isvalid(struct pf_state_key *);
-void pf_pkt_unlink_state_key(struct mbuf *);
-void pf_pkt_state_key_ref(struct mbuf *);
+void pf_mbuf_link_state_key(struct mbuf *,
+       struct pf_state_key *);
+void pf_mbuf_unlink_state_key(struct mbuf *);
 u_int8_t pf_get_wscale(struct pf_pdesc *);
 u_int16_t pf_get_mss(struct pf_pdesc *);
 struct mbuf * pf_build_tcp(const struct pf_rule *, sa_family_t,
@@ -4871,7 +4869,7 @@ m_resethdr(struct mbuf *m)
  ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 303, "m->m_flags & M_PKTHDR"));
  m->m_hdr.mh_flags &= (0x0001|0x0002|0x0004|0x0008|0x2000);
  m_tag_delete_chain(m);
- pf_pkt_unlink_state_key(m);
+ pf_mbuf_unlink_state_key(m);
  __builtin_memset((&m->M_dat.MH.MH_pkthdr), (0), (sizeof(m->M_dat.MH.MH_pkthdr)));
  m->M_dat.MH.MH_pkthdr.pf.prio = 3;
  m->M_dat.MH.MH_pkthdr.len = len;
@@ -4949,7 +4947,7 @@ m_free(struct mbuf *m)
  }
  if (m->m_hdr.mh_flags & 0x0002) {
   m_tag_delete_chain(m);
-  pf_pkt_unlink_state_key(m);
+  pf_mbuf_unlink_state_key(m);
  }
  if (m->m_hdr.mh_flags & 0x0001)
   m_extfree(m);
@@ -5631,7 +5629,8 @@ m_dup_pkthdr(struct mbuf *to, struct mbuf *from, int wait)
  to->m_hdr.mh_flags = (to->m_hdr.mh_flags & (0x0001 | 0x0008));
  to->m_hdr.mh_flags |= (from->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000));
  to->M_dat.MH.MH_pkthdr = from->M_dat.MH.MH_pkthdr;
- pf_pkt_state_key_ref(to);
+ to->M_dat.MH.MH_pkthdr.pf.statekey = ((void *)0);
+ pf_mbuf_link_state_key(to, from->M_dat.MH.MH_pkthdr.pf.statekey);
  { ((&to->M_dat.MH.MH_pkthdr.ph_tags)->slh_first) = ((void *)0); };
  if ((error = m_tag_copy_chain(to, from, wait)) != 0)
   return (error);
@@ -5644,7 +5643,7 @@ m_dup_pkt(struct mbuf *m0, unsigned int adj, int wait)
 {
  struct mbuf *m;
  int len;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1348, "m0->m_flags & M_PKTHDR"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1349, "m0->m_flags & M_PKTHDR"));
  len = m0->M_dat.MH.MH_pkthdr.len + adj;
  if (len > (64 * 1024))
   return (((void *)0));

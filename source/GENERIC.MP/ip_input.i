@@ -5747,11 +5747,9 @@ int pf_map_addr(sa_family_t, struct pf_rule *,
        struct pf_addr *, struct pf_src_node **,
        struct pf_pool *, enum pf_sn_types);
 int pf_postprocess_addr(struct pf_state *);
-struct pf_state_key *pf_state_key_ref(struct pf_state_key *);
-void pf_state_key_unref(struct pf_state_key *);
-int pf_state_key_isvalid(struct pf_state_key *);
-void pf_pkt_unlink_state_key(struct mbuf *);
-void pf_pkt_state_key_ref(struct mbuf *);
+void pf_mbuf_link_state_key(struct mbuf *,
+       struct pf_state_key *);
+void pf_mbuf_unlink_state_key(struct mbuf *);
 u_int8_t pf_get_wscale(struct pf_pdesc *);
 u_int16_t pf_get_mss(struct pf_pdesc *);
 struct mbuf * pf_build_tcp(const struct pf_rule *, sa_family_t,
@@ -6863,7 +6861,7 @@ ip_forward(struct mbuf *m, struct ifnet *ifp, struct rtentry *rt, int srcrt)
   len = min(((__uint16_t)(ip->ip_len)), 68);
   m_copydata(m, 0, len, mfake.M_dat.MH.MH_dat.MH_databuf);
   mfake.M_dat.MH.MH_pkthdr.len = mfake.m_hdr.mh_len = len;
-  pf_pkt_unlink_state_key(&mfake);
+  pf_pkt_addr_changed(&mfake);
   fake = 1;
  }
  ip->ip_ttl -= 1;

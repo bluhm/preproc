@@ -5084,11 +5084,9 @@ int pf_map_addr(sa_family_t, struct pf_rule *,
        struct pf_addr *, struct pf_src_node **,
        struct pf_pool *, enum pf_sn_types);
 int pf_postprocess_addr(struct pf_state *);
-struct pf_state_key *pf_state_key_ref(struct pf_state_key *);
-void pf_state_key_unref(struct pf_state_key *);
-int pf_state_key_isvalid(struct pf_state_key *);
-void pf_pkt_unlink_state_key(struct mbuf *);
-void pf_pkt_state_key_ref(struct mbuf *);
+void pf_mbuf_link_state_key(struct mbuf *,
+       struct pf_state_key *);
+void pf_mbuf_unlink_state_key(struct mbuf *);
 u_int8_t pf_get_wscale(struct pf_pdesc *);
 u_int16_t pf_get_mss(struct pf_pdesc *);
 struct mbuf * pf_build_tcp(const struct pf_rule *, sa_family_t,
@@ -5818,7 +5816,7 @@ if_enqueue(struct ifnet *ifp, struct mbuf *m)
   _kernel_unlock();
   return (error);
  }
- pf_pkt_unlink_state_key(m);
+ pf_pkt_addr_changed(m);
  idx = ifq_idx(&ifp->if_snd, ifp->if_nifqs, m);
  ifq = ifp->if_ifqs[idx];
  error = ifq_enqueue(ifq, m);
