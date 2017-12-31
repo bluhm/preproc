@@ -1966,46 +1966,6 @@ struct flock {
  short l_type;
  short l_whence;
 };
-struct proc;
-struct uio;
-struct knote;
-struct stat;
-struct file;
-struct ucred;
-struct fileops {
- int (*fo_read)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_write)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_ioctl)(struct file *, u_long, caddr_t,
-      struct proc *);
- int (*fo_poll)(struct file *, int, struct proc *);
- int (*fo_kqfilter)(struct file *, struct knote *);
- int (*fo_stat)(struct file *, struct stat *, struct proc *);
- int (*fo_close)(struct file *, struct proc *);
-};
-struct file {
- struct { struct file *le_next; struct file **le_prev; } f_list;
- short f_flag;
- short f_type;
- long f_count;
- struct ucred *f_cred;
- struct fileops *f_ops;
- off_t f_offset;
- void *f_data;
- int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
-};
-int fdrop(struct file *, struct proc *);
-struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
-extern int maxfiles;
-extern int numfiles;
-extern struct fileops vnops;
 enum devclass {
  DV_DULL,
  DV_CPU,

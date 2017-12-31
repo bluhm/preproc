@@ -1242,53 +1242,6 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
-struct proc;
-struct uio;
-struct knote;
-struct stat;
-struct file;
-struct ucred;
-struct fileops {
- int (*fo_read)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_write)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_ioctl)(struct file *, u_long, caddr_t,
-      struct proc *);
- int (*fo_poll)(struct file *, int, struct proc *);
- int (*fo_kqfilter)(struct file *, struct knote *);
- int (*fo_stat)(struct file *, struct stat *, struct proc *);
- int (*fo_close)(struct file *, struct proc *);
-};
-struct file {
- struct { struct file *le_next; struct file **le_prev; } f_list;
- short f_flag;
- short f_type;
- long f_count;
- struct ucred *f_cred;
- struct fileops *f_ops;
- off_t f_offset;
- void *f_data;
- int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
-};
-int fdrop(struct file *, struct proc *);
-struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
-extern int maxfiles;
-extern int numfiles;
-extern struct fileops vnops;
 struct stat {
  mode_t st_mode;
  dev_t st_dev;
@@ -3072,7 +3025,7 @@ again:
  do_pio:
   ata_bio->nblks = min(nblks, ata_bio->multi);
   ata_bio->nbytes = ata_bio->nblks * ata_bio->lp->d_secsize;
-  ((nblks == 1 || (ata_bio->flags & 0x0008) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ata/ata_wdc.c", 377, "nblks == 1 || (ata_bio->flags & ATA_SINGLE) == 0"));
+  ((nblks == 1 || (ata_bio->flags & 0x0008) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ata/ata_wdc.c", 376, "nblks == 1 || (ata_bio->flags & ATA_SINGLE) == 0"));
   if (ata_bio->nblks > 1) {
    if (ata_bio->flags & 0x0080)
     cmd = (ata_bio->flags & 0x0020) ?

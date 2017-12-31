@@ -2884,53 +2884,6 @@ struct forkstat {
  uint64_t siztfork;
  uint64_t sizkthread;
 };
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
-struct proc;
-struct uio;
-struct knote;
-struct stat;
-struct file;
-struct ucred;
-struct fileops {
- int (*fo_read)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_write)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_ioctl)(struct file *, u_long, caddr_t,
-      struct proc *);
- int (*fo_poll)(struct file *, int, struct proc *);
- int (*fo_kqfilter)(struct file *, struct knote *);
- int (*fo_stat)(struct file *, struct stat *, struct proc *);
- int (*fo_close)(struct file *, struct proc *);
-};
-struct file {
- struct { struct file *le_next; struct file **le_prev; } f_list;
- short f_flag;
- short f_type;
- long f_count;
- struct ucred *f_cred;
- struct fileops *f_ops;
- off_t f_offset;
- void *f_data;
- int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
-};
-int fdrop(struct file *, struct proc *);
-struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
-extern int maxfiles;
-extern int numfiles;
-extern struct fileops vnops;
 typedef u_int16_t comp_t;
 struct acct {
  char ac_comm[10];
@@ -5348,7 +5301,7 @@ process_initialize(struct process *pr, struct proc *p)
  p->p_p = pr;
  pr->ps_ucred = p->p_ucred;
  (pr->ps_ucred)->cr_ref++;
- ((p->p_ucred->cr_ref >= 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 199, "p->p_ucred->cr_ref >= 2"));
+ ((p->p_ucred->cr_ref >= 2) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 198, "p->p_ucred->cr_ref >= 2"));
  do { ((&pr->ps_children)->lh_first) = ((void *)0); } while (0);
  timeout_set(&pr->ps_realit_to, realitexpire, pr);
 }
@@ -5431,9 +5384,9 @@ fork1(struct proc *curp, int flags, void (*func)(void *), void *arg,
  vaddr_t uaddr;
  int error;
  struct ptrace_state *newptstat = ((void *)0);
- (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 337, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
- (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 338, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
- ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 339, "func != NULL"));
+ (((flags & ~(0x00000001 | 0x00000002 | 0x00000008 | 0x00000400 | 0x00000004 | 0x00000080 | 0x00000010 | 0x00000040 | 0x00000020 | 0x00000200)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 336, "(flags & ~(FORK_FORK | FORK_VFORK | FORK_PPWAIT | FORK_PTRACE | FORK_IDLE | FORK_SHAREVM | FORK_SHAREFILES | FORK_NOZOMBIE | FORK_SYSTEM | FORK_SIGHAND)) == 0"));
+ (((flags & 0x00000200) == 0 || (flags & 0x00000080)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 337, "(flags & FORK_SIGHAND) == 0 || (flags & FORK_SHAREVM)"));
+ ((func != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 338, "func != NULL"));
  if ((error = fork_check_maxthread(uid)))
   return error;
  if ((nprocesses >= maxprocess - 5 && uid != 0) ||
@@ -5626,10 +5579,10 @@ freepid(pid_t pid)
 void
 proc_trampoline_mp(void)
 {
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 669, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 668, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  ___mp_unlock((&sched_lock) );
  _spl(0);
- do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
- ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 673, "!_kernel_lock_held()"));
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 675);
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 671, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
+ ((!_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 672, "!_kernel_lock_held()"));
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_fork.c", 674);
 }

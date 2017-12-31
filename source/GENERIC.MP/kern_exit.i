@@ -2149,53 +2149,6 @@ int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
-struct proc;
-struct uio;
-struct knote;
-struct stat;
-struct file;
-struct ucred;
-struct fileops {
- int (*fo_read)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_write)(struct file *, off_t *, struct uio *,
-      struct ucred *);
- int (*fo_ioctl)(struct file *, u_long, caddr_t,
-      struct proc *);
- int (*fo_poll)(struct file *, int, struct proc *);
- int (*fo_kqfilter)(struct file *, struct knote *);
- int (*fo_stat)(struct file *, struct stat *, struct proc *);
- int (*fo_close)(struct file *, struct proc *);
-};
-struct file {
- struct { struct file *le_next; struct file **le_prev; } f_list;
- short f_flag;
- short f_type;
- long f_count;
- struct ucred *f_cred;
- struct fileops *f_ops;
- off_t f_offset;
- void *f_data;
- int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
-};
-int fdrop(struct file *, struct proc *);
-struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
-extern int maxfiles;
-extern int numfiles;
-extern struct fileops vnops;
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);
@@ -5403,7 +5356,7 @@ exit1(struct proc *p, int rv, int flags)
  if (p->p_flag & 0x04000000) {
   if (--pr->ps_refcnt == 1)
    wakeup(&pr->ps_threads);
-  ((pr->ps_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 350, "pr->ps_refcnt > 0"));
+  ((pr->ps_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 349, "pr->ps_refcnt > 0"));
  }
  uvmexp.swtch++;
  cpu_exit(p);
@@ -5432,7 +5385,7 @@ reaper(void)
 {
  struct proc *p;
  _kernel_unlock();
- do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 423, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 422, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  for (;;) {
   __mtx_enter(&deadproc_mutex );
   while ((p = ((&deadproc)->lh_first)) == ((void *)0))
@@ -5440,7 +5393,7 @@ reaper(void)
   do { if ((p)->p_hash.le_next != ((void *)0)) (p)->p_hash.le_next->p_hash.le_prev = (p)->p_hash.le_prev; *(p)->p_hash.le_prev = (p)->p_hash.le_next; ((p)->p_hash.le_prev) = ((void *)-1); ((p)->p_hash.le_next) = ((void *)-1); } while (0);
   __mtx_leave(&deadproc_mutex );
   (void)0;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 436);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 435);
   uvm_uarea_free(p);
   p->p_vmspace = ((void *)0);
   if (p->p_flag & 0x04000000) {
@@ -5598,11 +5551,11 @@ process_zap(struct process *pr)
  pr->ps_textvp = ((void *)0);
  if (otvp)
   vrele(otvp);
- ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 656, "pr->ps_refcnt == 1"));
+ ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 655, "pr->ps_refcnt == 1"));
  if (pr->ps_ptstat != ((void *)0))
   free(pr->ps_ptstat, 42, sizeof(*pr->ps_ptstat));
  pool_put(&rusage_pool, pr->ps_ru);
- (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 660, "TAILQ_EMPTY(&pr->ps_threads)"));
+ (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 659, "TAILQ_EMPTY(&pr->ps_threads)"));
  limfree(pr->ps_limit);
  crfree(pr->ps_ucred);
  pool_put(&process_pool, pr);
