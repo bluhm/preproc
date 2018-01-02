@@ -5169,11 +5169,10 @@ sys_execve(struct proc *p, void *v, register_t *retval)
  char *env_start;
  struct process *pr = p->p_p;
  long argc, envc;
- size_t len, sgap;
+ size_t len, sgap, dstsize;
  char *stack;
  struct ps_strings arginfo;
  struct vmspace *vm;
- char **tmpfap;
  extern struct emul emul_native;
  struct vnode *otvp;
  if ((error = single_thread_set(p, SINGLE_UNWIND, 1)))
@@ -5201,17 +5200,17 @@ sys_execve(struct proc *p, void *v, register_t *retval)
  dp = argp;
  argc = 0;
  if (pack.ep_flags & 0x0004) {
-  tmpfap = pack.ep_fa;
-  while (*tmpfap != ((void *)0)) {
-   char *cp;
-   cp = *tmpfap;
-   while (*cp)
-    *dp++ = *cp++;
-   *dp++ = '\0';
-   free(*tmpfap, 63, 0);
-   tmpfap++; argc++;
+  dstsize = (256 * 1024);
+  for(; pack.ep_fa[argc] != ((void *)0); argc++) {
+   len = strlcpy(dp, pack.ep_fa[argc], dstsize);
+   len++;
+   dp += len; dstsize -= len;
+   if (pack.ep_fa[argc+1] != ((void *)0))
+    free(pack.ep_fa[argc], 63, len);
+   else
+    free(pack.ep_fa[argc], 63, 1024);
   }
-  free(pack.ep_fa, 63, 0);
+  free(pack.ep_fa, 63, 4 * sizeof(char *));
   pack.ep_flags &= ~0x0004;
  }
  if (!(cpp = ((uap)->argp.be.datum))) {

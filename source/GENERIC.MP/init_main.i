@@ -6082,7 +6082,7 @@ extern void nfs_init(void);
 const char copyright[] =
 "Copyright (c) 1982, 1986, 1989, 1991, 1993\n"
 "\tThe Regents of the University of California.  All rights reserved.\n"
-"Copyright (c) 1995-2017 OpenBSD. All rights reserved.  https://www.OpenBSD.org\n";
+"Copyright (c) 1995-2018 OpenBSD. All rights reserved.  https://www.OpenBSD.org\n";
 struct session session0;
 struct pgrp pgrp0;
 struct proc proc0;

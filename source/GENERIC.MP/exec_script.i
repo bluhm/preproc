@@ -2836,11 +2836,13 @@ fail:
  } else
   vn_close(scriptvp, 0x0001, p->p_ucred, p);
  pool_put(&namei_pool, epp->ep_ndp->ni_cnd.cn_pnbuf);
- if ((tmpsap = shellargp) != ((void *)0)) {
-  while (*tmpsap != ((void *)0)) {
-   free(*tmpsap, 63, 0);
-   tmpsap++;
-  }
+ if (shellargp != ((void *)0)) {
+  free(shellargp[0], 63, shellnamelen + 1);
+  if (shellargp[2] != ((void *)0)) {
+   free(shellargp[1], 63, shellarglen + 1);
+   free(shellargp[2], 63, 1024);
+  } else
+   free(shellargp[1], 63, 1024);
   free(shellargp, 63, 4 * sizeof(char *));
  }
  kill_vmcmds(&epp->ep_vmcmds);
