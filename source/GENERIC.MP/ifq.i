@@ -2124,6 +2124,7 @@ struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
+ struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -2142,6 +2143,7 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
+ struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -2182,6 +2184,7 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
+void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -2208,11 +2211,6 @@ static inline unsigned int
 ifq_is_oactive(struct ifqueue *ifq)
 {
  return (ifq->ifq_oactive);
-}
-static inline void
-ifq_start(struct ifqueue *ifq)
-{
- ifq_serialize(ifq, &ifq->ifq_start);
 }
 static inline void
 ifq_restart(struct ifqueue *ifq)
@@ -2272,11 +2270,11 @@ struct ifnet {
  unsigned short if_flags;
  int if_xflags;
  struct if_data if_data;
- u_int32_t if_hardmtu;
+ uint32_t if_hardmtu;
  char if_description[64];
  u_short if_rtlabelid;
- u_int8_t if_priority;
- u_int8_t if_llprio;
+ uint8_t if_priority;
+ uint8_t if_llprio;
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;
@@ -2453,6 +2451,12 @@ struct priq {
 void ifq_start_task(void *);
 void ifq_restart_task(void *);
 void ifq_barrier_task(void *);
+void ifq_bundle_task(void *);
+static inline void
+ifq_run_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
 void
 ifq_serialize(struct ifqueue *ifq, struct task *t)
 {
@@ -2484,6 +2488,15 @@ ifq_is_serialized(struct ifqueue *ifq)
  return (ifq->ifq_serializer == (__curcpu->ci_self));
 }
 void
+ifq_start(struct ifqueue *ifq)
+{
+ if (((ifq)->ifq_len) >= min(4, ifq->ifq_maxlen)) {
+  task_del(ifq->ifq_softnet, &ifq->ifq_bundle);
+  ifq_run_start(ifq);
+ } else
+  task_add(ifq->ifq_softnet, &ifq->ifq_bundle);
+}
+void
 ifq_start_task(void *p)
 {
  struct ifqueue *ifq = p;
@@ -2502,10 +2515,24 @@ ifq_restart_task(void *p)
  ifp->if_qstart(ifq);
 }
 void
+ifq_bundle_task(void *p)
+{
+ struct ifqueue *ifq = p;
+ ifq_run_start(ifq);
+}
+void
 ifq_barrier(struct ifqueue *ifq)
 {
  struct cond c = { 1 };
  struct task t = {{ ((void *)0), ((void *)0) }, (ifq_barrier_task), (&c), 0 };
+ if (!task_del(ifq->ifq_softnet, &ifq->ifq_bundle)) {
+  int netlocked = (rw_status(&netlock) == 0x0001UL);
+  if (netlocked)
+   do { _rw_exit_write(&netlock ); } while (0);
+  taskq_barrier(ifq->ifq_softnet);
+  if (netlocked)
+   do { _rw_enter_write(&netlock ); } while (0);
+ }
  if (ifq->ifq_serializer == ((void *)0))
   return;
  ifq_serialize(ifq, &t);
@@ -2521,6 +2548,7 @@ void
 ifq_init(struct ifqueue *ifq, struct ifnet *ifp, unsigned int idx)
 {
  ifq->ifq_if = ifp;
+ ifq->ifq_softnet = net_tq(ifp->if_index);
  ifq->_ifq_ptr._ifq_softc = ((void *)0);
  do { (void)(((void *)0)); (void)(0); __mtx_init((&ifq->ifq_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  ifq->ifq_qdrops = 0;
@@ -2536,6 +2564,7 @@ ifq_init(struct ifqueue *ifq, struct ifnet *ifp, unsigned int idx)
  do { (void)(((void *)0)); (void)(0); __mtx_init((&ifq->ifq_task_mtx), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  do { (&ifq->ifq_task_list)->tqh_first = ((void *)0); (&ifq->ifq_task_list)->tqh_last = &(&ifq->ifq_task_list)->tqh_first; } while (0);
  ifq->ifq_serializer = ((void *)0);
+ task_set(&ifq->ifq_bundle, ifq_bundle_task, ifq);
  task_set(&ifq->ifq_start, ifq_start_task, ifq);
  task_set(&ifq->ifq_restart, ifq_restart_task, ifq);
  if (ifq->ifq_maxlen == 0)
@@ -2574,6 +2603,7 @@ void
 ifq_destroy(struct ifqueue *ifq)
 {
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
+ ifq_barrier(ifq);
  ifq->ifq_ops->ifqop_purge(ifq, &ml);
  ifq->ifq_ops->ifqop_free(ifq->ifq_idx, ifq->ifq_q);
  ml_purge(&ml);
@@ -2642,7 +2672,7 @@ void
 ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 {
  void *cookie;
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 330, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 371, "m != NULL"));
  cookie = m->M_dat.MH.MH_pkthdr.ph_cookie;
  ifq->ifq_ops->ifqop_deq_commit(ifq, m, cookie);
  ifq->ifq_len--;
@@ -2651,7 +2681,7 @@ ifq_deq_commit(struct ifqueue *ifq, struct mbuf *m)
 void
 ifq_deq_rollback(struct ifqueue *ifq, struct mbuf *m)
 {
- ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 341, "m != NULL"));
+ ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 382, "m != NULL"));
  ifq_deq_leave(ifq);
 }
 struct mbuf *
@@ -2675,7 +2705,7 @@ ifq_purge(struct ifqueue *ifq)
  ifq->ifq_len = 0;
  ifq->ifq_qdrops += rv;
  __mtx_leave(&ifq->ifq_mtx );
- ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 373, "rv == ml_len(&ml)"));
+ ((rv == ((&ml)->ml_len)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 414, "rv == ml_len(&ml)"));
  ml_purge(&ml);
  return (rv);
 }
@@ -2691,7 +2721,7 @@ ifq_q_enter(struct ifqueue *ifq, const struct ifq_ops *ops)
 void
 ifq_q_leave(struct ifqueue *ifq, void *q)
 {
- ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 395, "q == ifq->ifq_q"));
+ ((q == ifq->ifq_q) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 436, "q == ifq->ifq_q"));
  __mtx_leave(&ifq->ifq_mtx );
 }
 void
@@ -2859,7 +2889,7 @@ priq_enq(struct ifqueue *ifq, struct mbuf *m)
  struct mbuf *n = ((void *)0);
  unsigned int prio;
  pq = ifq->ifq_q;
- ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 619, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
+ ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 660, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
  if (((ifq)->ifq_len) >= ifq->ifq_maxlen) {
   for (prio = 0; prio < m->M_dat.MH.MH_pkthdr.pf.prio; prio++) {
    pl = &pq->pq_lists[prio];
@@ -2896,7 +2926,7 @@ void
 priq_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
 {
  struct mbuf_list *pl = cookie;
- ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 669, "MBUF_LIST_FIRST(pl) == m"));
+ ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 710, "MBUF_LIST_FIRST(pl) == m"));
  ml_dequeue(pl);
 }
 void

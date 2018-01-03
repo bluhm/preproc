@@ -2893,13 +2893,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
 struct proc;
 struct uio;
 struct knote;
@@ -2940,6 +2933,13 @@ extern struct filelist filehead;
 extern int maxfiles;
 extern int numfiles;
 extern struct fileops vnops;
+struct flock {
+ off_t l_start;
+ off_t l_len;
+ pid_t l_pid;
+ short l_type;
+ short l_whence;
+};
 struct ktr_header {
  uint ktr_type;
  pid_t ktr_pid;

@@ -25827,6 +25827,10 @@ static const struct pci_known_product pci_known_products[] = {
      "5U852 SD/MMC",
  },
  {
+     0x1d87, 0x0100,
+     "RK3399 Root Complex",
+ },
+ {
      0x127a, 0x2005,
      "RS56/SP-PCI11P1 Modem",
  },
@@ -30284,6 +30288,10 @@ static const struct pci_known_vendor pci_known_vendors[] = {
  {
      0x1c1c,
      "Symphony Labs",
+ },
+ {
+     0x1d87,
+     "Rockchip",
  },
  {
      0x1de1,

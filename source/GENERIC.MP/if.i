@@ -1611,10 +1611,10 @@ struct socket {
   struct mbuf *sb_mb;
   struct mbuf *sb_mbtail;
   struct mbuf *sb_lastrecord;
-  struct selinfo sb_sel;
-  int sb_flagsintr;
-  short sb_flags;
   u_short sb_timeo;
+  short sb_flags;
+  int sb_flagsintr;
+  struct selinfo sb_sel;
  } so_rcv, so_snd;
  void (*so_upcall)(struct socket *so, caddr_t arg, int waitf);
  caddr_t so_upcallarg;
@@ -1627,14 +1627,14 @@ static inline int
 sb_notify(struct socket *so, struct sockbuf *sb)
 {
  int flags = (sb->sb_flags | sb->sb_flagsintr);
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 174, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 178, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  return ((flags & (0x04|0x08|0x10|0x20|0x80)) != 0);
 }
 static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 192, "sb == &so->so_rcv || sb == &so->so_snd"));
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int
@@ -2895,6 +2895,7 @@ struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
+ struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -2913,6 +2914,7 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
+ struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -2953,6 +2955,7 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
+void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -2979,11 +2982,6 @@ static inline unsigned int
 ifq_is_oactive(struct ifqueue *ifq)
 {
  return (ifq->ifq_oactive);
-}
-static inline void
-ifq_start(struct ifqueue *ifq)
-{
- ifq_serialize(ifq, &ifq->ifq_start);
 }
 static inline void
 ifq_restart(struct ifqueue *ifq)
@@ -3043,11 +3041,11 @@ struct ifnet {
  unsigned short if_flags;
  int if_xflags;
  struct if_data if_data;
- u_int32_t if_hardmtu;
+ uint32_t if_hardmtu;
  char if_description[64];
  u_short if_rtlabelid;
- u_int8_t if_priority;
- u_int8_t if_llprio;
+ uint8_t if_priority;
+ uint8_t if_llprio;
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;
@@ -6599,12 +6597,12 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   return (6);
  oif_flags = ifp->if_flags;
  oif_xflags = ifp->if_xflags;
- do { _rw_enter_write(&netlock ); } while (0);
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((171))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   switch (ifar->ifar_af) {
   case 2:
    if (cmd == ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))))
@@ -6619,18 +6617,18 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   default:
    error = 47;
   }
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   ifp->if_flags = (ifp->if_flags & (0x2|0x10|0x40|0x400| 0x800|0x8000|0x200)) |
    (ifr->ifr_ifru.ifru_flags & ~(0x2|0x10|0x40|0x400| 0x800|0x8000|0x200));
   error = (*ifp->if_ioctl)(ifp, cmd, data);
   if (error != 0) {
    ifp->if_flags = oif_flags;
-   break;
-  }
-  if (((oif_flags ^ ifp->if_flags) & (0x1))) {
+  } else if (((oif_flags ^ ifp->if_flags) & (0x1))) {
    s = _splraise(6);
    if (((ifp->if_flags) & (0x1)))
     if_up(ifp);
@@ -6638,14 +6636,18 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
     if_down(ifp);
    _splx(s);
   }
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((157))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   if (((ifr->ifr_ifru.ifru_flags) & (0x20))) {
    error = in6_ifattach(ifp);
-   if (error != 0)
+   if (error != 0) {
+    do { _rw_exit_write(&netlock ); } while (0);
     break;
+   }
   }
   if (((ifr->ifr_ifru.ifru_flags) & (0x8)) &&
       !((ifp->if_xflags) & (0x8))) {
@@ -6670,8 +6672,6 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
     ifp->if_xflags |= 0x10;
     error = ifp->if_wol(ifp, 1);
     _splx(s);
-    if (error)
-     break;
    }
    if (((ifp->if_xflags) & (0x10)) &&
        !((ifr->ifr_ifru.ifru_flags) & (0x10))) {
@@ -6679,25 +6679,29 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
     ifp->if_xflags &= ~0x10;
     error = ifp->if_wol(ifp, 0);
     _splx(s);
-    if (error)
-     break;
    }
   } else if (((ifr->ifr_ifru.ifru_flags) & (0x10))) {
    ifr->ifr_ifru.ifru_flags &= ~0x10;
    error = 91;
   }
-  ifp->if_xflags = (ifp->if_xflags & (0x1|0x2)) |
-   (ifr->ifr_ifru.ifru_flags & ~(0x1|0x2));
+  if (error == 0)
+   ifp->if_xflags = (ifp->if_xflags & (0x1|0x2)) |
+    (ifr->ifr_ifru.ifru_flags & ~(0x1|0x2));
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((24))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   ifp->if_data.ifi_metric = ifr->ifr_ifru.ifru_metric;
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   error = (*ifp->if_ioctl)(ifp, cmd, data);
+  do { _rw_exit_write(&netlock ); } while (0);
   if (!error)
    rtm_ifchg(ifp);
   break;
@@ -6733,25 +6737,32 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
   if ((error = suser(p, 0)) != 0)
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   error = if_setrdomain(ifp, ifr->ifr_ifru.ifru_metric);
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((135))):
   if ((error = suser(p, 0)))
    break;
-  if ((error = if_addgroup(ifp, ifgr->ifgr_ifgru.ifgru_group)))
-   break;
-  error = (*ifp->if_ioctl)(ifp, cmd, data);
-  if (error == 25)
-   error = 0;
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = if_addgroup(ifp, ifgr->ifgr_ifgru.ifgru_group);
+  if (error == 0) {
+   error = (*ifp->if_ioctl)(ifp, cmd, data);
+   if (error == 25)
+    error = 0;
+  }
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((137))):
   if ((error = suser(p, 0)))
    break;
+  do { _rw_enter_write(&netlock ); } while (0);
   error = (*ifp->if_ioctl)(ifp, cmd, data);
   if (error == 25)
    error = 0;
   if (error == 0)
    error = if_delgroup(ifp, ifgr->ifgr_ifgru.ifgru_group);
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((31))):
   if ((error = suser(p, 0)))
@@ -6762,6 +6773,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    error = 22;
    break;
   }
+  do { _rw_enter_write(&netlock ); } while (0);
   switch (ifp->if_data.ifi_type) {
   case 0x06:
   case 0xf7:
@@ -6779,6 +6791,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   }
   if (error == 0)
    ifnewlladdr(ifp);
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((181))):
   if ((error = suser(p, 0)))
@@ -6787,7 +6800,9 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    error = 22;
    break;
   }
+  do { _rw_enter_write(&netlock ); } while (0);
   ifp->if_llprio = ifr->ifr_ifru.ifru_metric;
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
@@ -6803,18 +6818,19 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   if ((error = suser(p, 0)) != 0)
    break;
  default:
+  do { _rw_enter_write(&netlock ); } while (0);
   error = ((*so->so_proto->pr_usrreq)(so, 11,
    (struct mbuf *) cmd, (struct mbuf *) data,
    (struct mbuf *) ifp, p));
   if (error == 45)
    error = ((*ifp->if_ioctl)(ifp, cmd, data));
+  do { _rw_exit_write(&netlock ); } while (0);
   break;
  }
  if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)
   rtm_ifchg(ifp);
  if (((oif_flags ^ ifp->if_flags) & 0x1) != 0)
   getmicrotime(&ifp->if_data.ifi_lastchange);
- do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int

@@ -2132,6 +2132,7 @@ struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
+ struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -2150,6 +2151,7 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
+ struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -2190,6 +2192,7 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
+void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -2216,11 +2219,6 @@ static inline unsigned int
 ifq_is_oactive(struct ifqueue *ifq)
 {
  return (ifq->ifq_oactive);
-}
-static inline void
-ifq_start(struct ifqueue *ifq)
-{
- ifq_serialize(ifq, &ifq->ifq_start);
 }
 static inline void
 ifq_restart(struct ifqueue *ifq)
@@ -2280,11 +2278,11 @@ struct ifnet {
  unsigned short if_flags;
  int if_xflags;
  struct if_data if_data;
- u_int32_t if_hardmtu;
+ uint32_t if_hardmtu;
  char if_description[64];
  u_short if_rtlabelid;
- u_int8_t if_priority;
- u_int8_t if_llprio;
+ uint8_t if_priority;
+ uint8_t if_llprio;
  struct timeout *if_slowtimo;
  struct task *if_watchdogtask;
  struct task *if_linkstatetask;

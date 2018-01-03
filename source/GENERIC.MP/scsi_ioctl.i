@@ -1222,13 +1222,6 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
 struct proc;
 struct uio;
 struct knote;
@@ -1559,6 +1552,13 @@ struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
 struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
 void device_register(struct device *, void *);
 int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
+struct flock {
+ off_t l_start;
+ off_t l_len;
+ pid_t l_pid;
+ short l_type;
+ short l_whence;
+};
 struct scsi_generic {
  u_int8_t opcode;
  u_int8_t bytes[15];

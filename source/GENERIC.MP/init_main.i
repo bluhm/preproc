@@ -1009,13 +1009,6 @@ struct file *fd_getfile(struct filedesc *, int);
 struct file *fd_getfile_mode(struct filedesc *, int, int);
 int closef(struct file *, struct proc *);
 int getsock(struct proc *, int, struct file **);
-struct flock {
- off_t l_start;
- off_t l_len;
- pid_t l_pid;
- short l_type;
- short l_whence;
-};
 struct proc;
 struct uio;
 struct knote;
@@ -3366,10 +3359,10 @@ struct socket {
   struct mbuf *sb_mb;
   struct mbuf *sb_mbtail;
   struct mbuf *sb_lastrecord;
-  struct selinfo sb_sel;
-  int sb_flagsintr;
-  short sb_flags;
   u_short sb_timeo;
+  short sb_flags;
+  int sb_flagsintr;
+  struct selinfo sb_sel;
  } so_rcv, so_snd;
  void (*so_upcall)(struct socket *so, caddr_t arg, int waitf);
  caddr_t so_upcallarg;
@@ -3382,14 +3375,14 @@ static inline int
 sb_notify(struct socket *so, struct sockbuf *sb)
 {
  int flags = (sb->sb_flags | sb->sb_flagsintr);
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 174, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 178, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  return ((flags & (0x04|0x08|0x10|0x20|0x80)) != 0);
 }
 static inline long
 sbspace(struct socket *so, struct sockbuf *sb)
 {
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 188, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/socketvar.h", 192, "sb == &so->so_rcv || sb == &so->so_snd"));
  return lmin(sb->sb_hiwat - sb->sb_cc, sb->sb_mbmax - sb->sb_mbcnt);
 }
 static inline int

@@ -2389,8 +2389,8 @@ free(void *addr, int type, size_t freedsize)
  if (freedsize != 0 && freedsize > size)
   panic("free: size too large %zu > %ld (%p) type %s",
       freedsize, size, addr, memname[type]);
- if (freedsize != 0 && size > (1 << 4) && freedsize < size / 2)
-  panic("free: size too small %zu < %ld / 2 (%p) type %s",
+ if (freedsize != 0 && size > (1 << 4) && freedsize <= size / 2)
+  panic("free: size too small %zu <= %ld / 2 (%p) type %s",
       freedsize, size, addr, memname[type]);
  if (size > (1 << 13))
   alloc = addrmask[BUCKETINDX((1 << 13))];
