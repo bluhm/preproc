@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -15512,7 +15516,7 @@ atombios_dac_setup(struct drm_encoder *encoder, int action)
    break;
   }
  }
- args.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
 static void
@@ -15560,7 +15564,7 @@ atombios_tv_setup(struct drm_encoder *encoder, int action)
    break;
   }
  }
- args.sTVEncoder.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.sTVEncoder.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
 static u8 radeon_atom_get_bpc(struct drm_encoder *encoder)
@@ -15615,14 +15619,14 @@ atombios_dvo_setup(struct drm_encoder *encoder, int action)
    break;
   case 2:
    args.dvo.sDVOEncoder.ucAction = action;
-   args.dvo.sDVOEncoder.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.dvo.sDVOEncoder.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    args.dvo.sDVOEncoder.ucDeviceType = 0x00000003;
    if (radeon_dig_monitor_is_duallink(encoder, radeon_encoder->pixel_clock))
     args.dvo.sDVOEncoder.usDevAttr.sDigAttrib.ucAttribute |= 0x01;
    break;
   case 3:
    args.dvo_v3.ucAction = action;
-   args.dvo_v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.dvo_v3.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    args.dvo_v3.ucDVOConfig = 0;
    break;
   default:
@@ -15682,7 +15686,7 @@ atombios_digital_setup(struct drm_encoder *encoder, int action)
    args.v1.ucAction = action;
    if (hdmi_detected)
     args.v1.ucMisc |= 0x08;
-   args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v1.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    if (radeon_encoder->devices & (((0x1L << 0x00000001 ) | (0x1L << 0x00000005 )))) {
     if (dig->lcd_misc & 0x00000001)
      args.v1.ucMisc |= 0x01;
@@ -15706,7 +15710,7 @@ atombios_digital_setup(struct drm_encoder *encoder, int action)
    }
    if (hdmi_detected)
     args.v2.ucMisc |= 0x08;
-   args.v2.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v2.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    args.v2.ucTruncate = 0;
    args.v2.ucSpatial = 0;
    args.v2.ucTemporal = 0;
@@ -15858,7 +15862,7 @@ atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mo
   switch (crev) {
   case 1:
    args.v1.ucAction = action;
-   args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v1.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    if (action == 0x10)
     args.v3.ucPanelMode = panel_mode;
    else
@@ -15891,7 +15895,7 @@ atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mo
   case 2:
   case 3:
    args.v3.ucAction = action;
-   args.v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v3.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    if (action == 0x10)
     args.v3.ucPanelMode = panel_mode;
    else
@@ -15909,7 +15913,7 @@ atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mo
    break;
   case 4:
    args.v4.ucAction = action;
-   args.v4.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v4.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    if (action == 0x10)
     args.v4.ucPanelMode = panel_mode;
    else
@@ -16016,17 +16020,17 @@ atombios_dig_transmitter_setup(struct drm_encoder *encoder, int action, uint8_t 
   case 1:
    args.v1.ucAction = action;
    if (action == 7) {
-    args.v1.usInitInfo = __extension__({ __uint16_t __swap16gen_x = (connector_object_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v1.usInitInfo = (__builtin_constant_p(connector_object_id) ? (__uint16_t)(((__uint16_t)(connector_object_id) & 0xffU) << 8 | ((__uint16_t)(connector_object_id) & 0xff00U) >> 8) : __swap16md(connector_object_id));
    } else if (action == 11) {
     args.v1.asMode.ucLaneSel = lane_num;
     args.v1.asMode.ucLaneSet = lane_set;
    } else {
     if (is_dp)
-     args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v1.usPixelClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
     else if (radeon_dig_monitor_is_duallink(encoder, radeon_encoder->pixel_clock))
-     args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = ((radeon_encoder->pixel_clock / 2) / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v1.usPixelClock = (__builtin_constant_p((radeon_encoder->pixel_clock / 2) / 10) ? (__uint16_t)(((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xffU) << 8 | ((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xff00U) >> 8) : __swap16md((radeon_encoder->pixel_clock / 2) / 10));
     else
-     args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v1.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    }
    args.v1.ucConfig = 0x00;
    if (dig_encoder)
@@ -16068,17 +16072,17 @@ atombios_dig_transmitter_setup(struct drm_encoder *encoder, int action, uint8_t 
   case 2:
    args.v2.ucAction = action;
    if (action == 7) {
-    args.v2.usInitInfo = __extension__({ __uint16_t __swap16gen_x = (connector_object_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v2.usInitInfo = (__builtin_constant_p(connector_object_id) ? (__uint16_t)(((__uint16_t)(connector_object_id) & 0xffU) << 8 | ((__uint16_t)(connector_object_id) & 0xff00U) >> 8) : __swap16md(connector_object_id));
    } else if (action == 11) {
     args.v2.asMode.ucLaneSel = lane_num;
     args.v2.asMode.ucLaneSet = lane_set;
    } else {
     if (is_dp)
-     args.v2.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v2.usPixelClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
     else if (radeon_dig_monitor_is_duallink(encoder, radeon_encoder->pixel_clock))
-     args.v2.usPixelClock = __extension__({ __uint16_t __swap16gen_x = ((radeon_encoder->pixel_clock / 2) / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v2.usPixelClock = (__builtin_constant_p((radeon_encoder->pixel_clock / 2) / 10) ? (__uint16_t)(((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xffU) << 8 | ((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xff00U) >> 8) : __swap16md((radeon_encoder->pixel_clock / 2) / 10));
     else
-     args.v2.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v2.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    }
    args.v2.acConfig.ucEncoderSel = dig_encoder;
    if (dig->linkb)
@@ -16107,17 +16111,17 @@ atombios_dig_transmitter_setup(struct drm_encoder *encoder, int action, uint8_t 
   case 3:
    args.v3.ucAction = action;
    if (action == 7) {
-    args.v3.usInitInfo = __extension__({ __uint16_t __swap16gen_x = (connector_object_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v3.usInitInfo = (__builtin_constant_p(connector_object_id) ? (__uint16_t)(((__uint16_t)(connector_object_id) & 0xffU) << 8 | ((__uint16_t)(connector_object_id) & 0xff00U) >> 8) : __swap16md(connector_object_id));
    } else if (action == 11) {
     args.v3.asMode.ucLaneSel = lane_num;
     args.v3.asMode.ucLaneSet = lane_set;
    } else {
     if (is_dp)
-     args.v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v3.usPixelClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
     else if (radeon_dig_monitor_is_duallink(encoder, radeon_encoder->pixel_clock))
-     args.v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = ((radeon_encoder->pixel_clock / 2) / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v3.usPixelClock = (__builtin_constant_p((radeon_encoder->pixel_clock / 2) / 10) ? (__uint16_t)(((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xffU) << 8 | ((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xff00U) >> 8) : __swap16md((radeon_encoder->pixel_clock / 2) / 10));
     else
-     args.v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v3.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    }
    if (is_dp)
     args.v3.ucLaneNum = dp_lane_count;
@@ -16156,17 +16160,17 @@ atombios_dig_transmitter_setup(struct drm_encoder *encoder, int action, uint8_t 
   case 4:
    args.v4.ucAction = action;
    if (action == 7) {
-    args.v4.usInitInfo = __extension__({ __uint16_t __swap16gen_x = (connector_object_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v4.usInitInfo = (__builtin_constant_p(connector_object_id) ? (__uint16_t)(((__uint16_t)(connector_object_id) & 0xffU) << 8 | ((__uint16_t)(connector_object_id) & 0xff00U) >> 8) : __swap16md(connector_object_id));
    } else if (action == 11) {
     args.v4.asMode.ucLaneSel = lane_num;
     args.v4.asMode.ucLaneSet = lane_set;
    } else {
     if (is_dp)
-     args.v4.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v4.usPixelClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
     else if (radeon_dig_monitor_is_duallink(encoder, radeon_encoder->pixel_clock))
-     args.v4.usPixelClock = __extension__({ __uint16_t __swap16gen_x = ((radeon_encoder->pixel_clock / 2) / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v4.usPixelClock = (__builtin_constant_p((radeon_encoder->pixel_clock / 2) / 10) ? (__uint16_t)(((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xffU) << 8 | ((__uint16_t)((radeon_encoder->pixel_clock / 2) / 10) & 0xff00U) >> 8) : __swap16md((radeon_encoder->pixel_clock / 2) / 10));
     else
-     args.v4.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v4.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    }
    if (is_dp)
     args.v4.ucLaneNum = dp_lane_count;
@@ -16208,9 +16212,9 @@ atombios_dig_transmitter_setup(struct drm_encoder *encoder, int action, uint8_t 
   case 5:
    args.v5.ucAction = action;
    if (is_dp)
-    args.v5.usSymClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v5.usSymClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
    else
-    args.v5.usSymClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v5.usSymClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    switch (radeon_encoder->encoder_id) {
    case 0x1E:
     if (dig->linkb)
@@ -16345,7 +16349,7 @@ atombios_external_encoder_setup(struct drm_encoder *encoder,
   case 1:
   case 2:
    args.v1.sDigEncoder.ucAction = action;
-   args.v1.sDigEncoder.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v1.sDigEncoder.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    args.v1.sDigEncoder.ucEncoderMode = atombios_get_encoder_mode(encoder);
    if ((((args.v1.sDigEncoder.ucEncoderMode) == 0) || ((args.v1.sDigEncoder.ucEncoderMode) == 5))) {
     if (dp_clock == 270000)
@@ -16359,9 +16363,9 @@ atombios_external_encoder_setup(struct drm_encoder *encoder,
   case 3:
    args.v3.sExtEncoder.ucAction = action;
    if (action == 0x07)
-    args.v3.sExtEncoder.usConnectorId = __extension__({ __uint16_t __swap16gen_x = (connector_object_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v3.sExtEncoder.usConnectorId = (__builtin_constant_p(connector_object_id) ? (__uint16_t)(((__uint16_t)(connector_object_id) & 0xffU) << 8 | ((__uint16_t)(connector_object_id) & 0xff00U) >> 8) : __swap16md(connector_object_id));
    else
-    args.v3.sExtEncoder.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (radeon_encoder->pixel_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v3.sExtEncoder.usPixelClock = (__builtin_constant_p(radeon_encoder->pixel_clock / 10) ? (__uint16_t)(((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xffU) << 8 | ((__uint16_t)(radeon_encoder->pixel_clock / 10) & 0xff00U) >> 8) : __swap16md(radeon_encoder->pixel_clock / 10));
    args.v3.sExtEncoder.ucEncoderMode = atombios_get_encoder_mode(encoder);
    if ((((args.v3.sExtEncoder.ucEncoderMode) == 0) || ((args.v3.sExtEncoder.ucEncoderMode) == 5))) {
     if (dp_clock == 270000)
@@ -17043,15 +17047,15 @@ atombios_dac_load_detect(struct drm_encoder *encoder, struct drm_connector *conn
   else
    args.sDacload.ucDacType = 1;
   if (radeon_connector->devices & (0x1L << 0x00000000 ))
-   args.sDacload.usDeviceID = __extension__({ __uint16_t __swap16gen_x = ((0x1L << 0x00000000 )); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.sDacload.usDeviceID = (__builtin_constant_p((0x1L << 0x00000000 )) ? (__uint16_t)(((__uint16_t)((0x1L << 0x00000000 )) & 0xffU) << 8 | ((__uint16_t)((0x1L << 0x00000000 )) & 0xff00U) >> 8) : __swap16md((0x1L << 0x00000000 )));
   else if (radeon_connector->devices & (0x1L << 0x00000004 ))
-   args.sDacload.usDeviceID = __extension__({ __uint16_t __swap16gen_x = ((0x1L << 0x00000004 )); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.sDacload.usDeviceID = (__builtin_constant_p((0x1L << 0x00000004 )) ? (__uint16_t)(((__uint16_t)((0x1L << 0x00000004 )) & 0xffU) << 8 | ((__uint16_t)((0x1L << 0x00000004 )) & 0xff00U) >> 8) : __swap16md((0x1L << 0x00000004 )));
   else if (radeon_connector->devices & (0x1L << 0x00000008 )) {
-   args.sDacload.usDeviceID = __extension__({ __uint16_t __swap16gen_x = ((0x1L << 0x00000008 )); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.sDacload.usDeviceID = (__builtin_constant_p((0x1L << 0x00000008 )) ? (__uint16_t)(((__uint16_t)((0x1L << 0x00000008 )) & 0xffU) << 8 | ((__uint16_t)((0x1L << 0x00000008 )) & 0xff00U) >> 8) : __swap16md((0x1L << 0x00000008 )));
    if (crev >= 3)
     args.sDacload.ucMisc = 0x01;
   } else if (radeon_connector->devices & (0x1L << 0x00000002 )) {
-   args.sDacload.usDeviceID = __extension__({ __uint16_t __swap16gen_x = ((0x1L << 0x00000002 )); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.sDacload.usDeviceID = (__builtin_constant_p((0x1L << 0x00000002 )) ? (__uint16_t)(((__uint16_t)((0x1L << 0x00000002 )) & 0xffU) << 8 | ((__uint16_t)((0x1L << 0x00000002 )) & 0xff00U) >> 8) : __swap16md((0x1L << 0x00000002 )));
    if (crev >= 3)
     args.sDacload.ucMisc = 0x01;
   }

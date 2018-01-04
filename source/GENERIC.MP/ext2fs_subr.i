@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2857,7 +2861,7 @@ ext2fs_vinit(struct mount *mp, struct vnode **vpp)
  case VCHR:
  case VBLK:
   vp->v_op = &ext2fs_specvops;
-  nvp = checkalias(vp, __extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[0]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }), mp);
+  nvp = checkalias(vp, (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[0]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[0])), mp);
   if (nvp != ((void *)0)) {
    nvp->v_data = vp->v_data;
    vp->v_data = ((void *)0);

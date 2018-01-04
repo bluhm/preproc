@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3186,7 +3190,7 @@ sili_port_softreset(struct sili_port *sp)
  struct sili_prb_softreset sreset;
  u_int32_t signature;
  __builtin_bzero((&sreset), (sizeof(sreset)));
- sreset.control = __extension__({ __uint16_t __swap16gen_x = ((1<<7) | (1<<6)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ sreset.control = (__builtin_constant_p((1<<7) | (1<<6)) ? (__uint16_t)(((__uint16_t)((1<<7) | (1<<6)) & 0xffU) << 8 | ((__uint16_t)((1<<7) | (1<<6)) & 0xff00U) >> 8) : __swap16md((1<<7) | (1<<6)));
  sreset.fis[1] = 0x0f;
  sili_post_direct(sp, 0, &sreset, sizeof(sreset));
  if (!sili_pwait_eq(sp, 0x1800, (1 << 0), 0, 1000)) {
@@ -3300,9 +3304,9 @@ sili_ata_cmd(struct ata_xfer *xa)
  if (xa->flags & (1<<5)) {
   atapi = ccb->ccb_cmd;
   if (xa->flags & (1<<1))
-   atapi->control = __extension__({ __uint16_t __swap16gen_x = ((1<<5)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   atapi->control = (__builtin_constant_p((1<<5)) ? (__uint16_t)(((__uint16_t)((1<<5)) & 0xffU) << 8 | ((__uint16_t)((1<<5)) & 0xff00U) >> 8) : __swap16md((1<<5)));
   else
-   atapi->control = __extension__({ __uint16_t __swap16gen_x = ((1<<4)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   atapi->control = (__builtin_constant_p((1<<4)) ? (__uint16_t)(((__uint16_t)((1<<4)) & 0xffU) << 8 | ((__uint16_t)((1<<4)) & 0xff00U) >> 8) : __swap16md((1<<4)));
   sgl = atapi->sgl;
   sgllen = (sizeof((atapi->sgl)) / sizeof((atapi->sgl)[0]));
  } else {
@@ -3398,9 +3402,9 @@ sili_load(struct sili_ccb *ccb, struct sili_sge *sgl, int sgllen)
    nsge++;
    addr = ccb->ccb_cmd_dva;
    addr += ((u_int8_t *)nsge - (u_int8_t *)ccb->ccb_cmd);
-   ce->addr_lo = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   ce->addr_hi = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)(addr >> 32)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   ce->flags = __extension__({ __uint32_t __swap32gen_x = ((1<<30)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   ce->addr_lo = (__builtin_constant_p((u_int32_t)addr) ? (__uint32_t)(((__uint32_t)((u_int32_t)addr) & 0xff) << 24 | ((__uint32_t)((u_int32_t)addr) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)addr) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)addr) & 0xff000000) >> 24) : __swap32md((u_int32_t)addr));
+   ce->addr_hi = (__builtin_constant_p((u_int32_t)(addr >> 32)) ? (__uint32_t)(((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff) << 24 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff000000) >> 24) : __swap32md((u_int32_t)(addr >> 32)));
+   ce->flags = (__builtin_constant_p((1<<30)) ? (__uint32_t)(((__uint32_t)((1<<30)) & 0xff) << 24 | ((__uint32_t)((1<<30)) & 0xff00) << 8 | ((__uint32_t)((1<<30)) & 0xff0000) >> 8 | ((__uint32_t)((1<<30)) & 0xff000000) >> 24) : __swap32md((1<<30)));
    if ((dmap->dm_nsegs - i) > 4)
     ce += 4;
    else
@@ -3408,13 +3412,13 @@ sili_load(struct sili_ccb *ccb, struct sili_sge *sgl, int sgllen)
   }
   sgl = nsge;
   addr = dmap->dm_segs[i].ds_addr;
-  sgl->addr_lo = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sgl->addr_hi = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)(addr >> 32)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sgl->data_count = __extension__({ __uint32_t __swap32gen_x = (dmap->dm_segs[i].ds_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  sgl->addr_lo = (__builtin_constant_p((u_int32_t)addr) ? (__uint32_t)(((__uint32_t)((u_int32_t)addr) & 0xff) << 24 | ((__uint32_t)((u_int32_t)addr) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)addr) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)addr) & 0xff000000) >> 24) : __swap32md((u_int32_t)addr));
+  sgl->addr_hi = (__builtin_constant_p((u_int32_t)(addr >> 32)) ? (__uint32_t)(((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff) << 24 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff000000) >> 24) : __swap32md((u_int32_t)(addr >> 32)));
+  sgl->data_count = (__builtin_constant_p(dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[i].ds_len));
   sgl->flags = 0;
   nsge++;
  }
- sgl->flags |= __extension__({ __uint32_t __swap32gen_x = ((1<<31)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sgl->flags |= (__builtin_constant_p((1<<31)) ? (__uint32_t)(((__uint32_t)((1<<31)) & 0xff) << 24 | ((__uint32_t)((1<<31)) & 0xff00) << 8 | ((__uint32_t)((1<<31)) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)) & 0xff000000) >> 24) : __swap32md((1<<31)));
  bus_dmamap_sync(sc->sc_dmat, dmap, 0, dmap->dm_mapsize,
      (xa->flags & (1<<0)) ? 0x01 :
      0x04);
@@ -3488,12 +3492,12 @@ sili_read_ncq_error(struct sili_port *sp, int *err_slotp, int pmp_port)
   return (1);
  }
  __builtin_bzero((&read_10h), (sizeof(read_10h)));
- read_10h.control = __extension__({ __uint16_t __swap16gen_x = ((1<<6)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ read_10h.control = (__builtin_constant_p((1<<6)) ? (__uint16_t)(((__uint16_t)((1<<6)) & 0xffU) << 8 | ((__uint16_t)((1<<6)) & 0xff00U) >> 8) : __swap16md((1<<6)));
  addr = ((sp->sp_scratch)->sdm_map->dm_segs[0].ds_addr);
- read_10h.sgl[0].addr_lo = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- read_10h.sgl[0].addr_hi = __extension__({ __uint32_t __swap32gen_x = ((u_int32_t)(addr >> 32)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- read_10h.sgl[0].data_count = __extension__({ __uint32_t __swap32gen_x = (512); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- read_10h.sgl[0].flags = __extension__({ __uint32_t __swap32gen_x = ((1<<31)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ read_10h.sgl[0].addr_lo = (__builtin_constant_p((u_int32_t)addr) ? (__uint32_t)(((__uint32_t)((u_int32_t)addr) & 0xff) << 24 | ((__uint32_t)((u_int32_t)addr) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)addr) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)addr) & 0xff000000) >> 24) : __swap32md((u_int32_t)addr));
+ read_10h.sgl[0].addr_hi = (__builtin_constant_p((u_int32_t)(addr >> 32)) ? (__uint32_t)(((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff) << 24 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff000000) >> 24) : __swap32md((u_int32_t)(addr >> 32)));
+ read_10h.sgl[0].data_count = (__builtin_constant_p(512) ? (__uint32_t)(((__uint32_t)(512) & 0xff) << 24 | ((__uint32_t)(512) & 0xff00) << 8 | ((__uint32_t)(512) & 0xff0000) >> 8 | ((__uint32_t)(512) & 0xff000000) >> 24) : __swap32md(512));
+ read_10h.sgl[0].flags = (__builtin_constant_p((1<<31)) ? (__uint32_t)(((__uint32_t)((1<<31)) & 0xff) << 24 | ((__uint32_t)((1<<31)) & 0xff00) << 8 | ((__uint32_t)((1<<31)) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)) & 0xff000000) >> 24) : __swap32md((1<<31)));
  fis = (struct ata_fis_h2d *)read_10h.fis;
  fis->type = 0x27;
  fis->flags = (1<<7) | pmp_port;

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3857,13 +3861,13 @@ msk_newbuf(struct sk_if_softc *sc_if)
  r = c->sk_le;
  c->sk_mbuf = m;
  addr = dmamap->dm_segs[0].ds_addr;
- r->sk_addr = __extension__({ __uint32_t __swap32gen_x = (addr >> 32); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ r->sk_addr = (__builtin_constant_p(addr >> 32) ? (__uint32_t)(((__uint32_t)(addr >> 32) & 0xff) << 24 | ((__uint32_t)(addr >> 32) & 0xff00) << 8 | ((__uint32_t)(addr >> 32) & 0xff0000) >> 8 | ((__uint32_t)(addr >> 32) & 0xff000000) >> 24) : __swap32md(addr >> 32));
  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
  (sc_if->sk_cdata.sk_rx_prod) = (sc_if->sk_cdata.sk_rx_prod + 1) % 512;
  c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
  r = c->sk_le;
- r->sk_addr = __extension__({ __uint32_t __swap32gen_x = (addr & 0xffffffff); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- r->sk_len = __extension__({ __uint16_t __swap16gen_x = (dmamap->dm_segs[0].ds_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ r->sk_addr = (__builtin_constant_p(addr & 0xffffffff) ? (__uint32_t)(((__uint32_t)(addr & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(addr & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff000000) >> 24) : __swap32md(addr & 0xffffffff));
+ r->sk_len = (__builtin_constant_p(dmamap->dm_segs[0].ds_len) ? (__uint16_t)(((__uint16_t)(dmamap->dm_segs[0].ds_len) & 0xffU) << 8 | ((__uint16_t)(dmamap->dm_segs[0].ds_len) & 0xff00U) >> 8) : __swap16md(dmamap->dm_segs[0].ds_len));
  r->sk_ctl = 0;
  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
  r->sk_opcode = 0x41 | 0x80;
@@ -3874,7 +3878,7 @@ msk_newbuf(struct sk_if_softc *sc_if)
   r = c->sk_le;
   c->sk_mbuf = ((void *)0);
   addr = dmamap->dm_segs[i].ds_addr;
-  r->sk_addr = __extension__({ __uint32_t __swap32gen_x = (addr >> 32); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  r->sk_addr = (__builtin_constant_p(addr >> 32) ? (__uint32_t)(((__uint32_t)(addr >> 32) & 0xff) << 24 | ((__uint32_t)(addr >> 32) & 0xff00) << 8 | ((__uint32_t)(addr >> 32) & 0xff0000) >> 8 | ((__uint32_t)(addr >> 32) & 0xff000000) >> 24) : __swap32md(addr >> 32));
   do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
   r->sk_opcode = 0x21 | 0x80;
   do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04|0x01)); } while ( 0);
@@ -3882,8 +3886,8 @@ msk_newbuf(struct sk_if_softc *sc_if)
   c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
   c->sk_mbuf = ((void *)0);
   r = c->sk_le;
-  r->sk_addr = __extension__({ __uint32_t __swap32gen_x = (addr & 0xffffffff); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  r->sk_len = __extension__({ __uint16_t __swap16gen_x = (dmamap->dm_segs[i].ds_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  r->sk_addr = (__builtin_constant_p(addr & 0xffffffff) ? (__uint32_t)(((__uint32_t)(addr & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(addr & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff000000) >> 24) : __swap32md(addr & 0xffffffff));
+  r->sk_len = (__builtin_constant_p(dmamap->dm_segs[i].ds_len) ? (__uint16_t)(((__uint16_t)(dmamap->dm_segs[i].ds_len) & 0xffU) << 8 | ((__uint16_t)(dmamap->dm_segs[i].ds_len) & 0xff00U) >> 8) : __swap16md(dmamap->dm_segs[i].ds_len));
   r->sk_ctl = 0;
   do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
   r->sk_opcode = 0x40 | 0x80;
@@ -4621,7 +4625,7 @@ msk_encap(struct sk_if_softc *sc_if, struct mbuf *m_head, u_int32_t *txidx)
   hiaddr = addr >> 32;
   if (sc_if->sk_tx_hiaddr != hiaddr) {
    f = &sc_if->sk_rdata->sk_tx_ring[frag];
-   f->sk_addr = __extension__({ __uint32_t __swap32gen_x = (hiaddr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   f->sk_addr = (__builtin_constant_p(hiaddr) ? (__uint32_t)(((__uint32_t)(hiaddr) & 0xff) << 24 | ((__uint32_t)(hiaddr) & 0xff00) << 8 | ((__uint32_t)(hiaddr) & 0xff0000) >> 8 | ((__uint32_t)(hiaddr) & 0xff000000) >> 24) : __swap32md(hiaddr));
    f->sk_opcode = opcode | 0x21;
    sc_if->sk_tx_hiaddr = hiaddr;
    (frag) = (frag + 1) % 512;
@@ -4629,8 +4633,8 @@ msk_encap(struct sk_if_softc *sc_if, struct mbuf *m_head, u_int32_t *txidx)
    entries++;
   }
   f = &sc_if->sk_rdata->sk_tx_ring[frag];
-  f->sk_addr = __extension__({ __uint32_t __swap32gen_x = (addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->sk_len = __extension__({ __uint16_t __swap16gen_x = (txmap->dm_segs[i].ds_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  f->sk_addr = (__builtin_constant_p(addr) ? (__uint32_t)(((__uint32_t)(addr) & 0xff) << 24 | ((__uint32_t)(addr) & 0xff00) << 8 | ((__uint32_t)(addr) & 0xff0000) >> 8 | ((__uint32_t)(addr) & 0xff000000) >> 24) : __swap32md(addr));
+  f->sk_len = (__builtin_constant_p(txmap->dm_segs[i].ds_len) ? (__uint16_t)(((__uint16_t)(txmap->dm_segs[i].ds_len) & 0xffU) << 8 | ((__uint16_t)(txmap->dm_segs[i].ds_len) & 0xff00U) >> 8) : __swap16md(txmap->dm_segs[i].ds_len));
   f->sk_ctl = 0;
   f->sk_opcode = opcode |
       (i == 0 ? 0x41 : 0x40);
@@ -4855,8 +4859,8 @@ msk_intr(void *xsc)
   case 0x60:
    sc_if = sc->sk_if[cur_st->sk_link & 0x01];
    rx[cur_st->sk_link & 0x01] = 1;
-   msk_rxeof(sc_if, __extension__({ __uint16_t __swap16gen_x = (cur_st->sk_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
-       __extension__({ __uint32_t __swap32gen_x = (cur_st->sk_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+   msk_rxeof(sc_if, (__builtin_constant_p(cur_st->sk_len) ? (__uint16_t)(((__uint16_t)(cur_st->sk_len) & 0xffU) << 8 | ((__uint16_t)(cur_st->sk_len) & 0xff00U) >> 8) : __swap16md(cur_st->sk_len)),
+       (__builtin_constant_p(cur_st->sk_status) ? (__uint32_t)(((__uint32_t)(cur_st->sk_status) & 0xff) << 24 | ((__uint32_t)(cur_st->sk_status) & 0xff00) << 8 | ((__uint32_t)(cur_st->sk_status) & 0xff0000) >> 8 | ((__uint32_t)(cur_st->sk_status) & 0xff000000) >> 24) : __swap32md(cur_st->sk_status)));
    break;
   case 0x68:
    if (sc_if0)

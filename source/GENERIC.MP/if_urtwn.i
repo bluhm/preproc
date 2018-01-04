@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2702,7 +2706,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5779,11 +5783,11 @@ urtwn_attach(struct device *parent, struct device *self, void *aux)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof(struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof(sc->sc_rxtapu);
- sc->sc_rxtapu.th.wr_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_rxtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_rxtapu.th.wr_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = ((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)));
  sc->sc_txtap_len = sizeof(sc->sc_txtapu);
- sc->sc_txtapu.th.wt_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_txtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_txtapu.th.wt_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = ((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)));
 }
 int
 urtwn_detach(struct device *self, int flags)
@@ -6017,14 +6021,14 @@ void
 urtwn_write_2(void *cookie, uint16_t addr, uint16_t val)
 {
  struct urtwn_softc *sc = cookie;
- val = __extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ val = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
  urtwn_write_region_1(sc, addr, (uint8_t *)&val, 2);
 }
 void
 urtwn_write_4(void *cookie, uint16_t addr, uint32_t val)
 {
  struct urtwn_softc *sc = cookie;
- val = __extension__({ __uint32_t __swap32gen_x = (val); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ val = (__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val));
  urtwn_write_region_1(sc, addr, (uint8_t *)&val, 4);
 }
 int
@@ -6055,7 +6059,7 @@ urtwn_read_2(void *cookie, uint16_t addr)
  uint16_t val;
  if (urtwn_read_region_1(sc, addr, (uint8_t *)&val, 2) != 0)
   return (0xffff);
- return (__extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+ return ((__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val)));
 }
 uint32_t
 urtwn_read_4(void *cookie, uint16_t addr)
@@ -6064,7 +6068,7 @@ urtwn_read_4(void *cookie, uint16_t addr)
  uint32_t val;
  if (urtwn_read_region_1(sc, addr, (uint8_t *)&val, 4) != 0)
   return (0xffffffff);
- return (__extension__({ __uint32_t __swap32gen_x = (val); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+ return ((__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val)));
 }
 int
 urtwn_llt_write(struct urtwn_softc *sc, uint32_t addr, uint32_t data)
@@ -6249,8 +6253,8 @@ urtwn_rx_frame(struct urtwn_softc *sc, uint8_t *buf, int pktlen)
  int8_t rssi = 0;
  int s, infosz;
  rxd = (struct r92c_rx_desc_usb *)buf;
- rxdw0 = __extension__({ __uint32_t __swap32gen_x = (rxd->rxdw0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- rxdw3 = __extension__({ __uint32_t __swap32gen_x = (rxd->rxdw3); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rxdw0 = (__builtin_constant_p(rxd->rxdw0) ? (__uint32_t)(((__uint32_t)(rxd->rxdw0) & 0xff) << 24 | ((__uint32_t)(rxd->rxdw0) & 0xff00) << 8 | ((__uint32_t)(rxd->rxdw0) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rxdw0) & 0xff000000) >> 24) : __swap32md(rxd->rxdw0));
+ rxdw3 = (__builtin_constant_p(rxd->rxdw3) ? (__uint32_t)(((__uint32_t)(rxd->rxdw3) & 0xff) << 24 | ((__uint32_t)(rxd->rxdw3) & 0xff00) << 8 | ((__uint32_t)(rxd->rxdw3) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rxdw3) & 0xff000000) >> 24) : __swap32md(rxd->rxdw3));
  if (__builtin_expect(((rxdw0 & (0x00004000 | 0x00008000)) != 0), 0)) {
   ifp->if_data.ifi_ierrors++;
   return;
@@ -6308,8 +6312,8 @@ urtwn_rx_frame(struct urtwn_softc *sc, uint8_t *buf, int pktlen)
    tap->wr_rate = 0x80 | (rate - 12);
   }
   tap->wr_dbm_antsignal = rssi;
-  tap->wr_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_ibss_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wr_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_ibss_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wr_chan_freq = (__builtin_constant_p(ic->ic_ibss_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_freq));
+  tap->wr_chan_flags = (__builtin_constant_p(ic->ic_ibss_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_rxtap_len;
   mb.m_hdr.mh_next = m;
@@ -6351,16 +6355,16 @@ urtwn_rxeof(struct usbd_xfer *xfer, void *priv,
  }
  buf = data->buf;
  rxd = (struct r92c_rx_desc_usb *)buf;
- npkts = (((__extension__({ __uint32_t __swap32gen_x = (rxd->rxdw2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) & 0x00ff0000) >> 16);
+ npkts = ((((__builtin_constant_p(rxd->rxdw2) ? (__uint32_t)(((__uint32_t)(rxd->rxdw2) & 0xff) << 24 | ((__uint32_t)(rxd->rxdw2) & 0xff00) << 8 | ((__uint32_t)(rxd->rxdw2) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rxdw2) & 0xff000000) >> 24) : __swap32md(rxd->rxdw2))) & 0x00ff0000) >> 16);
  ;
  if (sc->sc_sc.chip & 0x00000020) {
   int ntries, type;
   struct r88e_tx_rpt_ccx *rxstat;
-  type = (((__extension__({ __uint32_t __swap32gen_x = (rxd->rxdw3); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) & 0x0000c000) >> 14);
+  type = ((((__builtin_constant_p(rxd->rxdw3) ? (__uint32_t)(((__uint32_t)(rxd->rxdw3) & 0xff) << 24 | ((__uint32_t)(rxd->rxdw3) & 0xff00) << 8 | ((__uint32_t)(rxd->rxdw3) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rxdw3) & 0xff000000) >> 24) : __swap32md(rxd->rxdw3))) & 0x0000c000) >> 14);
   if (type == 1) {
    buf += sizeof(struct r92c_rx_desc_usb);
    rxstat = (struct r88e_tx_rpt_ccx *)buf;
-   ntries = (((__extension__({ __uint32_t __swap32gen_x = (rxstat->rptb2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) & 0x3f) >> 0);
+   ntries = ((((__builtin_constant_p(rxstat->rptb2) ? (__uint32_t)(((__uint32_t)(rxstat->rptb2) & 0xff) << 24 | ((__uint32_t)(rxstat->rptb2) & 0xff00) << 8 | ((__uint32_t)(rxstat->rptb2) & 0xff0000) >> 8 | ((__uint32_t)(rxstat->rptb2) & 0xff000000) >> 24) : __swap32md(rxstat->rptb2))) & 0x3f) >> 0);
    if (rxstat->rptb1 & 0x40)
     sc->amn.amn_txcnt++;
    if (ntries > 0)
@@ -6372,7 +6376,7 @@ urtwn_rxeof(struct usbd_xfer *xfer, void *priv,
   if (__builtin_expect(((len < sizeof(*rxd)) != 0), 0))
    break;
   rxd = (struct r92c_rx_desc_usb *)buf;
-  rxdw0 = __extension__({ __uint32_t __swap32gen_x = (rxd->rxdw0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxdw0 = (__builtin_constant_p(rxd->rxdw0) ? (__uint32_t)(((__uint32_t)(rxd->rxdw0) & 0xff) << 24 | ((__uint32_t)(rxd->rxdw0) & 0xff00) << 8 | ((__uint32_t)(rxd->rxdw0) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rxdw0) & 0xff000000) >> 24) : __swap32md(rxd->rxdw0));
   pktlen = (((rxdw0) & 0x00003fff) >> 0);
   if (__builtin_expect(((pktlen == 0) != 0), 0))
    break;
@@ -6451,9 +6455,9 @@ urtwn_tx(void *cookie, struct mbuf *m, struct ieee80211_node *ni)
  do { if (((data)->next.tqe_next) != ((void *)0)) (data)->next.tqe_next->next.tqe_prev = (data)->next.tqe_prev; else (&sc->tx_free_list)->tqh_last = (data)->next.tqe_prev; *(data)->next.tqe_prev = (data)->next.tqe_next; ((data)->next.tqe_prev) = ((void *)-1); ((data)->next.tqe_next) = ((void *)-1); } while (0);
  txd = (struct r92c_tx_desc_usb *)data->buf;
  __builtin_memset((txd), (0), (sizeof(*txd)));
- txd->txdw0 |= __extension__({ __uint32_t __swap32gen_x = ((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ txd->txdw0 |= (__builtin_constant_p((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) ? (__uint32_t)(((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff) << 24 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff00) << 8 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff0000) >> 8 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff000000) >> 24) : __swap32md((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000));
  if ((*(wh->i_addr1) & 0x01))
-  txd->txdw0 |= __extension__({ __uint32_t __swap32gen_x = (0x01000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw0 |= (__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
  if (!(*(wh->i_addr1) & 0x01) &&
      type == 0x08) {
   if (ic->ic_curmode == IEEE80211_MODE_11B ||
@@ -6462,41 +6466,41 @@ urtwn_tx(void *cookie, struct mbuf *m, struct ieee80211_node *ni)
   else
    raid = 4;
   if (sc->sc_sc.chip & 0x00000020) {
-   txd->txdw1 |= __extension__({ __uint32_t __swap32gen_x = ((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   txd->txdw2 |= __extension__({ __uint32_t __swap32gen_x = (0x00010000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   txd->txdw2 |= __extension__({ __uint32_t __swap32gen_x = (0x00080000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw1 |= (__builtin_constant_p((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)) ? (__uint32_t)(((__uint32_t)((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)) & 0xff) << 24 | ((__uint32_t)((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)) & 0xff00) << 8 | ((__uint32_t)((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)) & 0xff0000) >> 8 | ((__uint32_t)((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)) & 0xff000000) >> 24) : __swap32md((((0) << 0) & 0x0000003f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000)));
+   txd->txdw2 |= (__builtin_constant_p(0x00010000) ? (__uint32_t)(((__uint32_t)(0x00010000) & 0xff) << 24 | ((__uint32_t)(0x00010000) & 0xff00) << 8 | ((__uint32_t)(0x00010000) & 0xff0000) >> 8 | ((__uint32_t)(0x00010000) & 0xff000000) >> 24) : __swap32md(0x00010000));
+   txd->txdw2 |= (__builtin_constant_p(0x00080000) ? (__uint32_t)(((__uint32_t)(0x00080000) & 0xff) << 24 | ((__uint32_t)(0x00080000) & 0xff00) << 8 | ((__uint32_t)(0x00080000) & 0xff0000) >> 8 | ((__uint32_t)(0x00080000) & 0xff000000) >> 24) : __swap32md(0x00080000));
   } else {
-   txd->txdw1 |= __extension__({ __uint32_t __swap32gen_x = ((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw1 |= (__builtin_constant_p((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040) ? (__uint32_t)(((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040) & 0xff) << 24 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040) & 0xff00) << 8 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040) & 0xff0000) >> 8 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040) & 0xff000000) >> 24) : __swap32md((((0) << 0) & 0x0000001f) | (((0x00) << 8) & 0x00001f00) | (((raid) << 16) & 0x000f0000) | 0x00000040));
   }
   if (m->M_dat.MH.MH_pkthdr.len + 4 > ic->ic_rtsthreshold) {
-   txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00001000 | 0x00002000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw4 |= (__builtin_constant_p(0x00001000 | 0x00002000) ? (__uint32_t)(((__uint32_t)(0x00001000 | 0x00002000) & 0xff) << 24 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff00) << 8 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff0000) >> 8 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff000000) >> 24) : __swap32md(0x00001000 | 0x00002000));
   } else if (ic->ic_flags & 0x00100000) {
    if (ic->ic_protmode == IEEE80211_PROT_CTSONLY) {
-    txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00000800 | 0x00002000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    txd->txdw4 |= (__builtin_constant_p(0x00000800 | 0x00002000) ? (__uint32_t)(((__uint32_t)(0x00000800 | 0x00002000) & 0xff) << 24 | ((__uint32_t)(0x00000800 | 0x00002000) & 0xff00) << 8 | ((__uint32_t)(0x00000800 | 0x00002000) & 0xff0000) >> 8 | ((__uint32_t)(0x00000800 | 0x00002000) & 0xff000000) >> 24) : __swap32md(0x00000800 | 0x00002000));
    } else if (ic->ic_protmode == IEEE80211_PROT_RTSCTS) {
-    txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00001000 | 0x00002000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    txd->txdw4 |= (__builtin_constant_p(0x00001000 | 0x00002000) ? (__uint32_t)(((__uint32_t)(0x00001000 | 0x00002000) & 0xff) << 24 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff00) << 8 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff0000) >> 8 | ((__uint32_t)(0x00001000 | 0x00002000) & 0xff000000) >> 24) : __swap32md(0x00001000 | 0x00002000));
    }
   }
-  txd->txdw5 |= __extension__({ __uint32_t __swap32gen_x = (0x0001ff00); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw5 |= (__builtin_constant_p(0x0001ff00) ? (__uint32_t)(((__uint32_t)(0x0001ff00) & 0xff) << 24 | ((__uint32_t)(0x0001ff00) & 0xff00) << 8 | ((__uint32_t)(0x0001ff00) & 0xff0000) >> 8 | ((__uint32_t)(0x0001ff00) & 0xff000000) >> 24) : __swap32md(0x0001ff00));
   if (sc->sc_sc.chip & 0x00000020) {
-   txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00000100); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = ((((ni->ni_txrate) << 0) & 0x0000001f)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   txd->txdw5 |= __extension__({ __uint32_t __swap32gen_x = ((((ni->ni_txrate) << 0) & 0x0000003f)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw4 |= (__builtin_constant_p(0x00000100) ? (__uint32_t)(((__uint32_t)(0x00000100) & 0xff) << 24 | ((__uint32_t)(0x00000100) & 0xff00) << 8 | ((__uint32_t)(0x00000100) & 0xff0000) >> 8 | ((__uint32_t)(0x00000100) & 0xff000000) >> 24) : __swap32md(0x00000100));
+   txd->txdw4 |= (__builtin_constant_p((((ni->ni_txrate) << 0) & 0x0000001f)) ? (__uint32_t)(((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000001f)) & 0xff) << 24 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000001f)) & 0xff00) << 8 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000001f)) & 0xff0000) >> 8 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000001f)) & 0xff000000) >> 24) : __swap32md((((ni->ni_txrate) << 0) & 0x0000001f)));
+   txd->txdw5 |= (__builtin_constant_p((((ni->ni_txrate) << 0) & 0x0000003f)) ? (__uint32_t)(((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000003f)) & 0xff) << 24 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000003f)) & 0xff00) << 8 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000003f)) & 0xff0000) >> 8 | ((__uint32_t)((((ni->ni_txrate) << 0) & 0x0000003f)) & 0xff000000) >> 24) : __swap32md((((ni->ni_txrate) << 0) & 0x0000003f)));
   } else {
-   txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = ((((8) << 0) & 0x0000001f)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   txd->txdw5 |= __extension__({ __uint32_t __swap32gen_x = ((((11) << 0) & 0x0000003f)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw4 |= (__builtin_constant_p((((8) << 0) & 0x0000001f)) ? (__uint32_t)(((__uint32_t)((((8) << 0) & 0x0000001f)) & 0xff) << 24 | ((__uint32_t)((((8) << 0) & 0x0000001f)) & 0xff00) << 8 | ((__uint32_t)((((8) << 0) & 0x0000001f)) & 0xff0000) >> 8 | ((__uint32_t)((((8) << 0) & 0x0000001f)) & 0xff000000) >> 24) : __swap32md((((8) << 0) & 0x0000001f)));
+   txd->txdw5 |= (__builtin_constant_p((((11) << 0) & 0x0000003f)) ? (__uint32_t)(((__uint32_t)((((11) << 0) & 0x0000003f)) & 0xff) << 24 | ((__uint32_t)((((11) << 0) & 0x0000003f)) & 0xff00) << 8 | ((__uint32_t)((((11) << 0) & 0x0000003f)) & 0xff0000) >> 8 | ((__uint32_t)((((11) << 0) & 0x0000003f)) & 0xff000000) >> 24) : __swap32md((((11) << 0) & 0x0000003f)));
   }
  } else {
-  txd->txdw1 |= __extension__({ __uint32_t __swap32gen_x = ((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00000100); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  txd->txdw5 |= __extension__({ __uint32_t __swap32gen_x = ((((0) << 0) & 0x0000003f)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw1 |= (__builtin_constant_p((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)) ? (__uint32_t)(((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)) & 0xff) << 24 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)) & 0xff00) << 8 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)) & 0xff0000) >> 8 | ((__uint32_t)((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)) & 0xff000000) >> 24) : __swap32md((((0) << 0) & 0x0000001f) | (((0x12) << 8) & 0x00001f00) | (((6) << 16) & 0x000f0000)));
+  txd->txdw4 |= (__builtin_constant_p(0x00000100) ? (__uint32_t)(((__uint32_t)(0x00000100) & 0xff) << 24 | ((__uint32_t)(0x00000100) & 0xff00) << 8 | ((__uint32_t)(0x00000100) & 0xff0000) >> 8 | ((__uint32_t)(0x00000100) & 0xff000000) >> 24) : __swap32md(0x00000100));
+  txd->txdw5 |= (__builtin_constant_p((((0) << 0) & 0x0000003f)) ? (__uint32_t)(((__uint32_t)((((0) << 0) & 0x0000003f)) & 0xff) << 24 | ((__uint32_t)((((0) << 0) & 0x0000003f)) & 0xff00) << 8 | ((__uint32_t)((((0) << 0) & 0x0000003f)) & 0xff0000) >> 8 | ((__uint32_t)((((0) << 0) & 0x0000003f)) & 0xff000000) >> 24) : __swap32md((((0) << 0) & 0x0000003f)));
  }
  txd->txdseq |= *(uint16_t *)wh->i_seq;
  if (!hasqos) {
-  txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00000080); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  txd->txdseq |= __extension__({ __uint16_t __swap16gen_x = (0x8000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  txd->txdw4 |= (__builtin_constant_p(0x00000080) ? (__uint32_t)(((__uint32_t)(0x00000080) & 0xff) << 24 | ((__uint32_t)(0x00000080) & 0xff00) << 8 | ((__uint32_t)(0x00000080) & 0xff0000) >> 8 | ((__uint32_t)(0x00000080) & 0xff000000) >> 24) : __swap32md(0x00000080));
+  txd->txdseq |= (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
  } else
-  txd->txdw4 |= __extension__({ __uint32_t __swap32gen_x = (0x00000040); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw4 |= (__builtin_constant_p(0x00000040) ? (__uint32_t)(((__uint32_t)(0x00000040) & 0xff) << 24 | ((__uint32_t)(0x00000040) & 0xff00) << 8 | ((__uint32_t)(0x00000040) & 0xff0000) >> 8 | ((__uint32_t)(0x00000040) & 0xff000000) >> 24) : __swap32md(0x00000040));
  sum = 0;
  for (i = 0; i < sizeof(*txd) / 2; i++)
   sum ^= ((uint16_t *)txd)[i];
@@ -6505,8 +6509,8 @@ urtwn_tx(void *cookie, struct mbuf *m, struct ieee80211_node *ni)
   struct urtwn_tx_radiotap_header *tap = &sc->sc_txtapu.th;
   struct mbuf mb;
   tap->wt_flags = 0;
-  tap->wt_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wt_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m;

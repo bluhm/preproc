@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4490,7 +4494,7 @@ axen_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
   goto done;
  }
  hdr_p = (u_int32_t *)(buf + total_len - sizeof(u_int32_t));
- rx_hdr = __extension__({ __uint32_t __swap32gen_x = (*hdr_p); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rx_hdr = (__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
  hdr_offset = (u_int16_t)(rx_hdr >> 16);
  pkt_count = (u_int16_t)(rx_hdr & 0xffff);
  if (total_len > sc->axen_bufsz) {
@@ -4513,7 +4517,7 @@ axen_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
        ifp->if_data.ifi_ierrors += pkt_count;
    goto done;
   }
-  pkt_hdr = __extension__({ __uint32_t __swap32gen_x = (*hdr_p); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  pkt_hdr = (__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
   pkt_len = (pkt_hdr >> 16) & 0x1fff;
   ;
   if ((pkt_hdr & (1U << 29)) ||
@@ -4650,7 +4654,7 @@ axen_encap(struct axen_softc *sc, struct mbuf *m, int idx)
   printf("%s: not supported usb bus type", sc->axen_dev.dv_xname);
   return 5;
  }
- hdr.plen = __extension__({ __uint32_t __swap32gen_x = (m->M_dat.MH.MH_pkthdr.len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ hdr.plen = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
  hdr.gso = 0;
  __builtin_memcpy((c->axen_buf), (&hdr), (sizeof(hdr)));
  length = sizeof(hdr);

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2488,7 +2492,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
  fs = ip->inode_u.e2fs;
  lbn = bn;
  if (bn < 12) {
-  nb = __extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[bn]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  nb = (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn]));
   if (nb != 0) {
    error = bread(vp, bn, fs->e2fs_bsize, &bp);
    if (error) {
@@ -2505,7 +2509,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    return (error);
   ip->inode_ext.e2fs.ext2fs_last_lblk = lbn;
   ip->inode_ext.e2fs.ext2fs_last_blk = newb;
-  ip->dinode_u.e2fs_din->e2di_blocks[bn] = __extension__({ __uint32_t __swap32gen_x = (newb); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ip->dinode_u.e2fs_din->e2di_blocks[bn] = (__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
   ip->i_flag |= 0x0002 | 0x0004;
   bp = getblk(vp, bn, fs->e2fs_bsize, 0, 0);
   bp->b_blkno = ((newb) << (fs)->e2fs_fsbtodb);
@@ -2520,7 +2524,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
  if (num < 1)
   panic ("ext2fs_balloc: ufs_getlbns returned indirect block");
  --num;
- nb = __extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ nb = (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]));
  allocib = ((void *)0);
  allocblk = allociblk;
  if (nb == 0) {
@@ -2538,7 +2542,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    goto fail;
   unwindidx = 0;
   allocib = &ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off];
-  *allocib = __extension__({ __uint32_t __swap32gen_x = (newb); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  *allocib = (__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
   ip->i_flag |= 0x0002 | 0x0004;
  }
  for (i = 1;;) {
@@ -2548,7 +2552,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    goto fail;
   }
   bap = (u_int32_t *)bp->b_data;
-  nb = __extension__({ __uint32_t __swap32gen_x = (bap[indirs[i].in_off]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  nb = (__builtin_constant_p(bap[indirs[i].in_off]) ? (__uint32_t)(((__uint32_t)(bap[indirs[i].in_off]) & 0xff) << 24 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff00) << 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff000000) >> 24) : __swap32md(bap[indirs[i].in_off]));
   if (i == num)
    break;
   i++;
@@ -2574,7 +2578,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
   }
   if (unwindidx < 0)
    unwindidx = i - 1;
-  bap[indirs[i - 1].in_off] = __extension__({ __uint32_t __swap32gen_x = (nb); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  bap[indirs[i - 1].in_off] = (__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
   if (flags & 0x02) {
    bwrite(bp);
   } else {
@@ -2592,7 +2596,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
   *allocblk++ = nb;
   ip->inode_ext.e2fs.ext2fs_last_lblk = lbn;
   ip->inode_ext.e2fs.ext2fs_last_blk = newb;
-  bap[indirs[num].in_off] = __extension__({ __uint32_t __swap32gen_x = (nb); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  bap[indirs[num].in_off] = (__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
   if (flags & 0x02) {
    bwrite(bp);
   } else {

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3964,7 +3968,7 @@ vr_list_rx_init(struct vr_softc *sc)
    nexti = i + 1;
   cd->vr_rx_chain[i].vr_nextdesc = &cd->vr_rx_chain[nexti];
   ld->vr_rx_list[i].vr_next =
-      __extension__({ __uint32_t __swap32gen_x = (sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])) ? (__uint32_t)(((__uint32_t)(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])) & 0xff) << 24 | ((__uint32_t)(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])) & 0xff000000) >> 24) : __swap32md(sc->sc_listmap.vrm_map->dm_segs[0].ds_addr + __builtin_offsetof(struct vr_list_data, vr_rx_list[nexti])));
  }
  cd->vr_rx_prod = cd->vr_rx_cons = &cd->vr_rx_chain[0];
  if_rxr_init(&sc->sc_rxring, 2, 128 - 1);
@@ -4003,10 +4007,10 @@ vr_rxeof(struct vr_softc *sc)
   bus_dmamap_sync(sc->sc_dmat, sc->sc_listmap.vrm_map,
       0, sc->sc_listmap.vrm_map->dm_mapsize,
       0x02 | 0x08);
-  rxstat = __extension__({ __uint32_t __swap32gen_x = (sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxstat = (__builtin_constant_p(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status) ? (__uint32_t)(((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status) & 0xff) << 24 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status) & 0xff00) << 8 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status) & 0xff0000) >> 8 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status) & 0xff000000) >> 24) : __swap32md(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_status));
   if (rxstat & 0x80000000)
    break;
-  rxctl = __extension__({ __uint32_t __swap32gen_x = (sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxctl = (__builtin_constant_p(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl) ? (__uint32_t)(((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl) & 0xff) << 24 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl) & 0xff00) << 8 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl) & 0xff0000) >> 8 | ((__uint32_t)(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl) & 0xff000000) >> 24) : __swap32md(sc->vr_cdata.vr_rx_cons->vr_ptr->vr_ctl));
   cur_rx = sc->vr_cdata.vr_rx_cons;
   m = cur_rx->vr_mbuf;
   cur_rx->vr_mbuf = ((void *)0);
@@ -4017,7 +4021,7 @@ vr_rxeof(struct vr_softc *sc)
    m_freem(m);
    continue;
   }
-  total_len = ((__extension__({ __uint32_t __swap32gen_x = (cur_rx->vr_ptr->vr_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0x07FF0000) >> 16);
+  total_len = (((__builtin_constant_p(cur_rx->vr_ptr->vr_status) ? (__uint32_t)(((__uint32_t)(cur_rx->vr_ptr->vr_status) & 0xff) << 24 | ((__uint32_t)(cur_rx->vr_ptr->vr_status) & 0xff00) << 8 | ((__uint32_t)(cur_rx->vr_ptr->vr_status) & 0xff0000) >> 8 | ((__uint32_t)(cur_rx->vr_ptr->vr_status) & 0xff000000) >> 24) : __swap32md(cur_rx->vr_ptr->vr_status)) & 0x07FF0000) >> 16);
   bus_dmamap_sync(sc->sc_dmat, cur_rx->vr_map, 0,
       cur_rx->vr_map->dm_mapsize, 0x02);
   bus_dmamap_unload(sc->sc_dmat, cur_rx->vr_map);
@@ -4088,8 +4092,8 @@ vr_txeof(struct vr_softc *sc)
  while (cur_tx != sc->vr_cdata.vr_tx_prod) {
   u_int32_t txstat, txctl;
   int i;
-  txstat = __extension__({ __uint32_t __swap32gen_x = (cur_tx->vr_ptr->vr_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  txctl = __extension__({ __uint32_t __swap32gen_x = (cur_tx->vr_ptr->vr_ctl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txstat = (__builtin_constant_p(cur_tx->vr_ptr->vr_status) ? (__uint32_t)(((__uint32_t)(cur_tx->vr_ptr->vr_status) & 0xff) << 24 | ((__uint32_t)(cur_tx->vr_ptr->vr_status) & 0xff00) << 8 | ((__uint32_t)(cur_tx->vr_ptr->vr_status) & 0xff0000) >> 8 | ((__uint32_t)(cur_tx->vr_ptr->vr_status) & 0xff000000) >> 24) : __swap32md(cur_tx->vr_ptr->vr_status));
+  txctl = (__builtin_constant_p(cur_tx->vr_ptr->vr_ctl) ? (__uint32_t)(((__uint32_t)(cur_tx->vr_ptr->vr_ctl) & 0xff) << 24 | ((__uint32_t)(cur_tx->vr_ptr->vr_ctl) & 0xff00) << 8 | ((__uint32_t)(cur_tx->vr_ptr->vr_ctl) & 0xff0000) >> 8 | ((__uint32_t)(cur_tx->vr_ptr->vr_ctl) & 0xff000000) >> 24) : __swap32md(cur_tx->vr_ptr->vr_ctl));
   if ((txstat & 0x00000100) ||
       (txstat & 0x00000800)) {
    for (i = 0x400;
@@ -4102,7 +4106,7 @@ vr_txeof(struct vr_softc *sc)
     sc->vr_flags |= 0x01;
     break;
    }
-   cur_tx->vr_ptr->vr_status = __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   cur_tx->vr_ptr->vr_status = (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
    bus_space_write_4(sc->vr_btag, sc->vr_bhandle, 0x1C, cur_tx->vr_paddr);
    break;
   }
@@ -4256,7 +4260,7 @@ vr_encap(struct vr_softc *sc, struct vr_chain **cp, struct mbuf *m)
   u_int32_t vtag = m->M_dat.MH.MH_pkthdr.ether_vtag;
   vtag = ((vtag) & 0xFFF) | (((vtag) >> 13) & 7) << 12;
   vr_status |= vtag << 16;
-  vr_ctl |= __extension__({ __uint32_t __swap32gen_x = (0x00020000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  vr_ctl |= (__builtin_constant_p(0x00020000) ? (__uint32_t)(((__uint32_t)(0x00020000) & 0xff) << 24 | ((__uint32_t)(0x00020000) & 0xff00) << 8 | ((__uint32_t)(0x00020000) & 0xff0000) >> 8 | ((__uint32_t)(0x00020000) & 0xff000000) >> 24) : __swap32md(0x00020000));
  }
  if (++sc->vr_cdata.vr_tx_pkts % 8 != 0 &&
      sc->vr_quirks & (1<<4))
@@ -4267,26 +4271,26 @@ vr_encap(struct vr_softc *sc, struct vr_chain **cp, struct mbuf *m)
   if (i != 0)
    *cp = c = c->vr_nextdesc;
   f = c->vr_ptr;
-  f->vr_ctl = __extension__({ __uint32_t __swap32gen_x = (txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  f->vr_ctl = (__builtin_constant_p(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl) ? (__uint32_t)(((__uint32_t)(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl) & 0xff) << 24 | ((__uint32_t)(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl) & 0xff00) << 8 | ((__uint32_t)(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl) & 0xff0000) >> 8 | ((__uint32_t)(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl) & 0xff000000) >> 24) : __swap32md(txmap->dm_segs[i].ds_len | 0x00008000 | vr_ctl));
   if (i == 0)
-   f->vr_ctl |= __extension__({ __uint32_t __swap32gen_x = (0x00200000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_status = __extension__({ __uint32_t __swap32gen_x = (vr_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_data = __extension__({ __uint32_t __swap32gen_x = (txmap->dm_segs[i].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_next = __extension__({ __uint32_t __swap32gen_x = (c->vr_nextdesc->vr_paddr | intdisable); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   f->vr_ctl |= (__builtin_constant_p(0x00200000) ? (__uint32_t)(((__uint32_t)(0x00200000) & 0xff) << 24 | ((__uint32_t)(0x00200000) & 0xff00) << 8 | ((__uint32_t)(0x00200000) & 0xff0000) >> 8 | ((__uint32_t)(0x00200000) & 0xff000000) >> 24) : __swap32md(0x00200000));
+  f->vr_status = (__builtin_constant_p(vr_status) ? (__uint32_t)(((__uint32_t)(vr_status) & 0xff) << 24 | ((__uint32_t)(vr_status) & 0xff00) << 8 | ((__uint32_t)(vr_status) & 0xff0000) >> 8 | ((__uint32_t)(vr_status) & 0xff000000) >> 24) : __swap32md(vr_status));
+  f->vr_data = (__builtin_constant_p(txmap->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(txmap->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(txmap->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(txmap->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(txmap->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(txmap->dm_segs[i].ds_addr));
+  f->vr_next = (__builtin_constant_p(c->vr_nextdesc->vr_paddr | intdisable) ? (__uint32_t)(((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff) << 24 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff00) << 8 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff0000) >> 8 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff000000) >> 24) : __swap32md(c->vr_nextdesc->vr_paddr | intdisable));
   sc->vr_cdata.vr_tx_cnt++;
  }
  if (runt) {
   *cp = c = c->vr_nextdesc;
   f = c->vr_ptr;
-  f->vr_ctl = __extension__({ __uint32_t __swap32gen_x = ((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_status = __extension__({ __uint32_t __swap32gen_x = (vr_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_data = __extension__({ __uint32_t __swap32gen_x = (sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  f->vr_next = __extension__({ __uint32_t __swap32gen_x = (c->vr_nextdesc->vr_paddr | intdisable); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  f->vr_ctl = (__builtin_constant_p((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl) ? (__uint32_t)(((__uint32_t)((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl) & 0xff) << 24 | ((__uint32_t)((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl) & 0xff00) << 8 | ((__uint32_t)((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl) & 0xff0000) >> 8 | ((__uint32_t)((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl) & 0xff000000) >> 24) : __swap32md((60 - txmap->dm_mapsize) | 0x00008000 | vr_ctl));
+  f->vr_status = (__builtin_constant_p(vr_status) ? (__uint32_t)(((__uint32_t)(vr_status) & 0xff) << 24 | ((__uint32_t)(vr_status) & 0xff00) << 8 | ((__uint32_t)(vr_status) & 0xff0000) >> 8 | ((__uint32_t)(vr_status) & 0xff000000) >> 24) : __swap32md(vr_status));
+  f->vr_data = (__builtin_constant_p(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(sc->sc_zeromap.vrm_map->dm_segs[0].ds_addr));
+  f->vr_next = (__builtin_constant_p(c->vr_nextdesc->vr_paddr | intdisable) ? (__uint32_t)(((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff) << 24 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff00) << 8 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff0000) >> 8 | ((__uint32_t)(c->vr_nextdesc->vr_paddr | intdisable) & 0xff000000) >> 24) : __swap32md(c->vr_nextdesc->vr_paddr | intdisable));
   sc->vr_cdata.vr_tx_cnt++;
  }
- f->vr_ctl |= __extension__({ __uint32_t __swap32gen_x = (0x00400000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ f->vr_ctl |= (__builtin_constant_p(0x00400000) ? (__uint32_t)(((__uint32_t)(0x00400000) & 0xff) << 24 | ((__uint32_t)(0x00400000) & 0xff00) << 8 | ((__uint32_t)(0x00400000) & 0xff0000) >> 8 | ((__uint32_t)(0x00400000) & 0xff000000) >> 24) : __swap32md(0x00400000));
  if (sc->vr_cdata.vr_tx_pkts % 8 == 0)
-  f->vr_ctl |= __extension__({ __uint32_t __swap32gen_x = (0x00800000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  f->vr_ctl |= (__builtin_constant_p(0x00800000) ? (__uint32_t)(((__uint32_t)(0x00800000) & 0xff) << 24 | ((__uint32_t)(0x00800000) & 0xff00) << 8 | ((__uint32_t)(0x00800000) & 0xff0000) >> 8 | ((__uint32_t)(0x00800000) & 0xff000000) >> 24) : __swap32md(0x00800000));
  return (0);
 }
 void
@@ -4318,7 +4322,7 @@ vr_start(struct ifnet *ifp)
    continue;
   }
   queued++;
-  head_tx->vr_ptr->vr_status |= __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  head_tx->vr_ptr->vr_status |= (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
   if (ifp->if_bpf)
    bpf_mtap_ether(ifp->if_bpf, m, (1<<1));
   cur_tx = cur_tx->vr_nextdesc;
@@ -4556,14 +4560,14 @@ vr_alloc_mbuf(struct vr_softc *sc, struct vr_chain_onefrag *r)
      0x01);
  r->vr_mbuf = m;
  d = r->vr_ptr;
- d->vr_data = __extension__({ __uint32_t __swap32gen_x = (r->vr_map->dm_segs[0].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ d->vr_data = (__builtin_constant_p(r->vr_map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(r->vr_map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(r->vr_map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(r->vr_map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(r->vr_map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(r->vr_map->dm_segs[0].ds_addr));
  if (sc->vr_quirks & (1<<5))
-  d->vr_ctl = __extension__({ __uint32_t __swap32gen_x = ((0x00008000|0x00800000) | 1758); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  d->vr_ctl = (__builtin_constant_p((0x00008000|0x00800000) | 1758) ? (__uint32_t)(((__uint32_t)((0x00008000|0x00800000) | 1758) & 0xff) << 24 | ((__uint32_t)((0x00008000|0x00800000) | 1758) & 0xff00) << 8 | ((__uint32_t)((0x00008000|0x00800000) | 1758) & 0xff0000) >> 8 | ((__uint32_t)((0x00008000|0x00800000) | 1758) & 0xff000000) >> 24) : __swap32md((0x00008000|0x00800000) | 1758));
  else
-  d->vr_ctl = __extension__({ __uint32_t __swap32gen_x = ((0x00008000|0x00800000) | 1524); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  d->vr_ctl = (__builtin_constant_p((0x00008000|0x00800000) | 1524) ? (__uint32_t)(((__uint32_t)((0x00008000|0x00800000) | 1524) & 0xff) << 24 | ((__uint32_t)((0x00008000|0x00800000) | 1524) & 0xff00) << 8 | ((__uint32_t)((0x00008000|0x00800000) | 1524) & 0xff0000) >> 8 | ((__uint32_t)((0x00008000|0x00800000) | 1524) & 0xff000000) >> 24) : __swap32md((0x00008000|0x00800000) | 1524));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_listmap.vrm_map, 0,
      sc->sc_listmap.vrm_map->dm_mapsize, 0x04);
- d->vr_status = __extension__({ __uint32_t __swap32gen_x = ((0x00000200|0x00000100|0x80000000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ d->vr_status = (__builtin_constant_p((0x00000200|0x00000100|0x80000000)) ? (__uint32_t)(((__uint32_t)((0x00000200|0x00000100|0x80000000)) & 0xff) << 24 | ((__uint32_t)((0x00000200|0x00000100|0x80000000)) & 0xff00) << 8 | ((__uint32_t)((0x00000200|0x00000100|0x80000000)) & 0xff0000) >> 8 | ((__uint32_t)((0x00000200|0x00000100|0x80000000)) & 0xff000000) >> 24) : __swap32md((0x00000200|0x00000100|0x80000000)));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_listmap.vrm_map, 0,
      sc->sc_listmap.vrm_map->dm_mapsize,
      0x04 | 0x01);

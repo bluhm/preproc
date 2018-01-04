@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3903,9 +3907,9 @@ pcn_start(struct ifnet *ifp)
         seg++, nexttx = (((nexttx) + 1) & (512 - 1))) {
     sc->sc_control_data->pcd_txdescs[nexttx].tmd0 = 0;
     sc->sc_control_data->pcd_txdescs[nexttx].tmd2 =
-        __extension__({ __uint32_t __swap32gen_x = (dmamap->dm_segs[seg].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+        (__builtin_constant_p(dmamap->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dmamap->dm_segs[seg].ds_addr));
     sc->sc_control_data->pcd_txdescs[nexttx].tmd1 =
-        __extension__({ __uint32_t __swap32gen_x = ((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+        (__builtin_constant_p((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))));
     lasttx = nexttx;
    }
   } else {
@@ -3913,19 +3917,19 @@ pcn_start(struct ifnet *ifp)
         seg < dmamap->dm_nsegs;
         seg++, nexttx = (((nexttx) + 1) & (512 - 1))) {
     sc->sc_control_data->pcd_txdescs[nexttx].tmd0 =
-        __extension__({ __uint32_t __swap32gen_x = (dmamap->dm_segs[seg].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+        (__builtin_constant_p(dmamap->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dmamap->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dmamap->dm_segs[seg].ds_addr));
     sc->sc_control_data->pcd_txdescs[nexttx].tmd2 = 0;
     sc->sc_control_data->pcd_txdescs[nexttx].tmd1 =
-        __extension__({ __uint32_t __swap32gen_x = ((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+        (__builtin_constant_p((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((0xf<<12) | (nexttx == sc->sc_txnext ? 0 : (1<<31)) | ((~(dmamap->dm_segs[seg].ds_len) + 1) & (0xfff))));
     lasttx = nexttx;
    }
   }
   ((lasttx != -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_pcn.c", 963, "lasttx != -1"));
   if ((sc->sc_txsnext & 7) == 0)
-   sc->sc_control_data->pcd_txdescs[lasttx].tmd1 |= __extension__({ __uint32_t __swap32gen_x = ((1<<28)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sc->sc_control_data->pcd_txdescs[lasttx].tmd1 |= __extension__({ __uint32_t __swap32gen_x = ((1<<24)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   sc->sc_control_data->pcd_txdescs[lasttx].tmd1 |= (__builtin_constant_p((1<<28)) ? (__uint32_t)(((__uint32_t)((1<<28)) & 0xff) << 24 | ((__uint32_t)((1<<28)) & 0xff00) << 8 | ((__uint32_t)((1<<28)) & 0xff0000) >> 8 | ((__uint32_t)((1<<28)) & 0xff000000) >> 24) : __swap32md((1<<28)));
+  sc->sc_control_data->pcd_txdescs[lasttx].tmd1 |= (__builtin_constant_p((1<<24)) ? (__uint32_t)(((__uint32_t)((1<<24)) & 0xff) << 24 | ((__uint32_t)((1<<24)) & 0xff00) << 8 | ((__uint32_t)((1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((1<<24)) & 0xff000000) >> 24) : __swap32md((1<<24)));
   sc->sc_control_data->pcd_txdescs[sc->sc_txnext].tmd1 |=
-      __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(1<<25)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p((1<<31)|(1<<25)) ? (__uint32_t)(((__uint32_t)((1<<31)|(1<<25)) & 0xff) << 24 | ((__uint32_t)((1<<31)|(1<<25)) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(1<<25)) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(1<<25)) & 0xff000000) >> 24) : __swap32md((1<<31)|(1<<25)));
   do { int __x, __n; __x = (sc->sc_txnext); __n = (dmamap->dm_nsegs); if ((__x + __n) > 512) { bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_txdescs[(__x)]), sizeof(struct letmd) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_txdescs[(__x)]), sizeof(struct letmd) * __n, (0x01|0x04)); } while ( 0);
   pcn_csr_write(sc, 0x0000, 0x0040|0x0008);
   txs->txs_mbuf = m0;
@@ -4074,17 +4078,17 @@ pcn_txintr(struct pcn_softc *sc)
       i = (((i) + 1) & (128 - 1)), sc->sc_txsfree++) {
   txs = &sc->sc_txsoft[i];
   do { int __x, __n; __x = (txs->txs_firstdesc); __n = (txs->txs_dmamap->dm_nsegs); if ((__x + __n) > 512) { bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_txdescs[(__x)]), sizeof(struct letmd) * (512 - __x), (0x02|0x08)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_txdescs[(__x)]), sizeof(struct letmd) * __n, (0x02|0x08)); } while ( 0);
-  tmd1 = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  tmd1 = (__builtin_constant_p(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_txdescs[txs->txs_lastdesc].tmd1));
   if (tmd1 & (1<<31))
    break;
   for (j = txs->txs_firstdesc;; j = (((j) + 1) & (512 - 1))) {
-   tmd = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_txdescs[j].tmd1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   tmd = (__builtin_constant_p(sc->sc_control_data->pcd_txdescs[j].tmd1) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd1) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd1) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd1) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd1) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_txdescs[j].tmd1));
    if (tmd & (1<<30)) {
     ifp->if_data.ifi_oerrors++;
     if (sc->sc_swstyle == 3)
-     tmd2 = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_txdescs[j].tmd0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     tmd2 = (__builtin_constant_p(sc->sc_control_data->pcd_txdescs[j].tmd0) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd0) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd0) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd0) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd0) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_txdescs[j].tmd0));
     else
-     tmd2 = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_txdescs[j].tmd2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     tmd2 = (__builtin_constant_p(sc->sc_control_data->pcd_txdescs[j].tmd2) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd2) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd2) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd2) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_txdescs[j].tmd2) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_txdescs[j].tmd2));
     if (tmd2 & (1<<30)) {
      if (sc->sc_xmtsp < 3) {
       sc->sc_xmtsp++;
@@ -4149,7 +4153,7 @@ pcn_rxintr(struct pcn_softc *sc)
  for (i = sc->sc_rxptr;; i = (((i) + 1) & (128 - 1))) {
   rxs = &sc->sc_rxsoft[i];
   bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((i))]), sizeof(struct lermd), (0x02|0x08));
-  rmd1 = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_rxdescs[i].rmd1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rmd1 = (__builtin_constant_p(sc->sc_control_data->pcd_rxdescs[i].rmd1) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd1) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd1) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd1) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd1) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_rxdescs[i].rmd1));
   if (rmd1 & (1<<31))
    break;
   if (__builtin_expect((((rmd1 & ((1<<25)|(1<<24)|(1<<30))) != ((1<<25)|(1<<24))) != 0), 0)) {
@@ -4170,16 +4174,16 @@ pcn_rxintr(struct pcn_softc *sc)
      if (rmd1 & ((1<<27))) printf("%s: %s\n", sc->sc_dev.dv_xname, "CRC error");;
      if (rmd1 & ((1<<26))) printf("%s: %s\n", sc->sc_dev.dv_xname, "buffer error");;
     }
-    do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); } __rmd->rmd1 = __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
+    do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); } __rmd->rmd1 = (__builtin_constant_p((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff)))); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
     continue;
    }
   }
   bus_dmamap_sync(sc->sc_dmat, rxs->rxs_dmamap, 0,
       rxs->rxs_dmamap->dm_mapsize, 0x02);
   if (sc->sc_swstyle == 3)
-   len = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_rxdescs[i].rmd0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & (0xfff);
+   len = (__builtin_constant_p(sc->sc_control_data->pcd_rxdescs[i].rmd0) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd0) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd0) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd0) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd0) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_rxdescs[i].rmd0)) & (0xfff);
   else
-   len = __extension__({ __uint32_t __swap32gen_x = (sc->sc_control_data->pcd_rxdescs[i].rmd2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & (0xfff);
+   len = (__builtin_constant_p(sc->sc_control_data->pcd_rxdescs[i].rmd2) ? (__uint32_t)(((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd2) & 0xff) << 24 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd2) & 0xff00) << 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd2) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_control_data->pcd_rxdescs[i].rmd2) & 0xff000000) >> 24) : __swap32md(sc->sc_control_data->pcd_rxdescs[i].rmd2)) & (0xfff);
   len -= 4;
   if (pcn_copy_small != 0 && len <= (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - 2)) {
    m = m_gethdr((0x0002), (1));
@@ -4187,7 +4191,7 @@ pcn_rxintr(struct pcn_softc *sc)
     goto dropit;
    m->m_hdr.mh_data += 2;
    __builtin_memcpy((((caddr_t)((m)->m_hdr.mh_data))), (((caddr_t)((rxs->rxs_mbuf)->m_hdr.mh_data))), (len));
-   do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); } __rmd->rmd1 = __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
+   do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); } __rmd->rmd1 = (__builtin_constant_p((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff)))); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
    bus_dmamap_sync(sc->sc_dmat, rxs->rxs_dmamap, 0,
        rxs->rxs_dmamap->dm_mapsize,
        0x01);
@@ -4196,7 +4200,7 @@ pcn_rxintr(struct pcn_softc *sc)
    if (pcn_add_rxbuf(sc, i) != 0) {
  dropit:
     ifp->if_data.ifi_ierrors++;
-    do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); } __rmd->rmd1 = __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
+    do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); } __rmd->rmd1 = (__builtin_constant_p((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff)))); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
     bus_dmamap_sync(sc->sc_dmat,
         rxs->rxs_dmamap, 0,
         rxs->rxs_dmamap->dm_mapsize,
@@ -4265,7 +4269,7 @@ pcn_init(struct ifnet *ifp)
     goto out;
    }
   } else
-   do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); } __rmd->rmd1 = __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
+   do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(i)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(i)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); } __rmd->rmd1 = (__builtin_constant_p((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff)))); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((i)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
  }
  sc->sc_rxptr = 0;
  sc->sc_mode = 0;
@@ -4277,11 +4281,11 @@ pcn_init(struct ifnet *ifp)
       pcn_bcr_read(sc, 0x0020) | 0x0080);
  }
  pcn_set_filter(sc);
- sc->sc_control_data->pcd_initblock.init_rdra = __extension__({ __uint32_t __swap32gen_x = (((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sc->sc_control_data->pcd_initblock.init_tdra = __extension__({ __uint32_t __swap32gen_x = (((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sc->sc_control_data->pcd_initblock.init_mode = __extension__({ __uint32_t __swap32gen_x = (sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sc->sc_control_data->pcd_initblock.init_padr[0] = __extension__({ __uint32_t __swap32gen_x = (enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sc->sc_control_data->pcd_initblock.init_padr[1] = __extension__({ __uint32_t __swap32gen_x = (enaddr[4] | (enaddr[5] << 8)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_control_data->pcd_initblock.init_rdra = (__builtin_constant_p(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))) ? (__uint32_t)(((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))) & 0xff) << 24 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))) & 0xff00) << 8 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))) & 0xff0000) >> 8 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))) & 0xff000000) >> 24) : __swap32md(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[((0))]))));
+ sc->sc_control_data->pcd_initblock.init_tdra = (__builtin_constant_p(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))) ? (__uint32_t)(((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))) & 0xff) << 24 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))) & 0xff00) << 8 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))) & 0xff0000) >> 8 | ((__uint32_t)(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))) & 0xff000000) >> 24) : __swap32md(((sc)->sc_cddmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct pcn_control_data, pcd_txdescs[((0))]))));
+ sc->sc_control_data->pcd_initblock.init_mode = (__builtin_constant_p(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)) ? (__uint32_t)(((__uint32_t)(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)) & 0xff) << 24 | ((__uint32_t)(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)) & 0xff000000) >> 24) : __swap32md(sc->sc_mode | ((ffs(512) - 1) << 28) | ((ffs(128) - 1) << 20)));
+ sc->sc_control_data->pcd_initblock.init_padr[0] = (__builtin_constant_p(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)) ? (__uint32_t)(((__uint32_t)(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)) & 0xff) << 24 | ((__uint32_t)(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)) & 0xff00) << 8 | ((__uint32_t)(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)) & 0xff0000) >> 8 | ((__uint32_t)(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)) & 0xff000000) >> 24) : __swap32md(enaddr[0] | (enaddr[1] << 8) | (enaddr[2] << 16) | (enaddr[3] << 24)));
+ sc->sc_control_data->pcd_initblock.init_padr[1] = (__builtin_constant_p(enaddr[4] | (enaddr[5] << 8)) ? (__uint32_t)(((__uint32_t)(enaddr[4] | (enaddr[5] << 8)) & 0xff) << 24 | ((__uint32_t)(enaddr[4] | (enaddr[5] << 8)) & 0xff00) << 8 | ((__uint32_t)(enaddr[4] | (enaddr[5] << 8)) & 0xff0000) >> 8 | ((__uint32_t)(enaddr[4] | (enaddr[5] << 8)) & 0xff000000) >> 24) : __swap32md(enaddr[4] | (enaddr[5] << 8)));
  pcn_csr_write(sc, 0x0003, 0x1000|0x0100|0x0040);
  pcn_csr_write(sc, 0x0004, 0x4000|0x0800|
      0x0100|0x0010|0x0004);
@@ -4404,7 +4408,7 @@ pcn_add_rxbuf(struct pcn_softc *sc, int idx)
  }
  bus_dmamap_sync(sc->sc_dmat, rxs->rxs_dmamap, 0,
      rxs->rxs_dmamap->dm_mapsize, 0x01);
- do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(idx)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(idx)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = __extension__({ __uint32_t __swap32gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); } __rmd->rmd1 = __extension__({ __uint32_t __swap32gen_x = ((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((idx)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
+ do { struct pcn_rxsoft *__rxs = &(sc)->sc_rxsoft[(idx)]; struct lermd *__rmd = &(sc)->sc_control_data->pcd_rxdescs[(idx)]; struct mbuf *__m = __rxs->rxs_mbuf; __m->m_hdr.mh_data = __m->M_dat.MH.MH_dat.MH_ext.ext_buf + 2; if ((sc)->sc_swstyle == 3) { __rmd->rmd2 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); __rmd->rmd0 = 0; } else { __rmd->rmd2 = 0; __rmd->rmd0 = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(__rxs->rxs_dmamap->dm_segs[0].ds_addr + 2)); } __rmd->rmd1 = (__builtin_constant_p((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) ? (__uint32_t)(((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff) << 24 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff00) << 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff0000) >> 8 | ((__uint32_t)((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff))) & 0xff000000) >> 24) : __swap32md((1<<31)|(0xf<<12)| ((~((1 << 11) - 2) + 1) & (0xfff)))); bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_cddmamap, __builtin_offsetof(struct pcn_control_data, pcd_rxdescs[(((idx)))]), sizeof(struct lermd), (0x01|0x04));} while( 0);
  return (0);
 }
 void
@@ -4434,7 +4438,7 @@ pcn_set_filter(struct pcn_softc *sc)
    crc = ether_crc32_le(enm->enm_addrlo, 6);
    crc >>= 26;
    sc->sc_control_data->pcd_initblock.init_ladrf[crc >> 4] |=
-       __extension__({ __uint16_t __swap16gen_x = (1 << (crc & 0xf)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p(1 << (crc & 0xf)) ? (__uint16_t)(((__uint16_t)(1 << (crc & 0xf)) & 0xffU) << 8 | ((__uint16_t)(1 << (crc & 0xf)) & 0xff00U) >> 8) : __swap16md(1 << (crc & 0xf)));
    do { if (((enm) = (step).e_enm) != ((void *)0)) (step).e_enm = (((enm))->enm_list.le_next); } while ( 0);
   }
  }

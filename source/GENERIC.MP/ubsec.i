@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3023,7 +3027,7 @@ ubsec_intr(void *arg)
   while (!(((&sc->sc_qchip)->sqh_first) == ((void *)0))) {
    q = ((&sc->sc_qchip)->sqh_first);
    dmap = q->q_dma;
-   if ((dmap->d_dma->d_mcr.mcr_flags & __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) == 0)
+   if ((dmap->d_dma->d_mcr.mcr_flags & (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001))) == 0)
     break;
    do { if (((&sc->sc_qchip)->sqh_first = (&sc->sc_qchip)->sqh_first->q_next.sqe_next) == ((void *)0)) (&sc->sc_qchip)->sqh_last = &(&sc->sc_qchip)->sqh_first; } while (0);
    npkts = q->q_nstacked_mcrs;
@@ -3049,10 +3053,10 @@ ubsec_intr(void *arg)
        0x02|0x08);
    mcr = (struct ubsec_mcr *)q2->q_mcr.dma_vaddr;
    if (sc->sc_flags & 0x40)
-    flags = __extension__({ __uint16_t __swap16gen_x = (mcr->mcr_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    flags = (__builtin_constant_p(mcr->mcr_flags) ? (__uint16_t)(((__uint16_t)(mcr->mcr_flags) & 0xffU) << 8 | ((__uint16_t)(mcr->mcr_flags) & 0xff00U) >> 8) : __swap16md(mcr->mcr_flags));
    else
     flags = mcr->mcr_flags;
-   if ((flags & __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) == 0) {
+   if ((flags & (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001))) == 0) {
     bus_dmamap_sync(sc->sc_dmat,
         q2->q_mcr.dma_map, 0,
         q2->q_mcr.dma_map->dm_mapsize,
@@ -3074,8 +3078,8 @@ ubsec_intr(void *arg)
        0, q2->q_mcr.dma_map->dm_mapsize,
        0x02|0x08);
    mcr = (struct ubsec_mcr *)q2->q_mcr.dma_vaddr;
-   flags = __extension__({ __uint16_t __swap16gen_x = (mcr->mcr_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   if ((flags & __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) == 0) {
+   flags = (__builtin_constant_p(mcr->mcr_flags) ? (__uint16_t)(((__uint16_t)(mcr->mcr_flags) & 0xffU) << 8 | ((__uint16_t)(mcr->mcr_flags) & 0xff00U) >> 8) : __swap16md(mcr->mcr_flags));
+   if ((flags & (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001))) == 0) {
     bus_dmamap_sync(sc->sc_dmat,
         q2->q_mcr.dma_map, 0,
         q2->q_mcr.dma_map->dm_mapsize,
@@ -3137,7 +3141,7 @@ ubsec_feed(struct ubsec_softc *sc)
   __builtin_bcopy((v), (&q->q_dma->d_dma->d_mcradd[i]), (sizeof(struct ubsec_mcr_add)));
   q->q_stacked_mcr[i] = q2;
  }
- q->q_dma->d_dma->d_mcr.mcr_pkts = __extension__({ __uint16_t __swap16gen_x = (npkts); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ q->q_dma->d_dma->d_mcr.mcr_pkts = (__builtin_constant_p(npkts) ? (__uint16_t)(((__uint16_t)(npkts) & 0xffU) << 8 | ((__uint16_t)(npkts) & 0xff00U) >> 8) : __swap16md(npkts));
  do { (q)->q_next.sqe_next = ((void *)0); *(&sc->sc_qchip)->sqh_last = (q); (&sc->sc_qchip)->sqh_last = &(q)->q_next.sqe_next; } while (0);
  bus_dmamap_sync(sc->sc_dmat, q->q_dma->d_alloc.dma_map,
      0, q->q_dma->d_alloc.dma_map->dm_mapsize,
@@ -3249,14 +3253,14 @@ ubsec_newsession(u_int32_t *sidp, struct cryptoini *cri)
    __builtin_bcopy((encini->cri_key), (ses->ses_key), (encini->cri_klen / 8));
   } else
    __builtin_bcopy((encini->cri_key), (ses->ses_key), (24));
-  (ses->ses_key[0]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[0])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[1]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[1])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[2]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[2])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[3]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[3])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[4]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[4])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[5]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[5])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[6]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[6])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  (ses->ses_key[7]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((ses->ses_key[7])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  (ses->ses_key[0]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[0])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[0])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[0])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[0])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[0])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[0])))));
+  (ses->ses_key[1]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[1])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[1])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[1])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[1])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[1])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[1])))));
+  (ses->ses_key[2]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[2])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[2])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[2])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[2])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[2])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[2])))));
+  (ses->ses_key[3]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[3])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[3])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[3])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[3])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[3])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[3])))));
+  (ses->ses_key[4]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[4])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[4])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[4])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[4])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[4])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[4])))));
+  (ses->ses_key[5]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[5])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[5])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[5])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[5])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[5])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[5])))));
+  (ses->ses_key[6]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[6])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[6])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[6])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[6])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[6])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[6])))));
+  (ses->ses_key[7]) = (__builtin_constant_p(((__uint32_t)((ses->ses_key[7])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((ses->ses_key[7])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((ses->ses_key[7])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[7])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((ses->ses_key[7])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((ses->ses_key[7])))));
  }
  if (macini) {
   for (i = 0; i < macini->cri_klen / 8; i++)
@@ -3364,7 +3368,7 @@ ubsec_process(struct cryptop *crp)
   goto errout;
  }
  __builtin_bzero((&dmap->d_dma->d_mcr), (sizeof(struct ubsec_mcr)));
- dmap->d_dma->d_mcr.mcr_pkts = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ dmap->d_dma->d_mcr.mcr_pkts = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  dmap->d_dma->d_mcr.mcr_flags = 0;
  q->q_crp = crp;
  if (crp->crp_ndesc < 1) {
@@ -3413,7 +3417,7 @@ ubsec_process(struct cryptop *crp)
     err = 22;
     goto errout;
    }
-   flags |= __extension__({ __uint16_t __swap16gen_x = (0x8000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   flags |= (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
    switch (enccrd->CRD_INI.cri_klen) {
    case 128:
    case 192:
@@ -3426,7 +3430,7 @@ ubsec_process(struct cryptop *crp)
    }
    ivlen = 16;
   } else {
-   flags |= __extension__({ __uint16_t __swap16gen_x = (0x8000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   flags |= (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
    ivlen = 8;
    keylen = 24;
   }
@@ -3449,7 +3453,7 @@ ubsec_process(struct cryptop *crp)
      goto errout;
    }
   } else {
-   flags |= __extension__({ __uint16_t __swap16gen_x = (0x4000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   flags |= (__builtin_constant_p(0x4000) ? (__uint16_t)(((__uint16_t)(0x4000) & 0xffU) << 8 | ((__uint16_t)(0x4000) & 0xff00U) >> 8) : __swap16md(0x4000));
    if (enccrd->crd_flags & 0x04)
     __builtin_bcopy((enccrd->CRD_INI.u.iv), (key.ses_iv), (ivlen));
    else if (crp->crp_flags & 0x0001)
@@ -3463,19 +3467,19 @@ ubsec_process(struct cryptop *crp)
   for (i = 0; i < (keylen / 4); i++)
    key.ses_key[i] = ses->ses_key[i];
   for (i = 0; i < (ivlen / 4); i++)
-   (key.ses_iv[i]) = __extension__({ __uint32_t __swap32gen_x = (((__uint32_t)((key.ses_iv[i])))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   (key.ses_iv[i]) = (__builtin_constant_p(((__uint32_t)((key.ses_iv[i])))) ? (__uint32_t)(((__uint32_t)(((__uint32_t)((key.ses_iv[i])))) & 0xff) << 24 | ((__uint32_t)(((__uint32_t)((key.ses_iv[i])))) & 0xff00) << 8 | ((__uint32_t)(((__uint32_t)((key.ses_iv[i])))) & 0xff0000) >> 8 | ((__uint32_t)(((__uint32_t)((key.ses_iv[i])))) & 0xff000000) >> 24) : __swap32md(((__uint32_t)((key.ses_iv[i])))));
  }
  if (maccrd) {
   macoffset = maccrd->crd_skip;
   if (maccrd->CRD_INI.cri_alg == 4)
-   flags |= __extension__({ __uint16_t __swap16gen_x = (0x1000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   flags |= (__builtin_constant_p(0x1000) ? (__uint16_t)(((__uint16_t)(0x1000) & 0xffU) << 8 | ((__uint16_t)(0x1000) & 0xff00U) >> 8) : __swap16md(0x1000));
   else
-   flags |= __extension__({ __uint16_t __swap16gen_x = (0x2000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   flags |= (__builtin_constant_p(0x2000) ? (__uint16_t)(((__uint16_t)(0x2000) & 0xffU) << 8 | ((__uint16_t)(0x2000) & 0xff00U) >> 8) : __swap16md(0x2000));
   for (i = 0; i < 5; i++) {
    key.ses_hminner[i] = ses->ses_hminner[i];
    key.ses_hmouter[i] = ses->ses_hmouter[i];
-   (key.ses_hminner[i]) = __extension__({ __uint32_t __swap32gen_x = (key.ses_hminner[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   (key.ses_hmouter[i]) = __extension__({ __uint32_t __swap32gen_x = (key.ses_hmouter[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   (key.ses_hminner[i]) = (__builtin_constant_p(key.ses_hminner[i]) ? (__uint32_t)(((__uint32_t)(key.ses_hminner[i]) & 0xff) << 24 | ((__uint32_t)(key.ses_hminner[i]) & 0xff00) << 8 | ((__uint32_t)(key.ses_hminner[i]) & 0xff0000) >> 8 | ((__uint32_t)(key.ses_hminner[i]) & 0xff000000) >> 24) : __swap32md(key.ses_hminner[i]));
+   (key.ses_hmouter[i]) = (__builtin_constant_p(key.ses_hmouter[i]) ? (__uint32_t)(((__uint32_t)(key.ses_hmouter[i]) & 0xff) << 24 | ((__uint32_t)(key.ses_hmouter[i]) & 0xff00) << 8 | ((__uint32_t)(key.ses_hmouter[i]) & 0xff0000) >> 8 | ((__uint32_t)(key.ses_hmouter[i]) & 0xff000000) >> 24) : __swap32md(key.ses_hmouter[i]));
   }
  }
  if (enccrd && maccrd) {
@@ -3520,7 +3524,7 @@ ubsec_process(struct cryptop *crp)
   }
  }
  nicealign = ubsec_dmamap_aligned(q->q_src_map);
- dmap->d_dma->d_mcr.mcr_pktlen = __extension__({ __uint16_t __swap16gen_x = (stheend); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ dmap->d_dma->d_mcr.mcr_pktlen = (__builtin_constant_p(stheend) ? (__uint16_t)(((__uint16_t)(stheend) & 0xffU) << 8 | ((__uint16_t)(stheend) & 0xff00U) >> 8) : __swap16md(stheend));
  for (i = j = 0; i < q->q_src_map->dm_nsegs; i++) {
   struct ubsec_pktbuf *pb;
   bus_size_t packl = q->q_src_map->dm_segs[i].ds_len;
@@ -3540,28 +3544,28 @@ ubsec_process(struct cryptop *crp)
    pb = &dmap->d_dma->d_mcr.mcr_ipktbuf;
   else
    pb = &dmap->d_dma->d_sbuf[j - 1];
-  pb->pb_addr = __extension__({ __uint32_t __swap32gen_x = (packp); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  pb->pb_addr = (__builtin_constant_p(packp) ? (__uint32_t)(((__uint32_t)(packp) & 0xff) << 24 | ((__uint32_t)(packp) & 0xff00) << 8 | ((__uint32_t)(packp) & 0xff0000) >> 8 | ((__uint32_t)(packp) & 0xff000000) >> 24) : __swap32md(packp));
   if (stheend) {
    if (packl > stheend) {
-    pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (stheend); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    pb->pb_len = (__builtin_constant_p(stheend) ? (__uint32_t)(((__uint32_t)(stheend) & 0xff) << 24 | ((__uint32_t)(stheend) & 0xff00) << 8 | ((__uint32_t)(stheend) & 0xff0000) >> 8 | ((__uint32_t)(stheend) & 0xff000000) >> 24) : __swap32md(stheend));
     stheend = 0;
    } else {
-    pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (packl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    pb->pb_len = (__builtin_constant_p(packl) ? (__uint32_t)(((__uint32_t)(packl) & 0xff) << 24 | ((__uint32_t)(packl) & 0xff00) << 8 | ((__uint32_t)(packl) & 0xff0000) >> 8 | ((__uint32_t)(packl) & 0xff000000) >> 24) : __swap32md(packl));
     stheend -= packl;
    }
   } else
-   pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (packl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   pb->pb_len = (__builtin_constant_p(packl) ? (__uint32_t)(((__uint32_t)(packl) & 0xff) << 24 | ((__uint32_t)(packl) & 0xff00) << 8 | ((__uint32_t)(packl) & 0xff0000) >> 8 | ((__uint32_t)(packl) & 0xff000000) >> 24) : __swap32md(packl));
   if ((i + 1) == q->q_src_map->dm_nsegs)
    pb->pb_next = 0;
   else
-   pb->pb_next = __extension__({ __uint32_t __swap32gen_x = (dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   pb->pb_next = (__builtin_constant_p(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])) ? (__uint32_t)(((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])) & 0xff) << 24 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])) & 0xff00) << 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])) & 0xff0000) >> 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])) & 0xff000000) >> 24) : __swap32md(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_sbuf[j])));
   j++;
  }
  if (enccrd == ((void *)0) && maccrd != ((void *)0)) {
   dmap->d_dma->d_mcr.mcr_opktbuf.pb_addr = 0;
   dmap->d_dma->d_mcr.mcr_opktbuf.pb_len = 0;
   dmap->d_dma->d_mcr.mcr_opktbuf.pb_next =
-      __extension__({ __uint32_t __swap32gen_x = (dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) ? (__uint32_t)(((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff) << 24 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff00) << 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff0000) >> 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff000000) >> 24) : __swap32md(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])));
  } else {
   if (crp->crp_flags & 0x0002) {
    if (!nicealign) {
@@ -3630,28 +3634,28 @@ ubsec_process(struct cryptop *crp)
     pb = &dmap->d_dma->d_mcr.mcr_opktbuf;
    else
     pb = &dmap->d_dma->d_dbuf[j - 1];
-   pb->pb_addr = __extension__({ __uint32_t __swap32gen_x = (packp); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   pb->pb_addr = (__builtin_constant_p(packp) ? (__uint32_t)(((__uint32_t)(packp) & 0xff) << 24 | ((__uint32_t)(packp) & 0xff00) << 8 | ((__uint32_t)(packp) & 0xff0000) >> 8 | ((__uint32_t)(packp) & 0xff000000) >> 24) : __swap32md(packp));
    if (dtheend) {
     if (packl > dtheend) {
-     pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (dtheend); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     pb->pb_len = (__builtin_constant_p(dtheend) ? (__uint32_t)(((__uint32_t)(dtheend) & 0xff) << 24 | ((__uint32_t)(dtheend) & 0xff00) << 8 | ((__uint32_t)(dtheend) & 0xff0000) >> 8 | ((__uint32_t)(dtheend) & 0xff000000) >> 24) : __swap32md(dtheend));
      dtheend = 0;
     } else {
-     pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (packl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     pb->pb_len = (__builtin_constant_p(packl) ? (__uint32_t)(((__uint32_t)(packl) & 0xff) << 24 | ((__uint32_t)(packl) & 0xff00) << 8 | ((__uint32_t)(packl) & 0xff0000) >> 8 | ((__uint32_t)(packl) & 0xff000000) >> 24) : __swap32md(packl));
      dtheend -= packl;
     }
    } else
-    pb->pb_len = __extension__({ __uint32_t __swap32gen_x = (packl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    pb->pb_len = (__builtin_constant_p(packl) ? (__uint32_t)(((__uint32_t)(packl) & 0xff) << 24 | ((__uint32_t)(packl) & 0xff00) << 8 | ((__uint32_t)(packl) & 0xff0000) >> 8 | ((__uint32_t)(packl) & 0xff000000) >> 24) : __swap32md(packl));
    if ((i + 1) == q->q_dst_map->dm_nsegs) {
     if (maccrd)
-     pb->pb_next = __extension__({ __uint32_t __swap32gen_x = (dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     pb->pb_next = (__builtin_constant_p(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) ? (__uint32_t)(((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff) << 24 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff00) << 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff0000) >> 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])) & 0xff000000) >> 24) : __swap32md(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_macbuf[0])));
     else
      pb->pb_next = 0;
    } else
-    pb->pb_next = __extension__({ __uint32_t __swap32gen_x = (dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    pb->pb_next = (__builtin_constant_p(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])) ? (__uint32_t)(((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])) & 0xff) << 24 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])) & 0xff00) << 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])) & 0xff0000) >> 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])) & 0xff000000) >> 24) : __swap32md(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_dbuf[j])));
    j++;
   }
  }
- dmap->d_dma->d_mcr.mcr_cmdctxp = __extension__({ __uint32_t __swap32gen_x = (dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ dmap->d_dma->d_mcr.mcr_cmdctxp = (__builtin_constant_p(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)) ? (__uint32_t)(((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)) & 0xff) << 24 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)) & 0xff00) << 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)) & 0xff0000) >> 8 | ((__uint32_t)(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)) & 0xff000000) >> 24) : __swap32md(dmap->d_alloc.dma_paddr + __builtin_offsetof(struct ubsec_dmachunk, d_ctx)));
  if (enccrd && enccrd->CRD_INI.cri_alg == 7) {
   struct ubsec_pktctx_aes128 *aes128;
   struct ubsec_pktctx_aes192 *aes192;
@@ -3661,14 +3665,14 @@ ubsec_process(struct cryptop *crp)
   ctx = (u_int8_t *)(dmap->d_alloc.dma_vaddr +
       __builtin_offsetof(struct ubsec_dmachunk, d_ctx));
   ph = (struct ubsec_pktctx_hdr *)ctx;
-  ph->ph_type = __extension__({ __uint16_t __swap16gen_x = (0x0040); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ph->ph_type = (__builtin_constant_p(0x0040) ? (__uint16_t)(((__uint16_t)(0x0040) & 0xffU) << 8 | ((__uint16_t)(0x0040) & 0xff00U) >> 8) : __swap16md(0x0040));
   ph->ph_flags = flags;
-  ph->ph_offset = __extension__({ __uint16_t __swap16gen_x = (coffset >> 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ph->ph_offset = (__builtin_constant_p(coffset >> 2) ? (__uint16_t)(((__uint16_t)(coffset >> 2) & 0xffU) << 8 | ((__uint16_t)(coffset >> 2) & 0xff00U) >> 8) : __swap16md(coffset >> 2));
   switch (enccrd->CRD_INI.cri_klen) {
   case 128:
    aes128 = (struct ubsec_pktctx_aes128 *)ctx;
-    ph->ph_len = __extension__({ __uint16_t __swap16gen_x = (sizeof(*aes128)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   ph->ph_flags |= __extension__({ __uint16_t __swap16gen_x = (0x0000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    ph->ph_len = (__builtin_constant_p(sizeof(*aes128)) ? (__uint16_t)(((__uint16_t)(sizeof(*aes128)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*aes128)) & 0xff00U) >> 8) : __swap16md(sizeof(*aes128)));
+   ph->ph_flags |= (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000));
    for (i = 0; i < 4; i++)
     aes128->pc_aeskey[i] = key.ses_key[i];
    for (i = 0; i < 5; i++)
@@ -3680,8 +3684,8 @@ ubsec_process(struct cryptop *crp)
    break;
   case 192:
    aes192 = (struct ubsec_pktctx_aes192 *)ctx;
-   ph->ph_len = __extension__({ __uint16_t __swap16gen_x = (sizeof(*aes192)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   ph->ph_flags |= __extension__({ __uint16_t __swap16gen_x = (0x0100); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   ph->ph_len = (__builtin_constant_p(sizeof(*aes192)) ? (__uint16_t)(((__uint16_t)(sizeof(*aes192)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*aes192)) & 0xff00U) >> 8) : __swap16md(sizeof(*aes192)));
+   ph->ph_flags |= (__builtin_constant_p(0x0100) ? (__uint16_t)(((__uint16_t)(0x0100) & 0xffU) << 8 | ((__uint16_t)(0x0100) & 0xff00U) >> 8) : __swap16md(0x0100));
    for (i = 0; i < 6; i++)
     aes192->pc_aeskey[i] = key.ses_key[i];
    for (i = 0; i < 5; i++)
@@ -3693,8 +3697,8 @@ ubsec_process(struct cryptop *crp)
    break;
   case 256:
    aes256 = (struct ubsec_pktctx_aes256 *)ctx;
-   ph->ph_len = __extension__({ __uint16_t __swap16gen_x = (sizeof(*aes256)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   ph->ph_flags |= __extension__({ __uint16_t __swap16gen_x = (0x0200); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   ph->ph_len = (__builtin_constant_p(sizeof(*aes256)) ? (__uint16_t)(((__uint16_t)(sizeof(*aes256)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*aes256)) & 0xff00U) >> 8) : __swap16md(sizeof(*aes256)));
+   ph->ph_flags |= (__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200));
    for (i = 0; i < 8; i++)
     aes256->pc_aeskey[i] = key.ses_key[i];
    for (i = 0; i < 5; i++)
@@ -3712,10 +3716,10 @@ ubsec_process(struct cryptop *crp)
       (dmap->d_alloc.dma_vaddr +
       __builtin_offsetof(struct ubsec_dmachunk, d_ctx));
   ph = (struct ubsec_pktctx_hdr *)ctx;
-  ph->ph_len = __extension__({ __uint16_t __swap16gen_x = (sizeof(*ctx)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  ph->ph_type = __extension__({ __uint16_t __swap16gen_x = (0x0000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ph->ph_len = (__builtin_constant_p(sizeof(*ctx)) ? (__uint16_t)(((__uint16_t)(sizeof(*ctx)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*ctx)) & 0xff00U) >> 8) : __swap16md(sizeof(*ctx)));
+  ph->ph_type = (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000));
   ph->ph_flags = flags;
-  ph->ph_offset = __extension__({ __uint16_t __swap16gen_x = (coffset >> 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ph->ph_offset = (__builtin_constant_p(coffset >> 2) ? (__uint16_t)(((__uint16_t)(coffset >> 2) & 0xffU) << 8 | ((__uint16_t)(coffset >> 2) & 0xff00U) >> 8) : __swap16md(coffset >> 2));
   for (i = 0; i < 6; i++)
    ctx->pc_deskey[i] = key.ses_key[i];
   for (i = 0; i < 5; i++)
@@ -3729,7 +3733,7 @@ ubsec_process(struct cryptop *crp)
       (dmap->d_alloc.dma_vaddr +
       __builtin_offsetof(struct ubsec_dmachunk, d_ctx));
   ctx->pc_flags = flags;
-  ctx->pc_offset = __extension__({ __uint16_t __swap16gen_x = (coffset >> 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ctx->pc_offset = (__builtin_constant_p(coffset >> 2) ? (__uint16_t)(((__uint16_t)(coffset >> 2) & 0xffU) << 8 | ((__uint16_t)(coffset >> 2) & 0xff00U) >> 8) : __swap16md(coffset >> 2));
   for (i = 0; i < 6; i++)
    ctx->pc_deskey[i] = key.ses_key[i];
   for (i = 0; i < 5; i++)
@@ -3884,7 +3888,7 @@ ubsec_callback2(struct ubsec_softc *sc, struct ubsec_q2 *q)
  }
  default:
   printf("%s: unknown ctx op: %x\n", sc->sc_dv.dv_xname,
-      __extension__({ __uint16_t __swap16gen_x = (ctx->ctx_op); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(ctx->ctx_op) ? (__uint16_t)(((__uint16_t)(ctx->ctx_op) & 0xffU) << 8 | ((__uint16_t)(ctx->ctx_op) & 0xff00U) >> 8) : __swap16md(ctx->ctx_op)));
   break;
  }
 }
@@ -3910,17 +3914,17 @@ ubsec_rng(void *vsc)
   goto out;
  mcr = (struct ubsec_mcr *)rng->rng_q.q_mcr.dma_vaddr;
  ctx = (struct ubsec_ctx_rngbypass *)rng->rng_q.q_ctx.dma_vaddr;
- mcr->mcr_pkts = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ mcr->mcr_pkts = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  mcr->mcr_flags = 0;
- mcr->mcr_cmdctxp = __extension__({ __uint32_t __swap32gen_x = (rng->rng_q.q_ctx.dma_paddr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ mcr->mcr_cmdctxp = (__builtin_constant_p(rng->rng_q.q_ctx.dma_paddr) ? (__uint32_t)(((__uint32_t)(rng->rng_q.q_ctx.dma_paddr) & 0xff) << 24 | ((__uint32_t)(rng->rng_q.q_ctx.dma_paddr) & 0xff00) << 8 | ((__uint32_t)(rng->rng_q.q_ctx.dma_paddr) & 0xff0000) >> 8 | ((__uint32_t)(rng->rng_q.q_ctx.dma_paddr) & 0xff000000) >> 24) : __swap32md(rng->rng_q.q_ctx.dma_paddr));
  mcr->mcr_ipktbuf.pb_addr = mcr->mcr_ipktbuf.pb_next = 0;
  mcr->mcr_ipktbuf.pb_len = 0;
  mcr->mcr_reserved = mcr->mcr_pktlen = 0;
- mcr->mcr_opktbuf.pb_addr = __extension__({ __uint32_t __swap32gen_x = (rng->rng_buf.dma_paddr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- mcr->mcr_opktbuf.pb_len = __extension__({ __uint32_t __swap32gen_x = (((sizeof(u_int32_t) * 16)) & 0x0000ffff); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ mcr->mcr_opktbuf.pb_addr = (__builtin_constant_p(rng->rng_buf.dma_paddr) ? (__uint32_t)(((__uint32_t)(rng->rng_buf.dma_paddr) & 0xff) << 24 | ((__uint32_t)(rng->rng_buf.dma_paddr) & 0xff00) << 8 | ((__uint32_t)(rng->rng_buf.dma_paddr) & 0xff0000) >> 8 | ((__uint32_t)(rng->rng_buf.dma_paddr) & 0xff000000) >> 24) : __swap32md(rng->rng_buf.dma_paddr));
+ mcr->mcr_opktbuf.pb_len = (__builtin_constant_p(((sizeof(u_int32_t) * 16)) & 0x0000ffff) ? (__uint32_t)(((__uint32_t)(((sizeof(u_int32_t) * 16)) & 0x0000ffff) & 0xff) << 24 | ((__uint32_t)(((sizeof(u_int32_t) * 16)) & 0x0000ffff) & 0xff00) << 8 | ((__uint32_t)(((sizeof(u_int32_t) * 16)) & 0x0000ffff) & 0xff0000) >> 8 | ((__uint32_t)(((sizeof(u_int32_t) * 16)) & 0x0000ffff) & 0xff000000) >> 24) : __swap32md(((sizeof(u_int32_t) * 16)) & 0x0000ffff));
  mcr->mcr_opktbuf.pb_next = 0;
- ctx->rbp_len = __extension__({ __uint16_t __swap16gen_x = (sizeof(struct ubsec_ctx_rngbypass)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- ctx->rbp_op = __extension__({ __uint16_t __swap16gen_x = (0x42); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ ctx->rbp_len = (__builtin_constant_p(sizeof(struct ubsec_ctx_rngbypass)) ? (__uint16_t)(((__uint16_t)(sizeof(struct ubsec_ctx_rngbypass)) & 0xffU) << 8 | ((__uint16_t)(sizeof(struct ubsec_ctx_rngbypass)) & 0xff00U) >> 8) : __swap16md(sizeof(struct ubsec_ctx_rngbypass)));
+ ctx->rbp_op = (__builtin_constant_p(0x42) ? (__uint16_t)(((__uint16_t)(0x42) & 0xffU) << 8 | ((__uint16_t)(0x42) & 0xff00U) >> 8) : __swap16md(0x42));
  rng->rng_q.q_type = 0x42;
  bus_dmamap_sync(sc->sc_dmat, rng->rng_buf.dma_map, 0,
      rng->rng_buf.dma_map->dm_mapsize, 0x01);

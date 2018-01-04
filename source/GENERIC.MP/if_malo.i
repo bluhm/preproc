@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2660,7 +2664,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5255,7 +5259,7 @@ cmalo_fw_load_helper(struct malo_softc *sc)
   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x18), (bsize));
   uc = (uint16_t *)(sc->sc_fw_h + offset);
   for (i = 0; i < bsize / 2; i++)
-   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x1a), (__extension__({ __uint16_t __swap16gen_x = (uc[i]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
+   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x1a), ((__builtin_constant_p(uc[i]) ? (__uint16_t)(((__uint16_t)(uc[i]) & 0xffU) << 8 | ((__uint16_t)(uc[i]) & 0xff00U) >> 8) : __swap16md(uc[i]))));
   bus_space_write_1((sc)->sc_iot, (sc)->sc_ioh, (0x00), (0x04));
   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x02), (0x04));
   for (i = 0; i < 50; i++) {
@@ -5310,7 +5314,7 @@ cmalo_fw_load_main(struct malo_softc *sc)
   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x18), (bsize));
   uc = (uint16_t *)(sc->sc_fw_m + offset);
   for (i = 0; i < bsize / 2; i++)
-   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x1a), (__extension__({ __uint16_t __swap16gen_x = (uc[i]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
+   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x1a), ((__builtin_constant_p(uc[i]) ? (__uint16_t)(((__uint16_t)(uc[i]) & 0xffU) << 8 | ((__uint16_t)(uc[i]) & 0xff00U) >> 8) : __swap16md(uc[i]))));
   bus_space_write_1((sc)->sc_iot, (sc)->sc_ioh, (0x00), (0x04));
   bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x02), (0x04));
   for (i = 0; i < 5000; i++) {
@@ -5536,9 +5540,9 @@ cmalo_rx(struct malo_softc *sc)
  bus_space_write_1((sc)->sc_iot, (sc)->sc_ioh, (0x00), (0x02));
  bus_space_write_2((sc)->sc_iot, (sc)->sc_ioh, (0x02), (0x02));
  rxdesc = (struct malo_rx_desc *)sc->sc_data;
- rxdesc->status = __extension__({ __uint16_t __swap16gen_x = (rxdesc->status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- rxdesc->pkglen = __extension__({ __uint16_t __swap16gen_x = (rxdesc->pkglen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- rxdesc->pkgoffset = __extension__({ __uint32_t __swap32gen_x = (rxdesc->pkgoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rxdesc->status = (__builtin_constant_p(rxdesc->status) ? (__uint16_t)(((__uint16_t)(rxdesc->status) & 0xffU) << 8 | ((__uint16_t)(rxdesc->status) & 0xff00U) >> 8) : __swap16md(rxdesc->status));
+ rxdesc->pkglen = (__builtin_constant_p(rxdesc->pkglen) ? (__uint16_t)(((__uint16_t)(rxdesc->pkglen) & 0xffU) << 8 | ((__uint16_t)(rxdesc->pkglen) & 0xff00U) >> 8) : __swap16md(rxdesc->pkglen));
+ rxdesc->pkgoffset = (__builtin_constant_p(rxdesc->pkgoffset) ? (__uint32_t)(((__uint32_t)(rxdesc->pkgoffset) & 0xff) << 24 | ((__uint32_t)(rxdesc->pkgoffset) & 0xff00) << 8 | ((__uint32_t)(rxdesc->pkgoffset) & 0xff0000) >> 8 | ((__uint32_t)(rxdesc->pkgoffset) & 0xff000000) >> 24) : __swap32md(rxdesc->pkgoffset));
  ;
  if (rxdesc->status != 0x0001)
   return;
@@ -5593,8 +5597,8 @@ cmalo_tx(struct malo_softc *sc, struct mbuf *m)
  __builtin_bzero((sc->sc_data), (sizeof(*txdesc)));
  psize = sizeof(*txdesc) + m->M_dat.MH.MH_pkthdr.len;
  data = ((uint8_t *)((m)->m_hdr.mh_data));
- txdesc->pkgoffset = __extension__({ __uint32_t __swap32gen_x = (sizeof(*txdesc)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- txdesc->pkglen = __extension__({ __uint16_t __swap16gen_x = (m->M_dat.MH.MH_pkthdr.len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ txdesc->pkgoffset = (__builtin_constant_p(sizeof(*txdesc)) ? (__uint32_t)(((__uint32_t)(sizeof(*txdesc)) & 0xff) << 24 | ((__uint32_t)(sizeof(*txdesc)) & 0xff00) << 8 | ((__uint32_t)(sizeof(*txdesc)) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*txdesc)) & 0xff000000) >> 24) : __swap32md(sizeof(*txdesc)));
+ txdesc->pkglen = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
  __builtin_bcopy((data), (txdesc->dstaddrhigh), (sizeof(txdesc->dstaddrhigh)));
  __builtin_bcopy((data + sizeof(txdesc->dstaddrhigh)), (txdesc->dstaddrlow), (sizeof(txdesc->dstaddrlow)));
  m_copydata(m, 0, m->M_dat.MH.MH_pkthdr.len, sc->sc_data + sizeof(*txdesc));
@@ -5726,9 +5730,9 @@ cmalo_cmd_get_hwspec(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0003); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0003) ? (__uint16_t)(((__uint16_t)(0x0003) & 0xffU) << 8 | ((__uint16_t)(0x0003) & 0xff00U) >> 8) : __swap16md(0x0003));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_spec *)(hdr + 1);
  __builtin_memset((body->macaddr), (0xff), (6));
@@ -5756,9 +5760,9 @@ cmalo_cmd_set_reset(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0005); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0005) ? (__uint16_t)(((__uint16_t)(0x0005) & 0xffU) << 8 | ((__uint16_t)(0x0005) & 0xff00U) >> 8) : __swap16md(0x0005));
  hdr->size = 0;
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  if (cmalo_cmd_request(sc, psize, 1) != 0)
   return (5);
@@ -5778,34 +5782,34 @@ cmalo_cmd_set_scan(struct malo_softc *sc)
  int i;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0006); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0006) ? (__uint16_t)(((__uint16_t)(0x0006) & 0xffU) << 8 | ((__uint16_t)(0x0006) & 0xff00U) >> 8) : __swap16md(0x0006));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_scan *)(hdr + 1);
  body->bsstype = 0x03;
  __builtin_memset((body->bssid), (0xff), (6));
  body_ssid = sc->sc_cmd + psize;
- body_ssid->type = __extension__({ __uint16_t __swap16gen_x = (0x0000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_ssid->size = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_ssid->type = (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000));
+ body_ssid->size = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
  psize += (sizeof(*body_ssid) - 1);
  body_chanlist = sc->sc_cmd + psize;
- body_chanlist->type = __extension__({ __uint16_t __swap16gen_x = (0x0101); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_chanlist->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(body_chanlist->data)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_chanlist->type = (__builtin_constant_p(0x0101) ? (__uint16_t)(((__uint16_t)(0x0101) & 0xffU) << 8 | ((__uint16_t)(0x0101) & 0xff00U) >> 8) : __swap16md(0x0101));
+ body_chanlist->size = (__builtin_constant_p(sizeof(body_chanlist->data)) ? (__uint16_t)(((__uint16_t)(sizeof(body_chanlist->data)) & 0xffU) << 8 | ((__uint16_t)(sizeof(body_chanlist->data)) & 0xff00U) >> 8) : __swap16md(sizeof(body_chanlist->data)));
  for (i = 0; i < 12; i++) {
   body_chanlist->data[i].radiotype = 0x00;
   body_chanlist->data[i].channumber = (i + 1);
   body_chanlist->data[i].scantype = 0x00;
-  body_chanlist->data[i].minscantime = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body_chanlist->data[i].maxscantime = __extension__({ __uint16_t __swap16gen_x = (100); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body_chanlist->data[i].minscantime = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+  body_chanlist->data[i].maxscantime = (__builtin_constant_p(100) ? (__uint16_t)(((__uint16_t)(100) & 0xffU) << 8 | ((__uint16_t)(100) & 0xff00U) >> 8) : __swap16md(100));
  }
  psize += sizeof(*body_chanlist);
  body_rates = sc->sc_cmd + psize;
- body_rates->type = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_rates->type = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
  body_rates->size =
-     __extension__({ __uint16_t __swap16gen_x = (ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     (__builtin_constant_p(ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates) ? (__uint16_t)(((__uint16_t)(ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates) & 0xffU) << 8 | ((__uint16_t)(ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates) & 0xff00U) >> 8) : __swap16md(ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates));
  __builtin_bcopy((ic->ic_sup_rates[IEEE80211_MODE_11B].rs_rates), (body_rates->data), (ic->ic_sup_rates[IEEE80211_MODE_11B].rs_nrates));
- psize += (sizeof(*body_rates) - 1) + __extension__({ __uint16_t __swap16gen_x = (body_rates->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (psize - sizeof(*hdr)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ psize += (sizeof(*body_rates) - 1) + (__builtin_constant_p(body_rates->size) ? (__uint16_t)(((__uint16_t)(body_rates->size) & 0xffU) << 8 | ((__uint16_t)(body_rates->size) & 0xff00U) >> 8) : __swap16md(body_rates->size));
+ hdr->size = (__builtin_constant_p(psize - sizeof(*hdr)) ? (__uint16_t)(((__uint16_t)(psize - sizeof(*hdr)) & 0xffU) << 8 | ((__uint16_t)(psize - sizeof(*hdr)) & 0xff00U) >> 8) : __swap16md(psize - sizeof(*hdr)));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -5822,14 +5826,14 @@ cmalo_cmd_rsp_scan(struct malo_softc *sc)
  __builtin_bzero((sc->sc_net), (sizeof(sc->sc_net)));
  psize = sizeof(*hdr) + sizeof(*body);
  body = (struct malo_cmd_body_rsp_scan *)(hdr + 1);
- body->bufsize = __extension__({ __uint16_t __swap16gen_x = (body->bufsize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->bufsize = (__builtin_constant_p(body->bufsize) ? (__uint16_t)(((__uint16_t)(body->bufsize) & 0xffU) << 8 | ((__uint16_t)(body->bufsize) & 0xff00U) >> 8) : __swap16md(body->bufsize));
  ;
  sc->sc_net_num = body->numofset;
  for (i = 0; i < body->numofset; i++) {
   set = (struct malo_cmd_body_rsp_scan_set *)(sc->sc_cmd + psize);
-  set->size = __extension__({ __uint16_t __swap16gen_x = (set->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  set->beaconintvl = __extension__({ __uint16_t __swap16gen_x = (set->beaconintvl); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  set->capinfo = __extension__({ __uint16_t __swap16gen_x = (set->capinfo); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  set->size = (__builtin_constant_p(set->size) ? (__uint16_t)(((__uint16_t)(set->size) & 0xffU) << 8 | ((__uint16_t)(set->size) & 0xff00U) >> 8) : __swap16md(set->size));
+  set->beaconintvl = (__builtin_constant_p(set->beaconintvl) ? (__uint16_t)(((__uint16_t)(set->beaconintvl) & 0xffU) << 8 | ((__uint16_t)(set->beaconintvl) & 0xff00U) >> 8) : __swap16md(set->beaconintvl));
+  set->capinfo = (__builtin_constant_p(set->capinfo) ? (__uint16_t)(((__uint16_t)(set->capinfo) & 0xffU) << 8 | ((__uint16_t)(set->capinfo) & 0xff00U) >> 8) : __swap16md(set->capinfo));
   ;
   __builtin_bcopy((set->bssid), (sc->sc_net[i].bssid), (sizeof(set->bssid)));
   __builtin_bcopy((set->timestamp), (sc->sc_net[i].timestamp), (sizeof(set->timestamp)));
@@ -5883,9 +5887,9 @@ cmalo_cmd_set_auth(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0011); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0011) ? (__uint16_t)(((__uint16_t)(0x0011) & 0xffU) << 8 | ((__uint16_t)(0x0011) & 0xff00U) >> 8) : __swap16md(0x0011));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_auth *)(hdr + 1);
  __builtin_bcopy((sc->sc_net[sc->sc_net_cur].bssid), (body->peermac), (6));
@@ -5904,13 +5908,13 @@ cmalo_cmd_set_wep(struct malo_softc *sc, uint16_t index,
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0013); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0013) ? (__uint16_t)(((__uint16_t)(0x0013) & 0xffU) << 8 | ((__uint16_t)(0x0013) & 0xff00U) >> 8) : __swap16md(0x0013));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_wep *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (0x02); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->key_index = __extension__({ __uint16_t __swap16gen_x = (index); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(0x02) ? (__uint16_t)(((__uint16_t)(0x02) & 0xffU) << 8 | ((__uint16_t)(0x02) & 0xff00U) >> 8) : __swap16md(0x02));
+ body->key_index = (__builtin_constant_p(index) ? (__uint16_t)(((__uint16_t)(index) & 0xffU) << 8 | ((__uint16_t)(index) & 0xff00U) >> 8) : __swap16md(index));
  if (body->key_index == 0) {
   if (key->k_len > 5)
    body->key_type_1 = 0x02;
@@ -5952,32 +5956,32 @@ cmalo_cmd_set_snmp(struct malo_softc *sc, uint16_t oid)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0016); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0016) ? (__uint16_t)(((__uint16_t)(0x0016) & 0xffU) << 8 | ((__uint16_t)(0x0016) & 0xff00U) >> 8) : __swap16md(0x0016));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_snmp *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  switch (oid) {
  case 0x05:
-  body->oid = __extension__({ __uint16_t __swap16gen_x = (0x05); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->size = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  *(uint16_t *)body->data = __extension__({ __uint16_t __swap16gen_x = (2347); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->oid = (__builtin_constant_p(0x05) ? (__uint16_t)(((__uint16_t)(0x05) & 0xffU) << 8 | ((__uint16_t)(0x05) & 0xff00U) >> 8) : __swap16md(0x05));
+  body->size = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+  *(uint16_t *)body->data = (__builtin_constant_p(2347) ? (__uint16_t)(((__uint16_t)(2347) & 0xffU) << 8 | ((__uint16_t)(2347) & 0xff00U) >> 8) : __swap16md(2347));
   break;
  case 0x06:
-  body->oid = __extension__({ __uint16_t __swap16gen_x = (0x06); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->size = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  *(uint16_t *)body->data = __extension__({ __uint16_t __swap16gen_x = (4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->oid = (__builtin_constant_p(0x06) ? (__uint16_t)(((__uint16_t)(0x06) & 0xffU) << 8 | ((__uint16_t)(0x06) & 0xff00U) >> 8) : __swap16md(0x06));
+  body->size = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+  *(uint16_t *)body->data = (__builtin_constant_p(4) ? (__uint16_t)(((__uint16_t)(4) & 0xffU) << 8 | ((__uint16_t)(4) & 0xff00U) >> 8) : __swap16md(4));
   break;
  case 0x08:
-  body->oid = __extension__({ __uint16_t __swap16gen_x = (0x08); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->size = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  *(uint16_t *)body->data = __extension__({ __uint16_t __swap16gen_x = (2346); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->oid = (__builtin_constant_p(0x08) ? (__uint16_t)(((__uint16_t)(0x08) & 0xffU) << 8 | ((__uint16_t)(0x08) & 0xff00U) >> 8) : __swap16md(0x08));
+  body->size = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+  *(uint16_t *)body->data = (__builtin_constant_p(2346) ? (__uint16_t)(((__uint16_t)(2346) & 0xffU) << 8 | ((__uint16_t)(2346) & 0xff00U) >> 8) : __swap16md(2346));
   break;
  case 0x09:
-  body->oid = __extension__({ __uint16_t __swap16gen_x = (0x09); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->size = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  *(uint16_t *)body->data = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->oid = (__builtin_constant_p(0x09) ? (__uint16_t)(((__uint16_t)(0x09) & 0xffU) << 8 | ((__uint16_t)(0x09) & 0xff00U) >> 8) : __swap16md(0x09));
+  body->size = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+  *(uint16_t *)body->data = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
   break;
  default:
   break;
@@ -5995,15 +5999,15 @@ cmalo_cmd_set_radio(struct malo_softc *sc, uint16_t control)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x001c); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x001c) ? (__uint16_t)(((__uint16_t)(0x001c) & 0xffU) << 8 | ((__uint16_t)(0x001c) & 0xff00U) >> 8) : __swap16md(0x001c));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_radio *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  if (control) {
-  body->control = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->control |= __extension__({ __uint16_t __swap16gen_x = (0x0004); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->control = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
+  body->control |= (__builtin_constant_p(0x0004) ? (__uint16_t)(((__uint16_t)(0x0004) & 0xffU) << 8 | ((__uint16_t)(0x0004) & 0xff00U) >> 8) : __swap16md(0x0004));
  }
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
@@ -6018,13 +6022,13 @@ cmalo_cmd_set_channel(struct malo_softc *sc, uint16_t channel)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x001d); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x001d) ? (__uint16_t)(((__uint16_t)(0x001d) & 0xffU) << 8 | ((__uint16_t)(0x001d) & 0xff00U) >> 8) : __swap16md(0x001d));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_channel *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->channel = __extension__({ __uint16_t __swap16gen_x = (channel); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+ body->channel = (__builtin_constant_p(channel) ? (__uint16_t)(((__uint16_t)(channel) & 0xffU) << 8 | ((__uint16_t)(channel) & 0xff00U) >> 8) : __swap16md(channel));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6038,13 +6042,13 @@ cmalo_cmd_set_txpower(struct malo_softc *sc, int16_t txpower)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x001e); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x001e) ? (__uint16_t)(((__uint16_t)(0x001e) & 0xffU) << 8 | ((__uint16_t)(0x001e) & 0xff00U) >> 8) : __swap16md(0x001e));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_txpower *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->txpower = __extension__({ __uint16_t __swap16gen_x = (txpower); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+ body->txpower = (__builtin_constant_p(txpower) ? (__uint16_t)(((__uint16_t)(txpower) & 0xffU) << 8 | ((__uint16_t)(txpower) & 0xff00U) >> 8) : __swap16md(txpower));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6058,16 +6062,16 @@ cmalo_cmd_set_antenna(struct malo_softc *sc, uint16_t action)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0020); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0020) ? (__uint16_t)(((__uint16_t)(0x0020) & 0xffU) << 8 | ((__uint16_t)(0x0020) & 0xff00U) >> 8) : __swap16md(0x0020));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_antenna *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (action); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(action) ? (__uint16_t)(((__uint16_t)(action) & 0xffU) << 8 | ((__uint16_t)(action) & 0xff00U) >> 8) : __swap16md(action));
  if (action == 1)
-  body->antenna_mode = __extension__({ __uint16_t __swap16gen_x = (0xffff); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->antenna_mode = (__builtin_constant_p(0xffff) ? (__uint16_t)(((__uint16_t)(0xffff) & 0xffU) << 8 | ((__uint16_t)(0xffff) & 0xff00U) >> 8) : __swap16md(0xffff));
  if (action == 2)
-  body->antenna_mode = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->antenna_mode = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6082,15 +6086,15 @@ cmalo_cmd_set_macctrl(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0028); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0028) ? (__uint16_t)(((__uint16_t)(0x0028) & 0xffU) << 8 | ((__uint16_t)(0x0028) & 0xff00U) >> 8) : __swap16md(0x0028));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_macctrl *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->action |= __extension__({ __uint16_t __swap16gen_x = (0x0002); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
+ body->action |= (__builtin_constant_p(0x0002) ? (__uint16_t)(((__uint16_t)(0x0002) & 0xffU) << 8 | ((__uint16_t)(0x0002) & 0xff00U) >> 8) : __swap16md(0x0002));
  if (ic->ic_opmode == IEEE80211_M_MONITOR)
-  body->action |= __extension__({ __uint16_t __swap16gen_x = (0x0080); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->action |= (__builtin_constant_p(0x0080) ? (__uint16_t)(((__uint16_t)(0x0080) & 0xffU) << 8 | ((__uint16_t)(0x0080) & 0xff00U) >> 8) : __swap16md(0x0080));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6104,12 +6108,12 @@ cmalo_cmd_set_macaddr(struct malo_softc *sc, uint8_t *macaddr)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x004d); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x004d) ? (__uint16_t)(((__uint16_t)(0x004d) & 0xffU) << 8 | ((__uint16_t)(0x004d) & 0xff00U) >> 8) : __swap16md(0x004d));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_macaddr *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  __builtin_bcopy((macaddr), (body->macaddr), (6));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
@@ -6129,38 +6133,38 @@ cmalo_cmd_set_assoc(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0050); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0050) ? (__uint16_t)(((__uint16_t)(0x0050) & 0xffU) << 8 | ((__uint16_t)(0x0050) & 0xff00U) >> 8) : __swap16md(0x0050));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_assoc *)(hdr + 1);
  __builtin_bcopy((sc->sc_net[sc->sc_net_cur].bssid), (body->peermac), (6));
- body->capinfo = __extension__({ __uint16_t __swap16gen_x = (sc->sc_net[sc->sc_net_cur].capinfo); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->listenintrv = __extension__({ __uint16_t __swap16gen_x = (10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->capinfo = (__builtin_constant_p(sc->sc_net[sc->sc_net_cur].capinfo) ? (__uint16_t)(((__uint16_t)(sc->sc_net[sc->sc_net_cur].capinfo) & 0xffU) << 8 | ((__uint16_t)(sc->sc_net[sc->sc_net_cur].capinfo) & 0xff00U) >> 8) : __swap16md(sc->sc_net[sc->sc_net_cur].capinfo));
+ body->listenintrv = (__builtin_constant_p(10) ? (__uint16_t)(((__uint16_t)(10) & 0xffU) << 8 | ((__uint16_t)(10) & 0xff00U) >> 8) : __swap16md(10));
  body_ssid = sc->sc_cmd + psize;
- body_ssid->type = __extension__({ __uint16_t __swap16gen_x = (0x0000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_ssid->size = __extension__({ __uint16_t __swap16gen_x = (strlen(sc->sc_net[sc->sc_net_cur].ssid)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- __builtin_bcopy((sc->sc_net[sc->sc_net_cur].ssid), (body_ssid->data), (__extension__({ __uint16_t __swap16gen_x = (body_ssid->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
- psize += (sizeof(*body_ssid) - 1) + __extension__({ __uint16_t __swap16gen_x = (body_ssid->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_ssid->type = (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000));
+ body_ssid->size = (__builtin_constant_p(strlen(sc->sc_net[sc->sc_net_cur].ssid)) ? (__uint16_t)(((__uint16_t)(strlen(sc->sc_net[sc->sc_net_cur].ssid)) & 0xffU) << 8 | ((__uint16_t)(strlen(sc->sc_net[sc->sc_net_cur].ssid)) & 0xff00U) >> 8) : __swap16md(strlen(sc->sc_net[sc->sc_net_cur].ssid)));
+ __builtin_bcopy((sc->sc_net[sc->sc_net_cur].ssid), (body_ssid->data), ((__builtin_constant_p(body_ssid->size) ? (__uint16_t)(((__uint16_t)(body_ssid->size) & 0xffU) << 8 | ((__uint16_t)(body_ssid->size) & 0xff00U) >> 8) : __swap16md(body_ssid->size))));
+ psize += (sizeof(*body_ssid) - 1) + (__builtin_constant_p(body_ssid->size) ? (__uint16_t)(((__uint16_t)(body_ssid->size) & 0xffU) << 8 | ((__uint16_t)(body_ssid->size) & 0xff00U) >> 8) : __swap16md(body_ssid->size));
  body_phy = sc->sc_cmd + psize;
- body_phy->type = __extension__({ __uint16_t __swap16gen_x = (0x0003); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_phy->size = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_phy->type = (__builtin_constant_p(0x0003) ? (__uint16_t)(((__uint16_t)(0x0003) & 0xffU) << 8 | ((__uint16_t)(0x0003) & 0xff00U) >> 8) : __swap16md(0x0003));
+ body_phy->size = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  __builtin_bcopy((&sc->sc_net[sc->sc_net_cur].channel), (body_phy->data), (1));
  psize += sizeof(*body_phy);
  body_cf = sc->sc_cmd + psize;
- body_cf->type = __extension__({ __uint16_t __swap16gen_x = (0x0004); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_cf->size = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_cf->type = (__builtin_constant_p(0x0004) ? (__uint16_t)(((__uint16_t)(0x0004) & 0xffU) << 8 | ((__uint16_t)(0x0004) & 0xff00U) >> 8) : __swap16md(0x0004));
+ body_cf->size = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
  psize += (sizeof(*body_cf) - 1);
  body_rates = sc->sc_cmd + psize;
- body_rates->type = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_rates->size = __extension__({ __uint16_t __swap16gen_x = (strlen(sc->sc_net[sc->sc_net_cur].rates)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- __builtin_bcopy((sc->sc_net[sc->sc_net_cur].rates), (body_rates->data), (__extension__({ __uint16_t __swap16gen_x = (body_rates->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
- psize += (sizeof(*body_rates) - 1) + __extension__({ __uint16_t __swap16gen_x = (body_rates->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_rates->type = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
+ body_rates->size = (__builtin_constant_p(strlen(sc->sc_net[sc->sc_net_cur].rates)) ? (__uint16_t)(((__uint16_t)(strlen(sc->sc_net[sc->sc_net_cur].rates)) & 0xffU) << 8 | ((__uint16_t)(strlen(sc->sc_net[sc->sc_net_cur].rates)) & 0xff00U) >> 8) : __swap16md(strlen(sc->sc_net[sc->sc_net_cur].rates)));
+ __builtin_bcopy((sc->sc_net[sc->sc_net_cur].rates), (body_rates->data), ((__builtin_constant_p(body_rates->size) ? (__uint16_t)(((__uint16_t)(body_rates->size) & 0xffU) << 8 | ((__uint16_t)(body_rates->size) & 0xff00U) >> 8) : __swap16md(body_rates->size))));
+ psize += (sizeof(*body_rates) - 1) + (__builtin_constant_p(body_rates->size) ? (__uint16_t)(((__uint16_t)(body_rates->size) & 0xffU) << 8 | ((__uint16_t)(body_rates->size) & 0xff00U) >> 8) : __swap16md(body_rates->size));
  body_passeid = sc->sc_cmd + psize;
- body_passeid->type = __extension__({ __uint16_t __swap16gen_x = (0x010a); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_passeid->type = (__builtin_constant_p(0x010a) ? (__uint16_t)(((__uint16_t)(0x010a) & 0xffU) << 8 | ((__uint16_t)(0x010a) & 0xff00U) >> 8) : __swap16md(0x010a));
  body_passeid->size = body_rates->size;
- __builtin_bcopy((body_rates->data), (body_passeid->data), (__extension__({ __uint16_t __swap16gen_x = (body_rates->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
- psize += (sizeof(*body_passeid) - 1) + __extension__({ __uint16_t __swap16gen_x = (body_passeid->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (psize - sizeof(*hdr)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ __builtin_bcopy((body_rates->data), (body_passeid->data), ((__builtin_constant_p(body_rates->size) ? (__uint16_t)(((__uint16_t)(body_rates->size) & 0xffU) << 8 | ((__uint16_t)(body_rates->size) & 0xff00U) >> 8) : __swap16md(body_rates->size))));
+ psize += (sizeof(*body_passeid) - 1) + (__builtin_constant_p(body_passeid->size) ? (__uint16_t)(((__uint16_t)(body_passeid->size) & 0xffU) << 8 | ((__uint16_t)(body_passeid->size) & 0xff00U) >> 8) : __swap16md(body_passeid->size));
+ hdr->size = (__builtin_constant_p(psize - sizeof(*hdr)) ? (__uint16_t)(((__uint16_t)(psize - sizeof(*hdr)) & 0xffU) << 8 | ((__uint16_t)(psize - sizeof(*hdr)) & 0xff00U) >> 8) : __swap16md(psize - sizeof(*hdr)));
  if (!sc->sc_cmd_ctxsave) {
   if (cmalo_cmd_request(sc, psize, 1) != 0)
    return (5);
@@ -6194,14 +6198,14 @@ cmalo_cmd_set_80211d(struct malo_softc *sc)
  int i;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x005b); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x005b) ? (__uint16_t)(((__uint16_t)(0x005b) & 0xffU) << 8 | ((__uint16_t)(0x005b) & 0xff00U) >> 8) : __swap16md(0x005b));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_80211d *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  body_80211d = sc->sc_cmd + psize;
- body_80211d->type = __extension__({ __uint16_t __swap16gen_x = (0x0007); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body_80211d->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(body_80211d->data) + sizeof(body_80211d->countrycode)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body_80211d->type = (__builtin_constant_p(0x0007) ? (__uint16_t)(((__uint16_t)(0x0007) & 0xffU) << 8 | ((__uint16_t)(0x0007) & 0xff00U) >> 8) : __swap16md(0x0007));
+ body_80211d->size = (__builtin_constant_p(sizeof(body_80211d->data) + sizeof(body_80211d->countrycode)) ? (__uint16_t)(((__uint16_t)(sizeof(body_80211d->data) + sizeof(body_80211d->countrycode)) & 0xffU) << 8 | ((__uint16_t)(sizeof(body_80211d->data) + sizeof(body_80211d->countrycode)) & 0xff00U) >> 8) : __swap16md(sizeof(body_80211d->data) + sizeof(body_80211d->countrycode)));
  __builtin_bcopy(("EU "), (body_80211d->countrycode), (sizeof(body_80211d->countrycode)));
  for (i = 0; i < 12; i++) {
   body_80211d->data[i].firstchannel = 1;
@@ -6209,7 +6213,7 @@ cmalo_cmd_set_80211d(struct malo_softc *sc)
   body_80211d->data[i].maxtxpower = 10;
  }
  psize += sizeof(*body_80211d);
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (psize - sizeof(*hdr)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->size = (__builtin_constant_p(psize - sizeof(*hdr)) ? (__uint16_t)(((__uint16_t)(psize - sizeof(*hdr)) & 0xffU) << 8 | ((__uint16_t)(psize - sizeof(*hdr)) & 0xff00U) >> 8) : __swap16md(psize - sizeof(*hdr)));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6223,17 +6227,17 @@ cmalo_cmd_set_bgscan_config(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x006b); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x006b) ? (__uint16_t)(((__uint16_t)(0x006b) & 0xffU) << 8 | ((__uint16_t)(0x006b) & 0xff00U) >> 8) : __swap16md(0x006b));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_bgscan_config *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  body->enable = 1;
  body->bsstype = 0x03;
  body->chperscan = 12;
- body->scanintvl = __extension__({ __uint32_t __swap32gen_x = (100); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- body->maxscanres = __extension__({ __uint16_t __swap16gen_x = (12); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->scanintvl = (__builtin_constant_p(100) ? (__uint32_t)(((__uint32_t)(100) & 0xff) << 24 | ((__uint32_t)(100) & 0xff00) << 8 | ((__uint32_t)(100) & 0xff0000) >> 8 | ((__uint32_t)(100) & 0xff000000) >> 24) : __swap32md(100));
+ body->maxscanres = (__builtin_constant_p(12) ? (__uint16_t)(((__uint16_t)(12) & 0xffU) << 8 | ((__uint16_t)(12) & 0xff00U) >> 8) : __swap16md(12));
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
  cmalo_cmd_response(sc);
@@ -6247,9 +6251,9 @@ cmalo_cmd_set_bgscan_query(struct malo_softc *sc)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x006c); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x006c) ? (__uint16_t)(((__uint16_t)(0x006c) & 0xffU) << 8 | ((__uint16_t)(0x006c) & 0xff00U) >> 8) : __swap16md(0x006c));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_bgscan_query *)(hdr + 1);
  body->flush = 0;
@@ -6266,18 +6270,18 @@ cmalo_cmd_set_rate(struct malo_softc *sc, int rate)
  uint16_t psize;
  __builtin_bzero((sc->sc_cmd), (256));
  psize = sizeof(*hdr) + sizeof(*body);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0076); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0076) ? (__uint16_t)(((__uint16_t)(0x0076) & 0xffU) << 8 | ((__uint16_t)(0x0076) & 0xff00U) >> 8) : __swap16md(0x0076));
+ hdr->size = (__builtin_constant_p(sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*body)));
+ hdr->seqnum = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  hdr->result = 0;
  body = (struct malo_cmd_body_rate *)(hdr + 1);
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  if (rate == -1) {
-   body->hwauto = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  body->ratebitmap = __extension__({ __uint16_t __swap16gen_x = (0x1fef); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   body->hwauto = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+  body->ratebitmap = (__builtin_constant_p(0x1fef) ? (__uint16_t)(((__uint16_t)(0x1fef) & 0xffU) << 8 | ((__uint16_t)(0x1fef) & 0xff00U) >> 8) : __swap16md(0x1fef));
  } else {
    body->hwauto = 0;
-  body->ratebitmap = __extension__({ __uint16_t __swap16gen_x = (cmalo_rate2bitmap(rate)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->ratebitmap = (__builtin_constant_p(cmalo_rate2bitmap(rate)) ? (__uint16_t)(((__uint16_t)(cmalo_rate2bitmap(rate)) & 0xffU) << 8 | ((__uint16_t)(cmalo_rate2bitmap(rate)) & 0xff00U) >> 8) : __swap16md(cmalo_rate2bitmap(rate)));
  }
  if (cmalo_cmd_request(sc, psize, 0) != 0)
   return (5);
@@ -6324,10 +6328,10 @@ cmalo_cmd_response(struct malo_softc *sc)
  } else
   bus_space_read_raw_multi_2((sc)->sc_iot, (sc)->sc_ioh, (0x12), (sc->sc_cmd), (psize));
  cmalo_hexdump(sc->sc_cmd, psize);
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (hdr->cmd); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (hdr->size); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (hdr->seqnum); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->result = __extension__({ __uint16_t __swap16gen_x = (hdr->result); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(hdr->cmd) ? (__uint16_t)(((__uint16_t)(hdr->cmd) & 0xffU) << 8 | ((__uint16_t)(hdr->cmd) & 0xff00U) >> 8) : __swap16md(hdr->cmd));
+ hdr->size = (__builtin_constant_p(hdr->size) ? (__uint16_t)(((__uint16_t)(hdr->size) & 0xffU) << 8 | ((__uint16_t)(hdr->size) & 0xff00U) >> 8) : __swap16md(hdr->size));
+ hdr->seqnum = (__builtin_constant_p(hdr->seqnum) ? (__uint16_t)(((__uint16_t)(hdr->seqnum) & 0xffU) << 8 | ((__uint16_t)(hdr->seqnum) & 0xff00U) >> 8) : __swap16md(hdr->seqnum));
+ hdr->result = (__builtin_constant_p(hdr->result) ? (__uint16_t)(((__uint16_t)(hdr->result) & 0xffU) << 8 | ((__uint16_t)(hdr->result) & 0xff00U) >> 8) : __swap16md(hdr->result));
  if (!(hdr->cmd & 0x8000)) {
   printf("%s: got invalid command response (0x%04x)\n",
       sc->sc_dev.dv_xname, hdr->cmd);

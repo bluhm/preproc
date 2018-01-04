@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -15278,16 +15282,16 @@ static void radeon_lookup_i2c_gpio_quirks(struct radeon_device *rdev,
  if ((rdev->family == CHIP_R420) ||
      (rdev->family == CHIP_R423) ||
      (rdev->family == CHIP_RV410)) {
-  if ((__extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x0018) ||
-      (__extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x0019) ||
-      (__extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x001a)) {
+  if (((__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) == 0x0018) ||
+      ((__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) == 0x0019) ||
+      ((__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) == 0x001a)) {
    gpio->ucClkMaskShift = 0x19;
    gpio->ucDataMaskShift = 0x18;
   }
  }
  if (((rdev->family >= CHIP_CEDAR))) {
   if ((index == 7) &&
-      (__extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x1936) &&
+      ((__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) == 0x1936) &&
       (gpio->sucI2cId.ucAccess == 0)) {
    gpio->sucI2cId.ucAccess = 0x97;
    gpio->ucDataMaskShift = 8;
@@ -15298,7 +15302,7 @@ static void radeon_lookup_i2c_gpio_quirks(struct radeon_device *rdev,
  }
  if (((rdev->family >= CHIP_RV620))) {
   if ((index == 4) &&
-      (__extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x1fda) &&
+      ((__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) == 0x1fda) &&
       (gpio->sucI2cId.ucAccess == 0x94))
    gpio->sucI2cId.ucAccess = 0x14;
  }
@@ -15307,14 +15311,14 @@ static struct radeon_i2c_bus_rec radeon_get_bus_rec_for_i2c_gpio(ATOM_GPIO_I2C_A
 {
  struct radeon_i2c_bus_rec i2c;
  __builtin_memset((&i2c), (0), (sizeof(struct radeon_i2c_bus_rec)));
- i2c.mask_clk_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usClkMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.mask_data_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usDataMaskRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.en_clk_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usClkEnRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.en_data_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usDataEnRegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.y_clk_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usClkY_RegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.y_data_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usDataY_RegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.a_clk_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usClkA_RegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
- i2c.a_data_reg = __extension__({ __uint16_t __swap16gen_x = (gpio->usDataA_RegisterIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
+ i2c.mask_clk_reg = (__builtin_constant_p(gpio->usClkMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkMaskRegisterIndex)) * 4;
+ i2c.mask_data_reg = (__builtin_constant_p(gpio->usDataMaskRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usDataMaskRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usDataMaskRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usDataMaskRegisterIndex)) * 4;
+ i2c.en_clk_reg = (__builtin_constant_p(gpio->usClkEnRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkEnRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkEnRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkEnRegisterIndex)) * 4;
+ i2c.en_data_reg = (__builtin_constant_p(gpio->usDataEnRegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usDataEnRegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usDataEnRegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usDataEnRegisterIndex)) * 4;
+ i2c.y_clk_reg = (__builtin_constant_p(gpio->usClkY_RegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkY_RegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkY_RegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkY_RegisterIndex)) * 4;
+ i2c.y_data_reg = (__builtin_constant_p(gpio->usDataY_RegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usDataY_RegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usDataY_RegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usDataY_RegisterIndex)) * 4;
+ i2c.a_clk_reg = (__builtin_constant_p(gpio->usClkA_RegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usClkA_RegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usClkA_RegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usClkA_RegisterIndex)) * 4;
+ i2c.a_data_reg = (__builtin_constant_p(gpio->usDataA_RegisterIndex) ? (__uint16_t)(((__uint16_t)(gpio->usDataA_RegisterIndex) & 0xffU) << 8 | ((__uint16_t)(gpio->usDataA_RegisterIndex) & 0xff00U) >> 8) : __swap16md(gpio->usDataA_RegisterIndex)) * 4;
  i2c.mask_clk_mask = (1 << gpio->ucClkMaskShift);
  i2c.mask_data_mask = (1 << gpio->ucDataMaskShift);
  i2c.en_clk_mask = (1 << gpio->ucClkEnShift);
@@ -15410,7 +15414,7 @@ static struct radeon_gpio_rec radeon_lookup_gpio(struct radeon_device *rdev,
    pin = &gpio_info->asGPIO_Pin[i];
    if (id == pin->ucGPIO_ID) {
     gpio.id = pin->ucGPIO_ID;
-    gpio.reg64 = __extension__({ __uint16_t __swap16gen_x = (pin->usGpioPin_AIndex); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 4;
+    gpio.reg64 = (__builtin_constant_p(pin->usGpioPin_AIndex) ? (__uint16_t)(((__uint16_t)(pin->usGpioPin_AIndex) & 0xffU) << 8 | ((__uint16_t)(pin->usGpioPin_AIndex) & 0xff00U) >> 8) : __swap16md(pin->usGpioPin_AIndex)) * 4;
     gpio.mask = (1 << pin->ucGpioPinBitShift);
     gpio.valid = 1;
     break;
@@ -15669,36 +15673,36 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
  obj_header = (ATOM_OBJECT_HEADER *) (ctx->bios + data_offset);
  path_obj = (ATOM_DISPLAY_OBJECT_PATH_TABLE *)
      (ctx->bios + data_offset +
-      __extension__({ __uint16_t __swap16gen_x = (obj_header->usDisplayPathTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(obj_header->usDisplayPathTableOffset) ? (__uint16_t)(((__uint16_t)(obj_header->usDisplayPathTableOffset) & 0xffU) << 8 | ((__uint16_t)(obj_header->usDisplayPathTableOffset) & 0xff00U) >> 8) : __swap16md(obj_header->usDisplayPathTableOffset)));
  con_obj = (ATOM_OBJECT_TABLE *)
      (ctx->bios + data_offset +
-      __extension__({ __uint16_t __swap16gen_x = (obj_header->usConnectorObjectTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(obj_header->usConnectorObjectTableOffset) ? (__uint16_t)(((__uint16_t)(obj_header->usConnectorObjectTableOffset) & 0xffU) << 8 | ((__uint16_t)(obj_header->usConnectorObjectTableOffset) & 0xff00U) >> 8) : __swap16md(obj_header->usConnectorObjectTableOffset)));
  enc_obj = (ATOM_OBJECT_TABLE *)
      (ctx->bios + data_offset +
-      __extension__({ __uint16_t __swap16gen_x = (obj_header->usEncoderObjectTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(obj_header->usEncoderObjectTableOffset) ? (__uint16_t)(((__uint16_t)(obj_header->usEncoderObjectTableOffset) & 0xffU) << 8 | ((__uint16_t)(obj_header->usEncoderObjectTableOffset) & 0xff00U) >> 8) : __swap16md(obj_header->usEncoderObjectTableOffset)));
  router_obj = (ATOM_OBJECT_TABLE *)
   (ctx->bios + data_offset +
-   __extension__({ __uint16_t __swap16gen_x = (obj_header->usRouterObjectTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- device_support = __extension__({ __uint16_t __swap16gen_x = (obj_header->usDeviceSupport); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(obj_header->usRouterObjectTableOffset) ? (__uint16_t)(((__uint16_t)(obj_header->usRouterObjectTableOffset) & 0xffU) << 8 | ((__uint16_t)(obj_header->usRouterObjectTableOffset) & 0xff00U) >> 8) : __swap16md(obj_header->usRouterObjectTableOffset)));
+ device_support = (__builtin_constant_p(obj_header->usDeviceSupport) ? (__uint16_t)(((__uint16_t)(obj_header->usDeviceSupport) & 0xffU) << 8 | ((__uint16_t)(obj_header->usDeviceSupport) & 0xff00U) >> 8) : __swap16md(obj_header->usDeviceSupport));
  path_size = 0;
  for (i = 0; i < path_obj->ucNumOfDispPath; i++) {
   uint8_t *addr = (uint8_t *) path_obj->asDispPath;
   ATOM_DISPLAY_OBJECT_PATH *path;
   addr += path_size;
   path = (ATOM_DISPLAY_OBJECT_PATH *) addr;
-  path_size += __extension__({ __uint16_t __swap16gen_x = (path->usSize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  if (device_support & __extension__({ __uint16_t __swap16gen_x = (path->usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+  path_size += (__builtin_constant_p(path->usSize) ? (__uint16_t)(((__uint16_t)(path->usSize) & 0xffU) << 8 | ((__uint16_t)(path->usSize) & 0xff00U) >> 8) : __swap16md(path->usSize));
+  if (device_support & (__builtin_constant_p(path->usDeviceTag) ? (__uint16_t)(((__uint16_t)(path->usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path->usDeviceTag) & 0xff00U) >> 8) : __swap16md(path->usDeviceTag))) {
    uint8_t con_obj_id, con_obj_num, con_obj_type;
    con_obj_id =
-       (__extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x00FF)
+       ((__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId)) & 0x00FF)
        >> 0x00;
    con_obj_num =
-       (__extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x0700)
+       ((__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId)) & 0x0700)
        >> 0x08;
    con_obj_type =
-       (__extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+       ((__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId)) &
         0x7000) >> 0x0C;
-   if (__extension__({ __uint16_t __swap16gen_x = (path->usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) ==
+   if ((__builtin_constant_p(path->usDeviceTag) ? (__uint16_t)(((__uint16_t)(path->usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path->usDeviceTag) & 0xff00U) >> 8) : __swap16md(path->usDeviceTag)) ==
     (0x1L << 0x00000008 ))
     continue;
    if ((rdev->flags & RADEON_IS_IGP) &&
@@ -15751,24 +15755,24 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
     continue;
    router.ddc_valid = 0;
    router.cd_valid = 0;
-   for (j = 0; j < ((__extension__({ __uint16_t __swap16gen_x = (path->usSize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) - 8) / 2); j++) {
+   for (j = 0; j < (((__builtin_constant_p(path->usSize) ? (__uint16_t)(((__uint16_t)(path->usSize) & 0xffU) << 8 | ((__uint16_t)(path->usSize) & 0xff00U) >> 8) : __swap16md(path->usSize)) - 8) / 2); j++) {
     uint8_t grph_obj_id, grph_obj_num, grph_obj_type;
     grph_obj_id =
-        (__extension__({ __uint16_t __swap16gen_x = (path->usGraphicObjIds[j]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+        ((__builtin_constant_p(path->usGraphicObjIds[j]) ? (__uint16_t)(((__uint16_t)(path->usGraphicObjIds[j]) & 0xffU) << 8 | ((__uint16_t)(path->usGraphicObjIds[j]) & 0xff00U) >> 8) : __swap16md(path->usGraphicObjIds[j])) &
          0x00FF) >> 0x00;
     grph_obj_num =
-        (__extension__({ __uint16_t __swap16gen_x = (path->usGraphicObjIds[j]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+        ((__builtin_constant_p(path->usGraphicObjIds[j]) ? (__uint16_t)(((__uint16_t)(path->usGraphicObjIds[j]) & 0xffU) << 8 | ((__uint16_t)(path->usGraphicObjIds[j]) & 0xff00U) >> 8) : __swap16md(path->usGraphicObjIds[j])) &
          0x0700) >> 0x08;
     grph_obj_type =
-        (__extension__({ __uint16_t __swap16gen_x = (path->usGraphicObjIds[j]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+        ((__builtin_constant_p(path->usGraphicObjIds[j]) ? (__uint16_t)(((__uint16_t)(path->usGraphicObjIds[j]) & 0xffU) << 8 | ((__uint16_t)(path->usGraphicObjIds[j]) & 0xff00U) >> 8) : __swap16md(path->usGraphicObjIds[j])) &
          0x7000) >> 0x0C;
     if (grph_obj_type == 0x2) {
      for (k = 0; k < enc_obj->ucNumberOfObjects; k++) {
-      u16 encoder_obj = __extension__({ __uint16_t __swap16gen_x = (enc_obj->asObjects[k].usObjectID); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-      if (__extension__({ __uint16_t __swap16gen_x = (path->usGraphicObjIds[j]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == encoder_obj) {
+      u16 encoder_obj = (__builtin_constant_p(enc_obj->asObjects[k].usObjectID) ? (__uint16_t)(((__uint16_t)(enc_obj->asObjects[k].usObjectID) & 0xffU) << 8 | ((__uint16_t)(enc_obj->asObjects[k].usObjectID) & 0xff00U) >> 8) : __swap16md(enc_obj->asObjects[k].usObjectID));
+      if ((__builtin_constant_p(path->usGraphicObjIds[j]) ? (__uint16_t)(((__uint16_t)(path->usGraphicObjIds[j]) & 0xffU) << 8 | ((__uint16_t)(path->usGraphicObjIds[j]) & 0xff00U) >> 8) : __swap16md(path->usGraphicObjIds[j])) == encoder_obj) {
        ATOM_COMMON_RECORD_HEADER *record = (ATOM_COMMON_RECORD_HEADER *)
         (ctx->bios + data_offset +
-         __extension__({ __uint16_t __swap16gen_x = (enc_obj->asObjects[k].usRecordOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+         (__builtin_constant_p(enc_obj->asObjects[k].usRecordOffset) ? (__uint16_t)(((__uint16_t)(enc_obj->asObjects[k].usRecordOffset) & 0xffU) << 8 | ((__uint16_t)(enc_obj->asObjects[k].usRecordOffset) & 0xff00U) >> 8) : __swap16md(enc_obj->asObjects[k].usRecordOffset)));
        ATOM_ENCODER_CAP_RECORD *cap_record;
        u16 caps = 0;
        while (record->ucRecordSize > 0 &&
@@ -15778,7 +15782,7 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
         case 20:
          cap_record =(ATOM_ENCODER_CAP_RECORD *)
           record;
-         caps = __extension__({ __uint16_t __swap16gen_x = (cap_record->usEncoderCap); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+         caps = (__builtin_constant_p(cap_record->usEncoderCap) ? (__uint16_t)(((__uint16_t)(cap_record->usEncoderCap) & 0xffU) << 8 | ((__uint16_t)(cap_record->usEncoderCap) & 0xff00U) >> 8) : __swap16md(cap_record->usEncoderCap));
          break;
         }
         record = (ATOM_COMMON_RECORD_HEADER *)
@@ -15786,17 +15790,17 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
        }
        radeon_add_atom_encoder(dev,
           encoder_obj,
-          __extension__({ __uint16_t __swap16gen_x = (path-> usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
+          (__builtin_constant_p(path-> usDeviceTag) ? (__uint16_t)(((__uint16_t)(path-> usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path-> usDeviceTag) & 0xff00U) >> 8) : __swap16md(path-> usDeviceTag)),
           caps);
       }
      }
     } else if (grph_obj_type == 0x4) {
      for (k = 0; k < router_obj->ucNumberOfObjects; k++) {
-      u16 router_obj_id = __extension__({ __uint16_t __swap16gen_x = (router_obj->asObjects[k].usObjectID); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-      if (__extension__({ __uint16_t __swap16gen_x = (path->usGraphicObjIds[j]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == router_obj_id) {
+      u16 router_obj_id = (__builtin_constant_p(router_obj->asObjects[k].usObjectID) ? (__uint16_t)(((__uint16_t)(router_obj->asObjects[k].usObjectID) & 0xffU) << 8 | ((__uint16_t)(router_obj->asObjects[k].usObjectID) & 0xff00U) >> 8) : __swap16md(router_obj->asObjects[k].usObjectID));
+      if ((__builtin_constant_p(path->usGraphicObjIds[j]) ? (__uint16_t)(((__uint16_t)(path->usGraphicObjIds[j]) & 0xffU) << 8 | ((__uint16_t)(path->usGraphicObjIds[j]) & 0xff00U) >> 8) : __swap16md(path->usGraphicObjIds[j])) == router_obj_id) {
        ATOM_COMMON_RECORD_HEADER *record = (ATOM_COMMON_RECORD_HEADER *)
         (ctx->bios + data_offset +
-         __extension__({ __uint16_t __swap16gen_x = (router_obj->asObjects[k].usRecordOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+         (__builtin_constant_p(router_obj->asObjects[k].usRecordOffset) ? (__uint16_t)(((__uint16_t)(router_obj->asObjects[k].usRecordOffset) & 0xffU) << 8 | ((__uint16_t)(router_obj->asObjects[k].usRecordOffset) & 0xff00U) >> 8) : __swap16md(router_obj->asObjects[k].usRecordOffset)));
        ATOM_I2C_RECORD *i2c_record;
        ATOM_I2C_ID_CONFIG_ACCESS *i2c_config;
        ATOM_ROUTER_DDC_PATH_SELECT_RECORD *ddc_path;
@@ -15804,7 +15808,7 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
        ATOM_SRC_DST_TABLE_FOR_ONE_OBJECT *router_src_dst_table =
         (ATOM_SRC_DST_TABLE_FOR_ONE_OBJECT *)
         (ctx->bios + data_offset +
-         __extension__({ __uint16_t __swap16gen_x = (router_obj->asObjects[k].usSrcDstTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+         (__builtin_constant_p(router_obj->asObjects[k].usSrcDstTableOffset) ? (__uint16_t)(((__uint16_t)(router_obj->asObjects[k].usSrcDstTableOffset) & 0xffU) << 8 | ((__uint16_t)(router_obj->asObjects[k].usSrcDstTableOffset) & 0xff00U) >> 8) : __swap16md(router_obj->asObjects[k].usSrcDstTableOffset)));
        u8 *num_dst_objs = (u8 *)
         ((u8 *)router_src_dst_table + 1 +
          (router_src_dst_table->ucNumberOfSrc * 2));
@@ -15812,8 +15816,8 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
        int enum_id;
        router.router_id = router_obj_id;
        for (enum_id = 0; enum_id < (*num_dst_objs); enum_id++) {
-        if (__extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) ==
-            __extension__({ __uint16_t __swap16gen_x = (dst_objs[enum_id]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
+        if ((__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId)) ==
+            (__builtin_constant_p(dst_objs[enum_id]) ? (__uint16_t)(((__uint16_t)(dst_objs[enum_id]) & 0xffU) << 8 | ((__uint16_t)(dst_objs[enum_id]) & 0xff00U) >> 8) : __swap16md(dst_objs[enum_id])))
          break;
        }
        while (record->ucRecordSize > 0 &&
@@ -15859,17 +15863,17 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
    }
    ddc_bus.valid = 0;
    hpd.hpd = RADEON_HPD_NONE;
-   if ((__extension__({ __uint16_t __swap16gen_x = (path->usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+   if (((__builtin_constant_p(path->usDeviceTag) ? (__uint16_t)(((__uint16_t)(path->usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path->usDeviceTag) & 0xff00U) >> 8) : __swap16md(path->usDeviceTag)) &
         (((0x1L << 0x00000002 )) | (0x1L << 0x00000008 ))) == 0) {
     for (j = 0; j < con_obj->ucNumberOfObjects; j++) {
-     if (__extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) ==
-         __extension__({ __uint16_t __swap16gen_x = (con_obj->asObjects[j]. usObjectID); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+     if ((__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId)) ==
+         (__builtin_constant_p(con_obj->asObjects[j]. usObjectID) ? (__uint16_t)(((__uint16_t)(con_obj->asObjects[j]. usObjectID) & 0xffU) << 8 | ((__uint16_t)(con_obj->asObjects[j]. usObjectID) & 0xff00U) >> 8) : __swap16md(con_obj->asObjects[j]. usObjectID))) {
       ATOM_COMMON_RECORD_HEADER
           *record =
           (ATOM_COMMON_RECORD_HEADER
            *)
           (ctx->bios + data_offset +
-           __extension__({ __uint16_t __swap16gen_x = (con_obj-> asObjects[j]. usRecordOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+           (__builtin_constant_p(con_obj-> asObjects[j]. usRecordOffset) ? (__uint16_t)(((__uint16_t)(con_obj-> asObjects[j]. usRecordOffset) & 0xffU) << 8 | ((__uint16_t)(con_obj-> asObjects[j]. usRecordOffset) & 0xff00U) >> 8) : __swap16md(con_obj-> asObjects[j]. usRecordOffset)));
       ATOM_I2C_RECORD *i2c_record;
       ATOM_HPD_INT_RECORD *hpd_record;
       ATOM_I2C_ID_CONFIG_ACCESS *i2c_config;
@@ -15910,14 +15914,14 @@ _Bool radeon_get_atom_connector_info_from_object_table(struct drm_device *dev)
     }
    }
    ddc_bus.hpd = hpd.hpd;
-   conn_id = __extension__({ __uint16_t __swap16gen_x = (path->usConnObjectId); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   conn_id = (__builtin_constant_p(path->usConnObjectId) ? (__uint16_t)(((__uint16_t)(path->usConnObjectId) & 0xffU) << 8 | ((__uint16_t)(path->usConnObjectId) & 0xff00U) >> 8) : __swap16md(path->usConnObjectId));
    if (!radeon_atom_apply_quirks
-       (dev, __extension__({ __uint16_t __swap16gen_x = (path->usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }), &connector_type,
+       (dev, (__builtin_constant_p(path->usDeviceTag) ? (__uint16_t)(((__uint16_t)(path->usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path->usDeviceTag) & 0xff00U) >> 8) : __swap16md(path->usDeviceTag)), &connector_type,
         &ddc_bus, &conn_id, &hpd))
     continue;
    radeon_add_atom_connector(dev,
         conn_id,
-        __extension__({ __uint16_t __swap16gen_x = (path-> usDeviceTag); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
+        (__builtin_constant_p(path-> usDeviceTag) ? (__uint16_t)(((__uint16_t)(path-> usDeviceTag) & 0xffU) << 8 | ((__uint16_t)(path-> usDeviceTag) & 0xff00U) >> 8) : __swap16md(path-> usDeviceTag)),
         connector_type, &ddc_bus,
         igp_lane_info,
         connector_object_id,
@@ -16003,7 +16007,7 @@ _Bool radeon_get_atom_connector_info_from_supported_devices_table(struct
  }
  supported_devices =
      (union atom_supported_devices *)(ctx->bios + data_offset);
- device_support = __extension__({ __uint16_t __swap16gen_x = (supported_devices->info.usDeviceSupport); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ device_support = (__builtin_constant_p(supported_devices->info.usDeviceSupport) ? (__uint16_t)(((__uint16_t)(supported_devices->info.usDeviceSupport) & 0xffU) << 8 | ((__uint16_t)(supported_devices->info.usDeviceSupport) & 0xff00U) >> 8) : __swap16md(supported_devices->info.usDeviceSupport));
  if (frev > 1)
   max_device = (0x0000000F +1);
  else
@@ -16170,23 +16174,23 @@ _Bool radeon_atom_get_clock_info(struct drm_device *dev)
    (union firmware_info *)(mode_info->atom_context->bios +
       data_offset);
   p1pll->reference_freq =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usReferenceClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usReferenceClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usReferenceClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usReferenceClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usReferenceClock));
   p1pll->reference_div = 0;
   if (crev < 2)
    p1pll->pll_out_min =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinPixelClockPLL_Output); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info.usMinPixelClockPLL_Output) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinPixelClockPLL_Output) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinPixelClockPLL_Output) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinPixelClockPLL_Output));
   else
    p1pll->pll_out_min =
-    __extension__({ __uint32_t __swap32gen_x = (firmware_info->info_12.ulMinPixelClockPLL_Output); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(firmware_info->info_12.ulMinPixelClockPLL_Output) ? (__uint32_t)(((__uint32_t)(firmware_info->info_12.ulMinPixelClockPLL_Output) & 0xff) << 24 | ((__uint32_t)(firmware_info->info_12.ulMinPixelClockPLL_Output) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info_12.ulMinPixelClockPLL_Output) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info_12.ulMinPixelClockPLL_Output) & 0xff000000) >> 24) : __swap32md(firmware_info->info_12.ulMinPixelClockPLL_Output));
   p1pll->pll_out_max =
-      __extension__({ __uint32_t __swap32gen_x = (firmware_info->info.ulMaxPixelClockPLL_Output); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(firmware_info->info.ulMaxPixelClockPLL_Output) ? (__uint32_t)(((__uint32_t)(firmware_info->info.ulMaxPixelClockPLL_Output) & 0xff) << 24 | ((__uint32_t)(firmware_info->info.ulMaxPixelClockPLL_Output) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info.ulMaxPixelClockPLL_Output) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info.ulMaxPixelClockPLL_Output) & 0xff000000) >> 24) : __swap32md(firmware_info->info.ulMaxPixelClockPLL_Output));
   if (crev >= 4) {
    p1pll->lcd_pll_out_min =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_14.usLcdMinPixelClockPLL_Output); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 100;
+    (__builtin_constant_p(firmware_info->info_14.usLcdMinPixelClockPLL_Output) ? (__uint16_t)(((__uint16_t)(firmware_info->info_14.usLcdMinPixelClockPLL_Output) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_14.usLcdMinPixelClockPLL_Output) & 0xff00U) >> 8) : __swap16md(firmware_info->info_14.usLcdMinPixelClockPLL_Output)) * 100;
    if (p1pll->lcd_pll_out_min == 0)
     p1pll->lcd_pll_out_min = p1pll->pll_out_min;
    p1pll->lcd_pll_out_max =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_14.usLcdMaxPixelClockPLL_Output); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 100;
+    (__builtin_constant_p(firmware_info->info_14.usLcdMaxPixelClockPLL_Output) ? (__uint16_t)(((__uint16_t)(firmware_info->info_14.usLcdMaxPixelClockPLL_Output) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_14.usLcdMaxPixelClockPLL_Output) & 0xff00U) >> 8) : __swap16md(firmware_info->info_14.usLcdMaxPixelClockPLL_Output)) * 100;
    if (p1pll->lcd_pll_out_max == 0)
     p1pll->lcd_pll_out_max = p1pll->pll_out_max;
   } else {
@@ -16200,21 +16204,21 @@ _Bool radeon_atom_get_clock_info(struct drm_device *dev)
     p1pll->pll_out_min = 20000;
   }
   p1pll->pll_in_min =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinPixelClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMinPixelClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinPixelClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinPixelClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinPixelClockPLL_Input));
   p1pll->pll_in_max =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMaxPixelClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMaxPixelClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMaxPixelClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMaxPixelClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMaxPixelClockPLL_Input));
   *p2pll = *p1pll;
   if (((rdev->family >= CHIP_CEDAR)))
    spll->reference_freq =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_21.usCoreReferenceClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info_21.usCoreReferenceClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info_21.usCoreReferenceClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_21.usCoreReferenceClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info_21.usCoreReferenceClock));
   else
    spll->reference_freq =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usReferenceClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info.usReferenceClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usReferenceClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usReferenceClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usReferenceClock));
   spll->reference_div = 0;
   spll->pll_out_min =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinEngineClockPLL_Output); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMinEngineClockPLL_Output) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinEngineClockPLL_Output) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinEngineClockPLL_Output) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinEngineClockPLL_Output));
   spll->pll_out_max =
-      __extension__({ __uint32_t __swap32gen_x = (firmware_info->info.ulMaxEngineClockPLL_Output); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(firmware_info->info.ulMaxEngineClockPLL_Output) ? (__uint32_t)(((__uint32_t)(firmware_info->info.ulMaxEngineClockPLL_Output) & 0xff) << 24 | ((__uint32_t)(firmware_info->info.ulMaxEngineClockPLL_Output) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info.ulMaxEngineClockPLL_Output) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info.ulMaxEngineClockPLL_Output) & 0xff000000) >> 24) : __swap32md(firmware_info->info.ulMaxEngineClockPLL_Output));
   if (spll->pll_out_min == 0) {
    if (((rdev->family >= CHIP_RS600)))
     spll->pll_out_min = 64800;
@@ -16222,20 +16226,20 @@ _Bool radeon_atom_get_clock_info(struct drm_device *dev)
     spll->pll_out_min = 20000;
   }
   spll->pll_in_min =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinEngineClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMinEngineClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinEngineClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinEngineClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinEngineClockPLL_Input));
   spll->pll_in_max =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMaxEngineClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMaxEngineClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMaxEngineClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMaxEngineClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMaxEngineClockPLL_Input));
   if (((rdev->family >= CHIP_CEDAR)))
    mpll->reference_freq =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_21.usMemoryReferenceClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info_21.usMemoryReferenceClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info_21.usMemoryReferenceClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_21.usMemoryReferenceClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info_21.usMemoryReferenceClock));
   else
    mpll->reference_freq =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usReferenceClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info.usReferenceClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usReferenceClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usReferenceClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usReferenceClock));
   mpll->reference_div = 0;
   mpll->pll_out_min =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinMemoryClockPLL_Output); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMinMemoryClockPLL_Output) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinMemoryClockPLL_Output) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinMemoryClockPLL_Output) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinMemoryClockPLL_Output));
   mpll->pll_out_max =
-      __extension__({ __uint32_t __swap32gen_x = (firmware_info->info.ulMaxMemoryClockPLL_Output); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(firmware_info->info.ulMaxMemoryClockPLL_Output) ? (__uint32_t)(((__uint32_t)(firmware_info->info.ulMaxMemoryClockPLL_Output) & 0xff) << 24 | ((__uint32_t)(firmware_info->info.ulMaxMemoryClockPLL_Output) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info.ulMaxMemoryClockPLL_Output) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info.ulMaxMemoryClockPLL_Output) & 0xff000000) >> 24) : __swap32md(firmware_info->info.ulMaxMemoryClockPLL_Output));
   if (mpll->pll_out_min == 0) {
    if (((rdev->family >= CHIP_RS600)))
     mpll->pll_out_min = 64800;
@@ -16243,16 +16247,16 @@ _Bool radeon_atom_get_clock_info(struct drm_device *dev)
     mpll->pll_out_min = 20000;
   }
   mpll->pll_in_min =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMinMemoryClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMinMemoryClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMinMemoryClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMinMemoryClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMinMemoryClockPLL_Input));
   mpll->pll_in_max =
-      __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMaxMemoryClockPLL_Input); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(firmware_info->info.usMaxMemoryClockPLL_Input) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMaxMemoryClockPLL_Input) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMaxMemoryClockPLL_Input) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMaxMemoryClockPLL_Input));
   rdev->clock.default_sclk =
-      __extension__({ __uint32_t __swap32gen_x = (firmware_info->info.ulDefaultEngineClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(firmware_info->info.ulDefaultEngineClock) ? (__uint32_t)(((__uint32_t)(firmware_info->info.ulDefaultEngineClock) & 0xff) << 24 | ((__uint32_t)(firmware_info->info.ulDefaultEngineClock) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info.ulDefaultEngineClock) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info.ulDefaultEngineClock) & 0xff000000) >> 24) : __swap32md(firmware_info->info.ulDefaultEngineClock));
   rdev->clock.default_mclk =
-      __extension__({ __uint32_t __swap32gen_x = (firmware_info->info.ulDefaultMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(firmware_info->info.ulDefaultMemoryClock) ? (__uint32_t)(((__uint32_t)(firmware_info->info.ulDefaultMemoryClock) & 0xff) << 24 | ((__uint32_t)(firmware_info->info.ulDefaultMemoryClock) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info.ulDefaultMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info.ulDefaultMemoryClock) & 0xff000000) >> 24) : __swap32md(firmware_info->info.ulDefaultMemoryClock));
   if (((rdev->family >= CHIP_CEDAR))) {
    rdev->clock.default_dispclk =
-    __extension__({ __uint32_t __swap32gen_x = (firmware_info->info_21.ulDefaultDispEngineClkFreq); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(firmware_info->info_21.ulDefaultDispEngineClkFreq) ? (__uint32_t)(((__uint32_t)(firmware_info->info_21.ulDefaultDispEngineClkFreq) & 0xff) << 24 | ((__uint32_t)(firmware_info->info_21.ulDefaultDispEngineClkFreq) & 0xff00) << 8 | ((__uint32_t)(firmware_info->info_21.ulDefaultDispEngineClkFreq) & 0xff0000) >> 8 | ((__uint32_t)(firmware_info->info_21.ulDefaultDispEngineClkFreq) & 0xff000000) >> 24) : __swap32md(firmware_info->info_21.ulDefaultDispEngineClkFreq));
    if (rdev->clock.default_dispclk == 0) {
     if (((rdev->family >= CHIP_BARTS)))
      rdev->clock.default_dispclk = 54000;
@@ -16260,14 +16264,14 @@ _Bool radeon_atom_get_clock_info(struct drm_device *dev)
      rdev->clock.default_dispclk = 60000;
    }
    rdev->clock.dp_extclk =
-    __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_21.usUniphyDPModeExtClkFreq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(firmware_info->info_21.usUniphyDPModeExtClkFreq) ? (__uint16_t)(((__uint16_t)(firmware_info->info_21.usUniphyDPModeExtClkFreq) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_21.usUniphyDPModeExtClkFreq) & 0xff00U) >> 8) : __swap16md(firmware_info->info_21.usUniphyDPModeExtClkFreq));
   }
   *dcpll = *p1pll;
-  rdev->clock.max_pixel_clock = __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usMaxPixelClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  rdev->clock.max_pixel_clock = (__builtin_constant_p(firmware_info->info.usMaxPixelClock) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usMaxPixelClock) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usMaxPixelClock) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usMaxPixelClock));
   if (rdev->clock.max_pixel_clock == 0)
    rdev->clock.max_pixel_clock = 40000;
   rdev->mode_info.firmware_flags =
-   __extension__({ __uint16_t __swap16gen_x = (firmware_info->info.usFirmwareCapability.susAccess); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(firmware_info->info.usFirmwareCapability.susAccess) ? (__uint16_t)(((__uint16_t)(firmware_info->info.usFirmwareCapability.susAccess) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info.usFirmwareCapability.susAccess) & 0xff00U) >> 8) : __swap16md(firmware_info->info.usFirmwareCapability.susAccess));
   return 1;
  }
  return 0;
@@ -16293,11 +16297,11 @@ _Bool radeon_atombios_sideport_present(struct radeon_device *rdev)
           data_offset);
   switch (crev) {
   case 1:
-   if (__extension__({ __uint32_t __swap32gen_x = (igp_info->info.ulBootUpMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))
+   if ((__builtin_constant_p(igp_info->info.ulBootUpMemoryClock) ? (__uint32_t)(((__uint32_t)(igp_info->info.ulBootUpMemoryClock) & 0xff) << 24 | ((__uint32_t)(igp_info->info.ulBootUpMemoryClock) & 0xff00) << 8 | ((__uint32_t)(igp_info->info.ulBootUpMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(igp_info->info.ulBootUpMemoryClock) & 0xff000000) >> 24) : __swap32md(igp_info->info.ulBootUpMemoryClock)))
     return 1;
    break;
   case 2:
-   if (__extension__({ __uint32_t __swap32gen_x = (igp_info->info_2.ulBootUpSidePortClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))
+   if ((__builtin_constant_p(igp_info->info_2.ulBootUpSidePortClock) ? (__uint32_t)(((__uint32_t)(igp_info->info_2.ulBootUpSidePortClock) & 0xff) << 24 | ((__uint32_t)(igp_info->info_2.ulBootUpSidePortClock) & 0xff00) << 8 | ((__uint32_t)(igp_info->info_2.ulBootUpSidePortClock) & 0xff0000) >> 8 | ((__uint32_t)(igp_info->info_2.ulBootUpSidePortClock) & 0xff000000) >> 24) : __swap32md(igp_info->info_2.ulBootUpSidePortClock)))
     return 1;
    break;
   default:
@@ -16324,10 +16328,10 @@ _Bool radeon_atombios_get_tmds_info(struct radeon_encoder *encoder,
   tmds_info =
    (struct _ATOM_TMDS_INFO *)(mode_info->atom_context->bios +
          data_offset);
-  maxfreq = __extension__({ __uint16_t __swap16gen_x = (tmds_info->usMaxFrequency); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  maxfreq = (__builtin_constant_p(tmds_info->usMaxFrequency) ? (__uint16_t)(((__uint16_t)(tmds_info->usMaxFrequency) & 0xffU) << 8 | ((__uint16_t)(tmds_info->usMaxFrequency) & 0xff00U) >> 8) : __swap16md(tmds_info->usMaxFrequency));
   for (i = 0; i < 4; i++) {
    tmds->tmds_pll[i].freq =
-       __extension__({ __uint16_t __swap16gen_x = (tmds_info->asMiscInfo[i].usFrequency); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p(tmds_info->asMiscInfo[i].usFrequency) ? (__uint16_t)(((__uint16_t)(tmds_info->asMiscInfo[i].usFrequency) & 0xffU) << 8 | ((__uint16_t)(tmds_info->asMiscInfo[i].usFrequency) & 0xff00U) >> 8) : __swap16md(tmds_info->asMiscInfo[i].usFrequency));
    tmds->tmds_pll[i].value =
        tmds_info->asMiscInfo[i].ucPLL_ChargePump & 0x3f;
    tmds->tmds_pll[i].value |=
@@ -16369,7 +16373,7 @@ _Bool radeon_atombios_get_ppll_ss_info(struct radeon_device *rdev,
   for (i = 0; i < num_indices; i++) {
    if (ss_info->asSS_Info[i].ucSS_Id == id) {
     ss->percentage =
-     __extension__({ __uint16_t __swap16gen_x = (ss_info->asSS_Info[i].usSpreadSpectrumPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     (__builtin_constant_p(ss_info->asSS_Info[i].usSpreadSpectrumPercentage) ? (__uint16_t)(((__uint16_t)(ss_info->asSS_Info[i].usSpreadSpectrumPercentage) & 0xffU) << 8 | ((__uint16_t)(ss_info->asSS_Info[i].usSpreadSpectrumPercentage) & 0xff00U) >> 8) : __swap16md(ss_info->asSS_Info[i].usSpreadSpectrumPercentage));
     ss->type = ss_info->asSS_Info[i].ucSpreadSpectrumType;
     ss->step = ss_info->asSS_Info[i].ucSS_Step;
     ss->delay = ss_info->asSS_Info[i].ucSS_Delay;
@@ -16399,32 +16403,32 @@ static void radeon_atombios_get_igp_ss_overrides(struct radeon_device *rdev,
   case 6:
    switch (id) {
    case 4:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usDVISSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usDVISSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_6.usDVISSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usDVISSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usDVISSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usDVISSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_6.usDVISSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usDVISSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usDVISSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usDVISSpreadRateIn10Hz));
     break;
    case 5:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usHDMISSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usHDMISSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_6.usHDMISSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usHDMISSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usHDMISSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usHDMISSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_6.usHDMISSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usHDMISSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usHDMISSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usHDMISSpreadRateIn10Hz));
     break;
    case 6:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usLvdsSSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_6.usLvdsSSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_6.usLvdsSSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usLvdsSSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usLvdsSSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usLvdsSSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_6.usLvdsSSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_6.usLvdsSSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_6.usLvdsSSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_6.usLvdsSSpreadRateIn10Hz));
     break;
    }
    break;
   case 7:
    switch (id) {
    case 4:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usDVISSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usDVISSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_7.usDVISSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usDVISSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usDVISSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usDVISSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_7.usDVISSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usDVISSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usDVISSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usDVISSpreadRateIn10Hz));
     break;
    case 5:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usHDMISSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usHDMISSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_7.usHDMISSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usHDMISSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usHDMISSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usHDMISSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_7.usHDMISSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usHDMISSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usHDMISSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usHDMISSpreadRateIn10Hz));
     break;
    case 6:
-    percentage = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usLvdsSSPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    rate = __extension__({ __uint16_t __swap16gen_x = (igp_info->info_7.usLvdsSSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    percentage = (__builtin_constant_p(igp_info->info_7.usLvdsSSPercentage) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usLvdsSSPercentage) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usLvdsSSPercentage) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usLvdsSSPercentage));
+    rate = (__builtin_constant_p(igp_info->info_7.usLvdsSSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(igp_info->info_7.usLvdsSSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(igp_info->info_7.usLvdsSSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(igp_info->info_7.usLvdsSSpreadRateIn10Hz));
     break;
    }
    break;
@@ -16464,11 +16468,11 @@ _Bool radeon_atombios_get_asic_ss_info(struct radeon_device *rdev,
     sizeof(ATOM_ASIC_SS_ASSIGNMENT);
    for (i = 0; i < num_indices; i++) {
     if ((ss_info->info.asSpreadSpectrum[i].ucClockIndication == id) &&
-        (clock <= __extension__({ __uint32_t __swap32gen_x = (ss_info->info.asSpreadSpectrum[i].ulTargetClockRange); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))) {
+        (clock <= (__builtin_constant_p(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange) ? (__uint32_t)(((__uint32_t)(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange) & 0xff) << 24 | ((__uint32_t)(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange) & 0xff00) << 8 | ((__uint32_t)(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange) & 0xff0000) >> 8 | ((__uint32_t)(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange) & 0xff000000) >> 24) : __swap32md(ss_info->info.asSpreadSpectrum[i].ulTargetClockRange)))) {
      ss->percentage =
-      __extension__({ __uint16_t __swap16gen_x = (ss_info->info.asSpreadSpectrum[i].usSpreadSpectrumPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(ss_info->info.asSpreadSpectrum[i].usSpreadSpectrumPercentage) ? (__uint16_t)(((__uint16_t)(ss_info->info.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xffU) << 8 | ((__uint16_t)(ss_info->info.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xff00U) >> 8) : __swap16md(ss_info->info.asSpreadSpectrum[i].usSpreadSpectrumPercentage));
      ss->type = ss_info->info.asSpreadSpectrum[i].ucSpreadSpectrumMode;
-     ss->rate = __extension__({ __uint16_t __swap16gen_x = (ss_info->info.asSpreadSpectrum[i].usSpreadRateInKhz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     ss->rate = (__builtin_constant_p(ss_info->info.asSpreadSpectrum[i].usSpreadRateInKhz) ? (__uint16_t)(((__uint16_t)(ss_info->info.asSpreadSpectrum[i].usSpreadRateInKhz) & 0xffU) << 8 | ((__uint16_t)(ss_info->info.asSpreadSpectrum[i].usSpreadRateInKhz) & 0xff00U) >> 8) : __swap16md(ss_info->info.asSpreadSpectrum[i].usSpreadRateInKhz));
      return 1;
     }
    }
@@ -16478,11 +16482,11 @@ _Bool radeon_atombios_get_asic_ss_info(struct radeon_device *rdev,
     sizeof(ATOM_ASIC_SS_ASSIGNMENT_V2);
    for (i = 0; i < num_indices; i++) {
     if ((ss_info->info_2.asSpreadSpectrum[i].ucClockIndication == id) &&
-        (clock <= __extension__({ __uint32_t __swap32gen_x = (ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))) {
+        (clock <= (__builtin_constant_p(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange) ? (__uint32_t)(((__uint32_t)(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange) & 0xff) << 24 | ((__uint32_t)(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange) & 0xff00) << 8 | ((__uint32_t)(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange) & 0xff0000) >> 8 | ((__uint32_t)(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange) & 0xff000000) >> 24) : __swap32md(ss_info->info_2.asSpreadSpectrum[i].ulTargetClockRange)))) {
      ss->percentage =
-      __extension__({ __uint16_t __swap16gen_x = (ss_info->info_2.asSpreadSpectrum[i].usSpreadSpectrumPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(ss_info->info_2.asSpreadSpectrum[i].usSpreadSpectrumPercentage) ? (__uint16_t)(((__uint16_t)(ss_info->info_2.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xffU) << 8 | ((__uint16_t)(ss_info->info_2.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xff00U) >> 8) : __swap16md(ss_info->info_2.asSpreadSpectrum[i].usSpreadSpectrumPercentage));
      ss->type = ss_info->info_2.asSpreadSpectrum[i].ucSpreadSpectrumMode;
-     ss->rate = __extension__({ __uint16_t __swap16gen_x = (ss_info->info_2.asSpreadSpectrum[i].usSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     ss->rate = (__builtin_constant_p(ss_info->info_2.asSpreadSpectrum[i].usSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(ss_info->info_2.asSpreadSpectrum[i].usSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(ss_info->info_2.asSpreadSpectrum[i].usSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(ss_info->info_2.asSpreadSpectrum[i].usSpreadRateIn10Hz));
      return 1;
     }
    }
@@ -16492,11 +16496,11 @@ _Bool radeon_atombios_get_asic_ss_info(struct radeon_device *rdev,
     sizeof(ATOM_ASIC_SS_ASSIGNMENT_V3);
    for (i = 0; i < num_indices; i++) {
     if ((ss_info->info_3.asSpreadSpectrum[i].ucClockIndication == id) &&
-        (clock <= __extension__({ __uint32_t __swap32gen_x = (ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))) {
+        (clock <= (__builtin_constant_p(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange) ? (__uint32_t)(((__uint32_t)(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange) & 0xff) << 24 | ((__uint32_t)(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange) & 0xff00) << 8 | ((__uint32_t)(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange) & 0xff0000) >> 8 | ((__uint32_t)(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange) & 0xff000000) >> 24) : __swap32md(ss_info->info_3.asSpreadSpectrum[i].ulTargetClockRange)))) {
      ss->percentage =
-      __extension__({ __uint16_t __swap16gen_x = (ss_info->info_3.asSpreadSpectrum[i].usSpreadSpectrumPercentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(ss_info->info_3.asSpreadSpectrum[i].usSpreadSpectrumPercentage) ? (__uint16_t)(((__uint16_t)(ss_info->info_3.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xffU) << 8 | ((__uint16_t)(ss_info->info_3.asSpreadSpectrum[i].usSpreadSpectrumPercentage) & 0xff00U) >> 8) : __swap16md(ss_info->info_3.asSpreadSpectrum[i].usSpreadSpectrumPercentage));
      ss->type = ss_info->info_3.asSpreadSpectrum[i].ucSpreadSpectrumMode;
-     ss->rate = __extension__({ __uint16_t __swap16gen_x = (ss_info->info_3.asSpreadSpectrum[i].usSpreadRateIn10Hz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     ss->rate = (__builtin_constant_p(ss_info->info_3.asSpreadSpectrum[i].usSpreadRateIn10Hz) ? (__uint16_t)(((__uint16_t)(ss_info->info_3.asSpreadSpectrum[i].usSpreadRateIn10Hz) & 0xffU) << 8 | ((__uint16_t)(ss_info->info_3.asSpreadSpectrum[i].usSpreadRateIn10Hz) & 0xff00U) >> 8) : __swap16md(ss_info->info_3.asSpreadSpectrum[i].usSpreadRateIn10Hz));
      if (rdev->flags & RADEON_IS_IGP)
       radeon_atombios_get_igp_ss_overrides(rdev, ss, id);
      return 1;
@@ -16536,27 +16540,27 @@ struct radeon_encoder_atom_dig *radeon_atombios_get_lvds_info(struct
   if (!lvds)
    return ((void *)0);
   lvds->native_mode.clock =
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usPixClk); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 10;
+      (__builtin_constant_p(lvds_info->info.sLCDTiming.usPixClk) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usPixClk) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usPixClk) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usPixClk)) * 10;
   lvds->native_mode.hdisplay =
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usHActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(lvds_info->info.sLCDTiming.usHActive) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usHActive) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usHActive) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usHActive));
   lvds->native_mode.vdisplay =
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usVActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(lvds_info->info.sLCDTiming.usVActive) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usVActive) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usVActive) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usVActive));
   lvds->native_mode.htotal = lvds->native_mode.hdisplay +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usHBlanking_Time); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usHBlanking_Time) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usHBlanking_Time) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usHBlanking_Time) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usHBlanking_Time));
   lvds->native_mode.hsync_start = lvds->native_mode.hdisplay +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usHSyncOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usHSyncOffset) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usHSyncOffset) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usHSyncOffset) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usHSyncOffset));
   lvds->native_mode.hsync_end = lvds->native_mode.hsync_start +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usHSyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usHSyncWidth) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usHSyncWidth) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usHSyncWidth) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usHSyncWidth));
   lvds->native_mode.vtotal = lvds->native_mode.vdisplay +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usVBlanking_Time); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usVBlanking_Time) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usVBlanking_Time) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usVBlanking_Time) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usVBlanking_Time));
   lvds->native_mode.vsync_start = lvds->native_mode.vdisplay +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usVSyncOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usVSyncOffset) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usVSyncOffset) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usVSyncOffset) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usVSyncOffset));
   lvds->native_mode.vsync_end = lvds->native_mode.vsync_start +
-   __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usVSyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(lvds_info->info.sLCDTiming.usVSyncWidth) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usVSyncWidth) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usVSyncWidth) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usVSyncWidth));
   lvds->panel_pwr_delay =
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.usOffDelayInMs); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(lvds_info->info.usOffDelayInMs) ? (__uint16_t)(((__uint16_t)(lvds_info->info.usOffDelayInMs) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.usOffDelayInMs) & 0xff00U) >> 8) : __swap16md(lvds_info->info.usOffDelayInMs));
   lvds->lcd_misc = lvds_info->info.ucLVDS_Misc;
-  misc = __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.susModeMiscInfo.usAccess); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  misc = (__builtin_constant_p(lvds_info->info.sLCDTiming.susModeMiscInfo.usAccess) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.susModeMiscInfo.usAccess) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.susModeMiscInfo.usAccess) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.susModeMiscInfo.usAccess));
   if (misc & 0x04)
    lvds->native_mode.flags |= (1<<3);
   if (misc & 0x02)
@@ -16567,8 +16571,8 @@ struct radeon_encoder_atom_dig *radeon_atombios_get_lvds_info(struct
    lvds->native_mode.flags |= (1<<4);
   if (misc & 0x100)
    lvds->native_mode.flags |= (1<<5);
-  lvds->native_mode.width_mm = __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usImageHSize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  lvds->native_mode.height_mm = __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.sLCDTiming.usImageVSize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  lvds->native_mode.width_mm = (__builtin_constant_p(lvds_info->info.sLCDTiming.usImageHSize) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usImageHSize) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usImageHSize) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usImageHSize));
+  lvds->native_mode.height_mm = (__builtin_constant_p(lvds_info->info.sLCDTiming.usImageVSize) ? (__uint16_t)(((__uint16_t)(lvds_info->info.sLCDTiming.usImageVSize) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.sLCDTiming.usImageVSize) & 0xff00U) >> 8) : __swap16md(lvds_info->info.sLCDTiming.usImageVSize));
   drm_mode_set_crtcinfo(&lvds->native_mode, (1 << 0));
   lvds->lcd_ss_id = lvds_info->info.ucSS_Id;
   encoder->native_mode = lvds->native_mode;
@@ -16576,18 +16580,18 @@ struct radeon_encoder_atom_dig *radeon_atombios_get_lvds_info(struct
    lvds->linkb = 1;
   else
    lvds->linkb = 0;
-  if (__extension__({ __uint16_t __swap16gen_x = (lvds_info->info.usModePatchTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+  if ((__builtin_constant_p(lvds_info->info.usModePatchTableOffset) ? (__uint16_t)(((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xff00U) >> 8) : __swap16md(lvds_info->info.usModePatchTableOffset))) {
    ATOM_FAKE_EDID_PATCH_RECORD *fake_edid_record;
    ATOM_PANEL_RESOLUTION_PATCH_RECORD *panel_res_record;
    _Bool bad_record = 0;
    u8 *record;
    if ((frev == 1) && (crev < 2))
     record = (u8 *)(mode_info->atom_context->bios +
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.usModePatchTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(lvds_info->info.usModePatchTableOffset) ? (__uint16_t)(((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xff00U) >> 8) : __swap16md(lvds_info->info.usModePatchTableOffset)));
    else
     record = (u8 *)(mode_info->atom_context->bios +
       data_offset +
-      __extension__({ __uint16_t __swap16gen_x = (lvds_info->info.usModePatchTableOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(lvds_info->info.usModePatchTableOffset) ? (__uint16_t)(((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xffU) << 8 | ((__uint16_t)(lvds_info->info.usModePatchTableOffset) & 0xff00U) >> 8) : __swap16md(lvds_info->info.usModePatchTableOffset)));
    while (*record != 0xFF) {
     switch (*record) {
     case 1:
@@ -16680,18 +16684,18 @@ _Bool radeon_atom_get_tv_timings(struct radeon_device *rdev, int index,
   tv_info = (ATOM_ANALOG_TV_INFO *)(mode_info->atom_context->bios + data_offset);
   if (index >= 2)
    return 0;
-  mode->crtc_htotal = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_H_Total); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_hdisplay = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_H_Disp); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_hsync_start = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_H_SyncStart); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_hsync_end = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_H_SyncStart); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_H_SyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vtotal = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_V_Total); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vdisplay = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_V_Disp); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vsync_start = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_V_SyncStart); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vsync_end = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_V_SyncStart); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usCRTC_V_SyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  mode->crtc_htotal = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_H_Total) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_Total) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_Total) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_H_Total));
+  mode->crtc_hdisplay = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_H_Disp) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_Disp) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_Disp) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_H_Disp));
+  mode->crtc_hsync_start = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_H_SyncStart) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncStart) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncStart) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_H_SyncStart));
+  mode->crtc_hsync_end = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_H_SyncStart) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncStart) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncStart) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_H_SyncStart)) +
+   (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_H_SyncWidth) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncWidth) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_H_SyncWidth) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_H_SyncWidth));
+  mode->crtc_vtotal = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_V_Total) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_Total) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_Total) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_V_Total));
+  mode->crtc_vdisplay = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_V_Disp) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_Disp) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_Disp) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_V_Disp));
+  mode->crtc_vsync_start = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_V_SyncStart) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncStart) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncStart) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_V_SyncStart));
+  mode->crtc_vsync_end = (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_V_SyncStart) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncStart) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncStart) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_V_SyncStart)) +
+   (__builtin_constant_p(tv_info->aModeTimings[index].usCRTC_V_SyncWidth) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncWidth) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usCRTC_V_SyncWidth) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usCRTC_V_SyncWidth));
   mode->flags = 0;
-  misc = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].susModeMiscInfo.usAccess); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  misc = (__builtin_constant_p(tv_info->aModeTimings[index].susModeMiscInfo.usAccess) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].susModeMiscInfo.usAccess) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].susModeMiscInfo.usAccess) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].susModeMiscInfo.usAccess));
   if (misc & 0x04)
    mode->flags |= (1<<3);
   if (misc & 0x02)
@@ -16702,7 +16706,7 @@ _Bool radeon_atom_get_tv_timings(struct radeon_device *rdev, int index,
    mode->flags |= (1<<4);
   if (misc & 0x100)
    mode->flags |= (1<<5);
-  mode->clock = __extension__({ __uint16_t __swap16gen_x = (tv_info->aModeTimings[index].usPixelClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 10;
+  mode->clock = (__builtin_constant_p(tv_info->aModeTimings[index].usPixelClock) ? (__uint16_t)(((__uint16_t)(tv_info->aModeTimings[index].usPixelClock) & 0xffU) << 8 | ((__uint16_t)(tv_info->aModeTimings[index].usPixelClock) & 0xff00U) >> 8) : __swap16md(tv_info->aModeTimings[index].usPixelClock)) * 10;
   if (index == 1) {
    mode->crtc_htotal -= 1;
    mode->crtc_vtotal -= 1;
@@ -16713,22 +16717,22 @@ _Bool radeon_atom_get_tv_timings(struct radeon_device *rdev, int index,
   if (index >= 3)
    return 0;
   dtd_timings = &tv_info_v1_2->aModeTimings[index];
-  mode->crtc_htotal = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHBlanking_Time); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_hdisplay = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_hsync_start = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHSyncOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  mode->crtc_htotal = (__builtin_constant_p(dtd_timings->usHActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHActive)) +
+   (__builtin_constant_p(dtd_timings->usHBlanking_Time) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHBlanking_Time) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHBlanking_Time) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHBlanking_Time));
+  mode->crtc_hdisplay = (__builtin_constant_p(dtd_timings->usHActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHActive));
+  mode->crtc_hsync_start = (__builtin_constant_p(dtd_timings->usHActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHActive)) +
+   (__builtin_constant_p(dtd_timings->usHSyncOffset) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHSyncOffset) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHSyncOffset) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHSyncOffset));
   mode->crtc_hsync_end = mode->crtc_hsync_start +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usHSyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vtotal = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVBlanking_Time); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vdisplay = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  mode->crtc_vsync_start = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVActive); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVSyncOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(dtd_timings->usHSyncWidth) ? (__uint16_t)(((__uint16_t)(dtd_timings->usHSyncWidth) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usHSyncWidth) & 0xff00U) >> 8) : __swap16md(dtd_timings->usHSyncWidth));
+  mode->crtc_vtotal = (__builtin_constant_p(dtd_timings->usVActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVActive)) +
+   (__builtin_constant_p(dtd_timings->usVBlanking_Time) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVBlanking_Time) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVBlanking_Time) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVBlanking_Time));
+  mode->crtc_vdisplay = (__builtin_constant_p(dtd_timings->usVActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVActive));
+  mode->crtc_vsync_start = (__builtin_constant_p(dtd_timings->usVActive) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVActive) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVActive) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVActive)) +
+   (__builtin_constant_p(dtd_timings->usVSyncOffset) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVSyncOffset) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVSyncOffset) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVSyncOffset));
   mode->crtc_vsync_end = mode->crtc_vsync_start +
-   __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usVSyncWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(dtd_timings->usVSyncWidth) ? (__uint16_t)(((__uint16_t)(dtd_timings->usVSyncWidth) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usVSyncWidth) & 0xff00U) >> 8) : __swap16md(dtd_timings->usVSyncWidth));
   mode->flags = 0;
-  misc = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->susModeMiscInfo.usAccess); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  misc = (__builtin_constant_p(dtd_timings->susModeMiscInfo.usAccess) ? (__uint16_t)(((__uint16_t)(dtd_timings->susModeMiscInfo.usAccess) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->susModeMiscInfo.usAccess) & 0xff00U) >> 8) : __swap16md(dtd_timings->susModeMiscInfo.usAccess));
   if (misc & 0x04)
    mode->flags |= (1<<3);
   if (misc & 0x02)
@@ -16739,7 +16743,7 @@ _Bool radeon_atom_get_tv_timings(struct radeon_device *rdev, int index,
    mode->flags |= (1<<4);
   if (misc & 0x100)
    mode->flags |= (1<<5);
-  mode->clock = __extension__({ __uint16_t __swap16gen_x = (dtd_timings->usPixClk); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 10;
+  mode->clock = (__builtin_constant_p(dtd_timings->usPixClk) ? (__uint16_t)(((__uint16_t)(dtd_timings->usPixClk) & 0xffU) << 8 | ((__uint16_t)(dtd_timings->usPixClk) & 0xff00U) >> 8) : __swap16md(dtd_timings->usPixClk)) * 10;
   break;
  }
  return 1;
@@ -16956,15 +16960,15 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
   switch (frev) {
   case 1:
    rdev->pm.power_state[state_index].clock_info[0].mclk =
-    __extension__({ __uint16_t __swap16gen_x = (power_info->info.asPowerPlayInfo[i].usMemoryClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(power_info->info.asPowerPlayInfo[i].usMemoryClock) ? (__uint16_t)(((__uint16_t)(power_info->info.asPowerPlayInfo[i].usMemoryClock) & 0xffU) << 8 | ((__uint16_t)(power_info->info.asPowerPlayInfo[i].usMemoryClock) & 0xff00U) >> 8) : __swap16md(power_info->info.asPowerPlayInfo[i].usMemoryClock));
    rdev->pm.power_state[state_index].clock_info[0].sclk =
-    __extension__({ __uint16_t __swap16gen_x = (power_info->info.asPowerPlayInfo[i].usEngineClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    (__builtin_constant_p(power_info->info.asPowerPlayInfo[i].usEngineClock) ? (__uint16_t)(((__uint16_t)(power_info->info.asPowerPlayInfo[i].usEngineClock) & 0xffU) << 8 | ((__uint16_t)(power_info->info.asPowerPlayInfo[i].usEngineClock) & 0xff00U) >> 8) : __swap16md(power_info->info.asPowerPlayInfo[i].usEngineClock));
    if ((rdev->pm.power_state[state_index].clock_info[0].mclk == 0) ||
        (rdev->pm.power_state[state_index].clock_info[0].sclk == 0))
     continue;
    rdev->pm.power_state[state_index].pcie_lanes =
     power_info->info.asPowerPlayInfo[i].ucNumPciELanes;
-   misc = __extension__({ __uint32_t __swap32gen_x = (power_info->info.asPowerPlayInfo[i].ulMiscInfo); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   misc = (__builtin_constant_p(power_info->info.asPowerPlayInfo[i].ulMiscInfo) ? (__uint32_t)(((__uint32_t)(power_info->info.asPowerPlayInfo[i].ulMiscInfo) & 0xff) << 24 | ((__uint32_t)(power_info->info.asPowerPlayInfo[i].ulMiscInfo) & 0xff00) << 8 | ((__uint32_t)(power_info->info.asPowerPlayInfo[i].ulMiscInfo) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info.asPowerPlayInfo[i].ulMiscInfo) & 0xff000000) >> 24) : __swap32md(power_info->info.asPowerPlayInfo[i].ulMiscInfo));
    if ((misc & 0x00000004L) ||
        (misc & 0x00000008L)) {
     rdev->pm.power_state[state_index].clock_info[0].voltage.type =
@@ -16990,16 +16994,16 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
    break;
   case 2:
    rdev->pm.power_state[state_index].clock_info[0].mclk =
-    __extension__({ __uint32_t __swap32gen_x = (power_info->info_2.asPowerPlayInfo[i].ulMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock) ? (__uint32_t)(((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock) & 0xff) << 24 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock) & 0xff00) << 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock) & 0xff000000) >> 24) : __swap32md(power_info->info_2.asPowerPlayInfo[i].ulMemoryClock));
    rdev->pm.power_state[state_index].clock_info[0].sclk =
-    __extension__({ __uint32_t __swap32gen_x = (power_info->info_2.asPowerPlayInfo[i].ulEngineClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(power_info->info_2.asPowerPlayInfo[i].ulEngineClock) ? (__uint32_t)(((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulEngineClock) & 0xff) << 24 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulEngineClock) & 0xff00) << 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulEngineClock) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulEngineClock) & 0xff000000) >> 24) : __swap32md(power_info->info_2.asPowerPlayInfo[i].ulEngineClock));
    if ((rdev->pm.power_state[state_index].clock_info[0].mclk == 0) ||
        (rdev->pm.power_state[state_index].clock_info[0].sclk == 0))
     continue;
    rdev->pm.power_state[state_index].pcie_lanes =
     power_info->info_2.asPowerPlayInfo[i].ucNumPciELanes;
-   misc = __extension__({ __uint32_t __swap32gen_x = (power_info->info_2.asPowerPlayInfo[i].ulMiscInfo); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   misc2 = __extension__({ __uint32_t __swap32gen_x = (power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   misc = (__builtin_constant_p(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo) ? (__uint32_t)(((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo) & 0xff) << 24 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo) & 0xff00) << 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo) & 0xff000000) >> 24) : __swap32md(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo));
+   misc2 = (__builtin_constant_p(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2) ? (__uint32_t)(((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2) & 0xff) << 24 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2) & 0xff00) << 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2) & 0xff000000) >> 24) : __swap32md(power_info->info_2.asPowerPlayInfo[i].ulMiscInfo2));
    if ((misc & 0x00000004L) ||
        (misc & 0x00000008L)) {
     rdev->pm.power_state[state_index].clock_info[0].voltage.type =
@@ -17025,16 +17029,16 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
    break;
   case 3:
    rdev->pm.power_state[state_index].clock_info[0].mclk =
-    __extension__({ __uint32_t __swap32gen_x = (power_info->info_3.asPowerPlayInfo[i].ulMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock) ? (__uint32_t)(((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock) & 0xff) << 24 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock) & 0xff00) << 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock) & 0xff000000) >> 24) : __swap32md(power_info->info_3.asPowerPlayInfo[i].ulMemoryClock));
    rdev->pm.power_state[state_index].clock_info[0].sclk =
-    __extension__({ __uint32_t __swap32gen_x = (power_info->info_3.asPowerPlayInfo[i].ulEngineClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    (__builtin_constant_p(power_info->info_3.asPowerPlayInfo[i].ulEngineClock) ? (__uint32_t)(((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulEngineClock) & 0xff) << 24 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulEngineClock) & 0xff00) << 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulEngineClock) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulEngineClock) & 0xff000000) >> 24) : __swap32md(power_info->info_3.asPowerPlayInfo[i].ulEngineClock));
    if ((rdev->pm.power_state[state_index].clock_info[0].mclk == 0) ||
        (rdev->pm.power_state[state_index].clock_info[0].sclk == 0))
     continue;
    rdev->pm.power_state[state_index].pcie_lanes =
     power_info->info_3.asPowerPlayInfo[i].ucNumPciELanes;
-   misc = __extension__({ __uint32_t __swap32gen_x = (power_info->info_3.asPowerPlayInfo[i].ulMiscInfo); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   misc2 = __extension__({ __uint32_t __swap32gen_x = (power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   misc = (__builtin_constant_p(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo) ? (__uint32_t)(((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo) & 0xff) << 24 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo) & 0xff00) << 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo) & 0xff000000) >> 24) : __swap32md(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo));
+   misc2 = (__builtin_constant_p(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2) ? (__uint32_t)(((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2) & 0xff) << 24 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2) & 0xff00) << 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2) & 0xff0000) >> 8 | ((__uint32_t)(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2) & 0xff000000) >> 24) : __swap32md(power_info->info_3.asPowerPlayInfo[i].ulMiscInfo2));
    if ((misc & 0x00000004L) ||
        (misc & 0x00000008L)) {
     rdev->pm.power_state[state_index].clock_info[0].voltage.type =
@@ -17133,9 +17137,9 @@ static void radeon_atombios_get_default_voltages(struct radeon_device *rdev,
   firmware_info =
    (union firmware_info *)(mode_info->atom_context->bios +
       data_offset);
-  *vddc = __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_14.usBootUpVDDCVoltage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  *vddc = (__builtin_constant_p(firmware_info->info_14.usBootUpVDDCVoltage) ? (__uint16_t)(((__uint16_t)(firmware_info->info_14.usBootUpVDDCVoltage) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_14.usBootUpVDDCVoltage) & 0xff00U) >> 8) : __swap16md(firmware_info->info_14.usBootUpVDDCVoltage));
   if ((frev == 2) && (crev >= 2))
-   *vddci = __extension__({ __uint16_t __swap16gen_x = (firmware_info->info_22.usBootUpVDDCIVoltage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   *vddci = (__builtin_constant_p(firmware_info->info_22.usBootUpVDDCIVoltage) ? (__uint16_t)(((__uint16_t)(firmware_info->info_22.usBootUpVDDCIVoltage) & 0xffU) << 8 | ((__uint16_t)(firmware_info->info_22.usBootUpVDDCIVoltage) & 0xff00U) >> 8) : __swap16md(firmware_info->info_22.usBootUpVDDCIVoltage));
  }
 }
 static void radeon_atombios_parse_pplib_non_clock_info(struct radeon_device *rdev,
@@ -17143,8 +17147,8 @@ static void radeon_atombios_parse_pplib_non_clock_info(struct radeon_device *rde
              struct _ATOM_PPLIB_NONCLOCK_INFO *non_clock_info)
 {
  int j;
- u32 misc = __extension__({ __uint32_t __swap32gen_x = (non_clock_info->ulCapsAndSettings); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- u32 misc2 = __extension__({ __uint16_t __swap16gen_x = (non_clock_info->usClassification); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ u32 misc = (__builtin_constant_p(non_clock_info->ulCapsAndSettings) ? (__uint32_t)(((__uint32_t)(non_clock_info->ulCapsAndSettings) & 0xff) << 24 | ((__uint32_t)(non_clock_info->ulCapsAndSettings) & 0xff00) << 8 | ((__uint32_t)(non_clock_info->ulCapsAndSettings) & 0xff0000) >> 8 | ((__uint32_t)(non_clock_info->ulCapsAndSettings) & 0xff000000) >> 24) : __swap32md(non_clock_info->ulCapsAndSettings));
+ u32 misc2 = (__builtin_constant_p(non_clock_info->usClassification) ? (__uint16_t)(((__uint16_t)(non_clock_info->usClassification) & 0xffU) << 8 | ((__uint16_t)(non_clock_info->usClassification) & 0xff00U) >> 8) : __swap16md(non_clock_info->usClassification));
  u16 vddc, vddci;
  radeon_atombios_get_default_voltages(rdev, &vddc, &vddci);
  rdev->pm.power_state[state_index].misc = misc;
@@ -17207,51 +17211,51 @@ static _Bool radeon_atombios_parse_pplib_clock_info(struct radeon_device *rdev,
  u16 vddc;
  if (rdev->flags & RADEON_IS_IGP) {
   if (rdev->family >= CHIP_PALM) {
-   sclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->sumo.usEngineClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   sclk = (__builtin_constant_p(clock_info->sumo.usEngineClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->sumo.usEngineClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->sumo.usEngineClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->sumo.usEngineClockLow));
    sclk |= clock_info->sumo.ucEngineClockHigh << 16;
    rdev->pm.power_state[state_index].clock_info[mode_index].sclk = sclk;
   } else {
-   sclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->rs780.usLowEngineClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   sclk = (__builtin_constant_p(clock_info->rs780.usLowEngineClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->rs780.usLowEngineClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->rs780.usLowEngineClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->rs780.usLowEngineClockLow));
    sclk |= clock_info->rs780.ucLowEngineClockHigh << 16;
    rdev->pm.power_state[state_index].clock_info[mode_index].sclk = sclk;
   }
  } else if (((rdev->family >= CHIP_ARUBA))) {
-  sclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->si.usEngineClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sclk = (__builtin_constant_p(clock_info->si.usEngineClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->si.usEngineClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->si.usEngineClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->si.usEngineClockLow));
   sclk |= clock_info->si.ucEngineClockHigh << 16;
-  mclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->si.usMemoryClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  mclk = (__builtin_constant_p(clock_info->si.usMemoryClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->si.usMemoryClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->si.usMemoryClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->si.usMemoryClockLow));
   mclk |= clock_info->si.ucMemoryClockHigh << 16;
   rdev->pm.power_state[state_index].clock_info[mode_index].mclk = mclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].sclk = sclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.type =
    VOLTAGE_SW;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.voltage =
-   __extension__({ __uint16_t __swap16gen_x = (clock_info->si.usVDDC); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(clock_info->si.usVDDC) ? (__uint16_t)(((__uint16_t)(clock_info->si.usVDDC) & 0xffU) << 8 | ((__uint16_t)(clock_info->si.usVDDC) & 0xff00U) >> 8) : __swap16md(clock_info->si.usVDDC));
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.vddci =
-   __extension__({ __uint16_t __swap16gen_x = (clock_info->si.usVDDCI); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(clock_info->si.usVDDCI) ? (__uint16_t)(((__uint16_t)(clock_info->si.usVDDCI) & 0xffU) << 8 | ((__uint16_t)(clock_info->si.usVDDCI) & 0xff00U) >> 8) : __swap16md(clock_info->si.usVDDCI));
  } else if (((rdev->family >= CHIP_CEDAR))) {
-  sclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->evergreen.usEngineClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sclk = (__builtin_constant_p(clock_info->evergreen.usEngineClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->evergreen.usEngineClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->evergreen.usEngineClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->evergreen.usEngineClockLow));
   sclk |= clock_info->evergreen.ucEngineClockHigh << 16;
-  mclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->evergreen.usMemoryClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  mclk = (__builtin_constant_p(clock_info->evergreen.usMemoryClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->evergreen.usMemoryClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->evergreen.usMemoryClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->evergreen.usMemoryClockLow));
   mclk |= clock_info->evergreen.ucMemoryClockHigh << 16;
   rdev->pm.power_state[state_index].clock_info[mode_index].mclk = mclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].sclk = sclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.type =
    VOLTAGE_SW;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.voltage =
-   __extension__({ __uint16_t __swap16gen_x = (clock_info->evergreen.usVDDC); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(clock_info->evergreen.usVDDC) ? (__uint16_t)(((__uint16_t)(clock_info->evergreen.usVDDC) & 0xffU) << 8 | ((__uint16_t)(clock_info->evergreen.usVDDC) & 0xff00U) >> 8) : __swap16md(clock_info->evergreen.usVDDC));
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.vddci =
-   __extension__({ __uint16_t __swap16gen_x = (clock_info->evergreen.usVDDCI); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(clock_info->evergreen.usVDDCI) ? (__uint16_t)(((__uint16_t)(clock_info->evergreen.usVDDCI) & 0xffU) << 8 | ((__uint16_t)(clock_info->evergreen.usVDDCI) & 0xff00U) >> 8) : __swap16md(clock_info->evergreen.usVDDCI));
  } else {
-  sclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->r600.usEngineClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sclk = (__builtin_constant_p(clock_info->r600.usEngineClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->r600.usEngineClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->r600.usEngineClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->r600.usEngineClockLow));
   sclk |= clock_info->r600.ucEngineClockHigh << 16;
-  mclk = __extension__({ __uint16_t __swap16gen_x = (clock_info->r600.usMemoryClockLow); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  mclk = (__builtin_constant_p(clock_info->r600.usMemoryClockLow) ? (__uint16_t)(((__uint16_t)(clock_info->r600.usMemoryClockLow) & 0xffU) << 8 | ((__uint16_t)(clock_info->r600.usMemoryClockLow) & 0xff00U) >> 8) : __swap16md(clock_info->r600.usMemoryClockLow));
   mclk |= clock_info->r600.ucMemoryClockHigh << 16;
   rdev->pm.power_state[state_index].clock_info[mode_index].mclk = mclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].sclk = sclk;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.type =
    VOLTAGE_SW;
   rdev->pm.power_state[state_index].clock_info[mode_index].voltage.voltage =
-   __extension__({ __uint16_t __swap16gen_x = (clock_info->r600.usVDDC); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   (__builtin_constant_p(clock_info->r600.usVDDC) ? (__uint16_t)(((__uint16_t)(clock_info->r600.usVDDC) & 0xffU) << 8 | ((__uint16_t)(clock_info->r600.usVDDC) & 0xff00U) >> 8) : __swap16md(clock_info->r600.usVDDC));
  }
  switch (rdev->pm.power_state[state_index].clock_info[mode_index].voltage.voltage) {
  case 0xff01:
@@ -17304,11 +17308,11 @@ static int radeon_atombios_parse_power_table_4_5(struct radeon_device *rdev)
   mode_index = 0;
   power_state = (union pplib_power_state *)
    (mode_info->atom_context->bios + data_offset +
-    __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usStateArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
+    (__builtin_constant_p(power_info->pplib.usStateArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usStateArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usStateArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usStateArrayOffset)) +
     i * power_info->pplib.ucStateEntrySize);
   non_clock_info = (struct _ATOM_PPLIB_NONCLOCK_INFO *)
    (mode_info->atom_context->bios + data_offset +
-    __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usNonClockInfoArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
+    (__builtin_constant_p(power_info->pplib.usNonClockInfoArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usNonClockInfoArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usNonClockInfoArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usNonClockInfoArrayOffset)) +
     (power_state->v1.ucNonClockStateIndex *
      power_info->pplib.ucNonClockSize));
   rdev->pm.power_state[i].clock_info = kzalloc(sizeof(struct radeon_pm_clock_info) *
@@ -17321,7 +17325,7 @@ static int radeon_atombios_parse_power_table_4_5(struct radeon_device *rdev)
    for (j = 0; j < (power_info->pplib.ucStateEntrySize - 1); j++) {
     clock_info = (union pplib_clock_info *)
      (mode_info->atom_context->bios + data_offset +
-      __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usClockInfoArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
+      (__builtin_constant_p(power_info->pplib.usClockInfoArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usClockInfoArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usClockInfoArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usClockInfoArrayOffset)) +
       (power_state->v1.ucClockStateIndices[j] *
        power_info->pplib.ucClockInfoSize));
     valid = radeon_atombios_parse_pplib_clock_info(rdev,
@@ -17382,13 +17386,13 @@ static int radeon_atombios_parse_power_table_6(struct radeon_device *rdev)
  radeon_atombios_add_pplib_thermal_controller(rdev, &power_info->pplib.sThermalController);
  state_array = (struct _StateArray *)
   (mode_info->atom_context->bios + data_offset +
-   __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usStateArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+   (__builtin_constant_p(power_info->pplib.usStateArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usStateArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usStateArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usStateArrayOffset)));
  clock_info_array = (struct _ClockInfoArray *)
   (mode_info->atom_context->bios + data_offset +
-   __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usClockInfoArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+   (__builtin_constant_p(power_info->pplib.usClockInfoArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usClockInfoArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usClockInfoArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usClockInfoArrayOffset)));
  non_clock_info_array = (struct _NonClockInfoArray *)
   (mode_info->atom_context->bios + data_offset +
-   __extension__({ __uint16_t __swap16gen_x = (power_info->pplib.usNonClockInfoArrayOffset); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+   (__builtin_constant_p(power_info->pplib.usNonClockInfoArrayOffset) ? (__uint16_t)(((__uint16_t)(power_info->pplib.usNonClockInfoArrayOffset) & 0xffU) << 8 | ((__uint16_t)(power_info->pplib.usNonClockInfoArrayOffset) & 0xff00U) >> 8) : __swap16md(power_info->pplib.usNonClockInfoArrayOffset)));
  if (state_array->ucNumEntries == 0)
   return state_index;
  rdev->pm.power_state = kzalloc(sizeof(struct radeon_power_state) *
@@ -17517,21 +17521,21 @@ uint32_t radeon_atom_get_engine_clock(struct radeon_device *rdev)
  GET_ENGINE_CLOCK_PARAMETERS args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->GetEngineClock)-(char*)0)/sizeof(USHORT));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
- return __extension__({ __uint32_t __swap32gen_x = (args.ulReturnEngineClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ return (__builtin_constant_p(args.ulReturnEngineClock) ? (__uint32_t)(((__uint32_t)(args.ulReturnEngineClock) & 0xff) << 24 | ((__uint32_t)(args.ulReturnEngineClock) & 0xff00) << 8 | ((__uint32_t)(args.ulReturnEngineClock) & 0xff0000) >> 8 | ((__uint32_t)(args.ulReturnEngineClock) & 0xff000000) >> 24) : __swap32md(args.ulReturnEngineClock));
 }
 uint32_t radeon_atom_get_memory_clock(struct radeon_device *rdev)
 {
  GET_MEMORY_CLOCK_PARAMETERS args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->GetMemoryClock)-(char*)0)/sizeof(USHORT));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
- return __extension__({ __uint32_t __swap32gen_x = (args.ulReturnMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ return (__builtin_constant_p(args.ulReturnMemoryClock) ? (__uint32_t)(((__uint32_t)(args.ulReturnMemoryClock) & 0xff) << 24 | ((__uint32_t)(args.ulReturnMemoryClock) & 0xff00) << 8 | ((__uint32_t)(args.ulReturnMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(args.ulReturnMemoryClock) & 0xff000000) >> 24) : __swap32md(args.ulReturnMemoryClock));
 }
 void radeon_atom_set_engine_clock(struct radeon_device *rdev,
       uint32_t eng_clock)
 {
  SET_ENGINE_CLOCK_PS_ALLOCATION args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->SetEngineClock)-(char*)0)/sizeof(USHORT));
- args.ulTargetEngineClock = __extension__({ __uint32_t __swap32gen_x = (eng_clock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ args.ulTargetEngineClock = (__builtin_constant_p(eng_clock) ? (__uint32_t)(((__uint32_t)(eng_clock) & 0xff) << 24 | ((__uint32_t)(eng_clock) & 0xff00) << 8 | ((__uint32_t)(eng_clock) & 0xff0000) >> 8 | ((__uint32_t)(eng_clock) & 0xff000000) >> 24) : __swap32md(eng_clock));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
 void radeon_atom_set_memory_clock(struct radeon_device *rdev,
@@ -17541,7 +17545,7 @@ void radeon_atom_set_memory_clock(struct radeon_device *rdev,
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->SetMemoryClock)-(char*)0)/sizeof(USHORT));
  if (rdev->flags & RADEON_IS_IGP)
   return;
- args.ulTargetMemoryClock = __extension__({ __uint32_t __swap32gen_x = (mem_clock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ args.ulTargetMemoryClock = (__builtin_constant_p(mem_clock) ? (__uint32_t)(((__uint32_t)(mem_clock) & 0xff) << 24 | ((__uint32_t)(mem_clock) & 0xff00) << 8 | ((__uint32_t)(mem_clock) & 0xff0000) >> 8 | ((__uint32_t)(mem_clock) & 0xff000000) >> 24) : __swap32md(mem_clock));
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
 union set_voltage {
@@ -17568,12 +17572,12 @@ void radeon_atom_set_voltage(struct radeon_device *rdev, u16 voltage_level, u8 v
  case 2:
   args.v2.ucVoltageType = voltage_type;
   args.v2.ucVoltageMode = 0x0;
-  args.v2.usVoltageLevel = __extension__({ __uint16_t __swap16gen_x = (voltage_level); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v2.usVoltageLevel = (__builtin_constant_p(voltage_level) ? (__uint16_t)(((__uint16_t)(voltage_level) & 0xffU) << 8 | ((__uint16_t)(voltage_level) & 0xff00U) >> 8) : __swap16md(voltage_level));
   break;
  case 3:
   args.v3.ucVoltageType = voltage_type;
   args.v3.ucVoltageMode = 0;
-  args.v3.usVoltageLevel = __extension__({ __uint16_t __swap16gen_x = (voltage_level); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v3.usVoltageLevel = (__builtin_constant_p(voltage_level) ? (__uint16_t)(((__uint16_t)(voltage_level) & 0xffU) << 8 | ((__uint16_t)(voltage_level) & 0xff00U) >> 8) : __swap16md(voltage_level));
   break;
  default:
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "Unknown table version %d, %d\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , frev, crev);
@@ -17597,14 +17601,14 @@ static int radeon_atom_get_max_vddc(struct radeon_device *rdev, u8 voltage_type,
   args.v2.ucVoltageMode = 0;
   args.v2.usVoltageLevel = 0;
   atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
-  *voltage = __extension__({ __uint16_t __swap16gen_x = (args.v2.usVoltageLevel); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  *voltage = (__builtin_constant_p(args.v2.usVoltageLevel) ? (__uint16_t)(((__uint16_t)(args.v2.usVoltageLevel) & 0xffU) << 8 | ((__uint16_t)(args.v2.usVoltageLevel) & 0xff00U) >> 8) : __swap16md(args.v2.usVoltageLevel));
   break;
  case 3:
   args.v3.ucVoltageType = voltage_type;
   args.v3.ucVoltageMode = 6;
-  args.v3.usVoltageLevel = __extension__({ __uint16_t __swap16gen_x = (voltage_id); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v3.usVoltageLevel = (__builtin_constant_p(voltage_id) ? (__uint16_t)(((__uint16_t)(voltage_id) & 0xffU) << 8 | ((__uint16_t)(voltage_id) & 0xff00U) >> 8) : __swap16md(voltage_id));
   atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
-  *voltage = __extension__({ __uint16_t __swap16gen_x = (args.v3.usVoltageLevel); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  *voltage = (__builtin_constant_p(args.v3.usVoltageLevel) ? (__uint16_t)(((__uint16_t)(args.v3.usVoltageLevel) & 0xffU) << 8 | ((__uint16_t)(args.v3.usVoltageLevel) & 0xff00U) >> 8) : __swap16md(args.v3.usVoltageLevel));
   break;
  default:
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "Unknown table version %d, %d\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , frev, crev);

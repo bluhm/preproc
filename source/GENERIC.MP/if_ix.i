@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -5260,9 +5264,9 @@ ixgbe_encap(struct tx_ring *txr, struct mbuf *m_head)
  for (j = 0; j < map->dm_nsegs; j++) {
   txbuf = &txr->tx_buffers[i];
   txd = &txr->tx_base[i];
-  txd->read.buffer_addr = __extension__({ __uint64_t __swap64gen_x = (map->dm_segs[j].ds_addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  txd->read.cmd_type_len = __extension__({ __uint32_t __swap32gen_x = (txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  txd->read.olinfo_status = __extension__({ __uint32_t __swap32gen_x = (olinfo_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->read.buffer_addr = (__builtin_constant_p(map->dm_segs[j].ds_addr) ? (__uint64_t)((((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff) << 56) | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(map->dm_segs[j].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(map->dm_segs[j].ds_addr));
+  txd->read.cmd_type_len = (__builtin_constant_p(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len) ? (__uint32_t)(((__uint32_t)(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len) & 0xff) << 24 | ((__uint32_t)(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len) & 0xff00) << 8 | ((__uint32_t)(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len) & 0xff000000) >> 24) : __swap32md(txr->txd_cmd | cmd_type_len | map->dm_segs[j].ds_len));
+  txd->read.olinfo_status = (__builtin_constant_p(olinfo_status) ? (__uint32_t)(((__uint32_t)(olinfo_status) & 0xff) << 24 | ((__uint32_t)(olinfo_status) & 0xff00) << 8 | ((__uint32_t)(olinfo_status) & 0xff0000) >> 8 | ((__uint32_t)(olinfo_status) & 0xff000000) >> 24) : __swap32md(olinfo_status));
   last = i;
   if (++i == sc->num_tx_desc)
    i = 0;
@@ -5270,7 +5274,7 @@ ixgbe_encap(struct tx_ring *txr, struct mbuf *m_head)
   txbuf->eop_index = -1;
  }
  txd->read.cmd_type_len |=
-     __extension__({ __uint32_t __swap32gen_x = (0x01000000 | 0x08000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     (__builtin_constant_p(0x01000000 | 0x08000000) ? (__uint32_t)(((__uint32_t)(0x01000000 | 0x08000000) & 0xff) << 24 | ((__uint32_t)(0x01000000 | 0x08000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000 | 0x08000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000 | 0x08000000) & 0xff000000) >> 24) : __swap32md(0x01000000 | 0x08000000));
  txbuf->m_head = m_head;
  txr->tx_buffers[first].map = txbuf->map;
  txbuf->map = map;
@@ -5981,10 +5985,10 @@ ixgbe_tx_ctx_setup(struct tx_ring *txr, struct mbuf *mp,
  }
  if (offload)
   *olinfo_status |= 0x02 << 8;
- TXD->vlan_macip_lens = __extension__({ __uint32_t __swap32gen_x = (vlan_macip_lens); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- TXD->type_tucmd_mlhl = __extension__({ __uint32_t __swap32gen_x = (type_tucmd_mlhl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- TXD->seqnum_seed = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- TXD->mss_l4len_idx = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ TXD->vlan_macip_lens = (__builtin_constant_p(vlan_macip_lens) ? (__uint32_t)(((__uint32_t)(vlan_macip_lens) & 0xff) << 24 | ((__uint32_t)(vlan_macip_lens) & 0xff00) << 8 | ((__uint32_t)(vlan_macip_lens) & 0xff0000) >> 8 | ((__uint32_t)(vlan_macip_lens) & 0xff000000) >> 24) : __swap32md(vlan_macip_lens));
+ TXD->type_tucmd_mlhl = (__builtin_constant_p(type_tucmd_mlhl) ? (__uint32_t)(((__uint32_t)(type_tucmd_mlhl) & 0xff) << 24 | ((__uint32_t)(type_tucmd_mlhl) & 0xff00) << 8 | ((__uint32_t)(type_tucmd_mlhl) & 0xff0000) >> 8 | ((__uint32_t)(type_tucmd_mlhl) & 0xff000000) >> 24) : __swap32md(type_tucmd_mlhl));
+ TXD->seqnum_seed = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ TXD->mss_l4len_idx = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  tx_buffer->m_head = ((void *)0);
  tx_buffer->eop_index = -1;
  __asm volatile("membar " "#StoreStore" ::: "memory");
@@ -6101,7 +6105,7 @@ ixgbe_get_buf(struct rx_ring *rxr, int i)
  rxbuf->buf = mp;
  bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
      dsize * i, dsize, 0x08);
- rxdesc->read.pkt_addr = __extension__({ __uint64_t __swap64gen_x = (rxbuf->map->dm_segs[0].ds_addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ rxdesc->read.pkt_addr = (__builtin_constant_p(rxbuf->map->dm_segs[0].ds_addr) ? (__uint64_t)((((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff) << 56) | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(rxbuf->map->dm_segs[0].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(rxbuf->map->dm_segs[0].ds_addr));
  bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
      dsize * i, dsize, 0x04);
  return (0);
@@ -6356,7 +6360,7 @@ ixgbe_rxeof(struct ix_queue *que)
   bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
       dsize * i, dsize, 0x02);
   rxdesc = &rxr->rx_base[i];
-  staterr = __extension__({ __uint32_t __swap32gen_x = (rxdesc->wb.upper.status_error); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  staterr = (__builtin_constant_p(rxdesc->wb.upper.status_error) ? (__uint32_t)(((__uint32_t)(rxdesc->wb.upper.status_error) & 0xff) << 24 | ((__uint32_t)(rxdesc->wb.upper.status_error) & 0xff00) << 8 | ((__uint32_t)(rxdesc->wb.upper.status_error) & 0xff0000) >> 8 | ((__uint32_t)(rxdesc->wb.upper.status_error) & 0xff000000) >> 24) : __swap32md(rxdesc->wb.upper.status_error));
   if (!((staterr) & (0x01))) {
    bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
        dsize * i, dsize,
@@ -6369,10 +6373,10 @@ ixgbe_rxeof(struct ix_queue *que)
       rxbuf->map->dm_mapsize, 0x02);
   bus_dmamap_unload(rxr->rxdma.dma_tag, rxbuf->map);
   mp = rxbuf->buf;
-  len = __extension__({ __uint16_t __swap16gen_x = (rxdesc->wb.upper.length); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  ptype = __extension__({ __uint32_t __swap32gen_x = (rxdesc->wb.lower.lo_dword.data); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) &
+  len = (__builtin_constant_p(rxdesc->wb.upper.length) ? (__uint16_t)(((__uint16_t)(rxdesc->wb.upper.length) & 0xffU) << 8 | ((__uint16_t)(rxdesc->wb.upper.length) & 0xff00U) >> 8) : __swap16md(rxdesc->wb.upper.length));
+  ptype = (__builtin_constant_p(rxdesc->wb.lower.lo_dword.data) ? (__uint32_t)(((__uint32_t)(rxdesc->wb.lower.lo_dword.data) & 0xff) << 24 | ((__uint32_t)(rxdesc->wb.lower.lo_dword.data) & 0xff00) << 8 | ((__uint32_t)(rxdesc->wb.lower.lo_dword.data) & 0xff0000) >> 8 | ((__uint32_t)(rxdesc->wb.lower.lo_dword.data) & 0xff000000) >> 24) : __swap32md(rxdesc->wb.lower.lo_dword.data)) &
       0x0000FFF0;
-  vtag = __extension__({ __uint16_t __swap16gen_x = (rxdesc->wb.upper.vlan); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  vtag = (__builtin_constant_p(rxdesc->wb.upper.vlan) ? (__uint16_t)(((__uint16_t)(rxdesc->wb.upper.vlan) & 0xffU) << 8 | ((__uint16_t)(rxdesc->wb.upper.vlan) & 0xff00U) >> 8) : __swap16md(rxdesc->wb.upper.vlan));
   eop = ((staterr & 0x02) != 0);
   if (staterr & ( 0x01000000 | 0x02000000 | 0x08000000 | 0x10000000 | 0x20000000)) {
    sc->dropped_pkts++;

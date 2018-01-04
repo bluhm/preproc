@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3984,7 +3988,7 @@ xl_list_tx_init_90xB(struct xl_softc *sc)
   cd->xl_tx_chain[i].xl_prev = &cd->xl_tx_chain[prev];
  }
  __builtin_bzero((ld->xl_tx_list), (sizeof(struct xl_list) * 32));
- ld->xl_tx_list[0].xl_status = __extension__({ __uint32_t __swap32gen_x = (0x20000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ld->xl_tx_list[0].xl_status = (__builtin_constant_p(0x20000000) ? (__uint32_t)(((__uint32_t)(0x20000000) & 0xff) << 24 | ((__uint32_t)(0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x20000000) & 0xff000000) >> 24) : __swap32md(0x20000000));
  cd->xl_tx_prod = 1;
  cd->xl_tx_cons = 1;
  cd->xl_tx_cnt = 0;
@@ -4009,7 +4013,7 @@ xl_list_rx_init(struct xl_softc *sc)
   cd->xl_rx_chain[i].xl_next = &cd->xl_rx_chain[n];
   next = sc->sc_listmap->dm_segs[0].ds_addr +
          __builtin_offsetof(struct xl_list_data, xl_rx_list[n]);
-  ld->xl_rx_list[i].xl_next = __extension__({ __uint32_t __swap32gen_x = (next); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ld->xl_rx_list[i].xl_next = (__builtin_constant_p(next) ? (__uint32_t)(((__uint32_t)(next) & 0xff) << 24 | ((__uint32_t)(next) & 0xff00) << 8 | ((__uint32_t)(next) & 0xff0000) >> 8 | ((__uint32_t)(next) & 0xff000000) >> 24) : __swap32md(next));
  }
  cd->xl_rx_prod = cd->xl_rx_cons = &cd->xl_rx_chain[0];
  if_rxr_init(&cd->xl_rx_ring, 2, 32 - 1);
@@ -4057,10 +4061,10 @@ xl_newbuf(struct xl_softc *sc, struct xl_chain_onefrag *c)
      0x01);
  c->xl_mbuf = m_new;
  c->xl_ptr->xl_frag.xl_addr =
-     __extension__({ __uint32_t __swap32gen_x = (c->map->dm_segs[0].ds_addr + 2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     (__builtin_constant_p(c->map->dm_segs[0].ds_addr + 2) ? (__uint32_t)(((__uint32_t)(c->map->dm_segs[0].ds_addr + 2) & 0xff) << 24 | ((__uint32_t)(c->map->dm_segs[0].ds_addr + 2) & 0xff00) << 8 | ((__uint32_t)(c->map->dm_segs[0].ds_addr + 2) & 0xff0000) >> 8 | ((__uint32_t)(c->map->dm_segs[0].ds_addr + 2) & 0xff000000) >> 24) : __swap32md(c->map->dm_segs[0].ds_addr + 2));
  c->xl_ptr->xl_frag.xl_len =
-     __extension__({ __uint32_t __swap32gen_x = (c->map->dm_segs[0].ds_len | 0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- c->xl_ptr->xl_status = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     (__builtin_constant_p(c->map->dm_segs[0].ds_len | 0x80000000) ? (__uint32_t)(((__uint32_t)(c->map->dm_segs[0].ds_len | 0x80000000) & 0xff) << 24 | ((__uint32_t)(c->map->dm_segs[0].ds_len | 0x80000000) & 0xff00) << 8 | ((__uint32_t)(c->map->dm_segs[0].ds_len | 0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(c->map->dm_segs[0].ds_len | 0x80000000) & 0xff000000) >> 24) : __swap32md(c->map->dm_segs[0].ds_len | 0x80000000));
+ c->xl_ptr->xl_status = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_listmap,
      ((caddr_t)c->xl_ptr - sc->sc_listkva), sizeof(struct xl_list),
      0x01 | 0x04);
@@ -4084,7 +4088,7 @@ again:
       ((caddr_t)cur_rx->xl_ptr - sc->sc_listkva),
       sizeof(struct xl_list),
       0x02 | 0x08);
-  if ((rxstat = __extension__({ __uint32_t __swap32gen_x = (sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) == 0)
+  if ((rxstat = (__builtin_constant_p(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status) ? (__uint32_t)(((__uint32_t)(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status) & 0xff) << 24 | ((__uint32_t)(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status) & 0xff00) << 8 | ((__uint32_t)(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status) & 0xff0000) >> 8 | ((__uint32_t)(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status) & 0xff000000) >> 24) : __swap32md(sc->xl_cdata.xl_rx_cons->xl_ptr->xl_status))) == 0)
    break;
   m = cur_rx->xl_mbuf;
   cur_rx->xl_mbuf = ((void *)0);
@@ -4095,7 +4099,7 @@ again:
    rxstat |= (0x00004000|0x00100000);
   if (rxstat & 0x00004000) {
    ifp->if_data.ifi_ierrors++;
-   cur_rx->xl_ptr->xl_status = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   cur_rx->xl_ptr->xl_status = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
    m_freem(m);
    continue;
   }
@@ -4103,7 +4107,7 @@ again:
    printf("%s: bad receive status -- "
        "packet dropped\n", sc->sc_dev.dv_xname);
    ifp->if_data.ifi_ierrors++;
-   cur_rx->xl_ptr->xl_status = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   cur_rx->xl_ptr->xl_status = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
    m_freem(m);
    continue;
   }
@@ -4184,7 +4188,7 @@ xl_txeof_90xB(struct xl_softc *sc)
  while (idx != sc->xl_cdata.xl_tx_prod) {
   cur_tx = &sc->xl_cdata.xl_tx_chain[idx];
   if ((cur_tx->xl_ptr->xl_status &
-      __extension__({ __uint32_t __swap32gen_x = (0x00010000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) == 0)
+      (__builtin_constant_p(0x00010000) ? (__uint32_t)(((__uint32_t)(0x00010000) & 0xff) << 24 | ((__uint32_t)(0x00010000) & 0xff00) << 8 | ((__uint32_t)(0x00010000) & 0xff0000) >> 8 | ((__uint32_t)(0x00010000) & 0xff000000) >> 24) : __swap32md(0x00010000))) == 0)
    break;
   if (cur_tx->xl_mbuf != ((void *)0)) {
    m_freem(cur_tx->xl_mbuf);
@@ -4338,9 +4342,9 @@ reload:
    break;
   total_len += map->dm_segs[frag].ds_len;
   c->xl_ptr->xl_frag[frag].xl_addr =
-      __extension__({ __uint32_t __swap32gen_x = (map->dm_segs[frag].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(map->dm_segs[frag].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[frag].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[frag].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[frag].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[frag].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[frag].ds_addr));
   c->xl_ptr->xl_frag[frag].xl_len =
-      __extension__({ __uint32_t __swap32gen_x = (map->dm_segs[frag].ds_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(map->dm_segs[frag].ds_len) ? (__uint32_t)(((__uint32_t)(map->dm_segs[frag].ds_len) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[frag].ds_len) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[frag].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[frag].ds_len) & 0xff000000) >> 24) : __swap32md(map->dm_segs[frag].ds_len));
  }
  if (error) {
   struct mbuf *m_new = ((void *)0);
@@ -4374,12 +4378,12 @@ reload:
  c->xl_mbuf = m_head;
  sc->sc_tx_sparemap = c->map;
  c->map = map;
- c->xl_ptr->xl_frag[frag - 1].xl_len |= __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- c->xl_ptr->xl_status = __extension__({ __uint32_t __swap32gen_x = (total_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ c->xl_ptr->xl_frag[frag - 1].xl_len |= (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
+ c->xl_ptr->xl_status = (__builtin_constant_p(total_len) ? (__uint32_t)(((__uint32_t)(total_len) & 0xff) << 24 | ((__uint32_t)(total_len) & 0xff00) << 8 | ((__uint32_t)(total_len) & 0xff0000) >> 8 | ((__uint32_t)(total_len) & 0xff000000) >> 24) : __swap32md(total_len));
  c->xl_ptr->xl_next = 0;
  if (sc->xl_type == 1) {
   status = 0x10000000;
-  c->xl_ptr->xl_status = __extension__({ __uint32_t __swap32gen_x = (status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  c->xl_ptr->xl_status = (__builtin_constant_p(status) ? (__uint32_t)(((__uint32_t)(status) & 0xff) << 24 | ((__uint32_t)(status) & 0xff00) << 8 | ((__uint32_t)(status) & 0xff0000) >> 8 | ((__uint32_t)(status) & 0xff000000) >> 24) : __swap32md(status));
  }
  bus_dmamap_sync(sc->sc_dmat, sc->sc_listmap,
      __builtin_offsetof(struct xl_list_data, xl_tx_list[0]),
@@ -4431,7 +4435,7 @@ xl_start(struct ifnet *ifp)
  }
  if (cur_tx == ((void *)0))
   return;
- cur_tx->xl_ptr->xl_status |= __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ cur_tx->xl_ptr->xl_status |= (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
  bus_space_write_2(sc->xl_btag, sc->xl_bhandle, 0x0E, 0x3002);
  xl_wait(sc);
  if (sc->xl_cdata.xl_tx_head != ((void *)0)) {
@@ -4440,7 +4444,7 @@ xl_start(struct ifnet *ifp)
       sc->sc_listmap->dm_segs[0].ds_addr +
       ((caddr_t)start_tx->xl_ptr - sc->sc_listkva);
   sc->xl_cdata.xl_tx_tail->xl_ptr->xl_status &=
-      __extension__({ __uint32_t __swap32gen_x = (~0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(~0x80000000) ? (__uint32_t)(((__uint32_t)(~0x80000000) & 0xff) << 24 | ((__uint32_t)(~0x80000000) & 0xff00) << 8 | ((__uint32_t)(~0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(~0x80000000) & 0xff000000) >> 24) : __swap32md(~0x80000000));
   sc->xl_cdata.xl_tx_tail = cur_tx;
  } else {
   sc->xl_cdata.xl_tx_head = start_tx;
@@ -4482,7 +4486,7 @@ xl_start_90xB(struct ifnet *ifp)
    continue;
   }
   if (prev != ((void *)0))
-   prev->xl_ptr->xl_next = __extension__({ __uint32_t __swap32gen_x = (cur_tx->xl_phys); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   prev->xl_ptr->xl_next = (__builtin_constant_p(cur_tx->xl_phys) ? (__uint32_t)(((__uint32_t)(cur_tx->xl_phys) & 0xff) << 24 | ((__uint32_t)(cur_tx->xl_phys) & 0xff00) << 8 | ((__uint32_t)(cur_tx->xl_phys) & 0xff0000) >> 8 | ((__uint32_t)(cur_tx->xl_phys) & 0xff000000) >> 24) : __swap32md(cur_tx->xl_phys));
   prev = cur_tx;
   if (ifp->if_bpf)
    bpf_mtap(ifp->if_bpf, cur_tx->xl_mbuf,
@@ -4492,9 +4496,9 @@ xl_start_90xB(struct ifnet *ifp)
  }
  if (cur_tx == ((void *)0))
   return;
- cur_tx->xl_ptr->xl_status |= __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ cur_tx->xl_ptr->xl_status |= (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
  sc->xl_cdata.xl_tx_prod = idx;
- start_tx->xl_prev->xl_ptr->xl_next = __extension__({ __uint32_t __swap32gen_x = (start_tx->xl_phys); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ start_tx->xl_prev->xl_ptr->xl_next = (__builtin_constant_p(start_tx->xl_phys) ? (__uint32_t)(((__uint32_t)(start_tx->xl_phys) & 0xff) << 24 | ((__uint32_t)(start_tx->xl_phys) & 0xff00) << 8 | ((__uint32_t)(start_tx->xl_phys) & 0xff0000) >> 8 | ((__uint32_t)(start_tx->xl_phys) & 0xff000000) >> 24) : __swap32md(start_tx->xl_phys));
  ifp->if_timer = 5;
 }
 void

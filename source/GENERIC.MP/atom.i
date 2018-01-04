@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -15440,7 +15444,7 @@ static uint32_t atom_get_src_int(atom_exec_context *ctx, uint8_t attr,
  case 1:
   idx = get_u8(ctx->ctx->bios, (*ptr));
   (*ptr)++;
-  val = __extension__({ __uint32_t __swap32gen_x = (ctx->ps[idx]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  val = (__builtin_constant_p(ctx->ps[idx]) ? (__uint32_t)(((__uint32_t)(ctx->ps[idx]) & 0xff) << 24 | ((__uint32_t)(ctx->ps[idx]) & 0xff00) << 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff0000) >> 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff000000) >> 24) : __swap32md(ctx->ps[idx]));
   if (print)
    do if (atom_debug) { printf("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/atom.c" "PS[0x%02X,0x%04X]", idx, val); } while (0);
   break;
@@ -15704,7 +15708,7 @@ static void atom_put_dst(atom_exec_context *ctx, int arg, uint8_t attr,
   idx = get_u8(ctx->ctx->bios, (*ptr));
   (*ptr)++;
   do if (atom_debug) { printf("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/atom.c" "PS[0x%02X]", idx); } while (0);
-  ctx->ps[idx] = __extension__({ __uint32_t __swap32gen_x = (val); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ctx->ps[idx] = (__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val));
   break;
  case 2:
   idx = get_u8(ctx->ctx->bios, (*ptr));
@@ -16437,8 +16441,8 @@ int atom_asic_init(struct atom_context *ctx)
  uint32_t ps[16];
  int ret;
  __builtin_memset((ps), (0), (64));
- ps[0] = __extension__({ __uint32_t __swap32gen_x = (get_u32(ctx->bios, (hwi + 8))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- ps[1] = __extension__({ __uint32_t __swap32gen_x = (get_u32(ctx->bios, (hwi + 0xC))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ps[0] = (__builtin_constant_p(get_u32(ctx->bios, (hwi + 8))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 8))));
+ ps[1] = (__builtin_constant_p(get_u32(ctx->bios, (hwi + 0xC))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 0xC))));
  if (!ps[0] || !ps[1])
   return 1;
  if (!get_u16(ctx->bios, (ctx->cmd_table + 4 + 2 * 0)))
@@ -16500,7 +16504,7 @@ int atom_allocate_fb_scratch(struct atom_context *ctx)
  if (atom_parse_data_header(ctx, index, ((void *)0), ((void *)0), ((void *)0), &data_offset)) {
   firmware_usage = (struct _ATOM_VRAM_USAGE_BY_FIRMWARE *)(ctx->bios + data_offset);
   do { } while( 0);
-  usage_bytes = __extension__({ __uint16_t __swap16gen_x = (firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 1024;
+  usage_bytes = (__builtin_constant_p(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) ? (__uint16_t)(((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xffU) << 8 | ((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xff00U) >> 8) : __swap16md(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb)) * 1024;
  }
  ctx->scratch_size_bytes = 0;
  if (usage_bytes == 0)

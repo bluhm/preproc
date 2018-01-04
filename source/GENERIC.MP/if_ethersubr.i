@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3711,6 +3715,11 @@ ether_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
      { error = (65); goto bad;};
     __builtin_memcpy((edst), (((caddr_t)((satosdl(dst))->sdl_data + (satosdl(dst))->sdl_nlen))), (sizeof(edst)));
     break;
+   case 24:
+    error = nd6_resolve(ifp, rt, m, dst, edst);
+    if (error)
+     return (error == 35 ? 0 : error);
+    break;
    case 2:
    case 33:
     error = arpresolve(ifp, rt, m, dst, edst);
@@ -3919,7 +3928,7 @@ ether_ifdetach(struct ifnet *ifp)
  struct ether_multi *enm;
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 555, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 560, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  for (enm = ((&ac->ac_multiaddrs)->lh_first);
      enm != ((void *)0);
      enm = ((&ac->ac_multiaddrs)->lh_first)) {

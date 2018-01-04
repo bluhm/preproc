@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3274,7 +3278,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4766,11 +4770,11 @@ malo_attach(struct malo_softc *sc)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof(struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof(sc->sc_rxtapu);
- sc->sc_rxtapu.th.wr_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_rxtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_rxtapu.th.wr_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = (((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))));
  sc->sc_txtap_len = sizeof(sc->sc_txtapu);
- sc->sc_txtapu.th.wt_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_txtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_txtapu.th.wt_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = (((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))));
  return (0);
 }
 int
@@ -4818,7 +4822,7 @@ malo_alloc_cmd(struct malo_softc *sc)
   return (-1);
  }
  sc->sc_cookie = sc->sc_cmd_mem;
- *sc->sc_cookie = __extension__({ __uint32_t __swap32gen_x = (0xaa55aa55); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ *sc->sc_cookie = (__builtin_constant_p(0xaa55aa55) ? (__uint32_t)(((__uint32_t)(0xaa55aa55) & 0xff) << 24 | ((__uint32_t)(0xaa55aa55) & 0xff00) << 8 | ((__uint32_t)(0xaa55aa55) & 0xff0000) >> 8 | ((__uint32_t)(0xaa55aa55) & 0xff000000) >> 24) : __swap32md(0xaa55aa55));
  sc->sc_cmd_mem = (caddr_t)sc->sc_cmd_mem + sizeof(uint32_t);
  sc->sc_cookie_dmaaddr = sc->sc_cmd_dmam->dm_segs[0].ds_addr;
  sc->sc_cmd_dmaaddr = sc->sc_cmd_dmam->dm_segs[0].ds_addr +
@@ -4855,7 +4859,7 @@ malo_send_cmd_dma(struct malo_softc *sc, bus_addr_t addr)
   delay(100);
   bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
       0x08 | 0x02);
-  if (hdr->cmd & __extension__({ __uint16_t __swap16gen_x = (0x8000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
+  if (hdr->cmd & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))
    break;
  }
  if (i == 50) {
@@ -4948,9 +4952,9 @@ malo_alloc_rx_ring(struct malo_softc *sc, struct malo_rx_ring *ring, int count)
        sc->sc_dev.dv_xname);
    goto fail;
   }
-  desc->status = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  desc->physdata = __extension__({ __uint32_t __swap32gen_x = (data->map->dm_segs->ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  desc->physnext = __extension__({ __uint32_t __swap32gen_x = (ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  desc->status = 1;
+  desc->physdata = (__builtin_constant_p(data->map->dm_segs->ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs->ds_addr));
+  desc->physnext = (__builtin_constant_p(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)) ? (__uint32_t)(((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)) & 0xff) << 24 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)) & 0xff00) << 8 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)) & 0xff0000) >> 8 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)) & 0xff000000) >> 24) : __swap32md(ring->physaddr + (i + 1) % count * sizeof(struct malo_rx_desc)));
  }
  bus_dmamap_sync(sc->sc_dmat, ring->map, 0, ring->map->dm_mapsize,
      0x04);
@@ -5055,7 +5059,7 @@ malo_alloc_tx_ring(struct malo_softc *sc, struct malo_tx_ring *ring,
        sc->sc_dev.dv_xname);
    goto fail;
   }
-  ring->desc[i].physnext = __extension__({ __uint32_t __swap32gen_x = (ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ring->desc[i].physnext = (__builtin_constant_p(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)) ? (__uint32_t)(((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)) & 0xff) << 24 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)) & 0xff00) << 8 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)) & 0xff0000) >> 8 | ((__uint32_t)(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)) & 0xff000000) >> 24) : __swap32md(ring->physaddr + (i + 1) % count * sizeof(struct malo_tx_desc)));
  }
  return (0);
 fail: malo_free_tx_ring(sc, ring);
@@ -5477,12 +5481,12 @@ malo_tx_intr(struct malo_softc *sc)
   desc = &sc->sc_txring.desc[sc->sc_txring.stat];
   data = &sc->sc_txring.data[sc->sc_txring.stat];
   rn = (struct malo_node *)data->ni;
-  if ((__extension__({ __uint32_t __swap32gen_x = (desc->status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0x80000000) ||
-      !(__extension__({ __uint32_t __swap32gen_x = (data->softstat); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0x80))
+  if (((__builtin_constant_p(desc->status) ? (__uint32_t)(((__uint32_t)(desc->status) & 0xff) << 24 | ((__uint32_t)(desc->status) & 0xff00) << 8 | ((__uint32_t)(desc->status) & 0xff0000) >> 8 | ((__uint32_t)(desc->status) & 0xff000000) >> 24) : __swap32md(desc->status)) & 0x80000000) ||
+      !((__builtin_constant_p(data->softstat) ? (__uint32_t)(((__uint32_t)(data->softstat) & 0xff) << 24 | ((__uint32_t)(data->softstat) & 0xff00) << 8 | ((__uint32_t)(data->softstat) & 0xff0000) >> 8 | ((__uint32_t)(data->softstat) & 0xff000000) >> 24) : __swap32md(data->softstat)) & 0x80))
    break;
   if (rn == ((void *)0))
    goto next;
-  switch (__extension__({ __uint32_t __swap32gen_x = (desc->status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0x1) {
+  switch ((__builtin_constant_p(desc->status) ? (__uint32_t)(((__uint32_t)(desc->status) & 0xff) << 24 | ((__uint32_t)(desc->status) & 0xff00) << 8 | ((__uint32_t)(desc->status) & 0xff0000) >> 8 | ((__uint32_t)(desc->status) & 0xff000000) >> 24) : __swap32md(desc->status)) & 0x1) {
   case 0x1:
    ;
    break;
@@ -5499,7 +5503,7 @@ malo_tx_intr(struct malo_softc *sc)
   ieee80211_release_node(ic, data->ni);
   data->m = ((void *)0);
   data->ni = ((void *)0);
-  data->softstat &= __extension__({ __uint32_t __swap32gen_x = (~0x80); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  data->softstat &= (__builtin_constant_p(~0x80) ? (__uint32_t)(((__uint32_t)(~0x80) & 0xff) << 24 | ((__uint32_t)(~0x80) & 0xff00) << 8 | ((__uint32_t)(~0x80) & 0xff0000) >> 8 | ((__uint32_t)(~0x80) & 0xff000000) >> 24) : __swap32md(~0x80));
   desc->status = 0;
   desc->len = 0;
   ;
@@ -5539,8 +5543,8 @@ malo_tx_mgt(struct malo_softc *sc, struct mbuf *m0, struct ieee80211_node *ni)
   struct malo_tx_radiotap_hdr *tap = &sc->sc_txtapu.th;
   tap->wt_flags = 0;
   tap->wt_rate = sc->sc_last_txrate;
-  tap->wt_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wt_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m0;
@@ -5560,7 +5564,7 @@ malo_tx_mgt(struct malo_softc *sc, struct mbuf *m0, struct ieee80211_node *ni)
  m0->m_hdr.mh_data -= 8;
  m0->m_hdr.mh_len += 8;
  m0->M_dat.MH.MH_pkthdr.len += 8;
- *((uint16_t *)((m0)->m_hdr.mh_data)) = __extension__({ __uint16_t __swap16gen_x = (m0->m_hdr.mh_len - 32); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *((uint16_t *)((m0)->m_hdr.mh_data)) = (__builtin_constant_p(m0->m_hdr.mh_len - 32) ? (__uint16_t)(((__uint16_t)(m0->m_hdr.mh_len - 32) & 0xffU) << 8 | ((__uint16_t)(m0->m_hdr.mh_len - 32) & 0xff00U) >> 8) : __swap16md(m0->m_hdr.mh_len - 32));
  error = bus_dmamap_load_mbuf(sc->sc_dmat, data->map, m0,
      0x0001);
  if (error != 0) {
@@ -5571,7 +5575,7 @@ malo_tx_mgt(struct malo_softc *sc, struct mbuf *m0, struct ieee80211_node *ni)
  }
  data->m = m0;
  data->ni = ni;
- data->softstat |= __extension__({ __uint32_t __swap32gen_x = (0x80); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ data->softstat |= (__builtin_constant_p(0x80) ? (__uint32_t)(((__uint32_t)(0x80) & 0xff) << 24 | ((__uint32_t)(0x80) & 0xff00) << 8 | ((__uint32_t)(0x80) & 0xff0000) >> 8 | ((__uint32_t)(0x80) & 0xff000000) >> 24) : __swap32md(0x80));
  malo_tx_setup_desc(sc, desc, m0->M_dat.MH.MH_pkthdr.len, 0,
      data->map->dm_segs, data->map->dm_nsegs);
  bus_dmamap_sync(sc->sc_dmat, data->map, 0, data->map->dm_mapsize,
@@ -5620,8 +5624,8 @@ malo_tx_data(struct malo_softc *sc, struct mbuf *m0,
   struct malo_tx_radiotap_hdr *tap = &sc->sc_txtapu.th;
   tap->wt_flags = 0;
   tap->wt_rate = sc->sc_last_txrate;
-  tap->wt_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wt_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m0;
@@ -5638,7 +5642,7 @@ malo_tx_data(struct malo_softc *sc, struct mbuf *m0,
   m_free(mnew);
   return (55);
  }
- *((uint16_t *)((mnew)->m_hdr.mh_data)) = __extension__({ __uint16_t __swap16gen_x = (m0->M_dat.MH.MH_pkthdr.len - 24); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *((uint16_t *)((mnew)->m_hdr.mh_data)) = (__builtin_constant_p(m0->M_dat.MH.MH_pkthdr.len - 24) ? (__uint16_t)(((__uint16_t)(m0->M_dat.MH.MH_pkthdr.len - 24) & 0xffU) << 8 | ((__uint16_t)(m0->M_dat.MH.MH_pkthdr.len - 24) & 0xff00U) >> 8) : __swap16md(m0->M_dat.MH.MH_pkthdr.len - 24));
  __builtin_bcopy((wh), (((caddr_t)((mnew)->m_hdr.mh_data)) + 2), (sizeof(*wh)));
  __builtin_bzero((((caddr_t)((mnew)->m_hdr.mh_data)) + 26), (6));
  m_copydata(m0, sizeof(*wh), m0->M_dat.MH.MH_pkthdr.len - sizeof(*wh),
@@ -5656,7 +5660,7 @@ malo_tx_data(struct malo_softc *sc, struct mbuf *m0,
  }
  data->m = m0;
  data->ni = ni;
- data->softstat |= __extension__({ __uint32_t __swap32gen_x = (0x80); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ data->softstat |= (__builtin_constant_p(0x80) ? (__uint32_t)(((__uint32_t)(0x80) & 0xff) << 24 | ((__uint32_t)(0x80) & 0xff00) << 8 | ((__uint32_t)(0x80) & 0xff0000) >> 8 | ((__uint32_t)(0x80) & 0xff000000) >> 24) : __swap32md(0x80));
  malo_tx_setup_desc(sc, desc, m0->M_dat.MH.MH_pkthdr.len, 1,
      data->map->dm_segs, data->map->dm_nsegs);
  bus_dmamap_sync(sc->sc_dmat, data->map, 0, data->map->dm_mapsize,
@@ -5675,10 +5679,10 @@ void
 malo_tx_setup_desc(struct malo_softc *sc, struct malo_tx_desc *desc,
     int len, int rate, const bus_dma_segment_t *segs, int nsegs)
 {
- desc->len = __extension__({ __uint16_t __swap16gen_x = (segs[0].ds_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ desc->len = (__builtin_constant_p(segs[0].ds_len) ? (__uint16_t)(((__uint16_t)(segs[0].ds_len) & 0xffU) << 8 | ((__uint16_t)(segs[0].ds_len) & 0xff00U) >> 8) : __swap16md(segs[0].ds_len));
  desc->datarate = rate;
- desc->physdata = __extension__({ __uint32_t __swap32gen_x = (segs[0].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- desc->status = __extension__({ __uint32_t __swap32gen_x = (0x00000001 | 0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ desc->physdata = (__builtin_constant_p(segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(segs[0].ds_addr));
+ desc->status = (__builtin_constant_p(0x00000001 | 0x80000000) ? (__uint32_t)(((__uint32_t)(0x00000001 | 0x80000000) & 0xff) << 24 | ((__uint32_t)(0x00000001 | 0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x00000001 | 0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001 | 0x80000000) & 0xff000000) >> 24) : __swap32md(0x00000001 | 0x80000000));
 }
 void
 malo_rx_intr(struct malo_softc *sc)
@@ -5734,8 +5738,8 @@ malo_rx_intr(struct malo_softc *sc)
   }
   m = data->m;
   data->m = mnew;
-  desc->physdata = __extension__({ __uint32_t __swap32gen_x = (data->map->dm_segs->ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = __extension__({ __uint16_t __swap16gen_x = (desc->len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  desc->physdata = (__builtin_constant_p(data->map->dm_segs->ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs->ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs->ds_addr));
+  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__builtin_constant_p(desc->len) ? (__uint16_t)(((__uint16_t)(desc->len) & 0xffU) << 8 | ((__uint16_t)(desc->len) & 0xff00U) >> 8) : __swap16md(desc->len));
   __builtin_bcopy((m->m_hdr.mh_data), (m->m_hdr.mh_data + 6), (26));
   m_adj(m, 8);
   if (sc->sc_drvbpf != ((void *)0)) {
@@ -5743,9 +5747,9 @@ malo_rx_intr(struct malo_softc *sc)
    struct malo_rx_radiotap_hdr *tap = &sc->sc_rxtapu.th;
    tap->wr_flags = 0;
    tap->wr_chan_freq =
-       __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
    tap->wr_chan_flags =
-       __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
    tap->wr_rssi = desc->rssi;
    tap->wr_max_rssi = ic->ic_max_rssi;
    mb.m_hdr.mh_data = (caddr_t)tap;
@@ -5765,7 +5769,7 @@ malo_rx_intr(struct malo_softc *sc)
   ieee80211_release_node(ic, ni);
 skip:
   desc->rxctrl = 0;
-  rxRdPtr = __extension__({ __uint32_t __swap32gen_x = (desc->physnext); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxRdPtr = (__builtin_constant_p(desc->physnext) ? (__uint32_t)(((__uint32_t)(desc->physnext) & 0xff) << 24 | ((__uint32_t)(desc->physnext) & 0xff00) << 8 | ((__uint32_t)(desc->physnext) & 0xff0000) >> 8 | ((__uint32_t)(desc->physnext) & 0xff000000) >> 24) : __swap32md(desc->physnext));
   bus_dmamap_sync(sc->sc_dmat, sc->sc_rxring.map,
       sc->sc_rxring.cur * sizeof(struct malo_rx_desc),
       sizeof(struct malo_rx_desc), 0x04);
@@ -5833,9 +5837,9 @@ malo_load_firmware(struct malo_softc *sc)
  sn = 1;
  for (count = 0; count < size; count += bsize) {
   bsize = (((256)<(size - count))?(256):(size - count));
-  hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  hdr->size = __extension__({ __uint16_t __swap16gen_x = (bsize); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (sn++); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  hdr->cmd = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
+  hdr->size = (__builtin_constant_p(bsize) ? (__uint16_t)(((__uint16_t)(bsize) & 0xffU) << 8 | ((__uint16_t)(bsize) & 0xff00U) >> 8) : __swap16md(bsize));
+  hdr->seqnum = (__builtin_constant_p(sn++) ? (__uint16_t)(((__uint16_t)(sn++) & 0xffU) << 8 | ((__uint16_t)(sn++) & 0xff00U) >> 8) : __swap16md(sn++));
   hdr->result = 0;
   __builtin_bcopy((ucode + count), (data), (bsize));
   bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
@@ -5847,9 +5851,9 @@ malo_load_firmware(struct malo_softc *sc)
  }
  free(ucode, 2, size);
  ;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001));
  hdr->size = 0;
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (sn++); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->seqnum = (__builtin_constant_p(sn++) ? (__uint16_t)(((__uint16_t)(sn++) & 0xffU) << 8 | ((__uint16_t)(sn++) & 0xff00U) >> 8) : __swap16md(sn++));
  hdr->result = 0;
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04);
@@ -5921,7 +5925,7 @@ malo_cmd_string(uint16_t cmd)
   { 0x0114, "SetSlot" },
  };
  for (i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
-  if ((__extension__({ __uint16_t __swap16gen_x = (cmd); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x7fff) == cmds[i].cmd_code)
+  if (((__builtin_constant_p(cmd) ? (__uint16_t)(((__uint16_t)(cmd) & 0xffU) << 8 | ((__uint16_t)(cmd) & 0xff00U) >> 8) : __swap16md(cmd)) & 0x7fff) == cmds[i].cmd_code)
    return (cmds[i].cmd_string);
  snprintf(cmd_buf, sizeof(cmd_buf), "unknown %#x", cmd);
  return (cmd_buf);
@@ -5942,7 +5946,7 @@ malo_cmd_string_result(uint16_t result)
   { 0x0005, "incomplete" },
  };
  for (i = 0; i < sizeof(results) / sizeof(results[0]); i++)
-  if (__extension__({ __uint16_t __swap16gen_x = (result); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == results[i].result_code)
+  if ((__builtin_constant_p(result) ? (__uint16_t)(((__uint16_t)(result) & 0xffU) << 8 | ((__uint16_t)(result) & 0xff00U) >> 8) : __swap16md(result)) == results[i].result_code)
    return (results[i].result_string);
  return ("unknown");
 }
@@ -5951,32 +5955,32 @@ malo_cmd_get_spec(struct malo_softc *sc)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_hw_spec *spec;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0003); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*spec)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->seqnum = __extension__({ __uint16_t __swap16gen_x = (42); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0003) ? (__uint16_t)(((__uint16_t)(0x0003) & 0xffU) << 8 | ((__uint16_t)(0x0003) & 0xff00U) >> 8) : __swap16md(0x0003));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*spec)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*spec)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*spec)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*spec)));
+ hdr->seqnum = (__builtin_constant_p(42) ? (__uint16_t)(((__uint16_t)(42) & 0xffU) << 8 | ((__uint16_t)(42) & 0xff00U) >> 8) : __swap16md(42));
  hdr->result = 0;
  spec = (struct malo_hw_spec *)(hdr + 1);
  __builtin_bzero((spec), (sizeof(*spec)));
  __builtin_memset((spec->PermanentAddress), (0xff), (6));
- spec->CookiePtr = __extension__({ __uint32_t __swap32gen_x = (sc->sc_cookie_dmaaddr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ spec->CookiePtr = (__builtin_constant_p(sc->sc_cookie_dmaaddr) ? (__uint32_t)(((__uint32_t)(sc->sc_cookie_dmaaddr) & 0xff) << 24 | ((__uint32_t)(sc->sc_cookie_dmaaddr) & 0xff00) << 8 | ((__uint32_t)(sc->sc_cookie_dmaaddr) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_cookie_dmaaddr) & 0xff000000) >> 24) : __swap32md(sc->sc_cookie_dmaaddr));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04|0x01);
  if (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr) != 0)
   return (60);
  ;
- bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, (__extension__({ __uint32_t __swap32gen_x = (spec->RxPdRdPtr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0xffff), (sc->sc_rxring.physaddr));
- bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, (__extension__({ __uint32_t __swap32gen_x = (spec->RxPdWrPtr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0xffff), (sc->sc_rxring.physaddr));
- bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, (__extension__({ __uint32_t __swap32gen_x = (spec->WcbBase0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0xffff), (sc->sc_txring.physaddr));
- sc->sc_RxPdRdPtr = __extension__({ __uint32_t __swap32gen_x = (spec->RxPdRdPtr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0xffff;
- sc->sc_RxPdWrPtr = __extension__({ __uint32_t __swap32gen_x = (spec->RxPdWrPtr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0xffff;
+ bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, ((__builtin_constant_p(spec->RxPdRdPtr) ? (__uint32_t)(((__uint32_t)(spec->RxPdRdPtr) & 0xff) << 24 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff00) << 8 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff0000) >> 8 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff000000) >> 24) : __swap32md(spec->RxPdRdPtr)) & 0xffff), (sc->sc_rxring.physaddr));
+ bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, ((__builtin_constant_p(spec->RxPdWrPtr) ? (__uint32_t)(((__uint32_t)(spec->RxPdWrPtr) & 0xff) << 24 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff00) << 8 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff0000) >> 8 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff000000) >> 24) : __swap32md(spec->RxPdWrPtr)) & 0xffff), (sc->sc_rxring.physaddr));
+ bus_space_write_4((sc)->sc_mem1_bt, (sc)->sc_mem1_bh, ((__builtin_constant_p(spec->WcbBase0) ? (__uint32_t)(((__uint32_t)(spec->WcbBase0) & 0xff) << 24 | ((__uint32_t)(spec->WcbBase0) & 0xff00) << 8 | ((__uint32_t)(spec->WcbBase0) & 0xff0000) >> 8 | ((__uint32_t)(spec->WcbBase0) & 0xff000000) >> 24) : __swap32md(spec->WcbBase0)) & 0xffff), (sc->sc_txring.physaddr));
+ sc->sc_RxPdRdPtr = (__builtin_constant_p(spec->RxPdRdPtr) ? (__uint32_t)(((__uint32_t)(spec->RxPdRdPtr) & 0xff) << 24 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff00) << 8 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff0000) >> 8 | ((__uint32_t)(spec->RxPdRdPtr) & 0xff000000) >> 24) : __swap32md(spec->RxPdRdPtr)) & 0xffff;
+ sc->sc_RxPdWrPtr = (__builtin_constant_p(spec->RxPdWrPtr) ? (__uint32_t)(((__uint32_t)(spec->RxPdWrPtr) & 0xff) << 24 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff00) << 8 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff0000) >> 8 | ((__uint32_t)(spec->RxPdWrPtr) & 0xff000000) >> 24) : __swap32md(spec->RxPdWrPtr)) & 0xffff;
  return (0);
 }
 int
 malo_cmd_set_prescan(struct malo_softc *sc)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0107); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0107) ? (__uint16_t)(((__uint16_t)(0x0107) & 0xffU) << 8 | ((__uint16_t)(0x0107) & 0xff00U) >> 8) : __swap16md(0x0107));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr)));
  hdr->seqnum = 1;
  hdr->result = 0;
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
@@ -5988,14 +5992,14 @@ malo_cmd_set_postscan(struct malo_softc *sc, uint8_t *macaddr, uint8_t ibsson)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_postscan *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0108); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0108) ? (__uint16_t)(((__uint16_t)(0x0108) & 0xffU) << 8 | ((__uint16_t)(0x0108) & 0xff00U) >> 8) : __swap16md(0x0108));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_postscan *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
  __builtin_memcpy((&body->bssid), (macaddr), (6));
- body->isibss = __extension__({ __uint32_t __swap32gen_x = (ibsson); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ body->isibss = (__builtin_constant_p(ibsson) ? (__uint32_t)(((__uint32_t)(ibsson) & 0xff) << 24 | ((__uint32_t)(ibsson) & 0xff00) << 8 | ((__uint32_t)(ibsson) & 0xff0000) >> 8 | ((__uint32_t)(ibsson) & 0xff000000) >> 24) : __swap32md(ibsson));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
  return (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr));
@@ -6005,13 +6009,13 @@ malo_cmd_set_channel(struct malo_softc *sc, uint8_t channel)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_channel *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x010a); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x010a) ? (__uint16_t)(((__uint16_t)(0x010a) & 0xffU) << 8 | ((__uint16_t)(0x010a) & 0xff00U) >> 8) : __swap16md(0x010a));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_channel *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  body->channel = channel;
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
@@ -6022,17 +6026,17 @@ malo_cmd_set_antenna(struct malo_softc *sc, uint16_t antenna)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_antenna *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0020); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0020) ? (__uint16_t)(((__uint16_t)(0x0020) & 0xffU) << 8 | ((__uint16_t)(0x0020) & 0xff00U) >> 8) : __swap16md(0x0020));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_antenna *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (antenna); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(antenna) ? (__uint16_t)(((__uint16_t)(antenna) & 0xffU) << 8 | ((__uint16_t)(antenna) & 0xff00U) >> 8) : __swap16md(antenna));
  if (antenna == 1)
-  body->mode = __extension__({ __uint16_t __swap16gen_x = (0xffff); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->mode = (__builtin_constant_p(0xffff) ? (__uint16_t)(((__uint16_t)(0xffff) & 0xffU) << 8 | ((__uint16_t)(0xffff) & 0xff00U) >> 8) : __swap16md(0xffff));
  else
-  body->mode = __extension__({ __uint16_t __swap16gen_x = (2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->mode = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
  return (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr));
@@ -6043,15 +6047,15 @@ malo_cmd_set_radio(struct malo_softc *sc, uint16_t enable,
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_radio *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x001c); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x001c) ? (__uint16_t)(((__uint16_t)(0x001c) & 0xffU) << 8 | ((__uint16_t)(0x001c) & 0xff00U) >> 8) : __swap16md(0x001c));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_radio *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->preamble_mode = __extension__({ __uint16_t __swap16gen_x = (preamble_mode); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->enable = __extension__({ __uint16_t __swap16gen_x = (enable); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+ body->preamble_mode = (__builtin_constant_p(preamble_mode) ? (__uint16_t)(((__uint16_t)(preamble_mode) & 0xffU) << 8 | ((__uint16_t)(preamble_mode) & 0xff00U) >> 8) : __swap16md(preamble_mode));
+ body->enable = (__builtin_constant_p(enable) ? (__uint16_t)(((__uint16_t)(enable) & 0xffU) << 8 | ((__uint16_t)(enable) & 0xff00U) >> 8) : __swap16md(enable));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
  return (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr));
@@ -6061,13 +6065,13 @@ malo_cmd_set_aid(struct malo_softc *sc, uint8_t *bssid, uint16_t associd)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_aid *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x010d); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x010d) ? (__uint16_t)(((__uint16_t)(0x010d) & 0xffU) << 8 | ((__uint16_t)(0x010d) & 0xff00U) >> 8) : __swap16md(0x010d));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_aid *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->associd = __extension__({ __uint16_t __swap16gen_x = (associd); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->associd = (__builtin_constant_p(associd) ? (__uint16_t)(((__uint16_t)(associd) & 0xffU) << 8 | ((__uint16_t)(associd) & 0xff00U) >> 8) : __swap16md(associd));
  __builtin_memcpy((&body->macaddr[0]), (bssid), (6));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
@@ -6078,19 +6082,19 @@ malo_cmd_set_txpower(struct malo_softc *sc, unsigned int powerlevel)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_txpower *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x001e); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x001e) ? (__uint16_t)(((__uint16_t)(0x001e) & 0xffU) << 8 | ((__uint16_t)(0x001e) & 0xff00U) >> 8) : __swap16md(0x001e));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_txpower *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  if (powerlevel < 30)
-  body->supportpowerlvl = __extension__({ __uint16_t __swap16gen_x = (5); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->supportpowerlvl = (__builtin_constant_p(5) ? (__uint16_t)(((__uint16_t)(5) & 0xffU) << 8 | ((__uint16_t)(5) & 0xff00U) >> 8) : __swap16md(5));
  else if (powerlevel >= 30 && powerlevel < 60)
-  body->supportpowerlvl = __extension__({ __uint16_t __swap16gen_x = (10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->supportpowerlvl = (__builtin_constant_p(10) ? (__uint16_t)(((__uint16_t)(10) & 0xffU) << 8 | ((__uint16_t)(10) & 0xff00U) >> 8) : __swap16md(10));
  else
-  body->supportpowerlvl = __extension__({ __uint16_t __swap16gen_x = (15); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  body->supportpowerlvl = (__builtin_constant_p(15) ? (__uint16_t)(((__uint16_t)(15) & 0xffU) << 8 | ((__uint16_t)(15) & 0xff00U) >> 8) : __swap16md(15));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
  return (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr));
@@ -6100,14 +6104,14 @@ malo_cmd_set_rts(struct malo_softc *sc, uint32_t threshold)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_rts *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0113); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0113) ? (__uint16_t)(((__uint16_t)(0x0113) & 0xffU) << 8 | ((__uint16_t)(0x0113) & 0xff00U) >> 8) : __swap16md(0x0113));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_rts *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- body->threshold = __extension__({ __uint32_t __swap32gen_x = (threshold); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+ body->threshold = (__builtin_constant_p(threshold) ? (__uint32_t)(((__uint32_t)(threshold) & 0xff) << 24 | ((__uint32_t)(threshold) & 0xff00) << 8 | ((__uint32_t)(threshold) & 0xff0000) >> 8 | ((__uint32_t)(threshold) & 0xff000000) >> 24) : __swap32md(threshold));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
  return (malo_send_cmd_dma(sc, sc->sc_cmd_dmaaddr));
@@ -6117,13 +6121,13 @@ malo_cmd_set_slot(struct malo_softc *sc, uint8_t slot)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_slot *body;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0114); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0114) ? (__uint16_t)(((__uint16_t)(0x0114) & 0xffU) << 8 | ((__uint16_t)(0x0114) & 0xff00U) >> 8) : __swap16md(0x0114));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_slot *)(hdr + 1);
  __builtin_bzero((body), (sizeof(*body)));
- body->action = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ body->action = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
  body->slot = slot;
  bus_dmamap_sync(sc->sc_dmat, sc->sc_cmd_dmam, 0, (1 << 13),
      0x04 | 0x01);
@@ -6136,8 +6140,8 @@ malo_cmd_set_rate(struct malo_softc *sc, uint8_t rate)
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
  struct malo_cmd_rate *body;
  int i;
- hdr->cmd = __extension__({ __uint16_t __swap16gen_x = (0x0110); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- hdr->size = __extension__({ __uint16_t __swap16gen_x = (sizeof(*hdr) + sizeof(*body)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ hdr->cmd = (__builtin_constant_p(0x0110) ? (__uint16_t)(((__uint16_t)(0x0110) & 0xffU) << 8 | ((__uint16_t)(0x0110) & 0xff00U) >> 8) : __swap16md(0x0110));
+ hdr->size = (__builtin_constant_p(sizeof(*hdr) + sizeof(*body)) ? (__uint16_t)(((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*hdr) + sizeof(*body)) & 0xff00U) >> 8) : __swap16md(sizeof(*hdr) + sizeof(*body)));
  hdr->seqnum = 1;
  hdr->result = 0;
  body = (struct malo_cmd_rate *)(hdr + 1);
@@ -6178,7 +6182,7 @@ void
 malo_cmd_response(struct malo_softc *sc)
 {
  struct malo_cmdheader *hdr = sc->sc_cmd_mem;
- if (__extension__({ __uint16_t __swap16gen_x = (hdr->result); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) != 0x0000) {
+ if ((__builtin_constant_p(hdr->result) ? (__uint16_t)(((__uint16_t)(hdr->result) & 0xffU) << 8 | ((__uint16_t)(hdr->result) & 0xff00U) >> 8) : __swap16md(hdr->result)) != 0x0000) {
   printf("%s: firmware cmd %s failed with %s\n",
       sc->sc_dev.dv_xname,
       malo_cmd_string(hdr->cmd),

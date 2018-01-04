@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4155,13 +4159,13 @@ mpi_cfg_spi_port(struct mpi_softc *sc)
  ;
  ;
  if (port.port_scsi_id == sc->sc_target &&
-     port.port_resp_ids == __extension__({ __uint16_t __swap16gen_x = (1 << sc->sc_target); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &&
-     port.on_bus_timer_value != __extension__({ __uint32_t __swap32gen_x = (0x0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))
+     port.port_resp_ids == (__builtin_constant_p(1 << sc->sc_target) ? (__uint16_t)(((__uint16_t)(1 << sc->sc_target) & 0xffU) << 8 | ((__uint16_t)(1 << sc->sc_target) & 0xff00U) >> 8) : __swap16md(1 << sc->sc_target)) &&
+     port.on_bus_timer_value != (__builtin_constant_p(0x0) ? (__uint32_t)(((__uint32_t)(0x0) & 0xff) << 24 | ((__uint32_t)(0x0) & 0xff00) << 8 | ((__uint32_t)(0x0) & 0xff0000) >> 8 | ((__uint32_t)(0x0) & 0xff000000) >> 24) : __swap32md(0x0)))
   return (0);
  ;
  port.port_scsi_id = sc->sc_target;
- port.port_resp_ids = __extension__({ __uint16_t __swap16gen_x = (1 << sc->sc_target); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- port.on_bus_timer_value = __extension__({ __uint32_t __swap32gen_x = (0x07000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ port.port_resp_ids = (__builtin_constant_p(1 << sc->sc_target) ? (__uint16_t)(((__uint16_t)(1 << sc->sc_target) & 0xffU) << 8 | ((__uint16_t)(1 << sc->sc_target) & 0xff00U) >> 8) : __swap16md(1 << sc->sc_target));
+ port.on_bus_timer_value = (__builtin_constant_p(0x07000000) ? (__uint32_t)(((__uint32_t)(0x07000000) & 0xff) << 24 | ((__uint32_t)(0x07000000) & 0xff00) << 8 | ((__uint32_t)(0x07000000) & 0xff0000) >> 8 | ((__uint32_t)(0x07000000) & 0xff000000) >> 24) : __swap32md(0x07000000));
  if (mpi_req_cfg_page((sc), (0x0), (1<<1), (&hdr), (0), (&port), (sizeof(port))) != 0) {
   printf("%s: unable to configure port scsi id\n", ((sc)->sc_dev.dv_xname));
   return (1);
@@ -4185,7 +4189,7 @@ mpi_squash_ppr(struct mpi_softc *sc)
   page.req_offset = 0x0;
   page.req_period = 0x0;
   page.req_params2 = 0x0;
-  page.configuration = __extension__({ __uint32_t __swap32gen_x = (0x0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  page.configuration = (__builtin_constant_p(0x0) ? (__uint32_t)(((__uint32_t)(0x0) & 0xff) << 24 | ((__uint32_t)(0x0) & 0xff00) << 8 | ((__uint32_t)(0x0) & 0xff0000) >> 8 | ((__uint32_t)(0x0) & 0xff000000) >> 24) : __swap32md(0x0));
   if (mpi_req_cfg_page((sc), (i), (1<<1), (&hdr), (0), (&page), (sizeof(page))) != 0)
    return;
  }
@@ -4456,8 +4460,8 @@ mpi_cfg_fc(struct mpi_softc *sc)
   printf("%s: unable to fetch FC port page 0\n", ((sc)->sc_dev.dv_xname));
   return (1);
  }
- sc->sc_link.port_wwn = __extension__({ __uint64_t __swap64gen_x = (pg0.wwpn); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- sc->sc_link.node_wwn = __extension__({ __uint64_t __swap64gen_x = (pg0.wwnn); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ sc->sc_link.port_wwn = (__builtin_constant_p(pg0.wwpn) ? (__uint64_t)((((__uint64_t)(pg0.wwpn) & 0xff) << 56) | ((__uint64_t)(pg0.wwpn) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.wwpn) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.wwpn) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.wwpn) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.wwpn) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.wwpn) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.wwpn) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.wwpn));
+ sc->sc_link.node_wwn = (__builtin_constant_p(pg0.wwnn) ? (__uint64_t)((((__uint64_t)(pg0.wwnn) & 0xff) << 56) | ((__uint64_t)(pg0.wwnn) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.wwnn) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.wwnn) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.wwnn) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.wwnn) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.wwnn) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.wwnn) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.wwnn));
  if (mpi_req_cfg_header((sc), ((0x05)), (1), (0), (1<<1), (&hdr)) != 0) {
   printf("%s: unable to fetch FC port header 1\n", ((sc)->sc_dev.dv_xname));
   return (1);
@@ -4466,7 +4470,7 @@ mpi_cfg_fc(struct mpi_softc *sc)
   printf("%s: unable to fetch FC port page 1\n", ((sc)->sc_dev.dv_xname));
   return (1);
  }
- ((pg1.flags) |= (__extension__({ __uint32_t __swap32gen_x = ((1<<26) | (1<<24)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+ ((pg1.flags) |= ((__builtin_constant_p((1<<26) | (1<<24)) ? (__uint32_t)(((__uint32_t)((1<<26) | (1<<24)) & 0xff) << 24 | ((__uint32_t)((1<<26) | (1<<24)) & 0xff00) << 8 | ((__uint32_t)((1<<26) | (1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((1<<26) | (1<<24)) & 0xff000000) >> 24) : __swap32md((1<<26) | (1<<24)))));
  if (mpi_req_cfg_page((sc), (0), (1<<1), (&hdr), (0), (&pg1), (sizeof(pg1))) != 0) {
   printf("%s: unable to set FC port page 1\n", ((sc)->sc_dev.dv_xname));
   return (1);
@@ -4957,7 +4961,7 @@ mpi_load_xs(struct mpi_ccb *ccb)
  for (i = 0; i < dmap->dm_nsegs; i++) {
   if (nsge == ce) {
    nsge++;
-   sge->sg_hdr |= __extension__({ __uint32_t __swap32gen_x = ((0x1<<31)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   sge->sg_hdr |= (__builtin_constant_p((0x1<<31)) ? (__uint32_t)(((__uint32_t)((0x1<<31)) & 0xff) << 24 | ((__uint32_t)((0x1<<31)) & 0xff00) << 8 | ((__uint32_t)((0x1<<31)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<31)) & 0xff000000) >> 24) : __swap32md((0x1<<31)));
    if ((dmap->dm_nsegs - i) > sc->sc_chain_len) {
     nce = &nsge[sc->sc_chain_len - 1];
     addr = (u_int32_t *)nce - (u_int32_t *)nsge;
@@ -4968,17 +4972,17 @@ mpi_load_xs(struct mpi_ccb *ccb)
     addr = sizeof(struct mpi_sge) *
         (dmap->dm_nsegs - i);
    }
-   ce->sg_hdr = __extension__({ __uint32_t __swap32gen_x = ((0x3<<28) | (0x1<<25) | addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   ce->sg_hdr = (__builtin_constant_p((0x3<<28) | (0x1<<25) | addr) ? (__uint32_t)(((__uint32_t)((0x3<<28) | (0x1<<25) | addr) & 0xff) << 24 | ((__uint32_t)((0x3<<28) | (0x1<<25) | addr) & 0xff00) << 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | addr) & 0xff0000) >> 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | addr) & 0xff000000) >> 24) : __swap32md((0x3<<28) | (0x1<<25) | addr));
    mpi_dvatosge(ce, ccb->ccb_cmd_dva +
        ((u_int8_t *)nsge - (u_int8_t *)mcb));
    ce = nce;
   }
   ;
   sge = nsge++;
-  sge->sg_hdr = __extension__({ __uint32_t __swap32gen_x = (flags | dmap->dm_segs[i].ds_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  sge->sg_hdr = (__builtin_constant_p(flags | dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(flags | dmap->dm_segs[i].ds_len));
   mpi_dvatosge(sge, dmap->dm_segs[i].ds_addr);
  }
- sge->sg_hdr |= __extension__({ __uint32_t __swap32gen_x = ((0x1<<31) | (0x1<<30) | (0x1<<24)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sge->sg_hdr |= (__builtin_constant_p((0x1<<31) | (0x1<<30) | (0x1<<24)) ? (__uint32_t)(((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff) << 24 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff00) << 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff000000) >> 24) : __swap32md((0x1<<31) | (0x1<<30) | (0x1<<24)));
  bus_dmamap_sync(sc->sc_dmat, dmap, 0, dmap->dm_mapsize,
      (xs->flags & 0x00800) ? 0x01 :
      0x04);
@@ -5178,7 +5182,7 @@ mpi_handshake_send(struct mpi_softc *sc, void *buf, size_t dwords)
  if (mpi_wait_eq((sc), 0x30, (1<<31), 0) != 0)
   return (1);
  for (i = 0; i < dwords; i++) {
-  mpi_write((sc), 0x00, (__extension__({ __uint32_t __swap32gen_x = (query[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+  mpi_write((sc), 0x00, ((__builtin_constant_p(query[i]) ? (__uint32_t)(((__uint32_t)(query[i]) & 0xff) << 24 | ((__uint32_t)(query[i]) & 0xff00) << 8 | ((__uint32_t)(query[i]) & 0xff0000) >> 8 | ((__uint32_t)(query[i]) & 0xff000000) >> 24) : __swap32md(query[i]))));
   if (mpi_wait_eq((sc), 0x30, (1<<31), 0) != 0)
    return (1);
  }
@@ -5192,7 +5196,7 @@ mpi_handshake_recv_dword(struct mpi_softc *sc, u_int32_t *dword)
  for (i = 0; i < 2; i++) {
   if (mpi_wait_ne((sc), 0x30, (1<<0), 0) != 0)
    return (1);
-  words[i] = __extension__({ __uint16_t __swap16gen_x = (mpi_read((sc), 0x00) & 0xffff); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  words[i] = (__builtin_constant_p(mpi_read((sc), 0x00) & 0xffff) ? (__uint16_t)(((__uint16_t)(mpi_read((sc), 0x00) & 0xffff) & 0xffU) << 8 | ((__uint16_t)(mpi_read((sc), 0x00) & 0xffff) & 0xff00U) >> 8) : __swap16md(mpi_read((sc), 0x00) & 0xffff));
   mpi_write((sc), 0x30, (0));
  }
  return (0);
@@ -5235,7 +5239,7 @@ mpi_iocfacts(struct mpi_softc *sc)
  ifq.function = (0x03);
  ifq.chain_offset = 0;
  ifq.msg_flags = 0;
- ifq.msg_context = __extension__({ __uint32_t __swap32gen_x = (0xdeadbeef); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ifq.msg_context = (__builtin_constant_p(0xdeadbeef) ? (__uint32_t)(((__uint32_t)(0xdeadbeef) & 0xff) << 24 | ((__uint32_t)(0xdeadbeef) & 0xff00) << 8 | ((__uint32_t)(0xdeadbeef) & 0xff0000) >> 8 | ((__uint32_t)(0xdeadbeef) & 0xff000000) >> 24) : __swap32md(0xdeadbeef));
  if (mpi_handshake_send(sc, &ifq, (sizeof(ifq) / sizeof(u_int32_t))) != 0) {
   ;
   return (1);
@@ -5301,8 +5305,8 @@ mpi_iocinit(struct mpi_softc *sc)
  iiq.whoinit = 0x04;
  iiq.max_devices = (sc->sc_buswidth == 256) ? 0 : sc->sc_buswidth;
  iiq.max_buses = 1;
- iiq.msg_context = __extension__({ __uint32_t __swap32gen_x = (0xd00fd00f); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- iiq.reply_frame_size = __extension__({ __uint16_t __swap16gen_x = (80); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ iiq.msg_context = (__builtin_constant_p(0xd00fd00f) ? (__uint32_t)(((__uint32_t)(0xd00fd00f) & 0xff) << 24 | ((__uint32_t)(0xd00fd00f) & 0xff00) << 8 | ((__uint32_t)(0xd00fd00f) & 0xff0000) >> 8 | ((__uint32_t)(0xd00fd00f) & 0xff000000) >> 24) : __swap32md(0xd00fd00f));
+ iiq.reply_frame_size = (__builtin_constant_p(80) ? (__uint16_t)(((__uint16_t)(80) & 0xffU) << 8 | ((__uint16_t)(80) & 0xff00U) >> 8) : __swap16md(80));
  hi_addr = (u_int32_t)(((u_int64_t)(sc->sc_requests)->mdm_map->dm_segs[0].ds_addr) >> 32);
  __swapm32((&iiq.host_mfa_hi_addr), (hi_addr));
  __swapm32((&iiq.sense_buffer_hi_addr), (hi_addr));
@@ -5392,7 +5396,7 @@ mpi_cfg_coalescing(struct mpi_softc *sc)
  flags = __mswap32(&pg.flags);
  if (!((flags) & ((1<<0))))
   return (0);
- ((pg.flags) &= ~(__extension__({ __uint32_t __swap32gen_x = ((1<<0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+ ((pg.flags) &= ~((__builtin_constant_p((1<<0)) ? (__uint32_t)(((__uint32_t)((1<<0)) & 0xff) << 24 | ((__uint32_t)((1<<0)) & 0xff00) << 8 | ((__uint32_t)((1<<0)) & 0xff0000) >> 8 | ((__uint32_t)((1<<0)) & 0xff000000) >> 24) : __swap32md((1<<0)))));
  if (mpi_req_cfg_page((sc), (0), (1<<1), (&hdr), (0), (&pg), (sizeof(pg))) != 0) {
   ;
   return (1);
@@ -5969,9 +5973,9 @@ mpi_ioctl_cache(struct scsi_link *link, u_long cmd, struct dk_cache *dc)
   goto done;
  settings = rpg0->settings;
  if (dc->wrcache) {
-  ((settings.volume_settings) |= (__extension__({ __uint16_t __swap16gen_x = ((1<<0)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
+  ((settings.volume_settings) |= ((__builtin_constant_p((1<<0)) ? (__uint16_t)(((__uint16_t)((1<<0)) & 0xffU) << 8 | ((__uint16_t)((1<<0)) & 0xff00U) >> 8) : __swap16md((1<<0)))));
  } else {
-  ((settings.volume_settings) &= ~(__extension__({ __uint16_t __swap16gen_x = ((1<<0)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
+  ((settings.volume_settings) &= ~((__builtin_constant_p((1<<0)) ? (__uint16_t)(((__uint16_t)((1<<0)) & 0xffU) << 8 | ((__uint16_t)((1<<0)) & 0xff00U) >> 8) : __swap16md((1<<0)))));
  }
  ccb = scsi_io_get(&sc->sc_iopool, 0x00001);
  if (ccb == ((void *)0)) {

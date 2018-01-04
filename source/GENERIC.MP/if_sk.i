@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3760,9 +3764,9 @@ void
 sk_setfilt(struct sk_if_softc *sc_if, caddr_t addr, int slot)
 {
  int base = (0x0080 + ((slot * 8)));
- sk_win_write_2(sc_if->sk_softc, (((base) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&addr[0])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- sk_win_write_2(sc_if->sk_softc, (((base + 2) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&addr[2])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- sk_win_write_2(sc_if->sk_softc, (((base + 4) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&addr[4])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+ sk_win_write_2(sc_if->sk_softc, (((base) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&addr[0])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&addr[0])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&addr[0])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&addr[0]))));
+ sk_win_write_2(sc_if->sk_softc, (((base + 2) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&addr[2])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&addr[2])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&addr[2])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&addr[2]))));
+ sk_win_write_2(sc_if->sk_softc, (((base + 4) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&addr[4])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&addr[4])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&addr[4])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&addr[4]))));
 }
 void
 sk_iff(struct sk_if_softc *sc_if)
@@ -4554,10 +4558,10 @@ sk_encap(struct sk_if_softc *sc_if, struct mbuf *m_head, u_int32_t *txidx)
  do { if (((&sc_if->sk_txmap_head)->sqh_first = (&sc_if->sk_txmap_head)->sqh_first->link.sqe_next) == ((void *)0)) (&sc_if->sk_txmap_head)->sqh_last = &(&sc_if->sk_txmap_head)->sqh_first; } while (0);
  sc_if->sk_cdata.sk_tx_map[cur] = entry;
  sc_if->sk_rdata->sk_tx_ring[cur].sk_ctl |=
-  __extension__({ __uint32_t __swap32gen_x = (0x20000000|0x08000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  (__builtin_constant_p(0x20000000|0x08000000) ? (__uint32_t)(((__uint32_t)(0x20000000|0x08000000) & 0xff) << 24 | ((__uint32_t)(0x20000000|0x08000000) & 0xff00) << 8 | ((__uint32_t)(0x20000000|0x08000000) & 0xff0000) >> 8 | ((__uint32_t)(0x20000000|0x08000000) & 0xff000000) >> 24) : __swap32md(0x20000000|0x08000000));
  do { int __x, __n; __x = (*txidx); __n = (txmap->dm_nsegs); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct sk_ring_data, sk_tx_ring[(__x)]), sizeof(struct sk_tx_desc) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct sk_ring_data, sk_tx_ring[((__x))]), sizeof(struct sk_tx_desc) * __n, (0x01|0x04)); } while ( 0);
  sc_if->sk_rdata->sk_tx_ring[*txidx].sk_ctl |=
-  __extension__({ __uint32_t __swap32gen_x = (0x80000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
  do { int __x, __n; __x = (*txidx); __n = (1); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct sk_ring_data, sk_tx_ring[(__x)]), sizeof(struct sk_tx_desc) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct sk_ring_data, sk_tx_ring[((__x))]), sizeof(struct sk_tx_desc) * __n, (0x01|0x04)); } while ( 0);
  sc_if->sk_cdata.sk_tx_cnt += txmap->dm_nsegs;
  *txidx = frag;
@@ -4920,9 +4924,9 @@ sk_init_xmac(struct sk_if_softc *sc_if)
    }
   }
  }
- sk_win_write_2(sc_if->sk_softc, (((0x0108) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[0])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- sk_win_write_2(sc_if->sk_softc, (((0x010A) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[2])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- sk_win_write_2(sc_if->sk_softc, (((0x010C) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[4])); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+ sk_win_write_2(sc_if->sk_softc, (((0x0108) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[0])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[0])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[0])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[0]))));
+ sk_win_write_2(sc_if->sk_softc, (((0x010A) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[2])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[2])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[2])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[2]))));
+ sk_win_write_2(sc_if->sk_softc, (((0x010C) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (__builtin_constant_p(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[4])) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[4])) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[4])) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(&sc_if->arpcom.ac_enaddr[4]))));
  sk_win_write_2(sc_if->sk_softc, (((0x0030) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (sk_win_read_2(sc_if->sk_softc, (((0x0030) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))))) | (0x0010));
  sk_win_write_2(sc_if->sk_softc, (((0x0020) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), (sk_win_read_2(sc_if->sk_softc, (((0x0020) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))))) | (0x0001));
  sk_win_write_4(sc_if->sk_softc, (((0x0124) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))), ((sk_win_read_4(sc_if->sk_softc, (((0x0124) * 2) + 0x2000 + (((sc_if)->sk_port) * (0x3000 - 0x2000))))) | (0x00000080| 0x00000200|0x00000800|0x00000100| 0x00000400)));

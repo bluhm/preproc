@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4254,8 +4258,8 @@ rfx_initialize(struct rfx_softc *sc, struct sbus_attach_args *sa,
   if (offset == (u_int32_t)-1 && value == (u_int32_t)-1)
    break;
   if (cf->version <= 1) {
-   offset = __extension__({ __uint32_t __swap32gen_x = (offset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   value = __extension__({ __uint32_t __swap32gen_x = (offset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   offset = (__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
+   value = (__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
   }
   if (offset & (1U << 31)) {
    offset = (offset & ~(1U << 31)) - 0x00020000;

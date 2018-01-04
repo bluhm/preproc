@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2702,7 +2706,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4726,11 +4730,11 @@ rsu_attach(struct device *parent, struct device *self, void *aux)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof(struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof(sc->sc_rxtapu);
- sc->sc_rxtapu.th.wr_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_rxtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_rxtapu.th.wr_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = ((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL)));
  sc->sc_txtap_len = sizeof(sc->sc_txtapu);
- sc->sc_txtapu.th.wt_ihdr.it_len = __extension__({ __uint16_t __swap16gen_x = (sc->sc_txtap_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_txtapu.th.wt_ihdr.it_present = __extension__({ __uint32_t __swap32gen_x = ((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_CHANNEL)));
 }
 int
 rsu_detach(struct device *self, int flags)
@@ -4927,13 +4931,13 @@ rsu_write_1(struct rsu_softc *sc, uint16_t addr, uint8_t val)
 void
 rsu_write_2(struct rsu_softc *sc, uint16_t addr, uint16_t val)
 {
- val = __extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ val = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
  rsu_write_region_1(sc, addr, (uint8_t *)&val, 2);
 }
 void
 rsu_write_4(struct rsu_softc *sc, uint16_t addr, uint32_t val)
 {
- val = __extension__({ __uint32_t __swap32gen_x = (val); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ val = (__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val));
  rsu_write_region_1(sc, addr, (uint8_t *)&val, 4);
 }
 int
@@ -4962,7 +4966,7 @@ rsu_read_2(struct rsu_softc *sc, uint16_t addr)
  uint16_t val;
  if (rsu_read_region_1(sc, addr, (uint8_t *)&val, 2) != 0)
   return (0xffff);
- return (__extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+ return ((__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val)));
 }
 uint32_t
 rsu_read_4(struct rsu_softc *sc, uint16_t addr)
@@ -4970,7 +4974,7 @@ rsu_read_4(struct rsu_softc *sc, uint16_t addr)
  uint32_t val;
  if (rsu_read_region_1(sc, addr, (uint8_t *)&val, 4) != 0)
   return (0xffffffff);
- return (__extension__({ __uint32_t __swap32gen_x = (val); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+ return ((__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val)));
 }
 int
 rsu_fw_iocmd(struct rsu_softc *sc, uint32_t iocmd)
@@ -5054,10 +5058,10 @@ rsu_fw_cmd(struct rsu_softc *sc, uint8_t code, void *buf, int len)
  ((xferlen <= ((sizeof(struct r92s_tx_desc) + (2300 + 4 + (3 + 1 + 4)) + 3) & ~3)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_rsu.c", 711, "xferlen <= RSU_TXBUFSZ"));
  __builtin_memset((data->buf), (0), (xferlen));
  txd = (struct r92s_tx_desc *)data->buf;
- txd->txdw0 = __extension__({ __uint32_t __swap32gen_x = ((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- txd->txdw1 = __extension__({ __uint32_t __swap32gen_x = ((((0x1f) << 8) & 0x00001f00)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ txd->txdw0 = (__builtin_constant_p((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000) ? (__uint32_t)(((__uint32_t)((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff) << 24 | ((__uint32_t)((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff00) << 8 | ((__uint32_t)((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff0000) >> 8 | ((__uint32_t)((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff000000) >> 24) : __swap32md((((sizeof(*txd)) << 16) & 0x00ff0000) | (((sizeof(*cmd) + cmdsz) << 0) & 0x0000ffff) | 0x80000000 | 0x08000000 | 0x04000000));
+ txd->txdw1 = (__builtin_constant_p((((0x1f) << 8) & 0x00001f00)) ? (__uint32_t)(((__uint32_t)((((0x1f) << 8) & 0x00001f00)) & 0xff) << 24 | ((__uint32_t)((((0x1f) << 8) & 0x00001f00)) & 0xff00) << 8 | ((__uint32_t)((((0x1f) << 8) & 0x00001f00)) & 0xff0000) >> 8 | ((__uint32_t)((((0x1f) << 8) & 0x00001f00)) & 0xff000000) >> 24) : __swap32md((((0x1f) << 8) & 0x00001f00)));
  cmd = (struct r92s_fw_cmd_hdr *)&txd[1];
- cmd->len = __extension__({ __uint16_t __swap16gen_x = (cmdsz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ cmd->len = (__builtin_constant_p(cmdsz) ? (__uint16_t)(((__uint16_t)(cmdsz) & 0xffU) << 8 | ((__uint16_t)(cmdsz) & 0xff00U) >> 8) : __swap16md(cmdsz));
  cmd->code = code;
  cmd->seq = sc->cmd_seq;
  sc->cmd_seq = (sc->cmd_seq + 1) & 0x7f;
@@ -5238,10 +5242,10 @@ rsu_site_survey(struct rsu_softc *sc)
  struct r92s_fw_cmd_sitesurvey cmd;
  __builtin_memset((&cmd), (0), (sizeof(cmd)));
  if ((ic->ic_flags & 0x00000001) || sc->scan_pass == 1)
-  cmd.active = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- cmd.limit = __extension__({ __uint32_t __swap32gen_x = (48); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  cmd.active = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
+ cmd.limit = (__builtin_constant_p(48) ? (__uint32_t)(((__uint32_t)(48) & 0xff) << 24 | ((__uint32_t)(48) & 0xff00) << 8 | ((__uint32_t)(48) & 0xff0000) >> 8 | ((__uint32_t)(48) & 0xff000000) >> 24) : __swap32md(48));
  if (sc->scan_pass == 1) {
-  cmd.ssidlen = __extension__({ __uint32_t __swap32gen_x = (ic->ic_des_esslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  cmd.ssidlen = (__builtin_constant_p(ic->ic_des_esslen) ? (__uint32_t)(((__uint32_t)(ic->ic_des_esslen) & 0xff) << 24 | ((__uint32_t)(ic->ic_des_esslen) & 0xff00) << 8 | ((__uint32_t)(ic->ic_des_esslen) & 0xff0000) >> 8 | ((__uint32_t)(ic->ic_des_esslen) & 0xff000000) >> 24) : __swap32md(ic->ic_des_esslen));
   __builtin_memcpy((cmd.ssid), (ic->ic_des_essid), (ic->ic_des_esslen));
  }
  ;
@@ -5275,24 +5279,24 @@ rsu_join_bss(struct rsu_softc *sc, struct ieee80211_node *ni)
  __builtin_memset((buf), (0), (sizeof(buf)));
  bss = (struct ndis_wlan_bssid_ex *)buf;
  __builtin_memcpy((bss->macaddr), (ni->ni_bssid), (6));
- bss->ssid.ssidlen = __extension__({ __uint32_t __swap32gen_x = (ni->ni_esslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ bss->ssid.ssidlen = (__builtin_constant_p(ni->ni_esslen) ? (__uint32_t)(((__uint32_t)(ni->ni_esslen) & 0xff) << 24 | ((__uint32_t)(ni->ni_esslen) & 0xff00) << 8 | ((__uint32_t)(ni->ni_esslen) & 0xff0000) >> 8 | ((__uint32_t)(ni->ni_esslen) & 0xff000000) >> 24) : __swap32md(ni->ni_esslen));
  __builtin_memcpy((bss->ssid.ssid), (ni->ni_essid), (ni->ni_esslen));
  if (ic->ic_flags & (0x00000100 | 0x00200000))
-  bss->privacy = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->rssi = __extension__({ __uint32_t __swap32gen_x = (ni->ni_rssi); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  bss->privacy = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
+ bss->rssi = (__builtin_constant_p(ni->ni_rssi) ? (__uint32_t)(((__uint32_t)(ni->ni_rssi) & 0xff) << 24 | ((__uint32_t)(ni->ni_rssi) & 0xff00) << 8 | ((__uint32_t)(ni->ni_rssi) & 0xff0000) >> 8 | ((__uint32_t)(ni->ni_rssi) & 0xff000000) >> 24) : __swap32md(ni->ni_rssi));
  if (ic->ic_curmode == IEEE80211_MODE_11B)
-  bss->networktype = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  bss->networktype = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
  else
-  bss->networktype = __extension__({ __uint32_t __swap32gen_x = (3); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->config.len = __extension__({ __uint32_t __swap32gen_x = (sizeof(bss->config)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->config.bintval = __extension__({ __uint32_t __swap32gen_x = (ni->ni_intval); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->config.dsconfig = __extension__({ __uint32_t __swap32gen_x = (ieee80211_chan2ieee(ic, ni->ni_chan)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->inframode = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  bss->networktype = (__builtin_constant_p(3) ? (__uint32_t)(((__uint32_t)(3) & 0xff) << 24 | ((__uint32_t)(3) & 0xff00) << 8 | ((__uint32_t)(3) & 0xff0000) >> 8 | ((__uint32_t)(3) & 0xff000000) >> 24) : __swap32md(3));
+ bss->config.len = (__builtin_constant_p(sizeof(bss->config)) ? (__uint32_t)(((__uint32_t)(sizeof(bss->config)) & 0xff) << 24 | ((__uint32_t)(sizeof(bss->config)) & 0xff00) << 8 | ((__uint32_t)(sizeof(bss->config)) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(bss->config)) & 0xff000000) >> 24) : __swap32md(sizeof(bss->config)));
+ bss->config.bintval = (__builtin_constant_p(ni->ni_intval) ? (__uint32_t)(((__uint32_t)(ni->ni_intval) & 0xff) << 24 | ((__uint32_t)(ni->ni_intval) & 0xff00) << 8 | ((__uint32_t)(ni->ni_intval) & 0xff0000) >> 8 | ((__uint32_t)(ni->ni_intval) & 0xff000000) >> 24) : __swap32md(ni->ni_intval));
+ bss->config.dsconfig = (__builtin_constant_p(ieee80211_chan2ieee(ic, ni->ni_chan)) ? (__uint32_t)(((__uint32_t)(ieee80211_chan2ieee(ic, ni->ni_chan)) & 0xff) << 24 | ((__uint32_t)(ieee80211_chan2ieee(ic, ni->ni_chan)) & 0xff00) << 8 | ((__uint32_t)(ieee80211_chan2ieee(ic, ni->ni_chan)) & 0xff0000) >> 8 | ((__uint32_t)(ieee80211_chan2ieee(ic, ni->ni_chan)) & 0xff000000) >> 24) : __swap32md(ieee80211_chan2ieee(ic, ni->ni_chan)));
+ bss->inframode = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
  __builtin_memcpy((bss->supprates), (ni->ni_rates.rs_rates), (ni->ni_rates.rs_nrates));
  fixed = (struct ndis_802_11_fixed_ies *)&bss[1];
  __builtin_memcpy((&fixed->tstamp), (ni->ni_tstamp), (8));
- fixed->bintval = __extension__({ __uint16_t __swap16gen_x = (ni->ni_intval); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- fixed->capabilities = __extension__({ __uint16_t __swap16gen_x = (ni->ni_capinfo); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ fixed->bintval = (__builtin_constant_p(ni->ni_intval) ? (__uint16_t)(((__uint16_t)(ni->ni_intval) & 0xffU) << 8 | ((__uint16_t)(ni->ni_intval) & 0xff00U) >> 8) : __swap16md(ni->ni_intval));
+ fixed->capabilities = (__builtin_constant_p(ni->ni_capinfo) ? (__uint16_t)(((__uint16_t)(ni->ni_capinfo) & 0xffU) << 8 | ((__uint16_t)(ni->ni_capinfo) & 0xff00U) >> 8) : __swap16md(ni->ni_capinfo));
  frm = (uint8_t *)&fixed[1];
  if ((ic->ic_flags & 0x00200000) &&
      (ni->ni_rsnprotos & (1 << 0)))
@@ -5304,8 +5308,8 @@ rsu_join_bss(struct rsu_softc *sc, struct ieee80211_node *ni)
  if ((ic->ic_flags & 0x00200000) &&
      (ni->ni_rsnprotos & (1 << 1)))
   frm = ieee80211_add_wpa(frm, ic, ni);
- bss->ieslen = __extension__({ __uint32_t __swap32gen_x = (frm - (uint8_t *)fixed); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- bss->len = __extension__({ __uint32_t __swap32gen_x = (((frm - buf) + 3) & ~3); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ bss->ieslen = (__builtin_constant_p(frm - (uint8_t *)fixed) ? (__uint32_t)(((__uint32_t)(frm - (uint8_t *)fixed) & 0xff) << 24 | ((__uint32_t)(frm - (uint8_t *)fixed) & 0xff00) << 8 | ((__uint32_t)(frm - (uint8_t *)fixed) & 0xff0000) >> 8 | ((__uint32_t)(frm - (uint8_t *)fixed) & 0xff000000) >> 24) : __swap32md(frm - (uint8_t *)fixed));
+ bss->len = (__builtin_constant_p(((frm - buf) + 3) & ~3) ? (__uint32_t)(((__uint32_t)(((frm - buf) + 3) & ~3) & 0xff) << 24 | ((__uint32_t)(((frm - buf) + 3) & ~3) & 0xff00) << 8 | ((__uint32_t)(((frm - buf) + 3) & ~3) & 0xff0000) >> 8 | ((__uint32_t)(((frm - buf) + 3) & ~3) & 0xff000000) >> 24) : __swap32md(((frm - buf) + 3) & ~3));
  ;
  return (rsu_fw_cmd(sc, 14, buf, sizeof(buf)));
 }
@@ -5330,7 +5334,7 @@ rsu_event_survey(struct rsu_softc *sc, uint8_t *buf, int len)
  if (__builtin_expect(((len < sizeof(*bss)) != 0), 0))
   return;
  bss = (struct ndis_wlan_bssid_ex *)buf;
- ieslen = __extension__({ __uint32_t __swap32gen_x = (bss->ieslen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ieslen = (__builtin_constant_p(bss->ieslen) ? (__uint32_t)(((__uint32_t)(bss->ieslen) & 0xff) << 24 | ((__uint32_t)(bss->ieslen) & 0xff00) << 8 | ((__uint32_t)(bss->ieslen) & 0xff0000) >> 8 | ((__uint32_t)(bss->ieslen) & 0xff000000) >> 24) : __swap32md(bss->ieslen));
  if (ieslen > len - sizeof(*bss))
   return;
  ;
@@ -5360,7 +5364,7 @@ rsu_event_survey(struct rsu_softc *sc, uint8_t *buf, int len)
  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = pktlen;
  ni = ieee80211_find_rxnode(ic, wh);
  rxi.rxi_flags = 0;
- rxi.rxi_rssi = __extension__({ __uint32_t __swap32gen_x = (bss->rssi); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rxi.rxi_rssi = (__builtin_constant_p(bss->rssi) ? (__uint32_t)(((__uint32_t)(bss->rssi) & 0xff) << 24 | ((__uint32_t)(bss->rssi) & 0xff00) << 8 | ((__uint32_t)(bss->rssi) & 0xff0000) >> 8 | ((__uint32_t)(bss->rssi) & 0xff000000) >> 24) : __swap32md(bss->rssi));
  rxi.rxi_tstamp = 0;
  ieee80211_input(ifp, m, ni, &rxi);
  ieee80211_release_node(ic, ni);
@@ -5375,7 +5379,7 @@ rsu_event_join_bss(struct rsu_softc *sc, uint8_t *buf, int len)
  if (__builtin_expect(((len < sizeof(*rsp)) != 0), 0))
   return;
  rsp = (struct r92s_event_join_bss *)buf;
- res = (int)__extension__({ __uint32_t __swap32gen_x = (rsp->join_res); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ res = (int)(__builtin_constant_p(rsp->join_res) ? (__uint32_t)(((__uint32_t)(rsp->join_res) & 0xff) << 24 | ((__uint32_t)(rsp->join_res) & 0xff00) << 8 | ((__uint32_t)(rsp->join_res) & 0xff0000) >> 8 | ((__uint32_t)(rsp->join_res) & 0xff000000) >> 24) : __swap32md(rsp->join_res));
  ;
  if (res <= 0) {
   ic->ic_stats.is_rx_auth_fail++;
@@ -5383,7 +5387,7 @@ rsu_event_join_bss(struct rsu_softc *sc, uint8_t *buf, int len)
   return;
  }
  ;
- ni->ni_associd = __extension__({ __uint32_t __swap32gen_x = (rsp->associd); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) | 0xc000;
+ ni->ni_associd = (__builtin_constant_p(rsp->associd) ? (__uint32_t)(((__uint32_t)(rsp->associd) & 0xff) << 24 | ((__uint32_t)(rsp->associd) & 0xff00) << 8 | ((__uint32_t)(rsp->associd) & 0xff0000) >> 8 | ((__uint32_t)(rsp->associd) & 0xff000000) >> 24) : __swap32md(rsp->associd)) | 0xc000;
  if (ic->ic_flags & 0x00000100)
   ni->ni_flags |= (0x0010 | 0x0008);
  ic->ic_state = IEEE80211_S_ASSOC;
@@ -5445,7 +5449,7 @@ rsu_rx_multi_event(struct rsu_softc *sc, uint8_t *buf, int len)
   if (__builtin_expect(((len < sizeof(*cmd)) != 0), 0))
    break;
   cmd = (struct r92s_fw_cmd_hdr *)buf;
-  cmdsz = __extension__({ __uint16_t __swap16gen_x = (cmd->len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  cmdsz = (__builtin_constant_p(cmd->len) ? (__uint16_t)(((__uint16_t)(cmd->len) & 0xffU) << 8 | ((__uint16_t)(cmd->len) & 0xff00U) >> 8) : __swap16md(cmd->len));
   if (__builtin_expect(((len < sizeof(*cmd) + cmdsz) != 0), 0))
    break;
   if (cmdsz > len)
@@ -5472,7 +5476,7 @@ rsu_get_rssi(struct rsu_softc *sc, int rate, void *physt)
   rssi = cckoff[rpt] - rssi;
  } else {
   phy = (struct r92s_rx_phystat *)physt;
-  rssi = ((__extension__({ __uint32_t __swap32gen_x = (phy->phydw1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) >> 1) & 0x7f) - 106;
+  rssi = (((__builtin_constant_p(phy->phydw1) ? (__uint32_t)(((__uint32_t)(phy->phydw1) & 0xff) << 24 | ((__uint32_t)(phy->phydw1) & 0xff00) << 8 | ((__uint32_t)(phy->phydw1) & 0xff0000) >> 8 | ((__uint32_t)(phy->phydw1) & 0xff000000) >> 24) : __swap32md(phy->phydw1)) >> 1) & 0x7f) - 106;
  }
  return (rssi);
 }
@@ -5491,8 +5495,8 @@ rsu_rx_frame(struct rsu_softc *sc, uint8_t *buf, int pktlen)
  int8_t rssi = 0;
  int s, infosz;
  stat = (struct r92s_rx_stat *)buf;
- rxdw0 = __extension__({ __uint32_t __swap32gen_x = (stat->rxdw0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- rxdw3 = __extension__({ __uint32_t __swap32gen_x = (stat->rxdw3); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rxdw0 = (__builtin_constant_p(stat->rxdw0) ? (__uint32_t)(((__uint32_t)(stat->rxdw0) & 0xff) << 24 | ((__uint32_t)(stat->rxdw0) & 0xff00) << 8 | ((__uint32_t)(stat->rxdw0) & 0xff0000) >> 8 | ((__uint32_t)(stat->rxdw0) & 0xff000000) >> 24) : __swap32md(stat->rxdw0));
+ rxdw3 = (__builtin_constant_p(stat->rxdw3) ? (__uint32_t)(((__uint32_t)(stat->rxdw3) & 0xff) << 24 | ((__uint32_t)(stat->rxdw3) & 0xff00) << 8 | ((__uint32_t)(stat->rxdw3) & 0xff0000) >> 8 | ((__uint32_t)(stat->rxdw3) & 0xff000000) >> 24) : __swap32md(stat->rxdw3));
  if (__builtin_expect(((rxdw0 & 0x00004000) != 0), 0)) {
   ifp->if_data.ifi_ierrors++;
   return;
@@ -5553,8 +5557,8 @@ rsu_rx_frame(struct rsu_softc *sc, uint8_t *buf, int pktlen)
    tap->wr_rate = 0x80 | (rate - 12);
   }
   tap->wr_dbm_antsignal = rssi;
-  tap->wr_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wr_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wr_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wr_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_rxtap_len;
   mb.m_hdr.mh_next = m;
@@ -5578,13 +5582,13 @@ rsu_rx_multi_frame(struct rsu_softc *sc, uint8_t *buf, int len)
  uint32_t rxdw0;
  int totlen, pktlen, infosz, npkts;
  stat = (struct r92s_rx_stat *)buf;
- npkts = (((__extension__({ __uint32_t __swap32gen_x = (stat->rxdw2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) & 0x00ff0000) >> 16);
+ npkts = ((((__builtin_constant_p(stat->rxdw2) ? (__uint32_t)(((__uint32_t)(stat->rxdw2) & 0xff) << 24 | ((__uint32_t)(stat->rxdw2) & 0xff00) << 8 | ((__uint32_t)(stat->rxdw2) & 0xff0000) >> 8 | ((__uint32_t)(stat->rxdw2) & 0xff000000) >> 24) : __swap32md(stat->rxdw2))) & 0x00ff0000) >> 16);
  ;
  while (npkts-- > 0) {
   if (__builtin_expect(((len < sizeof(*stat)) != 0), 0))
    break;
   stat = (struct r92s_rx_stat *)buf;
-  rxdw0 = __extension__({ __uint32_t __swap32gen_x = (stat->rxdw0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxdw0 = (__builtin_constant_p(stat->rxdw0) ? (__uint32_t)(((__uint32_t)(stat->rxdw0) & 0xff) << 24 | ((__uint32_t)(stat->rxdw0) & 0xff00) << 8 | ((__uint32_t)(stat->rxdw0) & 0xff0000) >> 8 | ((__uint32_t)(stat->rxdw0) & 0xff000000) >> 24) : __swap32md(stat->rxdw0));
   pktlen = (((rxdw0) & 0x00003fff) >> 0);
   if (__builtin_expect(((pktlen == 0) != 0), 0))
    break;
@@ -5626,7 +5630,7 @@ rsu_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
   goto resubmit;
  }
  stat = (struct r92s_rx_stat *)data->buf;
- if ((__extension__({ __uint32_t __swap32gen_x = (stat->rxdw1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & 0x1ff) == 0x1ff)
+ if (((__builtin_constant_p(stat->rxdw1) ? (__uint32_t)(((__uint32_t)(stat->rxdw1) & 0xff) << 24 | ((__uint32_t)(stat->rxdw1) & 0xff00) << 8 | ((__uint32_t)(stat->rxdw1) & 0xff0000) >> 8 | ((__uint32_t)(stat->rxdw1) & 0xff000000) >> 24) : __swap32md(stat->rxdw1)) & 0x1ff) == 0x1ff)
   rsu_rx_multi_event(sc, data->buf, len);
  else
   rsu_rx_multi_frame(sc, data->buf, len);
@@ -5690,20 +5694,20 @@ rsu_tx(struct rsu_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  do { if (((data)->next.tqe_next) != ((void *)0)) (data)->next.tqe_next->next.tqe_prev = (data)->next.tqe_prev; else (&sc->tx_free_list)->tqh_last = (data)->next.tqe_prev; *(data)->next.tqe_prev = (data)->next.tqe_next; ((data)->next.tqe_prev) = ((void *)-1); ((data)->next.tqe_next) = ((void *)-1); } while (0);
  txd = (struct r92s_tx_desc *)data->buf;
  __builtin_memset((txd), (0), (sizeof(*txd)));
- txd->txdw0 |= __extension__({ __uint32_t __swap32gen_x = ((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- txd->txdw1 |= __extension__({ __uint32_t __swap32gen_x = ((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ txd->txdw0 |= (__builtin_constant_p((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) ? (__uint32_t)(((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff) << 24 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff00) << 8 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff0000) >> 8 | ((__uint32_t)((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000) & 0xff000000) >> 24) : __swap32md((((m->M_dat.MH.MH_pkthdr.len) << 0) & 0x0000ffff) | (((sizeof(*txd)) << 16) & 0x00ff0000) | 0x80000000 | 0x08000000 | 0x04000000));
+ txd->txdw1 |= (__builtin_constant_p((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)) ? (__uint32_t)(((__uint32_t)((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)) & 0xff) << 24 | ((__uint32_t)((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)) & 0xff00) << 8 | ((__uint32_t)((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)) & 0xff0000) >> 8 | ((__uint32_t)((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)) & 0xff000000) >> 24) : __swap32md((((5) << 0) & 0x0000001f) | (((0x03) << 8) & 0x00001f00)));
  if (!hasqos)
-  txd->txdw1 |= __extension__({ __uint32_t __swap32gen_x = (0x00010000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- txd->txdw2 |= __extension__({ __uint32_t __swap32gen_x = (0x40000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw1 |= (__builtin_constant_p(0x00010000) ? (__uint32_t)(((__uint32_t)(0x00010000) & 0xff) << 24 | ((__uint32_t)(0x00010000) & 0xff00) << 8 | ((__uint32_t)(0x00010000) & 0xff0000) >> 8 | ((__uint32_t)(0x00010000) & 0xff000000) >> 24) : __swap32md(0x00010000));
+ txd->txdw2 |= (__builtin_constant_p(0x40000000) ? (__uint32_t)(((__uint32_t)(0x40000000) & 0xff) << 24 | ((__uint32_t)(0x40000000) & 0xff00) << 8 | ((__uint32_t)(0x40000000) & 0xff0000) >> 8 | ((__uint32_t)(0x40000000) & 0xff000000) >> 24) : __swap32md(0x40000000));
  if ((*(wh->i_addr1) & 0x01))
-  txd->txdw2 |= __extension__({ __uint32_t __swap32gen_x = (0x00000080); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- txd->txdw3 |= __extension__({ __uint32_t __swap32gen_x = ((((tid) << 16) & 0x0fff0000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw2 |= (__builtin_constant_p(0x00000080) ? (__uint32_t)(((__uint32_t)(0x00000080) & 0xff) << 24 | ((__uint32_t)(0x00000080) & 0xff00) << 8 | ((__uint32_t)(0x00000080) & 0xff0000) >> 8 | ((__uint32_t)(0x00000080) & 0xff000000) >> 24) : __swap32md(0x00000080));
+ txd->txdw3 |= (__builtin_constant_p((((tid) << 16) & 0x0fff0000)) ? (__uint32_t)(((__uint32_t)((((tid) << 16) & 0x0fff0000)) & 0xff) << 24 | ((__uint32_t)((((tid) << 16) & 0x0fff0000)) & 0xff00) << 8 | ((__uint32_t)((((tid) << 16) & 0x0fff0000)) & 0xff0000) >> 8 | ((__uint32_t)((((tid) << 16) & 0x0fff0000)) & 0xff000000) >> 24) : __swap32md((((tid) << 16) & 0x0fff0000)));
  if (__builtin_expect(((sc->sc_drvbpf != ((void *)0)) != 0), 0)) {
   struct rsu_tx_radiotap_header *tap = &sc->sc_txtapu.th;
   struct mbuf mb;
   tap->wt_flags = 0;
-  tap->wt_chan_freq = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_freq); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  tap->wt_chan_flags = __extension__({ __uint16_t __swap16gen_x = (ic->ic_bss->ni_chan->ic_flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m;
@@ -5976,11 +5980,11 @@ rsu_fw_loadsection(struct rsu_softc *sc, uint8_t *buf, int len)
  while (len > 0) {
   __builtin_memset((txd), (0), (sizeof(*txd)));
   if (len <= ((sizeof(struct r92s_tx_desc) + (2300 + 4 + (3 + 1 + 4)) + 3) & ~3) - sizeof(*txd)) {
-   txd->txdw0 |= __extension__({ __uint32_t __swap32gen_x = (0x10000000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   txd->txdw0 |= (__builtin_constant_p(0x10000000) ? (__uint32_t)(((__uint32_t)(0x10000000) & 0xff) << 24 | ((__uint32_t)(0x10000000) & 0xff00) << 8 | ((__uint32_t)(0x10000000) & 0xff0000) >> 8 | ((__uint32_t)(0x10000000) & 0xff000000) >> 24) : __swap32md(0x10000000));
    mlen = len;
   } else
    mlen = ((sizeof(struct r92s_tx_desc) + (2300 + 4 + (3 + 1 + 4)) + 3) & ~3) - sizeof(*txd);
-  txd->txdw0 |= __extension__({ __uint32_t __swap32gen_x = ((((mlen) << 0) & 0x0000ffff)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  txd->txdw0 |= (__builtin_constant_p((((mlen) << 0) & 0x0000ffff)) ? (__uint32_t)(((__uint32_t)((((mlen) << 0) & 0x0000ffff)) & 0xff) << 24 | ((__uint32_t)((((mlen) << 0) & 0x0000ffff)) & 0xff00) << 8 | ((__uint32_t)((((mlen) << 0) & 0x0000ffff)) & 0xff0000) >> 8 | ((__uint32_t)((((mlen) << 0) & 0x0000ffff)) & 0xff000000) >> 24) : __swap32md((((mlen) << 0) & 0x0000ffff)));
   __builtin_memcpy((&txd[1]), (buf), (mlen));
   usbd_setup_xfer(data->xfer, pipe, ((void *)0), data->buf,
       sizeof(*txd) + mlen,
@@ -6017,22 +6021,22 @@ rsu_load_firmware(struct rsu_softc *sc)
   goto fail;
  }
  hdr = (struct r92s_fw_hdr *)fw;
- if (hdr->signature != __extension__({ __uint16_t __swap16gen_x = (0x8712); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &&
-     hdr->signature != __extension__({ __uint16_t __swap16gen_x = (0x8192); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+ if (hdr->signature != (__builtin_constant_p(0x8712) ? (__uint16_t)(((__uint16_t)(0x8712) & 0xffU) << 8 | ((__uint16_t)(0x8712) & 0xff00U) >> 8) : __swap16md(0x8712)) &&
+     hdr->signature != (__builtin_constant_p(0x8192) ? (__uint16_t)(((__uint16_t)(0x8192) & 0xffU) << 8 | ((__uint16_t)(0x8192) & 0xff00U) >> 8) : __swap16md(0x8192))) {
   printf("%s: invalid firmware signature 0x%x\n",
-      sc->sc_dev.dv_xname, __extension__({ __uint16_t __swap16gen_x = (hdr->signature); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      sc->sc_dev.dv_xname, (__builtin_constant_p(hdr->signature) ? (__uint16_t)(((__uint16_t)(hdr->signature) & 0xffU) << 8 | ((__uint16_t)(hdr->signature) & 0xff00U) >> 8) : __swap16md(hdr->signature)));
   error = 22;
   goto fail;
  }
  ;
- if (hdr->privsz != __extension__({ __uint32_t __swap32gen_x = (sizeof(*dmem)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) {
+ if (hdr->privsz != (__builtin_constant_p(sizeof(*dmem)) ? (__uint32_t)(((__uint32_t)(sizeof(*dmem)) & 0xff) << 24 | ((__uint32_t)(sizeof(*dmem)) & 0xff00) << 8 | ((__uint32_t)(sizeof(*dmem)) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*dmem)) & 0xff000000) >> 24) : __swap32md(sizeof(*dmem)))) {
   printf("%s: unsupported firmware image\n",
       sc->sc_dev.dv_xname);
   error = 22;
   goto fail;
  }
- imemsz = __extension__({ __uint32_t __swap32gen_x = (hdr->imemsz); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- ememsz = __extension__({ __uint32_t __swap32gen_x = (hdr->sramsz); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ imemsz = (__builtin_constant_p(hdr->imemsz) ? (__uint32_t)(((__uint32_t)(hdr->imemsz) & 0xff) << 24 | ((__uint32_t)(hdr->imemsz) & 0xff00) << 8 | ((__uint32_t)(hdr->imemsz) & 0xff0000) >> 8 | ((__uint32_t)(hdr->imemsz) & 0xff000000) >> 24) : __swap32md(hdr->imemsz));
+ ememsz = (__builtin_constant_p(hdr->sramsz) ? (__uint32_t)(((__uint32_t)(hdr->sramsz) & 0xff) << 24 | ((__uint32_t)(hdr->sramsz) & 0xff00) << 8 | ((__uint32_t)(hdr->sramsz) & 0xff0000) >> 8 | ((__uint32_t)(hdr->sramsz) & 0xff000000) >> 24) : __swap32md(hdr->sramsz));
  if (size < sizeof(*hdr) + imemsz + ememsz) {
   printf("%s: firmware too short\n", sc->sc_dev.dv_xname);
   error = 22;

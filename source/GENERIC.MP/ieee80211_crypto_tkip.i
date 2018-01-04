@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2444,7 +2448,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -3928,7 +3932,7 @@ ieee80211_tkip_decrypt(struct ieee80211com *ic, struct mbuf *m0,
  crc = ether_crc32_le_update(crc, mic0, 8);
  crc = ~crc;
  crc0 = *(u_int32_t *)(buf + 8);
- if (crc != __extension__({ __uint32_t __swap32gen_x = (crc0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) {
+ if (crc != (__builtin_constant_p(crc0) ? (__uint32_t)(((__uint32_t)(crc0) & 0xff) << 24 | ((__uint32_t)(crc0) & 0xff00) << 8 | ((__uint32_t)(crc0) & 0xff0000) >> 8 | ((__uint32_t)(crc0) & 0xff000000) >> 24) : __swap32md(crc0))) {
   ic->ic_stats.is_tkip_icv_errs++;
   m_freem(m0);
   m_freem(n0);
@@ -4055,11 +4059,11 @@ Phase1(u16b *P1K, const byte *TK, const byte *TA, u32b IV32)
  P1K[3] = ((TA[2]) ^ (((u16b)(TA[3])) << 8));
  P1K[4] = ((TA[4]) ^ (((u16b)(TA[5])) << 8));
  for (i = 0; i < 8; i++) {
-  P1K[0] += (Sbox[((byte)( (P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
-  P1K[1] += (Sbox[((byte)( (P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
-  P1K[2] += (Sbox[((byte)( (P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
-  P1K[3] += (Sbox[((byte)( (P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
-  P1K[4] += (Sbox[((byte)( (P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+  P1K[0] += (Sbox[((byte)( (P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((P1K[4] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))])));
+  P1K[1] += (Sbox[((byte)( (P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((P1K[0] ^ ((TK[2 * ((i & 1) + 2)]) ^ (((u16b)(TK[2 * ((i & 1) + 2) + 1])) << 8))) >> 8) & 0x00FF))])));
+  P1K[2] += (Sbox[((byte)( (P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((P1K[1] ^ ((TK[2 * ((i & 1) + 4)]) ^ (((u16b)(TK[2 * ((i & 1) + 4) + 1])) << 8))) >> 8) & 0x00FF))])));
+  P1K[3] += (Sbox[((byte)( (P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((P1K[2] ^ ((TK[2 * ((i & 1) + 6)]) ^ (((u16b)(TK[2 * ((i & 1) + 6) + 1])) << 8))) >> 8) & 0x00FF))])));
+  P1K[4] += (Sbox[((byte)( (P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((P1K[3] ^ ((TK[2 * ((i & 1) + 0)]) ^ (((u16b)(TK[2 * ((i & 1) + 0) + 1])) << 8))) >> 8) & 0x00FF))])));
   P1K[4] += i;
  }
 }
@@ -4072,12 +4076,12 @@ Phase2(byte *RC4KEY, const byte *TK, const u16b *P1K, u16b IV16)
  for (i = 0; i < 5; i++)
   PPK[i] = P1K[i];
  PPK[5] = P1K[4] + IV16;
- PPK[0] += (Sbox[((byte)( (PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- PPK[1] += (Sbox[((byte)( (PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- PPK[2] += (Sbox[((byte)( (PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- PPK[3] += (Sbox[((byte)( (PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- PPK[4] += (Sbox[((byte)( (PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
- PPK[5] += (Sbox[((byte)( (PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) & 0x00FF))] ^ __extension__({ __uint16_t __swap16gen_x = (Sbox[((byte)(((PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) >> 8) & 0x00FF))]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+ PPK[0] += (Sbox[((byte)( (PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 8) & 0x00FF))])));
+ PPK[1] += (Sbox[((byte)( (PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[0] ^ ((TK[2 * (1)]) ^ (((u16b)(TK[2 * (1) + 1])) << 8))) >> 8) & 0x00FF))])));
+ PPK[2] += (Sbox[((byte)( (PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[1] ^ ((TK[2 * (2)]) ^ (((u16b)(TK[2 * (2) + 1])) << 8))) >> 8) & 0x00FF))])));
+ PPK[3] += (Sbox[((byte)( (PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[2] ^ ((TK[2 * (3)]) ^ (((u16b)(TK[2 * (3) + 1])) << 8))) >> 8) & 0x00FF))])));
+ PPK[4] += (Sbox[((byte)( (PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[3] ^ ((TK[2 * (4)]) ^ (((u16b)(TK[2 * (4) + 1])) << 8))) >> 8) & 0x00FF))])));
+ PPK[5] += (Sbox[((byte)( (PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) & 0x00FF))] ^ (__builtin_constant_p(Sbox[((byte)(((PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) >> 8) & 0x00FF))]) ? (__uint16_t)(((__uint16_t)(Sbox[((byte)(((PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xffU) << 8 | ((__uint16_t)(Sbox[((byte)(((PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) >> 8) & 0x00FF))]) & 0xff00U) >> 8) : __swap16md(Sbox[((byte)(((PPK[4] ^ ((TK[2 * (5)]) ^ (((u16b)(TK[2 * (5) + 1])) << 8))) >> 8) & 0x00FF))])));
  PPK[0] += ((((PPK[5] ^ ((TK[2 * (6)]) ^ (((u16b)(TK[2 * (6) + 1])) << 8))) >> 1) & 0x7FFF) ^ (((PPK[5] ^ ((TK[2 * (6)]) ^ (((u16b)(TK[2 * (6) + 1])) << 8))) & 1) << 15));
  PPK[1] += ((((PPK[0] ^ ((TK[2 * (7)]) ^ (((u16b)(TK[2 * (7) + 1])) << 8))) >> 1) & 0x7FFF) ^ (((PPK[0] ^ ((TK[2 * (7)]) ^ (((u16b)(TK[2 * (7) + 1])) << 8))) & 1) << 15));
  PPK[2] += ((((PPK[1]) >> 1) & 0x7FFF) ^ (((PPK[1]) & 1) << 15));
@@ -4089,5 +4093,5 @@ Phase2(byte *RC4KEY, const byte *TK, const u16b *P1K, u16b IV16)
  RC4KEY[2] = ((byte)( (IV16) & 0x00FF));
  RC4KEY[3] = ((byte)( ((PPK[5] ^ ((TK[2 * (0)]) ^ (((u16b)(TK[2 * (0) + 1])) << 8))) >> 1) & 0x00FF));
  for (i = 0; i < 6; i++)
-  PPK[i] = __extension__({ __uint16_t __swap16gen_x = (PPK[i]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  PPK[i] = (__builtin_constant_p(PPK[i]) ? (__uint16_t)(((__uint16_t)(PPK[i]) & 0xffU) << 8 | ((__uint16_t)(PPK[i]) & 0xff00U) >> 8) : __swap16md(PPK[i]));
 }

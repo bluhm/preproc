@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3975,10 +3979,10 @@ urndis_ctrl_recv(struct urndis_softc *sc)
  }
  hdr = (struct rndis_comp_hdr *)buf;
  ;
- if (__extension__({ __uint32_t __swap32gen_x = (hdr->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) > 0x400) {
+ if ((__builtin_constant_p(hdr->rm_len) ? (__uint32_t)(((__uint32_t)(hdr->rm_len) & 0xff) << 24 | ((__uint32_t)(hdr->rm_len) & 0xff00) << 8 | ((__uint32_t)(hdr->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(hdr->rm_len) & 0xff000000) >> 24) : __swap32md(hdr->rm_len)) > 0x400) {
   printf("%s: ctrl message error: wrong size %u > %u\n",
       ((sc)->sc_dev.dv_xname),
-      __extension__({ __uint32_t __swap32gen_x = (hdr->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
+      (__builtin_constant_p(hdr->rm_len) ? (__uint32_t)(((__uint32_t)(hdr->rm_len) & 0xff) << 24 | ((__uint32_t)(hdr->rm_len) & 0xff00) << 8 | ((__uint32_t)(hdr->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(hdr->rm_len) & 0xff000000) >> 24) : __swap32md(hdr->rm_len)),
       0x400);
   free(buf, 127, 0x400);
   return ((void *)0);
@@ -3995,7 +3999,7 @@ urndis_ctrl_handle(struct urndis_softc *sc, struct rndis_comp_hdr *hdr,
   *buf = ((void *)0);
   *bufsz = 0;
  }
- switch (__extension__({ __uint32_t __swap32gen_x = (hdr->rm_type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) {
+ switch ((__builtin_constant_p(hdr->rm_type) ? (__uint32_t)(((__uint32_t)(hdr->rm_type) & 0xff) << 24 | ((__uint32_t)(hdr->rm_type) & 0xff00) << 8 | ((__uint32_t)(hdr->rm_type) & 0xff0000) >> 8 | ((__uint32_t)(hdr->rm_type) & 0xff000000) >> 24) : __swap32md(hdr->rm_type))) {
   case 0x80000002:
    rval = urndis_ctrl_handle_init(sc, hdr);
    break;
@@ -4007,14 +4011,14 @@ urndis_ctrl_handle(struct urndis_softc *sc, struct rndis_comp_hdr *hdr,
    break;
   case 0x80000008:
   case 0x80000005:
-   rval = __extension__({ __uint32_t __swap32gen_x = (hdr->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   rval = (__builtin_constant_p(hdr->rm_status) ? (__uint32_t)(((__uint32_t)(hdr->rm_status) & 0xff) << 24 | ((__uint32_t)(hdr->rm_status) & 0xff00) << 8 | ((__uint32_t)(hdr->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(hdr->rm_status) & 0xff000000) >> 24) : __swap32md(hdr->rm_status));
    break;
   case 0x00000007:
    rval = urndis_ctrl_handle_status(sc, hdr);
    break;
   default:
    printf("%s: ctrl message error: unknown event 0x%x\n",
-       ((sc)->sc_dev.dv_xname), __extension__({ __uint32_t __swap32gen_x = (hdr->rm_type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       ((sc)->sc_dev.dv_xname), (__builtin_constant_p(hdr->rm_type) ? (__uint32_t)(((__uint32_t)(hdr->rm_type) & 0xff) << 24 | ((__uint32_t)(hdr->rm_type) & 0xff00) << 8 | ((__uint32_t)(hdr->rm_type) & 0xff0000) >> 8 | ((__uint32_t)(hdr->rm_type) & 0xff000000) >> 24) : __swap32md(hdr->rm_type)));
    rval = 0xC0000001L;
  }
  free(hdr, 127, 0x400);
@@ -4027,25 +4031,25 @@ urndis_ctrl_handle_init(struct urndis_softc *sc,
  const struct rndis_init_comp *msg;
  msg = (struct rndis_init_comp *) hdr;
  ;
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x00000000L) {
+ if ((__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status)) != 0x00000000L) {
   printf("%s: init failed 0x%x\n",
       ((sc)->sc_dev.dv_xname),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  return __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status)));
+  return (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
  }
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_devflags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x00000001) {
+ if ((__builtin_constant_p(msg->rm_devflags) ? (__uint32_t)(((__uint32_t)(msg->rm_devflags) & 0xff) << 24 | ((__uint32_t)(msg->rm_devflags) & 0xff00) << 8 | ((__uint32_t)(msg->rm_devflags) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_devflags) & 0xff000000) >> 24) : __swap32md(msg->rm_devflags)) != 0x00000001) {
   printf("%s: wrong device type (current type: 0x%x)\n",
       ((sc)->sc_dev.dv_xname),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_devflags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+      (__builtin_constant_p(msg->rm_devflags) ? (__uint32_t)(((__uint32_t)(msg->rm_devflags) & 0xff) << 24 | ((__uint32_t)(msg->rm_devflags) & 0xff00) << 8 | ((__uint32_t)(msg->rm_devflags) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_devflags) & 0xff000000) >> 24) : __swap32md(msg->rm_devflags)));
   return 0xC0000001L;
  }
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_medium); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x00000000) {
+ if ((__builtin_constant_p(msg->rm_medium) ? (__uint32_t)(((__uint32_t)(msg->rm_medium) & 0xff) << 24 | ((__uint32_t)(msg->rm_medium) & 0xff00) << 8 | ((__uint32_t)(msg->rm_medium) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_medium) & 0xff000000) >> 24) : __swap32md(msg->rm_medium)) != 0x00000000) {
   printf("%s: medium not 802.3 (current medium: 0x%x)\n",
-      ((sc)->sc_dev.dv_xname), __extension__({ __uint32_t __swap32gen_x = (msg->rm_medium); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+      ((sc)->sc_dev.dv_xname), (__builtin_constant_p(msg->rm_medium) ? (__uint32_t)(((__uint32_t)(msg->rm_medium) & 0xff) << 24 | ((__uint32_t)(msg->rm_medium) & 0xff00) << 8 | ((__uint32_t)(msg->rm_medium) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_medium) & 0xff000000) >> 24) : __swap32md(msg->rm_medium)));
   return 0xC0000001L;
  }
- sc->sc_lim_pktsz = __extension__({ __uint32_t __swap32gen_x = (msg->rm_pktmaxsz); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- return __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_lim_pktsz = (__builtin_constant_p(msg->rm_pktmaxsz) ? (__uint32_t)(((__uint32_t)(msg->rm_pktmaxsz) & 0xff) << 24 | ((__uint32_t)(msg->rm_pktmaxsz) & 0xff00) << 8 | ((__uint32_t)(msg->rm_pktmaxsz) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_pktmaxsz) & 0xff000000) >> 24) : __swap32md(msg->rm_pktmaxsz));
+ return (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
 }
 u_int32_t
 urndis_ctrl_handle_query(struct urndis_softc *sc,
@@ -4058,40 +4062,40 @@ urndis_ctrl_handle_query(struct urndis_softc *sc,
   *buf = ((void *)0);
   *bufsz = 0;
  }
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x00000000L) {
+ if ((__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status)) != 0x00000000L) {
   printf("%s: query failed 0x%x\n",
       ((sc)->sc_dev.dv_xname),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  return __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status)));
+  return (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
  }
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobufoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) +
-     (sizeof(struct rndis_msghdr)) > __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) {
+ if ((__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen)) + (__builtin_constant_p(msg->rm_infobufoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_infobufoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_infobufoffset)) +
+     (sizeof(struct rndis_msghdr)) > (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len))) {
   printf("%s: ctrl message error: invalid query info "
       "len/offset/end_position(%u/%u/%zu) -> "
       "go out of buffer limit %u\n",
       ((sc)->sc_dev.dv_xname),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobufoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) +
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobufoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + (sizeof(struct rndis_msghdr)),
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+      (__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen)),
+      (__builtin_constant_p(msg->rm_infobufoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_infobufoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_infobufoffset)),
+      (__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen)) +
+      (__builtin_constant_p(msg->rm_infobufoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_infobufoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_infobufoffset)) + (sizeof(struct rndis_msghdr)),
+      (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)));
   return 0xC0000001L;
  }
  if (buf && bufsz) {
-  *buf = malloc(__extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
+  *buf = malloc((__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen)),
       127, 0x0001 | 0x0004);
   if (*buf == ((void *)0)) {
    printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
    return 0xC0000001L;
   } else {
    char *p;
-   *bufsz = __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *bufsz = (__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen));
    p = (char *)&msg->rm_rid;
-   p += __extension__({ __uint32_t __swap32gen_x = (msg->rm_infobufoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   __builtin_memcpy((*buf), (p), (__extension__({ __uint32_t __swap32gen_x = (msg->rm_infobuflen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+   p += (__builtin_constant_p(msg->rm_infobufoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_infobufoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobufoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_infobufoffset));
+   __builtin_memcpy((*buf), (p), ((__builtin_constant_p(msg->rm_infobuflen) ? (__uint32_t)(((__uint32_t)(msg->rm_infobuflen) & 0xff) << 24 | ((__uint32_t)(msg->rm_infobuflen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_infobuflen) & 0xff000000) >> 24) : __swap32md(msg->rm_infobuflen))));
   }
  }
- return __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ return (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
 }
 u_int32_t
 urndis_ctrl_handle_reset(struct urndis_softc *sc,
@@ -4100,15 +4104,15 @@ urndis_ctrl_handle_reset(struct urndis_softc *sc,
  const struct rndis_reset_comp *msg;
  u_int32_t rval;
  msg = (struct rndis_reset_comp *) hdr;
- rval = __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rval = (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
  ;
  if (rval != 0x00000000L) {
   printf("%s: reset failed 0x%x\n", ((sc)->sc_dev.dv_xname), rval);
   return rval;
  }
- if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_adrreset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0) {
+ if ((__builtin_constant_p(msg->rm_adrreset) ? (__uint32_t)(((__uint32_t)(msg->rm_adrreset) & 0xff) << 24 | ((__uint32_t)(msg->rm_adrreset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_adrreset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_adrreset) & 0xff000000) >> 24) : __swap32md(msg->rm_adrreset)) != 0) {
   u_int32_t filter;
-  filter = __extension__({ __uint32_t __swap32gen_x = (sc->sc_filter); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  filter = (__builtin_constant_p(sc->sc_filter) ? (__uint32_t)(((__uint32_t)(sc->sc_filter) & 0xff) << 24 | ((__uint32_t)(sc->sc_filter) & 0xff00) << 8 | ((__uint32_t)(sc->sc_filter) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_filter) & 0xff000000) >> 24) : __swap32md(sc->sc_filter));
   rval = urndis_ctrl_set(sc, 0x0001010E,
       &filter, sizeof(filter));
   if (rval != 0x00000000L) {
@@ -4126,7 +4130,7 @@ urndis_ctrl_handle_status(struct urndis_softc *sc,
  const struct rndis_status_msg *msg;
  u_int32_t rval;
  msg = (struct rndis_status_msg *)hdr;
- rval = __extension__({ __uint32_t __swap32gen_x = (msg->rm_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ rval = (__builtin_constant_p(msg->rm_status) ? (__uint32_t)(((__uint32_t)(msg->rm_status) & 0xff) << 24 | ((__uint32_t)(msg->rm_status) & 0xff00) << 8 | ((__uint32_t)(msg->rm_status) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_status) & 0xff000000) >> 24) : __swap32md(msg->rm_status));
  ;
  switch (rval) {
   case 0x4001000BL:
@@ -4150,12 +4154,12 @@ urndis_ctrl_init(struct urndis_softc *sc)
   printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
   return 0xC0000001L;
  }
- msg->rm_type = __extension__({ __uint32_t __swap32gen_x = (0x00000002); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_len = __extension__({ __uint32_t __swap32gen_x = (sizeof(*msg)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_rid = __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_ver_major = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_ver_minor = __extension__({ __uint32_t __swap32gen_x = (1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_max_xfersz = __extension__({ __uint32_t __swap32gen_x = (1562); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_type = (__builtin_constant_p(0x00000002) ? (__uint32_t)(((__uint32_t)(0x00000002) & 0xff) << 24 | ((__uint32_t)(0x00000002) & 0xff00) << 8 | ((__uint32_t)(0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(0x00000002) & 0xff000000) >> 24) : __swap32md(0x00000002));
+ msg->rm_len = (__builtin_constant_p(sizeof(*msg)) ? (__uint32_t)(((__uint32_t)(sizeof(*msg)) & 0xff) << 24 | ((__uint32_t)(sizeof(*msg)) & 0xff00) << 8 | ((__uint32_t)(sizeof(*msg)) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*msg)) & 0xff000000) >> 24) : __swap32md(sizeof(*msg)));
+ msg->rm_rid = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ msg->rm_ver_major = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
+ msg->rm_ver_minor = (__builtin_constant_p(1) ? (__uint32_t)(((__uint32_t)(1) & 0xff) << 24 | ((__uint32_t)(1) & 0xff00) << 8 | ((__uint32_t)(1) & 0xff0000) >> 8 | ((__uint32_t)(1) & 0xff000000) >> 24) : __swap32md(1));
+ msg->rm_max_xfersz = (__builtin_constant_p(1562) ? (__uint32_t)(((__uint32_t)(1562) & 0xff) << 24 | ((__uint32_t)(1562) & 0xff00) << 8 | ((__uint32_t)(1562) & 0xff0000) >> 8 | ((__uint32_t)(1562) & 0xff000000) >> 24) : __swap32md(1562));
  ;
  rval = urndis_ctrl_send(sc, msg, sizeof(*msg));
  free(msg, 127, sizeof *msg);
@@ -4180,8 +4184,8 @@ urndis_ctrl_halt(struct urndis_softc *sc)
   printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
   return 0xC0000001L;
  }
- msg->rm_type = __extension__({ __uint32_t __swap32gen_x = (0x00000003); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_len = __extension__({ __uint32_t __swap32gen_x = (sizeof(*msg)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_type = (__builtin_constant_p(0x00000003) ? (__uint32_t)(((__uint32_t)(0x00000003) & 0xff) << 24 | ((__uint32_t)(0x00000003) & 0xff00) << 8 | ((__uint32_t)(0x00000003) & 0xff0000) >> 8 | ((__uint32_t)(0x00000003) & 0xff000000) >> 24) : __swap32md(0x00000003));
+ msg->rm_len = (__builtin_constant_p(sizeof(*msg)) ? (__uint32_t)(((__uint32_t)(sizeof(*msg)) & 0xff) << 24 | ((__uint32_t)(sizeof(*msg)) & 0xff00) << 8 | ((__uint32_t)(sizeof(*msg)) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*msg)) & 0xff000000) >> 24) : __swap32md(sizeof(*msg)));
  msg->rm_rid = 0;
  ;
  rval = urndis_ctrl_send(sc, msg, sizeof(*msg));
@@ -4203,13 +4207,13 @@ urndis_ctrl_query(struct urndis_softc *sc, u_int32_t oid,
   printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
   return 0xC0000001L;
  }
- msg->rm_type = __extension__({ __uint32_t __swap32gen_x = (0x00000004); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_len = __extension__({ __uint32_t __swap32gen_x = (sizeof(*msg) + qlen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_type = (__builtin_constant_p(0x00000004) ? (__uint32_t)(((__uint32_t)(0x00000004) & 0xff) << 24 | ((__uint32_t)(0x00000004) & 0xff00) << 8 | ((__uint32_t)(0x00000004) & 0xff0000) >> 8 | ((__uint32_t)(0x00000004) & 0xff000000) >> 24) : __swap32md(0x00000004));
+ msg->rm_len = (__builtin_constant_p(sizeof(*msg) + qlen) ? (__uint32_t)(((__uint32_t)(sizeof(*msg) + qlen) & 0xff) << 24 | ((__uint32_t)(sizeof(*msg) + qlen) & 0xff00) << 8 | ((__uint32_t)(sizeof(*msg) + qlen) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*msg) + qlen) & 0xff000000) >> 24) : __swap32md(sizeof(*msg) + qlen));
  msg->rm_rid = 0;
- msg->rm_oid = __extension__({ __uint32_t __swap32gen_x = (oid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_infobuflen = __extension__({ __uint32_t __swap32gen_x = (qlen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_oid = (__builtin_constant_p(oid) ? (__uint32_t)(((__uint32_t)(oid) & 0xff) << 24 | ((__uint32_t)(oid) & 0xff00) << 8 | ((__uint32_t)(oid) & 0xff0000) >> 8 | ((__uint32_t)(oid) & 0xff000000) >> 24) : __swap32md(oid));
+ msg->rm_infobuflen = (__builtin_constant_p(qlen) ? (__uint32_t)(((__uint32_t)(qlen) & 0xff) << 24 | ((__uint32_t)(qlen) & 0xff00) << 8 | ((__uint32_t)(qlen) & 0xff0000) >> 8 | ((__uint32_t)(qlen) & 0xff000000) >> 24) : __swap32md(qlen));
  if (qlen != 0) {
-  msg->rm_infobufoffset = __extension__({ __uint32_t __swap32gen_x = (20); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  msg->rm_infobufoffset = (__builtin_constant_p(20) ? (__uint32_t)(((__uint32_t)(20) & 0xff) << 24 | ((__uint32_t)(20) & 0xff00) << 8 | ((__uint32_t)(20) & 0xff0000) >> 8 | ((__uint32_t)(20) & 0xff000000) >> 24) : __swap32md(20));
   __builtin_memcpy(((char*)msg + 20), (qbuf), (qlen));
  } else
   msg->rm_infobufoffset = 0;
@@ -4239,13 +4243,13 @@ urndis_ctrl_set(struct urndis_softc *sc, u_int32_t oid, void *buf, size_t len)
   printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
   return 0xC0000001L;
  }
- msg->rm_type = __extension__({ __uint32_t __swap32gen_x = (0x00000005); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_len = __extension__({ __uint32_t __swap32gen_x = (sizeof(*msg) + len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_type = (__builtin_constant_p(0x00000005) ? (__uint32_t)(((__uint32_t)(0x00000005) & 0xff) << 24 | ((__uint32_t)(0x00000005) & 0xff00) << 8 | ((__uint32_t)(0x00000005) & 0xff0000) >> 8 | ((__uint32_t)(0x00000005) & 0xff000000) >> 24) : __swap32md(0x00000005));
+ msg->rm_len = (__builtin_constant_p(sizeof(*msg) + len) ? (__uint32_t)(((__uint32_t)(sizeof(*msg) + len) & 0xff) << 24 | ((__uint32_t)(sizeof(*msg) + len) & 0xff00) << 8 | ((__uint32_t)(sizeof(*msg) + len) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*msg) + len) & 0xff000000) >> 24) : __swap32md(sizeof(*msg) + len));
  msg->rm_rid = 0;
- msg->rm_oid = __extension__({ __uint32_t __swap32gen_x = (oid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_infobuflen = __extension__({ __uint32_t __swap32gen_x = (len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_oid = (__builtin_constant_p(oid) ? (__uint32_t)(((__uint32_t)(oid) & 0xff) << 24 | ((__uint32_t)(oid) & 0xff00) << 8 | ((__uint32_t)(oid) & 0xff0000) >> 8 | ((__uint32_t)(oid) & 0xff000000) >> 24) : __swap32md(oid));
+ msg->rm_infobuflen = (__builtin_constant_p(len) ? (__uint32_t)(((__uint32_t)(len) & 0xff) << 24 | ((__uint32_t)(len) & 0xff00) << 8 | ((__uint32_t)(len) & 0xff0000) >> 8 | ((__uint32_t)(len) & 0xff000000) >> 24) : __swap32md(len));
  if (len != 0) {
-  msg->rm_infobufoffset = __extension__({ __uint32_t __swap32gen_x = (20); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  msg->rm_infobufoffset = (__builtin_constant_p(20) ? (__uint32_t)(((__uint32_t)(20) & 0xff) << 24 | ((__uint32_t)(20) & 0xff00) << 8 | ((__uint32_t)(20) & 0xff0000) >> 8 | ((__uint32_t)(20) & 0xff000000) >> 24) : __swap32md(20));
   __builtin_memcpy(((char*)msg + 28), (buf), (len));
  } else
   msg->rm_infobufoffset = 0;
@@ -4286,16 +4290,16 @@ urndis_ctrl_set_param(struct urndis_softc *sc,
   printf("%s: out of memory\n", ((sc)->sc_dev.dv_xname));
   return 0xC0000001L;
  }
- param->rm_namelen = __extension__({ __uint32_t __swap32gen_x = (namelen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- param->rm_valuelen = __extension__({ __uint32_t __swap32gen_x = (len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- param->rm_type = __extension__({ __uint32_t __swap32gen_x = (type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ param->rm_namelen = (__builtin_constant_p(namelen) ? (__uint32_t)(((__uint32_t)(namelen) & 0xff) << 24 | ((__uint32_t)(namelen) & 0xff00) << 8 | ((__uint32_t)(namelen) & 0xff0000) >> 8 | ((__uint32_t)(namelen) & 0xff000000) >> 24) : __swap32md(namelen));
+ param->rm_valuelen = (__builtin_constant_p(len) ? (__uint32_t)(((__uint32_t)(len) & 0xff) << 24 | ((__uint32_t)(len) & 0xff00) << 8 | ((__uint32_t)(len) & 0xff0000) >> 8 | ((__uint32_t)(len) & 0xff000000) >> 24) : __swap32md(len));
+ param->rm_type = (__builtin_constant_p(type) ? (__uint32_t)(((__uint32_t)(type) & 0xff) << 24 | ((__uint32_t)(type) & 0xff00) << 8 | ((__uint32_t)(type) & 0xff0000) >> 8 | ((__uint32_t)(type) & 0xff000000) >> 24) : __swap32md(type));
  if (namelen != 0) {
-  param->rm_nameoffset = __extension__({ __uint32_t __swap32gen_x = (20); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  param->rm_nameoffset = (__builtin_constant_p(20) ? (__uint32_t)(((__uint32_t)(20) & 0xff) << 24 | ((__uint32_t)(20) & 0xff00) << 8 | ((__uint32_t)(20) & 0xff0000) >> 8 | ((__uint32_t)(20) & 0xff000000) >> 24) : __swap32md(20));
   __builtin_memcpy((param + 20), (name), (namelen));
  } else
   param->rm_nameoffset = 0;
  if (len != 0) {
-  param->rm_valueoffset = __extension__({ __uint32_t __swap32gen_x = (20 + namelen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  param->rm_valueoffset = (__builtin_constant_p(20 + namelen) ? (__uint32_t)(((__uint32_t)(20 + namelen) & 0xff) << 24 | ((__uint32_t)(20 + namelen) & 0xff00) << 8 | ((__uint32_t)(20 + namelen) & 0xff0000) >> 8 | ((__uint32_t)(20 + namelen) & 0xff000000) >> 24) : __swap32md(20 + namelen));
   __builtin_memcpy((param + 20 + namelen), (buf), (len));
  } else
   param->rm_valueoffset = 0;
@@ -4315,16 +4319,16 @@ urndis_encap(struct urndis_softc *sc, struct mbuf *m, int idx)
  c = &sc->sc_data.sc_tx_chain[idx];
  msg = (struct rndis_packet_msg *)c->sc_buf;
  __builtin_memset((msg), (0), (sizeof(*msg)));
- msg->rm_type = __extension__({ __uint32_t __swap32gen_x = (0x00000001); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_len = __extension__({ __uint32_t __swap32gen_x = (sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_dataoffset = __extension__({ __uint32_t __swap32gen_x = ((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- msg->rm_datalen = __extension__({ __uint32_t __swap32gen_x = (m->M_dat.MH.MH_pkthdr.len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ msg->rm_type = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ msg->rm_len = (__builtin_constant_p(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(sizeof(*msg) + m->M_dat.MH.MH_pkthdr.len));
+ msg->rm_dataoffset = (__builtin_constant_p((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))) ? (__uint32_t)(((__uint32_t)((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))) & 0xff) << 24 | ((__uint32_t)((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))) & 0xff00) << 8 | ((__uint32_t)((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))) & 0xff0000) >> 8 | ((__uint32_t)((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))) & 0xff000000) >> 24) : __swap32md((sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr)))));
+ msg->rm_datalen = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
  m_copydata(m, 0, m->M_dat.MH.MH_pkthdr.len,
      ((char*)msg + (sizeof(struct rndis_packet_msg) - (sizeof(struct rndis_msghdr))) + (sizeof(struct rndis_msghdr))));
  ;
  c->sc_mbuf = m;
  usbd_setup_xfer(c->sc_xfer, sc->sc_bulkout_pipe, c, c->sc_buf,
-     __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }), 0x08 | 0x01, 10000,
+     (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)), 0x08 | 0x01, 10000,
      urndis_txeof);
  err = usbd_transfer(c->sc_xfer);
  if (err != USBD_IN_PROGRESS) {
@@ -4358,56 +4362,56 @@ urndis_decap(struct urndis_softc *sc, struct urndis_chain *c, u_int32_t len)
    return;
   }
   ;
-  if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x00000001) {
+  if ((__builtin_constant_p(msg->rm_type) ? (__uint32_t)(((__uint32_t)(msg->rm_type) & 0xff) << 24 | ((__uint32_t)(msg->rm_type) & 0xff00) << 8 | ((__uint32_t)(msg->rm_type) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_type) & 0xff000000) >> 24) : __swap32md(msg->rm_type)) != 0x00000001) {
    printf("%s: urndis_decap invalid type 0x%x != 0x%x\n",
        ((sc)->sc_dev.dv_xname),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_type); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
+       (__builtin_constant_p(msg->rm_type) ? (__uint32_t)(((__uint32_t)(msg->rm_type) & 0xff) << 24 | ((__uint32_t)(msg->rm_type) & 0xff00) << 8 | ((__uint32_t)(msg->rm_type) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_type) & 0xff000000) >> 24) : __swap32md(msg->rm_type)),
        0x00000001);
    return;
   }
-  if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) < sizeof(*msg)) {
+  if ((__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)) < sizeof(*msg)) {
    printf("%s: urndis_decap invalid msg len %u < %zu\n",
        ((sc)->sc_dev.dv_xname),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
+       (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)),
        sizeof(*msg));
    return;
   }
-  if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) > len) {
+  if ((__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)) > len) {
    printf("%s: urndis_decap invalid msg len %u > buffer "
        "len %u\n",
        ((sc)->sc_dev.dv_xname),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
+       (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)),
        len);
    return;
   }
-  if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_dataoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) +
-      __extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + (sizeof(struct rndis_msghdr))
-   > __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) {
+  if ((__builtin_constant_p(msg->rm_dataoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_dataoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_dataoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_dataoffset)) +
+      (__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen)) + (sizeof(struct rndis_msghdr))
+   > (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len))) {
    printf("%s: urndis_decap invalid data "
        "len/offset/end_position(%u/%u/%zu) -> "
        "go out of receive buffer limit %u\n",
        ((sc)->sc_dev.dv_xname),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_dataoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_dataoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) +
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + (sizeof(struct rndis_msghdr)),
-       __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen)),
+       (__builtin_constant_p(msg->rm_dataoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_dataoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_dataoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_dataoffset)),
+       (__builtin_constant_p(msg->rm_dataoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_dataoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_dataoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_dataoffset)) +
+       (__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen)) + (sizeof(struct rndis_msghdr)),
+       (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len)));
    return;
   }
-  if (__extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) < sizeof(struct ether_header)) {
+  if ((__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen)) < sizeof(struct ether_header)) {
    ifp->if_data.ifi_ierrors++;
    ;
    return;
   }
-  __builtin_memcpy((((char*)((m)->m_hdr.mh_data))), (((char*)&msg->rm_dataoffset + __extension__({ __uint32_t __swap32gen_x = (msg->rm_dataoffset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))), (__extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
-  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = __extension__({ __uint32_t __swap32gen_x = (msg->rm_datalen); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  __builtin_memcpy((((char*)((m)->m_hdr.mh_data))), (((char*)&msg->rm_dataoffset + (__builtin_constant_p(msg->rm_dataoffset) ? (__uint32_t)(((__uint32_t)(msg->rm_dataoffset) & 0xff) << 24 | ((__uint32_t)(msg->rm_dataoffset) & 0xff00) << 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_dataoffset) & 0xff000000) >> 24) : __swap32md(msg->rm_dataoffset)))), ((__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen))));
+  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__builtin_constant_p(msg->rm_datalen) ? (__uint32_t)(((__uint32_t)(msg->rm_datalen) & 0xff) << 24 | ((__uint32_t)(msg->rm_datalen) & 0xff00) << 8 | ((__uint32_t)(msg->rm_datalen) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_datalen) & 0xff000000) >> 24) : __swap32md(msg->rm_datalen));
   if (urndis_newbuf(sc, c) == 55) {
    ifp->if_data.ifi_ierrors++;
   } else {
    ml_enqueue(&ml, m);
   }
-  offset += __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  len -= __extension__({ __uint32_t __swap32gen_x = (msg->rm_len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  offset += (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len));
+  len -= (__builtin_constant_p(msg->rm_len) ? (__uint32_t)(((__uint32_t)(msg->rm_len) & 0xff) << 24 | ((__uint32_t)(msg->rm_len) & 0xff00) << 8 | ((__uint32_t)(msg->rm_len) & 0xff0000) >> 8 | ((__uint32_t)(msg->rm_len) & 0xff000000) >> 24) : __swap32md(msg->rm_len));
  }
  s = _splraise(6);
  if_input(ifp, &ml);
@@ -4845,7 +4849,7 @@ urndis_attach(struct device *parent, struct device *self, void *aux)
  }
  sc->sc_filter = 0x00000008;
  sc->sc_filter |= 0x00000004;
- filter = __extension__({ __uint32_t __swap32gen_x = (sc->sc_filter); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ filter = (__builtin_constant_p(sc->sc_filter) ? (__uint32_t)(((__uint32_t)(sc->sc_filter) & 0xff) << 24 | ((__uint32_t)(sc->sc_filter) & 0xff00) << 8 | ((__uint32_t)(sc->sc_filter) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_filter) & 0xff000000) >> 24) : __swap32md(sc->sc_filter));
  if (urndis_ctrl_set(sc, 0x0001010E, &filter,
      sizeof(filter)) != 0x00000000L) {
   printf("%s: unable to set data filters\n", ((sc)->sc_dev.dv_xname));

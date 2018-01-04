@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2523,7 +2527,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4985,7 +4989,7 @@ wi_attach(struct wi_softc *sc, struct wi_funcs *funcs)
  gen.wi_type = 0xFC03;
  gen.wi_len = 2;
  if (sc->sc_funcs->f_read_record(sc, &gen) == 0)
-  sc->wi_channel = __extension__({ __uint16_t __swap16gen_x = (gen.wi_val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_channel = (__builtin_constant_p(gen.wi_val) ? (__uint16_t)(((__uint16_t)(gen.wi_val) & 0xffU) << 8 | ((__uint16_t)(gen.wi_val) & 0xff00U) >> 8) : __swap16md(gen.wi_val));
  else
   sc->wi_channel = 3;
  switch (sc->sc_firmware_type) {
@@ -4997,7 +5001,7 @@ wi_attach(struct wi_softc *sc, struct wi_funcs *funcs)
    sc->wi_flags |= 0x0008;
    sc->wi_flags |= 0x0010;
   }
-  sc->wi_ibss_port = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_ibss_port = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
   break;
  case 2:
   sc->wi_flags |= 0x0040;
@@ -5014,7 +5018,7 @@ wi_attach(struct wi_softc *sc, struct wi_funcs *funcs)
   }
   if (sc->sc_sta_firmware_ver >= 10603)
    sc->wi_flags |= 0x0800;
-  sc->wi_ibss_port = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_ibss_port = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
   break;
  case 3:
   sc->wi_flags |= 0x0080;
@@ -5022,12 +5026,12 @@ wi_attach(struct wi_softc *sc, struct wi_funcs *funcs)
    sc->wi_flags |= 0x0008;
   if (sc->sc_sta_firmware_ver >= 25000)
    sc->wi_flags |= 0x0010;
-  sc->wi_ibss_port = __extension__({ __uint16_t __swap16gen_x = (4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_ibss_port = (__builtin_constant_p(4) ? (__uint16_t)(((__uint16_t)(4) & 0xffU) << 8 | ((__uint16_t)(4) & 0xff00U) >> 8) : __swap16md(4));
   break;
  }
  gen.wi_type = 0xFD4F;
  gen.wi_len = 2;
- if (sc->sc_funcs->f_read_record(sc, &gen) == 0 && gen.wi_val != __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
+ if (sc->sc_funcs->f_read_record(sc, &gen) == 0 && gen.wi_val != (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0)))
   sc->wi_flags |= 0x0004;
  timeout_set(&sc->sc_timo, funcs->f_inquire, sc);
  __builtin_bzero((&sc->wi_stats), (sizeof(sc->wi_stats)));
@@ -5035,7 +5039,7 @@ wi_attach(struct wi_softc *sc, struct wi_funcs *funcs)
  rates.wi_len = sizeof(rates.wi_rates);
  if (sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&rates) == 0) {
   int i, nrates;
-  nrates = __extension__({ __uint16_t __swap16gen_x = (*(u_int16_t *)rates.wi_rates); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  nrates = (__builtin_constant_p(*(u_int16_t *)rates.wi_rates) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)rates.wi_rates) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)rates.wi_rates) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)rates.wi_rates));
   if (nrates > sizeof(rates.wi_rates) - 2)
    nrates = sizeof(rates.wi_rates) - 2;
   sc->wi_supprates = 0;
@@ -5208,23 +5212,23 @@ wi_rxeof(struct wi_softc *sc)
    return;
   }
   rx_frame = ((struct wi_frame *)((m)->m_hdr.mh_data));
-  if (rx_frame->wi_status & __extension__({ __uint16_t __swap16gen_x = (0x0001); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+  if (rx_frame->wi_status & (__builtin_constant_p(0x0001) ? (__uint16_t)(((__uint16_t)(0x0001) & 0xffU) << 8 | ((__uint16_t)(0x0001) & 0xff00U) >> 8) : __swap16md(0x0001))) {
    m_freem(m);
    ifp->if_data.ifi_ierrors++;
    return;
   }
-  switch ((__extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x0700)
+  switch (((__builtin_constant_p(rx_frame->wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_status)) & 0x0700)
       >> 8) {
   case 7:
-   switch (__extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_frame_ctl); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) &
+   switch ((__builtin_constant_p(rx_frame->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_frame_ctl)) &
        0x000C) {
    case 0x0008:
     hdrlen = 0x44;
-    datlen = __extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    datlen = (__builtin_constant_p(rx_frame->wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_dat_len));
     break;
    case 0x0000:
     hdrlen = 0x3C;
-    datlen = __extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    datlen = (__builtin_constant_p(rx_frame->wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_dat_len));
     break;
    case 0x0004:
     hdrlen = 0x3C;
@@ -5240,12 +5244,12 @@ wi_rxeof(struct wi_softc *sc)
    break;
   case 0:
    hdrlen = 0x44;
-   datlen = __extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   datlen = (__builtin_constant_p(rx_frame->wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_dat_len));
    break;
   default:
    printf("%s" ": received packet on invalid port "
        "(wi_status=0x%x)\n", (sc)->sc_dev.dv_xname,
-       __extension__({ __uint16_t __swap16gen_x = (rx_frame->wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+       (__builtin_constant_p(rx_frame->wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame->wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame->wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame->wi_status)));
    m_freem(m);
    ifp->if_data.ifi_ierrors++;
    return;
@@ -5269,11 +5273,11 @@ wi_rxeof(struct wi_softc *sc)
    ifp->if_data.ifi_ierrors++;
    return;
   }
-  if (rx_frame.wi_status & __extension__({ __uint16_t __swap16gen_x = (0x0003); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+  if (rx_frame.wi_status & (__builtin_constant_p(0x0003) ? (__uint16_t)(((__uint16_t)(0x0003) & 0xffU) << 8 | ((__uint16_t)(0x0003) & 0xff00U) >> 8) : __swap16md(0x0003))) {
    ifp->if_data.ifi_ierrors++;
    return;
   }
-  ftype = __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_frame_ctl); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x000C;
+  ftype = (__builtin_constant_p(rx_frame.wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_frame_ctl)) & 0x000C;
   m = m_gethdr((0x0002), (1));
   if (m == ((void *)0)) {
    ifp->if_data.ifi_ierrors++;
@@ -5291,12 +5295,12 @@ wi_rxeof(struct wi_softc *sc)
   maxlen = (1 << 11) - (m->m_hdr.mh_data - olddata);
   if (ftype == 0x0000 &&
       sc->wi_ptype == 0x6) {
-   u_int16_t rxlen = __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   u_int16_t rxlen = (__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len));
    if ((0x3C + rxlen + 2) > maxlen) {
     printf("%s: oversized mgmt packet received in "
         "hostap mode (wi_dat_len=%d, "
         "wi_status=0x%x)\n", sc->sc_dev.dv_xname,
-        rxlen, __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+        rxlen, (__builtin_constant_p(rx_frame.wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_status)));
     m_freem(m);
     ifp->if_data.ifi_ierrors++;
     return;
@@ -5316,23 +5320,23 @@ wi_rxeof(struct wi_softc *sc)
    wihap_mgmt_input(sc, &rx_frame, m);
    return;
   }
-  switch (__extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0xE000) {
+  switch ((__builtin_constant_p(rx_frame.wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_status)) & 0xE000) {
   case 0x2000:
   case 0x4000:
   case 0x6000:
-   if ((__extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) + 0x6) >
+   if (((__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)) + 0x6) >
        maxlen) {
     printf("%s" ": oversized packet received "
         "(wi_dat_len=%d, wi_status=0x%x)\n",
         (sc)->sc_dev.dv_xname,
-        __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
-        __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+        (__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)),
+        (__builtin_constant_p(rx_frame.wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_status)));
     m_freem(m);
     ifp->if_data.ifi_ierrors++;
     return;
    }
    m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len =
-       __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) + 0x6;
+       (__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)) + 0x6;
    __builtin_bcopy((&rx_frame.wi_dst_addr), (&eh->ether_dhost), (6));
    __builtin_bcopy((&rx_frame.wi_src_addr), (&eh->ether_shost), (6));
    __builtin_bcopy((&rx_frame.wi_type), (&eh->ether_type), (2));
@@ -5345,19 +5349,19 @@ wi_rxeof(struct wi_softc *sc)
    }
    break;
   default:
-   if ((__extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
+   if (((__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)) +
        sizeof(struct ether_header)) > maxlen) {
     printf("%s" ": oversized packet received "
         "(wi_dat_len=%d, wi_status=0x%x)\n",
         (sc)->sc_dev.dv_xname,
-        __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
-        __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_status); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+        (__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)),
+        (__builtin_constant_p(rx_frame.wi_status) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_status) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_status) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_status)));
     m_freem(m);
     ifp->if_data.ifi_ierrors++;
     return;
    }
    m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len =
-       __extension__({ __uint16_t __swap16gen_x = (rx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) +
+       (__builtin_constant_p(rx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(rx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(rx_frame.wi_dat_len)) +
        sizeof(struct ether_header);
    if (sc->sc_funcs->f_read_data(sc, id, 0x2E,
        ((caddr_t)((m)->m_hdr.mh_data)), m->m_hdr.mh_len + 2)) {
@@ -5368,7 +5372,7 @@ wi_rxeof(struct wi_softc *sc)
    break;
   }
   if (sc->wi_use_wep &&
-      rx_frame.wi_frame_ctl & __extension__({ __uint16_t __swap16gen_x = (0x4000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+      rx_frame.wi_frame_ctl & (__builtin_constant_p(0x4000) ? (__uint16_t)(((__uint16_t)(0x4000) & 0xffU) << 8 | ((__uint16_t)(0x4000) & 0xff00U) >> 8) : __swap16md(0x4000))) {
    int len;
    switch (sc->wi_crypto_algorithm) {
    case 0x00:
@@ -5456,20 +5460,20 @@ wi_update_stats(struct wi_softc *sc)
  ifp = &sc->sc_ic.ic_ac.ac_if;
  id = sc->sc_funcs->f_get_fid(sc, 0x10);
  sc->sc_funcs->f_read_data(sc, id, 0, (char *)&gen, 4);
- if (gen.wi_type == __extension__({ __uint16_t __swap16gen_x = (0xF101); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
-  sc->wi_scanbuf_len = __extension__({ __uint16_t __swap16gen_x = (gen.wi_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ if (gen.wi_type == (__builtin_constant_p(0xF101) ? (__uint16_t)(((__uint16_t)(0xF101) & 0xffU) << 8 | ((__uint16_t)(0xF101) & 0xff00U) >> 8) : __swap16md(0xF101))) {
+  sc->wi_scanbuf_len = (__builtin_constant_p(gen.wi_len) ? (__uint16_t)(((__uint16_t)(gen.wi_len) & 0xffU) << 8 | ((__uint16_t)(gen.wi_len) & 0xff00U) >> 8) : __swap16md(gen.wi_len));
   sc->sc_funcs->f_read_data(sc, id, 4, (caddr_t)sc->wi_scanbuf,
       sc->wi_scanbuf_len * 2);
   return;
- } else if (gen.wi_type != __extension__({ __uint16_t __swap16gen_x = (0xF100); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
+ } else if (gen.wi_type != (__builtin_constant_p(0xF100) ? (__uint16_t)(((__uint16_t)(0xF100) & 0xffU) << 8 | ((__uint16_t)(0xF100) & 0xff00U) >> 8) : __swap16md(0xF100)))
   return;
- len = (__extension__({ __uint16_t __swap16gen_x = (gen.wi_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) - 1 < sizeof(sc->wi_stats) / 4) ?
-     __extension__({ __uint16_t __swap16gen_x = (gen.wi_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) - 1 : sizeof(sc->wi_stats) / 4;
+ len = ((__builtin_constant_p(gen.wi_len) ? (__uint16_t)(((__uint16_t)(gen.wi_len) & 0xffU) << 8 | ((__uint16_t)(gen.wi_len) & 0xff00U) >> 8) : __swap16md(gen.wi_len)) - 1 < sizeof(sc->wi_stats) / 4) ?
+     (__builtin_constant_p(gen.wi_len) ? (__uint16_t)(((__uint16_t)(gen.wi_len) & 0xffU) << 8 | ((__uint16_t)(gen.wi_len) & 0xff00U) >> 8) : __swap16md(gen.wi_len)) - 1 : sizeof(sc->wi_stats) / 4;
  ptr = (u_int32_t *)&sc->wi_stats;
  for (i = 0; i < len; i++) {
   if (sc->wi_flags & 0x0400) {
    sc->sc_funcs->f_read_data(sc, id, 4 + i*2, (char *)&t, 2);
-   t = __extension__({ __uint16_t __swap16gen_x = (t); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   t = (__builtin_constant_p(t) ? (__uint16_t)(((__uint16_t)(t) & 0xffU) << 8 | ((__uint16_t)(t) & 0xff00U) >> 8) : __swap16md(t));
   } else
    t = bus_space_read_2(sc->wi_btag, sc->wi_bhandle, (sc->sc_pci ? 0x38 * 2: 0x38));
   if (t > 0xF000)
@@ -5539,7 +5543,7 @@ wi_reset(struct wi_softc *sc)
  sc->wi_flags |= 0x0002;
  wi_intr_enable(sc, 0);
  wi_intr_ack(sc, 0xffff);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFCE0; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (8); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFCE0; g.wi_val = (__builtin_constant_p(8) ? (__uint16_t)(((__uint16_t)(8) & 0xffU) << 8 | ((__uint16_t)(8) & 0xff00U) >> 8) : __swap16md(8)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  return;
 }
  void
@@ -5599,13 +5603,13 @@ wi_read_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
   bus_space_read_raw_multi_2((sc)->wi_btag, (sc)->wi_bhandle, (sc->sc_pci? 0x38 * 2: 0x38), (ptr), ((ltv->wi_len-1)*2));
  if (ltv->wi_type == 0xFC00 && sc->wi_ptype == 0x4
      && ltv->wi_val == sc->wi_ibss_port) {
-  ltv->wi_val = __extension__({ __uint16_t __swap16gen_x = (0x4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ltv->wi_val = (__builtin_constant_p(0x4) ? (__uint16_t)(((__uint16_t)(0x4) & 0xffU) << 8 | ((__uint16_t)(0x4) & 0xff00U) >> 8) : __swap16md(0x4));
  } else if (sc->sc_firmware_type != 1) {
   int v;
   switch (oltv->wi_type) {
   case 0xFC84:
   case 0xFD44:
-   switch (__extension__({ __uint16_t __swap16gen_x = (ltv->wi_val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+   switch ((__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
    case 1: v = 1; break;
    case 2: v = 2; break;
    case 3: v = 6; break;
@@ -5613,16 +5617,16 @@ wi_read_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
    case 7: v = 7; break;
    case 8: v = 11; break;
    case 15: v = 3; break;
-   default: v = 0x100 + __extension__({ __uint16_t __swap16gen_x = (ltv->wi_val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); break;
+   default: v = 0x100 + (__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)); break;
    }
-   oltv->wi_val = __extension__({ __uint16_t __swap16gen_x = (v); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   oltv->wi_val = (__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
    break;
   case 0xFC20:
    oltv->wi_len = 2;
-   if (ltv->wi_val & __extension__({ __uint16_t __swap16gen_x = (0x01); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
-    oltv->wi_val = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   if (ltv->wi_val & (__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01)))
+    oltv->wi_val = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
    else
-    oltv->wi_val = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    oltv->wi_val = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
    break;
   case 0xFCB1:
   case 0xFC2A:
@@ -5641,7 +5645,7 @@ wi_write_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
  int i;
  struct wi_ltv_gen p2ltv;
  if (ltv->wi_type == 0xFC00 &&
-     __extension__({ __uint16_t __swap16gen_x = (ltv->wi_val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) == 0x4) {
+     (__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)) == 0x4) {
   p2ltv.wi_type = 0xFC00;
   p2ltv.wi_len = 2;
   p2ltv.wi_val = sc->wi_ibss_port;
@@ -5652,7 +5656,7 @@ wi_write_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
   case 0xFC84:
    p2ltv.wi_type = 0xFC84;
    p2ltv.wi_len = 2;
-   switch (__extension__({ __uint16_t __swap16gen_x = (ltv->wi_val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+   switch ((__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
    case 1: v = 1; break;
    case 2: v = 2; break;
    case 3: v = 15; break;
@@ -5662,13 +5666,13 @@ wi_write_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
    case 11: v = 8; break;
    default: return 22;
    }
-   p2ltv.wi_val = __extension__({ __uint16_t __swap16gen_x = (v); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   p2ltv.wi_val = (__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
    ltv = &p2ltv;
    break;
   case 0xFC20:
    p2ltv.wi_type = 0xFC28;
    p2ltv.wi_len = 2;
-   if (ltv->wi_val & __extension__({ __uint16_t __swap16gen_x = (0x01); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+   if (ltv->wi_val & (__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01))) {
     val = 0x01;
     if (sc->wi_authtype != 1 ||
         sc->sc_firmware_type == 3)
@@ -5682,9 +5686,9 @@ wi_write_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
      val |= 0x10|0x80;
      break;
     }
-    p2ltv.wi_val = __extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    p2ltv.wi_val = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
    } else
-    p2ltv.wi_val = __extension__({ __uint16_t __swap16gen_x = (0x10 | 0x80); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    p2ltv.wi_val = (__builtin_constant_p(0x10 | 0x80) ? (__uint16_t)(((__uint16_t)(0x10 | 0x80) & 0xffU) << 8 | ((__uint16_t)(0x10 | 0x80) & 0xff00U) >> 8) : __swap16md(0x10 | 0x80));
    ltv = &p2ltv;
    break;
   case 0xFCB1:
@@ -5701,7 +5705,7 @@ wi_write_record_io(struct wi_softc *sc, struct wi_ltv_gen *ltv)
     struct wi_ltv_str ws;
     struct wi_ltv_keys *wk = (struct wi_ltv_keys *)ltv;
     keylen = wk->wi_keys[sc->wi_tx_key].wi_keylen;
-    keylen = __extension__({ __uint16_t __swap16gen_x = (keylen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    keylen = (__builtin_constant_p(keylen) ? (__uint16_t)(((__uint16_t)(keylen) & 0xffU) << 8 | ((__uint16_t)(keylen) & 0xff00U) >> 8) : __swap16md(keylen));
     for (i = 0; i < 4; i++) {
      __builtin_bzero((&ws), (sizeof(ws)));
      ws.wi_len = (keylen > 5) ? 8 : 4;
@@ -5851,73 +5855,73 @@ wi_setdef(struct wi_softc *sc, struct wi_req *wreq)
   __builtin_bcopy((&wreq->wi_val), (&sc->sc_ic.ic_myaddr), (6));
   break;
  case 0xFC00:
-  error = wi_sync_media(sc, __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }),
+  error = wi_sync_media(sc, (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])),
       sc->wi_tx_rate);
   break;
  case 0xFC84:
   error = wi_sync_media(sc, sc->wi_ptype,
-      __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
   break;
  case 0xFC07:
-  sc->wi_max_data_len = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_max_data_len = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC83:
-  sc->wi_rts_thresh = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_rts_thresh = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC06:
-  sc->wi_ap_density = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_ap_density = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC81:
-  sc->wi_create_ibss = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_create_ibss = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   error = wi_sync_media(sc, sc->wi_ptype, sc->wi_tx_rate);
   break;
  case 0xFC03:
-  sc->wi_channel = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_channel = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC0E:
   error = wi_set_ssid(&sc->wi_node_name,
-      (u_int8_t *)&wreq->wi_val[1], __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (u_int8_t *)&wreq->wi_val[1], (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
   break;
  case 0xFC02:
   error = wi_set_ssid(&sc->wi_net_name,
-      (u_int8_t *)&wreq->wi_val[1], __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (u_int8_t *)&wreq->wi_val[1], (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
   break;
  case 0xFC04:
   error = wi_set_ssid(&sc->wi_ibss_name,
-      (u_int8_t *)&wreq->wi_val[1], __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+      (u_int8_t *)&wreq->wi_val[1], (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
   break;
  case 0xFC09:
-  sc->wi_pm_enabled = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_pm_enabled = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC25:
-  sc->wi_mor_enabled = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_mor_enabled = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC0C:
-  sc->wi_max_sleep = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_max_sleep = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC2A:
-  sc->wi_authtype = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_authtype = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC2D:
-  sc->wi_roaming = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_roaming = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC87:
-  sc->wi_diversity = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_diversity = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC43:
-  sc->wi_enh_security = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_enh_security = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFC20:
-  sc->wi_use_wep = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_use_wep = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFCB1:
-  sc->wi_tx_key = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  sc->wi_tx_key = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0xFCB0:
   __builtin_bcopy((wreq), (&sc->wi_keys), (sizeof(struct wi_ltv_keys)));
   break;
  case 0xFCE3:
-  switch (__extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+  switch ((__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]))) {
   case 0x00:
    sc->wi_crypto_algorithm = 0x00;
    break;
@@ -5926,7 +5930,7 @@ wi_setdef(struct wi_softc *sc, struct wi_req *wreq)
    break;
   default:
    printf("%s" ": unsupported crypto algorithm %d\n",
-       (sc)->sc_dev.dv_xname, __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+       (sc)->sc_dev.dv_xname, (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
    error = 22;
   }
   break;
@@ -5974,12 +5978,12 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
        ifp->if_flags & 0x100 &&
        !(sc->wi_if_flags & 0x100)) {
     if (sc->wi_ptype != 0x6)
-     do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+     do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
    } else if (ifp->if_flags & 0x40 &&
        !(ifp->if_flags & 0x100) &&
        sc->wi_if_flags & 0x100) {
     if (sc->wi_ptype != 0x6)
-     do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+     do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
    } else
     sc->sc_funcs->f_init(sc);
   } else if (ifp->if_flags & 0x40)
@@ -6013,15 +6017,15 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    break;
   case 0x3137:
    wreq->wi_len = 2;
-   wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_procframe); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   wreq->wi_val[0] = (__builtin_constant_p(sc->wi_procframe) ? (__uint16_t)(((__uint16_t)(sc->wi_procframe) & 0xffU) << 8 | ((__uint16_t)(sc->wi_procframe) & 0xff00U) >> 8) : __swap16md(sc->wi_procframe));
    break;
   case 0x3138:
    wreq->wi_len = 2;
-   wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->sc_firmware_type == 1 ? 0 : 1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   wreq->wi_val[0] = (__builtin_constant_p(sc->sc_firmware_type == 1 ? 0 : 1) ? (__uint16_t)(((__uint16_t)(sc->sc_firmware_type == 1 ? 0 : 1) & 0xffU) << 8 | ((__uint16_t)(sc->sc_firmware_type == 1 ? 0 : 1) & 0xff00U) >> 8) : __swap16md(sc->sc_firmware_type == 1 ? 0 : 1));
    break;
   case 0xFCE3:
    wreq->wi_val[0] =
-       __extension__({ __uint16_t __swap16gen_x = ((u_int16_t)sc->wi_crypto_algorithm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p((u_int16_t)sc->wi_crypto_algorithm) ? (__uint16_t)(((__uint16_t)((u_int16_t)sc->wi_crypto_algorithm) & 0xffU) << 8 | ((__uint16_t)((u_int16_t)sc->wi_crypto_algorithm) & 0xff00U) >> 8) : __swap16md((u_int16_t)sc->wi_crypto_algorithm));
    wreq->wi_len = 1;
    break;
   case 0xFD88:
@@ -6056,7 +6060,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
        wreq->wi_len);
    break;
   case 0x3137:
-   sc->wi_procframe = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   sc->wi_procframe = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
    error = 0;
    break;
   case 0xFCE1:
@@ -6134,13 +6138,13 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    wreq->wi_type = 0xFD41;
    wreq->wi_len = 512;
    if (sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)wreq) ||
-       __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) > 32)
+       (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])) > 32)
     error = 22;
    else {
     nwidp = malloc(sizeof *nwidp, 2,
         0x0001 | 0x0008);
     wi_set_ssid(nwidp, (u_int8_t *)&wreq->wi_val[1],
-        __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }));
+        (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0])));
     error = copyout(nwidp, ifr->ifr_ifru.ifru_data,
         sizeof(*nwidp));
    }
@@ -6161,7 +6165,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
       __builtin_memcmp((sc->wi_net_name.i_nwid), (nwidp->i_nwid), (nwidp->i_len)) == 0)
    break;
   wi_set_ssid(&sc->wi_net_name, nwidp->i_nwid, nwidp->i_len);
-  do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC02; s.wi_str[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_net_name.i_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
+  do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC02; s.wi_str[0] = (__builtin_constant_p(sc->wi_net_name.i_len) ? (__uint16_t)(((__uint16_t)(sc->wi_net_name.i_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_net_name.i_len) & 0xff00U) >> 8) : __swap16md(sc->wi_net_name.i_len)); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
   if (ifp->if_flags & 0x1)
    sc->sc_funcs->f_init(sc);
   break;
@@ -6199,7 +6203,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   wreq = malloc(sizeof *wreq, 2, 0x0001 | 0x0008);
   wreq->wi_type = 0xFC03;
   wreq->wi_val[0] =
-      __extension__({ __uint16_t __swap16gen_x = (((struct ieee80211chanreq *)data)->i_channel); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(((struct ieee80211chanreq *)data)->i_channel) ? (__uint16_t)(((__uint16_t)(((struct ieee80211chanreq *)data)->i_channel) & 0xffU) << 8 | ((__uint16_t)(((struct ieee80211chanreq *)data)->i_channel) & 0xff00U) >> 8) : __swap16md(((struct ieee80211chanreq *)data)->i_channel));
   error = wi_setdef(sc, wreq);
   if (!error && (ifp->if_flags & 0x1))
    sc->sc_funcs->f_init(sc);
@@ -6213,7 +6217,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    break;
   }
   ((struct ieee80211chanreq *)data)->i_channel =
-      __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_bssid) & 0x1fff) << 16) | ((('i')) << 8) | ((241))):
   bssid = (struct ieee80211_bssid *)data;
@@ -6299,14 +6303,14 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    __builtin_bzero((nr), (sizeof(*nr)));
    __builtin_memcpy((nr->nr_macaddr), (res->wi_bssid), (6));
    __builtin_memcpy((nr->nr_bssid), (res->wi_bssid), (6));
-   nr->nr_channel = __extension__({ __uint16_t __swap16gen_x = (res->wi_chan); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   nr->nr_channel = (__builtin_constant_p(res->wi_chan) ? (__uint16_t)(((__uint16_t)(res->wi_chan) & 0xffU) << 8 | ((__uint16_t)(res->wi_chan) & 0xff00U) >> 8) : __swap16md(res->wi_chan));
    nr->nr_chan_flags = (0x0080 | 0x0020);
-   nr->nr_rssi = __extension__({ __uint16_t __swap16gen_x = (res->wi_signal); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   nr->nr_rssi = (__builtin_constant_p(res->wi_signal) ? (__uint16_t)(((__uint16_t)(res->wi_signal) & 0xffU) << 8 | ((__uint16_t)(res->wi_signal) & 0xff00U) >> 8) : __swap16md(res->wi_signal));
    nr->nr_max_rssi = 0;
-   nr->nr_nwid_len = __extension__({ __uint16_t __swap16gen_x = (res->wi_ssid_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   nr->nr_nwid_len = (__builtin_constant_p(res->wi_ssid_len) ? (__uint16_t)(((__uint16_t)(res->wi_ssid_len) & 0xffU) << 8 | ((__uint16_t)(res->wi_ssid_len) & 0xff00U) >> 8) : __swap16md(res->wi_ssid_len));
    __builtin_bcopy((res->wi_ssid), (nr->nr_nwid), (nr->nr_nwid_len));
-   nr->nr_intval = __extension__({ __uint16_t __swap16gen_x = (res->wi_interval); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   nr->nr_capinfo = __extension__({ __uint16_t __swap16gen_x = (res->wi_capinfo); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   nr->nr_intval = (__builtin_constant_p(res->wi_interval) ? (__uint16_t)(((__uint16_t)(res->wi_interval) & 0xffU) << 8 | ((__uint16_t)(res->wi_interval) & 0xff00U) >> 8) : __swap16md(res->wi_interval));
+   nr->nr_capinfo = (__builtin_constant_p(res->wi_capinfo) ? (__uint16_t)(((__uint16_t)(res->wi_capinfo) & 0xffU) << 8 | ((__uint16_t)(res->wi_capinfo) & 0xff00U) >> 8) : __swap16md(res->wi_capinfo));
    nr->nr_txrate = res->wi_rate == 0x0a ? 2 :
        (res->wi_rate == 0x14 ? 4 :
        (res->wi_rate == 0x37 ? 11 :
@@ -6344,7 +6348,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
     error = 22;
     break;
    }
-   sc->wi_enh_security = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   sc->wi_enh_security = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
    if (sc->wi_enh_security == 0x03)
     ifr->ifr_ifru.ifru_flags |= 0x10000000 >>
         28;
@@ -6361,7 +6365,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   if (sc->wi_flags & 0x0800) {
    sc->wi_enh_security = (flags & 0x10000000) ?
        0x03 : 0;
-   do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC43; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_enh_security); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+   do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC43; g.wi_val = (__builtin_constant_p(sc->wi_enh_security) ? (__uint16_t)(((__uint16_t)(sc->wi_enh_security) & 0xffU) << 8 | ((__uint16_t)(sc->wi_enh_security) & 0xff00U) >> 8) : __swap16md(sc->wi_enh_security)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
   }
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((201))):
@@ -6426,49 +6430,49 @@ wi_init_io(struct wi_softc *sc)
  if (ifp->if_flags & 0x40)
   wi_stop(sc);
  wi_reset(sc);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC07; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_max_data_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC00; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_ptype); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC81; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_create_ibss); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC83; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_rts_thresh); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC84; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_tx_rate); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC06; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_ap_density); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC09; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_pm_enabled); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC0C; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_max_sleep); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC07; g.wi_val = (__builtin_constant_p(sc->wi_max_data_len) ? (__uint16_t)(((__uint16_t)(sc->wi_max_data_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_max_data_len) & 0xff00U) >> 8) : __swap16md(sc->wi_max_data_len)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC00; g.wi_val = (__builtin_constant_p(sc->wi_ptype) ? (__uint16_t)(((__uint16_t)(sc->wi_ptype) & 0xffU) << 8 | ((__uint16_t)(sc->wi_ptype) & 0xff00U) >> 8) : __swap16md(sc->wi_ptype)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC81; g.wi_val = (__builtin_constant_p(sc->wi_create_ibss) ? (__uint16_t)(((__uint16_t)(sc->wi_create_ibss) & 0xffU) << 8 | ((__uint16_t)(sc->wi_create_ibss) & 0xff00U) >> 8) : __swap16md(sc->wi_create_ibss)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC83; g.wi_val = (__builtin_constant_p(sc->wi_rts_thresh) ? (__uint16_t)(((__uint16_t)(sc->wi_rts_thresh) & 0xffU) << 8 | ((__uint16_t)(sc->wi_rts_thresh) & 0xff00U) >> 8) : __swap16md(sc->wi_rts_thresh)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC84; g.wi_val = (__builtin_constant_p(sc->wi_tx_rate) ? (__uint16_t)(((__uint16_t)(sc->wi_tx_rate) & 0xffU) << 8 | ((__uint16_t)(sc->wi_tx_rate) & 0xff00U) >> 8) : __swap16md(sc->wi_tx_rate)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC06; g.wi_val = (__builtin_constant_p(sc->wi_ap_density) ? (__uint16_t)(((__uint16_t)(sc->wi_ap_density) & 0xffU) << 8 | ((__uint16_t)(sc->wi_ap_density) & 0xff00U) >> 8) : __swap16md(sc->wi_ap_density)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC09; g.wi_val = (__builtin_constant_p(sc->wi_pm_enabled) ? (__uint16_t)(((__uint16_t)(sc->wi_pm_enabled) & 0xffU) << 8 | ((__uint16_t)(sc->wi_pm_enabled) & 0xff00U) >> 8) : __swap16md(sc->wi_pm_enabled)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC0C; g.wi_val = (__builtin_constant_p(sc->wi_max_sleep) ? (__uint16_t)(((__uint16_t)(sc->wi_max_sleep) & 0xffU) << 8 | ((__uint16_t)(sc->wi_max_sleep) & 0xff00U) >> 8) : __swap16md(sc->wi_max_sleep)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  if (sc->wi_flags & 0x0800)
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC43; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_enh_security); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC43; g.wi_val = (__builtin_constant_p(sc->wi_enh_security) ? (__uint16_t)(((__uint16_t)(sc->wi_enh_security) & 0xffU) << 8 | ((__uint16_t)(sc->wi_enh_security) & 0xff00U) >> 8) : __swap16md(sc->wi_enh_security)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  if (sc->wi_flags & 0x0040)
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC2D; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_roaming); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC2D; g.wi_val = (__builtin_constant_p(sc->wi_roaming) ? (__uint16_t)(((__uint16_t)(sc->wi_roaming) & 0xffU) << 8 | ((__uint16_t)(sc->wi_roaming) & 0xff00U) >> 8) : __swap16md(sc->wi_roaming)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  if (sc->wi_flags & 0x0080)
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC87; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_diversity); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC02; s.wi_str[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_net_name.i_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC87; g.wi_val = (__builtin_constant_p(sc->wi_diversity) ? (__uint16_t)(((__uint16_t)(sc->wi_diversity) & 0xffU) << 8 | ((__uint16_t)(sc->wi_diversity) & 0xff00U) >> 8) : __swap16md(sc->wi_diversity)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC02; s.wi_str[0] = (__builtin_constant_p(sc->wi_net_name.i_len) ? (__uint16_t)(((__uint16_t)(sc->wi_net_name.i_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_net_name.i_len) & 0xff00U) >> 8) : __swap16md(sc->wi_net_name.i_len)); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
  if (sc->wi_net_name.i_len != 0 && (sc->wi_ptype == 0x6 ||
      (sc->wi_create_ibss && sc->wi_ptype == 0x4)))
-  do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC04; s.wi_str[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_net_name.i_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
+  do { struct wi_ltv_str s; int l; l = (sc->wi_net_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC04; s.wi_str[0] = (__builtin_constant_p(sc->wi_net_name.i_len) ? (__uint16_t)(((__uint16_t)(sc->wi_net_name.i_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_net_name.i_len) & 0xff00U) >> 8) : __swap16md(sc->wi_net_name.i_len)); __builtin_bcopy((sc->wi_net_name.i_nwid), (&s.wi_str[1]), (sc->wi_net_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
  else
-  do { struct wi_ltv_str s; int l; l = (sc->wi_ibss_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC04; s.wi_str[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_ibss_name.i_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); __builtin_bcopy((sc->wi_ibss_name.i_nwid), (&s.wi_str[1]), (sc->wi_ibss_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
- do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC03; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_channel); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
- do { struct wi_ltv_str s; int l; l = (sc->wi_node_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC0E; s.wi_str[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_node_name.i_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); __builtin_bcopy((sc->wi_node_name.i_nwid), (&s.wi_str[1]), (sc->wi_node_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
+  do { struct wi_ltv_str s; int l; l = (sc->wi_ibss_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC04; s.wi_str[0] = (__builtin_constant_p(sc->wi_ibss_name.i_len) ? (__uint16_t)(((__uint16_t)(sc->wi_ibss_name.i_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_ibss_name.i_len) & 0xff00U) >> 8) : __swap16md(sc->wi_ibss_name.i_len)); __builtin_bcopy((sc->wi_ibss_name.i_nwid), (&s.wi_str[1]), (sc->wi_ibss_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
+ do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC03; g.wi_val = (__builtin_constant_p(sc->wi_channel) ? (__uint16_t)(((__uint16_t)(sc->wi_channel) & 0xffU) << 8 | ((__uint16_t)(sc->wi_channel) & 0xff00U) >> 8) : __swap16md(sc->wi_channel)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+ do { struct wi_ltv_str s; int l; l = (sc->wi_node_name.i_len + 1) & ~0x1; __builtin_bzero((&s), (sizeof(s))); s.wi_len = (l / 2) + 2; s.wi_type = 0xFC0E; s.wi_str[0] = (__builtin_constant_p(sc->wi_node_name.i_len) ? (__uint16_t)(((__uint16_t)(sc->wi_node_name.i_len) & 0xffU) << 8 | ((__uint16_t)(sc->wi_node_name.i_len) & 0xff00U) >> 8) : __swap16md(sc->wi_node_name.i_len)); __builtin_bcopy((sc->wi_node_name.i_nwid), (&s.wi_str[1]), (sc->wi_node_name.i_len)); sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&s); } while (0);
  mac.wi_len = 4;
  mac.wi_type = 0xFC01;
  __builtin_bcopy((((caddr_t)((ifp->if_sadl)->sdl_data + (ifp->if_sadl)->sdl_nlen))), (&sc->sc_ic.ic_myaddr), (6));
  __builtin_bcopy((&sc->sc_ic.ic_myaddr), (&mac.wi_mac_addr), (6));
  sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&mac);
  if (sc->wi_ptype != 0x6 && ifp->if_flags & 0x100)
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  else
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
  if (sc->wi_flags & 0x0004) {
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC20; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_use_wep); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
-  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFCB1; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_tx_key); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC20; g.wi_val = (__builtin_constant_p(sc->wi_use_wep) ? (__uint16_t)(((__uint16_t)(sc->wi_use_wep) & 0xffU) << 8 | ((__uint16_t)(sc->wi_use_wep) & 0xff00U) >> 8) : __swap16md(sc->wi_use_wep)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+  do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFCB1; g.wi_val = (__builtin_constant_p(sc->wi_tx_key) ? (__uint16_t)(((__uint16_t)(sc->wi_tx_key) & 0xffU) << 8 | ((__uint16_t)(sc->wi_tx_key) & 0xff00U) >> 8) : __swap16md(sc->wi_tx_key)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
   sc->wi_keys.wi_len = (sizeof(struct wi_ltv_keys) / 2) + 1;
   sc->wi_keys.wi_type = 0xFCB0;
   sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&sc->wi_keys);
   if (sc->sc_firmware_type != 1 && sc->wi_use_wep) {
     if (sc->sc_firmware_type == 2 &&
        sc->sc_sta_firmware_ver < 802 ) {
-    do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+    do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC85; g.wi_val = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
     }
-    do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC2A; g.wi_val = __extension__({ __uint16_t __swap16gen_x = (sc->wi_authtype); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }); sc->sc_funcs->f_write_record(sc, &g); } while (0);
+    do { struct wi_ltv_gen g; g.wi_len = 2; g.wi_type = 0xFC2A; g.wi_val = (__builtin_constant_p(sc->wi_authtype) ? (__uint16_t)(((__uint16_t)(sc->wi_authtype) & 0xffU) << 8 | ((__uint16_t)(sc->wi_authtype) & 0xff00U) >> 8) : __swap16md(sc->wi_authtype)); sc->sc_funcs->f_write_record(sc, &g); } while (0);
   }
  }
  wi_setmulti(sc);
@@ -6510,7 +6514,7 @@ wi_do_hostencrypt(struct wi_softc *sc, caddr_t buf, int len)
  key[0] = sc->wi_icv >> 16;
  key[1] = sc->wi_icv >> 8;
  key[2] = sc->wi_icv;
- klen = __extension__({ __uint16_t __swap16gen_x = (sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keylen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ klen = (__builtin_constant_p(sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keylen) ? (__uint16_t)(((__uint16_t)(sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keylen) & 0xffU) << 8 | ((__uint16_t)(sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keylen) & 0xff00U) >> 8) : __swap16md(sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keylen));
  __builtin_bcopy((&sc->wi_keys.wi_keys[sc->wi_tx_key].wi_keydat), (key + 3), (klen));
  klen = (klen > 5) ? 16 : 16 / 2;
  rc4_keysetup(&ctx, key, klen);
@@ -6548,7 +6552,7 @@ wi_do_hostdecrypt(struct wi_softc *sc, caddr_t buf, int len)
  key[2] = dat[2];
  kid = (dat[3] >> 6) % 4;
  dat += 4;
- klen = __extension__({ __uint16_t __swap16gen_x = (sc->wi_keys.wi_keys[kid].wi_keylen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ klen = (__builtin_constant_p(sc->wi_keys.wi_keys[kid].wi_keylen) ? (__uint16_t)(((__uint16_t)(sc->wi_keys.wi_keys[kid].wi_keylen) & 0xffU) << 8 | ((__uint16_t)(sc->wi_keys.wi_keys[kid].wi_keylen) & 0xff00U) >> 8) : __swap16md(sc->wi_keys.wi_keys[kid].wi_keylen));
  __builtin_bcopy((&sc->wi_keys.wi_keys[kid].wi_keydat), (key + 3), (klen));
  klen = (klen > 5) ? 16 : 16 / 2;
  rc4_keysetup(&ctx, key, klen);
@@ -6585,7 +6589,7 @@ nextpkt:
  if (m0 == ((void *)0))
   return;
  __builtin_bzero((&tx_frame), (sizeof(tx_frame)));
- tx_frame.wi_frame_ctl = __extension__({ __uint16_t __swap16gen_x = (0x0008 | 0x0000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ tx_frame.wi_frame_ctl = (__builtin_constant_p(0x0008 | 0x0000) ? (__uint16_t)(((__uint16_t)(0x0008 | 0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0008 | 0x0000) & 0xff00U) >> 8) : __swap16md(0x0008 | 0x0000));
  id = sc->wi_tx_data_id;
  eh = ((struct ether_header *)((m0)->m_hdr.mh_data));
  if (sc->wi_ptype == 0x6) {
@@ -6606,16 +6610,16 @@ nextpkt:
      eh->ether_type == ((__uint16_t)(0x86DD))) {
   __builtin_bcopy((&eh->ether_dhost), (&tx_frame.wi_addr1), (6));
   if (sc->wi_ptype == 0x6) {
-   tx_frame.wi_tx_ctl = __extension__({ __uint16_t __swap16gen_x = (0x08); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   tx_frame.wi_frame_ctl |= __extension__({ __uint16_t __swap16gen_x = (0x0200); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   tx_frame.wi_tx_ctl = (__builtin_constant_p(0x08) ? (__uint16_t)(((__uint16_t)(0x08) & 0xffU) << 8 | ((__uint16_t)(0x08) & 0xff00U) >> 8) : __swap16md(0x08));
+   tx_frame.wi_frame_ctl |= (__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200));
    __builtin_bcopy((&sc->sc_ic.ic_myaddr), (&tx_frame.wi_addr2), (6));
    __builtin_bcopy((&eh->ether_shost), (&tx_frame.wi_addr3), (6));
    if (sc->wi_use_wep)
     hostencrypt = 1;
   } else if (sc->wi_ptype == 0x1 && sc->wi_use_wep &&
       sc->wi_crypto_algorithm != 0x00) {
-   tx_frame.wi_tx_ctl = __extension__({ __uint16_t __swap16gen_x = (0x08); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   tx_frame.wi_frame_ctl |= __extension__({ __uint16_t __swap16gen_x = (0x0100); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   tx_frame.wi_tx_ctl = (__builtin_constant_p(0x08) ? (__uint16_t)(((__uint16_t)(0x08) & 0xffU) << 8 | ((__uint16_t)(0x08) & 0xff00U) >> 8) : __swap16md(0x08));
+   tx_frame.wi_frame_ctl |= (__builtin_constant_p(0x0100) ? (__uint16_t)(((__uint16_t)(0x0100) & 0xffU) << 8 | ((__uint16_t)(0x0100) & 0xff00U) >> 8) : __swap16md(0x0100));
    __builtin_bcopy((&sc->sc_ic.ic_myaddr), (&tx_frame.wi_addr2), (6));
    __builtin_bcopy((&eh->ether_dhost), (&tx_frame.wi_addr3), (6));
    hostencrypt = 1;
@@ -6629,7 +6633,7 @@ nextpkt:
   tx_frame.wi_len = ((__uint16_t)(m0->M_dat.MH.MH_pkthdr.len - 0x6));
   tx_frame.wi_type = eh->ether_type;
   if (hostencrypt) {
-   tx_frame.wi_frame_ctl |= __extension__({ __uint16_t __swap16gen_x = (0x4000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   tx_frame.wi_frame_ctl |= (__builtin_constant_p(0x4000) ? (__uint16_t)(((__uint16_t)(0x4000) & 0xffU) << 8 | ((__uint16_t)(0x4000) & 0xff00U) >> 8) : __swap16md(0x4000));
    __builtin_bcopy((&tx_frame.wi_dat[0]), (&sc->wi_txbuf[4]), (6));
    __builtin_bcopy((&tx_frame.wi_type), (&sc->wi_txbuf[10]), (2));
    m_copydata(m0, sizeof(struct ether_header),
@@ -6639,7 +6643,7 @@ nextpkt:
        tx_frame.wi_dat_len);
    tx_frame.wi_dat_len += 3 +
        1 + 4;
-   tx_frame.wi_dat_len = __extension__({ __uint16_t __swap16gen_x = (tx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   tx_frame.wi_dat_len = (__builtin_constant_p(tx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(tx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(tx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(tx_frame.wi_dat_len));
    sc->sc_funcs->f_write_data(sc, id, 0, (caddr_t)&tx_frame,
        sizeof(struct wi_frame));
    sc->sc_funcs->f_write_data(sc, id, 0x3C,
@@ -6650,7 +6654,7 @@ nextpkt:
    m_copydata(m0, sizeof(struct ether_header),
        m0->M_dat.MH.MH_pkthdr.len - sizeof(struct ether_header),
        (caddr_t)&sc->wi_txbuf);
-   tx_frame.wi_dat_len = __extension__({ __uint16_t __swap16gen_x = (tx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   tx_frame.wi_dat_len = (__builtin_constant_p(tx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(tx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(tx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(tx_frame.wi_dat_len));
    sc->sc_funcs->f_write_data(sc, id, 0, (caddr_t)&tx_frame,
        sizeof(struct wi_frame));
    sc->sc_funcs->f_write_data(sc, id, 0x44,
@@ -6659,7 +6663,7 @@ nextpkt:
         sizeof(struct ether_header)) + 2);
   }
  } else {
-  tx_frame.wi_dat_len = __extension__({ __uint16_t __swap16gen_x = (m0->M_dat.MH.MH_pkthdr.len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  tx_frame.wi_dat_len = (__builtin_constant_p(m0->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m0->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m0->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m0->M_dat.MH.MH_pkthdr.len));
   if (sc->wi_ptype == 0x6 && sc->wi_use_wep) {
    printf("%s"
        ": host encrypt not implemented for 802.3\n",
@@ -6696,10 +6700,10 @@ wi_mgmt_xmit(struct wi_softc *sc, caddr_t data, int len)
  __builtin_bzero((&tx_frame), (sizeof(tx_frame)));
  id = sc->wi_tx_mgmt_id;
  __builtin_bcopy((hdr), (&tx_frame.wi_frame_ctl), (sizeof(struct wi_80211_hdr)));
- tx_frame.wi_tx_ctl = __extension__({ __uint16_t __swap16gen_x = (0x08); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ tx_frame.wi_tx_ctl = (__builtin_constant_p(0x08) ? (__uint16_t)(((__uint16_t)(0x08) & 0xffU) << 8 | ((__uint16_t)(0x08) & 0xff00U) >> 8) : __swap16md(0x08));
  tx_frame.wi_dat_len = len - sizeof(struct wi_80211_hdr);
- tx_frame.wi_len = __extension__({ __uint16_t __swap16gen_x = (tx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- tx_frame.wi_dat_len = __extension__({ __uint16_t __swap16gen_x = (tx_frame.wi_dat_len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ tx_frame.wi_len = (__builtin_constant_p(tx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(tx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(tx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(tx_frame.wi_dat_len));
+ tx_frame.wi_dat_len = (__builtin_constant_p(tx_frame.wi_dat_len) ? (__uint16_t)(((__uint16_t)(tx_frame.wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(tx_frame.wi_dat_len) & 0xff00U) >> 8) : __swap16md(tx_frame.wi_dat_len));
  sc->sc_funcs->f_write_data(sc, id, 0, (caddr_t)&tx_frame, sizeof(struct wi_frame));
  sc->sc_funcs->f_write_data(sc, id, 0x3C, dptr,
      (len - sizeof(struct wi_80211_hdr)) + 2);
@@ -6762,7 +6766,7 @@ wi_get_id(struct wi_softc *sc)
  ver.wi_type = 0xFD0B;
  ver.wi_len = 5;
  sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&ver);
- card_id = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ card_id = (__builtin_constant_p(ver.wi_ver[0]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[0]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[0]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[0]));
  for (id = wi_card_ident; id->firm_type != 0; id++) {
   if (card_id == id->card_id)
    break;
@@ -6770,7 +6774,7 @@ wi_get_id(struct wi_softc *sc)
  if (id->firm_type != 0) {
   sc->sc_firmware_type = id->firm_type;
   card_name = id->card_name;
- } else if (ver.wi_ver[0] & __extension__({ __uint16_t __swap16gen_x = (0x8000); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+ } else if (ver.wi_ver[0] & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) {
   sc->sc_firmware_type = 2;
   card_name = "Unknown PRISM2 chip";
  } else {
@@ -6781,17 +6785,17 @@ wi_get_id(struct wi_softc *sc)
   ver.wi_type = 0xFD02;
   ver.wi_len = 5;
   sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&ver);
-  pri_fw_ver[0] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[2]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  pri_fw_ver[1] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[3]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  pri_fw_ver[2] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  pri_fw_ver[0] = (__builtin_constant_p(ver.wi_ver[2]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[2]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[2]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[2]));
+  pri_fw_ver[1] = (__builtin_constant_p(ver.wi_ver[3]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[3]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[3]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[3]));
+  pri_fw_ver[2] = (__builtin_constant_p(ver.wi_ver[1]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[1]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[1]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[1]));
  }
  __builtin_bzero((&ver), (sizeof(ver)));
  ver.wi_type = 0xFD20;
  ver.wi_len = 5;
  sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&ver);
- ver.wi_ver[1] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- ver.wi_ver[2] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[2]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- ver.wi_ver[3] = __extension__({ __uint16_t __swap16gen_x = (ver.wi_ver[3]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ ver.wi_ver[1] = (__builtin_constant_p(ver.wi_ver[1]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[1]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[1]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[1]));
+ ver.wi_ver[2] = (__builtin_constant_p(ver.wi_ver[2]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[2]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[2]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[2]));
+ ver.wi_ver[3] = (__builtin_constant_p(ver.wi_ver[3]) ? (__uint16_t)(((__uint16_t)(ver.wi_ver[3]) & 0xffU) << 8 | ((__uint16_t)(ver.wi_ver[3]) & 0xff00U) >> 8) : __swap16md(ver.wi_ver[3]));
  sc->sc_sta_firmware_ver = ver.wi_ver[2] * 10000 +
      ver.wi_ver[3] * 100 + ver.wi_ver[1];
  if (sc->sc_firmware_type == 2 &&
@@ -6949,7 +6953,7 @@ wi_media_status(struct ifnet *ifp, struct ifmediareq *imr)
   wreq.wi_type = 0xFD44;
   wreq.wi_len = 512;
   if (sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&wreq) == 0) {
-   switch (__extension__({ __uint16_t __swap16gen_x = (wreq.wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+   switch ((__builtin_constant_p(wreq.wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq.wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq.wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq.wi_val[0]))) {
    case 1:
     imr->ifm_active |= 8;
     break;
@@ -6978,7 +6982,7 @@ wi_media_status(struct ifnet *ifp, struct ifmediareq *imr)
   wreq.wi_type = 0xFD43;
   wreq.wi_len = 512;
   if (sc->sc_funcs->f_read_record(sc, (struct wi_ltv_gen *)&wreq) == 0 &&
-      __extension__({ __uint16_t __swap16gen_x = (wreq.wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) != 0)
+      (__builtin_constant_p(wreq.wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq.wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq.wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq.wi_val[0])) != 0)
    imr->ifm_status |= 0x0000000000000002ULL;
  }
 }
@@ -7003,7 +7007,7 @@ wi_set_nwkey(struct wi_softc *sc, struct ieee80211_nwkey *nwkey)
       wk->wi_keys[i].wi_keydat, len);
   if (error)
    return error;
-  wk->wi_keys[i].wi_keylen = __extension__({ __uint16_t __swap16gen_x = (len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wk->wi_keys[i].wi_keylen = (__builtin_constant_p(len) ? (__uint16_t)(((__uint16_t)(len) & 0xffU) << 8 | ((__uint16_t)(len) & 0xff00U) >> 8) : __swap16md(len));
  }
  wk->wi_len = (sizeof(*wk) / 2) + 1;
  wk->wi_type = 0xFCB0;
@@ -7016,7 +7020,7 @@ wi_set_nwkey(struct wi_softc *sc, struct ieee80211_nwkey *nwkey)
   return (error);
  wreq.wi_len = 2;
  wreq.wi_type = 0xFCB1;
- wreq.wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (nwkey->i_defkid - 1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ wreq.wi_val[0] = (__builtin_constant_p(nwkey->i_defkid - 1) ? (__uint16_t)(((__uint16_t)(nwkey->i_defkid - 1) & 0xffU) << 8 | ((__uint16_t)(nwkey->i_defkid - 1) & 0xff00U) >> 8) : __swap16md(nwkey->i_defkid - 1));
  if (sc->sc_ic.ic_ac.ac_if.if_flags & 0x1) {
   error = sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&wreq);
   if (error)
@@ -7025,7 +7029,7 @@ wi_set_nwkey(struct wi_softc *sc, struct ieee80211_nwkey *nwkey)
  if ((error = wi_setdef(sc, &wreq)))
   return (error);
  wreq.wi_type = 0xFC20;
- wreq.wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (nwkey->i_wepon); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ wreq.wi_val[0] = (__builtin_constant_p(nwkey->i_wepon) ? (__uint16_t)(((__uint16_t)(nwkey->i_wepon) & 0xffU) << 8 | ((__uint16_t)(nwkey->i_wepon) & 0xff00U) >> 8) : __swap16md(nwkey->i_wepon));
  if (sc->sc_ic.ic_ac.ac_if.if_flags & 0x1) {
   error = sc->sc_funcs->f_write_record(sc, (struct wi_ltv_gen *)&wreq);
   if (error)
@@ -7052,7 +7056,7 @@ wi_get_nwkey(struct wi_softc *sc, struct ieee80211_nwkey *nwkey)
    continue;
   if (error)
    return error;
-  len = __extension__({ __uint16_t __swap16gen_x = (wk->wi_keys[i].wi_keylen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  len = (__builtin_constant_p(wk->wi_keys[i].wi_keylen) ? (__uint16_t)(((__uint16_t)(wk->wi_keys[i].wi_keylen) & 0xffU) << 8 | ((__uint16_t)(wk->wi_keys[i].wi_keylen) & 0xff00U) >> 8) : __swap16md(wk->wi_keys[i].wi_keylen));
   if (nwkey->i_key[i].i_keylen < len)
    return 28;
   nwkey->i_key[i].i_keylen = len;
@@ -7169,44 +7173,44 @@ wi_get_debug(struct wi_softc *sc, struct wi_req *wreq)
  switch (wreq->wi_type) {
  case 0x02:
   wreq->wi_len++;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_sleep); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_sleep) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_sleep) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_sleep) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_sleep));
   break;
  case 0x09:
   wreq->wi_len++;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_delaysupp); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_delaysupp) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_delaysupp) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_delaysupp) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_delaysupp));
   break;
  case 0x0A:
   wreq->wi_len++;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_txsupp); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_txsupp) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_txsupp) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_txsupp) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_txsupp));
   break;
  case 0x0B:
   wreq->wi_len++;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_monitor); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_monitor) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_monitor) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_monitor) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_monitor));
   break;
  case 0x0C:
   wreq->wi_len += 3;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_ledtest); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  wreq->wi_val[1] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_ledtest_param0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  wreq->wi_val[2] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_ledtest_param1); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_ledtest) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_ledtest) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_ledtest) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_ledtest));
+  wreq->wi_val[1] = (__builtin_constant_p(sc->wi_debug.wi_ledtest_param0) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_ledtest_param0) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_ledtest_param0) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_ledtest_param0));
+  wreq->wi_val[2] = (__builtin_constant_p(sc->wi_debug.wi_ledtest_param1) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_ledtest_param1) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_ledtest_param1) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_ledtest_param1));
   break;
  case 0x0E:
   wreq->wi_len += 2;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_conttx); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  wreq->wi_val[1] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_conttx_param0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_conttx) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_conttx) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_conttx) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_conttx));
+  wreq->wi_val[1] = (__builtin_constant_p(sc->wi_debug.wi_conttx_param0) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_conttx_param0) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_conttx_param0) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_conttx_param0));
   break;
  case 0x10:
   wreq->wi_len++;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_contrx); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_contrx) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_contrx) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_contrx) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_contrx));
   break;
  case 0x11:
   wreq->wi_len += 2;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_sigstate); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  wreq->wi_val[1] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_sigstate_param0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_sigstate) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_sigstate) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_sigstate) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_sigstate));
+  wreq->wi_val[1] = (__builtin_constant_p(sc->wi_debug.wi_sigstate_param0) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_sigstate_param0) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_sigstate_param0) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_sigstate_param0));
   break;
  case 0x15:
   wreq->wi_len += 2;
-  wreq->wi_val[0] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_confbits); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  wreq->wi_val[1] = __extension__({ __uint16_t __swap16gen_x = (sc->wi_debug.wi_confbits_param0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  wreq->wi_val[0] = (__builtin_constant_p(sc->wi_debug.wi_confbits) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_confbits) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_confbits) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_confbits));
+  wreq->wi_val[1] = (__builtin_constant_p(sc->wi_debug.wi_confbits_param0) ? (__uint16_t)(((__uint16_t)(sc->wi_debug.wi_confbits_param0) & 0xffU) << 8 | ((__uint16_t)(sc->wi_debug.wi_confbits_param0) & 0xff00U) >> 8) : __swap16md(sc->wi_debug.wi_confbits_param0));
   break;
  default:
   error = 5;
@@ -7231,7 +7235,7 @@ wi_set_debug(struct wi_softc *sc, struct wi_req *wreq)
   sc->wi_debug.wi_sleep = 0;
   break;
  case 0x08:
-  param0 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  param0 = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   break;
  case 0x09:
   sc->wi_debug.wi_delaysupp = 1;
@@ -7243,14 +7247,14 @@ wi_set_debug(struct wi_softc *sc, struct wi_req *wreq)
   sc->wi_debug.wi_monitor = 1;
   break;
  case 0x0C:
-  param0 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  param1 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  param0 = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
+  param1 = (__builtin_constant_p(wreq->wi_val[1]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[1]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[1]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[1]));
   sc->wi_debug.wi_ledtest = 1;
   sc->wi_debug.wi_ledtest_param0 = param0;
   sc->wi_debug.wi_ledtest_param1 = param1;
   break;
  case 0x0E:
-  param0 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  param0 = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   sc->wi_debug.wi_conttx = 1;
   sc->wi_debug.wi_conttx_param0 = param0;
   break;
@@ -7271,13 +7275,13 @@ wi_set_debug(struct wi_softc *sc, struct wi_req *wreq)
   sc->wi_debug.wi_contrx = 1;
   break;
  case 0x11:
-  param0 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  param0 = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
   sc->wi_debug.wi_sigstate = 1;
   sc->wi_debug.wi_sigstate_param0 = param0;
   break;
  case 0x15:
-  param0 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  param1 = __extension__({ __uint16_t __swap16gen_x = (wreq->wi_val[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  param0 = (__builtin_constant_p(wreq->wi_val[0]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[0]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[0]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[0]));
+  param1 = (__builtin_constant_p(wreq->wi_val[1]) ? (__uint16_t)(((__uint16_t)(wreq->wi_val[1]) & 0xffU) << 8 | ((__uint16_t)(wreq->wi_val[1]) & 0xff00U) >> 8) : __swap16md(wreq->wi_val[1]));
   sc->wi_debug.wi_confbits = param0;
   sc->wi_debug.wi_confbits_param0 = param1;
   break;

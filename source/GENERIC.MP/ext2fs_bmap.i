@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3300,17 +3304,17 @@ ext2fs_bmaparray(struct vnode *vp, daddr_t bn, daddr_t *bnp,
   return (error);
  num = *nump;
  if (num == 0) {
-  *bnp = ((__extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[bn]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) << (ump)->um_bptrtodb);
+  *bnp = (((__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn]))) << (ump)->um_bptrtodb);
   if (*bnp == 0)
    *bnp = -1;
   else if (runp)
    for (++bn; bn < 12 && *runp < maxrun &&
-       ((__extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[bn]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) == (__extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) + ump->um_seqinc);
+       (((__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn]))) == ((__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn - 1]))) + ump->um_seqinc);
        ++bn, ++*runp)
                  ;
   return (0);
  }
- daddr = __extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ daddr = (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[12 + xap->in_off]));
  devvp = ((struct ufsmount *)((vp->v_mount)->mnt_data))->um_devvp;
     if (num > 3 + 1 || num < 1) {
   printf("ext2fs_bmaparray: num=%d\n", num);
@@ -3340,7 +3344,7 @@ ext2fs_bmaparray(struct vnode *vp, daddr_t bn, daddr_t *bnp,
     return (error);
    }
   }
-  daddr = __extension__({ __uint32_t __swap32gen_x = (((int32_t *)bp->b_data)[xap->in_off]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  daddr = (__builtin_constant_p(((int32_t *)bp->b_data)[xap->in_off]) ? (__uint32_t)(((__uint32_t)(((int32_t *)bp->b_data)[xap->in_off]) & 0xff) << 24 | ((__uint32_t)(((int32_t *)bp->b_data)[xap->in_off]) & 0xff00) << 8 | ((__uint32_t)(((int32_t *)bp->b_data)[xap->in_off]) & 0xff0000) >> 8 | ((__uint32_t)(((int32_t *)bp->b_data)[xap->in_off]) & 0xff000000) >> 24) : __swap32md(((int32_t *)bp->b_data)[xap->in_off]));
   if (num == 1 && daddr && runp)
    for (bn = xap->in_off + 1;
        bn < ((ump)->um_nindir) && *runp < maxrun &&

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3211,8 +3215,8 @@ xhci_init(struct xhci_softc *sc)
   usbd_dma_contig_free(&sc->sc_bus, &sc->sc_dcbaa.dma);
   return (12);
  }
- sc->sc_erst.segs[0].er_addr = __extension__({ __uint64_t __swap64gen_x = (sc->sc_evt_ring.dma.paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- sc->sc_erst.segs[0].er_size = __extension__({ __uint32_t __swap32gen_x = ((16 * 13)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sc->sc_erst.segs[0].er_addr = (__builtin_constant_p(sc->sc_evt_ring.dma.paddr) ? (__uint64_t)((((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff) << 56) | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_evt_ring.dma.paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_evt_ring.dma.paddr));
+ sc->sc_erst.segs[0].er_size = (__builtin_constant_p((16 * 13)) ? (__uint32_t)(((__uint32_t)((16 * 13)) & 0xff) << 24 | ((__uint32_t)((16 * 13)) & 0xff00) << 8 | ((__uint32_t)((16 * 13)) & 0xff0000) >> 8 | ((__uint32_t)((16 * 13)) & 0xff000000) >> 24) : __swap32md((16 * 13)));
  sc->sc_erst.segs[0].er_rsvd = 0;
  bus_dmamap_sync(sc->sc_erst.dma.tag, sc->sc_erst.dma.map, 0,
      sc->sc_erst.dma.size, 0x01 | 0x04);
@@ -3406,9 +3410,9 @@ xhci_event_dequeue(struct xhci_softc *sc)
  uint64_t paddr;
  uint32_t status, flags;
  while ((trb = xhci_ring_consume(sc, &sc->sc_evt_ring)) != ((void *)0)) {
-  paddr = __extension__({ __uint64_t __swap64gen_x = (trb->trb_paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  status = __extension__({ __uint32_t __swap32gen_x = (trb->trb_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  flags = __extension__({ __uint32_t __swap32gen_x = (trb->trb_flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  paddr = (__builtin_constant_p(trb->trb_paddr) ? (__uint64_t)((((__uint64_t)(trb->trb_paddr) & 0xff) << 56) | ((__uint64_t)(trb->trb_paddr) & 0xff00ULL) << 40 | ((__uint64_t)(trb->trb_paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(trb->trb_paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(trb->trb_paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(trb->trb_paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(trb->trb_paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(trb->trb_paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(trb->trb_paddr));
+  status = (__builtin_constant_p(trb->trb_status) ? (__uint32_t)(((__uint32_t)(trb->trb_status) & 0xff) << 24 | ((__uint32_t)(trb->trb_status) & 0xff00) << 8 | ((__uint32_t)(trb->trb_status) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_status) & 0xff000000) >> 24) : __swap32md(trb->trb_status));
+  flags = (__builtin_constant_p(trb->trb_flags) ? (__uint32_t)(((__uint32_t)(trb->trb_flags) & 0xff) << 24 | ((__uint32_t)(trb->trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb->trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_flags) & 0xff000000) >> 24) : __swap32md(trb->trb_flags));
   switch (flags & 0xfc00) {
   case (32 << 10):
    xhci_event_xfer(sc, paddr, status, flags);
@@ -3536,7 +3540,7 @@ xhci_event_command(struct xhci_softc *sc, uint64_t paddr)
  bus_dmamap_sync(sc->sc_cmd_ring.dma.tag, sc->sc_cmd_ring.dma.map,
      ((char *)(trb) - (char *)((&sc->sc_cmd_ring)->trbs)), sizeof(struct xhci_trb),
      0x02 | 0x08);
- flags = __extension__({ __uint32_t __swap32gen_x = (trb->trb_flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ flags = (__builtin_constant_p(trb->trb_flags) ? (__uint32_t)(((__uint32_t)(trb->trb_flags) & 0xff) << 24 | ((__uint32_t)(trb->trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb->trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_flags) & 0xff000000) >> 24) : __swap32md(trb->trb_flags));
  slot = (((flags) >> 24) & 0xff);
  dci = (((flags) >> 16) & 0x1f);
  switch (flags & 0xfc00) {
@@ -3770,32 +3774,32 @@ xhci_context_setup(struct xhci_softc *sc, struct usbd_pipe *pipe)
  }
  if ((ed->bEndpointAddress & 0x80) || (xfertype == 0x00))
   xfertype |= 0x4;
- sdev->ep_ctx[xp->dci-1]->info_lo = __extension__({ __uint32_t __swap32gen_x = ((((ival) & 0xff) << 16)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sdev->ep_ctx[xp->dci-1]->info_hi = __extension__({ __uint32_t __swap32gen_x = ((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sdev->ep_ctx[xp->dci-1]->txinfo = __extension__({ __uint32_t __swap32gen_x = (xhci_get_txinfo(sc, pipe)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sdev->ep_ctx[xp->dci-1]->deqp = __extension__({ __uint64_t __swap64gen_x = (((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ sdev->ep_ctx[xp->dci-1]->info_lo = (__builtin_constant_p((((ival) & 0xff) << 16)) ? (__uint32_t)(((__uint32_t)((((ival) & 0xff) << 16)) & 0xff) << 24 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff00) << 8 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff0000) >> 8 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff000000) >> 24) : __swap32md((((ival) & 0xff) << 16)));
+ sdev->ep_ctx[xp->dci-1]->info_hi = (__builtin_constant_p((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) ? (__uint32_t)(((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff) << 24 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff00) << 8 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff0000) >> 8 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff000000) >> 24) : __swap32md((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)));
+ sdev->ep_ctx[xp->dci-1]->txinfo = (__builtin_constant_p(xhci_get_txinfo(sc, pipe)) ? (__uint32_t)(((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff) << 24 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff00) << 8 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff0000) >> 8 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff000000) >> 24) : __swap32md(xhci_get_txinfo(sc, pipe)));
+ sdev->ep_ctx[xp->dci-1]->deqp = (__builtin_constant_p(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) ? (__uint64_t)((((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff) << 56) | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00ULL) << 40 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff0000ULL) << 24 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff000000ULL) << 8 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00000000000000ULL) >> 56) : __swap64md(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle));
  sdev->input_ctx->drop_flags = 0;
- sdev->input_ctx->add_flags = __extension__({ __uint32_t __swap32gen_x = ((0x1 << (xp->dci))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sdev->slot_ctx->info_lo = __extension__({ __uint32_t __swap32gen_x = ((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- sdev->slot_ctx->info_hi = __extension__({ __uint32_t __swap32gen_x = ((((rhport) & 0xff) << 16)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sdev->input_ctx->add_flags = (__builtin_constant_p((0x1 << (xp->dci))) ? (__uint32_t)(((__uint32_t)((0x1 << (xp->dci))) & 0xff) << 24 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff00) << 8 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff0000) >> 8 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff000000) >> 24) : __swap32md((0x1 << (xp->dci))));
+ sdev->slot_ctx->info_lo = (__builtin_constant_p((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)) ? (__uint32_t)(((__uint32_t)((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)) & 0xff) << 24 | ((__uint32_t)((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)) & 0xff00) << 8 | ((__uint32_t)((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)) & 0xff0000) >> 8 | ((__uint32_t)((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)) & 0xff000000) >> 24) : __swap32md((((xp->dci) & 0x1f) << 27) | (((speed) & 0xf) << 20) | ((route) & 0xfffff)));
+ sdev->slot_ctx->info_hi = (__builtin_constant_p((((rhport) & 0xff) << 16)) ? (__uint32_t)(((__uint32_t)((((rhport) & 0xff) << 16)) & 0xff) << 24 | ((__uint32_t)((((rhport) & 0xff) << 16)) & 0xff00) << 8 | ((__uint32_t)((((rhport) & 0xff) << 16)) & 0xff0000) >> 8 | ((__uint32_t)((((rhport) & 0xff) << 16)) & 0xff000000) >> 24) : __swap32md((((rhport) & 0xff) << 16)));
  sdev->slot_ctx->tt = 0;
  sdev->slot_ctx->state = 0;
  if (pipe->device->hub != ((void *)0)) {
   int nports = pipe->device->hub->nports;
-  sdev->slot_ctx->info_lo |= __extension__({ __uint32_t __swap32gen_x = ((((1) & 0x1) << 26)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sdev->slot_ctx->info_hi |= __extension__({ __uint32_t __swap32gen_x = ((((nports) & 0xff) << 24)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  sdev->slot_ctx->info_lo |= (__builtin_constant_p((((1) & 0x1) << 26)) ? (__uint32_t)(((__uint32_t)((((1) & 0x1) << 26)) & 0xff) << 24 | ((__uint32_t)((((1) & 0x1) << 26)) & 0xff00) << 8 | ((__uint32_t)((((1) & 0x1) << 26)) & 0xff0000) >> 8 | ((__uint32_t)((((1) & 0x1) << 26)) & 0xff000000) >> 24) : __swap32md((((1) & 0x1) << 26)));
+  sdev->slot_ctx->info_hi |= (__builtin_constant_p((((nports) & 0xff) << 24)) ? (__uint32_t)(((__uint32_t)((((nports) & 0xff) << 24)) & 0xff) << 24 | ((__uint32_t)((((nports) & 0xff) << 24)) & 0xff00) << 8 | ((__uint32_t)((((nports) & 0xff) << 24)) & 0xff0000) >> 8 | ((__uint32_t)((((nports) & 0xff) << 24)) & 0xff000000) >> 24) : __swap32md((((nports) & 0xff) << 24)));
   if ((pipe->device->ddesc.bDeviceProtocol == 0x02))
-   sdev->slot_ctx->info_lo |= __extension__({ __uint32_t __swap32gen_x = ((((1) & 0x1) << 25)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sdev->slot_ctx->tt |= __extension__({ __uint32_t __swap32gen_x = ((((pipe->device->hub->ttthink) & 0x3) << 16)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   sdev->slot_ctx->info_lo |= (__builtin_constant_p((((1) & 0x1) << 25)) ? (__uint32_t)(((__uint32_t)((((1) & 0x1) << 25)) & 0xff) << 24 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff00) << 8 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff0000) >> 8 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff000000) >> 24) : __swap32md((((1) & 0x1) << 25)));
+  sdev->slot_ctx->tt |= (__builtin_constant_p((((pipe->device->hub->ttthink) & 0x3) << 16)) ? (__uint32_t)(((__uint32_t)((((pipe->device->hub->ttthink) & 0x3) << 16)) & 0xff) << 24 | ((__uint32_t)((((pipe->device->hub->ttthink) & 0x3) << 16)) & 0xff00) << 8 | ((__uint32_t)((((pipe->device->hub->ttthink) & 0x3) << 16)) & 0xff0000) >> 8 | ((__uint32_t)((((pipe->device->hub->ttthink) & 0x3) << 16)) & 0xff000000) >> 24) : __swap32md((((pipe->device->hub->ttthink) & 0x3) << 16)));
  }
  if (speed < 3 && pipe->device->myhsport != ((void *)0)) {
   struct usbd_device *hshub = pipe->device->myhsport->parent;
   uint8_t slot = ((struct xhci_pipe *)hshub->default_pipe)->slot;
   if ((hshub->ddesc.bDeviceProtocol == 0x02))
-   sdev->slot_ctx->info_lo |= __extension__({ __uint32_t __swap32gen_x = ((((1) & 0x1) << 25)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  sdev->slot_ctx->tt |= __extension__({ __uint32_t __swap32gen_x = (((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   sdev->slot_ctx->info_lo |= (__builtin_constant_p((((1) & 0x1) << 25)) ? (__uint32_t)(((__uint32_t)((((1) & 0x1) << 25)) & 0xff) << 24 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff00) << 8 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff0000) >> 8 | ((__uint32_t)((((1) & 0x1) << 25)) & 0xff000000) >> 24) : __swap32md((((1) & 0x1) << 25)));
+  sdev->slot_ctx->tt |= (__builtin_constant_p(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)) ? (__uint32_t)(((__uint32_t)(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)) & 0xff) << 24 | ((__uint32_t)(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)) & 0xff00) << 8 | ((__uint32_t)(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)) & 0xff0000) >> 8 | ((__uint32_t)(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)) & 0xff000000) >> 24) : __swap32md(((slot) & 0xff) | (((pipe->device->myhsport->portno) & 0xff) << 8)));
  }
- sdev->input_ctx->add_flags |= __extension__({ __uint32_t __swap32gen_x = ((0x1 << (0))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sdev->input_ctx->add_flags |= (__builtin_constant_p((0x1 << (0))) ? (__uint32_t)(((__uint32_t)((0x1 << (0))) & 0xff) << 24 | ((__uint32_t)((0x1 << (0))) & 0xff00) << 8 | ((__uint32_t)((0x1 << (0))) & 0xff0000) >> 8 | ((__uint32_t)((0x1 << (0))) & 0xff000000) >> 24) : __swap32md((0x1 << (0))));
  bus_dmamap_sync(sdev->ictx_dma.tag, sdev->ictx_dma.map, 0,
      sc->sc_pagesize, 0x01 | 0x04);
  return (0);
@@ -3836,14 +3840,14 @@ xhci_pipe_close(struct usbd_pipe *pipe)
  int i;
  if (pipe->device->depth == 0)
   return;
- sdev->input_ctx->drop_flags = __extension__({ __uint32_t __swap32gen_x = ((0x1 << (xp->dci))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sdev->input_ctx->drop_flags = (__builtin_constant_p((0x1 << (xp->dci))) ? (__uint32_t)(((__uint32_t)((0x1 << (xp->dci))) & 0xff) << 24 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff00) << 8 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff0000) >> 8 | ((__uint32_t)((0x1 << (xp->dci))) & 0xff000000) >> 24) : __swap32md((0x1 << (xp->dci))));
  sdev->input_ctx->add_flags = 0;
  for (i = 30; i >= 0; i--) {
   lxp = sdev->pipes[i];
   if (lxp != ((void *)0) && lxp != xp)
    break;
  }
- sdev->slot_ctx->info_lo = __extension__({ __uint32_t __swap32gen_x = ((((lxp->dci) & 0x1f) << 27)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ sdev->slot_ctx->info_lo = (__builtin_constant_p((((lxp->dci) & 0x1f) << 27)) ? (__uint32_t)(((__uint32_t)((((lxp->dci) & 0x1f) << 27)) & 0xff) << 24 | ((__uint32_t)((((lxp->dci) & 0x1f) << 27)) & 0xff00) << 8 | ((__uint32_t)((((lxp->dci) & 0x1f) << 27)) & 0xff0000) >> 8 | ((__uint32_t)((((lxp->dci) & 0x1f) << 27)) & 0xff000000) >> 24) : __swap32md((((lxp->dci) & 0x1f) << 27)));
  __builtin_memset((sdev->ep_ctx[xp->dci - 1]), (0), (sizeof(struct xhci_epctx)));
  bus_dmamap_sync(sdev->ictx_dma.tag, sdev->ictx_dma.map, 0,
      sc->sc_pagesize, 0x01 | 0x04);
@@ -3899,12 +3903,12 @@ xhci_scratchpad_alloc(struct xhci_softc *sc, int npage)
   return (12);
  }
  for (i = 0; i < npage; i++) {
-  pte[i] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  pte[i] = (__builtin_constant_p(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) ? (__uint64_t)((((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff) << 56) | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_spad.pages_dma.paddr + (i * sc->sc_pagesize)));
  }
  bus_dmamap_sync(sc->sc_spad.table_dma.tag, sc->sc_spad.table_dma.map, 0,
      npage * sizeof(uint64_t), 0x01 |
      0x04);
- sc->sc_dcbaa.segs[0] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_spad.table_dma.paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ sc->sc_dcbaa.segs[0] = (__builtin_constant_p(sc->sc_spad.table_dma.paddr) ? (__uint64_t)((((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff) << 56) | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_spad.table_dma.paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_spad.table_dma.paddr));
  bus_dmamap_sync(sc->sc_dcbaa.dma.tag, sc->sc_dcbaa.dma.map, 0,
      sizeof(uint64_t), 0x01 | 0x04);
  sc->sc_spad.npage = npage;
@@ -3949,8 +3953,8 @@ xhci_ring_reset(struct xhci_softc *sc, struct xhci_ring *ring)
  ring->toggle = (1 << 0);
  if (ring != &sc->sc_evt_ring) {
   struct xhci_trb *trb = &ring->trbs[ring->ntrb - 1];
-  trb->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (ring->dma.paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  trb->trb_flags = __extension__({ __uint32_t __swap32gen_x = ((6 << 10) | (1 << 1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb->trb_paddr = (__builtin_constant_p(ring->dma.paddr) ? (__uint64_t)((((__uint64_t)(ring->dma.paddr) & 0xff) << 56) | ((__uint64_t)(ring->dma.paddr) & 0xff00ULL) << 40 | ((__uint64_t)(ring->dma.paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(ring->dma.paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(ring->dma.paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(ring->dma.paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(ring->dma.paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(ring->dma.paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(ring->dma.paddr));
+  trb->trb_flags = (__builtin_constant_p((6 << 10) | (1 << 1)) ? (__uint32_t)(((__uint32_t)((6 << 10) | (1 << 1)) & 0xff) << 24 | ((__uint32_t)((6 << 10) | (1 << 1)) & 0xff00) << 8 | ((__uint32_t)((6 << 10) | (1 << 1)) & 0xff0000) >> 8 | ((__uint32_t)((6 << 10) | (1 << 1)) & 0xff000000) >> 24) : __swap32md((6 << 10) | (1 << 1)));
   bus_dmamap_sync(ring->dma.tag, ring->dma.map, 0, size,
       0x04);
  } else
@@ -3964,7 +3968,7 @@ xhci_ring_consume(struct xhci_softc *sc, struct xhci_ring *ring)
  ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1516, "ring->index < ring->ntrb"));
  bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(trb) - (char *)((ring)->trbs)),
      sizeof(struct xhci_trb), 0x02);
- if (ring->toggle != (__extension__({ __uint32_t __swap32gen_x = (trb->trb_flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) & (1 << 0)))
+ if (ring->toggle != ((__builtin_constant_p(trb->trb_flags) ? (__uint32_t)(((__uint32_t)(trb->trb_flags) & 0xff) << 24 | ((__uint32_t)(trb->trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb->trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_flags) & 0xff000000) >> 24) : __swap32md(trb->trb_flags)) & (1 << 0)))
   return (((void *)0));
  ring->index++;
  if (ring->index == ring->ntrb) {
@@ -3987,7 +3991,7 @@ xhci_ring_produce(struct xhci_softc *sc, struct xhci_ring *ring)
   bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(lnk) - (char *)((ring)->trbs)),
       sizeof(struct xhci_trb), 0x02 |
       0x08);
-  lnk->trb_flags ^= __extension__({ __uint32_t __swap32gen_x = ((1 << 0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  lnk->trb_flags ^= (__builtin_constant_p((1 << 0)) ? (__uint32_t)(((__uint32_t)((1 << 0)) & 0xff) << 24 | ((__uint32_t)((1 << 0)) & 0xff00) << 8 | ((__uint32_t)((1 << 0)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 0)) & 0xff000000) >> 24) : __swap32md((1 << 0)));
   bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(lnk) - (char *)((ring)->trbs)),
       sizeof(struct xhci_trb), 0x04);
   ring->index = 0;
@@ -4015,7 +4019,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
  struct xhci_trb *trb;
  int s, error = 0;
  ((timeout == 0 || sc->sc_cmd_trb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1594, "timeout == 0 || sc->sc_cmd_trb == NULL"));
- trb0->trb_flags |= __extension__({ __uint32_t __swap32gen_x = (sc->sc_cmd_ring.toggle); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb0->trb_flags |= (__builtin_constant_p(sc->sc_cmd_ring.toggle) ? (__uint32_t)(((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff) << 24 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff00) << 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff000000) >> 24) : __swap32md(sc->sc_cmd_ring.toggle));
  trb = xhci_ring_produce(sc, &sc->sc_cmd_ring);
  if (trb == ((void *)0))
   return (35);
@@ -4041,7 +4045,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
  }
  _splx(s);
  __builtin_memcpy((trb0), (&sc->sc_result_trb), (sizeof(struct xhci_trb)));
- if ((((__extension__({ __uint32_t __swap32gen_x = (trb0->trb_status); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) >> 24) & 0xff) == 1)
+ if (((((__builtin_constant_p(trb0->trb_status) ? (__uint32_t)(((__uint32_t)(trb0->trb_status) & 0xff) << 24 | ((__uint32_t)(trb0->trb_status) & 0xff00) << 8 | ((__uint32_t)(trb0->trb_status) & 0xff0000) >> 8 | ((__uint32_t)(trb0->trb_status) & 0xff000000) >> 24) : __swap32md(trb0->trb_status))) >> 24) & 0xff) == 1)
   return (0);
  return (5);
 }
@@ -4072,9 +4076,9 @@ xhci_cmd_configure_ep(struct xhci_softc *sc, uint8_t slot, uint64_t addr)
 {
  struct xhci_trb trb;
  ;
- trb.trb_paddr = __extension__({ __uint64_t __swap64gen_x = (addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ trb.trb_paddr = (__builtin_constant_p(addr) ? (__uint64_t)((((__uint64_t)(addr) & 0xff) << 56) | ((__uint64_t)(addr) & 0xff00ULL) << 40 | ((__uint64_t)(addr) & 0xff0000ULL) << 24 | ((__uint64_t)(addr) & 0xff000000ULL) << 8 | ((__uint64_t)(addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(addr) & 0xff00000000000000ULL) >> 56) : __swap64md(addr));
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (12 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (12 << 10)) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (12 << 10)) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (12 << 10)) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (12 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (12 << 10)) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (12 << 10)));
  return (xhci_command_submit(sc, &trb, 500));
 }
 int
@@ -4084,7 +4088,7 @@ xhci_cmd_stop_ep(struct xhci_softc *sc, uint8_t slot, uint8_t dci)
  ;
  trb.trb_paddr = 0;
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (15 << 10)));
  return (xhci_command_submit(sc, &trb, 500));
 }
 void
@@ -4094,7 +4098,7 @@ xhci_cmd_reset_ep_async(struct xhci_softc *sc, uint8_t slot, uint8_t dci)
  ;
  trb.trb_paddr = 0;
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (14 << 10)));
  xhci_command_submit(sc, &trb, 0);
 }
 void
@@ -4103,9 +4107,9 @@ xhci_cmd_set_tr_deq_async(struct xhci_softc *sc, uint8_t slot, uint8_t dci,
 {
  struct xhci_trb trb;
  ;
- trb.trb_paddr = __extension__({ __uint64_t __swap64gen_x = (addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ trb.trb_paddr = (__builtin_constant_p(addr) ? (__uint64_t)((((__uint64_t)(addr) & 0xff) << 56) | ((__uint64_t)(addr) & 0xff00ULL) << 40 | ((__uint64_t)(addr) & 0xff0000ULL) << 24 | ((__uint64_t)(addr) & 0xff000000ULL) << 8 | ((__uint64_t)(addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(addr) & 0xff00000000000000ULL) >> 56) : __swap64md(addr));
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (((dci) & 0x1f) << 16) | (16 << 10)));
  xhci_command_submit(sc, &trb, 0);
 }
 int
@@ -4116,13 +4120,13 @@ xhci_cmd_slot_control(struct xhci_softc *sc, uint8_t *slotp, int enable)
  trb.trb_paddr = 0;
  trb.trb_status = 0;
  if (enable)
-  trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((9 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb.trb_flags = (__builtin_constant_p((9 << 10)) ? (__uint32_t)(((__uint32_t)((9 << 10)) & 0xff) << 24 | ((__uint32_t)((9 << 10)) & 0xff00) << 8 | ((__uint32_t)((9 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((9 << 10)) & 0xff000000) >> 24) : __swap32md((9 << 10)));
  else
-  trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((*slotp) & 0xff) << 24) | (10 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb.trb_flags = (__builtin_constant_p((((*slotp) & 0xff) << 24) | (10 << 10)) ? (__uint32_t)(((__uint32_t)((((*slotp) & 0xff) << 24) | (10 << 10)) & 0xff) << 24 | ((__uint32_t)((((*slotp) & 0xff) << 24) | (10 << 10)) & 0xff00) << 8 | ((__uint32_t)((((*slotp) & 0xff) << 24) | (10 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((*slotp) & 0xff) << 24) | (10 << 10)) & 0xff000000) >> 24) : __swap32md((((*slotp) & 0xff) << 24) | (10 << 10)));
  if (xhci_command_submit(sc, &trb, 500))
   return (5);
  if (enable)
-  *slotp = (((__extension__({ __uint32_t __swap32gen_x = (trb.trb_flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) >> 24) & 0xff);
+  *slotp = ((((__builtin_constant_p(trb.trb_flags) ? (__uint32_t)(((__uint32_t)(trb.trb_flags) & 0xff) << 24 | ((__uint32_t)(trb.trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb.trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb.trb_flags) & 0xff000000) >> 24) : __swap32md(trb.trb_flags))) >> 24) & 0xff);
  return (0);
 }
 int
@@ -4131,9 +4135,9 @@ xhci_cmd_set_address(struct xhci_softc *sc, uint8_t slot, uint64_t addr,
 {
  struct xhci_trb trb;
  ;
- trb.trb_paddr = __extension__({ __uint64_t __swap64gen_x = (addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ trb.trb_paddr = (__builtin_constant_p(addr) ? (__uint64_t)((((__uint64_t)(addr) & 0xff) << 56) | ((__uint64_t)(addr) & 0xff00ULL) << 40 | ((__uint64_t)(addr) & 0xff0000ULL) << 24 | ((__uint64_t)(addr) & 0xff000000ULL) << 8 | ((__uint64_t)(addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(addr) & 0xff00000000000000ULL) >> 56) : __swap64md(addr));
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (11 << 10) | bsr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (11 << 10) | bsr) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (11 << 10) | bsr) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (11 << 10) | bsr) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (11 << 10) | bsr) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (11 << 10) | bsr) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (11 << 10) | bsr));
  return (xhci_command_submit(sc, &trb, 500));
 }
 int
@@ -4141,9 +4145,9 @@ xhci_cmd_evaluate_ctx(struct xhci_softc *sc, uint8_t slot, uint64_t addr)
 {
  struct xhci_trb trb;
  ;
- trb.trb_paddr = __extension__({ __uint64_t __swap64gen_x = (addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ trb.trb_paddr = (__builtin_constant_p(addr) ? (__uint64_t)((((__uint64_t)(addr) & 0xff) << 56) | ((__uint64_t)(addr) & 0xff00ULL) << 40 | ((__uint64_t)(addr) & 0xff0000ULL) << 24 | ((__uint64_t)(addr) & 0xff000000ULL) << 8 | ((__uint64_t)(addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(addr) & 0xff00000000000000ULL) >> 56) : __swap64md(addr));
  trb.trb_status = 0;
- trb.trb_flags = __extension__({ __uint32_t __swap32gen_x = ((((slot) & 0xff) << 24) | (13 << 10)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb.trb_flags = (__builtin_constant_p((((slot) & 0xff) << 24) | (13 << 10)) ? (__uint32_t)(((__uint32_t)((((slot) & 0xff) << 24) | (13 << 10)) & 0xff) << 24 | ((__uint32_t)((((slot) & 0xff) << 24) | (13 << 10)) & 0xff00) << 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (13 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((((slot) & 0xff) << 24) | (13 << 10)) & 0xff000000) >> 24) : __swap32md((((slot) & 0xff) << 24) | (13 << 10)));
  return (xhci_command_submit(sc, &trb, 500));
 }
 int
@@ -4170,7 +4174,7 @@ xhci_softdev_alloc(struct xhci_softc *sc, uint8_t slot)
  }
  __builtin_memset((&sdev->pipes), (0), (sizeof(sdev->pipes)));
  ;
- sc->sc_dcbaa.segs[slot] = __extension__({ __uint64_t __swap64gen_x = (sdev->octx_dma.paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ sc->sc_dcbaa.segs[slot] = (__builtin_constant_p(sdev->octx_dma.paddr) ? (__uint64_t)((((__uint64_t)(sdev->octx_dma.paddr) & 0xff) << 56) | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff00ULL) << 40 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sdev->octx_dma.paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(sdev->octx_dma.paddr));
  bus_dmamap_sync(sc->sc_dcbaa.dma.tag, sc->sc_dcbaa.dma.map,
      slot * sizeof(uint64_t), sizeof(uint64_t), 0x01 |
      0x04);
@@ -4719,9 +4723,9 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
   flags = (3 << 10) | toggle;
   if (usbd_xfer_isread(xfer))
    flags |= (1 << 16) | (1 << 2);
-  trb->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  trb->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  trb->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb->trb_paddr = (__builtin_constant_p(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) ? (__uint64_t)((((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff) << 56) | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00ULL) << 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000ULL) << 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000ULL) << 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000000000ULL) >> 56) : __swap64md(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))));
+  trb->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, len, len)));
+  trb->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
   bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
       ((char *)(trb) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
       0x04);
@@ -4731,8 +4735,8 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
  if (len == 0 || !usbd_xfer_isread(xfer))
   flags |= (1 << 16);
  trb->trb_paddr = 0;
- trb->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- trb->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22)));
+ trb->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
      ((char *)(trb) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
      0x04);
@@ -4744,8 +4748,8 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
    flags |= (2 << 16);
  }
  __builtin_memcpy((&trb0->trb_paddr), (&xfer->request), (sizeof(trb0->trb_paddr)));
- trb0->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- trb0->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb0->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((8) & 0x1ffff)));
+ trb0->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
      ((char *)(trb0) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
      0x04);
@@ -4810,9 +4814,9 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
   if (usbd_xfer_isread(xfer))
    flags |= (1 << 2);
   flags |= (i == 1) ? (1 << 5) : (1 << 4);
-  trb->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  trb->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  trb->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb->trb_paddr = (__builtin_constant_p(paddr) ? (__uint64_t)((((__uint64_t)(paddr) & 0xff) << 56) | ((__uint64_t)(paddr) & 0xff00ULL) << 40 | ((__uint64_t)(paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(paddr));
+  trb->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)));
+  trb->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
   bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
       ((char *)(trb) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
       0x04);
@@ -4824,9 +4828,9 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
  if (usbd_xfer_isread(xfer))
   flags |= (1 << 2);
  flags |= (ntrb == 1) ? (1 << 5) : (1 << 4);
- trb0->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- trb0->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- trb0->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb0->trb_paddr = (__builtin_constant_p(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) ? (__uint64_t)((((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff) << 56) | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00ULL) << 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000ULL) << 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000ULL) << 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000000000ULL) >> 56) : __swap64md(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))));
+ trb0->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)));
+ trb0->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
      ((char *)(trb0) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
      0x04);
@@ -4901,9 +4905,9 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
   if (usbd_xfer_isread(xfer))
    flags |= (1 << 2);
   flags |= (i == 1) ? (1 << 5) : (1 << 4);
-  trb->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (paddr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  trb->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  trb->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  trb->trb_paddr = (__builtin_constant_p(paddr) ? (__uint64_t)((((__uint64_t)(paddr) & 0xff) << 56) | ((__uint64_t)(paddr) & 0xff00ULL) << 40 | ((__uint64_t)(paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(paddr));
+  trb->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)));
+  trb->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
   remain -= len;
   offs += len;
   paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (offs));
@@ -4918,9 +4922,9 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
   flags |= ((((npkt % (maxb + 1)) - 1) & 0xf) << 16);
  else
   flags |= (((maxb) & 0xf) << 16);
- trb0->trb_paddr = __extension__({ __uint64_t __swap64gen_x = (((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- trb0->trb_status = __extension__({ __uint32_t __swap32gen_x = ((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- trb0->trb_flags = __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ trb0->trb_paddr = (__builtin_constant_p(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) ? (__uint64_t)((((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff) << 56) | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00ULL) << 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000ULL) << 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000ULL) << 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))) & 0xff00000000000000ULL) >> 56) : __swap64md(((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0))));
+ trb0->trb_status = (__builtin_constant_p((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)));
+ trb0->trb_flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
      ((char *)(trb0) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb) * ntrb,
      0x04);

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3163,7 +3167,7 @@ udf_readlblks(struct umount *ump, int sector, int size, struct buf **bp)
 static __inline udfino_t
 udf_getid(struct long_ad *icb)
 {
- return (__extension__({ __uint32_t __swap32gen_x = (icb->loc.lb_num); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+ return ((__builtin_constant_p(icb->loc.lb_num) ? (__uint32_t)(((__uint32_t)(icb->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(icb->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff000000) >> 24) : __swap32md(icb->loc.lb_num)));
 }
 int udf_allocv(struct mount *, struct vnode **, struct proc *);
 int udf_hashlookup(struct umount *, udfino_t, int, struct vnode **);
@@ -3314,8 +3318,8 @@ udf_permtomode(struct unode *up)
  uint32_t perm;
  uint16_t flags;
  mode_t mode;
- perm = __extension__({ __uint32_t __swap32gen_x = (up->u_fentry->perm); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- flags = __extension__({ __uint16_t __swap16gen_x = (up->u_fentry->icbtag.flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ perm = (__builtin_constant_p(up->u_fentry->perm) ? (__uint32_t)(((__uint32_t)(up->u_fentry->perm) & 0xff) << 24 | ((__uint32_t)(up->u_fentry->perm) & 0xff00) << 8 | ((__uint32_t)(up->u_fentry->perm) & 0xff0000) >> 8 | ((__uint32_t)(up->u_fentry->perm) & 0xff000000) >> 24) : __swap32md(up->u_fentry->perm));
+ flags = (__builtin_constant_p(up->u_fentry->icbtag.flags) ? (__uint16_t)(((__uint16_t)(up->u_fentry->icbtag.flags) & 0xffU) << 8 | ((__uint16_t)(up->u_fentry->icbtag.flags) & 0xff00U) >> 8) : __swap16md(up->u_fentry->icbtag.flags));
  mode = perm & 0x07;
  mode |= ((perm & 0xE0) >> 2);
  mode |= ((perm & 0x1C00) >> 4);
@@ -3369,7 +3373,7 @@ udf_timetotimespec(struct timestamp *time, struct timespec *t)
   uint16_t u_tz_offset;
   int16_t s_tz_offset;
  } tz;
- year = __extension__({ __uint16_t __swap16gen_x = (time->year); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ year = (__builtin_constant_p(time->year) ? (__uint16_t)(((__uint16_t)(time->year) & 0xffU) << 8 | ((__uint16_t)(time->year) & 0xff00U) >> 8) : __swap16md(time->year));
  if (year < 1970) {
   t->tv_sec = 0;
   t->tv_nsec = 0;
@@ -3394,7 +3398,7 @@ udf_timetotimespec(struct timestamp *time, struct timespec *t)
   daysinyear = udf_isaleapyear(i) + 365 ;
   t->tv_sec += daysinyear * 3600 * 24;
  }
- tz.u_tz_offset = __extension__({ __uint16_t __swap16gen_x = (time->type_tz); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ tz.u_tz_offset = (__builtin_constant_p(time->type_tz) ? (__uint16_t)(((__uint16_t)(time->type_tz) & 0xffU) << 8 | ((__uint16_t)(time->type_tz) & 0xff00U) >> 8) : __swap16md(time->type_tz));
  tz.u_tz_offset &= 0x0fff;
  if (tz.u_tz_offset & 0x0800)
   tz.u_tz_offset |= 0xf000;
@@ -3421,33 +3425,33 @@ udf_getattr(void *v)
  vap->va_fsid = up->u_dev;
  vap->va_fileid = up->u_ino;
  vap->va_mode = udf_permtomode(up);
- vap->va_nlink = __extension__({ __uint16_t __swap16gen_x = (fentry->link_cnt); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- vap->va_uid = (__extension__({ __uint32_t __swap32gen_x = (fentry->uid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) == -1) ? 0 : __extension__({ __uint32_t __swap32gen_x = (fentry->uid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- vap->va_gid = (__extension__({ __uint32_t __swap32gen_x = (fentry->gid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) == -1) ? 0 : __extension__({ __uint32_t __swap32gen_x = (fentry->gid); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ vap->va_nlink = (__builtin_constant_p(fentry->link_cnt) ? (__uint16_t)(((__uint16_t)(fentry->link_cnt) & 0xffU) << 8 | ((__uint16_t)(fentry->link_cnt) & 0xff00U) >> 8) : __swap16md(fentry->link_cnt));
+ vap->va_uid = ((__builtin_constant_p(fentry->uid) ? (__uint32_t)(((__uint32_t)(fentry->uid) & 0xff) << 24 | ((__uint32_t)(fentry->uid) & 0xff00) << 8 | ((__uint32_t)(fentry->uid) & 0xff0000) >> 8 | ((__uint32_t)(fentry->uid) & 0xff000000) >> 24) : __swap32md(fentry->uid)) == -1) ? 0 : (__builtin_constant_p(fentry->uid) ? (__uint32_t)(((__uint32_t)(fentry->uid) & 0xff) << 24 | ((__uint32_t)(fentry->uid) & 0xff00) << 8 | ((__uint32_t)(fentry->uid) & 0xff0000) >> 8 | ((__uint32_t)(fentry->uid) & 0xff000000) >> 24) : __swap32md(fentry->uid));
+ vap->va_gid = ((__builtin_constant_p(fentry->gid) ? (__uint32_t)(((__uint32_t)(fentry->gid) & 0xff) << 24 | ((__uint32_t)(fentry->gid) & 0xff00) << 8 | ((__uint32_t)(fentry->gid) & 0xff0000) >> 8 | ((__uint32_t)(fentry->gid) & 0xff000000) >> 24) : __swap32md(fentry->gid)) == -1) ? 0 : (__builtin_constant_p(fentry->gid) ? (__uint32_t)(((__uint32_t)(fentry->gid) & 0xff) << 24 | ((__uint32_t)(fentry->gid) & 0xff00) << 8 | ((__uint32_t)(fentry->gid) & 0xff0000) >> 8 | ((__uint32_t)(fentry->gid) & 0xff000000) >> 24) : __swap32md(fentry->gid));
  vap->va_rdev = 0;
  if (vp->v_type & VDIR) {
   vap->va_nlink++;
   vap->va_size = up->u_ump->um_bsize;
  } else
-  vap->va_size = __extension__({ __uint64_t __swap64gen_x = (fentry->inf_len); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  vap->va_size = (__builtin_constant_p(fentry->inf_len) ? (__uint64_t)((((__uint64_t)(fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(fentry->inf_len));
  if (udf_checktag(&xfentry->tag, TAGID_EXTFENTRY) == 0) {
   udf_timetotimespec(&xfentry->atime, &vap->va_atime);
   udf_timetotimespec(&xfentry->mtime, &vap->va_mtime);
   if ((vp->v_type & VDIR) && xfentry->logblks_rec != 0)
    vap->va_size =
-        __extension__({ __uint64_t __swap64gen_x = (xfentry->logblks_rec); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }) * up->u_ump->um_bsize;
+        (__builtin_constant_p(xfentry->logblks_rec) ? (__uint64_t)((((__uint64_t)(xfentry->logblks_rec) & 0xff) << 56) | ((__uint64_t)(xfentry->logblks_rec) & 0xff00ULL) << 40 | ((__uint64_t)(xfentry->logblks_rec) & 0xff0000ULL) << 24 | ((__uint64_t)(xfentry->logblks_rec) & 0xff000000ULL) << 8 | ((__uint64_t)(xfentry->logblks_rec) & 0xff00000000ULL) >> 8 | ((__uint64_t)(xfentry->logblks_rec) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(xfentry->logblks_rec) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(xfentry->logblks_rec) & 0xff00000000000000ULL) >> 56) : __swap64md(xfentry->logblks_rec)) * up->u_ump->um_bsize;
  } else {
   udf_timetotimespec(&fentry->atime, &vap->va_atime);
   udf_timetotimespec(&fentry->mtime, &vap->va_mtime);
   if ((vp->v_type & VDIR) && fentry->logblks_rec != 0)
    vap->va_size =
-        __extension__({ __uint64_t __swap64gen_x = (fentry->logblks_rec); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }) * up->u_ump->um_bsize;
+        (__builtin_constant_p(fentry->logblks_rec) ? (__uint64_t)((((__uint64_t)(fentry->logblks_rec) & 0xff) << 56) | ((__uint64_t)(fentry->logblks_rec) & 0xff00ULL) << 40 | ((__uint64_t)(fentry->logblks_rec) & 0xff0000ULL) << 24 | ((__uint64_t)(fentry->logblks_rec) & 0xff000000ULL) << 8 | ((__uint64_t)(fentry->logblks_rec) & 0xff00000000ULL) >> 8 | ((__uint64_t)(fentry->logblks_rec) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(fentry->logblks_rec) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(fentry->logblks_rec) & 0xff00000000000000ULL) >> 56) : __swap64md(fentry->logblks_rec)) * up->u_ump->um_bsize;
  }
  vap->va_ctime = vap->va_mtime;
  vap->va_flags = 0;
  vap->va_gen = 1;
  vap->va_blocksize = up->u_ump->um_bsize;
- vap->va_bytes = __extension__({ __uint64_t __swap64gen_x = (fentry->inf_len); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ vap->va_bytes = (__builtin_constant_p(fentry->inf_len) ? (__uint64_t)((((__uint64_t)(fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(fentry->inf_len));
  vap->va_type = vp->v_type;
  vap->va_filerev = 0;
  return (0);
@@ -3508,7 +3512,7 @@ udf_read(void *v)
  int size;
  if (uio->uio_offset < 0)
   return (22);
- fsize = __extension__({ __uint64_t __swap64gen_x = (up->u_fentry->inf_len); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ fsize = (__builtin_constant_p(up->u_fentry->inf_len) ? (__uint64_t)((((__uint64_t)(up->u_fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(up->u_fentry->inf_len));
  while (uio->uio_offset < fsize && uio->uio_resid > 0) {
   offset = uio->uio_offset;
   size = ulmin(uio->uio_resid, (64 * 1024));
@@ -3620,7 +3624,7 @@ udf_getfid(struct udf_dirstream *ds)
  }
  fid = (struct fileid_desc*)&ds->data[ds->off];
  if (ds->off + 38 > ds->size ||
-     ds->off + __extension__({ __uint16_t __swap16gen_x = (fid->l_iu); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) + fid->l_fi + 38 > ds->size){
+     ds->off + (__builtin_constant_p(fid->l_iu) ? (__uint16_t)(((__uint16_t)(fid->l_iu) & 0xffU) << 8 | ((__uint16_t)(fid->l_iu) & 0xff00U) >> 8) : __swap16md(fid->l_iu)) + fid->l_fi + 38 > ds->size){
   frag_size = ds->size - ds->off;
   if (frag_size >= ds->ump->um_bsize) {
    printf("udf: invalid FID fragment\n");
@@ -3648,7 +3652,7 @@ udf_getfid(struct udf_dirstream *ds)
   }
   if (frag_size < 38)
    __builtin_bcopy((ds->data), (&ds->buf[frag_size]), (38 - frag_size));
-  total_fid_size = 38 + __extension__({ __uint16_t __swap16gen_x = (fid->l_iu); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) + fid->l_fi;
+  total_fid_size = 38 + (__builtin_constant_p(fid->l_iu) ? (__uint16_t)(((__uint16_t)(fid->l_iu) & 0xffU) << 8 | ((__uint16_t)(fid->l_iu) & 0xff00U) >> 8) : __swap16md(fid->l_iu)) + fid->l_fi;
   if (total_fid_size > ds->ump->um_bsize) {
    printf("udf: invalid FID\n");
    ds->error = 5;
@@ -3657,7 +3661,7 @@ udf_getfid(struct udf_dirstream *ds)
   __builtin_bcopy((ds->data), (&ds->buf[frag_size]), (total_fid_size - frag_size));
   ds->fid_fragment = 1;
  } else {
-  total_fid_size = __extension__({ __uint16_t __swap16gen_x = (fid->l_iu); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) + fid->l_fi + 38;
+  total_fid_size = (__builtin_constant_p(fid->l_iu) ? (__uint16_t)(((__uint16_t)(fid->l_iu) & 0xffU) << 8 | ((__uint16_t)(fid->l_iu) & 0xff00U) >> 8) : __swap16md(fid->l_iu)) + fid->l_fi + 38;
  }
  if (!ds->fid_fragment) {
   ds->off += (total_fid_size + 3) & ~0x03;
@@ -3713,7 +3717,7 @@ udf_readdir(void *v)
   up->u_ump->um_len = up->u_ump->um_meta_len;
  }
  ds = udf_opendir(up, uio->uio_offset,
-     __extension__({ __uint64_t __swap64gen_x = (up->u_fentry->inf_len); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }), up->u_ump);
+     (__builtin_constant_p(up->u_fentry->inf_len) ? (__uint64_t)((((__uint64_t)(up->u_fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(up->u_fentry->inf_len)), up->u_ump);
  last_off = ds->offset + ds->off;
  while ((fid = udf_getfid(ds)) != ((void *)0)) {
   if (udf_checktag(&fid->tag, TAGID_FID)) {
@@ -3897,7 +3901,7 @@ udf_lookup(void *v)
  flags = ap->a_cnp->cn_flags;
  nameptr = ap->a_cnp->cn_nameptr;
  namelen = ap->a_cnp->cn_namelen;
- fsize = __extension__({ __uint64_t __swap64gen_x = (up->u_fentry->inf_len); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ fsize = (__builtin_constant_p(up->u_fentry->inf_len) ? (__uint64_t)((((__uint64_t)(up->u_fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(up->u_fentry->inf_len));
  p = ap->a_cnp->cn_proc;
  *vpp = ((void *)0);
  error = VOP_ACCESS(dvp, 00100, ap->a_cnp->cn_cred, p);
@@ -4041,12 +4045,12 @@ udf_readatoffset(struct unode *up, int *size, off_t offset,
  if (error == -1) {
   if (udf_checktag(&up->u_fentry->tag, TAGID_EXTFENTRY) == 0) {
    xfentry = up->u_fentry;
-   *data = &xfentry->data[__extension__({ __uint32_t __swap32gen_x = (xfentry->l_ea); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })];
-   *size = __extension__({ __uint32_t __swap32gen_x = (xfentry->l_ad); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *data = &xfentry->data[(__builtin_constant_p(xfentry->l_ea) ? (__uint32_t)(((__uint32_t)(xfentry->l_ea) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ea) & 0xff000000) >> 24) : __swap32md(xfentry->l_ea))];
+   *size = (__builtin_constant_p(xfentry->l_ad) ? (__uint32_t)(((__uint32_t)(xfentry->l_ad) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ad) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ad) & 0xff000000) >> 24) : __swap32md(xfentry->l_ad));
   } else {
    fentry = (struct file_entry *)up->u_fentry;
-   *data = &fentry->data[__extension__({ __uint32_t __swap32gen_x = (fentry->l_ea); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })];
-   *size = __extension__({ __uint32_t __swap32gen_x = (fentry->l_ad); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *data = &fentry->data[(__builtin_constant_p(fentry->l_ea) ? (__uint32_t)(((__uint32_t)(fentry->l_ea) & 0xff) << 24 | ((__uint32_t)(fentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ea) & 0xff000000) >> 24) : __swap32md(fentry->l_ea))];
+   *size = (__builtin_constant_p(fentry->l_ad) ? (__uint32_t)(((__uint32_t)(fentry->l_ad) & 0xff) << 24 | ((__uint32_t)(fentry->l_ad) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ad) & 0xff000000) >> 24) : __swap32md(fentry->l_ad));
   }
   return (0);
  } else if (error != 0) {
@@ -4081,13 +4085,13 @@ udf_bmap_internal(struct unode *up, off_t offset, daddr_t *sector,
  fentry = (struct file_entry *)up->u_fentry;
  tag = &fentry->icbtag;
  if (udf_checktag(&xfentry->tag, TAGID_EXTFENTRY) == 0) {
-  l_ea = __extension__({ __uint32_t __swap32gen_x = (xfentry->l_ea); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  l_ad = __extension__({ __uint32_t __swap32gen_x = (xfentry->l_ad); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  l_ea = (__builtin_constant_p(xfentry->l_ea) ? (__uint32_t)(((__uint32_t)(xfentry->l_ea) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ea) & 0xff000000) >> 24) : __swap32md(xfentry->l_ea));
+  l_ad = (__builtin_constant_p(xfentry->l_ad) ? (__uint32_t)(((__uint32_t)(xfentry->l_ad) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ad) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ad) & 0xff000000) >> 24) : __swap32md(xfentry->l_ad));
  } else {
-  l_ea = __extension__({ __uint32_t __swap32gen_x = (fentry->l_ea); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  l_ad = __extension__({ __uint32_t __swap32gen_x = (fentry->l_ad); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  l_ea = (__builtin_constant_p(fentry->l_ea) ? (__uint32_t)(((__uint32_t)(fentry->l_ea) & 0xff) << 24 | ((__uint32_t)(fentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ea) & 0xff000000) >> 24) : __swap32md(fentry->l_ea));
+  l_ad = (__builtin_constant_p(fentry->l_ad) ? (__uint32_t)(((__uint32_t)(fentry->l_ad) & 0xff) << 24 | ((__uint32_t)(fentry->l_ad) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ad) & 0xff000000) >> 24) : __swap32md(fentry->l_ad));
  }
- switch (__extension__({ __uint16_t __swap16gen_x = (tag->strat_type); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) {
+ switch ((__builtin_constant_p(tag->strat_type) ? (__uint16_t)(((__uint16_t)(tag->strat_type) & 0xffU) << 8 | ((__uint16_t)(tag->strat_type) & 0xff00U) >> 8) : __swap16md(tag->strat_type))) {
  case 4:
   break;
  case 4096:
@@ -4097,7 +4101,7 @@ udf_bmap_internal(struct unode *up, off_t offset, daddr_t *sector,
   printf("Unknown strategy type %d\n", tag->strat_type);
   return (19);
  }
- switch (__extension__({ __uint16_t __swap16gen_x = (tag->flags); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x7) {
+ switch ((__builtin_constant_p(tag->flags) ? (__uint16_t)(((__uint16_t)(tag->flags) & 0xffU) << 8 | ((__uint16_t)(tag->flags) & 0xff00U) >> 8) : __swap16md(tag->flags)) & 0x7) {
  case 0:
   do {
    offset -= icblen;
@@ -4111,12 +4115,12 @@ udf_bmap_internal(struct unode *up, off_t offset, daddr_t *sector,
     icb = (struct short_ad *)&xfentry->data[l_ea + ad_offset];
    else
     icb = (struct short_ad *)&fentry->data[l_ea + ad_offset];
-   icblen = __extension__({ __uint32_t __swap32gen_x = (((struct short_ad *)(icb))->len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   icblen = (__builtin_constant_p(((struct short_ad *)(icb))->len) ? (__uint32_t)(((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff) << 24 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff00) << 8 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff0000) >> 8 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff000000) >> 24) : __swap32md(((struct short_ad *)(icb))->len));
    ad_num++;
   } while(offset >= icblen);
   lsector = (offset >> ump->um_bshift) +
-      __extension__({ __uint32_t __swap32gen_x = (((struct short_ad *)(icb))->lb_num); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  *max_size = __extension__({ __uint32_t __swap32gen_x = (((struct short_ad *)(icb))->len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(((struct short_ad *)(icb))->lb_num) ? (__uint32_t)(((__uint32_t)(((struct short_ad *)(icb))->lb_num) & 0xff) << 24 | ((__uint32_t)(((struct short_ad *)(icb))->lb_num) & 0xff00) << 8 | ((__uint32_t)(((struct short_ad *)(icb))->lb_num) & 0xff0000) >> 8 | ((__uint32_t)(((struct short_ad *)(icb))->lb_num) & 0xff000000) >> 24) : __swap32md(((struct short_ad *)(icb))->lb_num));
+  *max_size = (__builtin_constant_p(((struct short_ad *)(icb))->len) ? (__uint32_t)(((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff) << 24 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff00) << 8 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff0000) >> 8 | ((__uint32_t)(((struct short_ad *)(icb))->len) & 0xff000000) >> 24) : __swap32md(((struct short_ad *)(icb))->len));
   break;
  case 1:
   do {
@@ -4131,12 +4135,12 @@ udf_bmap_internal(struct unode *up, off_t offset, daddr_t *sector,
     icb = (struct long_ad *)&xfentry->data[l_ea + ad_offset];
    else
     icb = (struct long_ad *)&fentry->data[l_ea + ad_offset];
-   icblen = __extension__({ __uint32_t __swap32gen_x = (((struct long_ad *)(icb))->len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   icblen = (__builtin_constant_p(((struct long_ad *)(icb))->len) ? (__uint32_t)(((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff) << 24 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff00) << 8 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff0000) >> 8 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff000000) >> 24) : __swap32md(((struct long_ad *)(icb))->len));
    ad_num++;
   } while(offset >= icblen);
   lsector = (offset >> ump->um_bshift) +
-      __extension__({ __uint32_t __swap32gen_x = (((struct long_ad *)(icb))->loc.lb_num); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  *max_size = __extension__({ __uint32_t __swap32gen_x = (((struct long_ad *)(icb))->len); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(((struct long_ad *)(icb))->loc.lb_num) ? (__uint32_t)(((__uint32_t)(((struct long_ad *)(icb))->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(((struct long_ad *)(icb))->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(((struct long_ad *)(icb))->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(((struct long_ad *)(icb))->loc.lb_num) & 0xff000000) >> 24) : __swap32md(((struct long_ad *)(icb))->loc.lb_num));
+  *max_size = (__builtin_constant_p(((struct long_ad *)(icb))->len) ? (__uint32_t)(((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff) << 24 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff00) << 8 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff0000) >> 8 | ((__uint32_t)(((struct long_ad *)(icb))->len) & 0xff000000) >> 24) : __swap32md(((struct long_ad *)(icb))->len));
   break;
  case 3:
   *max_size = 0;
@@ -4152,10 +4156,10 @@ udf_bmap_internal(struct unode *up, off_t offset, daddr_t *sector,
  if (ump->um_stbl != ((void *)0)) {
   for (i = 0; i< ump->um_stbl_len; i++) {
    p_offset =
-       lsector - __extension__({ __uint32_t __swap32gen_x = (ump->um_stbl->entries[i].org); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+       lsector - (__builtin_constant_p(ump->um_stbl->entries[i].org) ? (__uint32_t)(((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff) << 24 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff00) << 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff000000) >> 24) : __swap32md(ump->um_stbl->entries[i].org));
    if ((p_offset < ump->um_psecs) && (p_offset >= 0)) {
     *sector =
-       __extension__({ __uint32_t __swap32gen_x = (ump->um_stbl->entries[i].map); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) +
+       (__builtin_constant_p(ump->um_stbl->entries[i].map) ? (__uint32_t)(((__uint32_t)(ump->um_stbl->entries[i].map) & 0xff) << 24 | ((__uint32_t)(ump->um_stbl->entries[i].map) & 0xff00) << 8 | ((__uint32_t)(ump->um_stbl->entries[i].map) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_stbl->entries[i].map) & 0xff000000) >> 24) : __swap32md(ump->um_stbl->entries[i].map)) +
         p_offset;
     break;
    }

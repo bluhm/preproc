@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2990,7 +2994,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4232,7 +4236,7 @@ ieee80211_mgmt_output(struct ifnet *ifp, struct ieee80211_node *ni,
  wh->i_fc[1] = 0x00;
  *(u_int16_t *)&wh->i_dur[0] = 0;
  *(u_int16_t *)&wh->i_seq[0] =
-     __extension__({ __uint16_t __swap16gen_x = (ni->ni_txseq << 4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     (__builtin_constant_p(ni->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ni->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ni->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ni->ni_txseq << 4));
  ni->ni_txseq++;
  __builtin_memcpy((wh->i_addr1), (ni->ni_macaddr), (6));
  __builtin_memcpy((wh->i_addr2), (ic->ic_myaddr), (6));
@@ -4501,13 +4505,13 @@ ieee80211_encap(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node **pni)
   else if (ni->ni_tx_ba[tid].ba_state == 2)
    qos |= 0x0060;
   qwh->i_fc[0] |= 0x80;
-  *(u_int16_t *)qwh->i_qos = __extension__({ __uint16_t __swap16gen_x = (qos); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  *(u_int16_t *)qwh->i_qos = (__builtin_constant_p(qos) ? (__uint16_t)(((__uint16_t)(qos) & 0xffU) << 8 | ((__uint16_t)(qos) & 0xff00U) >> 8) : __swap16md(qos));
   *(u_int16_t *)qwh->i_seq =
-      __extension__({ __uint16_t __swap16gen_x = (ni->ni_qos_txseqs[tid] << 4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(ni->ni_qos_txseqs[tid] << 4) ? (__uint16_t)(((__uint16_t)(ni->ni_qos_txseqs[tid] << 4) & 0xffU) << 8 | ((__uint16_t)(ni->ni_qos_txseqs[tid] << 4) & 0xff00U) >> 8) : __swap16md(ni->ni_qos_txseqs[tid] << 4));
   ni->ni_qos_txseqs[tid]++;
  } else {
   *(u_int16_t *)&wh->i_seq[0] =
-      __extension__({ __uint16_t __swap16gen_x = (ni->ni_txseq << 4); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+      (__builtin_constant_p(ni->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ni->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ni->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ni->ni_txseq << 4));
   ni->ni_txseq++;
  }
  switch (ic->ic_opmode) {
@@ -5001,7 +5005,7 @@ ieee80211_get_deauth(struct ieee80211com *ic, struct ieee80211_node *ni,
   return ((void *)0);
  (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (2)) &~ (sizeof(long) - 1);
  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = 2;
- *((u_int16_t *)((m)->m_hdr.mh_data)) = __extension__({ __uint16_t __swap16gen_x = (reason); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *((u_int16_t *)((m)->m_hdr.mh_data)) = (__builtin_constant_p(reason) ? (__uint16_t)(((__uint16_t)(reason) & 0xffU) << 8 | ((__uint16_t)(reason) & 0xff00U) >> 8) : __swap16md(reason));
  return m;
 }
 struct mbuf *
@@ -5116,7 +5120,7 @@ ieee80211_get_disassoc(struct ieee80211com *ic, struct ieee80211_node *ni,
   return ((void *)0);
  (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (2)) &~ (sizeof(long) - 1);
  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = 2;
- *((u_int16_t *)((m)->m_hdr.mh_data)) = __extension__({ __uint16_t __swap16gen_x = (reason); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *((u_int16_t *)((m)->m_hdr.mh_data)) = (__builtin_constant_p(reason) ? (__uint16_t)(((__uint16_t)(reason) & 0xffU) << 8 | ((__uint16_t)(reason) & 0xff00U) >> 8) : __swap16md(reason));
  return m;
 }
 struct mbuf *
@@ -5330,7 +5334,7 @@ ieee80211_get_rts(struct ieee80211com *ic, const struct ieee80211_frame *wh,
  rts->i_fc[0] = 0x00 | 0x04 |
      0xb0;
  rts->i_fc[1] = 0x00;
- *(u_int16_t *)rts->i_dur = __extension__({ __uint16_t __swap16gen_x = (dur); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *(u_int16_t *)rts->i_dur = (__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
  __builtin_memcpy((rts->i_ra), (wh->i_addr1), (6));
  __builtin_memcpy((rts->i_ta), (wh->i_addr2), (6));
  return m;
@@ -5348,7 +5352,7 @@ ieee80211_get_cts_to_self(struct ieee80211com *ic, u_int16_t dur)
  cts->i_fc[0] = 0x00 | 0x04 |
      0xc0;
  cts->i_fc[1] = 0x00;
- *(u_int16_t *)cts->i_dur = __extension__({ __uint16_t __swap16gen_x = (dur); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ *(u_int16_t *)cts->i_dur = (__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
  __builtin_memcpy((cts->i_ra), (ic->ic_myaddr), (6));
  return m;
 }

@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4146,7 +4150,7 @@ axe_ax88178_init(struct axe_softc *sc)
  axe_cmd(sc, 0x010D, 0, 0, ((void *)0));
  axe_cmd(sc, 0x200B, 0, 0x0017, &eeprom);
  axe_cmd(sc, 0x010E, 0, 0, ((void *)0));
- eeprom = __extension__({ __uint16_t __swap16gen_x = (eeprom); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ eeprom = (__builtin_constant_p(eeprom) ? (__uint16_t)(((__uint16_t)(eeprom) & 0xffU) << 8 | ((__uint16_t)(eeprom) & 0xff00U) >> 8) : __swap16md(eeprom));
  ;
  if (eeprom == 0xffff) {
   phymode = 0x00;
@@ -4509,13 +4513,13 @@ axe_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
    buf += pktlen;
    __builtin_memcpy((&hdr), (buf), (sizeof(hdr)));
    total_len -= sizeof(hdr);
-   if (((__extension__({ __uint16_t __swap16gen_x = (hdr.len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x07ff) ^
-       (__extension__({ __uint16_t __swap16gen_x = (hdr.ilen); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x07ff)) !=
+   if ((((__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff) ^
+       ((__builtin_constant_p(hdr.ilen) ? (__uint16_t)(((__uint16_t)(hdr.ilen) & 0xffU) << 8 | ((__uint16_t)(hdr.ilen) & 0xff00U) >> 8) : __swap16md(hdr.ilen)) & 0x07ff)) !=
        0x07ff) {
     ifp->if_data.ifi_ierrors++;
     goto done;
    }
-   pktlen = __extension__({ __uint16_t __swap16gen_x = (hdr.len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x07ff;
+   pktlen = (__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff;
    if (pktlen > total_len) {
     ifp->if_data.ifi_ierrors++;
     goto done;
@@ -4632,7 +4636,7 @@ axe_encap(struct axe_softc *sc, struct mbuf *m, int idx)
  c = &sc->axe_cdata.axe_tx_chain[idx];
  if (sc->axe_flags & (0x0001 | 0x0002)) {
   boundary = (sc->axe_udev->speed == 3) ? 512 : 64;
-  hdr.len = __extension__({ __uint16_t __swap16gen_x = (m->M_dat.MH.MH_pkthdr.len); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  hdr.len = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
   hdr.ilen = ~hdr.len;
   __builtin_memcpy((c->axe_buf), (&hdr), (sizeof(hdr)));
   length = sizeof(hdr);

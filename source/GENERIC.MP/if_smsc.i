@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3914,7 +3918,7 @@ smsc_read_reg(struct smsc_softc *sc, uint32_t off, uint32_t *data)
  err = usbd_do_request(sc->sc_udev, &req, &buf);
  if (err != 0)
   printf("%s: warning: " "Failed to read register 0x%0x\n", (sc)->sc_dev.dv_xname, off);
- *data = __extension__({ __uint32_t __swap32gen_x = (buf); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ *data = (__builtin_constant_p(buf) ? (__uint32_t)(((__uint32_t)(buf) & 0xff) << 24 | ((__uint32_t)(buf) & 0xff00) << 8 | ((__uint32_t)(buf) & 0xff0000) >> 8 | ((__uint32_t)(buf) & 0xff000000) >> 24) : __swap32md(buf));
  return (err);
 }
 int
@@ -3923,7 +3927,7 @@ smsc_write_reg(struct smsc_softc *sc, uint32_t off, uint32_t data)
  usb_device_request_t req;
  uint32_t buf;
  usbd_status err;
- buf = __extension__({ __uint32_t __swap32gen_x = (data); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ buf = (__builtin_constant_p(data) ? (__uint32_t)(((__uint32_t)(data) & 0xff) << 24 | ((__uint32_t)(data) & 0xff00) << 8 | ((__uint32_t)(data) & 0xff0000) >> 8 | ((__uint32_t)(data) & 0xff000000) >> 24) : __swap32md(data));
  req.bmRequestType = (0x00 | 0x40 | 0x00);
  req.bRequest = 0xA0;
  ((req.wValue)[0] = (u_int8_t)(0), (req.wValue)[1] = (u_int8_t)((0) >> 8));
@@ -4606,7 +4610,7 @@ smsc_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
   }
   buf += pktlen;
   __builtin_memcpy((&rxhdr), (buf), (sizeof(rxhdr)));
-  rxhdr = __extension__({ __uint32_t __swap32gen_x = (rxhdr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  rxhdr = (__builtin_constant_p(rxhdr) ? (__uint32_t)(((__uint32_t)(rxhdr) & 0xff) << 24 | ((__uint32_t)(rxhdr) & 0xff00) << 8 | ((__uint32_t)(rxhdr) & 0xff0000) >> 8 | ((__uint32_t)(rxhdr) & 0xff000000) >> 24) : __swap32md(rxhdr));
   total_len -= sizeof(rxhdr);
   if (rxhdr & (0x1UL << 15)) {
    ;
@@ -4741,10 +4745,10 @@ smsc_encap(struct smsc_softc *sc, struct mbuf *m, int idx)
  c = &sc->sc_cdata.tx_chain[idx];
  txhdr = ((m->M_dat.MH.MH_pkthdr.len) & 0x000007FFUL) |
    (0x1UL << 13) | (0x1UL << 12);
- txhdr = __extension__({ __uint32_t __swap32gen_x = (txhdr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ txhdr = (__builtin_constant_p(txhdr) ? (__uint32_t)(((__uint32_t)(txhdr) & 0xff) << 24 | ((__uint32_t)(txhdr) & 0xff00) << 8 | ((__uint32_t)(txhdr) & 0xff0000) >> 8 | ((__uint32_t)(txhdr) & 0xff000000) >> 24) : __swap32md(txhdr));
  __builtin_memcpy((c->sc_buf), (&txhdr), (sizeof(txhdr)));
  txhdr = ((m->M_dat.MH.MH_pkthdr.len) & 0x000007FFUL);
- txhdr = __extension__({ __uint32_t __swap32gen_x = (txhdr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ txhdr = (__builtin_constant_p(txhdr) ? (__uint32_t)(((__uint32_t)(txhdr) & 0xff) << 24 | ((__uint32_t)(txhdr) & 0xff00) << 8 | ((__uint32_t)(txhdr) & 0xff0000) >> 8 | ((__uint32_t)(txhdr) & 0xff000000) >> 24) : __swap32md(txhdr));
  __builtin_memcpy((c->sc_buf + 4), (&txhdr), (sizeof(txhdr)));
  frm_len += 8;
  m_copydata(m, 0, m->M_dat.MH.MH_pkthdr.len, c->sc_buf + frm_len);

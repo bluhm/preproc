@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3416,7 +3420,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return __extension__({ __uint16_t __swap16gen_x = (*(const u_int16_t *)frm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -6292,7 +6296,7 @@ int rtwn_r92c_ra_init(struct rtwn_softc *sc, u_int8_t mode, u_int32_t rates,
  struct r92c_fw_cmd_macid_cfg cmd;
  int error;
  cmd.macid = 4 | 0x80;
- cmd.mask = __extension__({ __uint32_t __swap32gen_x = (mode << 28 | basicrates); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ cmd.mask = (__builtin_constant_p(mode << 28 | basicrates) ? (__uint32_t)(((__uint32_t)(mode << 28 | basicrates) & 0xff) << 24 | ((__uint32_t)(mode << 28 | basicrates) & 0xff00) << 8 | ((__uint32_t)(mode << 28 | basicrates) & 0xff0000) >> 8 | ((__uint32_t)(mode << 28 | basicrates) & 0xff000000) >> 24) : __swap32md(mode << 28 | basicrates));
  error = rtwn_fw_cmd(sc, 6, &cmd, sizeof(cmd));
  if (error != 0) {
   printf("%s: could not add broadcast station\n",
@@ -6303,7 +6307,7 @@ int rtwn_r92c_ra_init(struct rtwn_softc *sc, u_int8_t mode, u_int32_t rates,
  rtwn_write_1(sc, (0x484 + (4)),
      maxbasicrate);
  cmd.macid = 0 | 0x80;
- cmd.mask = __extension__({ __uint32_t __swap32gen_x = (mode << 28 | rates); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ cmd.mask = (__builtin_constant_p(mode << 28 | rates) ? (__uint32_t)(((__uint32_t)(mode << 28 | rates) & 0xff) << 24 | ((__uint32_t)(mode << 28 | rates) & 0xff00) << 8 | ((__uint32_t)(mode << 28 | rates) & 0xff0000) >> 8 | ((__uint32_t)(mode << 28 | rates) & 0xff000000) >> 24) : __swap32md(mode << 28 | rates));
  error = rtwn_fw_cmd(sc, 6, &cmd, sizeof(cmd));
  if (error != 0) {
   printf("%s: could not add BSS station\n",
@@ -6338,7 +6342,7 @@ rtwn_tsf_sync_enable(struct rtwn_softc *sc)
  rtwn_write_1(sc, 0x550,
      rtwn_read_1(sc, 0x550) & ~0x08);
  __builtin_memcpy((&tsf), (ni->ni_tstamp), (sizeof(tsf)));
- tsf = __extension__({ __uint64_t __swap64gen_x = (tsf); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ tsf = (__builtin_constant_p(tsf) ? (__uint64_t)((((__uint64_t)(tsf) & 0xff) << 56) | ((__uint64_t)(tsf) & 0xff00ULL) << 40 | ((__uint64_t)(tsf) & 0xff0000ULL) << 24 | ((__uint64_t)(tsf) & 0xff000000ULL) << 8 | ((__uint64_t)(tsf) & 0xff00000000ULL) >> 8 | ((__uint64_t)(tsf) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(tsf) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(tsf) & 0xff00000000000000ULL) >> 56) : __swap64md(tsf));
  tsf = tsf - (tsf % (ni->ni_intval * 1024));
  tsf -= 1024;
  rtwn_write_4(sc, 0x560 + 0, tsf);
@@ -6733,7 +6737,7 @@ rtwn_get_rssi(struct rtwn_softc *sc, int rate, void *physt)
   rssi = cckoff[rpt] - rssi;
  } else {
   phy = (struct r92c_rx_phystat *)physt;
-  rssi = ((__extension__({ __uint32_t __swap32gen_x = (phy->phydw1); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) >> 1) & 0x7f) - 110;
+  rssi = (((__builtin_constant_p(phy->phydw1) ? (__uint32_t)(((__uint32_t)(phy->phydw1) & 0xff) << 24 | ((__uint32_t)(phy->phydw1) & 0xff00) << 8 | ((__uint32_t)(phy->phydw1) & 0xff0000) >> 8 | ((__uint32_t)(phy->phydw1) & 0xff000000) >> 24) : __swap32md(phy->phydw1)) >> 1) & 0x7f) - 110;
  }
  return (rssi);
 }
@@ -6754,7 +6758,7 @@ rtwn_r88e_get_rssi(struct rtwn_softc *sc, int rate, void *physt)
   }
   rssi = (phy->agc_rpt & 0x1f) > 27 ? -94 : cckoff[rpt] - rssi;
  } else {
-  rssi = ((__extension__({ __uint32_t __swap32gen_x = (phy->sq_rpt); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) >> 1) & 0x7f) - 110;
+  rssi = (((__builtin_constant_p(phy->sq_rpt) ? (__uint32_t)(((__uint32_t)(phy->sq_rpt) & 0xff) << 24 | ((__uint32_t)(phy->sq_rpt) & 0xff00) << 8 | ((__uint32_t)(phy->sq_rpt) & 0xff0000) >> 8 | ((__uint32_t)(phy->sq_rpt) & 0xff000000) >> 24) : __swap32md(phy->sq_rpt)) >> 1) & 0x7f) - 110;
  }
  return (rssi);
 }
@@ -6923,9 +6927,9 @@ rtwn_load_firmware(struct rtwn_softc *sc)
  }
  ptr = fw;
  hdr = (const struct r92c_fw_hdr *)ptr;
- if ((__extension__({ __uint16_t __swap16gen_x = (hdr->signature); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) >> 4) == 0x88c ||
-     (__extension__({ __uint16_t __swap16gen_x = (hdr->signature); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) >> 4) == 0x88e ||
-     (__extension__({ __uint16_t __swap16gen_x = (hdr->signature); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) >> 4) == 0x92c) {
+ if (((__builtin_constant_p(hdr->signature) ? (__uint16_t)(((__uint16_t)(hdr->signature) & 0xffU) << 8 | ((__uint16_t)(hdr->signature) & 0xff00U) >> 8) : __swap16md(hdr->signature)) >> 4) == 0x88c ||
+     ((__builtin_constant_p(hdr->signature) ? (__uint16_t)(((__uint16_t)(hdr->signature) & 0xffU) << 8 | ((__uint16_t)(hdr->signature) & 0xff00U) >> 8) : __swap16md(hdr->signature)) >> 4) == 0x88e ||
+     ((__builtin_constant_p(hdr->signature) ? (__uint16_t)(((__uint16_t)(hdr->signature) & 0xffU) << 8 | ((__uint16_t)(hdr->signature) & 0xff00U) >> 8) : __swap16md(hdr->signature)) >> 4) == 0x92c) {
   ;
   ptr += sizeof(*hdr);
   len -= sizeof(*hdr);

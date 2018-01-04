@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -2984,9 +2988,9 @@ atascsi_probe(struct scsi_link *link)
  ahp->ahp_ports[link->lun] = ap;
  if (type != 1)
   return (0);
- validinfo = __extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.validinfo); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ validinfo = (__builtin_constant_p(ap->ap_identify.validinfo) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.validinfo) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.validinfo) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.validinfo));
  if (((validinfo) & (0x0004))) {
-  ultradma = __extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.ultradma); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  ultradma = (__builtin_constant_p(ap->ap_identify.ultradma) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.ultradma) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.ultradma) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.ultradma));
   for (i = 7; i >= 0; i--) {
    if (ultradma & (1 << i)) {
     xfermode = 0x40 | i;
@@ -2997,9 +3001,9 @@ atascsi_probe(struct scsi_link *link)
  if (xfermode != -1)
   (void)atascsi_port_set_features(ap, 0x03, xfermode);
  if (as->as_capability & (1 << 0) &&
-     ((__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.satacap); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) & (0x0100)) &&
+     (((__builtin_constant_p(ap->ap_identify.satacap) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.satacap) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.satacap) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.satacap))) & (0x0100)) &&
      (link->lun == 0 || as->as_capability & (1 << 2))) {
-  ap->ap_ncqdepth = (((__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.qdepth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) & 0x1f) + 1);
+  ap->ap_ncqdepth = ((((__builtin_constant_p(ap->ap_identify.qdepth) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.qdepth) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.qdepth) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.qdepth))) & 0x1f) + 1);
   qdepth = (((ap->ap_ncqdepth)<(as->as_ncqdepth))?(ap->ap_ncqdepth):(as->as_ncqdepth));
   if (((as->as_capability) & ((1 << 1))))
    qdepth--;
@@ -3017,9 +3021,9 @@ atascsi_probe(struct scsi_link *link)
    }
   }
  }
- if (((__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.data_set_mgmt); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) & (0x0001)))
+ if ((((__builtin_constant_p(ap->ap_identify.data_set_mgmt) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.data_set_mgmt) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.data_set_mgmt) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.data_set_mgmt))) & (0x0001)))
   ((ap->ap_features) |= (0x2));
- cmdset = __extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.cmdset82); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ cmdset = (__builtin_constant_p(ap->ap_identify.cmdset82) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.cmdset82) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.cmdset82) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.cmdset82));
  if (((cmdset) & ((1 << 5)))) {
   (void)atascsi_port_set_features(ap, 0x02, 0);
  }
@@ -3343,7 +3347,7 @@ atascsi_disk_vpd_ident(struct scsi_xfer *xs)
  size_t pg_len;
  ap = atascsi_lookup_port(link);
  __builtin_bzero((&pg), (sizeof(pg)));
- if (__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.features87); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & (1<<8)) {
+ if ((__builtin_constant_p(ap->ap_identify.features87) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.features87) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.features87) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.features87)) & (1<<8)) {
   pg_len = 8;
   pg.devid_hdr.pi_code = 0x1;
   pg.devid_hdr.flags = 0x00 | 0x3;
@@ -3430,8 +3434,8 @@ atascsi_disk_vpd_info(struct scsi_xfer *xs)
  pg.hdr.device = 0;
  pg.hdr.page_code = 0xb1;
  _lto2b(sizeof(pg) - sizeof(pg.hdr), pg.hdr.page_length);
- _lto2b(__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.rpm); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }), pg.rpm);
- pg.form_factor = __extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.form); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x000f;
+ _lto2b((__builtin_constant_p(ap->ap_identify.rpm) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.rpm) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.rpm) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.rpm)), pg.rpm);
+ pg.form_factor = (__builtin_constant_p(ap->ap_identify.form) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.form) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.form) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.form)) & 0x000f;
  __builtin_bcopy((&pg), (xs->data), ((((sizeof(pg))<(xs->datalen))?(sizeof(pg)):(xs->datalen))));
  atascsi_done(xs, 0);
 }
@@ -3497,7 +3501,7 @@ atascsi_disk_write_same_16(struct scsi_xfer *xs)
  xa->atascsi_private = xs;
  xa->timeout = (xs->timeout < 45000) ? 45000 : xs->timeout;
  __builtin_memset((xa->data), (0), (xa->datalen));
- desc = __extension__({ __uint64_t __swap64gen_x = (((lba) | ((u_int64_t)(length) << 48))); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ desc = (__builtin_constant_p(((lba) | ((u_int64_t)(length) << 48))) ? (__uint64_t)((((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff) << 56) | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff00ULL) << 40 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff0000ULL) << 24 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff000000ULL) << 8 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((lba) | ((u_int64_t)(length) << 48))) & 0xff00000000000000ULL) >> 56) : __swap64md(((lba) | ((u_int64_t)(length) << 48))));
  __builtin_memcpy((xa->data), (&desc), (sizeof(desc)));
  fis = xa->fis;
  fis->flags = (1<<7) | ap->ap_pmp_port;
@@ -3587,7 +3591,7 @@ atascsi_disk_unmap_task(void *xxs)
   d = &descs[i];
   if (_4btol(d->logical_blocks) > 0xffff)
    goto fail;
-  trims[i] = __extension__({ __uint64_t __swap64gen_x = (((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  trims[i] = (__builtin_constant_p(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) ? (__uint64_t)((((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff) << 56) | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff00ULL) << 40 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff0000ULL) << 24 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff000000ULL) << 8 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))) & 0xff00000000000000ULL) >> 56) : __swap64md(((_8btol(d->logical_addr)) | ((u_int64_t)(_4btol(d->logical_blocks)) << 48))));
  }
  xa->data = trims;
  xa->datalen = 512;
@@ -3679,15 +3683,15 @@ ata_identify_blocks(struct ata_identify *id)
 {
  u_int64_t blocks = 0;
  int i;
- if (__extension__({ __uint16_t __swap16gen_x = (id->cmdset83); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) & 0x0400) {
+ if ((__builtin_constant_p(id->cmdset83) ? (__uint16_t)(((__uint16_t)(id->cmdset83) & 0xffU) << 8 | ((__uint16_t)(id->cmdset83) & 0xff00U) >> 8) : __swap16md(id->cmdset83)) & 0x0400) {
   for (i = 3; i >= 0; --i) {
    blocks <<= 16;
-   blocks += __extension__({ __uint16_t __swap16gen_x = (id->addrsecxt[i]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   blocks += (__builtin_constant_p(id->addrsecxt[i]) ? (__uint16_t)(((__uint16_t)(id->addrsecxt[i]) & 0xffU) << 8 | ((__uint16_t)(id->addrsecxt[i]) & 0xff00U) >> 8) : __swap16md(id->addrsecxt[i]));
   }
  } else {
-  blocks = __extension__({ __uint16_t __swap16gen_x = (id->addrsec[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  blocks = (__builtin_constant_p(id->addrsec[1]) ? (__uint16_t)(((__uint16_t)(id->addrsec[1]) & 0xffU) << 8 | ((__uint16_t)(id->addrsec[1]) & 0xff00U) >> 8) : __swap16md(id->addrsec[1]));
   blocks <<= 16;
-  blocks += __extension__({ __uint16_t __swap16gen_x = (id->addrsec[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  blocks += (__builtin_constant_p(id->addrsec[0]) ? (__uint16_t)(((__uint16_t)(id->addrsec[0]) & 0xffU) << 8 | ((__uint16_t)(id->addrsec[0]) & 0xff00U) >> 8) : __swap16md(id->addrsec[0]));
  }
  return (blocks - 1);
 }
@@ -3695,12 +3699,12 @@ u_int
 ata_identify_blocksize(struct ata_identify *id)
 {
  u_int blocksize = 512;
- u_int16_t p2l_sect = __extension__({ __uint16_t __swap16gen_x = (id->p2l_sect); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ u_int16_t p2l_sect = (__builtin_constant_p(id->p2l_sect) ? (__uint16_t)(((__uint16_t)(id->p2l_sect) & 0xffU) << 8 | ((__uint16_t)(id->p2l_sect) & 0xff00U) >> 8) : __swap16md(id->p2l_sect));
  if ((p2l_sect & 0xc000) == 0x4000 &&
      ((p2l_sect) & (0x1000))) {
-  blocksize = __extension__({ __uint16_t __swap16gen_x = (id->words_lsec[1]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  blocksize = (__builtin_constant_p(id->words_lsec[1]) ? (__uint16_t)(((__uint16_t)(id->words_lsec[1]) & 0xffU) << 8 | ((__uint16_t)(id->words_lsec[1]) & 0xff00U) >> 8) : __swap16md(id->words_lsec[1]));
   blocksize <<= 16;
-  blocksize += __extension__({ __uint16_t __swap16gen_x = (id->words_lsec[0]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  blocksize += (__builtin_constant_p(id->words_lsec[0]) ? (__uint16_t)(((__uint16_t)(id->words_lsec[0]) & 0xffU) << 8 | ((__uint16_t)(id->words_lsec[0]) & 0xff00U) >> 8) : __swap16md(id->words_lsec[0]));
   blocksize <<= 1;
  }
  return (blocksize);
@@ -3709,7 +3713,7 @@ u_int
 ata_identify_block_l2p_exp(struct ata_identify *id)
 {
  u_int exponent = 0;
- u_int16_t p2l_sect = __extension__({ __uint16_t __swap16gen_x = (id->p2l_sect); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ u_int16_t p2l_sect = (__builtin_constant_p(id->p2l_sect) ? (__uint16_t)(((__uint16_t)(id->p2l_sect) & 0xffU) << 8 | ((__uint16_t)(id->p2l_sect) & 0xff00U) >> 8) : __swap16md(id->p2l_sect));
  if ((p2l_sect & 0xc000) == 0x4000 &&
      ((p2l_sect) & (0x2000))) {
   exponent = (p2l_sect & 0x000f);
@@ -3720,8 +3724,8 @@ u_int
 ata_identify_block_logical_align(struct ata_identify *id)
 {
  u_int align = 0;
- u_int16_t p2l_sect = __extension__({ __uint16_t __swap16gen_x = (id->p2l_sect); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- u_int16_t logical_align = __extension__({ __uint16_t __swap16gen_x = (id->logical_align); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ u_int16_t p2l_sect = (__builtin_constant_p(id->p2l_sect) ? (__uint16_t)(((__uint16_t)(id->p2l_sect) & 0xffU) << 8 | ((__uint16_t)(id->p2l_sect) & 0xff00U) >> 8) : __swap16md(id->p2l_sect));
+ u_int16_t logical_align = (__builtin_constant_p(id->logical_align) ? (__uint16_t)(((__uint16_t)(id->logical_align) & 0xffU) << 8 | ((__uint16_t)(id->logical_align) & 0xff00U) >> 8) : __swap16md(id->logical_align));
  if ((p2l_sect & 0xc000) == 0x4000 &&
      ((p2l_sect) & (0x2000)) &&
      (logical_align & 0xc000) == 0x4000)
@@ -3771,7 +3775,7 @@ atascsi_disk_capacity16(struct scsi_xfer *xs)
   lowest_aligned = (1 << rcd.logical_per_phys) - align;
  if (((ap->ap_features) & (0x2))) {
   ((lowest_aligned) |= (0x8000));
-  if (((__extension__({ __uint16_t __swap16gen_x = (ap->ap_identify.add_support); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) & (0x4000)))
+  if ((((__builtin_constant_p(ap->ap_identify.add_support) ? (__uint16_t)(((__uint16_t)(ap->ap_identify.add_support) & 0xffU) << 8 | ((__uint16_t)(ap->ap_identify.add_support) & 0xff00U) >> 8) : __swap16md(ap->ap_identify.add_support))) & (0x4000)))
    ((lowest_aligned) |= (0x4000));
  }
  _lto2b(lowest_aligned, rcd.lowest_aligned);
@@ -4158,7 +4162,7 @@ ata_swapcopy(void *src, void *dst, size_t len)
  int i;
  len /= 2;
  for (i = 0; i < len; i++)
-  d[i] = __extension__({ __uint16_t __swap16gen_x = (s[i]); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  d[i] = (__builtin_constant_p(s[i]) ? (__uint16_t)(((__uint16_t)(s[i]) & 0xffU) << 8 | ((__uint16_t)(s[i]) & 0xff00U) >> 8) : __swap16md(s[i]));
 }
 int
 atascsi_port_identify(struct atascsi_port *ap, struct ata_identify *identify)

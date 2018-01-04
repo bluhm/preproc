@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3557,13 +3561,13 @@ hme_meminit(struct hme_softc *sc)
  dma = (bus_addr_t)(((((u_long)dma)+((2048)-1))/(2048))*(2048));
  p = (caddr_t)(((((u_long)p)+((2048)-1))/(2048))*(2048));
  for (i = 0; i < 64; i++) {
-  do { *((u_int32_t *)((hr->rb_txd) + ((i) * 8) + 4)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (0)); } while(0);
-  do { *((u_int32_t *)((hr->rb_txd) + ((i) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (0)); } while(0);
+  do { *((u_int32_t *)((hr->rb_txd) + ((i) * 8) + 4)) = ((sc->sc_pci) ? (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0)) : (0)); } while(0);
+  do { *((u_int32_t *)((hr->rb_txd) + ((i) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0)) : (0)); } while(0);
   sc->sc_txd[i].sd_mbuf = ((void *)0);
  }
  for (i = 0; i < 64; i++) {
-  do { *((u_int32_t *)((hr->rb_rxd) + ((i) * 8) + 4)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (0)); } while(0);
-  do { *((u_int32_t *)((hr->rb_rxd) + ((i) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (0); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (0)); } while(0);
+  do { *((u_int32_t *)((hr->rb_rxd) + ((i) * 8) + 4)) = ((sc->sc_pci) ? (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0)) : (0)); } while(0);
+  do { *((u_int32_t *)((hr->rb_rxd) + ((i) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0)) : (0)); } while(0);
   sc->sc_rxd[i].sd_mbuf = ((void *)0);
  }
  if_rxr_init(&sc->sc_rx_ring, 2, 64);
@@ -3689,22 +3693,22 @@ hme_start(struct ifnet *ifp)
     flags |= 0x40000000;
    else
     flags |= 0x80000000;
-   do { *((u_int32_t *)((hr->rb_txd) + ((frag) * 8) + 4)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (map->dm_segs[i].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (map->dm_segs[i].ds_addr)); } while(0);
-   do { *((u_int32_t *)((hr->rb_txd) + ((frag) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (flags)); } while(0);
+   do { *((u_int32_t *)((hr->rb_txd) + ((frag) * 8) + 4)) = ((sc->sc_pci) ? (__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr)) : (map->dm_segs[i].ds_addr)); } while(0);
+   do { *((u_int32_t *)((hr->rb_txd) + ((frag) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags)) : (flags)); } while(0);
    cur = frag;
    if (++frag == 64)
     frag = 0;
   }
-  flags = (sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0)));
+  flags = (sc->sc_pci) ? (__builtin_constant_p(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))) ? (__uint32_t)(((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))) & 0xff) << 24 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))) & 0xff00) << 8 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))) & 0xff0000) >> 8 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0))) & 0xff000000) >> 24) : __swap32md(*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0)))) : (*((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0)));
   flags |= 0x20000000;
-  do { *((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (flags)); } while(0);
+  do { *((u_int32_t *)((hr->rb_txd) + ((cur) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags)) : (flags)); } while(0);
   sc->sc_tx_cnt += map->dm_nsegs;
   sc->sc_txd[sc->sc_tx_prod].sd_map = sc->sc_txd[cur].sd_map;
   sc->sc_txd[cur].sd_map = map;
   sc->sc_txd[cur].sd_mbuf = m;
-  flags = (sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0)));
+  flags = (sc->sc_pci) ? (__builtin_constant_p(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))) ? (__uint32_t)(((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))) & 0xff) << 24 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))) & 0xff00) << 8 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))) & 0xff0000) >> 8 | ((__uint32_t)(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0))) & 0xff000000) >> 24) : __swap32md(*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0)))) : (*((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0)));
   flags |= 0x80000000;
-  do { *((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (flags)); } while(0);
+  do { *((u_int32_t *)((hr->rb_txd) + ((sc->sc_tx_prod) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags)) : (flags)); } while(0);
   bus_space_write_4(sc->sc_bustag, sc->sc_etx, (0*4),
       0x00000001);
   sc->sc_tx_prod = frag;
@@ -3728,7 +3732,7 @@ hme_tint(struct hme_softc *sc)
  for (;;) {
   if (cnt <= 0)
    break;
-  txflags = (sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0)));
+  txflags = (sc->sc_pci) ? (__builtin_constant_p(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))) ? (__uint32_t)(((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))) & 0xff) << 24 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))) & 0xff00) << 8 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))) & 0xff0000) >> 8 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0))) & 0xff000000) >> 24) : __swap32md(*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0)))) : (*((u_int32_t *)((sc->sc_rb.rb_txd) + ((ri) * 8) + 0)));
   if (txflags & 0x80000000)
    break;
   ifq_clr_oactive(&ifp->if_snd);
@@ -3764,7 +3768,7 @@ hme_rint(struct hme_softc *sc)
  ri = sc->sc_rx_cons;
  sd = &sc->sc_rxd[ri];
  while (((&sc->sc_rx_ring)->rxr_alive) > 0) {
-  flags = (sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0)));
+  flags = (sc->sc_pci) ? (__builtin_constant_p(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))) ? (__uint32_t)(((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))) & 0xff) << 24 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))) & 0xff00) << 8 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))) & 0xff0000) >> 8 | ((__uint32_t)(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0))) & 0xff000000) >> 24) : __swap32md(*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0)))) : (*((u_int32_t *)((sc->sc_rb.rb_rxd) + ((ri) * 8) + 0)));
   if (flags & 0x80000000)
    break;
   bus_dmamap_sync(sc->sc_dmatag, sd->sd_map,
@@ -4095,8 +4099,8 @@ hme_fill_rx_ring(struct hme_softc *sc)
   if (hme_newbuf(sc, &sc->sc_rxd[sc->sc_rx_prod]))
    break;
   sd = &sc->sc_rxd[sc->sc_rx_prod];
-  do { *((u_int32_t *)((sc->sc_rb.rb_rxd) + ((sc->sc_rx_prod) * 8) + 4)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (sd->sd_map->dm_segs[0].ds_addr); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (sd->sd_map->dm_segs[0].ds_addr)); } while(0);
-  do { *((u_int32_t *)((sc->sc_rb.rb_rxd) + ((sc->sc_rx_prod) * 8) + 0)) = ((sc->sc_pci) ? __extension__({ __uint32_t __swap32gen_x = (0x80000000 | (((1600) << 16) & 0x3fff0000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) : (0x80000000 | (((1600) << 16) & 0x3fff0000))); } while(0);
+  do { *((u_int32_t *)((sc->sc_rb.rb_rxd) + ((sc->sc_rx_prod) * 8) + 4)) = ((sc->sc_pci) ? (__builtin_constant_p(sd->sd_map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(sd->sd_map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(sd->sd_map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(sd->sd_map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(sd->sd_map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(sd->sd_map->dm_segs[0].ds_addr)) : (sd->sd_map->dm_segs[0].ds_addr)); } while(0);
+  do { *((u_int32_t *)((sc->sc_rb.rb_rxd) + ((sc->sc_rx_prod) * 8) + 0)) = ((sc->sc_pci) ? (__builtin_constant_p(0x80000000 | (((1600) << 16) & 0x3fff0000)) ? (__uint32_t)(((__uint32_t)(0x80000000 | (((1600) << 16) & 0x3fff0000)) & 0xff) << 24 | ((__uint32_t)(0x80000000 | (((1600) << 16) & 0x3fff0000)) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | (((1600) << 16) & 0x3fff0000)) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | (((1600) << 16) & 0x3fff0000)) & 0xff000000) >> 24) : __swap32md(0x80000000 | (((1600) << 16) & 0x3fff0000))) : (0x80000000 | (((1600) << 16) & 0x3fff0000))); } while(0);
   if (++sc->sc_rx_prod == 64)
    sc->sc_rx_prod = 0;
         }

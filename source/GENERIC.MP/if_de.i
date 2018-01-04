@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -6067,16 +6071,16 @@ tulip_addr_filter(tulip_softc_t * const sc)
      do { (step).e_enm = ((&(ac)->ac_multiaddrs)->lh_first); do { if ((((enm)) = ((step)).e_enm) != ((void *)0)) ((step)).e_enm = ((((enm)))->enm_list.le_next); } while ( 0); } while ( 0);
      while (enm != ((void *)0)) {
       hash = (ether_crc32_le(enm->enm_addrlo, 6) & 0x1FF);
-      sp[hash >> 4] |= __extension__({ __uint32_t __swap32gen_x = (1 << (hash & 0xF)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
   do { if (((enm) = (step).e_enm) != ((void *)0)) (step).e_enm = (((enm))->enm_list.le_next); } while ( 0);
      }
  }
  if ((sc->tulip_flags & 0x00000040) == 0) {
      hash = (ether_crc32_le(etherbroadcastaddr, 6) & 0x1FF);
-     sp[hash >> 4] |= __extension__({ __uint32_t __swap32gen_x = (1 << (hash & 0xF)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
      if (sc->tulip_flags & 0x00000004) {
   hash = (ether_crc32_le(sc->tulip_ac.ac_enaddr, 6) & 0x1FF);
-  sp[hash >> 4] |= __extension__({ __uint32_t __swap32gen_x = (1 << (hash & 0xF)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
      } else {
   sp[39] = ((u_int16_t *) sc->tulip_ac.ac_enaddr)[0] << 16;
   sp[40] = ((u_int16_t *) sc->tulip_ac.ac_enaddr)[1] << 16;

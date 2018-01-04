@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4642,12 +4646,12 @@ static int
 e2fs_sbcheck(struct ext2fs *fs, int ronly)
 {
  u_int32_t tmp;
- tmp = __extension__({ __uint16_t __swap16gen_x = (fs->e2fs_magic); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ tmp = (__builtin_constant_p(fs->e2fs_magic) ? (__uint16_t)(((__uint16_t)(fs->e2fs_magic) & 0xffU) << 8 | ((__uint16_t)(fs->e2fs_magic) & 0xff00U) >> 8) : __swap16md(fs->e2fs_magic));
  if (tmp != 0xef53) {
   printf("ext2fs: wrong magic number 0x%x\n", tmp);
   return (5);
  }
- tmp = __extension__({ __uint32_t __swap32gen_x = (fs->e2fs_log_bsize); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ tmp = (__builtin_constant_p(fs->e2fs_log_bsize) ? (__uint32_t)(((__uint32_t)(fs->e2fs_log_bsize) & 0xff) << 24 | ((__uint32_t)(fs->e2fs_log_bsize) & 0xff00) << 8 | ((__uint32_t)(fs->e2fs_log_bsize) & 0xff0000) >> 8 | ((__uint32_t)(fs->e2fs_log_bsize) & 0xff000000) >> 24) : __swap32md(fs->e2fs_log_bsize));
  if (tmp > 2) {
   tmp += 10;
   printf("ext2fs: wrong log2(block size) %d\n", tmp);
@@ -4657,19 +4661,19 @@ e2fs_sbcheck(struct ext2fs *fs, int ronly)
   printf("ext2fs: zero blocks per group\n");
   return (5);
  }
- tmp = __extension__({ __uint32_t __swap32gen_x = (fs->e2fs_rev); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ tmp = (__builtin_constant_p(fs->e2fs_rev) ? (__uint32_t)(((__uint32_t)(fs->e2fs_rev) & 0xff) << 24 | ((__uint32_t)(fs->e2fs_rev) & 0xff00) << 8 | ((__uint32_t)(fs->e2fs_rev) & 0xff0000) >> 8 | ((__uint32_t)(fs->e2fs_rev) & 0xff000000) >> 24) : __swap32md(fs->e2fs_rev));
  if (tmp > 1) {
   printf("ext2fs: wrong revision number 0x%x\n", tmp);
   return (5);
  }
  else if (tmp == 0)
   return (0);
- tmp = __extension__({ __uint32_t __swap32gen_x = (fs->e2fs_first_ino); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ tmp = (__builtin_constant_p(fs->e2fs_first_ino) ? (__uint32_t)(((__uint32_t)(fs->e2fs_first_ino) & 0xff) << 24 | ((__uint32_t)(fs->e2fs_first_ino) & 0xff00) << 8 | ((__uint32_t)(fs->e2fs_first_ino) & 0xff0000) >> 8 | ((__uint32_t)(fs->e2fs_first_ino) & 0xff000000) >> 24) : __swap32md(fs->e2fs_first_ino));
  if (tmp != ((ufsino_t)11)) {
   printf("ext2fs: first inode at 0x%x\n", tmp);
   return (22);
  }
- tmp = __extension__({ __uint32_t __swap32gen_x = (fs->e2fs_features_incompat); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ tmp = (__builtin_constant_p(fs->e2fs_features_incompat) ? (__uint32_t)(((__uint32_t)(fs->e2fs_features_incompat) & 0xff) << 24 | ((__uint32_t)(fs->e2fs_features_incompat) & 0xff00) << 8 | ((__uint32_t)(fs->e2fs_features_incompat) & 0xff0000) >> 8 | ((__uint32_t)(fs->e2fs_features_incompat) & 0xff000000) >> 24) : __swap32md(fs->e2fs_features_incompat));
  if (tmp & ~((0x0002) | (0x0040 | 0x0200 | 0x0010 | 0x0004))) {
   printf("ext2fs: unsupported incompat features 0x%x\n", tmp);
   return (22);
@@ -4683,7 +4687,7 @@ e2fs_sbcheck(struct ext2fs *fs, int ronly)
   if (!ronly)
    return (30);
  }
- tmp = __extension__({ __uint32_t __swap32gen_x = (fs->e2fs_features_rocompat); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ tmp = (__builtin_constant_p(fs->e2fs_features_rocompat) ? (__uint32_t)(((__uint32_t)(fs->e2fs_features_rocompat) & 0xff) << 24 | ((__uint32_t)(fs->e2fs_features_rocompat) & 0xff00) << 8 | ((__uint32_t)(fs->e2fs_features_rocompat) & 0xff0000) >> 8 | ((__uint32_t)(fs->e2fs_features_rocompat) & 0xff000000) >> 24) : __swap32md(fs->e2fs_features_rocompat));
  if (!ronly && (tmp & ~(0x0001 | 0x0002))) {
   printf("ext2fs: unsupported R/O compat features 0x%x\n", tmp);
   return (30);

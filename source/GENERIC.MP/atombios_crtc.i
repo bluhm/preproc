@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -15258,28 +15262,28 @@ static void atombios_overscan_setup(struct drm_crtc *crtc,
  args.ucCRTC = radeon_crtc->crtc_id;
  switch (radeon_crtc->rmx_type) {
  case RMX_CENTER:
-  args.usOverscanTop = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanBottom = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanLeft = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanRight = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.usOverscanTop = (__builtin_constant_p((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2));
+  args.usOverscanBottom = (__builtin_constant_p((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_vdisplay - mode->crtc_vdisplay) / 2));
+  args.usOverscanLeft = (__builtin_constant_p((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2));
+  args.usOverscanRight = (__builtin_constant_p((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_hdisplay - mode->crtc_hdisplay) / 2));
   break;
  case RMX_ASPECT:
   a1 = mode->crtc_vdisplay * adjusted_mode->crtc_hdisplay;
   a2 = adjusted_mode->crtc_vdisplay * mode->crtc_hdisplay;
   if (a1 > a2) {
-   args.usOverscanLeft = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.usOverscanRight = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.usOverscanLeft = (__builtin_constant_p((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2));
+   args.usOverscanRight = (__builtin_constant_p((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_hdisplay - (a2 / mode->crtc_vdisplay)) / 2));
   } else if (a2 > a1) {
-   args.usOverscanTop = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.usOverscanBottom = __extension__({ __uint16_t __swap16gen_x = ((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.usOverscanTop = (__builtin_constant_p((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2));
+   args.usOverscanBottom = (__builtin_constant_p((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) ? (__uint16_t)(((__uint16_t)((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) & 0xffU) << 8 | ((__uint16_t)((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2) & 0xff00U) >> 8) : __swap16md((adjusted_mode->crtc_vdisplay - (a1 / mode->crtc_hdisplay)) / 2));
   }
   break;
  case RMX_FULL:
  default:
-  args.usOverscanRight = __extension__({ __uint16_t __swap16gen_x = (radeon_crtc->h_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanLeft = __extension__({ __uint16_t __swap16gen_x = (radeon_crtc->h_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanBottom = __extension__({ __uint16_t __swap16gen_x = (radeon_crtc->v_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.usOverscanTop = __extension__({ __uint16_t __swap16gen_x = (radeon_crtc->v_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.usOverscanRight = (__builtin_constant_p(radeon_crtc->h_border) ? (__uint16_t)(((__uint16_t)(radeon_crtc->h_border) & 0xffU) << 8 | ((__uint16_t)(radeon_crtc->h_border) & 0xff00U) >> 8) : __swap16md(radeon_crtc->h_border));
+  args.usOverscanLeft = (__builtin_constant_p(radeon_crtc->h_border) ? (__uint16_t)(((__uint16_t)(radeon_crtc->h_border) & 0xffU) << 8 | ((__uint16_t)(radeon_crtc->h_border) & 0xff00U) >> 8) : __swap16md(radeon_crtc->h_border));
+  args.usOverscanBottom = (__builtin_constant_p(radeon_crtc->v_border) ? (__uint16_t)(((__uint16_t)(radeon_crtc->v_border) & 0xffU) << 8 | ((__uint16_t)(radeon_crtc->v_border) & 0xff00U) >> 8) : __swap16md(radeon_crtc->v_border));
+  args.usOverscanTop = (__builtin_constant_p(radeon_crtc->v_border) ? (__uint16_t)(((__uint16_t)(radeon_crtc->v_border) & 0xffU) << 8 | ((__uint16_t)(radeon_crtc->v_border) & 0xff00U) >> 8) : __swap16md(radeon_crtc->v_border));
   break;
  }
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
@@ -15463,20 +15467,20 @@ atombios_set_crtc_dtd_timing(struct drm_crtc *crtc,
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->SetCRTC_UsingDTDTiming)-(char*)0)/sizeof(USHORT));
  u16 misc = 0;
  __builtin_memset((&args), (0), (sizeof(args)));
- args.usH_Size = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hdisplay - (radeon_crtc->h_border * 2)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.usH_Size = (__builtin_constant_p(mode->crtc_hdisplay - (radeon_crtc->h_border * 2)) ? (__uint16_t)(((__uint16_t)(mode->crtc_hdisplay - (radeon_crtc->h_border * 2)) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hdisplay - (radeon_crtc->h_border * 2)) & 0xff00U) >> 8) : __swap16md(mode->crtc_hdisplay - (radeon_crtc->h_border * 2)));
  args.usH_Blanking_Time =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hblank_end - mode->crtc_hdisplay + (radeon_crtc->h_border * 2)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usV_Size = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vdisplay - (radeon_crtc->v_border * 2)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_hblank_end - mode->crtc_hdisplay + (radeon_crtc->h_border * 2)) ? (__uint16_t)(((__uint16_t)(mode->crtc_hblank_end - mode->crtc_hdisplay + (radeon_crtc->h_border * 2)) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hblank_end - mode->crtc_hdisplay + (radeon_crtc->h_border * 2)) & 0xff00U) >> 8) : __swap16md(mode->crtc_hblank_end - mode->crtc_hdisplay + (radeon_crtc->h_border * 2)));
+ args.usV_Size = (__builtin_constant_p(mode->crtc_vdisplay - (radeon_crtc->v_border * 2)) ? (__uint16_t)(((__uint16_t)(mode->crtc_vdisplay - (radeon_crtc->v_border * 2)) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vdisplay - (radeon_crtc->v_border * 2)) & 0xff00U) >> 8) : __swap16md(mode->crtc_vdisplay - (radeon_crtc->v_border * 2)));
  args.usV_Blanking_Time =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vblank_end - mode->crtc_vdisplay + (radeon_crtc->v_border * 2)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_vblank_end - mode->crtc_vdisplay + (radeon_crtc->v_border * 2)) ? (__uint16_t)(((__uint16_t)(mode->crtc_vblank_end - mode->crtc_vdisplay + (radeon_crtc->v_border * 2)) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vblank_end - mode->crtc_vdisplay + (radeon_crtc->v_border * 2)) & 0xff00U) >> 8) : __swap16md(mode->crtc_vblank_end - mode->crtc_vdisplay + (radeon_crtc->v_border * 2)));
  args.usH_SyncOffset =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hsync_start - mode->crtc_hdisplay + radeon_crtc->h_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_hsync_start - mode->crtc_hdisplay + radeon_crtc->h_border) ? (__uint16_t)(((__uint16_t)(mode->crtc_hsync_start - mode->crtc_hdisplay + radeon_crtc->h_border) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hsync_start - mode->crtc_hdisplay + radeon_crtc->h_border) & 0xff00U) >> 8) : __swap16md(mode->crtc_hsync_start - mode->crtc_hdisplay + radeon_crtc->h_border));
  args.usH_SyncWidth =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hsync_end - mode->crtc_hsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_hsync_end - mode->crtc_hsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_hsync_end - mode->crtc_hsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hsync_end - mode->crtc_hsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_hsync_end - mode->crtc_hsync_start));
  args.usV_SyncOffset =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vsync_start - mode->crtc_vdisplay + radeon_crtc->v_border); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_vsync_start - mode->crtc_vdisplay + radeon_crtc->v_border) ? (__uint16_t)(((__uint16_t)(mode->crtc_vsync_start - mode->crtc_vdisplay + radeon_crtc->v_border) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vsync_start - mode->crtc_vdisplay + radeon_crtc->v_border) & 0xff00U) >> 8) : __swap16md(mode->crtc_vsync_start - mode->crtc_vdisplay + radeon_crtc->v_border));
  args.usV_SyncWidth =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vsync_end - mode->crtc_vsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_vsync_end - mode->crtc_vsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_vsync_end - mode->crtc_vsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vsync_end - mode->crtc_vsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_vsync_end - mode->crtc_vsync_start));
  args.ucH_Border = radeon_crtc->h_border;
  args.ucV_Border = radeon_crtc->v_border;
  if (mode->flags & (1<<3))
@@ -15489,7 +15493,7 @@ atombios_set_crtc_dtd_timing(struct drm_crtc *crtc,
   misc |= 0x80;
  if (mode->flags & (1<<5))
   misc |= 0x100;
- args.susModeMiscInfo.usAccess = __extension__({ __uint16_t __swap16gen_x = (misc); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.susModeMiscInfo.usAccess = (__builtin_constant_p(misc) ? (__uint16_t)(((__uint16_t)(misc) & 0xffU) << 8 | ((__uint16_t)(misc) & 0xff00U) >> 8) : __swap16md(misc));
  args.ucCRTC = radeon_crtc->crtc_id;
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
@@ -15503,16 +15507,16 @@ static void atombios_crtc_set_timing(struct drm_crtc *crtc,
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->SetCRTC_Timing)-(char*)0)/sizeof(USHORT));
  u16 misc = 0;
  __builtin_memset((&args), (0), (sizeof(args)));
- args.usH_Total = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_htotal); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usH_Disp = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hdisplay); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usH_SyncStart = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.usH_Total = (__builtin_constant_p(mode->crtc_htotal) ? (__uint16_t)(((__uint16_t)(mode->crtc_htotal) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_htotal) & 0xff00U) >> 8) : __swap16md(mode->crtc_htotal));
+ args.usH_Disp = (__builtin_constant_p(mode->crtc_hdisplay) ? (__uint16_t)(((__uint16_t)(mode->crtc_hdisplay) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hdisplay) & 0xff00U) >> 8) : __swap16md(mode->crtc_hdisplay));
+ args.usH_SyncStart = (__builtin_constant_p(mode->crtc_hsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_hsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_hsync_start));
  args.usH_SyncWidth =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_hsync_end - mode->crtc_hsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usV_Total = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vtotal); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usV_Disp = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vdisplay); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- args.usV_SyncStart = __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_hsync_end - mode->crtc_hsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_hsync_end - mode->crtc_hsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_hsync_end - mode->crtc_hsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_hsync_end - mode->crtc_hsync_start));
+ args.usV_Total = (__builtin_constant_p(mode->crtc_vtotal) ? (__uint16_t)(((__uint16_t)(mode->crtc_vtotal) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vtotal) & 0xff00U) >> 8) : __swap16md(mode->crtc_vtotal));
+ args.usV_Disp = (__builtin_constant_p(mode->crtc_vdisplay) ? (__uint16_t)(((__uint16_t)(mode->crtc_vdisplay) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vdisplay) & 0xff00U) >> 8) : __swap16md(mode->crtc_vdisplay));
+ args.usV_SyncStart = (__builtin_constant_p(mode->crtc_vsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_vsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_vsync_start));
  args.usV_SyncWidth =
-  __extension__({ __uint16_t __swap16gen_x = (mode->crtc_vsync_end - mode->crtc_vsync_start); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  (__builtin_constant_p(mode->crtc_vsync_end - mode->crtc_vsync_start) ? (__uint16_t)(((__uint16_t)(mode->crtc_vsync_end - mode->crtc_vsync_start) & 0xffU) << 8 | ((__uint16_t)(mode->crtc_vsync_end - mode->crtc_vsync_start) & 0xff00U) >> 8) : __swap16md(mode->crtc_vsync_end - mode->crtc_vsync_start));
  args.ucOverscanRight = radeon_crtc->h_border;
  args.ucOverscanLeft = radeon_crtc->h_border;
  args.ucOverscanBottom = radeon_crtc->v_border;
@@ -15527,7 +15531,7 @@ static void atombios_crtc_set_timing(struct drm_crtc *crtc,
   misc |= 0x80;
  if (mode->flags & (1<<5))
   misc |= 0x100;
- args.susModeMiscInfo.usAccess = __extension__({ __uint16_t __swap16gen_x = (misc); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ args.susModeMiscInfo.usAccess = (__builtin_constant_p(misc) ? (__uint16_t)(((__uint16_t)(misc) & 0xffU) << 8 | ((__uint16_t)(misc) & 0xff00U) >> 8) : __swap16md(misc));
  args.ucCRTC = radeon_crtc->crtc_id;
  atom_execute_table(rdev->mode_info.atom_context, index, (uint32_t *)&args);
 }
@@ -15596,7 +15600,7 @@ static void atombios_crtc_program_ss(struct radeon_device *rdev,
  }
  __builtin_memset((&args), (0), (sizeof(args)));
  if (((rdev->family >= CHIP_BARTS))) {
-  args.v3.usSpreadSpectrumAmountFrac = __extension__({ __uint16_t __swap16gen_x = (0); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v3.usSpreadSpectrumAmountFrac = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
   args.v3.ucSpreadSpectrumType = ss->type & 0x00000001;
   switch (pll_id) {
   case 0:
@@ -15611,13 +15615,13 @@ static void atombios_crtc_program_ss(struct radeon_device *rdev,
   case 0xFF:
    return;
   }
-  args.v3.usSpreadSpectrumAmount = __extension__({ __uint16_t __swap16gen_x = (ss->amount); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.v3.usSpreadSpectrumStep = __extension__({ __uint16_t __swap16gen_x = (ss->step); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v3.usSpreadSpectrumAmount = (__builtin_constant_p(ss->amount) ? (__uint16_t)(((__uint16_t)(ss->amount) & 0xffU) << 8 | ((__uint16_t)(ss->amount) & 0xff00U) >> 8) : __swap16md(ss->amount));
+  args.v3.usSpreadSpectrumStep = (__builtin_constant_p(ss->step) ? (__uint16_t)(((__uint16_t)(ss->step) & 0xffU) << 8 | ((__uint16_t)(ss->step) & 0xff00U) >> 8) : __swap16md(ss->step));
   args.v3.ucEnable = enable;
   if ((ss->percentage == 0) || (ss->type & 0x00000002) || ((rdev->family >= CHIP_ARUBA) && (rdev->flags & RADEON_IS_IGP)))
    args.v3.ucEnable = 0;
  } else if (((rdev->family >= CHIP_CEDAR))) {
-  args.v2.usSpreadSpectrumPercentage = __extension__({ __uint16_t __swap16gen_x = (ss->percentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v2.usSpreadSpectrumPercentage = (__builtin_constant_p(ss->percentage) ? (__uint16_t)(((__uint16_t)(ss->percentage) & 0xffU) << 8 | ((__uint16_t)(ss->percentage) & 0xff00U) >> 8) : __swap16md(ss->percentage));
   args.v2.ucSpreadSpectrumType = ss->type & 0x00000001;
   switch (pll_id) {
   case 0:
@@ -15632,13 +15636,13 @@ static void atombios_crtc_program_ss(struct radeon_device *rdev,
   case 0xFF:
    return;
   }
-  args.v2.usSpreadSpectrumAmount = __extension__({ __uint16_t __swap16gen_x = (ss->amount); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  args.v2.usSpreadSpectrumStep = __extension__({ __uint16_t __swap16gen_x = (ss->step); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v2.usSpreadSpectrumAmount = (__builtin_constant_p(ss->amount) ? (__uint16_t)(((__uint16_t)(ss->amount) & 0xffU) << 8 | ((__uint16_t)(ss->amount) & 0xff00U) >> 8) : __swap16md(ss->amount));
+  args.v2.usSpreadSpectrumStep = (__builtin_constant_p(ss->step) ? (__uint16_t)(((__uint16_t)(ss->step) & 0xffU) << 8 | ((__uint16_t)(ss->step) & 0xff00U) >> 8) : __swap16md(ss->step));
   args.v2.ucEnable = enable;
   if ((ss->percentage == 0) || (ss->type & 0x00000002) || ((rdev->family >= CHIP_PALM) && (rdev->flags & RADEON_IS_IGP)))
    args.v2.ucEnable = 0;
  } else if (((rdev->family >= CHIP_RV620))) {
-  args.v1.usSpreadSpectrumPercentage = __extension__({ __uint16_t __swap16gen_x = (ss->percentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.v1.usSpreadSpectrumPercentage = (__builtin_constant_p(ss->percentage) ? (__uint16_t)(((__uint16_t)(ss->percentage) & 0xffU) << 8 | ((__uint16_t)(ss->percentage) & 0xff00U) >> 8) : __swap16md(ss->percentage));
   args.v1.ucSpreadSpectrumType = ss->type & 0x00000001;
   args.v1.ucSpreadSpectrumStep = ss->step;
   args.v1.ucSpreadSpectrumDelay = ss->delay;
@@ -15651,7 +15655,7 @@ static void atombios_crtc_program_ss(struct radeon_device *rdev,
    atombios_disable_ss(rdev, pll_id);
    return;
   }
-  args.lvds_ss_2.usSpreadSpectrumPercentage = __extension__({ __uint16_t __swap16gen_x = (ss->percentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.lvds_ss_2.usSpreadSpectrumPercentage = (__builtin_constant_p(ss->percentage) ? (__uint16_t)(((__uint16_t)(ss->percentage) & 0xffU) << 8 | ((__uint16_t)(ss->percentage) & 0xff00U) >> 8) : __swap16md(ss->percentage));
   args.lvds_ss_2.ucSpreadSpectrumType = ss->type & 0x00000001;
   args.lvds_ss_2.ucSpreadSpectrumStep = ss->step;
   args.lvds_ss_2.ucSpreadSpectrumDelay = ss->delay;
@@ -15663,7 +15667,7 @@ static void atombios_crtc_program_ss(struct radeon_device *rdev,
    atombios_disable_ss(rdev, pll_id);
    return;
   }
-  args.lvds_ss.usSpreadSpectrumPercentage = __extension__({ __uint16_t __swap16gen_x = (ss->percentage); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  args.lvds_ss.usSpreadSpectrumPercentage = (__builtin_constant_p(ss->percentage) ? (__uint16_t)(((__uint16_t)(ss->percentage) & 0xffU) << 8 | ((__uint16_t)(ss->percentage) & 0xff00U) >> 8) : __swap16md(ss->percentage));
   args.lvds_ss.ucSpreadSpectrumType = ss->type & 0x00000001;
   args.lvds_ss.ucSpreadSpectrumStepSize_Delay = (ss->step & 3) << 2;
   args.lvds_ss.ucSpreadSpectrumStepSize_Delay |= (ss->delay & 7) << 4;
@@ -15761,7 +15765,7 @@ static u32 atombios_adjust_pll(struct drm_crtc *crtc,
    switch (crev) {
    case 1:
    case 2:
-    args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (mode->clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v1.usPixelClock = (__builtin_constant_p(mode->clock / 10) ? (__uint16_t)(((__uint16_t)(mode->clock / 10) & 0xffU) << 8 | ((__uint16_t)(mode->clock / 10) & 0xff00U) >> 8) : __swap16md(mode->clock / 10));
     args.v1.ucTransmitterID = radeon_encoder->encoder_id;
     args.v1.ucEncodeMode = encoder_mode;
     if (radeon_crtc->ss_enabled && radeon_crtc->ss.percentage)
@@ -15769,10 +15773,10 @@ static u32 atombios_adjust_pll(struct drm_crtc *crtc,
       0x10;
     atom_execute_table(rdev->mode_info.atom_context,
          index, (uint32_t *)&args);
-    adjusted_clock = __extension__({ __uint16_t __swap16gen_x = (args.v1.usPixelClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) * 10;
+    adjusted_clock = (__builtin_constant_p(args.v1.usPixelClock) ? (__uint16_t)(((__uint16_t)(args.v1.usPixelClock) & 0xffU) << 8 | ((__uint16_t)(args.v1.usPixelClock) & 0xff00U) >> 8) : __swap16md(args.v1.usPixelClock)) * 10;
     break;
    case 3:
-    args.v3.sInput.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (mode->clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    args.v3.sInput.usPixelClock = (__builtin_constant_p(mode->clock / 10) ? (__uint16_t)(((__uint16_t)(mode->clock / 10) & 0xffU) << 8 | ((__uint16_t)(mode->clock / 10) & 0xff00U) >> 8) : __swap16md(mode->clock / 10));
     args.v3.sInput.ucTransmitterID = radeon_encoder->encoder_id;
     args.v3.sInput.ucEncodeMode = encoder_mode;
     args.v3.sInput.ucDispPllConfig = 0;
@@ -15782,12 +15786,12 @@ static u32 atombios_adjust_pll(struct drm_crtc *crtc,
     if ((((encoder_mode) == 0) || ((encoder_mode) == 5))) {
      args.v3.sInput.ucDispPllConfig |=
       0x0020;
-     args.v3.sInput.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dp_clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+     args.v3.sInput.usPixelClock = (__builtin_constant_p(dp_clock / 10) ? (__uint16_t)(((__uint16_t)(dp_clock / 10) & 0xffU) << 8 | ((__uint16_t)(dp_clock / 10) & 0xff00U) >> 8) : __swap16md(dp_clock / 10));
     } else if (radeon_encoder->devices & (((0x1L << 0x00000003 ) | (0x1L << 0x00000007 ) | (0x1L << 0x00000009 ) | (0x1L << 0x0000000A ) | (0x1L << 0x0000000B ) | (0x1L << 0x00000006 )))) {
      struct radeon_encoder_atom_dig *dig = radeon_encoder->enc_priv;
      if (encoder_mode == 3)
       args.v3.sInput.usPixelClock =
-       __extension__({ __uint16_t __swap16gen_x = ((mode->clock * bpc / 8) / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+       (__builtin_constant_p((mode->clock * bpc / 8) / 10) ? (__uint16_t)(((__uint16_t)((mode->clock * bpc / 8) / 10) & 0xffU) << 8 | ((__uint16_t)((mode->clock * bpc / 8) / 10) & 0xff00U) >> 8) : __swap16md((mode->clock * bpc / 8) / 10));
      if (dig->coherent_mode)
       args.v3.sInput.ucDispPllConfig |=
        0x0020;
@@ -15803,7 +15807,7 @@ static u32 atombios_adjust_pll(struct drm_crtc *crtc,
      args.v3.sInput.ucExtTransmitterID = 0;
     atom_execute_table(rdev->mode_info.atom_context,
          index, (uint32_t *)&args);
-    adjusted_clock = __extension__({ __uint32_t __swap32gen_x = (args.v3.sOutput.ulDispPllFreq); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) * 10;
+    adjusted_clock = (__builtin_constant_p(args.v3.sOutput.ulDispPllFreq) ? (__uint32_t)(((__uint32_t)(args.v3.sOutput.ulDispPllFreq) & 0xff) << 24 | ((__uint32_t)(args.v3.sOutput.ulDispPllFreq) & 0xff00) << 8 | ((__uint32_t)(args.v3.sOutput.ulDispPllFreq) & 0xff0000) >> 8 | ((__uint32_t)(args.v3.sOutput.ulDispPllFreq) & 0xff000000) >> 24) : __swap32md(args.v3.sOutput.ulDispPllFreq)) * 10;
     if (args.v3.sOutput.ucRefDiv) {
      radeon_crtc->pll_flags |= (1 << 10);
      radeon_crtc->pll_flags |= (1 << 2);
@@ -15851,11 +15855,11 @@ static void atombios_crtc_set_disp_eng_pll(struct radeon_device *rdev,
   switch (crev) {
   case 5:
    args.v5.ucCRTC = 0xFF;
-   args.v5.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (dispclk); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v5.usPixelClock = (__builtin_constant_p(dispclk) ? (__uint16_t)(((__uint16_t)(dispclk) & 0xffU) << 8 | ((__uint16_t)(dispclk) & 0xff00U) >> 8) : __swap16md(dispclk));
    args.v5.ucPpll = 2;
    break;
   case 6:
-   args.v6.ulDispEngClkFreq = __extension__({ __uint32_t __swap32gen_x = (dispclk); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   args.v6.ulDispEngClkFreq = (__builtin_constant_p(dispclk) ? (__uint32_t)(((__uint32_t)(dispclk) & 0xff) << 24 | ((__uint32_t)(dispclk) & 0xff00) << 8 | ((__uint32_t)(dispclk) & 0xff0000) >> 8 | ((__uint32_t)(dispclk) & 0xff000000) >> 24) : __swap32md(dispclk));
    if (((rdev->family >= CHIP_ARUBA) && (rdev->flags & RADEON_IS_IGP)))
     args.v6.ucPpll = 8;
    else if (((rdev->family >= CHIP_ARUBA)))
@@ -15903,9 +15907,9 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
   case 1:
    if (clock == 0)
     return;
-   args.v1.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v1.usRefDiv = __extension__({ __uint16_t __swap16gen_x = (ref_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v1.usFbDiv = __extension__({ __uint16_t __swap16gen_x = (fb_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v1.usPixelClock = (__builtin_constant_p(clock / 10) ? (__uint16_t)(((__uint16_t)(clock / 10) & 0xffU) << 8 | ((__uint16_t)(clock / 10) & 0xff00U) >> 8) : __swap16md(clock / 10));
+   args.v1.usRefDiv = (__builtin_constant_p(ref_div) ? (__uint16_t)(((__uint16_t)(ref_div) & 0xffU) << 8 | ((__uint16_t)(ref_div) & 0xff00U) >> 8) : __swap16md(ref_div));
+   args.v1.usFbDiv = (__builtin_constant_p(fb_div) ? (__uint16_t)(((__uint16_t)(fb_div) & 0xffU) << 8 | ((__uint16_t)(fb_div) & 0xff00U) >> 8) : __swap16md(fb_div));
    args.v1.ucFracFbDiv = frac_fb_div;
    args.v1.ucPostDiv = post_div;
    args.v1.ucPpll = pll_id;
@@ -15913,9 +15917,9 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
    args.v1.ucRefDivSrc = 1;
    break;
   case 2:
-   args.v2.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v2.usRefDiv = __extension__({ __uint16_t __swap16gen_x = (ref_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v2.usFbDiv = __extension__({ __uint16_t __swap16gen_x = (fb_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v2.usPixelClock = (__builtin_constant_p(clock / 10) ? (__uint16_t)(((__uint16_t)(clock / 10) & 0xffU) << 8 | ((__uint16_t)(clock / 10) & 0xff00U) >> 8) : __swap16md(clock / 10));
+   args.v2.usRefDiv = (__builtin_constant_p(ref_div) ? (__uint16_t)(((__uint16_t)(ref_div) & 0xffU) << 8 | ((__uint16_t)(ref_div) & 0xff00U) >> 8) : __swap16md(ref_div));
+   args.v2.usFbDiv = (__builtin_constant_p(fb_div) ? (__uint16_t)(((__uint16_t)(fb_div) & 0xffU) << 8 | ((__uint16_t)(fb_div) & 0xff00U) >> 8) : __swap16md(fb_div));
    args.v2.ucFracFbDiv = frac_fb_div;
    args.v2.ucPostDiv = post_div;
    args.v2.ucPpll = pll_id;
@@ -15923,9 +15927,9 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
    args.v2.ucRefDivSrc = 1;
    break;
   case 3:
-   args.v3.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v3.usRefDiv = __extension__({ __uint16_t __swap16gen_x = (ref_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v3.usFbDiv = __extension__({ __uint16_t __swap16gen_x = (fb_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v3.usPixelClock = (__builtin_constant_p(clock / 10) ? (__uint16_t)(((__uint16_t)(clock / 10) & 0xffU) << 8 | ((__uint16_t)(clock / 10) & 0xff00U) >> 8) : __swap16md(clock / 10));
+   args.v3.usRefDiv = (__builtin_constant_p(ref_div) ? (__uint16_t)(((__uint16_t)(ref_div) & 0xffU) << 8 | ((__uint16_t)(ref_div) & 0xff00U) >> 8) : __swap16md(ref_div));
+   args.v3.usFbDiv = (__builtin_constant_p(fb_div) ? (__uint16_t)(((__uint16_t)(fb_div) & 0xffU) << 8 | ((__uint16_t)(fb_div) & 0xff00U) >> 8) : __swap16md(fb_div));
    args.v3.ucFracFbDiv = frac_fb_div;
    args.v3.ucPostDiv = post_div;
    args.v3.ucPpll = pll_id;
@@ -15940,10 +15944,10 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
    break;
   case 5:
    args.v5.ucCRTC = crtc_id;
-   args.v5.usPixelClock = __extension__({ __uint16_t __swap16gen_x = (clock / 10); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   args.v5.usPixelClock = (__builtin_constant_p(clock / 10) ? (__uint16_t)(((__uint16_t)(clock / 10) & 0xffU) << 8 | ((__uint16_t)(clock / 10) & 0xff00U) >> 8) : __swap16md(clock / 10));
    args.v5.ucRefDiv = ref_div;
-   args.v5.usFbDiv = __extension__({ __uint16_t __swap16gen_x = (fb_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v5.ulFbDivDecFrac = __extension__({ __uint32_t __swap32gen_x = (frac_fb_div * 100000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   args.v5.usFbDiv = (__builtin_constant_p(fb_div) ? (__uint16_t)(((__uint16_t)(fb_div) & 0xffU) << 8 | ((__uint16_t)(fb_div) & 0xff00U) >> 8) : __swap16md(fb_div));
+   args.v5.ulFbDivDecFrac = (__builtin_constant_p(frac_fb_div * 100000) ? (__uint32_t)(((__uint32_t)(frac_fb_div * 100000) & 0xff) << 24 | ((__uint32_t)(frac_fb_div * 100000) & 0xff00) << 8 | ((__uint32_t)(frac_fb_div * 100000) & 0xff0000) >> 8 | ((__uint32_t)(frac_fb_div * 100000) & 0xff000000) >> 24) : __swap32md(frac_fb_div * 100000));
    args.v5.ucPostDiv = post_div;
    args.v5.ucMiscInfo = 0;
    if (ss_enabled && (ss->type & 0x00000002))
@@ -15964,10 +15968,10 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
    args.v5.ucPpll = pll_id;
    break;
   case 6:
-   args.v6.ulDispEngClkFreq = __extension__({ __uint32_t __swap32gen_x = (crtc_id << 24 | clock / 10); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   args.v6.ulDispEngClkFreq = (__builtin_constant_p(crtc_id << 24 | clock / 10) ? (__uint32_t)(((__uint32_t)(crtc_id << 24 | clock / 10) & 0xff) << 24 | ((__uint32_t)(crtc_id << 24 | clock / 10) & 0xff00) << 8 | ((__uint32_t)(crtc_id << 24 | clock / 10) & 0xff0000) >> 8 | ((__uint32_t)(crtc_id << 24 | clock / 10) & 0xff000000) >> 24) : __swap32md(crtc_id << 24 | clock / 10));
    args.v6.ucRefDiv = ref_div;
-   args.v6.usFbDiv = __extension__({ __uint16_t __swap16gen_x = (fb_div); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-   args.v6.ulFbDivDecFrac = __extension__({ __uint32_t __swap32gen_x = (frac_fb_div * 100000); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   args.v6.usFbDiv = (__builtin_constant_p(fb_div) ? (__uint16_t)(((__uint16_t)(fb_div) & 0xffU) << 8 | ((__uint16_t)(fb_div) & 0xff00U) >> 8) : __swap16md(fb_div));
+   args.v6.ulFbDivDecFrac = (__builtin_constant_p(frac_fb_div * 100000) ? (__uint32_t)(((__uint32_t)(frac_fb_div * 100000) & 0xff) << 24 | ((__uint32_t)(frac_fb_div * 100000) & 0xff00) << 8 | ((__uint32_t)(frac_fb_div * 100000) & 0xff0000) >> 8 | ((__uint32_t)(frac_fb_div * 100000) & 0xff000000) >> 24) : __swap32md(frac_fb_div * 100000));
    args.v6.ucPostDiv = post_div;
    args.v6.ucMiscInfo = 0;
    if (ss_enabled && (ss->type & 0x00000002))

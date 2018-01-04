@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -12051,7 +12055,7 @@ int evergreen_blit_init(struct radeon_device *rdev)
   rdev->r600_blit.state_len = cayman_default_size;
  dwords = rdev->r600_blit.state_len;
  while (dwords & 0xf) {
-  packet2s[num_packet2s++] = __extension__({ __uint32_t __swap32gen_x = ((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  packet2s[num_packet2s++] = (__builtin_constant_p((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) ? (__uint32_t)(((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff) << 24 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff00) << 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff000000) >> 24) : __swap32md((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))));
   dwords++;
  }
  obj_size = dwords * 4;
@@ -12101,17 +12105,17 @@ int evergreen_blit_init(struct radeon_device *rdev)
   if (num_packet2s)
    __builtin_memcpy((ptr + rdev->r600_blit.state_offset + (rdev->r600_blit.state_len * 4)), (packet2s), (num_packet2s * 4));
   for (i = 0; i < evergreen_vs_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = __extension__({ __uint32_t __swap32gen_x = (evergreen_vs[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__builtin_constant_p(evergreen_vs[i]) ? (__uint32_t)(((__uint32_t)(evergreen_vs[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_vs[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff000000) >> 24) : __swap32md(evergreen_vs[i]));
   for (i = 0; i < evergreen_ps_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = __extension__({ __uint32_t __swap32gen_x = (evergreen_ps[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__builtin_constant_p(evergreen_ps[i]) ? (__uint32_t)(((__uint32_t)(evergreen_ps[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_ps[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff000000) >> 24) : __swap32md(evergreen_ps[i]));
  } else {
   __builtin_memcpy((ptr + rdev->r600_blit.state_offset), (cayman_default_state), (rdev->r600_blit.state_len * 4));
   if (num_packet2s)
    __builtin_memcpy((ptr + rdev->r600_blit.state_offset + (rdev->r600_blit.state_len * 4)), (packet2s), (num_packet2s * 4));
   for (i = 0; i < cayman_vs_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = __extension__({ __uint32_t __swap32gen_x = (cayman_vs[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__builtin_constant_p(cayman_vs[i]) ? (__uint32_t)(((__uint32_t)(cayman_vs[i]) & 0xff) << 24 | ((__uint32_t)(cayman_vs[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_vs[i]) & 0xff000000) >> 24) : __swap32md(cayman_vs[i]));
   for (i = 0; i < cayman_ps_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = __extension__({ __uint32_t __swap32gen_x = (cayman_ps[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__builtin_constant_p(cayman_ps[i]) ? (__uint32_t)(((__uint32_t)(cayman_ps[i]) & 0xff) << 24 | ((__uint32_t)(cayman_ps[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_ps[i]) & 0xff000000) >> 24) : __swap32md(cayman_ps[i]));
  }
  radeon_bo_kunmap(rdev->r600_blit.shader_obj);
  radeon_bo_unreserve(rdev->r600_blit.shader_obj);

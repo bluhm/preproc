@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4402,7 +4406,7 @@ ext2fs_mknod(void *v)
  ip = ((struct inode *)(*vpp)->v_data);
  ip->i_flag |= 0x0001 | 0x0002 | 0x0004;
  if (vap->va_rdev != (-1)) {
-  ip->dinode_u.e2fs_din->e2di_blocks[0] = __extension__({ __uint32_t __swap32gen_x = (vap->va_rdev); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ip->dinode_u.e2fs_din->e2di_blocks[0] = (__builtin_constant_p(vap->va_rdev) ? (__uint32_t)(((__uint32_t)(vap->va_rdev) & 0xff) << 24 | ((__uint32_t)(vap->va_rdev) & 0xff00) << 8 | ((__uint32_t)(vap->va_rdev) & 0xff0000) >> 8 | ((__uint32_t)(vap->va_rdev) & 0xff000000) >> 24) : __swap32md(vap->va_rdev));
  }
  vput(*vpp);
  (*vpp)->v_type = VNON;
@@ -4445,7 +4449,7 @@ ext2fs_getattr(void *v)
  vap->va_nlink = ip->dinode_u.e2fs_din->e2di_nlink;
  vap->va_uid = ip->inode_ext.e2fs.ext2fs_effective_uid;
  vap->va_gid = ip->inode_ext.e2fs.ext2fs_effective_gid;
- vap->va_rdev = (dev_t) __extension__({ __uint32_t __swap32gen_x = (ip->dinode_u.e2fs_din->e2di_blocks[0]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ vap->va_rdev = (dev_t) (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[0]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[0]));
  vap->va_size = ext2fs_size(ip);
  vap->va_atime.tv_sec = ip->dinode_u.e2fs_din->e2di_atime;
  vap->va_atime.tv_nsec = 0;
@@ -4915,7 +4919,7 @@ abortit:
      ufs_dirbad(xp, (int32_t)12,
          "ext2fs_rename: mangled dir");
     } else {
-     dirbuf.dotdot_ino = __extension__({ __uint32_t __swap32gen_x = (newparent); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     dirbuf.dotdot_ino = (__builtin_constant_p(newparent) ? (__uint32_t)(((__uint32_t)(newparent) & 0xff) << 24 | ((__uint32_t)(newparent) & 0xff00) << 8 | ((__uint32_t)(newparent) & 0xff0000) >> 8 | ((__uint32_t)(newparent) & 0xff000000) >> 24) : __swap32md(newparent));
      (void) vn_rdwr(UIO_WRITE, fvp,
          (caddr_t)&dirbuf,
          sizeof (struct dirtemplate),
@@ -4990,16 +4994,16 @@ ext2fs_mkdir(void *v)
  if ((error = ext2fs_update(dp, 1)) != 0)
   goto bad;
  __builtin_memset((&dirtemplate), (0), (sizeof(dirtemplate)));
- dirtemplate.dot_ino = __extension__({ __uint32_t __swap32gen_x = (ip->i_number); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- dirtemplate.dot_reclen = __extension__({ __uint16_t __swap16gen_x = (12); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ dirtemplate.dot_ino = (__builtin_constant_p(ip->i_number) ? (__uint32_t)(((__uint32_t)(ip->i_number) & 0xff) << 24 | ((__uint32_t)(ip->i_number) & 0xff00) << 8 | ((__uint32_t)(ip->i_number) & 0xff0000) >> 8 | ((__uint32_t)(ip->i_number) & 0xff000000) >> 24) : __swap32md(ip->i_number));
+ dirtemplate.dot_reclen = (__builtin_constant_p(12) ? (__uint16_t)(((__uint16_t)(12) & 0xffU) << 8 | ((__uint16_t)(12) & 0xff00U) >> 8) : __swap16md(12));
  dirtemplate.dot_namlen = 1;
  if (ip->inode_u.e2fs->e2fs.e2fs_rev > 0 &&
      (ip->inode_u.e2fs->e2fs.e2fs_features_incompat & 0x0002)) {
   dirtemplate.dot_type = 2;
  }
  dirtemplate.dot_name[0] = '.';
- dirtemplate.dotdot_ino = __extension__({ __uint32_t __swap32gen_x = (dp->i_number); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- dirtemplate.dotdot_reclen = __extension__({ __uint16_t __swap16gen_x = (((struct inode *)(dvp)->v_data)->inode_u.e2fs->e2fs_bsize - 12); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ dirtemplate.dotdot_ino = (__builtin_constant_p(dp->i_number) ? (__uint32_t)(((__uint32_t)(dp->i_number) & 0xff) << 24 | ((__uint32_t)(dp->i_number) & 0xff00) << 8 | ((__uint32_t)(dp->i_number) & 0xff0000) >> 8 | ((__uint32_t)(dp->i_number) & 0xff000000) >> 24) : __swap32md(dp->i_number));
+ dirtemplate.dotdot_reclen = (__builtin_constant_p(((struct inode *)(dvp)->v_data)->inode_u.e2fs->e2fs_bsize - 12) ? (__uint16_t)(((__uint16_t)(((struct inode *)(dvp)->v_data)->inode_u.e2fs->e2fs_bsize - 12) & 0xffU) << 8 | ((__uint16_t)(((struct inode *)(dvp)->v_data)->inode_u.e2fs->e2fs_bsize - 12) & 0xff00U) >> 8) : __swap16md(((struct inode *)(dvp)->v_data)->inode_u.e2fs->e2fs_bsize - 12));
  dirtemplate.dotdot_namlen = 2;
  if (ip->inode_u.e2fs->e2fs.e2fs_rev > 0 &&
      (ip->inode_u.e2fs->e2fs.e2fs_features_incompat & 0x0002)) {

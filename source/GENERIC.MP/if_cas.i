@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4065,14 +4069,14 @@ cas_meminit(struct cas_softc *sc)
  }
  do { int __x, __n; __x = (0); __n = ((64 * 16)); if ((__x + __n) > (64 * 16)) { bus_dmamap_sync((sc)->sc_dmatag, (sc)->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_txdescs[(__x)]), sizeof(struct cas_desc) * ((64 * 16) - __x), (0x01|0x04)); __n -= ((64 * 16) - __x); __x = 0; } bus_dmamap_sync((sc)->sc_dmatag, (sc)->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_txdescs[(__x)]), sizeof(struct cas_desc) * __n, (0x01|0x04)); } while (0);
  for (i = 0; i < 128; i++)
-  do { struct cas_rxsoft *__rxs = &sc->sc_rxsoft[(i)]; struct cas_desc *__rxd = &sc->sc_control_data->ccd_rxdescs[(i)]; __rxd->cd_addr = __extension__({ __uint64_t __swap64gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }); __rxd->cd_flags = __extension__({ __uint64_t __swap64gen_x = ((i)); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }); bus_dmamap_sync(((sc))->sc_dmatag, ((sc))->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxdescs[(((i)))]), sizeof(struct cas_desc), (0x01|0x04)); } while (0);
+  do { struct cas_rxsoft *__rxs = &sc->sc_rxsoft[(i)]; struct cas_desc *__rxd = &sc->sc_control_data->ccd_rxdescs[(i)]; __rxd->cd_addr = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr) ? (__uint64_t)((((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff) << 56) | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(__rxs->rxs_dmamap->dm_segs[0].ds_addr)); __rxd->cd_flags = (__builtin_constant_p((i)) ? (__uint64_t)((((__uint64_t)((i)) & 0xff) << 56) | ((__uint64_t)((i)) & 0xff00ULL) << 40 | ((__uint64_t)((i)) & 0xff0000ULL) << 24 | ((__uint64_t)((i)) & 0xff000000ULL) << 8 | ((__uint64_t)((i)) & 0xff00000000ULL) >> 8 | ((__uint64_t)((i)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)((i)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)((i)) & 0xff00000000000000ULL) >> 56) : __swap64md((i))); bus_dmamap_sync(((sc))->sc_dmatag, ((sc))->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxdescs[(((i)))]), sizeof(struct cas_desc), (0x01|0x04)); } while (0);
  sc->sc_rxdptr = 0;
  sc->sc_rxptr = 0;
  for (i = 0; i < 256; i++) {
   sc->sc_control_data->ccd_rxcomps[i].cc_word[0] = 0;
   sc->sc_control_data->ccd_rxcomps[i].cc_word[1] = 0;
   sc->sc_control_data->ccd_rxcomps[i].cc_word[2] = 0;
-  sc->sc_control_data->ccd_rxcomps[i].cc_word[3] = __extension__({ __uint64_t __swap64gen_x = (0x0000080000000000ULL); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  sc->sc_control_data->ccd_rxcomps[i].cc_word[3] = (__builtin_constant_p(0x0000080000000000ULL) ? (__uint64_t)((((__uint64_t)(0x0000080000000000ULL) & 0xff) << 56) | ((__uint64_t)(0x0000080000000000ULL) & 0xff00ULL) << 40 | ((__uint64_t)(0x0000080000000000ULL) & 0xff0000ULL) << 24 | ((__uint64_t)(0x0000080000000000ULL) & 0xff000000ULL) << 8 | ((__uint64_t)(0x0000080000000000ULL) & 0xff00000000ULL) >> 8 | ((__uint64_t)(0x0000080000000000ULL) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(0x0000080000000000ULL) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(0x0000080000000000ULL) & 0xff00000000000000ULL) >> 56) : __swap64md(0x0000080000000000ULL));
   bus_dmamap_sync((sc)->sc_dmatag, (sc)->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxcomps[((i))]), sizeof(struct cas_desc), (0x01|0x04));
  }
  return (0);
@@ -4262,10 +4266,10 @@ cas_rint(struct cas_softc *sc)
  caddr_t cp;
  for (i = sc->sc_rxptr;; i = ((i + skip + 1) & (256 - 1))) {
   bus_dmamap_sync((sc)->sc_dmatag, (sc)->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxcomps[((i))]), sizeof(struct cas_desc), (0x02|0x08));
-  word[0] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_control_data->ccd_rxcomps[i].cc_word[0]); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  word[1] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_control_data->ccd_rxcomps[i].cc_word[1]); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  word[2] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_control_data->ccd_rxcomps[i].cc_word[2]); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  word[3] = __extension__({ __uint64_t __swap64gen_x = (sc->sc_control_data->ccd_rxcomps[i].cc_word[3]); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  word[0] = (__builtin_constant_p(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) ? (__uint64_t)((((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff) << 56) | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_control_data->ccd_rxcomps[i].cc_word[0]));
+  word[1] = (__builtin_constant_p(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) ? (__uint64_t)((((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff) << 56) | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_control_data->ccd_rxcomps[i].cc_word[1]));
+  word[2] = (__builtin_constant_p(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) ? (__uint64_t)((((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff) << 56) | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_control_data->ccd_rxcomps[i].cc_word[2]));
+  word[3] = (__builtin_constant_p(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) ? (__uint64_t)((((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff) << 56) | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_control_data->ccd_rxcomps[i].cc_word[3]));
   if ((word[0] & 0xc000000000000000ULL) == 0 || word[3] & 0x0000080000000000ULL)
    break;
   len = (((word[1]) & 0x00000ff800000000ULL) >> 35);
@@ -4311,7 +4315,7 @@ cas_rint(struct cas_softc *sc)
   sc->sc_control_data->ccd_rxcomps[sc->sc_rxptr].cc_word[1] = 0;
   sc->sc_control_data->ccd_rxcomps[sc->sc_rxptr].cc_word[2] = 0;
   sc->sc_control_data->ccd_rxcomps[sc->sc_rxptr].cc_word[3] =
-      __extension__({ __uint64_t __swap64gen_x = (0x0000080000000000ULL); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+      (__builtin_constant_p(0x0000080000000000ULL) ? (__uint64_t)((((__uint64_t)(0x0000080000000000ULL) & 0xff) << 56) | ((__uint64_t)(0x0000080000000000ULL) & 0xff00ULL) << 40 | ((__uint64_t)(0x0000080000000000ULL) & 0xff0000ULL) << 24 | ((__uint64_t)(0x0000080000000000ULL) & 0xff000000ULL) << 8 | ((__uint64_t)(0x0000080000000000ULL) & 0xff00000000ULL) >> 8 | ((__uint64_t)(0x0000080000000000ULL) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(0x0000080000000000ULL) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(0x0000080000000000ULL) & 0xff00000000000000ULL) >> 56) : __swap64md(0x0000080000000000ULL));
   bus_dmamap_sync((sc)->sc_dmatag, (sc)->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxcomps[((sc->sc_rxptr))]), sizeof(struct cas_desc), (0x01|0x04));
   sc->sc_rxptr = ((sc->sc_rxptr + 1) & (256 - 1));
  }
@@ -4325,7 +4329,7 @@ cas_add_rxbuf(struct cas_softc *sc, int idx)
 {
  bus_space_tag_t t = sc->sc_memt;
  bus_space_handle_t h = sc->sc_memh;
- do { struct cas_rxsoft *__rxs = &sc->sc_rxsoft[(idx)]; struct cas_desc *__rxd = &sc->sc_control_data->ccd_rxdescs[(sc->sc_rxdptr)]; __rxd->cd_addr = __extension__({ __uint64_t __swap64gen_x = (__rxs->rxs_dmamap->dm_segs[0].ds_addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }); __rxd->cd_flags = __extension__({ __uint64_t __swap64gen_x = ((idx)); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }); bus_dmamap_sync(((sc))->sc_dmatag, ((sc))->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxdescs[(((sc->sc_rxdptr)))]), sizeof(struct cas_desc), (0x01|0x04)); } while (0);
+ do { struct cas_rxsoft *__rxs = &sc->sc_rxsoft[(idx)]; struct cas_desc *__rxd = &sc->sc_control_data->ccd_rxdescs[(sc->sc_rxdptr)]; __rxd->cd_addr = (__builtin_constant_p(__rxs->rxs_dmamap->dm_segs[0].ds_addr) ? (__uint64_t)((((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff) << 56) | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(__rxs->rxs_dmamap->dm_segs[0].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(__rxs->rxs_dmamap->dm_segs[0].ds_addr)); __rxd->cd_flags = (__builtin_constant_p((idx)) ? (__uint64_t)((((__uint64_t)((idx)) & 0xff) << 56) | ((__uint64_t)((idx)) & 0xff00ULL) << 40 | ((__uint64_t)((idx)) & 0xff0000ULL) << 24 | ((__uint64_t)((idx)) & 0xff000000ULL) << 8 | ((__uint64_t)((idx)) & 0xff00000000ULL) >> 8 | ((__uint64_t)((idx)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)((idx)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)((idx)) & 0xff00000000000000ULL) >> 56) : __swap64md((idx))); bus_dmamap_sync(((sc))->sc_dmatag, ((sc))->sc_cddmamap, __builtin_offsetof(struct cas_control_data, ccd_rxdescs[(((sc->sc_rxdptr)))]), sizeof(struct cas_desc), (0x01|0x04)); } while (0);
  if ((sc->sc_rxdptr % 4) == 0)
   bus_space_write_4(t, h, 0x4024, sc->sc_rxdptr);
  if (++sc->sc_rxdptr == 128)
@@ -4667,11 +4671,11 @@ cas_encap(struct cas_softc *sc, struct mbuf *m, int *used)
  first = cur;
  for (i = 0; i < map->dm_nsegs; i++) {
   sc->sc_control_data->ccd_txdescs[frag].cd_addr =
-      __extension__({ __uint64_t __swap64gen_x = (map->dm_segs[i].ds_addr); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+      (__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint64_t)((((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff) << 56) | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(map->dm_segs[i].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(map->dm_segs[i].ds_addr));
   flags = (map->dm_segs[i].ds_len & 0x0000000000007fffLL) |
       (i == 0 ? 0x0000000080000000LL : 0) |
       ((i == (map->dm_nsegs - 1)) ? 0x0000000040000000LL : 0);
-  sc->sc_control_data->ccd_txdescs[frag].cd_flags = __extension__({ __uint64_t __swap64gen_x = (flags); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  sc->sc_control_data->ccd_txdescs[frag].cd_flags = (__builtin_constant_p(flags) ? (__uint64_t)((((__uint64_t)(flags) & 0xff) << 56) | ((__uint64_t)(flags) & 0xff00ULL) << 40 | ((__uint64_t)(flags) & 0xff0000ULL) << 24 | ((__uint64_t)(flags) & 0xff000000ULL) << 8 | ((__uint64_t)(flags) & 0xff00000000ULL) >> 8 | ((__uint64_t)(flags) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(flags) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(flags) & 0xff00000000000000ULL) >> 56) : __swap64md(flags));
   bus_dmamap_sync(sc->sc_dmatag, sc->sc_cddmamap,
       __builtin_offsetof(struct cas_control_data, ccd_txdescs[(frag)]), sizeof(struct cas_desc),
       0x04);

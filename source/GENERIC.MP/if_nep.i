@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4110,7 +4114,7 @@ nep_rx_proc(struct nep_softc *sc)
  while (count > 0) {
   idx = sc->sc_rx_cons;
   ((idx < 512) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_nep.c", 1002, "idx < NEP_NRCDESC"));
-  rxd = __extension__({ __uint64_t __swap64gen_x = (sc->sc_rcdesc[idx]); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  rxd = (__builtin_constant_p(sc->sc_rcdesc[idx]) ? (__uint64_t)((((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff) << 56) | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff00ULL) << 40 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff0000ULL) << 24 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff000000ULL) << 8 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(sc->sc_rcdesc[idx]) & 0xff00000000000000ULL) >> 56) : __swap64md(sc->sc_rcdesc[idx]));
   addr = (rxd & 0x3fffffffffULL) << 6;
   len = (rxd & (0x3fffULL << 40)) >> 40;
   page = addr & ~((1 << 13) - 1);
@@ -4774,7 +4778,7 @@ nep_encap(struct nep_softc *sc, struct mbuf **m0, int *idx)
  if (m == ((void *)0))
   return (55);
  nh = ((struct nep_txbuf_hdr *)((m)->m_hdr.mh_data));
- nh->nh_flags = __extension__({ __uint64_t __swap64gen_x = ((len << 16) | (pad / 2)); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ nh->nh_flags = (__builtin_constant_p((len << 16) | (pad / 2)) ? (__uint64_t)((((__uint64_t)((len << 16) | (pad / 2)) & 0xff) << 56) | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff00ULL) << 40 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff0000ULL) << 24 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff000000ULL) << 8 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff00000000ULL) >> 8 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)((len << 16) | (pad / 2)) & 0xff00000000000000ULL) >> 56) : __swap64md((len << 16) | (pad / 2)));
  nh->nh_reserved = 0;
  cur = frag = *idx;
  map = sc->sc_txbuf[cur].nb_map;
@@ -4790,7 +4794,7 @@ nep_encap(struct nep_softc *sc, struct mbuf **m0, int *idx)
  for (i = 0; i < map->dm_nsegs; i++) {
   txd |= ((uint64_t)map->dm_segs[i].ds_len << 44);
   txd |= map->dm_segs[i].ds_addr;
-  sc->sc_txdesc[frag] = __extension__({ __uint64_t __swap64gen_x = (txd); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  sc->sc_txdesc[frag] = (__builtin_constant_p(txd) ? (__uint64_t)((((__uint64_t)(txd) & 0xff) << 56) | ((__uint64_t)(txd) & 0xff00ULL) << 40 | ((__uint64_t)(txd) & 0xff0000ULL) << 24 | ((__uint64_t)(txd) & 0xff000000ULL) << 8 | ((__uint64_t)(txd) & 0xff00000000ULL) >> 8 | ((__uint64_t)(txd) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(txd) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(txd) & 0xff00000000000000ULL) >> 56) : __swap64md(txd));
   txd = 0;
   bus_dmamap_sync(sc->sc_dmat, ((sc->sc_txring)->ndm_map),
       frag * sizeof(txd), sizeof(txd), 0x04);
@@ -4921,7 +4925,7 @@ nep_fill_rx_ring(struct nep_softc *sc)
   }
   rb->nb_block = block;
   sc->sc_rbdesc[desc++] =
-      __extension__({ __uint32_t __swap32gen_x = (rb->nb_map->dm_segs[0].ds_addr >> 12); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+      (__builtin_constant_p(rb->nb_map->dm_segs[0].ds_addr >> 12) ? (__uint32_t)(((__uint32_t)(rb->nb_map->dm_segs[0].ds_addr >> 12) & 0xff) << 24 | ((__uint32_t)(rb->nb_map->dm_segs[0].ds_addr >> 12) & 0xff00) << 8 | ((__uint32_t)(rb->nb_map->dm_segs[0].ds_addr >> 12) & 0xff0000) >> 8 | ((__uint32_t)(rb->nb_map->dm_segs[0].ds_addr >> 12) & 0xff000000) >> 24) : __swap32md(rb->nb_map->dm_segs[0].ds_addr >> 12));
   count++;
   slots--;
   if (desc >= 256)

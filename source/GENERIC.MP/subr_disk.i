@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3152,49 +3156,49 @@ checkdisklabel(void *rlp, struct disklabel *lp, u_int64_t boundstart,
   error = 22;
  if (error) {
   u_int16_t *start, *end, sum = 0;
-  if (__extension__({ __uint32_t __swap32gen_x = (dlp->d_magic); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != ((u_int32_t)0x82564557) ||
-      __extension__({ __uint32_t __swap32gen_x = (dlp->d_magic2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != ((u_int32_t)0x82564557) ||
-      __extension__({ __uint16_t __swap16gen_x = (dlp->d_npartitions); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }) > 16)
+  if ((__builtin_constant_p(dlp->d_magic) ? (__uint32_t)(((__uint32_t)(dlp->d_magic) & 0xff) << 24 | ((__uint32_t)(dlp->d_magic) & 0xff00) << 8 | ((__uint32_t)(dlp->d_magic) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_magic) & 0xff000000) >> 24) : __swap32md(dlp->d_magic)) != ((u_int32_t)0x82564557) ||
+      (__builtin_constant_p(dlp->d_magic2) ? (__uint32_t)(((__uint32_t)(dlp->d_magic2) & 0xff) << 24 | ((__uint32_t)(dlp->d_magic2) & 0xff00) << 8 | ((__uint32_t)(dlp->d_magic2) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_magic2) & 0xff000000) >> 24) : __swap32md(dlp->d_magic2)) != ((u_int32_t)0x82564557) ||
+      (__builtin_constant_p(dlp->d_npartitions) ? (__uint16_t)(((__uint16_t)(dlp->d_npartitions) & 0xffU) << 8 | ((__uint16_t)(dlp->d_npartitions) & 0xff00U) >> 8) : __swap16md(dlp->d_npartitions)) > 16)
    return (error);
   start = (u_int16_t *)dlp;
   end = (u_int16_t *)&dlp->d_partitions[
-      __extension__({ __uint16_t __swap16gen_x = (dlp->d_npartitions); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })];
+      (__builtin_constant_p(dlp->d_npartitions) ? (__uint16_t)(((__uint16_t)(dlp->d_npartitions) & 0xffU) << 8 | ((__uint16_t)(dlp->d_npartitions) & 0xff00U) >> 8) : __swap16md(dlp->d_npartitions))];
   while (start < end)
    sum ^= *start++;
   if (sum != 0)
    return (error);
-  dlp->d_magic = __extension__({ __uint32_t __swap32gen_x = (dlp->d_magic); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_type = __extension__({ __uint16_t __swap16gen_x = (dlp->d_type); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  dlp->d_secsize = __extension__({ __uint32_t __swap32gen_x = (dlp->d_secsize); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_nsectors = __extension__({ __uint32_t __swap32gen_x = (dlp->d_nsectors); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_ntracks = __extension__({ __uint32_t __swap32gen_x = (dlp->d_ntracks); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_ncylinders = __extension__({ __uint32_t __swap32gen_x = (dlp->d_ncylinders); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_secpercyl = __extension__({ __uint32_t __swap32gen_x = (dlp->d_secpercyl); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_secperunit = __extension__({ __uint32_t __swap32gen_x = (dlp->d_secperunit); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_acylinders = __extension__({ __uint32_t __swap32gen_x = (dlp->d_acylinders); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_flags = __extension__({ __uint32_t __swap32gen_x = (dlp->d_flags); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  dlp->d_magic = (__builtin_constant_p(dlp->d_magic) ? (__uint32_t)(((__uint32_t)(dlp->d_magic) & 0xff) << 24 | ((__uint32_t)(dlp->d_magic) & 0xff00) << 8 | ((__uint32_t)(dlp->d_magic) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_magic) & 0xff000000) >> 24) : __swap32md(dlp->d_magic));
+  dlp->d_type = (__builtin_constant_p(dlp->d_type) ? (__uint16_t)(((__uint16_t)(dlp->d_type) & 0xffU) << 8 | ((__uint16_t)(dlp->d_type) & 0xff00U) >> 8) : __swap16md(dlp->d_type));
+  dlp->d_secsize = (__builtin_constant_p(dlp->d_secsize) ? (__uint32_t)(((__uint32_t)(dlp->d_secsize) & 0xff) << 24 | ((__uint32_t)(dlp->d_secsize) & 0xff00) << 8 | ((__uint32_t)(dlp->d_secsize) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_secsize) & 0xff000000) >> 24) : __swap32md(dlp->d_secsize));
+  dlp->d_nsectors = (__builtin_constant_p(dlp->d_nsectors) ? (__uint32_t)(((__uint32_t)(dlp->d_nsectors) & 0xff) << 24 | ((__uint32_t)(dlp->d_nsectors) & 0xff00) << 8 | ((__uint32_t)(dlp->d_nsectors) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_nsectors) & 0xff000000) >> 24) : __swap32md(dlp->d_nsectors));
+  dlp->d_ntracks = (__builtin_constant_p(dlp->d_ntracks) ? (__uint32_t)(((__uint32_t)(dlp->d_ntracks) & 0xff) << 24 | ((__uint32_t)(dlp->d_ntracks) & 0xff00) << 8 | ((__uint32_t)(dlp->d_ntracks) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_ntracks) & 0xff000000) >> 24) : __swap32md(dlp->d_ntracks));
+  dlp->d_ncylinders = (__builtin_constant_p(dlp->d_ncylinders) ? (__uint32_t)(((__uint32_t)(dlp->d_ncylinders) & 0xff) << 24 | ((__uint32_t)(dlp->d_ncylinders) & 0xff00) << 8 | ((__uint32_t)(dlp->d_ncylinders) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_ncylinders) & 0xff000000) >> 24) : __swap32md(dlp->d_ncylinders));
+  dlp->d_secpercyl = (__builtin_constant_p(dlp->d_secpercyl) ? (__uint32_t)(((__uint32_t)(dlp->d_secpercyl) & 0xff) << 24 | ((__uint32_t)(dlp->d_secpercyl) & 0xff00) << 8 | ((__uint32_t)(dlp->d_secpercyl) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_secpercyl) & 0xff000000) >> 24) : __swap32md(dlp->d_secpercyl));
+  dlp->d_secperunit = (__builtin_constant_p(dlp->d_secperunit) ? (__uint32_t)(((__uint32_t)(dlp->d_secperunit) & 0xff) << 24 | ((__uint32_t)(dlp->d_secperunit) & 0xff00) << 8 | ((__uint32_t)(dlp->d_secperunit) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_secperunit) & 0xff000000) >> 24) : __swap32md(dlp->d_secperunit));
+  dlp->d_acylinders = (__builtin_constant_p(dlp->d_acylinders) ? (__uint32_t)(((__uint32_t)(dlp->d_acylinders) & 0xff) << 24 | ((__uint32_t)(dlp->d_acylinders) & 0xff00) << 8 | ((__uint32_t)(dlp->d_acylinders) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_acylinders) & 0xff000000) >> 24) : __swap32md(dlp->d_acylinders));
+  dlp->d_flags = (__builtin_constant_p(dlp->d_flags) ? (__uint32_t)(((__uint32_t)(dlp->d_flags) & 0xff) << 24 | ((__uint32_t)(dlp->d_flags) & 0xff00) << 8 | ((__uint32_t)(dlp->d_flags) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_flags) & 0xff000000) >> 24) : __swap32md(dlp->d_flags));
   for (i = 0; i < 5; i++)
-   dlp->d_drivedata[i] = __extension__({ __uint32_t __swap32gen_x = (dlp->d_drivedata[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_secperunith = __extension__({ __uint16_t __swap16gen_x = (dlp->d_secperunith); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  dlp->d_version = __extension__({ __uint16_t __swap16gen_x = (dlp->d_version); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   dlp->d_drivedata[i] = (__builtin_constant_p(dlp->d_drivedata[i]) ? (__uint32_t)(((__uint32_t)(dlp->d_drivedata[i]) & 0xff) << 24 | ((__uint32_t)(dlp->d_drivedata[i]) & 0xff00) << 8 | ((__uint32_t)(dlp->d_drivedata[i]) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_drivedata[i]) & 0xff000000) >> 24) : __swap32md(dlp->d_drivedata[i]));
+  dlp->d_secperunith = (__builtin_constant_p(dlp->d_secperunith) ? (__uint16_t)(((__uint16_t)(dlp->d_secperunith) & 0xffU) << 8 | ((__uint16_t)(dlp->d_secperunith) & 0xff00U) >> 8) : __swap16md(dlp->d_secperunith));
+  dlp->d_version = (__builtin_constant_p(dlp->d_version) ? (__uint16_t)(((__uint16_t)(dlp->d_version) & 0xffU) << 8 | ((__uint16_t)(dlp->d_version) & 0xff00U) >> 8) : __swap16md(dlp->d_version));
   for (i = 0; i < 4; i++)
-   dlp->d_spare[i] = __extension__({ __uint32_t __swap32gen_x = (dlp->d_spare[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_magic2 = __extension__({ __uint32_t __swap32gen_x = (dlp->d_magic2); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_npartitions = __extension__({ __uint16_t __swap16gen_x = (dlp->d_npartitions); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-  dlp->d_bbsize = __extension__({ __uint32_t __swap32gen_x = (dlp->d_bbsize); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  dlp->d_sbsize = __extension__({ __uint32_t __swap32gen_x = (dlp->d_sbsize); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   dlp->d_spare[i] = (__builtin_constant_p(dlp->d_spare[i]) ? (__uint32_t)(((__uint32_t)(dlp->d_spare[i]) & 0xff) << 24 | ((__uint32_t)(dlp->d_spare[i]) & 0xff00) << 8 | ((__uint32_t)(dlp->d_spare[i]) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_spare[i]) & 0xff000000) >> 24) : __swap32md(dlp->d_spare[i]));
+  dlp->d_magic2 = (__builtin_constant_p(dlp->d_magic2) ? (__uint32_t)(((__uint32_t)(dlp->d_magic2) & 0xff) << 24 | ((__uint32_t)(dlp->d_magic2) & 0xff00) << 8 | ((__uint32_t)(dlp->d_magic2) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_magic2) & 0xff000000) >> 24) : __swap32md(dlp->d_magic2));
+  dlp->d_npartitions = (__builtin_constant_p(dlp->d_npartitions) ? (__uint16_t)(((__uint16_t)(dlp->d_npartitions) & 0xffU) << 8 | ((__uint16_t)(dlp->d_npartitions) & 0xff00U) >> 8) : __swap16md(dlp->d_npartitions));
+  dlp->d_bbsize = (__builtin_constant_p(dlp->d_bbsize) ? (__uint32_t)(((__uint32_t)(dlp->d_bbsize) & 0xff) << 24 | ((__uint32_t)(dlp->d_bbsize) & 0xff00) << 8 | ((__uint32_t)(dlp->d_bbsize) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_bbsize) & 0xff000000) >> 24) : __swap32md(dlp->d_bbsize));
+  dlp->d_sbsize = (__builtin_constant_p(dlp->d_sbsize) ? (__uint32_t)(((__uint32_t)(dlp->d_sbsize) & 0xff) << 24 | ((__uint32_t)(dlp->d_sbsize) & 0xff00) << 8 | ((__uint32_t)(dlp->d_sbsize) & 0xff0000) >> 8 | ((__uint32_t)(dlp->d_sbsize) & 0xff000000) >> 24) : __swap32md(dlp->d_sbsize));
   for (i = 0; i < 16; i++) {
    pp = &dlp->d_partitions[i];
-   pp->p_size = __extension__({ __uint32_t __swap32gen_x = (pp->p_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-   pp->p_offset = __extension__({ __uint32_t __swap32gen_x = (pp->p_offset); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   pp->p_size = (__builtin_constant_p(pp->p_size) ? (__uint32_t)(((__uint32_t)(pp->p_size) & 0xff) << 24 | ((__uint32_t)(pp->p_size) & 0xff00) << 8 | ((__uint32_t)(pp->p_size) & 0xff0000) >> 8 | ((__uint32_t)(pp->p_size) & 0xff000000) >> 24) : __swap32md(pp->p_size));
+   pp->p_offset = (__builtin_constant_p(pp->p_offset) ? (__uint32_t)(((__uint32_t)(pp->p_offset) & 0xff) << 24 | ((__uint32_t)(pp->p_offset) & 0xff00) << 8 | ((__uint32_t)(pp->p_offset) & 0xff0000) >> 8 | ((__uint32_t)(pp->p_offset) & 0xff000000) >> 24) : __swap32md(pp->p_offset));
    if (dlp->d_version == 0) {
     v0pp = (struct __partitionv0 *)pp;
-    v0pp->p_fsize = __extension__({ __uint32_t __swap32gen_x = (v0pp->p_fsize); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+    v0pp->p_fsize = (__builtin_constant_p(v0pp->p_fsize) ? (__uint32_t)(((__uint32_t)(v0pp->p_fsize) & 0xff) << 24 | ((__uint32_t)(v0pp->p_fsize) & 0xff00) << 8 | ((__uint32_t)(v0pp->p_fsize) & 0xff0000) >> 8 | ((__uint32_t)(v0pp->p_fsize) & 0xff000000) >> 24) : __swap32md(v0pp->p_fsize));
    } else {
-    pp->p_offseth = __extension__({ __uint16_t __swap16gen_x = (pp->p_offseth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
-    pp->p_sizeh = __extension__({ __uint16_t __swap16gen_x = (pp->p_sizeh); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+    pp->p_offseth = (__builtin_constant_p(pp->p_offseth) ? (__uint16_t)(((__uint16_t)(pp->p_offseth) & 0xffU) << 8 | ((__uint16_t)(pp->p_offseth) & 0xff00U) >> 8) : __swap16md(pp->p_offseth));
+    pp->p_sizeh = (__builtin_constant_p(pp->p_sizeh) ? (__uint16_t)(((__uint16_t)(pp->p_sizeh) & 0xffU) << 8 | ((__uint16_t)(pp->p_sizeh) & 0xff00U) >> 8) : __swap16md(pp->p_sizeh));
    }
-   pp->p_cpg = __extension__({ __uint16_t __swap16gen_x = (pp->p_cpg); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+   pp->p_cpg = (__builtin_constant_p(pp->p_cpg) ? (__uint16_t)(((__uint16_t)(pp->p_cpg) & 0xffU) << 8 | ((__uint16_t)(pp->p_cpg) & 0xff00U) >> 8) : __swap16md(pp->p_cpg));
   }
   dlp->d_checksum = 0;
   dlp->d_checksum = dkcksum(dlp);
@@ -3299,14 +3303,14 @@ notgpt:
   if (ourpart == -1) {
    for (dp2=dp, i=0; i < 4 && ourpart == -1;
        i++, dp2++)
-    if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) &&
+    if ((__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size)) &&
         dp2->dp_typ == 0xa6)
      ourpart = i;
    if (ourpart == -1)
     goto donot;
    dp2 = &dp[ourpart];
-   dospartoff = __extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + sector;
-   dospartend = dospartoff + __extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+   dospartoff = (__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)) + sector;
+   dospartend = dospartoff + (__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size));
    if (partoffp) {
     *partoffp = ((dospartoff) * ((lp)->d_secsize / (1 << 9)));
     return (0);
@@ -3326,11 +3330,11 @@ donot:
    if (dp2->dp_typ == 0xa6 ||
        dp2->dp_typ == 0xee)
     continue;
-   if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) > (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit))
+   if ((__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size)) > (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit))
     continue;
-   if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) > (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit))
+   if ((__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)) > (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit))
     continue;
-   if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) == 0)
+   if ((__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size)) == 0)
     continue;
    switch (dp2->dp_typ) {
    case 0x00:
@@ -3353,9 +3357,9 @@ donot:
     break;
    case 0x05:
    case 0x0f:
-    sector = __extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + extoff;
+    sector = (__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)) + extoff;
     if (!extoff) {
-     extoff = __extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+     extoff = (__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start));
      sector = 0;
     }
     wander = 1;
@@ -3370,9 +3374,9 @@ donot:
    pp = &lp->d_partitions[8+n];
    n++;
    pp->p_fstype = fstype;
-   if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))
-    do { u_int64_t x = (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) + sector); (pp)->p_offseth = x >> 32; (pp)->p_offset = x; } while (0);
-   do { u_int64_t x = (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })); (pp)->p_sizeh = x >> 32; (pp)->p_size = x; } while (0);
+   if ((__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)))
+    do { u_int64_t x = ((__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)) + sector); (pp)->p_offseth = x >> 32; (pp)->p_offset = x; } while (0);
+   do { u_int64_t x = ((__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size))); (pp)->p_sizeh = x >> 32; (pp)->p_size = x; } while (0);
   }
  }
 notmbr:
@@ -3432,10 +3436,10 @@ gpt_chk_mbr(struct dos_partition *dp, u_int64_t dsize)
   found++;
   if (dp2->dp_typ != 0xee)
    continue;
-  psize = __extension__({ __uint32_t __swap32gen_x = (dp2->dp_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  psize = (__builtin_constant_p(dp2->dp_size) ? (__uint32_t)(((__uint32_t)(dp2->dp_size) & 0xff) << 24 | ((__uint32_t)(dp2->dp_size) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_size) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_size) & 0xff000000) >> 24) : __swap32md(dp2->dp_size));
   if (psize == (dsize - 1) ||
       psize == 0xffffffffU) {
-   if (__extension__({ __uint32_t __swap32gen_x = (dp2->dp_start); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) == 1)
+   if ((__builtin_constant_p(dp2->dp_start) ? (__uint32_t)(((__uint32_t)(dp2->dp_start) & 0xff) << 24 | ((__uint32_t)(dp2->dp_start) & 0xff00) << 8 | ((__uint32_t)(dp2->dp_start) & 0xff0000) >> 8 | ((__uint32_t)(dp2->dp_start) & 0xff000000) >> 24) : __swap32md(dp2->dp_start)) == 1)
     efi++;
   }
  }
@@ -3450,16 +3454,16 @@ gpt_chk_hdr(struct gpt_header *gh, struct disklabel *lp)
  uint64_t ghlbaend, ghlbastart;
  uint32_t orig_gh_csum;
  uint32_t ghsize, ghpartsize, ghpartspersec;
- if (__extension__({ __uint64_t __swap64gen_x = (gh->gh_sig); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }) != 0x5452415020494645LL)
+ if ((__builtin_constant_p(gh->gh_sig) ? (__uint64_t)((((__uint64_t)(gh->gh_sig) & 0xff) << 56) | ((__uint64_t)(gh->gh_sig) & 0xff00ULL) << 40 | ((__uint64_t)(gh->gh_sig) & 0xff0000ULL) << 24 | ((__uint64_t)(gh->gh_sig) & 0xff000000ULL) << 8 | ((__uint64_t)(gh->gh_sig) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh->gh_sig) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh->gh_sig) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh->gh_sig) & 0xff00000000000000ULL) >> 56) : __swap64md(gh->gh_sig)) != 0x5452415020494645LL)
   return (22);
- if (__extension__({ __uint32_t __swap32gen_x = (gh->gh_rev); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) != 0x10000)
+ if ((__builtin_constant_p(gh->gh_rev) ? (__uint32_t)(((__uint32_t)(gh->gh_rev) & 0xff) << 24 | ((__uint32_t)(gh->gh_rev) & 0xff00) << 8 | ((__uint32_t)(gh->gh_rev) & 0xff0000) >> 8 | ((__uint32_t)(gh->gh_rev) & 0xff000000) >> 24) : __swap32md(gh->gh_rev)) != 0x10000)
   return (22);
- ghsize = __extension__({ __uint32_t __swap32gen_x = (gh->gh_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
- ghpartsize = __extension__({ __uint32_t __swap32gen_x = (gh->gh_part_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+ ghsize = (__builtin_constant_p(gh->gh_size) ? (__uint32_t)(((__uint32_t)(gh->gh_size) & 0xff) << 24 | ((__uint32_t)(gh->gh_size) & 0xff00) << 8 | ((__uint32_t)(gh->gh_size) & 0xff0000) >> 8 | ((__uint32_t)(gh->gh_size) & 0xff000000) >> 24) : __swap32md(gh->gh_size));
+ ghpartsize = (__builtin_constant_p(gh->gh_part_size) ? (__uint32_t)(((__uint32_t)(gh->gh_part_size) & 0xff) << 24 | ((__uint32_t)(gh->gh_part_size) & 0xff00) << 8 | ((__uint32_t)(gh->gh_part_size) & 0xff0000) >> 8 | ((__uint32_t)(gh->gh_part_size) & 0xff000000) >> 24) : __swap32md(gh->gh_part_size));
  ghpartspersec = lp->d_secsize / ghpartsize;
- ghpartlba = __extension__({ __uint64_t __swap64gen_x = (gh->gh_part_lba); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- ghlbaend = __extension__({ __uint64_t __swap64gen_x = (gh->gh_lba_end); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
- ghlbastart = __extension__({ __uint64_t __swap64gen_x = (gh->gh_lba_start); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+ ghpartlba = (__builtin_constant_p(gh->gh_part_lba) ? (__uint64_t)((((__uint64_t)(gh->gh_part_lba) & 0xff) << 56) | ((__uint64_t)(gh->gh_part_lba) & 0xff00ULL) << 40 | ((__uint64_t)(gh->gh_part_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(gh->gh_part_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(gh->gh_part_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh->gh_part_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh->gh_part_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh->gh_part_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(gh->gh_part_lba));
+ ghlbaend = (__builtin_constant_p(gh->gh_lba_end) ? (__uint64_t)((((__uint64_t)(gh->gh_lba_end) & 0xff) << 56) | ((__uint64_t)(gh->gh_lba_end) & 0xff00ULL) << 40 | ((__uint64_t)(gh->gh_lba_end) & 0xff0000ULL) << 24 | ((__uint64_t)(gh->gh_lba_end) & 0xff000000ULL) << 8 | ((__uint64_t)(gh->gh_lba_end) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh->gh_lba_end) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh->gh_lba_end) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh->gh_lba_end) & 0xff00000000000000ULL) >> 56) : __swap64md(gh->gh_lba_end));
+ ghlbastart = (__builtin_constant_p(gh->gh_lba_start) ? (__uint64_t)((((__uint64_t)(gh->gh_lba_start) & 0xff) << 56) | ((__uint64_t)(gh->gh_lba_start) & 0xff00ULL) << 40 | ((__uint64_t)(gh->gh_lba_start) & 0xff0000ULL) << 24 | ((__uint64_t)(gh->gh_lba_start) & 0xff000000ULL) << 8 | ((__uint64_t)(gh->gh_lba_start) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh->gh_lba_start) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh->gh_lba_start) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh->gh_lba_start) & 0xff00000000000000ULL) >> 56) : __swap64md(gh->gh_lba_start));
  if (ghsize < 92 || ghsize > sizeof(struct gpt_header))
   return (22);
  orig_gh_csum = gh->gh_csum;
@@ -3480,7 +3484,7 @@ gpt_chk_hdr(struct gpt_header *gh, struct disklabel *lp)
   ;
   return (22);
  }
- if (__extension__({ __uint64_t __swap64gen_x = (gh->gh_lba_alt); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); }) >= (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit)) {
+ if ((__builtin_constant_p(gh->gh_lba_alt) ? (__uint64_t)((((__uint64_t)(gh->gh_lba_alt) & 0xff) << 56) | ((__uint64_t)(gh->gh_lba_alt) & 0xff00ULL) << 40 | ((__uint64_t)(gh->gh_lba_alt) & 0xff0000ULL) << 24 | ((__uint64_t)(gh->gh_lba_alt) & 0xff000000ULL) << 8 | ((__uint64_t)(gh->gh_lba_alt) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh->gh_lba_alt) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh->gh_lba_alt) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh->gh_lba_alt) & 0xff00000000000000ULL) >> 56) : __swap64md(gh->gh_lba_alt)) >= (((u_int64_t)(lp)->d_secperunith << 32) + (lp)->d_secperunit)) {
   ;
   return (22);
  }
@@ -3491,7 +3495,7 @@ gpt_chk_parts(struct gpt_header *gh, struct gpt_partition *gp)
 {
  u_int32_t checksum;
  checksum = crc32(0, (unsigned char *)gp,
-     __extension__({ __uint32_t __swap32gen_x = (gh->gh_part_num); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }) * __extension__({ __uint32_t __swap32gen_x = (gh->gh_part_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+     (__builtin_constant_p(gh->gh_part_num) ? (__uint32_t)(((__uint32_t)(gh->gh_part_num) & 0xff) << 24 | ((__uint32_t)(gh->gh_part_num) & 0xff00) << 8 | ((__uint32_t)(gh->gh_part_num) & 0xff0000) >> 8 | ((__uint32_t)(gh->gh_part_num) & 0xff000000) >> 24) : __swap32md(gh->gh_part_num)) * (__builtin_constant_p(gh->gh_part_size) ? (__uint32_t)(((__uint32_t)(gh->gh_part_size) & 0xff) << 24 | ((__uint32_t)(gh->gh_part_size) & 0xff00) << 8 | ((__uint32_t)(gh->gh_part_size) & 0xff0000) >> 8 | ((__uint32_t)(gh->gh_part_size) & 0xff000000) >> 24) : __swap32md(gh->gh_part_size)));
  if (checksum != gh->gh_part_csum)
   return (22);
  return 0;
@@ -3568,12 +3572,12 @@ spoofgptlabel(struct buf *bp, void (*strat)(struct buf *),
    }
    continue;
   }
-  ghpartsize = __extension__({ __uint32_t __swap32gen_x = (gh.gh_part_size); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  ghpartsize = (__builtin_constant_p(gh.gh_part_size) ? (__uint32_t)(((__uint32_t)(gh.gh_part_size) & 0xff) << 24 | ((__uint32_t)(gh.gh_part_size) & 0xff00) << 8 | ((__uint32_t)(gh.gh_part_size) & 0xff0000) >> 8 | ((__uint32_t)(gh.gh_part_size) & 0xff000000) >> 24) : __swap32md(gh.gh_part_size));
   ghpartspersec = lp->d_secsize / ghpartsize;
-  ghpartnum = __extension__({ __uint32_t __swap32gen_x = (gh.gh_part_num); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
-  ghpartlba = __extension__({ __uint64_t __swap64gen_x = (gh.gh_part_lba); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  ghlbaend = __extension__({ __uint64_t __swap64gen_x = (gh.gh_lba_end); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  ghlbastart = __extension__({ __uint64_t __swap64gen_x = (gh.gh_lba_start); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  ghpartnum = (__builtin_constant_p(gh.gh_part_num) ? (__uint32_t)(((__uint32_t)(gh.gh_part_num) & 0xff) << 24 | ((__uint32_t)(gh.gh_part_num) & 0xff00) << 8 | ((__uint32_t)(gh.gh_part_num) & 0xff0000) >> 8 | ((__uint32_t)(gh.gh_part_num) & 0xff000000) >> 24) : __swap32md(gh.gh_part_num));
+  ghpartlba = (__builtin_constant_p(gh.gh_part_lba) ? (__uint64_t)((((__uint64_t)(gh.gh_part_lba) & 0xff) << 56) | ((__uint64_t)(gh.gh_part_lba) & 0xff00ULL) << 40 | ((__uint64_t)(gh.gh_part_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(gh.gh_part_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(gh.gh_part_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh.gh_part_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh.gh_part_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh.gh_part_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(gh.gh_part_lba));
+  ghlbaend = (__builtin_constant_p(gh.gh_lba_end) ? (__uint64_t)((((__uint64_t)(gh.gh_lba_end) & 0xff) << 56) | ((__uint64_t)(gh.gh_lba_end) & 0xff00ULL) << 40 | ((__uint64_t)(gh.gh_lba_end) & 0xff0000ULL) << 24 | ((__uint64_t)(gh.gh_lba_end) & 0xff000000ULL) << 8 | ((__uint64_t)(gh.gh_lba_end) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh.gh_lba_end) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh.gh_lba_end) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh.gh_lba_end) & 0xff00000000000000ULL) >> 56) : __swap64md(gh.gh_lba_end));
+  ghlbastart = (__builtin_constant_p(gh.gh_lba_start) ? (__uint64_t)((((__uint64_t)(gh.gh_lba_start) & 0xff) << 56) | ((__uint64_t)(gh.gh_lba_start) & 0xff00ULL) << 40 | ((__uint64_t)(gh.gh_lba_start) & 0xff0000ULL) << 24 | ((__uint64_t)(gh.gh_lba_start) & 0xff000000ULL) << 8 | ((__uint64_t)(gh.gh_lba_start) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gh.gh_lba_start) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gh.gh_lba_start) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gh.gh_lba_start) & 0xff00000000000000ULL) >> 56) : __swap64md(gh.gh_lba_start));
   gp = mallocarray(ghpartnum, sizeof(struct gpt_partition),
       2, 0x0002|0x0008);
   if (gp == ((void *)0))
@@ -3602,8 +3606,8 @@ spoofgptlabel(struct buf *bp, void (*strat)(struct buf *),
  gptpartoff = 0;
  gptpartend = (((u_int64_t)(lp)->d_bendh << 32) + (lp)->d_bend);
  for (gp_tmp = gp, i = 0; i < ghpartnum; gp_tmp++, i++) {
-  start = __extension__({ __uint64_t __swap64gen_x = (gp_tmp->gp_lba_start); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
-  end = __extension__({ __uint64_t __swap64gen_x = (gp_tmp->gp_lba_end); (__uint64_t)((__swap64gen_x & 0xff) << 56 | (__swap64gen_x & 0xff00ULL) << 40 | (__swap64gen_x & 0xff0000ULL) << 24 | (__swap64gen_x & 0xff000000ULL) << 8 | (__swap64gen_x & 0xff00000000ULL) >> 8 | (__swap64gen_x & 0xff0000000000ULL) >> 24 | (__swap64gen_x & 0xff000000000000ULL) >> 40 | (__swap64gen_x & 0xff00000000000000ULL) >> 56); });
+  start = (__builtin_constant_p(gp_tmp->gp_lba_start) ? (__uint64_t)((((__uint64_t)(gp_tmp->gp_lba_start) & 0xff) << 56) | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff00ULL) << 40 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff0000ULL) << 24 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff000000ULL) << 8 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gp_tmp->gp_lba_start) & 0xff00000000000000ULL) >> 56) : __swap64md(gp_tmp->gp_lba_start));
+  end = (__builtin_constant_p(gp_tmp->gp_lba_end) ? (__uint64_t)((((__uint64_t)(gp_tmp->gp_lba_end) & 0xff) << 56) | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff00ULL) << 40 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff0000ULL) << 24 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff000000ULL) << 8 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff00000000ULL) >> 8 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(gp_tmp->gp_lba_end) & 0xff00000000000000ULL) >> 56) : __swap64md(gp_tmp->gp_lba_end));
   if (start > end || start < ghlbastart || end > ghlbaend)
    continue;
   uuid_dec_le(&gp_tmp->gp_type, &uuid_part);

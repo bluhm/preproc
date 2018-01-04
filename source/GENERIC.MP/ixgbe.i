@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -6340,7 +6344,7 @@ int32_t ixgbe_host_interface_command(struct ixgbe_hw *hw, uint32_t *buffer,
  }
  dword_len = length >> 2;
  for (i = 0; i < dword_len; i++)
-  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((i) << 2)), __extension__({ __uint32_t __swap32gen_x = (buffer[i]); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((i) << 2)), (__builtin_constant_p(buffer[i]) ? (__uint32_t)(((__uint32_t)(buffer[i]) & 0xff) << 24 | ((__uint32_t)(buffer[i]) & 0xff00) << 8 | ((__uint32_t)(buffer[i]) & 0xff0000) >> 8 | ((__uint32_t)(buffer[i]) & 0xff000000) >> 24) : __swap32md(buffer[i])));
  bus_space_write_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x15F00, hicr | 0x02);
  for (i = 0; i < timeout; i++) {
   hicr = bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, 0x15F00);
@@ -6357,7 +6361,7 @@ int32_t ixgbe_host_interface_command(struct ixgbe_hw *hw, uint32_t *buffer,
   return 0;
  dword_len = hdr_size >> 2;
  for (bi = 0; bi < dword_len; bi++) {
-  buffer[bi] = __extension__({ __uint32_t __swap32gen_x = (bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  buffer[bi] = (__builtin_constant_p(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) ? (__uint32_t)(((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff) << 24 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff00) << 8 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff0000) >> 8 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff000000) >> 24) : __swap32md(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))));
  }
  buf_len = ((struct ixgbe_hic_hdr *)buffer)->buf_len;
  if (buf_len == 0)
@@ -6368,7 +6372,7 @@ int32_t ixgbe_host_interface_command(struct ixgbe_hw *hw, uint32_t *buffer,
  }
  dword_len = (buf_len + 3) >> 2;
  for (; bi <= dword_len; bi++) {
-  buffer[bi] = __extension__({ __uint32_t __swap32gen_x = (bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  buffer[bi] = (__builtin_constant_p(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) ? (__uint32_t)(((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff) << 24 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff00) << 8 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff0000) >> 8 | ((__uint32_t)(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))) & 0xff000000) >> 24) : __swap32md(bus_space_read_4(((struct ixgbe_osdep *)(hw)->back)->os_memt, ((struct ixgbe_osdep *)(hw)->back)->os_memh, (0x15800 + ((bi) << 2)))));
  }
  return 0;
 }

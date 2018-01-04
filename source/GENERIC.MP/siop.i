@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3219,7 +3223,7 @@ siop_script_read(sc, offset)
   return bus_space_read_4(sc->sc_c.sc_ramt, sc->sc_c.sc_ramh,
       offset * 4);
  } else {
-  return (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_script[offset]))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_script[offset])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+  return (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_script[offset]))) : (__builtin_constant_p((sc->sc_c.sc_script[offset])) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_script[offset])) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_script[offset])) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_script[offset])) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_script[offset])) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_script[offset]))));
  }
 }
 void
@@ -3232,7 +3236,7 @@ siop_script_write(sc, offset, val)
   bus_space_write_4(sc->sc_c.sc_ramt, sc->sc_c.sc_ramh,
       offset * 4, val);
  } else {
-  sc->sc_c.sc_script[offset] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((val))) : __extension__({ __uint32_t __swap32gen_x = ((val)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+  sc->sc_c.sc_script[offset] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((val))) : (__builtin_constant_p((val)) ? (__uint32_t)(((__uint32_t)((val)) & 0xff) << 24 | ((__uint32_t)((val)) & 0xff00) << 8 | ((__uint32_t)((val)) & 0xff0000) >> 8 | ((__uint32_t)((val)) & 0xff000000) >> 24) : __swap32md((val))));
  }
 }
 void
@@ -3294,30 +3298,30 @@ siop_reset(sc)
   for (j = 0;
       j < (sizeof(siop_script) / sizeof(siop_script[0])); j++) {
    sc->sc_c.sc_script[j] =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_script[j]))) : __extension__({ __uint32_t __swap32gen_x = ((siop_script[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_script[j]))) : (__builtin_constant_p((siop_script[j])) ? (__uint32_t)(((__uint32_t)((siop_script[j])) & 0xff) << 24 | ((__uint32_t)((siop_script[j])) & 0xff00) << 8 | ((__uint32_t)((siop_script[j])) & 0xff0000) >> 8 | ((__uint32_t)((siop_script[j])) & 0xff000000) >> 24) : __swap32md((siop_script[j]))));
   }
   for (j = 0; j <
       (sizeof(E_abs_msgin_Used) / sizeof(E_abs_msgin_Used[0]));
       j++) {
    sc->sc_c.sc_script[E_abs_msgin_Used[j]] =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x00000598)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x00000598)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000598)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x00000598))));
   }
   if (sc->sc_c.features & 0x00000100) {
    for (j = 0; j < (sizeof(siop_led_on) /
        sizeof(siop_led_on[0])); j++)
     sc->sc_c.sc_script[
         0x00000068 / sizeof(siop_led_on[0]) + j
-        ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_on[j]))) : __extension__({ __uint32_t __swap32gen_x = ((siop_led_on[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+        ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_on[j]))) : (__builtin_constant_p((siop_led_on[j])) ? (__uint32_t)(((__uint32_t)((siop_led_on[j])) & 0xff) << 24 | ((__uint32_t)((siop_led_on[j])) & 0xff00) << 8 | ((__uint32_t)((siop_led_on[j])) & 0xff0000) >> 8 | ((__uint32_t)((siop_led_on[j])) & 0xff000000) >> 24) : __swap32md((siop_led_on[j]))));
    for (j = 0; j < (sizeof(siop_led_on) /
        sizeof(siop_led_on[0])); j++)
     sc->sc_c.sc_script[
         0x00000220 / sizeof(siop_led_on[0]) + j
-        ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_on[j]))) : __extension__({ __uint32_t __swap32gen_x = ((siop_led_on[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+        ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_on[j]))) : (__builtin_constant_p((siop_led_on[j])) ? (__uint32_t)(((__uint32_t)((siop_led_on[j])) & 0xff) << 24 | ((__uint32_t)((siop_led_on[j])) & 0xff00) << 8 | ((__uint32_t)((siop_led_on[j])) & 0xff0000) >> 8 | ((__uint32_t)((siop_led_on[j])) & 0xff000000) >> 24) : __swap32md((siop_led_on[j]))));
    for (j = 0; j < (sizeof(siop_led_off) /
        sizeof(siop_led_off[0])); j++)
     sc->sc_c.sc_script[
        0x00000210 / sizeof(siop_led_off[0]) + j
-       ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_off[j]))) : __extension__({ __uint32_t __swap32gen_x = ((siop_led_off[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       ] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_led_off[j]))) : (__builtin_constant_p((siop_led_off[j])) ? (__uint32_t)(((__uint32_t)((siop_led_off[j])) & 0xff) << 24 | ((__uint32_t)((siop_led_off[j])) & 0xff00) << 8 | ((__uint32_t)((siop_led_off[j])) & 0xff0000) >> 8 | ((__uint32_t)((siop_led_off[j])) & 0xff000000) >> 24) : __swap32md((siop_led_off[j]))));
   }
  }
  sc->script_free_lo = sizeof(siop_script) / sizeof(siop_script[0]);
@@ -3466,7 +3470,7 @@ siop_intr(v)
    if (siop_cmd)
     printf("last msg_in=0x%x status=0x%x\n",
         siop_cmd->cmd_c.siop_tables->msg_in[0],
-        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status))) : __extension__({ __uint32_t __swap32gen_x = ((siop_cmd->cmd_c.siop_tables->status)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })));
+        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status))) : (__builtin_constant_p((siop_cmd->cmd_c.siop_tables->status)) ? (__uint32_t)(((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff000000) >> 24) : __swap32md((siop_cmd->cmd_c.siop_tables->status)))));
    else
     printf("current DSA invalid\n");
    need_reset = 1;
@@ -3554,7 +3558,7 @@ siop_intr(v)
   if (sist & 0x04) {
     if (siop_cmd) {
     siop_cmd->cmd_c.siop_tables->status =
-        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x02))) : __extension__({ __uint32_t __swap32gen_x = ((0x02)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x02))) : (__builtin_constant_p((0x02)) ? (__uint32_t)(((__uint32_t)((0x02)) & 0xff) << 24 | ((__uint32_t)((0x02)) & 0xff00) << 8 | ((__uint32_t)((0x02)) & 0xff0000) >> 8 | ((__uint32_t)((0x02)) & 0xff000000) >> 24) : __swap32md((0x02))));
     goto end;
    }
    printf("%s: unexpected disconnect without "
@@ -3758,7 +3762,7 @@ scintr:
    }
    if (msgin == 0x23) {
     siop_cmd->cmd_c.siop_tables->t_extmsgdata.count =
-        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
     siop_table_sync(siop_cmd,
         0x01 | 0x04);
     do {bus_space_write_4(sc->sc_c.sc_rt, sc->sc_c.sc_rh, 0x2C, sc->sc_c.sc_scriptaddr + 0x00000580); } while (0);
@@ -3772,7 +3776,7 @@ scintr:
        siop_cmd->cmd_c.siop_tables->msg_in[0]);
    siop_cmd->cmd_c.siop_tables->msg_out[0] = 0x07;
    siop_cmd->cmd_c.siop_tables->t_msgout.count =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
    siop_table_sync(siop_cmd,
        0x01 | 0x04);
    do {bus_space_write_4(sc->sc_c.sc_rt, sc->sc_c.sc_rh, 0x2C, sc->sc_c.sc_scriptaddr + 0x00000398); } while (0);
@@ -3785,7 +3789,7 @@ scintr:
         sc->sc_c.sc_dev.dv_xname,
         siop_cmd->cmd_c.siop_tables->msg_in[1]);
    siop_cmd->cmd_c.siop_tables->t_extmsgdata.count =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1))) : __extension__({ __uint32_t __swap32gen_x = ((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1))) : (__builtin_constant_p((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)) ? (__uint32_t)(((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1)) & 0xff000000) >> 24) : __swap32md((siop_cmd->cmd_c.siop_tables->msg_in[1] - 1))));
    siop_table_sync(siop_cmd,
        0x01 | 0x04);
    do {bus_space_write_4(sc->sc_c.sc_rt, sc->sc_c.sc_rh, 0x2C, sc->sc_c.sc_scriptaddr + 0x00000580); } while (0);
@@ -3878,7 +3882,7 @@ scintr:
    }
    siop_cmd->cmd_c.siop_tables->msg_out[0] = 0x07;
    siop_cmd->cmd_c.siop_tables->t_msgout.count =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
    siop_table_sync(siop_cmd,
        0x01 | 0x04);
    do {bus_space_write_4(sc->sc_c.sc_rt, sc->sc_c.sc_rh, 0x2C, sc->sc_c.sc_scriptaddr + 0x00000398); } while (0);
@@ -3946,7 +3950,7 @@ scintr:
      (siop_cmd == ((void *)0)) ? "== NULL" : "!= NULL");
  goto reset;
 end:
- xs->status = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status))) : __extension__({ __uint32_t __swap32gen_x = ((siop_cmd->cmd_c.siop_tables->status)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+ xs->status = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status))) : (__builtin_constant_p((siop_cmd->cmd_c.siop_tables->status)) ? (__uint32_t)(((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->status)) & 0xff000000) >> 24) : __swap32md((siop_cmd->cmd_c.siop_tables->status))));
  if (xs->status == 0x00)
   do {bus_space_write_4(sc->sc_c.sc_rt, sc->sc_c.sc_rh, 0x2C, sc->sc_c.sc_scriptaddr + 0x00000070); } while (0);
  else
@@ -4013,7 +4017,7 @@ siop_scsicmd_end(siop_cmd)
   int error;
   __builtin_bzero((cmd), (sizeof(*cmd)));
   siop_cmd->cmd_c.siop_tables->cmd.count =
-     (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sizeof(struct scsi_sense)))) : __extension__({ __uint32_t __swap32gen_x = ((sizeof(struct scsi_sense))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+     (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sizeof(struct scsi_sense)))) : (__builtin_constant_p((sizeof(struct scsi_sense))) ? (__uint32_t)(((__uint32_t)((sizeof(struct scsi_sense))) & 0xff) << 24 | ((__uint32_t)((sizeof(struct scsi_sense))) & 0xff00) << 8 | ((__uint32_t)((sizeof(struct scsi_sense))) & 0xff0000) >> 8 | ((__uint32_t)((sizeof(struct scsi_sense))) & 0xff000000) >> 24) : __swap32md((sizeof(struct scsi_sense)))));
   cmd->opcode = 0x03;
   cmd->byte2 = xs->sc_link->lun << 5;
   cmd->unused[0] = cmd->unused[1] = 0;
@@ -4257,7 +4261,7 @@ siop_scsicmd(xs)
  __builtin_bzero((&siop_cmd->cmd_c.siop_tables->xscmd), (sizeof(siop_cmd->cmd_c.siop_tables->xscmd)));
  __builtin_bcopy((xs->cmd), (&siop_cmd->cmd_c.siop_tables->xscmd), (xs->cmdlen));
  siop_cmd->cmd_c.siop_tables->cmd.count =
-     (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((xs->cmdlen))) : __extension__({ __uint32_t __swap32gen_x = ((xs->cmdlen)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+     (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((xs->cmdlen))) : (__builtin_constant_p((xs->cmdlen)) ? (__uint32_t)(((__uint32_t)((xs->cmdlen)) & 0xff) << 24 | ((__uint32_t)((xs->cmdlen)) & 0xff00) << 8 | ((__uint32_t)((xs->cmdlen)) & 0xff0000) >> 8 | ((__uint32_t)((xs->cmdlen)) & 0xff000000) >> 24) : __swap32md((xs->cmdlen))));
  if (xs->flags & (0x00800 | 0x01000)) {
   error = bus_dmamap_load(sc->sc_c.sc_dmat,
       siop_cmd->cmd_c.dmamap_data, xs->data, xs->datalen,
@@ -4381,7 +4385,7 @@ again:
     goto end;
   }
   if (tag > 0) {
-   int msgcount = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count))) : __extension__({ __uint32_t __swap32gen_x = ((siop_cmd->cmd_c.siop_tables->t_msgout.count)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+   int msgcount = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count))) : (__builtin_constant_p((siop_cmd->cmd_c.siop_tables->t_msgout.count)) ? (__uint32_t)(((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->cmd_c.siop_tables->t_msgout.count)) & 0xff000000) >> 24) : __swap32md((siop_cmd->cmd_c.siop_tables->t_msgout.count))));
    if (msgcount != 1)
     printf("%s:%d:%d: tag %d with msgcount %d\n",
         sc->sc_c.sc_dev.dv_xname, target, lun, tag,
@@ -4389,7 +4393,7 @@ again:
    siop_cmd->cmd_c.siop_tables->msg_out[1] = 0x20;
    siop_cmd->cmd_c.siop_tables->msg_out[2] = tag;
    siop_cmd->cmd_c.siop_tables->t_msgout.count =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((3))) : __extension__({ __uint32_t __swap32gen_x = ((3)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((3))) : (__builtin_constant_p((3)) ? (__uint32_t)(((__uint32_t)((3)) & 0xff) << 24 | ((__uint32_t)((3)) & 0xff00) << 8 | ((__uint32_t)((3)) & 0xff0000) >> 8 | ((__uint32_t)((3)) & 0xff000000) >> 24) : __swap32md((3))));
   }
   newcmd = 1;
   if (siop_cmd->cmd_c.status == 1) {
@@ -4411,7 +4415,7 @@ again:
        0x00000028);
   siop_xfer = (struct siop_xfer*)siop_cmd->cmd_c.siop_tables;
   siop_xfer->resel[E_ldsa_abs_slot_Used[0]] =
-      (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+      (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x000000a0 + slot * 8))));
   siop_table_sync(siop_cmd, 0x04);
   siop_script_write(sc,
       (0x000000a0 / 4) + slot * 2 + 1,
@@ -4519,29 +4523,29 @@ siop_morecbd(sc)
   newcbd->cmds[i].cmd_c.sense = (struct scsi_sense_data *)(
       i * sense_size +
       (u_int8_t *)((void *)(newcbd->sense)->sdm_kva));
-  xfer->siop_tables.t_msgout.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_msgout.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa))) : __extension__({ __uint32_t __swap32gen_x = ((dsa)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_msgin.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_msgin.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in)))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_extmsgin.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((2))) : __extension__({ __uint32_t __swap32gen_x = ((2)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_extmsgin.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_extmsgdata.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_status.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : __extension__({ __uint32_t __swap32gen_x = ((1)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.t_status.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.cmd.count = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0))) : __extension__({ __uint32_t __swap32gen_x = ((0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  xfer->siop_tables.cmd.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd)))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+  xfer->siop_tables.t_msgout.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  xfer->siop_tables.t_msgout.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa))) : (__builtin_constant_p((dsa)) ? (__uint32_t)(((__uint32_t)((dsa)) & 0xff) << 24 | ((__uint32_t)((dsa)) & 0xff00) << 8 | ((__uint32_t)((dsa)) & 0xff0000) >> 8 | ((__uint32_t)((dsa)) & 0xff000000) >> 24) : __swap32md((dsa))));
+  xfer->siop_tables.t_msgin.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  xfer->siop_tables.t_msgin.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in)))) : (__builtin_constant_p((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))) ? (__uint32_t)(((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))) & 0xff) << 24 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))) & 0xff00) << 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))) & 0xff0000) >> 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in))) & 0xff000000) >> 24) : __swap32md((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in)))));
+  xfer->siop_tables.t_extmsgin.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((2))) : (__builtin_constant_p((2)) ? (__uint32_t)(((__uint32_t)((2)) & 0xff) << 24 | ((__uint32_t)((2)) & 0xff00) << 8 | ((__uint32_t)((2)) & 0xff0000) >> 8 | ((__uint32_t)((2)) & 0xff000000) >> 24) : __swap32md((2))));
+  xfer->siop_tables.t_extmsgin.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1))) : (__builtin_constant_p((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)) ? (__uint32_t)(((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)) & 0xff) << 24 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)) & 0xff00) << 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)) & 0xff0000) >> 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1)) & 0xff000000) >> 24) : __swap32md((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 1))));
+  xfer->siop_tables.t_extmsgdata.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3))) : (__builtin_constant_p((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)) ? (__uint32_t)(((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)) & 0xff) << 24 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)) & 0xff00) << 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)) & 0xff0000) >> 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3)) & 0xff000000) >> 24) : __swap32md((dsa + __builtin_offsetof(struct siop_common_xfer, msg_in) + 3))));
+  xfer->siop_tables.t_status.count= (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  xfer->siop_tables.t_status.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off))) : (__builtin_constant_p((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)) ? (__uint32_t)(((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)) & 0xff) << 24 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)) & 0xff00) << 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)) & 0xff0000) >> 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off)) & 0xff000000) >> 24) : __swap32md((dsa + __builtin_offsetof(struct siop_common_xfer, status) + off))));
+  xfer->siop_tables.cmd.count = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0))) : (__builtin_constant_p((0)) ? (__uint32_t)(((__uint32_t)((0)) & 0xff) << 24 | ((__uint32_t)((0)) & 0xff00) << 8 | ((__uint32_t)((0)) & 0xff0000) >> 8 | ((__uint32_t)((0)) & 0xff000000) >> 24) : __swap32md((0))));
+  xfer->siop_tables.cmd.addr = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd)))) : (__builtin_constant_p((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))) ? (__uint32_t)(((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))) & 0xff) << 24 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))) & 0xff00) << 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))) & 0xff0000) >> 8 | ((__uint32_t)((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd))) & 0xff000000) >> 24) : __swap32md((dsa + __builtin_offsetof(struct siop_common_xfer, xscmd)))));
   scr = &xfer->resel[0];
   for (j = 0; j < sizeof(load_dsa) / sizeof(load_dsa[0]); j++)
-   scr[j] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((load_dsa[j]))) : __extension__({ __uint32_t __swap32gen_x = ((load_dsa[j])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[0x00000000 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8)))) : __extension__({ __uint32_t __swap32gen_x = ((0x78100000 | ((dsa & 0x000000ff) << 8))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[0x00000008 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 )))) : __extension__({ __uint32_t __swap32gen_x = ((0x78110000 | ( dsa & 0x0000ff00 ))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[0x00000010 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8)))) : __extension__({ __uint32_t __swap32gen_x = ((0x78120000 | ((dsa & 0x00ff0000) >> 8))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[0x00000018 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16)))) : __extension__({ __uint32_t __swap32gen_x = ((0x78130000 | ((dsa & 0xff000000) >> 16))); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[E_ldsa_abs_reselected_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x00000000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[E_ldsa_abs_reselect_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x000001e0)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[E_ldsa_abs_selected_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x00000388)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[E_ldsa_abs_data_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c))) : __extension__({ __uint32_t __swap32gen_x = ((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
-  scr[0x0000005c / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x80000000))) : __extension__({ __uint32_t __swap32gen_x = ((0x80000000)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+   scr[j] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((load_dsa[j]))) : (__builtin_constant_p((load_dsa[j])) ? (__uint32_t)(((__uint32_t)((load_dsa[j])) & 0xff) << 24 | ((__uint32_t)((load_dsa[j])) & 0xff00) << 8 | ((__uint32_t)((load_dsa[j])) & 0xff0000) >> 8 | ((__uint32_t)((load_dsa[j])) & 0xff000000) >> 24) : __swap32md((load_dsa[j]))));
+  scr[0x00000000 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8)))) : (__builtin_constant_p((0x78100000 | ((dsa & 0x000000ff) << 8))) ? (__uint32_t)(((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8))) & 0xff) << 24 | ((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8))) & 0xff00) << 8 | ((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8))) & 0xff0000) >> 8 | ((__uint32_t)((0x78100000 | ((dsa & 0x000000ff) << 8))) & 0xff000000) >> 24) : __swap32md((0x78100000 | ((dsa & 0x000000ff) << 8)))));
+  scr[0x00000008 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 )))) : (__builtin_constant_p((0x78110000 | ( dsa & 0x0000ff00 ))) ? (__uint32_t)(((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 ))) & 0xff) << 24 | ((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 ))) & 0xff00) << 8 | ((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 ))) & 0xff0000) >> 8 | ((__uint32_t)((0x78110000 | ( dsa & 0x0000ff00 ))) & 0xff000000) >> 24) : __swap32md((0x78110000 | ( dsa & 0x0000ff00 )))));
+  scr[0x00000010 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8)))) : (__builtin_constant_p((0x78120000 | ((dsa & 0x00ff0000) >> 8))) ? (__uint32_t)(((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8))) & 0xff) << 24 | ((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8))) & 0xff00) << 8 | ((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8))) & 0xff0000) >> 8 | ((__uint32_t)((0x78120000 | ((dsa & 0x00ff0000) >> 8))) & 0xff000000) >> 24) : __swap32md((0x78120000 | ((dsa & 0x00ff0000) >> 8)))));
+  scr[0x00000018 / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16)))) : (__builtin_constant_p((0x78130000 | ((dsa & 0xff000000) >> 16))) ? (__uint32_t)(((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16))) & 0xff) << 24 | ((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16))) & 0xff00) << 8 | ((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16))) & 0xff0000) >> 8 | ((__uint32_t)((0x78130000 | ((dsa & 0xff000000) >> 16))) & 0xff000000) >> 24) : __swap32md((0x78130000 | ((dsa & 0xff000000) >> 16)))));
+  scr[E_ldsa_abs_reselected_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x00000000)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000000)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x00000000))));
+  scr[E_ldsa_abs_reselect_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x000001e0)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000001e0)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x000001e0))));
+  scr[E_ldsa_abs_selected_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x00000388)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x00000388)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x00000388))));
+  scr[E_ldsa_abs_data_Used[0]] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c))) : (__builtin_constant_p((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)) ? (__uint32_t)(((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)) & 0xff) << 24 | ((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)) & 0xff00) << 8 | ((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)) & 0xff0000) >> 8 | ((__uint32_t)((dsa + sizeof(struct siop_common_xfer) + 0x0000005c)) & 0xff000000) >> 24) : __swap32md((dsa + sizeof(struct siop_common_xfer) + 0x0000005c))));
+  scr[0x0000005c / 4] = (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((0x80000000))) : (__builtin_constant_p((0x80000000)) ? (__uint32_t)(((__uint32_t)((0x80000000)) & 0xff) << 24 | ((__uint32_t)((0x80000000)) & 0xff00) << 8 | ((__uint32_t)((0x80000000)) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000)) & 0xff000000) >> 24) : __swap32md((0x80000000))));
   s = _splraise(5);
   do { (&newcbd->cmds[i])->next.tqe_next = ((void *)0); (&newcbd->cmds[i])->next.tqe_prev = (&sc->free_list)->tqh_last; *(&sc->free_list)->tqh_last = (&newcbd->cmds[i]); (&sc->free_list)->tqh_last = &(&newcbd->cmds[i])->next.tqe_next; } while (0);
   _splx(s);
@@ -4591,10 +4595,10 @@ siop_get_lunsw(sc)
   for (i = 0; i < sizeof(lun_switch) / sizeof(lun_switch[0]);
       i++)
    sc->sc_c.sc_script[sc->script_free_lo + i] =
-       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((lun_switch[i]))) : __extension__({ __uint32_t __swap32gen_x = ((lun_switch[i])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+       (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((lun_switch[i]))) : (__builtin_constant_p((lun_switch[i])) ? (__uint32_t)(((__uint32_t)((lun_switch[i])) & 0xff) << 24 | ((__uint32_t)((lun_switch[i])) & 0xff00) << 8 | ((__uint32_t)((lun_switch[i])) & 0xff0000) >> 8 | ((__uint32_t)((lun_switch[i])) & 0xff000000) >> 24) : __swap32md((lun_switch[i]))));
   sc->sc_c.sc_script[
       sc->script_free_lo + E_abs_lunsw_return_Used[0]] =
-      (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8))) : __extension__({ __uint32_t __swap32gen_x = ((sc->sc_c.sc_scriptaddr + 0x000002b8)); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+      (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8))) : (__builtin_constant_p((sc->sc_c.sc_scriptaddr + 0x000002b8)) ? (__uint32_t)(((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8)) & 0xff) << 24 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8)) & 0xff00) << 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8)) & 0xff0000) >> 8 | ((__uint32_t)((sc->sc_c.sc_scriptaddr + 0x000002b8)) & 0xff000000) >> 24) : __swap32md((sc->sc_c.sc_scriptaddr + 0x000002b8))));
  }
  lunsw->lunsw_off = sc->script_free_lo;
  lunsw->lunsw_size = sizeof(lun_switch) / sizeof(lun_switch[0]);
@@ -4702,7 +4706,7 @@ siop_add_dev(sc, target, lun)
        i < sizeof(tag_switch) / sizeof(tag_switch[0]);
        i++) {
     sc->sc_c.sc_script[sc->script_free_hi + i] =
-        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((tag_switch[i]))) : __extension__({ __uint32_t __swap32gen_x = ((tag_switch[i])); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }));
+        (((&sc->sc_c)->features & 0x00200000) ? ((__uint32_t)((tag_switch[i]))) : (__builtin_constant_p((tag_switch[i])) ? (__uint32_t)(((__uint32_t)((tag_switch[i])) & 0xff) << 24 | ((__uint32_t)((tag_switch[i])) & 0xff00) << 8 | ((__uint32_t)((tag_switch[i])) & 0xff0000) >> 8 | ((__uint32_t)((tag_switch[i])) & 0xff000000) >> 24) : __swap32md((tag_switch[i]))));
    }
   }
   siop_script_write(sc,

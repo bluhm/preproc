@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -4154,7 +4158,7 @@ nvme_poll(struct nvme_softc *sc, struct nvme_queue *q, struct nvme_ccb *ccb,
  ccb->ccb_done = nvme_poll_done;
  ccb->ccb_cookie = &state;
  nvme_q_submit(sc, q, ccb, nvme_poll_fill);
- while (!((state.c.flags) & (__extension__({ __uint16_t __swap16gen_x = ((1 << 0)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })))) {
+ while (!((state.c.flags) & ((__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))))) {
   if (nvme_q_complete(sc, q) == 0)
    delay(10);
  }
@@ -4175,7 +4179,7 @@ nvme_poll_done(struct nvme_softc *sc, struct nvme_ccb *ccb,
     struct nvme_cqe *cqe)
 {
  struct nvme_poll_state *state = ccb->ccb_cookie;
- ((cqe->flags) |= (__extension__({ __uint16_t __swap16gen_x = ((1 << 0)); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })));
+ ((cqe->flags) |= ((__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))));
  state->c = *cqe;
 }
 void

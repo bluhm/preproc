@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -3004,7 +3008,7 @@ qlw_swap16(struct qlw_softc *sc, u_int16_t value)
  if (sc->sc_isp_gen == QLW_GEN_ISP1000)
   return ((__uint16_t)(value));
  else
-  return __extension__({ __uint16_t __swap16gen_x = (value); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  return (__builtin_constant_p(value) ? (__uint16_t)(((__uint16_t)(value) & 0xffU) << 8 | ((__uint16_t)(value) & 0xff00U) >> 8) : __swap16md(value));
 }
 static inline u_int32_t
 qlw_swap32(struct qlw_softc *sc, u_int32_t value)
@@ -3012,7 +3016,7 @@ qlw_swap32(struct qlw_softc *sc, u_int32_t value)
  if (sc->sc_isp_gen == QLW_GEN_ISP1000)
   return ((__uint32_t)(value));
  else
-  return __extension__({ __uint32_t __swap32gen_x = (value); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); });
+  return (__builtin_constant_p(value) ? (__uint32_t)(((__uint32_t)(value) & 0xff) << 24 | ((__uint32_t)(value) & 0xff00) << 8 | ((__uint32_t)(value) & 0xff0000) >> 8 | ((__uint32_t)(value) & 0xff000000) >> 24) : __swap32md(value));
 }
 static inline u_int16_t
 qlw_queue_read(struct qlw_softc *sc, bus_size_t offset)
@@ -4078,7 +4082,7 @@ qlw_read_nvram(struct qlw_softc *sc)
   qlw_write(sc, 0x0e, 0);
   delay(10);
   qlw_read(sc, 0x0e);
-  data[i] = __extension__({ __uint16_t __swap16gen_x = (val); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+  data[i] = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
  }
  csum = 0;
  for (i = 0; i < (sc->sc_nvram_size >> 1); i++) {
@@ -4107,8 +4111,8 @@ qlw_parse_nvram_1040(struct qlw_softc *sc, int bus)
  sc->sc_retry_delay[0] = nv->retry_delay;
  sc->sc_reset_delay[0] = nv->reset_delay;
  sc->sc_tag_age_limit[0] = nv->tag_age_limit;
- sc->sc_selection_timeout[0] = __extension__({ __uint16_t __swap16gen_x = (nv->selection_timeout); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_max_queue_depth[0] = __extension__({ __uint16_t __swap16gen_x = (nv->max_queue_depth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ sc->sc_selection_timeout[0] = (__builtin_constant_p(nv->selection_timeout) ? (__uint16_t)(((__uint16_t)(nv->selection_timeout) & 0xffU) << 8 | ((__uint16_t)(nv->selection_timeout) & 0xff00U) >> 8) : __swap16md(nv->selection_timeout));
+ sc->sc_max_queue_depth[0] = (__builtin_constant_p(nv->max_queue_depth) ? (__uint16_t)(((__uint16_t)(nv->max_queue_depth) & 0xffU) << 8 | ((__uint16_t)(nv->max_queue_depth) & 0xff00U) >> 8) : __swap16md(nv->max_queue_depth));
  sc->sc_async_data_setup[0] = (nv->config2 & 0x0f);
  sc->sc_req_ack_active_neg[0] = ((nv->config2 & 0x10) >> 4);
  sc->sc_data_line_active_neg[0] = ((nv->config2 & 0x20) >> 5);
@@ -4133,8 +4137,8 @@ qlw_parse_nvram_1080(struct qlw_softc *sc, int bus)
  sc->sc_retry_count[bus] = nv->retry_count;
  sc->sc_retry_delay[bus] = nv->retry_delay;
  sc->sc_reset_delay[bus] = nv->reset_delay;
- sc->sc_selection_timeout[bus] = __extension__({ __uint16_t __swap16gen_x = (nv->selection_timeout); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
- sc->sc_max_queue_depth[bus] = __extension__({ __uint16_t __swap16gen_x = (nv->max_queue_depth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); });
+ sc->sc_selection_timeout[bus] = (__builtin_constant_p(nv->selection_timeout) ? (__uint16_t)(((__uint16_t)(nv->selection_timeout) & 0xffU) << 8 | ((__uint16_t)(nv->selection_timeout) & 0xff00U) >> 8) : __swap16md(nv->selection_timeout));
+ sc->sc_max_queue_depth[bus] = (__builtin_constant_p(nv->max_queue_depth) ? (__uint16_t)(((__uint16_t)(nv->max_queue_depth) & 0xffU) << 8 | ((__uint16_t)(nv->max_queue_depth) & 0xff00U) >> 8) : __swap16md(nv->max_queue_depth));
  sc->sc_async_data_setup[bus] = (nv->config2 & 0x0f);
  sc->sc_req_ack_active_neg[bus] = ((nv->config2 & 0x10) >> 4);
  sc->sc_data_line_active_neg[bus] = ((nv->config2 & 0x20) >> 5);

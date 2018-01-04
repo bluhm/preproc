@@ -126,6 +126,21 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
+static inline __uint16_t
+__swap16md(__uint16_t x)
+{
+ return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
+}
+static inline __uint32_t
+__swap32md(__uint32_t x)
+{
+ return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
+}
+static inline __uint64_t
+__swap64md(__uint64_t x)
+{
+ return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
+}
 typedef unsigned char u_char;
 typedef unsigned short u_short;
 typedef unsigned int u_int;
@@ -180,19 +195,8 @@ typedef __clockid_t clockid_t;
 typedef __pid_t pid_t;
 typedef __size_t size_t;
 typedef __ssize_t ssize_t;
-
-
-
 typedef __time_t time_t;
-
-
-
-
 typedef __timer_t timer_t;
-
-
-
-
 typedef __off_t off_t;
 struct proc;
 struct pgrp;
@@ -15685,32 +15689,32 @@ void rs690_pm_info(struct radeon_device *rdev)
   switch (crev) {
   case 1:
    tmp.full = (u32)(((100) << 12));
-   rdev->pm.igp_sideport_mclk.full = (u32)(((__extension__({ __uint32_t __swap32gen_x = (info->info.ulBootUpMemoryClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) << 12));
+   rdev->pm.igp_sideport_mclk.full = (u32)((((__builtin_constant_p(info->info.ulBootUpMemoryClock) ? (__uint32_t)(((__uint32_t)(info->info.ulBootUpMemoryClock) & 0xff) << 24 | ((__uint32_t)(info->info.ulBootUpMemoryClock) & 0xff00) << 8 | ((__uint32_t)(info->info.ulBootUpMemoryClock) & 0xff0000) >> 8 | ((__uint32_t)(info->info.ulBootUpMemoryClock) & 0xff000000) >> 24) : __swap32md(info->info.ulBootUpMemoryClock))) << 12));
    rdev->pm.igp_sideport_mclk.full = dfixed_div(rdev->pm.igp_sideport_mclk, tmp);
-   if (__extension__({ __uint16_t __swap16gen_x = (info->info.usK8MemoryClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); }))
-    rdev->pm.igp_system_mclk.full = (u32)(((__extension__({ __uint16_t __swap16gen_x = (info->info.usK8MemoryClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) << 12));
+   if ((__builtin_constant_p(info->info.usK8MemoryClock) ? (__uint16_t)(((__uint16_t)(info->info.usK8MemoryClock) & 0xffU) << 8 | ((__uint16_t)(info->info.usK8MemoryClock) & 0xff00U) >> 8) : __swap16md(info->info.usK8MemoryClock)))
+    rdev->pm.igp_system_mclk.full = (u32)((((__builtin_constant_p(info->info.usK8MemoryClock) ? (__uint16_t)(((__uint16_t)(info->info.usK8MemoryClock) & 0xffU) << 8 | ((__uint16_t)(info->info.usK8MemoryClock) & 0xff00U) >> 8) : __swap16md(info->info.usK8MemoryClock))) << 12));
    else if (rdev->clock.default_mclk) {
     rdev->pm.igp_system_mclk.full = (u32)(((rdev->clock.default_mclk) << 12));
     rdev->pm.igp_system_mclk.full = dfixed_div(rdev->pm.igp_system_mclk, tmp);
    } else
     rdev->pm.igp_system_mclk.full = (u32)(((400) << 12));
-   rdev->pm.igp_ht_link_clk.full = (u32)(((__extension__({ __uint16_t __swap16gen_x = (info->info.usFSBClock); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) << 12));
+   rdev->pm.igp_ht_link_clk.full = (u32)((((__builtin_constant_p(info->info.usFSBClock) ? (__uint16_t)(((__uint16_t)(info->info.usFSBClock) & 0xffU) << 8 | ((__uint16_t)(info->info.usFSBClock) & 0xff00U) >> 8) : __swap16md(info->info.usFSBClock))) << 12));
    rdev->pm.igp_ht_link_width.full = (u32)(((info->info.ucHTLinkWidth) << 12));
    break;
   case 2:
    tmp.full = (u32)(((100) << 12));
-   rdev->pm.igp_sideport_mclk.full = (u32)(((__extension__({ __uint32_t __swap32gen_x = (info->info_v2.ulBootUpSidePortClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) << 12));
+   rdev->pm.igp_sideport_mclk.full = (u32)((((__builtin_constant_p(info->info_v2.ulBootUpSidePortClock) ? (__uint32_t)(((__uint32_t)(info->info_v2.ulBootUpSidePortClock) & 0xff) << 24 | ((__uint32_t)(info->info_v2.ulBootUpSidePortClock) & 0xff00) << 8 | ((__uint32_t)(info->info_v2.ulBootUpSidePortClock) & 0xff0000) >> 8 | ((__uint32_t)(info->info_v2.ulBootUpSidePortClock) & 0xff000000) >> 24) : __swap32md(info->info_v2.ulBootUpSidePortClock))) << 12));
    rdev->pm.igp_sideport_mclk.full = dfixed_div(rdev->pm.igp_sideport_mclk, tmp);
-   if (__extension__({ __uint32_t __swap32gen_x = (info->info_v2.ulBootUpUMAClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); }))
-    rdev->pm.igp_system_mclk.full = (u32)(((__extension__({ __uint32_t __swap32gen_x = (info->info_v2.ulBootUpUMAClock); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) << 12));
+   if ((__builtin_constant_p(info->info_v2.ulBootUpUMAClock) ? (__uint32_t)(((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff) << 24 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff00) << 8 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff0000) >> 8 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff000000) >> 24) : __swap32md(info->info_v2.ulBootUpUMAClock)))
+    rdev->pm.igp_system_mclk.full = (u32)((((__builtin_constant_p(info->info_v2.ulBootUpUMAClock) ? (__uint32_t)(((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff) << 24 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff00) << 8 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff0000) >> 8 | ((__uint32_t)(info->info_v2.ulBootUpUMAClock) & 0xff000000) >> 24) : __swap32md(info->info_v2.ulBootUpUMAClock))) << 12));
    else if (rdev->clock.default_mclk)
     rdev->pm.igp_system_mclk.full = (u32)(((rdev->clock.default_mclk) << 12));
    else
     rdev->pm.igp_system_mclk.full = (u32)(((66700) << 12));
    rdev->pm.igp_system_mclk.full = dfixed_div(rdev->pm.igp_system_mclk, tmp);
-   rdev->pm.igp_ht_link_clk.full = (u32)(((__extension__({ __uint32_t __swap32gen_x = (info->info_v2.ulHTLinkFreq); (__uint32_t)((__swap32gen_x & 0xff) << 24 | (__swap32gen_x & 0xff00) << 8 | (__swap32gen_x & 0xff0000) >> 8 | (__swap32gen_x & 0xff000000) >> 24); })) << 12));
+   rdev->pm.igp_ht_link_clk.full = (u32)((((__builtin_constant_p(info->info_v2.ulHTLinkFreq) ? (__uint32_t)(((__uint32_t)(info->info_v2.ulHTLinkFreq) & 0xff) << 24 | ((__uint32_t)(info->info_v2.ulHTLinkFreq) & 0xff00) << 8 | ((__uint32_t)(info->info_v2.ulHTLinkFreq) & 0xff0000) >> 8 | ((__uint32_t)(info->info_v2.ulHTLinkFreq) & 0xff000000) >> 24) : __swap32md(info->info_v2.ulHTLinkFreq))) << 12));
    rdev->pm.igp_ht_link_clk.full = dfixed_div(rdev->pm.igp_ht_link_clk, tmp);
-   rdev->pm.igp_ht_link_width.full = (u32)(((__extension__({ __uint16_t __swap16gen_x = (info->info_v2.usMinHTLinkWidth); (__uint16_t)((__swap16gen_x & 0xff) << 8 | (__swap16gen_x & 0xff00) >> 8); })) << 12));
+   rdev->pm.igp_ht_link_width.full = (u32)((((__builtin_constant_p(info->info_v2.usMinHTLinkWidth) ? (__uint16_t)(((__uint16_t)(info->info_v2.usMinHTLinkWidth) & 0xffU) << 8 | ((__uint16_t)(info->info_v2.usMinHTLinkWidth) & 0xff00U) >> 8) : __swap16md(info->info_v2.usMinHTLinkWidth))) << 12));
    break;
   default:
    rdev->pm.igp_sideport_mclk.full = (u32)(((200) << 12));
