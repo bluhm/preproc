@@ -3735,15 +3735,21 @@ fusefs_mount(struct mount *mp, const char *path, void *data,
  struct fusefs_args *args = data;
  struct vnode *vp;
  struct file *fp;
+ int error = 0;
  if (mp->mnt_flag & 0x00010000)
   return (45);
  if ((fp = fd_getfile(p->p_fd, args->fd)) == ((void *)0))
   return (9);
- if (fp->f_type != 1)
-  return (22);
+ do { (fp)->f_count++; } while (0);
+ if (fp->f_type != 1) {
+  error = 22;
+  goto bad;
+ }
  vp = fp->f_data;
- if (vp->v_type != VCHR)
-  return (9);
+ if (vp->v_type != VCHR) {
+  error = 9;
+  goto bad;
+ }
  fmp = malloc(sizeof(*fmp), 65, 0x0001 | 0x0008);
  fmp->mp = mp;
  fmp->sess_init = 0;
@@ -3764,7 +3770,9 @@ fusefs_mount(struct mount *mp, const char *path, void *data,
  fuse_device_set_fmp(fmp, 1);
  fbuf = fb_setup(0, 0, 19, p);
  fuse_device_queue_fbuf(fmp->dev, fbuf);
- return (0);
+bad:
+ (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
+ return (error);
 }
 int
 fusefs_start(struct mount *mp, int flags, struct proc *p)

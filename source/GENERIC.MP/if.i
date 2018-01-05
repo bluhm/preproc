@@ -2899,7 +2899,6 @@ struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
- struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -2918,7 +2917,6 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
- struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -2959,7 +2957,6 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
-void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -2988,6 +2985,11 @@ ifq_is_oactive(struct ifqueue *ifq)
  return (ifq->ifq_oactive);
 }
 static inline void
+ifq_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
+static inline void
 ifq_restart(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_restart);
@@ -3006,7 +3008,6 @@ int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
 void ifiq_add_data(struct ifiqueue *, struct if_data *);
 void ifiq_barrier(struct ifiqueue *);
 struct rtentry;
-struct timeout;
 struct ifnet;
 struct task;
 struct if_clone {
@@ -3050,9 +3051,9 @@ struct ifnet {
  u_short if_rtlabelid;
  uint8_t if_priority;
  uint8_t if_llprio;
- struct timeout *if_slowtimo;
- struct task *if_watchdogtask;
- struct task *if_linkstatetask;
+ struct timeout if_slowtimo;
+ struct task if_watchdogtask;
+ struct task if_linkstatetask;
  struct srpl if_inputs;
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -5634,13 +5635,13 @@ if_attachsetup(struct ifnet *ifp)
  if_addgroup(ifp, "all");
  if_attachdomain(ifp);
  pfi_attach_ifnet(ifp);
- timeout_set(ifp->if_slowtimo, if_slowtimo, ifp);
+ timeout_set(&ifp->if_slowtimo, if_slowtimo, ifp);
  if_slowtimo(ifp);
  if_idxmap_insert(ifp);
  ((if_get(0) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 435, "if_get(0) == NULL"));
  ifidx = ifp->if_index;
- task_set(ifp->if_watchdogtask, if_watchdog_task, (void *)ifidx);
- task_set(ifp->if_linkstatetask, if_linkstate_task, (void *)ifidx);
+ task_set(&ifp->if_watchdogtask, if_watchdog_task, (void *)ifidx);
+ task_set(&ifp->if_linkstatetask, if_linkstate_task, (void *)ifidx);
  rtm_ifannounce(ifp, 0);
 }
 void
@@ -5775,12 +5776,6 @@ if_attach_common(struct ifnet *ifp)
  do { (ifp->if_detachhooks)->tqh_first = ((void *)0); (ifp->if_detachhooks)->tqh_last = &(ifp->if_detachhooks)->tqh_first; } while (0);
  if (ifp->if_rtrequest == ((void *)0))
   ifp->if_rtrequest = if_rtrequest_dummy;
- ifp->if_slowtimo = malloc(sizeof(*ifp->if_slowtimo), 127,
-     0x0001|0x0008);
- ifp->if_watchdogtask = malloc(sizeof(*ifp->if_watchdogtask),
-     127, 0x0001|0x0008);
- ifp->if_linkstatetask = malloc(sizeof(*ifp->if_linkstatetask),
-     127, 0x0001|0x0008);
  ifp->if_llprio = 3;
  srp_init(&(&ifp->if_inputs)->sl_head);
 }
@@ -5792,7 +5787,7 @@ if_attach_ifq(struct ifnet *ifp, const struct ifq_ops *newops, void *args)
 void
 if_start(struct ifnet *ifp)
 {
- ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 658, "ifp->if_qstart == if_qstart_compat"));
+ ((ifp->if_qstart == if_qstart_compat) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 652, "ifp->if_qstart == if_qstart_compat"));
  if_qstart_compat(&ifp->if_snd);
 }
 void
@@ -5800,7 +5795,7 @@ if_qstart_compat(struct ifqueue *ifq)
 {
  struct ifnet *ifp = ifq->ifq_if;
  int s;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 676);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 670);
  s = _splraise(6);
  (*ifp->if_start)(ifp);
  _splx(s);
@@ -5813,7 +5808,7 @@ if_enqueue(struct ifnet *ifp, struct mbuf *m)
  struct ifqueue *ifq;
  int error;
  if (ifp->if_bridgeport && (m->m_hdr.mh_flags & 0x0010) == 0) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 692);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 686);
   error = bridge_output(ifp, m, ((void *)0), ((void *)0));
   _kernel_unlock();
   return (error);
@@ -5894,7 +5889,7 @@ if_ih_insert(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 816, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 810, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie) {
    ifih->ifih_refcnt++;
@@ -5927,12 +5922,12 @@ if_ih_remove(struct ifnet *ifp, int (*input)(struct ifnet *, struct mbuf *,
     void *), void *cookie)
 {
  struct ifih *ifih;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 860, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 854, "_kernel_lock_held()"));
  for ((ifih) = srp_get_locked(&(&ifp->if_inputs)->sl_head); (ifih) != ((void *)0); (ifih) = srp_get_locked(&((ifih))->ifih_next.se_next)) {
   if (ifih->ifih_input == input && ifih->ifih_cookie == cookie)
    break;
  }
- ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 867, "ifih != NULL"));
+ ((ifih != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 861, "ifih != NULL"));
  if (--ifih->ifih_refcnt == 0) {
   do { struct srp *ref; struct ifih *c, *n; ref = &(&ifp->if_inputs)->sl_head; while ((c = srp_get_locked(ref)) != (ifih)) ref = &c->ifih_next.se_next; n = srp_get_locked(&(c)->ifih_next.se_next); if (n != ((void *)0)) (&ifih_rc)->srpl_ref(&(&ifih_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&ifih_rc)->srpl_gc, ref, n); srp_update_locked(&(&ifih_rc)->srpl_gc, &c->ifih_next.se_next, ((void *)0)); } while (0);
   refcnt_finalize(&ifih->ifih_srpcnt, "ifihrm");
@@ -5968,7 +5963,7 @@ void
 if_netisr(void *unused)
 {
  int n, t = 0;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 929);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 923);
  do { _rw_enter_write(&netlock ); } while (0);
  while ((n = netisr) != 0) {
   if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) {
@@ -6024,9 +6019,9 @@ if_detach(struct ifnet *ifp)
  ifp->if_qstart = if_detached_qstart;
  ifp->if_ioctl = if_detached_ioctl;
  ifp->if_watchdog = ((void *)0);
- timeout_del(ifp->if_slowtimo);
- task_del(net_tq(ifp->if_index), ifp->if_watchdogtask);
- task_del(net_tq(ifp->if_index), ifp->if_linkstatetask);
+ timeout_del(&ifp->if_slowtimo);
+ task_del(net_tq(ifp->if_index), &ifp->if_watchdogtask);
+ task_del(net_tq(ifp->if_index), &ifp->if_linkstatetask);
  bpfdetach(ifp);
  rti_delete(ifp);
  if (ifp->if_index == revarp_ifidx)
@@ -6050,9 +6045,6 @@ if_detach(struct ifnet *ifp)
  free(ifp->if_addrhooks, 127, 0);
  free(ifp->if_linkstatehooks, 127, 0);
  free(ifp->if_detachhooks, 127, 0);
- free(ifp->if_slowtimo, 127, sizeof(*ifp->if_slowtimo));
- free(ifp->if_watchdogtask, 127, sizeof(*ifp->if_watchdogtask));
- free(ifp->if_linkstatetask, 127, sizeof(*ifp->if_linkstatetask));
  for (i = 0; (dp = domains[i]) != ((void *)0); i++) {
   if (dp->dom_ifdetach && ifp->if_afdata[dp->dom_family])
    (*dp->dom_ifdetach)(ifp,
@@ -6244,7 +6236,7 @@ ifa_ifwithaddr(struct sockaddr *addr, u_int rtableid)
  struct ifnet *ifp;
  struct ifaddr *ifa;
  u_int rdomain;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1363, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1353, "_kernel_lock_held()"));
  rdomain = rtable_l2(rtableid);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6263,7 +6255,7 @@ ifa_ifwithdstaddr(struct sockaddr *addr, u_int rdomain)
 {
  struct ifnet *ifp;
  struct ifaddr *ifa;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1389, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1379, "_kernel_lock_held()"));
  rdomain = rtable_l2(rdomain);
  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
   if (ifp->if_data.ifi_rdomain != rdomain)
@@ -6332,9 +6324,9 @@ p2p_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   }
   if (ifa == ((void *)0))
    break;
-  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1475, "ifa == rt->rt_ifa"));
+  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1465, "ifa == rt->rt_ifa"));
   lo0ifp = if_get(rtable_loindex(ifp->if_data.ifi_rdomain));
-  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1478, "lo0ifp != NULL"));
+  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1468, "lo0ifp != NULL"));
   for((lo0ifa) = ((&lo0ifp->if_addrlist)->tqh_first); (lo0ifa) != ((void *)0); (lo0ifa) = ((lo0ifa)->ifa_list.tqe_next)) {
    if (lo0ifa->ifa_addr->sa_family ==
        ifa->ifa_addr->sa_family)
@@ -6390,7 +6382,7 @@ if_linkstate_task(void *xifidx)
 {
  unsigned int ifidx = (unsigned long)xifidx;
  struct ifnet *ifp;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1566);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1556);
  do { _rw_enter_write(&netlock ); } while (0);
  ifp = if_get(ifidx);
  if (ifp != ((void *)0))
@@ -6410,7 +6402,7 @@ if_linkstate(struct ifnet *ifp)
 void
 if_link_state_change(struct ifnet *ifp)
 {
- task_add(net_tq(ifp->if_index), ifp->if_linkstatetask);
+ task_add(net_tq(ifp->if_index), &ifp->if_linkstatetask);
 }
 void
 if_slowtimo(void *arg)
@@ -6419,8 +6411,8 @@ if_slowtimo(void *arg)
  int s = _splraise(6);
  if (ifp->if_watchdog) {
   if (ifp->if_timer > 0 && --ifp->if_timer == 0)
-   task_add(net_tq(ifp->if_index), ifp->if_watchdogtask);
-  timeout_add(ifp->if_slowtimo, hz / 1);
+   task_add(net_tq(ifp->if_index), &ifp->if_watchdogtask);
+  timeout_add(&ifp->if_slowtimo, hz / 1);
  }
  _splx(s);
 }
@@ -6433,7 +6425,7 @@ if_watchdog_task(void *xifidx)
  ifp = if_get(ifidx);
  if (ifp == ((void *)0))
   return;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1627);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1617);
  s = _splraise(6);
  if (ifp->if_watchdog)
   (*ifp->if_watchdog)(ifp);
@@ -6463,7 +6455,7 @@ if_get(unsigned int index)
   map = (struct srp *)(if_map + 1);
   ifp = srp_follow(&sr, &map[index]);
   if (ifp != ((void *)0)) {
-   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1669, "ifp->if_index == index"));
+   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1659, "ifp->if_index == index"));
    if_ref(ifp);
   }
  }

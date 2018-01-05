@@ -3055,8 +3055,8 @@ uipc_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    if (unp->unp_conn == ((void *)0))
     break;
    so2 = unp->unp_conn->unp_socket;
-   (&so2->so_snd)->sb_mbcnt = (&so->so_rcv)->sb_mbcnt;
-   (&so2->so_snd)->sb_cc = (&so->so_rcv)->sb_cc;
+   so2->so_snd.sb_mbcnt = so->so_rcv.sb_mbcnt;
+   so2->so_snd.sb_cc = so->so_rcv.sb_cc;
    sowwakeup(so2);
    break;
   default:

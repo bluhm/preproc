@@ -1525,11 +1525,37 @@ void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
 struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
- struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -1548,7 +1574,6 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
- struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -1589,7 +1614,6 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
-void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -1618,6 +1642,11 @@ ifq_is_oactive(struct ifqueue *ifq)
  return (ifq->ifq_oactive);
 }
 static inline void
+ifq_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
+static inline void
 ifq_restart(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_restart);
@@ -1636,7 +1665,6 @@ int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
 void ifiq_add_data(struct ifiqueue *, struct if_data *);
 void ifiq_barrier(struct ifiqueue *);
 struct rtentry;
-struct timeout;
 struct ifnet;
 struct task;
 struct if_clone {
@@ -1680,9 +1708,9 @@ struct ifnet {
  u_short if_rtlabelid;
  uint8_t if_priority;
  uint8_t if_llprio;
- struct timeout *if_slowtimo;
- struct task *if_watchdogtask;
- struct task *if_linkstatetask;
+ struct timeout if_slowtimo;
+ struct task if_watchdogtask;
+ struct task if_linkstatetask;
  struct srpl if_inputs;
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -3089,33 +3117,6 @@ struct sockaddr_encap {
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_barrier(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);

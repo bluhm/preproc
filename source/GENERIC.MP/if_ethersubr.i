@@ -2485,7 +2485,6 @@ struct ifnet;
 struct ifq_ops;
 struct ifqueue {
  struct ifnet *ifq_if;
- struct taskq *ifq_softnet;
  union {
   void *_ifq_softc;
   struct ifqueue *_ifq_ifqs[1];
@@ -2504,7 +2503,6 @@ struct ifqueue {
  struct mutex ifq_task_mtx;
  struct task_list ifq_task_list;
  void *ifq_serializer;
- struct task ifq_bundle;
  struct task ifq_start;
  struct task ifq_restart;
  unsigned int ifq_maxlen;
@@ -2545,7 +2543,6 @@ void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
 void ifq_destroy(struct ifqueue *);
 void ifq_add_data(struct ifqueue *, struct if_data *);
 int ifq_enqueue(struct ifqueue *, struct mbuf *);
-void ifq_start(struct ifqueue *);
 struct mbuf *ifq_deq_begin(struct ifqueue *);
 void ifq_deq_commit(struct ifqueue *, struct mbuf *);
 void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
@@ -2574,6 +2571,11 @@ ifq_is_oactive(struct ifqueue *ifq)
  return (ifq->ifq_oactive);
 }
 static inline void
+ifq_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
+static inline void
 ifq_restart(struct ifqueue *ifq)
 {
  ifq_serialize(ifq, &ifq->ifq_restart);
@@ -2592,7 +2594,6 @@ int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
 void ifiq_add_data(struct ifiqueue *, struct if_data *);
 void ifiq_barrier(struct ifiqueue *);
 struct rtentry;
-struct timeout;
 struct ifnet;
 struct task;
 struct if_clone {
@@ -2636,9 +2637,9 @@ struct ifnet {
  u_short if_rtlabelid;
  uint8_t if_priority;
  uint8_t if_llprio;
- struct timeout *if_slowtimo;
- struct task *if_watchdogtask;
- struct task *if_linkstatetask;
+ struct timeout if_slowtimo;
+ struct task if_watchdogtask;
+ struct task if_linkstatetask;
  struct srpl if_inputs;
  int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
@@ -3768,8 +3769,6 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
  struct ether_header *eh;
  struct niqueue *inq;
  u_int16_t etype;
- int llcfound = 0;
- struct llc *l;
  struct arpcom *ac;
  struct ether_header *eh_tmp;
  if (m->m_hdr.mh_len < ((6 * 2) + 2))
@@ -3801,7 +3800,6 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
   }
  }
  etype = ((__uint16_t)(eh->ether_type));
-decapsulate:
  switch (etype) {
  case 0x0800:
   ipv4_input(ifp, m);
@@ -3845,28 +3843,7 @@ decapsulate:
   mpls_input(m);
   return (1);
  default:
-  if (llcfound || etype > (1518 - ((6 * 2) + 2) - 4) ||
-      m->m_hdr.mh_len < sizeof(struct llc))
-   goto dropanyway;
-  llcfound = 1;
-  l = ((struct llc *)((m)->m_hdr.mh_data));
-  switch (l->llc_dsap) {
-  case 0xaa:
-   if (l->llc_un.type_u.control == 0x3 &&
-       l->llc_dsap == 0xaa &&
-       l->llc_ssap == 0xaa) {
-    if (m->M_dat.MH.MH_pkthdr.len > etype)
-     m_adj(m, etype - m->M_dat.MH.MH_pkthdr.len);
-    m_adj(m, 6);
-    (m) = m_prepend((m), (sizeof(*eh)), (0x0002));
-    if (m == ((void *)0))
-     return (1);
-    *((struct ether_header *)((m)->m_hdr.mh_data)) = *eh;
-    goto decapsulate;
-   }
-  default:
-   goto dropanyway;
-  }
+  goto dropanyway;
  }
  niq_enqueue(inq, m);
  return (1);
@@ -3928,7 +3905,7 @@ ether_ifdetach(struct ifnet *ifp)
  struct ether_multi *enm;
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 560, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 535, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  for (enm = ((&ac->ac_multiaddrs)->lh_first);
      enm != ((void *)0);
      enm = ((&ac->ac_multiaddrs)->lh_first)) {
