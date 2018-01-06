@@ -974,6 +974,7 @@ typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
 extern const char *panicstr;
+extern const char *faultstr;
 extern const char version[];
 extern const char copyright[];
 extern const char ostype[];
@@ -2900,7 +2901,6 @@ struct v4l2_decoder_cmd {
   } raw;
  };
 };
-
 struct v4l2_vbi_format {
  u_int32_t sampling_rate;
  u_int32_t offset;

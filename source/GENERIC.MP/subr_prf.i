@@ -974,6 +974,7 @@ typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
 extern const char *panicstr;
+extern const char *faultstr;
 extern const char version[];
 extern const char copyright[];
 extern const char ostype[];
@@ -2849,6 +2850,7 @@ struct mutex kprintf_mutex =
     { ((void *)0), ((((15)) > 0 && ((15)) < 12) ? 12 : ((15))), 0 };
 extern int log_open;
 const char *panicstr;
+const char *faultstr;
 int db_panic = 1;
 int db_console = 0;
 int db_is_active;

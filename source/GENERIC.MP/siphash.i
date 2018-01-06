@@ -974,6 +974,7 @@ typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
 extern const char *panicstr;
+extern const char *faultstr;
 extern const char version[];
 extern const char copyright[];
 extern const char ostype[];
@@ -1286,7 +1287,7 @@ SipHash_Update(SIPHASH_CTX *ctx, int rc, int rf, const void *src, size_t len)
   ptr += sizeof(ctx->buf);
  }
  if (len > 0)
-  __builtin_memcpy((&ctx->buf[used]), (ptr), (len));
+  __builtin_memcpy((ctx->buf), (ptr), (len));
 }
 void
 SipHash_Final(void *dst, SIPHASH_CTX *ctx, int rc, int rf)

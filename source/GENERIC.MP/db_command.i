@@ -974,6 +974,7 @@ typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
 extern const char *panicstr;
+extern const char *faultstr;
 extern const char version[];
 extern const char copyright[];
 extern const char ostype[];
@@ -3226,6 +3227,17 @@ void db_elf_sym_forall(db_forall_func_t db_forall_func, void *);
 _Bool db_dwarf_line_at_pc(const char *, size_t, uintptr_t,
     const char **, const char **, int *);
 int db_ctf_func_numargs(Elf64_Sym *);
+extern int db_radix;
+extern int db_max_width;
+extern int db_tab_stop_width;
+extern int db_max_line;
+extern int db_panic;
+extern int db_console;
+extern int db_log;
+extern int db_is_active;
+extern int db_profile;
+int ddb_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+         struct proc *);
 struct db_variable {
  char *name;
  long *valuep;
@@ -3603,6 +3615,11 @@ db_show_panic_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
 {
  if (panicstr)
   db_printf("%s\n", panicstr);
+ else if (faultstr) {
+  db_printf("kernel page fault\n");
+  db_printf("%s\n", faultstr);
+  db_stack_trace_print(addr, have_addr, 1, modif, db_printf);
+ }
  else
   db_printf("the kernel did not panic\n");
 }
