@@ -3806,6 +3806,13 @@ vldcp_rx_intr(void *arg)
   switch (rx_state) {
   case 0:
    ;
+   if (rx_head == rx_tail)
+    break;
+   ;
+   err = hv_ldc_rx_set_qhead(lc->lc_id, rx_tail);
+   if (err == 0)
+    break;
+   printf("%s: hv_ldc_rx_set_qhead %d\n", __func__, err);
    break;
   case 1:
    ;

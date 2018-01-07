@@ -3482,26 +3482,18 @@ struct msk_status_desc {
  u_int8_t sk_link;
  u_int8_t sk_opcode;
 } __attribute__((__packed__));
-struct sk_chain {
- void *sk_le;
- struct mbuf *sk_mbuf;
- struct sk_chain *sk_next;
-};
-struct sk_txmap_entry {
- bus_dmamap_t dmamap;
- struct { struct sk_txmap_entry *sqe_next; } link;
-};
 struct msk_chain_data {
+ struct mbuf *sk_rx_mbuf[512];
+ bus_dmamap_t sk_rx_maps[512];
+ struct mbuf *sk_tx_mbuf[512];
+ bus_dmamap_t sk_tx_maps[512];
  struct if_rxring sk_rx_ring;
- struct sk_chain sk_tx_chain[512];
- struct sk_chain sk_rx_chain[512];
- struct sk_txmap_entry *sk_tx_map[512];
- bus_dmamap_t sk_rx_map[512];
- int sk_tx_prod;
- int sk_tx_cons;
- int sk_tx_cnt;
- int sk_rx_prod;
- int sk_rx_cons;
+ unsigned int sk_tx_prod;
+ unsigned int sk_tx_cons;
+ uint32_t sk_tx_hiaddr;
+ unsigned int sk_rx_prod;
+ unsigned int sk_rx_cons;
+ uint32_t sk_rx_hiaddr;
 };
 struct msk_ring_data {
  struct msk_tx_desc sk_tx_ring[512];
@@ -3540,10 +3532,10 @@ struct sk_if_softc {
  u_int32_t sk_rx_ramend;
  u_int32_t sk_tx_ramstart;
  u_int32_t sk_tx_ramend;
- u_int32_t sk_tx_hiaddr;
  int sk_pktlen;
  int sk_link;
  struct timeout sk_tick_ch;
+ struct timeout sk_tick_rx;
  struct msk_chain_data sk_cdata;
  struct msk_ring_data *sk_rdata;
  bus_dmamap_t sk_ring_map;
@@ -3572,10 +3564,10 @@ void msk_reset(struct sk_if_softc *);
 int mskcprint(void *, const char *);
 int msk_intr(void *);
 void msk_intr_yukon(struct sk_if_softc *);
-static __inline int msk_rxvalid(struct sk_softc *, u_int32_t, u_int32_t);
-void msk_rxeof(struct sk_if_softc *, u_int16_t, u_int32_t);
+static inline int msk_rxvalid(struct sk_softc *, u_int32_t, u_int32_t);
+void msk_rxeof(struct sk_if_softc *, uint16_t, uint32_t);
 void msk_txeof(struct sk_if_softc *);
-int msk_encap(struct sk_if_softc *, struct mbuf *, u_int32_t *);
+static unsigned int msk_encap(struct sk_if_softc *, struct mbuf *, uint32_t);
 void msk_start(struct ifnet *);
 int msk_ioctl(struct ifnet *, u_long, caddr_t);
 void msk_init(void *);
@@ -3584,7 +3576,7 @@ void msk_stop(struct sk_if_softc *, int);
 void msk_watchdog(struct ifnet *);
 int msk_ifmedia_upd(struct ifnet *);
 void msk_ifmedia_sts(struct ifnet *, struct ifmediareq *);
-int msk_newbuf(struct sk_if_softc *);
+static int msk_newbuf(struct sk_if_softc *);
 int msk_init_rx_ring(struct sk_if_softc *);
 int msk_init_tx_ring(struct sk_if_softc *);
 void msk_fill_rx_ring(struct sk_if_softc *);
@@ -3593,6 +3585,7 @@ void msk_miibus_writereg(struct device *, int, int, int);
 void msk_miibus_statchg(struct device *);
 void msk_iff(struct sk_if_softc *);
 void msk_tick(void *);
+void msk_fill_rx_tick(void *);
 const struct pci_matchid mskc_devices[] = {
  { 0x1186, 0x4001 },
  { 0x1186, 0x4b03 },
@@ -3781,21 +3774,16 @@ msk_iff(struct sk_if_softc *sc_if)
 int
 msk_init_rx_ring(struct sk_if_softc *sc_if)
 {
- struct msk_chain_data *cd = &sc_if->sk_cdata;
  struct msk_ring_data *rd = sc_if->sk_rdata;
- int i, nexti;
- __builtin_bzero((rd->sk_rx_ring), (sizeof(struct msk_rx_desc) * 512));
- for (i = 0; i < 512; i++) {
-  cd->sk_rx_chain[i].sk_le = &rd->sk_rx_ring[i];
-  if (i == (512 - 1))
-   nexti = 0;
-  else
-   nexti = i + 1;
-  cd->sk_rx_chain[i].sk_next = &cd->sk_rx_chain[nexti];
- }
- sc_if->sk_cdata.sk_rx_prod = 0;
+ struct msk_rx_desc *r;
+ __builtin_memset((rd->sk_rx_ring), (0), (sizeof(struct msk_rx_desc) * 512));
+ r = &rd->sk_rx_ring[0];
+ r->sk_addr = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ r->sk_opcode = 0x80 | 0x21;
+ sc_if->sk_cdata.sk_rx_prod = 1;
  sc_if->sk_cdata.sk_rx_cons = 0;
- if_rxr_init(&sc_if->sk_cdata.sk_rx_ring, 2, 512/2);
+ sc_if->sk_cdata.sk_rx_hiaddr = 0;
+ if_rxr_init(&sc_if->sk_cdata.sk_rx_ring, 2, (512/2) - 1);
  msk_fill_rx_ring(sc_if);
  return (0);
 }
@@ -3803,104 +3791,74 @@ int
 msk_init_tx_ring(struct sk_if_softc *sc_if)
 {
  struct sk_softc *sc = sc_if->sk_softc;
- struct msk_chain_data *cd = &sc_if->sk_cdata;
  struct msk_ring_data *rd = sc_if->sk_rdata;
- bus_dmamap_t dmamap;
- struct sk_txmap_entry *entry;
- int i, nexti;
- __builtin_bzero((sc_if->sk_rdata->sk_tx_ring), (sizeof(struct msk_tx_desc) * 512));
- do { (&sc_if->sk_txmap_head)->sqh_first = ((void *)0); (&sc_if->sk_txmap_head)->sqh_last = &(&sc_if->sk_txmap_head)->sqh_first; } while (0);
+ struct msk_tx_desc *t;
+ int i;
+ __builtin_memset((rd->sk_tx_ring), (0), (sizeof(struct msk_tx_desc) * 512));
  for (i = 0; i < 512; i++) {
-  cd->sk_tx_chain[i].sk_le = &rd->sk_tx_ring[i];
-  if (i == (512 - 1))
-   nexti = 0;
-  else
-   nexti = i + 1;
-  cd->sk_tx_chain[i].sk_next = &cd->sk_tx_chain[nexti];
   if (bus_dmamap_create(sc->sc_dmatag, sc_if->sk_pktlen,
-      30, sc_if->sk_pktlen, 0, 0x0001, &dmamap))
+      30, sc_if->sk_pktlen, 0,
+      0x0001 | 0x0002 | 0x2000,
+      &sc_if->sk_cdata.sk_tx_maps[i]))
    return (55);
-  entry = malloc(sizeof(*entry), 2, 0x0002);
-  if (!entry) {
-   bus_dmamap_destroy(sc->sc_dmatag, dmamap);
-   return (55);
-  }
-  entry->dmamap = dmamap;
-  do { if (((entry)->link.sqe_next = (&sc_if->sk_txmap_head)->sqh_first) == ((void *)0)) (&sc_if->sk_txmap_head)->sqh_last = &(entry)->link.sqe_next; (&sc_if->sk_txmap_head)->sqh_first = (entry); } while (0);
  }
- sc_if->sk_cdata.sk_tx_prod = 0;
+ t = &rd->sk_tx_ring[0];
+ t->sk_addr = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ t->sk_opcode = 0x80 | 0x21;
+ sc_if->sk_cdata.sk_tx_prod = 1;
  sc_if->sk_cdata.sk_tx_cons = 0;
- sc_if->sk_cdata.sk_tx_cnt = 0;
- do { int __x, __n; __x = (0); __n = (512); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x01|0x04)); } while ( 0);
+ sc_if->sk_cdata.sk_tx_hiaddr = 0;
+ do { int __x, __n; __x = (0); __n = (512); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x04)); } while ( 0);
  return (0);
 }
-int
+static int
 msk_newbuf(struct sk_if_softc *sc_if)
 {
- struct sk_chain *c;
+ struct msk_ring_data *rd = sc_if->sk_rdata;
  struct msk_rx_desc *r;
  struct mbuf *m;
- bus_dmamap_t dmamap;
- int error;
- int i, head;
+ bus_dmamap_t map;
  uint64_t addr;
- m = m_clget((((void *)0)), (0x0002), (sc_if->sk_pktlen));
+ uint32_t prod, head;
+ uint32_t hiaddr;
+ unsigned int pktlen = sc_if->sk_pktlen + 2;
+ m = m_clget((((void *)0)), (0x0002), (pktlen));
  if (m == ((void *)0))
   return (0);
- m->m_hdr.mh_len = m->M_dat.MH.MH_pkthdr.len = sc_if->sk_pktlen;
+ m->m_hdr.mh_len = m->M_dat.MH.MH_pkthdr.len = pktlen;
  m_adj(m, 2);
- dmamap = sc_if->sk_cdata.sk_rx_map[sc_if->sk_cdata.sk_rx_prod];
- error = bus_dmamap_load_mbuf(sc_if->sk_softc->sc_dmatag, dmamap, m,
-     0x0200|0x0001);
- if (error) {
+ prod = sc_if->sk_cdata.sk_rx_prod;
+ map = sc_if->sk_cdata.sk_rx_maps[prod];
+ if (bus_dmamap_load_mbuf(sc_if->sk_softc->sc_dmatag, map, m,
+     0x0200|0x0001) != 0) {
   m_freem(m);
   return (0);
  }
- bus_dmamap_sync(sc_if->sk_softc->sc_dmatag, dmamap, 0,
-     dmamap->dm_mapsize, 0x01);
- c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
- head = sc_if->sk_cdata.sk_rx_prod;
- r = c->sk_le;
- c->sk_mbuf = m;
- addr = dmamap->dm_segs[0].ds_addr;
- r->sk_addr = (__builtin_constant_p(addr >> 32) ? (__uint32_t)(((__uint32_t)(addr >> 32) & 0xff) << 24 | ((__uint32_t)(addr >> 32) & 0xff00) << 8 | ((__uint32_t)(addr >> 32) & 0xff0000) >> 8 | ((__uint32_t)(addr >> 32) & 0xff000000) >> 24) : __swap32md(addr >> 32));
- do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
- (sc_if->sk_cdata.sk_rx_prod) = (sc_if->sk_cdata.sk_rx_prod + 1) % 512;
- c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
- r = c->sk_le;
- r->sk_addr = (__builtin_constant_p(addr & 0xffffffff) ? (__uint32_t)(((__uint32_t)(addr & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(addr & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff000000) >> 24) : __swap32md(addr & 0xffffffff));
- r->sk_len = (__builtin_constant_p(dmamap->dm_segs[0].ds_len) ? (__uint16_t)(((__uint16_t)(dmamap->dm_segs[0].ds_len) & 0xffU) << 8 | ((__uint16_t)(dmamap->dm_segs[0].ds_len) & 0xff00U) >> 8) : __swap16md(dmamap->dm_segs[0].ds_len));
- r->sk_ctl = 0;
- do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
- r->sk_opcode = 0x41 | 0x80;
- do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04|0x01)); } while ( 0);
- (sc_if->sk_cdata.sk_rx_prod) = (sc_if->sk_cdata.sk_rx_prod + 1) % 512;
- for (i = 1; i < dmamap->dm_nsegs; i++) {
-  c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
-  r = c->sk_le;
-  c->sk_mbuf = ((void *)0);
-  addr = dmamap->dm_segs[i].ds_addr;
-  r->sk_addr = (__builtin_constant_p(addr >> 32) ? (__uint32_t)(((__uint32_t)(addr >> 32) & 0xff) << 24 | ((__uint32_t)(addr >> 32) & 0xff00) << 8 | ((__uint32_t)(addr >> 32) & 0xff0000) >> 8 | ((__uint32_t)(addr >> 32) & 0xff000000) >> 24) : __swap32md(addr >> 32));
-  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
-  r->sk_opcode = 0x21 | 0x80;
-  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04|0x01)); } while ( 0);
-  (sc_if->sk_cdata.sk_rx_prod) = (sc_if->sk_cdata.sk_rx_prod + 1) % 512;
-  c = &sc_if->sk_cdata.sk_rx_chain[sc_if->sk_cdata.sk_rx_prod];
-  c->sk_mbuf = ((void *)0);
-  r = c->sk_le;
-  r->sk_addr = (__builtin_constant_p(addr & 0xffffffff) ? (__uint32_t)(((__uint32_t)(addr & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(addr & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(addr & 0xffffffff) & 0xff000000) >> 24) : __swap32md(addr & 0xffffffff));
-  r->sk_len = (__builtin_constant_p(dmamap->dm_segs[i].ds_len) ? (__uint16_t)(((__uint16_t)(dmamap->dm_segs[i].ds_len) & 0xffU) << 8 | ((__uint16_t)(dmamap->dm_segs[i].ds_len) & 0xff00U) >> 8) : __swap16md(dmamap->dm_segs[i].ds_len));
+ bus_dmamap_sync(sc_if->sk_softc->sc_dmatag, map, 0,
+     map->dm_mapsize, 0x01);
+ head = prod;
+ addr = map->dm_segs[0].ds_addr;
+ hiaddr = addr >> 32;
+ if (sc_if->sk_cdata.sk_rx_hiaddr != hiaddr) {
+  r = &rd->sk_rx_ring[prod];
+  __swapm32((&r->sk_addr), (hiaddr));
+  r->sk_len = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
   r->sk_ctl = 0;
-  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
-  r->sk_opcode = 0x40 | 0x80;
-  do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((sc_if->sk_cdata.sk_rx_prod))]), sizeof(struct msk_rx_desc), (0x04|0x01)); } while ( 0);
-  (sc_if->sk_cdata.sk_rx_prod) = (sc_if->sk_cdata.sk_rx_prod + 1) % 512;
+  r->sk_opcode = 0x80 | 0x21;
+  sc_if->sk_cdata.sk_rx_hiaddr = hiaddr;
+  (prod) = (prod + 1) % 512;
  }
- c = &sc_if->sk_cdata.sk_rx_chain[head];
- r = c->sk_le;
- r->sk_opcode = 0x21 | 0x80;
- do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((head))]), sizeof(struct msk_rx_desc), (0x04|0x01)); } while ( 0);
- return (dmamap->dm_nsegs);
+ r = &rd->sk_rx_ring[prod];
+ __swapm32((&r->sk_addr), (addr));
+ __swapm16((&r->sk_len), (map->dm_segs[0].ds_len));
+ r->sk_ctl = 0;
+ r->sk_opcode = 0x80 | 0x41;
+ sc_if->sk_cdata.sk_rx_maps[head] = sc_if->sk_cdata.sk_rx_maps[prod];
+ sc_if->sk_cdata.sk_rx_maps[prod] = map;
+ sc_if->sk_cdata.sk_rx_mbuf[prod] = m;
+ (prod) = (prod + 1) % 512;
+ sc_if->sk_cdata.sk_rx_prod = prod;
+ return (1);
 }
 int
 msk_ifmedia_upd(struct ifnet *ifp)
@@ -4154,7 +4112,8 @@ msk_attach(struct device *parent, struct device *self, void *aux)
   goto fail_1;
  }
  if (bus_dmamap_create(sc->sc_dmatag, sizeof(struct msk_ring_data), 1,
-     sizeof(struct msk_ring_data), 0, 0x0001,
+     sizeof(struct msk_ring_data), 0,
+     0x0001 | 0x0002 | 0x2000,
             &sc_if->sk_ring_map)) {
   printf(": can't create dma map\n");
   goto fail_2;
@@ -4172,8 +4131,9 @@ msk_attach(struct device *parent, struct device *self, void *aux)
   sc_if->sk_pktlen = (1 << 11);
  for (i = 0; i < 512; i++) {
   if ((error = bus_dmamap_create(sc->sc_dmatag,
-      sc_if->sk_pktlen, 4, sc_if->sk_pktlen,
-      0, 0, &sc_if->sk_cdata.sk_rx_map[i])) != 0) {
+      sc_if->sk_pktlen, 1, sc_if->sk_pktlen, 0,
+      0x0001 | 0x0002 | 0x2000,
+      &sc_if->sk_cdata.sk_rx_maps[i])) != 0) {
    printf("\n%s: unable to create rx DMA map %d, "
        "error = %d\n", sc->sk_dev.dv_xname, i, error);
    goto fail_4;
@@ -4213,15 +4173,16 @@ msk_attach(struct device *parent, struct device *self, void *aux)
  } else
   ifmedia_set(&sc_if->sk_mii.mii_media, 0x0000000000000100ULL|0ULL);
  timeout_set(&sc_if->sk_tick_ch, msk_tick, sc_if);
+ timeout_set(&sc_if->sk_tick_rx, msk_fill_rx_tick, sc_if);
  if_attach(ifp);
  ether_ifattach(ifp);
  ;
  return;
 fail_4:
  for (i = 0; i < 512; i++) {
-  if (sc_if->sk_cdata.sk_rx_map[i] != ((void *)0))
+  if (sc_if->sk_cdata.sk_rx_maps[i] != ((void *)0))
    bus_dmamap_destroy(sc->sc_dmatag,
-       sc_if->sk_cdata.sk_rx_map[i]);
+       sc_if->sk_cdata.sk_rx_maps[i]);
  }
 fail_3:
  bus_dmamap_destroy(sc->sc_dmatag, sc_if->sk_ring_map);
@@ -4353,7 +4314,8 @@ mskc_attach(struct device *parent, struct device *self, void *aux)
  if (bus_dmamap_create(sc->sc_dmatag,
      2048 * sizeof(struct msk_status_desc), 1,
      2048 * sizeof(struct msk_status_desc), 0,
-     0x0001, &sc->sk_status_map)) {
+     0x0001 | 0x0002 | 0x2000,
+     &sc->sk_status_map)) {
   printf(": can't create dma map\n");
   goto fail_4;
  }
@@ -4587,104 +4549,101 @@ mskc_activate(struct device *self, int act)
  }
  return (rv);
 }
-int
-msk_encap(struct sk_if_softc *sc_if, struct mbuf *m_head, u_int32_t *txidx)
+static unsigned int
+msk_encap(struct sk_if_softc *sc_if, struct mbuf *m, uint32_t prod)
 {
  struct sk_softc *sc = sc_if->sk_softc;
- struct msk_tx_desc *f = ((void *)0);
- u_int32_t frag, cur;
- int i, entries = 0;
- struct sk_txmap_entry *entry;
- bus_dmamap_t txmap;
+ struct msk_ring_data *rd = sc_if->sk_rdata;
+ struct msk_tx_desc *t;
+ bus_dmamap_t map;
  uint64_t addr;
  uint32_t hiaddr;
+ uint32_t next, last;
  uint8_t opcode;
- ;
- entry = ((&sc_if->sk_txmap_head)->sqh_first);
- if (entry == ((void *)0)) {
-  ;
-  return (55);
- }
- txmap = entry->dmamap;
- cur = frag = *txidx;
- switch (bus_dmamap_load_mbuf(sc->sc_dmatag, txmap, m_head,
+ unsigned int entries = 0;
+ int i;
+ map = sc_if->sk_cdata.sk_tx_maps[prod];
+ switch (bus_dmamap_load_mbuf(sc->sc_dmatag, map, m,
      0x0100 | 0x0001)) {
  case 0:
   break;
  case 27:
-  if (m_defrag(m_head, 0x0002) == 0 &&
-      bus_dmamap_load_mbuf(sc->sc_dmatag, txmap, m_head,
+  if (m_defrag(m, 0x0002) == 0 &&
+      bus_dmamap_load_mbuf(sc->sc_dmatag, map, m,
       0x0100 | 0x0001) == 0)
    break;
  default:
-  return (1);
+  return (0);
  }
- bus_dmamap_sync(sc->sc_dmatag, txmap, 0, txmap->dm_mapsize,
+ bus_dmamap_sync(sc->sc_dmatag, map, 0, map->dm_mapsize,
      0x04);
- opcode = 0;
- for (i = 0; i < txmap->dm_nsegs; i++) {
-  addr = txmap->dm_segs[i].ds_addr;
+ opcode = 0x80 | 0x41;
+ next = prod;
+ for (i = 0; i < map->dm_nsegs; i++) {
+  addr = map->dm_segs[i].ds_addr;
   hiaddr = addr >> 32;
-  if (sc_if->sk_tx_hiaddr != hiaddr) {
-   f = &sc_if->sk_rdata->sk_tx_ring[frag];
-   f->sk_addr = (__builtin_constant_p(hiaddr) ? (__uint32_t)(((__uint32_t)(hiaddr) & 0xff) << 24 | ((__uint32_t)(hiaddr) & 0xff00) << 8 | ((__uint32_t)(hiaddr) & 0xff0000) >> 8 | ((__uint32_t)(hiaddr) & 0xff000000) >> 24) : __swap32md(hiaddr));
-   f->sk_opcode = opcode | 0x21;
-   sc_if->sk_tx_hiaddr = hiaddr;
-   (frag) = (frag + 1) % 512;
-   opcode = 0x80;
+  if (sc_if->sk_cdata.sk_tx_hiaddr != hiaddr) {
+   t = &rd->sk_tx_ring[next];
+   __swapm32((&t->sk_addr), (hiaddr));
+   t->sk_opcode = 0x80 | 0x21;
+   sc_if->sk_cdata.sk_tx_hiaddr = hiaddr;
+   (next) = (next + 1) % 512;
    entries++;
   }
-  f = &sc_if->sk_rdata->sk_tx_ring[frag];
-  f->sk_addr = (__builtin_constant_p(addr) ? (__uint32_t)(((__uint32_t)(addr) & 0xff) << 24 | ((__uint32_t)(addr) & 0xff00) << 8 | ((__uint32_t)(addr) & 0xff0000) >> 8 | ((__uint32_t)(addr) & 0xff000000) >> 24) : __swap32md(addr));
-  f->sk_len = (__builtin_constant_p(txmap->dm_segs[i].ds_len) ? (__uint16_t)(((__uint16_t)(txmap->dm_segs[i].ds_len) & 0xffU) << 8 | ((__uint16_t)(txmap->dm_segs[i].ds_len) & 0xff00U) >> 8) : __swap16md(txmap->dm_segs[i].ds_len));
-  f->sk_ctl = 0;
-  f->sk_opcode = opcode |
-      (i == 0 ? 0x41 : 0x40);
-  cur = frag;
-  (frag) = (frag + 1) % 512;
-  opcode = 0x80;
+  t = &rd->sk_tx_ring[next];
+  __swapm32((&t->sk_addr), (addr));
+  __swapm16((&t->sk_len), (map->dm_segs[i].ds_len));
+  t->sk_ctl = 0;
+  t->sk_opcode = opcode;
+  last = next;
+  (next) = (next + 1) % 512;
   entries++;
+  opcode = 0x80 | 0x40;
  }
- sc_if->sk_cdata.sk_tx_chain[cur].sk_mbuf = m_head;
- do { if (((&sc_if->sk_txmap_head)->sqh_first = (&sc_if->sk_txmap_head)->sqh_first->link.sqe_next) == ((void *)0)) (&sc_if->sk_txmap_head)->sqh_last = &(&sc_if->sk_txmap_head)->sqh_first; } while (0);
- sc_if->sk_cdata.sk_tx_map[cur] = entry;
- sc_if->sk_rdata->sk_tx_ring[cur].sk_ctl |= 0x80;
- do { int __x, __n; __x = (*txidx); __n = (entries); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x01|0x04)); } while ( 0);
- sc_if->sk_rdata->sk_tx_ring[*txidx].sk_opcode |= 0x80;
- do { int __x, __n; __x = (*txidx); __n = (1); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x01|0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x01|0x04)); } while ( 0);
- sc_if->sk_cdata.sk_tx_cnt += entries;
- *txidx = frag;
- ;
- return (0);
+ t->sk_ctl = 0x80;
+ sc_if->sk_cdata.sk_tx_maps[prod] = sc_if->sk_cdata.sk_tx_maps[last];
+ sc_if->sk_cdata.sk_tx_maps[last] = map;
+ sc_if->sk_cdata.sk_tx_mbuf[last] = m;
+ return (entries);
 }
 void
 msk_start(struct ifnet *ifp)
 {
  struct sk_if_softc *sc_if = ifp->if_softc;
- struct mbuf *m_head = ((void *)0);
- u_int32_t idx = sc_if->sk_cdata.sk_tx_prod;
+ struct mbuf *m = ((void *)0);
+ uint32_t prod, free, used;
  int post = 0;
+ prod = sc_if->sk_cdata.sk_tx_prod;
+ free = sc_if->sk_cdata.sk_tx_cons;
+ if (free <= prod)
+  free += 512;
+ free -= prod;
+ do { int __x, __n; __x = (0); __n = (512); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x08)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x08)); } while ( 0);
  for (;;) {
-  if (sc_if->sk_cdata.sk_tx_cnt + (30 * 2) + 1 >
-      512) {
+  if (free <= 30 * 2) {
    ifq_set_oactive(&ifp->if_snd);
    break;
   }
-  m_head = ifq_dequeue(&ifp->if_snd);
-  if (m_head == ((void *)0))
+  m = ifq_dequeue(&ifp->if_snd);
+  if (m == ((void *)0))
    break;
-  if (msk_encap(sc_if, m_head, &idx)) {
-   m_freem(m_head);
+  used = msk_encap(sc_if, m, prod);
+  if (used == 0) {
+   m_freem(m);
    continue;
   }
+  free -= used;
+  prod += used;
+  prod &= 512 - 1;
   if (ifp->if_bpf)
-   bpf_mtap(ifp->if_bpf, m_head, (1<<1));
+   bpf_mtap(ifp->if_bpf, m, (1<<1));
   post = 1;
  }
+ do { int __x, __n; __x = (0); __n = (512); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x04)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x04)); } while ( 0);
  if (post == 0)
   return;
- sc_if->sk_cdata.sk_tx_prod = idx;
- sk_win_write_2(sc_if->sk_softc, 0x06E4 + ((sc_if->sk_port * (1 + 1)) * 0x80), idx);
+ sc_if->sk_cdata.sk_tx_prod = prod;
+ sk_win_write_2(sc_if->sk_softc, 0x06E4 + ((sc_if->sk_port * (1 + 1)) * 0x80), prod);
  ifp->if_timer = 5;
 }
 void
@@ -4692,7 +4651,7 @@ msk_watchdog(struct ifnet *ifp)
 {
  struct sk_if_softc *sc_if = ifp->if_softc;
  msk_txeof(sc_if);
- if (sc_if->sk_cdata.sk_tx_cnt != 0) {
+ if (sc_if->sk_cdata.sk_tx_prod != sc_if->sk_cdata.sk_tx_cons) {
   printf("%s: watchdog timeout\n", sc_if->sk_dev.dv_xname);
   ifp->if_data.ifi_oerrors++;
   mskc_reset(sc_if->sk_softc);
@@ -4700,7 +4659,7 @@ msk_watchdog(struct ifnet *ifp)
   msk_init(sc_if);
  }
 }
-static __inline int
+static inline int
 msk_rxvalid(struct sk_softc *sc, u_int32_t stat, u_int32_t len)
 {
  if ((stat & (0x00000002 | 0x00000010 |
@@ -4712,76 +4671,76 @@ msk_rxvalid(struct sk_softc *sc, u_int32_t stat, u_int32_t len)
  return (1);
 }
 void
-msk_rxeof(struct sk_if_softc *sc_if, u_int16_t len, u_int32_t rxstat)
+msk_rxeof(struct sk_if_softc *sc_if, uint16_t len, uint32_t rxstat)
 {
  struct sk_softc *sc = sc_if->sk_softc;
  struct ifnet *ifp = &sc_if->arpcom.ac_if;
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- struct mbuf *m;
- struct sk_chain *cur_rx;
- int i, cur, total_len = len;
- bus_dmamap_t dmamap;
- ;
- cur = sc_if->sk_cdata.sk_rx_cons;
- do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((cur))]), sizeof(struct msk_rx_desc), (0x02|0x08)); } while ( 0);
- cur_rx = &sc_if->sk_cdata.sk_rx_chain[cur];
- if (cur_rx->sk_mbuf == ((void *)0))
-  return;
- dmamap = sc_if->sk_cdata.sk_rx_map[cur];
- for (i = 0; i < dmamap->dm_nsegs; i++) {
-    (sc_if->sk_cdata.sk_rx_cons) = (sc_if->sk_cdata.sk_rx_cons + 1) % 512;
-    (sc_if->sk_cdata.sk_rx_cons) = (sc_if->sk_cdata.sk_rx_cons + 1) % 512;
+ struct mbuf *m = ((void *)0);
+ int prod, cons, tail;
+ bus_dmamap_t map;
+ prod = sc_if->sk_cdata.sk_rx_prod;
+ cons = sc_if->sk_cdata.sk_rx_cons;
+ while (cons != prod) {
+  tail = cons;
+    (cons) = (cons + 1) % 512;
+  m = sc_if->sk_cdata.sk_rx_mbuf[tail];
+  if (m != ((void *)0)) {
+   break;
+  }
  }
- do { (&sc_if->sk_cdata.sk_rx_ring)->rxr_alive -= (dmamap->dm_nsegs); } while (0);
- bus_dmamap_sync(sc_if->sk_softc->sc_dmatag, dmamap, 0,
-     dmamap->dm_mapsize, 0x02);
- bus_dmamap_unload(sc_if->sk_softc->sc_dmatag, dmamap);
- m = cur_rx->sk_mbuf;
- cur_rx->sk_mbuf = ((void *)0);
- if (total_len < (64 - 4) ||
-     total_len > 9018 ||
-     msk_rxvalid(sc, rxstat, total_len) == 0) {
+ sc_if->sk_cdata.sk_rx_cons = cons;
+ if (m == ((void *)0)) {
+  return;
+ }
+ sc_if->sk_cdata.sk_rx_mbuf[tail] = ((void *)0);
+ map = sc_if->sk_cdata.sk_rx_maps[tail];
+ do { (&sc_if->sk_cdata.sk_rx_ring)->rxr_alive -= (1); } while (0);
+ bus_dmamap_sync(sc_if->sk_softc->sc_dmatag, map, 0, map->dm_mapsize,
+     0x02);
+ bus_dmamap_unload(sc_if->sk_softc->sc_dmatag, map);
+ if (len < (64 - 4) || len > 9018 ||
+     msk_rxvalid(sc, rxstat, len) == 0) {
   ifp->if_data.ifi_ierrors++;
   m_freem(m);
   return;
  }
- m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = total_len;
+ m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = len;
  ml_enqueue(&ml, m);
  if_input(ifp, &ml);
 }
 void
 msk_txeof(struct sk_if_softc *sc_if)
 {
- struct sk_softc *sc = sc_if->sk_softc;
- struct msk_tx_desc *cur_tx;
  struct ifnet *ifp = &sc_if->arpcom.ac_if;
- u_int32_t idx, reg64, sk_ctl;
- struct sk_txmap_entry *entry;
- ;
+ struct sk_softc *sc = sc_if->sk_softc;
+ uint32_t prod, cons;
+ struct mbuf *m;
+ bus_dmamap_t map;
+ bus_size_t reg64;
  if (sc_if->sk_port == 0)
   reg64 = 0x0e90;
  else
   reg64 = 0x0e94;
- idx = sc_if->sk_cdata.sk_tx_cons;
- while (idx != sk_win_read_2(sc, reg64)) {
-  do { int __x, __n; __x = (idx); __n = (1); if ((__x + __n) > 512) { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[(__x)]), sizeof(struct msk_tx_desc) * (512 - __x), (0x02|0x08)); __n -= (512 - __x); __x = 0; } bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_tx_ring[((__x))]), sizeof(struct msk_tx_desc) * __n, (0x02|0x08)); } while ( 0);
-  cur_tx = &sc_if->sk_rdata->sk_tx_ring[idx];
-  sk_ctl = cur_tx->sk_ctl;
-  if (sc_if->sk_cdata.sk_tx_chain[idx].sk_mbuf != ((void *)0)) {
-   entry = sc_if->sk_cdata.sk_tx_map[idx];
-   m_freem(sc_if->sk_cdata.sk_tx_chain[idx].sk_mbuf);
-   sc_if->sk_cdata.sk_tx_chain[idx].sk_mbuf = ((void *)0);
-   bus_dmamap_sync(sc->sc_dmatag, entry->dmamap, 0,
-       entry->dmamap->dm_mapsize, 0x08);
-   bus_dmamap_unload(sc->sc_dmatag, entry->dmamap);
-   do { (entry)->link.sqe_next = ((void *)0); *(&sc_if->sk_txmap_head)->sqh_last = (entry); (&sc_if->sk_txmap_head)->sqh_last = &(entry)->link.sqe_next; } while (0);
-   sc_if->sk_cdata.sk_tx_map[idx] = ((void *)0);
+ cons = sc_if->sk_cdata.sk_tx_cons;
+ prod = sk_win_read_2(sc, reg64);
+ if (cons == prod)
+  return;
+ while (cons != prod) {
+  m = sc_if->sk_cdata.sk_tx_mbuf[cons];
+  if (m != ((void *)0)) {
+   sc_if->sk_cdata.sk_tx_mbuf[cons] = ((void *)0);
+   map = sc_if->sk_cdata.sk_tx_maps[cons];
+   bus_dmamap_sync(sc->sc_dmatag, map, 0,
+       map->dm_mapsize, 0x08);
+   bus_dmamap_unload(sc->sc_dmatag, map);
+   m_freem(m);
   }
-  sc_if->sk_cdata.sk_tx_cnt--;
-  (idx) = (idx + 1) % 512;
+  (cons) = (cons + 1) % 512;
  }
- ifp->if_timer = sc_if->sk_cdata.sk_tx_cnt > 0 ? 5 : 0;
- sc_if->sk_cdata.sk_tx_cons = idx;
+ if (cons == sc_if->sk_cdata.sk_tx_prod)
+  ifp->if_timer = 0;
+ sc_if->sk_cdata.sk_tx_cons = cons;
  if (ifq_is_oactive(&ifp->if_snd))
   ifq_restart(&ifp->if_snd);
 }
@@ -4790,13 +4749,29 @@ msk_fill_rx_ring(struct sk_if_softc *sc_if)
 {
  u_int slots, used;
  slots = if_rxr_get(&sc_if->sk_cdata.sk_rx_ring, 512/2);
+ do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((0))]), sizeof(struct msk_rx_desc), (0x08)); } while ( 0);
  while (slots > 0) {
   used = msk_newbuf(sc_if);
   if (used == 0)
    break;
   slots -= used;
  }
+ do { bus_dmamap_sync((sc_if)->sk_softc->sc_dmatag, (sc_if)->sk_ring_map, __builtin_offsetof(struct msk_ring_data, sk_rx_ring[((0))]), sizeof(struct msk_rx_desc), (0x04)); } while ( 0);
  do { (&sc_if->sk_cdata.sk_rx_ring)->rxr_alive -= (slots); } while (0);
+ if (((&sc_if->sk_cdata.sk_rx_ring)->rxr_alive) == 0)
+  timeout_add(&sc_if->sk_tick_rx, 1);
+}
+void
+msk_fill_rx_tick(void *xsc_if)
+{
+ struct sk_if_softc *sc_if = xsc_if;
+ int s;
+ s = _splraise(6);
+ if (((&sc_if->sk_cdata.sk_rx_ring)->rxr_alive) == 0) {
+  msk_fill_rx_ring(sc_if);
+  sk_win_write_2(sc_if->sk_softc, 0x0464 + ((sc_if->sk_port * (0 + 1)) * 0x80), sc_if->sk_cdata.sk_rx_prod);
+ }
+ _splx(s);
 }
 void
 msk_tick(void *xsc_if)
@@ -4861,8 +4836,8 @@ msk_intr(void *xsc)
   case 0x60:
    sc_if = sc->sk_if[cur_st->sk_link & 0x01];
    rx[cur_st->sk_link & 0x01] = 1;
-   msk_rxeof(sc_if, (__builtin_constant_p(cur_st->sk_len) ? (__uint16_t)(((__uint16_t)(cur_st->sk_len) & 0xffU) << 8 | ((__uint16_t)(cur_st->sk_len) & 0xff00U) >> 8) : __swap16md(cur_st->sk_len)),
-       (__builtin_constant_p(cur_st->sk_status) ? (__uint32_t)(((__uint32_t)(cur_st->sk_status) & 0xff) << 24 | ((__uint32_t)(cur_st->sk_status) & 0xff00) << 8 | ((__uint32_t)(cur_st->sk_status) & 0xff0000) >> 8 | ((__uint32_t)(cur_st->sk_status) & 0xff000000) >> 24) : __swap32md(cur_st->sk_status)));
+   msk_rxeof(sc_if, __mswap16(&cur_st->sk_len),
+       __mswap32(&cur_st->sk_status));
    break;
   case 0x68:
    if (sc_if0)
@@ -4891,10 +4866,6 @@ msk_intr(void *xsc)
   msk_fill_rx_ring(sc_if1);
   sk_win_write_2(sc_if1->sk_softc, 0x0464 + ((sc_if1->sk_port * (0 + 1)) * 0x80), sc_if1->sk_cdata.sk_rx_prod);
  }
- if (ifp0 != ((void *)0) && !(((&ifp0->if_snd)->ifq_len) == 0))
-  msk_start(ifp0);
- if (ifp1 != ((void *)0) && !(((&ifp1->if_snd)->ifq_len) == 0))
-  msk_start(ifp1);
  return (claimed);
 }
 void
@@ -4973,7 +4944,6 @@ msk_init(void *xsc_if)
  msk_stop(sc_if, 0);
  msk_init_yukon(sc_if);
  mii_mediachg(mii);
- sc_if->sk_tx_hiaddr = 0;
  sk_win_write_1(sc_if->sk_softc, 0x0210 + ((sc_if->sk_port * (0 + 1)) * 0x80), 0x02);
  sk_win_write_4(sc_if->sk_softc, 0x0828 + ((sc_if->sk_port * (0 + 1)) * 0x80), 0x00000002);
  sk_win_write_4(sc_if->sk_softc, 0x0800 + ((sc_if->sk_port * (0 + 1)) * 0x80), sc_if->sk_rx_ramstart);
@@ -5026,6 +4996,7 @@ msk_init(void *xsc_if)
  sk_win_write_4(sc_if->sk_softc, 0x06D0 + ((sc_if->sk_port * (1 + 1)) * 0x80), 0x00000008);
  sk_win_read_4(sc_if->sk_softc, 0x06D0 + ((sc_if->sk_port * (1 + 1)) * 0x80));
  sk_win_write_2(sc_if->sk_softc, 0x0464 + ((sc_if->sk_port * (0 + 1)) * 0x80), sc_if->sk_cdata.sk_rx_prod);
+ sk_win_write_2(sc_if->sk_softc, 0x06E4 + ((sc_if->sk_port * (1 + 1)) * 0x80), sc_if->sk_cdata.sk_tx_prod);
  if (sc_if->sk_port == 0)
   sc->sk_intrmask |= (0x00000004|0x00000001 |0x00000008|0x00000010);
  else
@@ -5042,10 +5013,12 @@ msk_stop(struct sk_if_softc *sc_if, int softonly)
 {
  struct sk_softc *sc = sc_if->sk_softc;
  struct ifnet *ifp = &sc_if->arpcom.ac_if;
- struct sk_txmap_entry *dma;
+ struct mbuf *m;
+ bus_dmamap_t map;
  int i;
  ;
  timeout_del(&sc_if->sk_tick_ch);
+ timeout_del(&sc_if->sk_tick_rx);
  ifp->if_flags &= ~0x40;
  ifq_clr_oactive(&ifp->if_snd);
  if (!softonly) {
@@ -5069,25 +5042,28 @@ msk_stop(struct sk_if_softc *sc_if, int softonly)
   bus_space_write_4((sc)->sk_btag, (sc)->sk_bhandle, (0x000C), (sc->sk_intrmask));
  }
  for (i = 0; i < 512; i++) {
-  if (sc_if->sk_cdata.sk_rx_chain[i].sk_mbuf != ((void *)0)) {
-   m_freem(sc_if->sk_cdata.sk_rx_chain[i].sk_mbuf);
-   sc_if->sk_cdata.sk_rx_chain[i].sk_mbuf = ((void *)0);
-  }
+  m = sc_if->sk_cdata.sk_rx_mbuf[i];
+  if (m == ((void *)0))
+   continue;
+  map = sc_if->sk_cdata.sk_rx_maps[i];
+  bus_dmamap_sync(sc->sc_dmatag, map, 0, map->dm_mapsize,
+      0x02);
+  bus_dmamap_unload(sc->sc_dmatag, map);
+  m_freem(m);
+  sc_if->sk_cdata.sk_rx_mbuf[i] = ((void *)0);
  }
  sc_if->sk_cdata.sk_rx_prod = 0;
  sc_if->sk_cdata.sk_rx_cons = 0;
  for (i = 0; i < 512; i++) {
-  if (sc_if->sk_cdata.sk_tx_chain[i].sk_mbuf != ((void *)0)) {
-   m_freem(sc_if->sk_cdata.sk_tx_chain[i].sk_mbuf);
-   sc_if->sk_cdata.sk_tx_chain[i].sk_mbuf = ((void *)0);
-   do { if (((sc_if->sk_cdata.sk_tx_map[i])->link.sqe_next = (&sc_if->sk_txmap_head)->sqh_first) == ((void *)0)) (&sc_if->sk_txmap_head)->sqh_last = &(sc_if->sk_cdata.sk_tx_map[i])->link.sqe_next; (&sc_if->sk_txmap_head)->sqh_first = (sc_if->sk_cdata.sk_tx_map[i]); } while (0);
-   sc_if->sk_cdata.sk_tx_map[i] = 0;
-  }
- }
- while ((dma = ((&sc_if->sk_txmap_head)->sqh_first))) {
-  do { if (((&sc_if->sk_txmap_head)->sqh_first = (&sc_if->sk_txmap_head)->sqh_first->link.sqe_next) == ((void *)0)) (&sc_if->sk_txmap_head)->sqh_last = &(&sc_if->sk_txmap_head)->sqh_first; } while (0);
-  bus_dmamap_destroy(sc->sc_dmatag, dma->dmamap);
-  free(dma, 2, sizeof *dma);
+  m = sc_if->sk_cdata.sk_tx_mbuf[i];
+  if (m == ((void *)0))
+   continue;
+  map = sc_if->sk_cdata.sk_tx_maps[i];
+  bus_dmamap_sync(sc->sc_dmatag, map, 0, map->dm_mapsize,
+      0x02);
+  bus_dmamap_unload(sc->sc_dmatag, map);
+  m_freem(m);
+  sc_if->sk_cdata.sk_tx_mbuf[i] = ((void *)0);
  }
 }
 struct cfattach mskc_ca = {

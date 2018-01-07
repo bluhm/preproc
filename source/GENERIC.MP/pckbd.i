@@ -2483,16 +2483,21 @@ int
 pckbd_set_xtscancode(pckbc_tag_t kbctag, pckbc_slot_t kbcslot,
     struct pckbd_internal *id)
 {
- int table = 3;
+ int table;
  if (pckbc_xt_translation(kbctag)) {
   table = 2;
   if (id != ((void *)0))
    id->t_translating = 0;
  } else {
-  if (id != ((void *)0))
+  if (id != ((void *)0)) {
    id->t_translating = 1;
+   if (id->t_table == 0) {
+    id->t_table = 2;
+    return (0);
+   }
+  }
  }
- for (; table >= 1; table--) {
+ for (table = 3; table >= 1; table--) {
   u_char cmd[2];
   cmd[0] = 0xF0;
   cmd[1] = table;

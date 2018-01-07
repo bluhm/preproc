@@ -26652,6 +26652,10 @@ static const struct pci_known_product pci_known_products[] = {
      "910",
  },
  {
+     0x126f, 0x2260,
+     "SM2260 NVMe",
+ },
+ {
      0x1055, 0x9130,
      "Victory66 IDE",
  },
