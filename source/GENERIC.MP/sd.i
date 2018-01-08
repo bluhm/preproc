@@ -181,17 +181,17 @@ __swapm64(volatile __uint64_t *m, __uint64_t v)
      : "=m" (*m)
      : "r" (v), "r" (m), "n" (0x88));
 }
-static inline __uint16_t
+static __inline __uint16_t
 __swap16md(__uint16_t x)
 {
  return ((__uint16_t)(((__uint16_t)(x) & 0xffU) << 8 | ((__uint16_t)(x) & 0xff00U) >> 8));
 }
-static inline __uint32_t
+static __inline __uint32_t
 __swap32md(__uint32_t x)
 {
  return ((__uint32_t)(((__uint32_t)(x) & 0xff) << 24 | ((__uint32_t)(x) & 0xff00) << 8 | ((__uint32_t)(x) & 0xff0000) >> 8 | ((__uint32_t)(x) & 0xff000000) >> 24));
 }
-static inline __uint64_t
+static __inline __uint64_t
 __swap64md(__uint64_t x)
 {
  return ((__uint64_t)((((__uint64_t)(x) & 0xff) << 56) | ((__uint64_t)(x) & 0xff00ULL) << 40 | ((__uint64_t)(x) & 0xff0000ULL) << 24 | ((__uint64_t)(x) & 0xff000000ULL) << 8 | ((__uint64_t)(x) & 0xff00000000ULL) >> 8 | ((__uint64_t)(x) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(x) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(x) & 0xff00000000000000ULL) >> 56));
