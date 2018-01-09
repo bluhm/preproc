@@ -2353,7 +2353,7 @@ struct pair_softc {
  unsigned int sc_pairedif;
 };
 struct if_clone pair_cloner =
-    { { 0 }, "pair", sizeof("pair") - 1, pair_clone_create, pair_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "pair", .ifc_namelen = sizeof("pair") - 1, .ifc_create = pair_clone_create, .ifc_destroy = pair_clone_destroy, };
 int
 pair_media_change(struct ifnet *ifp)
 {

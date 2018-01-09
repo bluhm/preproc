@@ -3041,9 +3041,10 @@ ext2fs_write(void *v)
  struct buf *bp;
  int32_t lbn;
  off_t osize;
- int blkoffset, error, flags, ioflag, size, xfersize;
+ int blkoffset, error, extended, flags, ioflag, size, xfersize;
  size_t resid;
  ssize_t overrun;
+ extended = 0;
  ioflag = ap->a_ioflag;
  uio = ap->a_uio;
  vp = ap->a_vp;
@@ -3094,13 +3095,14 @@ ext2fs_write(void *v)
    error = ext2fs_setsize(ip, uio->uio_offset + xfersize);
    if (error)
     break;
-   uvm_vnp_setsize(vp, ip->dinode_u.e2fs_din->e2di_size);
+   uvm_vnp_setsize(vp, ext2fs_size(ip));
+   extended = 1;
   }
   uvm_vnp_uncache(vp);
   size = fs->e2fs_bsize - bp->b_resid;
   if (size < xfersize)
    xfersize = size;
-  error = uiomove((char *)bp->b_data + blkoffset, xfersize, uio);
+  error = uiomove(bp->b_data + blkoffset, xfersize, uio);
   if (ioflag & 0x04)
    (void)bwrite(bp);
   else if (xfersize + blkoffset == fs->e2fs_bsize)
@@ -3113,6 +3115,8 @@ ext2fs_write(void *v)
  }
  if (resid > uio->uio_resid && ap->a_cred && ap->a_cred->cr_uid != 0)
   ip->dinode_u.e2fs_din->e2di_mode &= ~(0004000 | 0002000);
+ if (resid > uio->uio_resid)
+  do { struct klist *list = (&vp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002 | (extended ? 0x0004 : 0)))); } while (0);
  if (error) {
   if (ioflag & 0x01) {
    (void)ext2fs_truncate(ip, osize,

@@ -4160,6 +4160,16 @@ ptyioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
  if (error < 0)
    error = ttioctl(tp, cmd, data, flag, p);
  if (error < 0) {
+  switch (cmd) {
+  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((123))):
+   cmd = ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('u')) << 8) | (((((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((123))) & 0xff))));
+   break;
+  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((122))):
+   cmd = ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('u')) << 8) | (((((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((122))) & 0xff))));
+   break;
+  default:
+   break;
+  }
   if (pti->pt_flags & 0x80 &&
       (cmd & ~0xff) == ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('u')) << 8) | ((0)))) {
    if (cmd & 0xff) {

@@ -2385,9 +2385,9 @@ int vlan_setlladdr(struct ifvlan *, struct ifreq *);
 int vlan_set_compat(struct ifnet *, struct ifreq *);
 int vlan_get_compat(struct ifnet *, struct ifreq *);
 struct if_clone vlan_cloner =
-    { { 0 }, "vlan", sizeof("vlan") - 1, vlan_clone_create, vlan_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "vlan", .ifc_namelen = sizeof("vlan") - 1, .ifc_create = vlan_clone_create, .ifc_destroy = vlan_clone_destroy, };
 struct if_clone svlan_cloner =
-    { { 0 }, "svlan", sizeof("svlan") - 1, vlan_clone_create, vlan_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "svlan", .ifc_namelen = sizeof("svlan") - 1, .ifc_create = vlan_clone_create, .ifc_destroy = vlan_clone_destroy, };
 void vlan_ref(void *, void *);
 void vlan_unref(void *, void *);
 struct srpl_rc vlan_tagh_rc = { vlan_ref, { (vlan_unref), (((void *)0)), { .refs = 1 } } };

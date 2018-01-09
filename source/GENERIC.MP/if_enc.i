@@ -2095,7 +2095,7 @@ int enc_ioctl(struct ifnet *, u_long, caddr_t);
 int enc_setif(struct ifnet *, u_int);
 void enc_unsetif(struct ifnet *);
 struct if_clone enc_cloner =
-    { { 0 }, "enc", sizeof("enc") - 1, enc_clone_create, enc_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "enc", .ifc_namelen = sizeof("enc") - 1, .ifc_create = enc_clone_create, .ifc_destroy = enc_clone_destroy, };
 void
 encattach(int count)
 {

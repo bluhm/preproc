@@ -8601,6 +8601,14 @@ pledge_ioctl(struct proc *p, long com, struct file *fp)
    if (cdevsw[((int32_t)(((u_int32_t)(vp->v_un.vu_specinfo->si_rdev) >> 8) & 0xff))].d_open != ptmopen)
     break;
    return (0);
+  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((102))):
+   if ((p->p_p->ps_pledge & 0x0000000000000001ULL) == 0)
+    break;
+   if ((p->p_p->ps_pledge & 0x0000000000000002ULL) == 0)
+    break;
+   if (cdevsw[((int32_t)(((u_int32_t)(vp->v_un.vu_specinfo->si_rdev) >> 8) & 0xff))].d_open != ptcopen)
+    break;
+   return (0);
   case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((118))):
    if ((p->p_p->ps_pledge & 0x0000000000001000ULL) == 0)
     break;

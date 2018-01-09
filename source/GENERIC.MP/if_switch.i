@@ -5426,7 +5426,7 @@ void switch_flow_classifier_dump(struct switch_softc *,
      struct switch_flow_classify *);
 void switchattach(int);
 struct if_clone switch_cloner =
-    { { 0 }, "switch", sizeof("switch") - 1, switch_clone_create, switch_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "switch", .ifc_namelen = sizeof("switch") - 1, .ifc_create = switch_clone_create, .ifc_destroy = switch_clone_destroy, };
 struct { struct switch_softc *lh_first; } switch_list;
 struct niqueue switchintrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((1024)), 0 }, (31) };
 struct rwlock switch_ifs_lk = { 0, "switchifs" };

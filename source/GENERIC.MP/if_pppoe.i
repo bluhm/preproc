@@ -2697,7 +2697,7 @@ struct pppoe_softc_head { struct pppoe_softc *lh_first; } pppoe_softc_list;
 int pppoe_clone_create(struct if_clone *, int);
 int pppoe_clone_destroy(struct ifnet *);
 struct if_clone pppoe_cloner =
-    { { 0 }, "pppoe", sizeof("pppoe") - 1, pppoe_clone_create, pppoe_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "pppoe", .ifc_namelen = sizeof("pppoe") - 1, .ifc_create = pppoe_clone_create, .ifc_destroy = pppoe_clone_destroy, };
 void
 pppoeattach(int count)
 {

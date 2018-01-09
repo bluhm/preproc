@@ -4594,7 +4594,7 @@ int pflog_clone_create(struct if_clone *, int);
 int pflog_clone_destroy(struct ifnet *);
 void pflog_bpfcopy(const void *, void *, size_t);
 struct if_clone pflog_cloner =
-    { { 0 }, "pflog", sizeof("pflog") - 1, pflog_clone_create, pflog_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "pflog", .ifc_namelen = sizeof("pflog") - 1, .ifc_create = pflog_clone_create, .ifc_destroy = pflog_clone_destroy, };
 int npflogifs = 0;
 struct ifnet **pflogifs = ((void *)0);
 struct mbuf *pflog_mhdr = ((void *)0), *pflog_mptr = ((void *)0);

@@ -4095,9 +4095,9 @@ int gre_clone_create(struct if_clone *, int);
 int gre_clone_destroy(struct ifnet *);
 struct gre_softc_head gre_softc_list;
 struct if_clone gre_cloner =
-    { { 0 }, "gre", sizeof("gre") - 1, gre_clone_create, gre_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "gre", .ifc_namelen = sizeof("gre") - 1, .ifc_create = gre_clone_create, .ifc_destroy = gre_clone_destroy, };
 struct if_clone mobileip_cloner =
-    { { 0 }, "mobileip", sizeof("mobileip") - 1, gre_clone_create, gre_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mobileip", .ifc_namelen = sizeof("mobileip") - 1, .ifc_create = gre_clone_create, .ifc_destroy = gre_clone_destroy, };
 int gre_allow = 0;
 int gre_wccp = 0;
 int ip_mobile_allow = 0;

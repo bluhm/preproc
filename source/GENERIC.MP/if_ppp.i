@@ -3187,7 +3187,7 @@ struct compressor *ppp_compressors[] = {
 };
 struct { struct ppp_softc *lh_first; } ppp_softc_list;
 struct if_clone ppp_cloner =
-    { { 0 }, "ppp", sizeof("ppp") - 1, ppp_clone_create, ppp_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "ppp", .ifc_namelen = sizeof("ppp") - 1, .ifc_create = ppp_clone_create, .ifc_destroy = ppp_clone_destroy, };
 void
 pppattach(void)
 {

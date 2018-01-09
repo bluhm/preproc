@@ -5476,7 +5476,10 @@ filt_ufsread(struct knote *kn, long hint)
   kn->kn_kevent.flags |= (0x8000 | 0x0010);
   return (1);
  }
- kn->kn_kevent.data = (((ip)->i_ump->um_fstype == 1) ? (ip)->dinode_u.ffs1_din->di_size : (ip)->dinode_u.ffs2_din->di_size) - kn->kn_ptr.p_fp->f_offset;
+ if ((ip->i_vnode->v_tag == VT_EXT2FS))
+  kn->kn_kevent.data = ext2fs_size(ip) - kn->kn_ptr.p_fp->f_offset;
+ else
+  kn->kn_kevent.data = (((ip)->i_ump->um_fstype == 1) ? (ip)->dinode_u.ffs1_din->di_size : (ip)->dinode_u.ffs2_din->di_size) - kn->kn_ptr.p_fp->f_offset;
  if (kn->kn_kevent.data == 0 && kn->kn_sfflags & 0x0002) {
   kn->kn_kevent.fflags |= 0x0002;
   return (1);

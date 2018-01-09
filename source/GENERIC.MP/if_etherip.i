@@ -4866,7 +4866,7 @@ int etherip_media_change(struct ifnet *);
 void etherip_media_status(struct ifnet *, struct ifmediareq *);
 int etherip_set_tunnel_addr(struct ifnet *, struct sockaddr_storage *,
    struct sockaddr_storage *);
-struct if_clone etherip_cloner = { { 0 }, "etherip", sizeof("etherip") - 1, etherip_clone_create, etherip_clone_destroy };
+struct if_clone etherip_cloner = { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "etherip", .ifc_namelen = sizeof("etherip") - 1, .ifc_create = etherip_clone_create, .ifc_destroy = etherip_clone_destroy, };
 void
 etheripattach(int count)
 {

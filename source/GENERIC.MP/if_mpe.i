@@ -2779,7 +2779,7 @@ int mpe_clone_create(struct if_clone *, int);
 int mpe_clone_destroy(struct ifnet *);
 struct { struct mpe_softc *lh_first; } mpeif_list;
 struct if_clone mpe_cloner =
-    { { 0 }, "mpe", sizeof("mpe") - 1, mpe_clone_create, mpe_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mpe", .ifc_namelen = sizeof("mpe") - 1, .ifc_create = mpe_clone_create, .ifc_destroy = mpe_clone_destroy, };
 extern int mpls_mapttl_ip;
 extern int mpls_mapttl_ip6;
 void

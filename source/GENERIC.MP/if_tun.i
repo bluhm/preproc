@@ -3891,9 +3891,9 @@ struct filterops tunwrite_filtops =
 struct { struct tun_softc *lh_first; } tun_softc_list;
 struct { struct tun_softc *lh_first; } tap_softc_list;
 struct if_clone tun_cloner =
-    { { 0 }, "tun", sizeof("tun") - 1, tun_clone_create, tun_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "tun", .ifc_namelen = sizeof("tun") - 1, .ifc_create = tun_clone_create, .ifc_destroy = tun_clone_destroy, };
 struct if_clone tap_cloner =
-    { { 0 }, "tap", sizeof("tap") - 1, tap_clone_create, tun_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "tap", .ifc_namelen = sizeof("tap") - 1, .ifc_create = tap_clone_create, .ifc_destroy = tun_clone_destroy, };
 void
 tunattach(int n)
 {

@@ -2351,7 +2351,7 @@ struct vether_softc {
  struct ifmedia sc_media;
 };
 struct if_clone vether_cloner =
-    { { 0 }, "vether", sizeof("vether") - 1, vether_clone_create, vether_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "vether", .ifc_namelen = sizeof("vether") - 1, .ifc_create = vether_clone_create, .ifc_destroy = vether_clone_destroy, };
 int
 vether_media_change(struct ifnet *ifp)
 {

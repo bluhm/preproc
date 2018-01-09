@@ -6070,7 +6070,7 @@ void pfsync_bulk_update(void *);
 void pfsync_bulk_fail(void *);
 int pfsync_sync_ok;
 struct if_clone pfsync_cloner =
-    { { 0 }, "pfsync", sizeof("pfsync") - 1, pfsync_clone_create, pfsync_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "pfsync", .ifc_namelen = sizeof("pfsync") - 1, .ifc_create = pfsync_clone_create, .ifc_destroy = pfsync_clone_destroy, };
 void
 pfsyncattach(int npfsync)
 {

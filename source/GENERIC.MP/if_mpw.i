@@ -2780,7 +2780,7 @@ void mpw_start(struct ifnet *);
 int mpw_input(struct ifnet *, struct mbuf *, void *);
 struct mbuf *mpw_vlan_handle(struct mbuf *, struct mpw_softc *);
 struct if_clone mpw_cloner =
-    { { 0 }, "mpw", sizeof("mpw") - 1, mpw_clone_create, mpw_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mpw", .ifc_namelen = sizeof("mpw") - 1, .ifc_create = mpw_clone_create, .ifc_destroy = mpw_clone_destroy, };
 void
 mpwattach(int n)
 {

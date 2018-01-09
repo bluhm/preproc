@@ -5766,7 +5766,7 @@ int copy_flow_ipfix_4_to_m(struct pflow_ipfix_flow4 *flow,
 int copy_flow_ipfix_6_to_m(struct pflow_ipfix_flow6 *flow,
  struct pflow_softc *sc);
 struct if_clone pflow_cloner =
-    { { 0 }, "pflow", sizeof("pflow") - 1, pflow_clone_create, pflow_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "pflow", .ifc_namelen = sizeof("pflow") - 1, .ifc_create = pflow_clone_create, .ifc_destroy = pflow_clone_destroy, };
 void
 pflowattach(int npflow)
 {

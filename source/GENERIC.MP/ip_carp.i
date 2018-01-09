@@ -4719,7 +4719,7 @@ int carp_new_vhost(struct carp_softc *, int, int);
 void carp_destroy_vhosts(struct carp_softc *);
 void carp_del_all_timeouts(struct carp_softc *);
 struct if_clone carp_cloner =
-    { { 0 }, "carp", sizeof("carp") - 1, carp_clone_create, carp_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "carp", .ifc_namelen = sizeof("carp") - 1, .ifc_create = carp_clone_create, .ifc_destroy = carp_clone_destroy, };
 void
 carp_hmac_prepare(struct carp_softc *sc)
 {

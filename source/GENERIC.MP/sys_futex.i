@@ -3441,7 +3441,7 @@ futex_wait(uint32_t *uaddr, uint32_t val, const struct timespec *timeout)
   if ((error = copyin(timeout, &ts, sizeof(ts))))
    return error;
   if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
-   ktrstruct((p), "abstimespec", (timeout), sizeof(struct timespec));
+   ktrstruct((p), "abstimespec", (&ts), sizeof(struct timespec));
   to_ticks = (uint64_t)hz * ts.tv_sec +
       (ts.tv_nsec + tick * 1000 - 1) / (tick * 1000) + 1;
   if (to_ticks > 0x7fffffff)

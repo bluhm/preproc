@@ -5413,7 +5413,7 @@ void vxlan_link_change(void *);
 int vxlan_sockaddr_cmp(struct sockaddr *, struct sockaddr *);
 uint16_t vxlan_sockaddr_port(struct sockaddr *);
 struct if_clone vxlan_cloner =
-    { { 0 }, "vxlan", sizeof("vxlan") - 1, vxlan_clone_create, vxlan_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "vxlan", .ifc_namelen = sizeof("vxlan") - 1, .ifc_create = vxlan_clone_create, .ifc_destroy = vxlan_clone_destroy, };
 int vxlan_enable = 0;
 u_long vxlan_tagmask;
 struct vxlan_taghash { struct vxlan_softc *lh_first; } *vxlan_tagh, vxlan_any;

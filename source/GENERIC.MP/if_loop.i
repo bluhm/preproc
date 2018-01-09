@@ -2746,7 +2746,7 @@ int looutput(struct ifnet *,
 int loop_clone_create(struct if_clone *, int);
 int loop_clone_destroy(struct ifnet *);
 struct if_clone loop_cloner =
-    { { 0 }, "lo", sizeof("lo") - 1, loop_clone_create, loop_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "lo", .ifc_namelen = sizeof("lo") - 1, .ifc_create = loop_clone_create, .ifc_destroy = loop_clone_destroy, };
 void
 loopattach(int n)
 {

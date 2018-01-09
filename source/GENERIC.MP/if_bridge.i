@@ -5302,7 +5302,7 @@ int bridge_clone_destroy(struct ifnet *ifp);
 int bridge_delete(struct bridge_softc *, struct bridge_iflist *);
 struct niqueue bridgeintrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((1024)), 0 }, (29) };
 struct if_clone bridge_cloner =
-    { { 0 }, "bridge", sizeof("bridge") - 1, bridge_clone_create, bridge_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "bridge", .ifc_namelen = sizeof("bridge") - 1, .ifc_create = bridge_clone_create, .ifc_destroy = bridge_clone_destroy, };
 void
 bridgeattach(int n)
 {

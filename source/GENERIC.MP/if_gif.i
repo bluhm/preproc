@@ -4815,7 +4815,7 @@ int in_gif_output(struct ifnet *, int, struct mbuf **);
 int in6_gif_output(struct ifnet *, int, struct mbuf **);
 struct gif_softc_head gif_softc_list;
 struct if_clone gif_cloner =
-    { { 0 }, "gif", sizeof("gif") - 1, gif_clone_create, gif_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "gif", .ifc_namelen = sizeof("gif") - 1, .ifc_create = gif_clone_create, .ifc_destroy = gif_clone_destroy, };
 void
 gifattach(int count)
 {

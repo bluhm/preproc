@@ -2790,7 +2790,7 @@ struct trunk_port *trunk_link_active(struct trunk_softc *,
      struct trunk_port *);
 const void *trunk_gethdr(struct mbuf *, u_int, u_int, void *);
 struct if_clone trunk_cloner =
-    { { 0 }, "trunk", sizeof("trunk") - 1, trunk_clone_create, trunk_clone_destroy };
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "trunk", .ifc_namelen = sizeof("trunk") - 1, .ifc_create = trunk_clone_create, .ifc_destroy = trunk_clone_destroy, };
 int trunk_rr_attach(struct trunk_softc *);
 int trunk_rr_detach(struct trunk_softc *);
 void trunk_rr_port_destroy(struct trunk_port *);
