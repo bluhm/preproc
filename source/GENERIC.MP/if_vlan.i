@@ -2415,9 +2415,7 @@ vlan_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifvlan *ifv;
  struct ifnet *ifp;
- ifv = malloc(sizeof(*ifv), 2, 0x0002|0x0008);
- if (ifv == ((void *)0))
-  return (12);
+ ifv = malloc(sizeof(*ifv), 2, 0x0001|0x0008);
  do { ((&ifv->vlan_mc_listhead)->lh_first) = ((void *)0); } while (0);
  ifp = &ifv->ifv_ac.ac_if;
  ifp->if_softc = ifv;
@@ -2623,7 +2621,7 @@ vlan_up(struct ifvlan *ifv)
  struct ifnet *ifp0;
  int error = 0;
  u_int hardmtu;
- ((!((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 450, "!ISSET(ifp->if_flags, IFF_RUNNING)"));
+ ((!((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 447, "!ISSET(ifp->if_flags, IFF_RUNNING)"));
  tagh = ifv->ifv_mib.ifvm_type == 0x88A8 ? svlan_tagh : vlan_tagh;
  list = &tagh[(ifv->ifv_mib.ifvm_tag & ((1 << 5) - 1))];
  ifp0 = if_get(ifv->ifv_ifp0);
@@ -2683,7 +2681,7 @@ vlan_down(struct ifvlan *ifv)
  struct ifnet *ifp0;
  tagh = ifv->ifv_mib.ifvm_type == 0x88A8 ? svlan_tagh : vlan_tagh;
  list = &tagh[(ifv->ifv_mib.ifvm_tag & ((1 << 5) - 1))];
- ((((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 546, "ISSET(ifp->if_flags, IFF_RUNNING)"));
+ ((((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 543, "ISSET(ifp->if_flags, IFF_RUNNING)"));
  vlan_link_state(ifv, 2, 0);
  ((ifp->if_flags) &= ~(0x40));
  ifq_barrier(&ifp->if_snd);

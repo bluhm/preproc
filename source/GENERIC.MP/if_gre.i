@@ -4115,14 +4115,11 @@ int
 gre_clone_create(struct if_clone *ifc, int unit)
 {
  struct gre_softc *sc;
- sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
- if (!sc)
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  snprintf(sc->sc_if.if_xname, sizeof sc->sc_if.if_xname, "%s%d",
      ifc->ifc_name, unit);
  sc->sc_if.if_softc = sc;
  sc->sc_if.if_data.ifi_type = 0x83;
- sc->sc_if.if_data.ifi_addrlen = 0;
  sc->sc_if.if_data.ifi_hdrlen = 24;
  sc->sc_if.if_data.ifi_mtu = 1476;
  sc->sc_if.if_flags = 0x10|0x8000;
@@ -4130,11 +4127,6 @@ gre_clone_create(struct if_clone *ifc, int unit)
  sc->sc_if.if_output = gre_output;
  sc->sc_if.if_ioctl = gre_ioctl;
  sc->sc_if.if_rtrequest = p2p_rtrequest;
- sc->sc_if.if_data.ifi_collisions = 0;
- sc->sc_if.if_data.ifi_ierrors = 0;
- sc->sc_if.if_data.ifi_oerrors = 0;
- sc->sc_if.if_data.ifi_ipackets = 0;
- sc->sc_if.if_data.ifi_opackets = 0;
  sc->g_dst.s_addr = sc->g_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
  sc->sc_ka_state = 0;
  if (strcmp("gre", ifc->ifc_name) == 0) {

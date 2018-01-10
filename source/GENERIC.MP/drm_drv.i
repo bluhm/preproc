@@ -989,7 +989,7 @@ int pledge_chown(struct proc *p, uid_t, gid_t);
 int pledge_adjtime(struct proc *p, const void *v);
 int pledge_sendit(struct proc *p, const void *to);
 int pledge_sockopt(struct proc *p, int set, int level, int optname);
-int pledge_socket(struct proc *p, int domain, int state);
+int pledge_socket(struct proc *p, int domain, unsigned int state);
 int pledge_ioctl(struct proc *p, long com, struct file *);
 int pledge_ioctl_drm(struct proc *p, long com, dev_t device);
 int pledge_ioctl_vmm(struct proc *p, long com);
@@ -7179,7 +7179,8 @@ __ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _
    break;
   }
   else {
-   if (slow || ctx == ((void *)0) || ctx->stamp < lock->ctx->stamp) {
+   if (slow || ctx == ((void *)0) ||
+       (lock->ctx && ctx->stamp < lock->ctx->stamp)) {
     int s = msleep(lock, &lock->lock,
             intr ? 0x100 : 0,
             ctx ? ctx->ww_class->name : "ww_mutex_lock", 0);
@@ -7216,8 +7217,8 @@ ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *c
 static inline void
 ww_mutex_unlock(struct ww_mutex *lock) {
  __mtx_enter(&lock->lock );
- ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 219, "lock->owner == curproc"));
- ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->acquired == 1"));
+ ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->owner == curproc"));
+ ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 221, "lock->acquired == 1"));
  lock->acquired = 0;
  lock->ctx = ((void *)0);
  lock->owner = ((void *)0);
@@ -7226,9 +7227,9 @@ ww_mutex_unlock(struct ww_mutex *lock) {
 }
 static inline void
 ww_mutex_destroy(struct ww_mutex *lock) {
- ((lock->acquired == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 231, "lock->acquired == 0"));
- ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 232, "lock->ctx == NULL"));
- ((lock->owner == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 233, "lock->owner == NULL"));
+ ((lock->acquired == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 232, "lock->acquired == 0"));
+ ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 233, "lock->ctx == NULL"));
+ ((lock->owner == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 234, "lock->owner == NULL"));
 }
 struct drm_modeset_lock;
 struct drm_modeset_acquire_ctx {

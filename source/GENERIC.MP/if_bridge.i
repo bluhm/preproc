@@ -5314,9 +5314,7 @@ bridge_clone_create(struct if_clone *ifc, int unit)
  struct bridge_softc *sc;
  struct ifnet *ifp;
  int i;
- sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
- if (!sc)
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  sc->sc_stp = bstp_create(&sc->sc_if);
  if (!sc->sc_stp) {
   free(sc, 2, sizeof *sc);
@@ -5369,7 +5367,7 @@ bridge_clone_destroy(struct ifnet *ifp)
  bstp_destroy(sc->sc_stp);
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 230, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 227, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  if_detach(ifp);
  free(sc, 2, sizeof *sc);
  return (0);
@@ -5885,7 +5883,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  sc->sc_if.if_data.ifi_ipackets++;
  sc->sc_if.if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  ifl = (struct bridge_iflist *)src_if->if_bridgeport;
- ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 861, "ifl != NULL"));
+ ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 858, "ifl != NULL"));
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(eh)) {
   m_freem(m);
   return;
@@ -5984,7 +5982,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
 int
 bridge_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1009, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1006, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);

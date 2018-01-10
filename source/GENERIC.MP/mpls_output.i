@@ -2406,7 +2406,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 typedef __in_addr_t in_addr_t;
 typedef __in_port_t in_port_t;
 struct in_addr {

@@ -5431,9 +5431,7 @@ vxlan_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
  struct vxlan_softc *sc;
- if ((sc = malloc(sizeof(*sc),
-     2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  sc->sc_imo.imo_membership = malloc(
      (sizeof(struct in_multi *) * 15), 53,
      0x0001|0x0008);

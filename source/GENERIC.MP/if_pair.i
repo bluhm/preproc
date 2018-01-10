@@ -2398,9 +2398,7 @@ pair_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
  struct pair_softc *sc;
- if ((sc = malloc(sizeof(*sc),
-     2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  ifp = &sc->sc_ac.ac_if;
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "pair%d", unit);
  ifp->if_flags = 0x2 | 0x800 | 0x8000;

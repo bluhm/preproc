@@ -1606,12 +1606,12 @@ int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
 struct soqhead { struct socket *tqh_first; struct socket **tqh_last; };
 struct socket {
+ const struct protosw *so_proto;
+ void *so_pcb;
+ u_int so_state;
  short so_type;
  short so_options;
  short so_linger;
- short so_state;
- void *so_pcb;
- const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -1621,7 +1621,7 @@ struct socket {
  short so_qlen;
  short so_qlimit;
  short so_timeo;
- u_short so_error;
+ u_int so_error;
  pid_t so_pgid;
  uid_t so_siguid;
  uid_t so_sigeuid;
@@ -5798,9 +5798,7 @@ pflow_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
  struct pflow_softc *pflowif;
- if ((pflowif = malloc(sizeof(*pflowif),
-     2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ pflowif = malloc(sizeof(*pflowif), 2, 0x0001|0x0008);
  pflowif->send_nam = m_get((0x0001), (3));
  pflowif->sc_version = 5;
  __builtin_bzero((&pflowif->sc_tmpl_ipfix), (sizeof(pflowif->sc_tmpl_ipfix)));

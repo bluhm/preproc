@@ -3918,9 +3918,7 @@ tun_create(struct if_clone *ifc, int unit, int flags)
 {
  struct tun_softc *tp;
  struct ifnet *ifp;
- tp = malloc(sizeof(*tp), 2, 0x0002|0x0008);
- if (tp == ((void *)0))
-  return (12);
+ tp = malloc(sizeof(*tp), 2, 0x0001|0x0008);
  tp->tun_unit = unit;
  tp->tun_flags = 0x0002|0x0400;
  ifp = &tp->arpcom.ac_if;

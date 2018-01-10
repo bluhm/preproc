@@ -4288,7 +4288,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -5402,7 +5402,7 @@ mplsip_decap(struct mbuf *m, int iphlen)
  m->M_dat.MH.MH_pkthdr.ph_ifidx = sc->gif_if.if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->gif_if.if_data.ifi_rdomain;
  pf_pkt_addr_changed(m);
- mpls_input(m);
+ mpls_input(&sc->gif_if, m);
 }
 struct gif_softc *
 mplsip_getgif(struct mbuf *m)

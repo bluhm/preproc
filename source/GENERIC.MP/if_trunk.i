@@ -2846,8 +2846,7 @@ trunk_clone_create(struct if_clone *ifc, int unit)
  struct trunk_softc *tr;
  struct ifnet *ifp;
  int i, error = 0;
- if ((tr = malloc(sizeof *tr, 2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ tr = malloc(sizeof(*tr), 2, 0x0001|0x0008);
  tr->tr_unit = unit;
  tr->tr_proto = TRUNK_PROTO_NONE;
  for (i = 0; trunk_protos[i].ti_proto != TRUNK_PROTO_NONE; i++) {

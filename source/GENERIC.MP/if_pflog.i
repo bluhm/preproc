@@ -4639,9 +4639,7 @@ pflog_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
  struct pflog_softc *pflogif;
- if ((pflogif = malloc(sizeof(*pflogif),
-     2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ pflogif = malloc(sizeof(*pflogif), 2, 0x0001|0x0008);
  pflogif->sc_unit = unit;
  ifp = &pflogif->sc_if;
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "pflog%d", unit);

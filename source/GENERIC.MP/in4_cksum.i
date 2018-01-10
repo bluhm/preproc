@@ -1525,12 +1525,12 @@ int timeout_hardclock_update(void);
 typedef __socklen_t socklen_t;
 struct soqhead { struct socket *tqh_first; struct socket **tqh_last; };
 struct socket {
+ const struct protosw *so_proto;
+ void *so_pcb;
+ u_int so_state;
  short so_type;
  short so_options;
  short so_linger;
- short so_state;
- void *so_pcb;
- const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -1540,7 +1540,7 @@ struct socket {
  short so_qlen;
  short so_qlimit;
  short so_timeo;
- u_short so_error;
+ u_int so_error;
  pid_t so_pgid;
  uid_t so_siguid;
  uid_t so_sigeuid;

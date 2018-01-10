@@ -6086,7 +6086,7 @@ pfsync_clone_create(struct if_clone *ifc, int unit)
  if (unit != 0)
   return (22);
  pfsync_sync_ok = 1;
- sc = malloc(sizeof(*pfsyncif), 2, 0x0001 | 0x0008);
+ sc = malloc(sizeof(*pfsyncif), 2, 0x0001|0x0008);
  for (q = 0; q < 0x05; q++)
   do { (&sc->sc_qs[q])->tqh_first = ((void *)0); (&sc->sc_qs[q])->tqh_last = &(&sc->sc_qs[q])->tqh_first; } while (0);
  pool_init(&sc->sc_pool, (((sizeof(struct pfsync_upd_req_item))>(sizeof(struct pfsync_deferral)))?(sizeof(struct pfsync_upd_req_item)):(sizeof(struct pfsync_deferral))), 0, 2, 0, "pfsync",
@@ -7425,7 +7425,7 @@ pfsync_q_ins(struct pf_state *st, int q)
 {
  struct pfsync_softc *sc = pfsyncif;
  size_t nlen = pfsync_qs[q].len;
- ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2068, "st->sync_state == PFSYNC_S_NONE"));
+ ((st->sync_state == 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2067, "st->sync_state == PFSYNC_S_NONE"));
  if ((((&sc->sc_qs[q])->tqh_first) == ((void *)0)))
   nlen += sizeof(struct pfsync_subheader);
  if (sc->sc_len + nlen > sc->sc_if.if_data.ifi_mtu) {
@@ -7441,7 +7441,7 @@ pfsync_q_del(struct pf_state *st)
 {
  struct pfsync_softc *sc = pfsyncif;
  int q = st->sync_state;
- ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2094, "st->sync_state != PFSYNC_S_NONE"));
+ ((st->sync_state != 0xff) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_pfsync.c", 2093, "st->sync_state != PFSYNC_S_NONE"));
  sc->sc_len -= pfsync_qs[q].len;
  do { if (((st)->sync_list.tqe_next) != ((void *)0)) (st)->sync_list.tqe_next->sync_list.tqe_prev = (st)->sync_list.tqe_prev; else (&sc->sc_qs[q])->tqh_last = (st)->sync_list.tqe_prev; *(st)->sync_list.tqe_prev = (st)->sync_list.tqe_next; ((st)->sync_list.tqe_prev) = ((void *)-1); ((st)->sync_list.tqe_next) = ((void *)-1); } while (0);
  st->sync_state = 0xff;

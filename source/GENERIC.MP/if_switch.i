@@ -5464,7 +5464,6 @@ switch_clone_create(struct if_clone *ifc, int unit)
  ifp->if_output = ((void *)0);
  ifp->if_start = ((void *)0);
  ifp->if_data.ifi_type = 0xd1;
- ifp->if_data.ifi_addrlen = 0;
  ifp->if_data.ifi_hdrlen = ((6 * 2) + 2);
  do { (&sc->sc_swpo_list)->tqh_first = ((void *)0); (&sc->sc_swpo_list)->tqh_last = &(&sc->sc_swpo_list)->tqh_first; } while (0);
  sc->sc_unit = unit;
@@ -5851,7 +5850,7 @@ switch_port_del(struct switch_softc *sc, struct ifbreq *req)
 int
 switch_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_switch.c", 626, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_switch.c", 624, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);

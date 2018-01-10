@@ -4826,9 +4826,7 @@ int
 gif_clone_create(struct if_clone *ifc, int unit)
 {
  struct gif_softc *sc;
- sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
- if (!sc)
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  snprintf(sc->gif_if.if_xname, sizeof sc->gif_if.if_xname,
       "%s%d", ifc->ifc_name, unit);
  sc->gif_if.if_data.ifi_mtu = (1280);
@@ -4927,10 +4925,10 @@ gif_start(struct ifnet *ifp)
   }
   switch (sc->gif_psrc->sa_family) {
   case 2:
-   ip_output(m, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), 0);
+   ip_send(m);
    break;
   case 24:
-   ip6_output(m, 0, ((void *)0), 0x04, 0, ((void *)0));
+   ip6_send(m);
    break;
   default:
    m_freem(m);

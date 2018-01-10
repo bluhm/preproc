@@ -2674,7 +2674,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
 struct bpf_program {
@@ -2791,9 +2791,7 @@ mpw_clone_create(struct if_clone *ifc, int unit)
 {
  struct mpw_softc *sc;
  struct ifnet *ifp;
- sc = malloc(sizeof(*sc), 2, 0x0002 | 0x0008);
- if (sc == ((void *)0))
-  return (12);
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  ifp = &sc->sc_if;
  snprintf(ifp->if_xname, sizeof(ifp->if_xname), "mpw%d", unit);
  ifp->if_softc = sc;

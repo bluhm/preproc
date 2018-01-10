@@ -2911,60 +2911,47 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 struct mbuf *mpls_ip_adjttl(struct mbuf *, u_int8_t);
 struct mbuf *mpls_ip6_adjttl(struct mbuf *, u_int8_t);
 struct mbuf *mpls_do_error(struct mbuf *, int, int, int);
 void
-mpls_input(struct mbuf *m)
+mpls_input(struct ifnet *ifp, struct mbuf *m)
 {
  struct sockaddr_mpls *smpls;
  struct sockaddr_mpls sa_mpls;
  struct shim_hdr *shim;
  struct rtentry *rt;
  struct rt_mpls *rt_mpls;
- struct ifnet *ifp;
- u_int8_t ttl;
+ uint8_t ttl;
  int hasbos;
- if ((ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx)) == ((void *)0) ||
-     !((ifp->if_xflags) & (0x8))) {
-  m_freem(m);
-  if_put(ifp);
-  return;
- }
  if (m->m_hdr.mh_flags & (0x0100 | 0x0200)) {
   m_freem(m);
-  if_put(ifp);
   return;
  }
- if (m->m_hdr.mh_len < sizeof(*shim))
-  if ((m = m_pullup(m, sizeof(*shim))) == ((void *)0)) {
-   if_put(ifp);
+ if (m->m_hdr.mh_len < sizeof(*shim)) {
+  m = m_pullup(m, sizeof(*shim));
+  if (m == ((void *)0))
    return;
-  }
+ }
  shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
- ttl = ((__uint32_t)(shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0x000000ffU))))));
- if (ttl-- <= 1) {
+ if (--ttl == 0) {
   m = mpls_do_error(m, 11, 0, 0);
-  if (m == ((void *)0)) {
-   if_put(ifp);
+  if (m == ((void *)0))
    return;
-  }
   shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
   ttl = ((__uint32_t)(shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0x000000ffU))))));
  }
+ hasbos = (((shim->shim_label) & ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U))))) == ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U)))));
  __builtin_bzero((&sa_mpls), (sizeof(sa_mpls)));
  smpls = &sa_mpls;
  smpls->smpls_family = 33;
  smpls->smpls_len = sizeof(*smpls);
  smpls->smpls_label = shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0xfffff000U))));
- hasbos = (((shim->shim_label) & ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U))))) == ((u_int32_t)((__uint32_t)((u_int32_t)(0x00000100U)))));
  if (((__uint32_t)(smpls->smpls_label)) < 15) {
   m = mpls_shim_pop(m);
-  if (m == ((void *)0)) {
-   if_put(ifp);
+  if (m == ((void *)0))
    return;
-  }
   if (!hasbos) {
    shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
    smpls->smpls_label = shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0xfffff000U))));
@@ -2973,28 +2960,20 @@ mpls_input(struct mbuf *m)
    switch (((__uint32_t)(smpls->smpls_label))) {
    case 0:
 do_v4:
-    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0)) {
-     if_put(ifp);
+    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0))
      return;
-    }
     ipv4_input(ifp, m);
-    if_put(ifp);
     return;
    case 2:
 do_v6:
-    if ((m = mpls_ip6_adjttl(m, ttl)) == ((void *)0)) {
-     if_put(ifp);
+    if ((m = mpls_ip6_adjttl(m, ttl)) == ((void *)0))
      return;
-    }
     ipv6_input(ifp, m);
-    if_put(ifp);
     return;
    case 3:
     if (m->m_hdr.mh_len < sizeof(u_char) &&
-        (m = m_pullup(m, sizeof(u_char))) == ((void *)0)) {
-     if_put(ifp);
+        (m = m_pullup(m, sizeof(u_char))) == ((void *)0))
      return;
-    }
     switch (*((u_char *)((m)->m_hdr.mh_data)) >> 4) {
     case 4:
      goto do_v4;
@@ -3002,17 +2981,14 @@ do_v6:
      goto do_v6;
     default:
      m_freem(m);
-     if_put(ifp);
      return;
     }
    default:
     m_freem(m);
-    if_put(ifp);
     return;
    }
   }
  }
- if_put(ifp);
  ifp = ((void *)0);
  rt = rtalloc(((struct sockaddr *)(smpls)), 1, m->M_dat.MH.MH_pkthdr.ph_rtableid);
  if (rt == ((void *)0)) {
@@ -3045,7 +3021,7 @@ do_v6:
    ifp->if_output(ifp, m, ((rt)->rt_dest), rt);
    goto done;
   }
-  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 231, "rt->rt_gateway"));
+  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 205, "rt->rt_gateway"));
   switch(rt->rt_gateway->sa_family) {
   case 2:
    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0))

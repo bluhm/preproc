@@ -2733,9 +2733,15 @@ db_ctf_type_by_index(uint16_t index)
 void
 db_ctf_pprint(const struct ctf_type *ctt, vaddr_t addr)
 {
+ db_addr_t taddr = (db_addr_t)ctt;
  const struct ctf_type *ref;
  uint16_t kind;
+ uint32_t eob, toff;
  kind = (((ctt->_ctt_stype.cts_info) & 0xf800) >> 11);
+ if (ctt->_ctt_stype._ST._size <= 0xfffe)
+  toff = sizeof(struct ctf_stype);
+ else
+  toff = sizeof(struct ctf_type);
  switch (kind) {
  case 2:
  case 8:
@@ -2744,7 +2750,15 @@ db_ctf_pprint(const struct ctf_type *ctt, vaddr_t addr)
   db_printf("%lu", *((unsigned long *)addr));
   break;
  case 1:
-  db_printf("%d", *((int *)addr));
+  eob = db_get_value((taddr + toff), sizeof(eob), 0);
+  switch ((((eob) & 0x0000ffff))) {
+  case 64:
+   db_printf("0x%llx", *((long long *)addr));
+   break;
+  default:
+   db_printf("0x%x", *((int *)addr));
+   break;
+  }
   break;
  case 6:
  case 7:

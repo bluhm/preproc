@@ -2679,7 +2679,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
 struct bpf_program {
@@ -2758,9 +2758,7 @@ int
 loop_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
- ifp = malloc(sizeof(*ifp), 2, 0x0002|0x0008);
- if (ifp == ((void *)0))
-  return (12);
+ ifp = malloc(sizeof(*ifp), 2, 0x0001|0x0008);
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "lo%d", unit);
  ifp->if_softc = ((void *)0);
  ifp->if_data.ifi_mtu = 32768;
@@ -2771,7 +2769,6 @@ loop_clone_create(struct if_clone *ifc, int unit)
  ifp->if_output = looutput;
  ifp->if_data.ifi_type = 0x18;
  ifp->if_data.ifi_hdrlen = sizeof(u_int32_t);
- ifp->if_data.ifi_addrlen = 0;
  if (unit == 0) {
   if_attachhead(ifp);
   if_addgroup(ifp, ifc->ifc_name);

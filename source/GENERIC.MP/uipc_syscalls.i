@@ -2040,12 +2040,12 @@ int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
 struct soqhead { struct socket *tqh_first; struct socket **tqh_last; };
 struct socket {
+ const struct protosw *so_proto;
+ void *so_pcb;
+ u_int so_state;
  short so_type;
  short so_options;
  short so_linger;
- short so_state;
- void *so_pcb;
- const struct protosw *so_proto;
  struct socket *so_head;
  struct soqhead *so_onq;
  struct soqhead so_q0;
@@ -2055,7 +2055,7 @@ struct socket {
  short so_qlen;
  short so_qlimit;
  short so_timeo;
- u_short so_error;
+ u_int so_error;
  pid_t so_pgid;
  uid_t so_siguid;
  uid_t so_sigeuid;
@@ -2247,7 +2247,7 @@ int pledge_chown(struct proc *p, uid_t, gid_t);
 int pledge_adjtime(struct proc *p, const void *v);
 int pledge_sendit(struct proc *p, const void *to);
 int pledge_sockopt(struct proc *p, int set, int level, int optname);
-int pledge_socket(struct proc *p, int domain, int state);
+int pledge_socket(struct proc *p, int domain, unsigned int state);
 int pledge_ioctl(struct proc *p, long com, struct file *);
 int pledge_ioctl_drm(struct proc *p, long com, dev_t device);
 int pledge_ioctl_vmm(struct proc *p, long com);
@@ -4218,7 +4218,8 @@ sys_socket(struct proc *p, void *v, register_t *retval)
  struct file *fp;
  int type = ((uap)->type.be.datum);
  int domain = ((uap)->domain.be.datum);
- int fd, error, ss = 0;
+ int fd, error;
+ unsigned int ss = 0;
  if ((type & 0x1000) && !(domain == 2 || domain == 24))
   return (22);
  if (((type) & (0x1000)))

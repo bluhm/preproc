@@ -2769,7 +2769,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 void mpeattach(int);
 int mpeoutput(struct ifnet *, struct mbuf *, struct sockaddr *,
          struct rtentry *);
@@ -2793,9 +2793,7 @@ mpe_clone_create(struct if_clone *ifc, int unit)
 {
  struct ifnet *ifp;
  struct mpe_softc *mpeif;
- if ((mpeif = malloc(sizeof(*mpeif),
-     2, 0x0002|0x0008)) == ((void *)0))
-  return (12);
+ mpeif = malloc(sizeof(*mpeif), 2, 0x0001|0x0008);
  mpeif->sc_unit = unit;
  ifp = &mpeif->sc_if;
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "mpe%d", unit);

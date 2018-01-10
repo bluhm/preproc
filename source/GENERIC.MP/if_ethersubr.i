@@ -3620,7 +3620,7 @@ struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
 struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
 int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
-void mpls_input(struct mbuf *);
+void mpls_input(struct ifnet *, struct mbuf *);
 u_int8_t etherbroadcastaddr[6] =
     { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 u_int8_t etheranyaddr[6] =
@@ -3841,7 +3841,7 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
   break;
  case 0x8847:
  case 0x8848:
-  mpls_input(m);
+  mpls_input(ifp, m);
   return (1);
  default:
   goto dropanyway;
