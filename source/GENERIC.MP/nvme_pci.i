@@ -3441,7 +3441,8 @@ nvme_pci_match(struct device *parent, void *match, void *aux)
      (((pa->pa_class) >> 8) & 0xff) == 0x02)
   return (1);
  if ((((pa->pa_id) >> 0) & 0xffff) == 0x106b &&
-     (((pa->pa_id) >> 16) & 0xffff) == 0x2001)
+     ((((pa->pa_id) >> 16) & 0xffff) == 0x2001 ||
+     (((pa->pa_id) >> 16) & 0xffff) == 0x2003))
       return (1);
  return (0);
 }

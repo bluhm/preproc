@@ -3116,7 +3116,7 @@ struct ifnet {
  caddr_t if_mcast6;
  caddr_t if_pf_kif;
  union {
-  caddr_t carp_s;
+  struct srpl carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
  unsigned int if_index;

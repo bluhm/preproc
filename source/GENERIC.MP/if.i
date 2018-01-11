@@ -3039,7 +3039,7 @@ struct ifnet {
  caddr_t if_mcast6;
  caddr_t if_pf_kif;
  union {
-  caddr_t carp_s;
+  struct srpl carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
  unsigned int if_index;
@@ -5460,7 +5460,7 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-struct ifnet *carp_ourether(void *, u_int8_t *);
+int carp_ourether(struct ifnet *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
 int carp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
@@ -6020,7 +6020,7 @@ if_deactivate(struct ifnet *ifp)
 {
  do { _rw_enter_write(&netlock ); } while (0);
  dohooks(ifp->if_detachhooks, 0x01 | 0x02);
- if (ifp->if_carp_ptr.carp_s && ifp->if_data.ifi_type != 0xf7)
+ if (ifp->if_data.ifi_type != 0xf7 && !(srp_get_locked(&(&ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)))
   carp_ifdetach(ifp);
  do { _rw_exit_write(&netlock ); } while (0);
 }

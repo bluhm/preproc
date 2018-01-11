@@ -2625,7 +2625,7 @@ struct ifnet {
  caddr_t if_mcast6;
  caddr_t if_pf_kif;
  union {
-  caddr_t carp_s;
+  struct srpl carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
  unsigned int if_index;
@@ -3768,15 +3768,13 @@ int
 ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
  struct ether_header *eh;
- struct niqueue *inq;
+ void (*input)(struct ifnet *, struct mbuf *);
  u_int16_t etype;
  struct arpcom *ac;
- struct ether_header *eh_tmp;
  if (m->m_hdr.mh_len < ((6 * 2) + 2))
   goto dropanyway;
  ac = (struct arpcom *)ifp;
  eh = ((struct ether_header *)((m)->m_hdr.mh_data));
- m_adj(m, ((6 * 2) + 2));
  if ((*(eh->ether_dhost) & 0x01)) {
   if ((ifp->if_flags & 0x800) == 0) {
    if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0) {
@@ -3803,30 +3801,25 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
  etype = ((__uint16_t)(eh->ether_type));
  switch (etype) {
  case 0x0800:
-  ipv4_input(ifp, m);
-  return (1);
+  input = ipv4_input;
+  break;
  case 0x0806:
   if (ifp->if_flags & 0x80)
    goto dropanyway;
-  arpinput(ifp, m);
-  return (1);
+  input = arpinput;
+  break;
  case 0x8035:
   if (ifp->if_flags & 0x80)
    goto dropanyway;
-  revarpinput(ifp, m);
-  return (1);
+  input = revarpinput;
+  break;
  case 0x86DD:
-  ipv6_input(ifp, m);
-  return (1);
+  input = ipv6_input;
+  break;
  case 0x8863:
  case 0x8864:
   if (m->m_hdr.mh_flags & (0x0200 | 0x0100))
    goto dropanyway;
-  (m) = m_prepend((m), (sizeof(*eh)), (0x0002));
-  if (m == ((void *)0))
-   return (1);
-  eh_tmp = ((struct ether_header *)((m)->m_hdr.mh_data));
-  __builtin_memmove((eh_tmp), (eh), (sizeof(struct ether_header)));
   if (pipex_enable) {
    struct pipex_session *session;
    if ((session = pipex_pppoe_lookup_session(m)) != ((void *)0)) {
@@ -3835,18 +3828,19 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
    }
   }
   if (etype == 0x8863)
-   inq = &pppoediscinq;
+   niq_enqueue(&pppoediscinq, m);
   else
-   inq = &pppoeinq;
-  break;
+   niq_enqueue(&pppoeinq, m);
+  return (1);
  case 0x8847:
  case 0x8848:
-  mpls_input(ifp, m);
-  return (1);
+  input = mpls_input;
+  break;
  default:
   goto dropanyway;
  }
- niq_enqueue(inq, m);
+ m_adj(m, sizeof(*eh));
+ (*input)(ifp, m);
  return (1);
 dropanyway:
  m_freem(m);
@@ -3906,7 +3900,7 @@ ether_ifdetach(struct ifnet *ifp)
  struct ether_multi *enm;
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 535, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 521, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  for (enm = ((&ac->ac_multiaddrs)->lh_first);
      enm != ((void *)0);
      enm = ((&ac->ac_multiaddrs)->lh_first)) {

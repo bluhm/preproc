@@ -4260,6 +4260,10 @@ nvme_identify(struct nvme_softc *sc, u_int mps)
    sc->sc_mdts = mdts;
  }
  sc->sc_nn = __mswap32(&identify->nn);
+ if (sc->sc_nn > 1 &&
+     mn[0] == 'A' && mn[1] == 'P' && mn[2] == 'P' && mn[3] == 'L' &&
+     mn[4] == 'E')
+  sc->sc_nn = 1;
  __builtin_memcpy((&sc->sc_identify), (identify), (sizeof(sc->sc_identify)));
 done:
  nvme_dmamem_free(sc, mem);
@@ -4272,7 +4276,7 @@ nvme_q_create(struct nvme_softc *sc, struct nvme_queue *q)
  struct nvme_ccb *ccb;
  int rv;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
- ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1078, "ccb != NULL"));
+ ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1090, "ccb != NULL"));
  ccb->ccb_done = nvme_empty_done;
  ccb->ccb_cookie = &sqe;
  __builtin_memset((&sqe), (0), (sizeof(sqe)));
@@ -4307,7 +4311,7 @@ nvme_q_delete(struct nvme_softc *sc, struct nvme_queue *q)
  struct nvme_ccb *ccb;
  int rv;
  ccb = scsi_io_get(&sc->sc_iopool, 0);
- ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1122, "ccb != NULL"));
+ ((ccb != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/nvme.c", 1134, "ccb != NULL"));
  ccb->ccb_done = nvme_empty_done;
  ccb->ccb_cookie = &sqe;
  __builtin_memset((&sqe), (0), (sizeof(sqe)));

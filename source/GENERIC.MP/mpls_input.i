@@ -1883,7 +1883,7 @@ struct ifnet {
  caddr_t if_mcast6;
  caddr_t if_pf_kif;
  union {
-  caddr_t carp_s;
+  struct srpl carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
  unsigned int if_index;
@@ -2935,6 +2935,7 @@ mpls_input(struct ifnet *ifp, struct mbuf *m)
    return;
  }
  shim = ((struct shim_hdr *)((m)->m_hdr.mh_data));
+ ttl = ((__uint32_t)(shim->shim_label & ((u_int32_t)((__uint32_t)((u_int32_t)(0x000000ffU))))));
  if (--ttl == 0) {
   m = mpls_do_error(m, 11, 0, 0);
   if (m == ((void *)0))
@@ -3021,7 +3022,7 @@ do_v6:
    ifp->if_output(ifp, m, ((rt)->rt_dest), rt);
    goto done;
   }
-  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 205, "rt->rt_gateway"));
+  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 207, "rt->rt_gateway"));
   switch(rt->rt_gateway->sa_family) {
   case 2:
    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0))

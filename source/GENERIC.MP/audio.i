@@ -2932,7 +2932,6 @@ audio_setpar(struct audio_softc *sc)
   sc->round = max;
  else if (sc->round < min)
   sc->round = min;
- sc->round = sc->round;
  if (sc->mode & 0x01) {
   sc->play.blksz = sc->round * sc->pchan * sc->bps;
   max = sc->play.datalen / sc->play.blksz;

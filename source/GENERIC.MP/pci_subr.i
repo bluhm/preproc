@@ -4268,6 +4268,10 @@ static const struct pci_known_product pci_known_products[] = {
      "NVMe",
  },
  {
+     0x106b, 0x2003,
+     "NVMe",
+ },
+ {
      0x1538, 0x0301,
      "ARS106S",
  },
@@ -8714,6 +8718,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x14e4, 0x43a0,
      "BCM4360",
+ },
+ {
+     0x14e4, 0x43a3,
+     "BCM4350",
  },
  {
      0x14e4, 0x43ba,

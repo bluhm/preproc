@@ -2483,7 +2483,7 @@ struct ifnet {
  caddr_t if_mcast6;
  caddr_t if_pf_kif;
  union {
-  caddr_t carp_s;
+  struct srpl carp_s;
   struct ifnet *carp_d;
  } if_carp_ptr;
  unsigned int if_index;
@@ -4955,7 +4955,7 @@ void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
 int carp6_proto_input(struct mbuf **, int *, int, int);
 int carp_iamatch(struct ifnet *);
-struct ifnet *carp_ourether(void *, u_int8_t *);
+int carp_ourether(struct ifnet *, u_int8_t *);
 int carp_output(struct ifnet *, struct mbuf *, struct sockaddr *,
        struct rtentry *);
 int carp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
@@ -6045,8 +6045,8 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
    continue;
   ac = (struct arpcom *)ifl->ifp;
   if (__builtin_bcmp((ac->ac_enaddr), (eh->ether_dhost), (6)) == 0
-      || (ifl->ifp->if_carp_ptr.carp_s && carp_ourether(ifl->ifp->if_carp_ptr.carp_s,
-   (u_int8_t *)&eh->ether_dhost) != ((void *)0))
+      || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
+          !carp_ourether(ifl->ifp, eh->ether_dhost))
       ) {
    if (srcifl->bif_flags & 0x0001)
     bridge_rtupdate(sc,
@@ -6063,8 +6063,8 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
    return;
   }
   if (__builtin_bcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0
-      || (ifl->ifp->if_carp_ptr.carp_s && carp_ourether(ifl->ifp->if_carp_ptr.carp_s,
-   (u_int8_t *)&eh->ether_shost) != ((void *)0))
+      || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
+   !carp_ourether(ifl->ifp, eh->ether_shost))
       ) {
    m_freem(m);
    return;
