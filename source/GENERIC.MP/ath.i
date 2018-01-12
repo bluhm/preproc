@@ -3321,7 +3321,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5655,12 +5655,12 @@ ath_attach(u_int16_t devid, struct ath_softc *sc)
      sizeof(struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof(sc->sc_rxtapu);
  __builtin_bzero((&sc->sc_rxtapu), (sc->sc_rxtap_len));
- sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
- sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) ? (__uint32_t)(((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff) << 24 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff00) << 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff0000) >> 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff000000) >> 24) : __swap32md(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)));
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__uint32_t)(__builtin_constant_p(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) ? (__uint32_t)(((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff) << 24 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff00) << 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff0000) >> 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)) & 0xff000000) >> 24) : __swap32md(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_RSSI) | 0)));
  sc->sc_txtap_len = sizeof(sc->sc_txtapu);
  __builtin_bzero((&sc->sc_txtapu), (sc->sc_txtap_len));
- sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
- sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) ? (__uint32_t)(((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff) << 24 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff00) << 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff0000) >> 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff000000) >> 24) : __swap32md(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)));
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__uint32_t)(__builtin_constant_p(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) ? (__uint32_t)(((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff) << 24 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff00) << 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff0000) >> 8 | ((__uint32_t)(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)) & 0xff000000) >> 24) : __swap32md(( (1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_TX_POWER) | (1 << IEEE80211_RADIOTAP_ANTENNA) | (1 << IEEE80211_RADIOTAP_HWQUEUE) | 0)));
  sc->sc_flags |= 0x0001;
  printf(", %s%s, address %s\n",
      ieee80211_regdomain2name(ah->ah_capabilities.cap_regdomain.reg_current),
@@ -5993,8 +5993,8 @@ ath_start(struct ifnet *ifp)
     tsf = ((*(ah)->ah_get_tsf64)((ah)));
     tsf += 100;
     tstamp = (u_int32_t *)&wh[1];
-    tstamp[0] = (__builtin_constant_p(tsf & 0xffffffff) ? (__uint32_t)(((__uint32_t)(tsf & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(tsf & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(tsf & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(tsf & 0xffffffff) & 0xff000000) >> 24) : __swap32md(tsf & 0xffffffff));
-    tstamp[1] = (__builtin_constant_p(tsf >> 32) ? (__uint32_t)(((__uint32_t)(tsf >> 32) & 0xff) << 24 | ((__uint32_t)(tsf >> 32) & 0xff00) << 8 | ((__uint32_t)(tsf >> 32) & 0xff0000) >> 8 | ((__uint32_t)(tsf >> 32) & 0xff000000) >> 24) : __swap32md(tsf >> 32));
+    tstamp[0] = (__uint32_t)(__builtin_constant_p(tsf & 0xffffffff) ? (__uint32_t)(((__uint32_t)(tsf & 0xffffffff) & 0xff) << 24 | ((__uint32_t)(tsf & 0xffffffff) & 0xff00) << 8 | ((__uint32_t)(tsf & 0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(tsf & 0xffffffff) & 0xff000000) >> 24) : __swap32md(tsf & 0xffffffff));
+    tstamp[1] = (__uint32_t)(__builtin_constant_p(tsf >> 32) ? (__uint32_t)(((__uint32_t)(tsf >> 32) & 0xff) << 24 | ((__uint32_t)(tsf >> 32) & 0xff00) << 8 | ((__uint32_t)(tsf >> 32) & 0xff0000) >> 8 | ((__uint32_t)(tsf >> 32) & 0xff000000) >> 24) : __swap32md(tsf >> 32));
    }
    sc->sc_stats.ast_tx_mgmt++;
   }
@@ -6880,7 +6880,7 @@ ath_tx_start(struct ath_softc *sc, struct ieee80211_node *ni,
   u_int16_t dur;
   dur = ath_hal_computetxtime(ah, rt, (2+2+6 +4),
     rix, shortPreamble);
-  *((u_int16_t*) wh->i_dur) = (__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
+  *((u_int16_t*) wh->i_dur) = (__uint16_t)(__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
  }
  ctsduration = 0;
  if (flags & (0x0004|0x0008)) {
@@ -7122,9 +7122,9 @@ ath_chan_set(struct ath_softc *sc, struct ieee80211_channel *chan)
    return 5;
   }
   sc->sc_txtapu.th.wt_chan_freq = sc->sc_rxtapu.th.wr_chan_freq =
-      (__builtin_constant_p(chan->ic_freq) ? (__uint16_t)(((__uint16_t)(chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(chan->ic_freq) & 0xff00U) >> 8) : __swap16md(chan->ic_freq));
+      (__uint16_t)(__builtin_constant_p(chan->ic_freq) ? (__uint16_t)(((__uint16_t)(chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(chan->ic_freq) & 0xff00U) >> 8) : __swap16md(chan->ic_freq));
   sc->sc_txtapu.th.wt_chan_flags = sc->sc_rxtapu.th.wr_chan_flags =
-      (__builtin_constant_p(chan->ic_flags) ? (__uint16_t)(((__uint16_t)(chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(chan->ic_flags) & 0xff00U) >> 8) : __swap16md(chan->ic_flags));
+      (__uint16_t)(__builtin_constant_p(chan->ic_flags) ? (__uint16_t)(((__uint16_t)(chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(chan->ic_flags) & 0xff00U) >> 8) : __swap16md(chan->ic_flags));
   ic->ic_ibss_chan = chan;
   mode = ieee80211_chan2mode(ic, chan);
   if (mode != sc->sc_curmode)

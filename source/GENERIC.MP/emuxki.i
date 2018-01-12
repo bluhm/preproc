@@ -3191,7 +3191,7 @@ emuxki_init(struct emuxki_softc *sc, int resuming)
  silentpage = ((sc->silentpage)->segs[0].ds_addr) << 1;
  ptb = ((void *)((sc->ptb)->kaddr));
  for (i = 0; i < ((0x00ffffff + 1) / 4096); i++)
-  ptb[i] = (__builtin_constant_p(silentpage | i) ? (__uint32_t)(((__uint32_t)(silentpage | i) & 0xff) << 24 | ((__uint32_t)(silentpage | i) & 0xff00) << 8 | ((__uint32_t)(silentpage | i) & 0xff0000) >> 8 | ((__uint32_t)(silentpage | i) & 0xff000000) >> 24) : __swap32md(silentpage | i));
+  ptb[i] = (__uint32_t)(__builtin_constant_p(silentpage | i) ? (__uint32_t)(((__uint32_t)(silentpage | i) & 0xff) << 24 | ((__uint32_t)(silentpage | i) & 0xff00) << 8 | ((__uint32_t)(silentpage | i) & 0xff0000) >> 8 | ((__uint32_t)(silentpage | i) & 0xff000000) >> 24) : __swap32md(silentpage | i));
  emuxki_write(sc, 0, 0x40, ((sc->ptb)->segs[0].ds_addr));
  emuxki_write(sc, 0, 0x44, 0);
  emuxki_write(sc, 0, 0x41, 0);
@@ -3274,9 +3274,9 @@ emuxki_pmem_alloc(struct emuxki_softc *sc, size_t size, int type, int flags)
  if (size % 4096)
   numblocks++;
  for (i = 0; i < ((0x00ffffff + 1) / 4096); i++)
-  if (((__builtin_constant_p(ptb[i]) ? (__uint32_t)(((__uint32_t)(ptb[i]) & 0xff) << 24 | ((__uint32_t)(ptb[i]) & 0xff00) << 8 | ((__uint32_t)(ptb[i]) & 0xff0000) >> 8 | ((__uint32_t)(ptb[i]) & 0xff000000) >> 24) : __swap32md(ptb[i])) & 0xffffe000) == silentpage) {
+  if (((__uint32_t)(__builtin_constant_p(ptb[i]) ? (__uint32_t)(((__uint32_t)(ptb[i]) & 0xff) << 24 | ((__uint32_t)(ptb[i]) & 0xff00) << 8 | ((__uint32_t)(ptb[i]) & 0xff0000) >> 8 | ((__uint32_t)(ptb[i]) & 0xff000000) >> 24) : __swap32md(ptb[i])) & 0xffffe000) == silentpage) {
    for (j = 0; j < numblocks; j++)
-    if (((__builtin_constant_p(ptb[i + j]) ? (__uint32_t)(((__uint32_t)(ptb[i + j]) & 0xff) << 24 | ((__uint32_t)(ptb[i + j]) & 0xff00) << 8 | ((__uint32_t)(ptb[i + j]) & 0xff0000) >> 8 | ((__uint32_t)(ptb[i + j]) & 0xff000000) >> 24) : __swap32md(ptb[i + j]))
+    if (((__uint32_t)(__builtin_constant_p(ptb[i + j]) ? (__uint32_t)(((__uint32_t)(ptb[i + j]) & 0xff) << 24 | ((__uint32_t)(ptb[i + j]) & 0xff00) << 8 | ((__uint32_t)(ptb[i + j]) & 0xff0000) >> 8 | ((__uint32_t)(ptb[i + j]) & 0xff000000) >> 24) : __swap32md(ptb[i + j]))
         & 0xffffe000)
         != silentpage)
      break;
@@ -3287,7 +3287,7 @@ emuxki_pmem_alloc(struct emuxki_softc *sc, size_t size, int type, int flags)
     }
     for (j = 0; j < numblocks; j++)
      ptb[i + j] =
-         (__builtin_constant_p((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) ? (__uint32_t)(((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff) << 24 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff00) << 8 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff0000) >> 8 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff000000) >> 24) : __swap32md((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)));
+         (__uint32_t)(__builtin_constant_p((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) ? (__uint32_t)(((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff) << 24 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff00) << 8 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff0000) >> 8 | ((__uint32_t)((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)) & 0xff000000) >> 24) : __swap32md((((((mem->dmamem)->segs[0].ds_addr) + j * 4096)) << 1) | (i + j)));
     __mtx_enter(&audio_lock );
     do { if (((mem)->next.le_next = (&(sc->mem))->lh_first) != ((void *)0)) (&(sc->mem))->lh_first->next.le_prev = &(mem)->next.le_next; (&(sc->mem))->lh_first = (mem); (mem)->next.le_prev = &(&(sc->mem))->lh_first; } while (0);
     __mtx_leave(&audio_lock );
@@ -4207,7 +4207,7 @@ emuxki_freem(void *addr, void *ptr, int type)
     numblocks++;
    for (i = 0; i < numblocks; i++)
     ptb[mem->ptbidx + i] =
-        (__builtin_constant_p(silentpage | (mem->ptbidx + i)) ? (__uint32_t)(((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff) << 24 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff00) << 8 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff0000) >> 8 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff000000) >> 24) : __swap32md(silentpage | (mem->ptbidx + i)));
+        (__uint32_t)(__builtin_constant_p(silentpage | (mem->ptbidx + i)) ? (__uint32_t)(((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff) << 24 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff00) << 8 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff0000) >> 8 | ((__uint32_t)(silentpage | (mem->ptbidx + i)) & 0xff000000) >> 24) : __swap32md(silentpage | (mem->ptbidx + i)));
   }
   do { if ((mem)->next.le_next != ((void *)0)) (mem)->next.le_next->next.le_prev = (mem)->next.le_prev; *(mem)->next.le_prev = (mem)->next.le_next; ((mem)->next.le_prev) = ((void *)-1); ((mem)->next.le_next) = ((void *)-1); } while (0);
   __mtx_leave(&audio_lock );

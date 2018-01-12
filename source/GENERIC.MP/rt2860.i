@@ -3422,7 +3422,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5061,11 +5061,11 @@ rt2860_attachhook(struct device *self)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof (struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof sc->sc_rxtapu;
- sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
- sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)));
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__uint32_t)(__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL | 1 << IEEE80211_RADIOTAP_ANTENNA | 1 << IEEE80211_RADIOTAP_DB_ANTSIGNAL)));
  sc->sc_txtap_len = sizeof sc->sc_txtapu;
- sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
- sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)));
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__uint32_t)(__builtin_constant_p((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) ? (__uint32_t)(((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff) << 24 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff00) << 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff0000) >> 8 | ((__uint32_t)((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)) & 0xff000000) >> 24) : __swap32md((1 << IEEE80211_RADIOTAP_FLAGS | 1 << IEEE80211_RADIOTAP_RATE | 1 << IEEE80211_RADIOTAP_CHANNEL | 1 << IEEE80211_RADIOTAP_HWQUEUE)));
 }
 int
 rt2860_detach(void *xsc)
@@ -5313,8 +5313,8 @@ rt2860_alloc_rx_ring(struct rt2860_softc *sc, struct rt2860_rx_ring *ring)
        sc->sc_dev.dv_xname);
    goto fail;
   }
-  rxd->sdp0 = (__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
-  rxd->sdl0 = (__builtin_constant_p((1 << 11)) ? (__uint16_t)(((__uint16_t)((1 << 11)) & 0xffU) << 8 | ((__uint16_t)((1 << 11)) & 0xff00U) >> 8) : __swap16md((1 << 11)));
+  rxd->sdp0 = (__uint32_t)(__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
+  rxd->sdl0 = (__uint16_t)(__builtin_constant_p((1 << 11)) ? (__uint16_t)(((__uint16_t)((1 << 11)) & 0xffU) << 8 | ((__uint16_t)((1 << 11)) & 0xff00U) >> 8) : __swap16md((1 << 11)));
  }
  bus_dmamap_sync(sc->sc_dmat, ring->map, 0, size, 0x04);
  return 0;
@@ -5326,7 +5326,7 @@ rt2860_reset_rx_ring(struct rt2860_softc *sc, struct rt2860_rx_ring *ring)
 {
  int i;
  for (i = 0; i < 128; i++)
-  ring->rxd[i].sdl0 &= ~(__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15)));
+  ring->rxd[i].sdl0 &= ~(__uint16_t)(__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15)));
  bus_dmamap_sync(sc->sc_dmat, ring->map, 0, ring->map->dm_mapsize,
      0x04);
  ring->cur = 0;
@@ -5701,15 +5701,15 @@ rt2860_rx_intr(struct rt2860_softc *sc)
   bus_dmamap_sync(sc->sc_dmat, sc->rxq.map,
       sc->rxq.cur * sizeof (struct rt2860_rxd),
       sizeof (struct rt2860_rxd), 0x02);
-  if (__builtin_expect(((!(rxd->sdl0 & (__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15))))) != 0), 0)) {
+  if (__builtin_expect(((!(rxd->sdl0 & (__uint16_t)(__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15))))) != 0), 0)) {
    ;
    break;
   }
-  if (__builtin_expect(((rxd->flags & (__builtin_constant_p((1 << 8) | (1 << 9)) ? (__uint32_t)(((__uint32_t)((1 << 8) | (1 << 9)) & 0xff) << 24 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff00) << 8 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff000000) >> 24) : __swap32md((1 << 8) | (1 << 9)))) != 0), 0)) {
+  if (__builtin_expect(((rxd->flags & (__uint32_t)(__builtin_constant_p((1 << 8) | (1 << 9)) ? (__uint32_t)(((__uint32_t)((1 << 8) | (1 << 9)) & 0xff) << 24 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff00) << 8 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 8) | (1 << 9)) & 0xff000000) >> 24) : __swap32md((1 << 8) | (1 << 9)))) != 0), 0)) {
    ifp->if_data.ifi_ierrors++;
    goto skip;
   }
-  if (__builtin_expect(((rxd->flags & (__builtin_constant_p((1 << 10)) ? (__uint32_t)(((__uint32_t)((1 << 10)) & 0xff) << 24 | ((__uint32_t)((1 << 10)) & 0xff00) << 8 | ((__uint32_t)((1 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 10)) & 0xff000000) >> 24) : __swap32md((1 << 10)))) != 0), 0)) {
+  if (__builtin_expect(((rxd->flags & (__uint32_t)(__builtin_constant_p((1 << 10)) ? (__uint32_t)(((__uint32_t)((1 << 10)) & 0xff) << 24 | ((__uint32_t)((1 << 10)) & 0xff00) << 8 | ((__uint32_t)((1 << 10)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 10)) & 0xff000000) >> 24) : __swap32md((1 << 10)))) != 0), 0)) {
    ic->ic_stats.is_rx_locmicfail++;
    ieee80211_michael_mic_failure(ic, 0 );
    ifp->if_data.ifi_ierrors++;
@@ -5735,23 +5735,23 @@ rt2860_rx_intr(struct rt2860_softc *sc)
     panic("%s: could not load old rx mbuf",
         sc->sc_dev.dv_xname);
    }
-   rxd->sdp0 = (__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
+   rxd->sdp0 = (__uint32_t)(__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
    ifp->if_data.ifi_ierrors++;
    goto skip;
   }
   m = data->m;
   data->m = m1;
-  rxd->sdp0 = (__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
+  rxd->sdp0 = (__uint32_t)(__builtin_constant_p(data->map->dm_segs[0].ds_addr) ? (__uint32_t)(((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff) << 24 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff00) << 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(data->map->dm_segs[0].ds_addr) & 0xff000000) >> 24) : __swap32md(data->map->dm_segs[0].ds_addr));
   rxwi = ((struct rt2860_rxwi *)((m)->m_hdr.mh_data));
   m->m_hdr.mh_data = (caddr_t)(rxwi + 1);
-  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__builtin_constant_p(rxwi->len) ? (__uint16_t)(((__uint16_t)(rxwi->len) & 0xffU) << 8 | ((__uint16_t)(rxwi->len) & 0xff00U) >> 8) : __swap16md(rxwi->len)) & 0xfff;
+  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__uint16_t)(__builtin_constant_p(rxwi->len) ? (__uint16_t)(((__uint16_t)(rxwi->len) & 0xffU) << 8 | ((__uint16_t)(rxwi->len) & 0xff00U) >> 8) : __swap16md(rxwi->len)) & 0xfff;
   wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
   rxi.rxi_flags = 0;
   if (wh->i_fc[1] & 0x40) {
    wh->i_fc[1] &= ~0x40;
    rxi.rxi_flags |= 0x00000001;
   }
-  if (rxd->flags & (__builtin_constant_p((1 << 14)) ? (__uint32_t)(((__uint32_t)((1 << 14)) & 0xff) << 24 | ((__uint32_t)((1 << 14)) & 0xff00) << 8 | ((__uint32_t)((1 << 14)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 14)) & 0xff000000) >> 24) : __swap32md((1 << 14)))) {
+  if (rxd->flags & (__uint32_t)(__builtin_constant_p((1 << 14)) ? (__uint32_t)(((__uint32_t)((1 << 14)) & 0xff) << 24 | ((__uint32_t)((1 << 14)) & 0xff00) << 8 | ((__uint32_t)((1 << 14)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 14)) & 0xff000000) >> 24) : __swap32md((1 << 14)))) {
    u_int hdrlen = ieee80211_get_hdrlen(wh);
    __builtin_memmove(((caddr_t)wh + 2), (wh), (hdrlen));
    m->m_hdr.mh_data += 2;
@@ -5763,13 +5763,13 @@ rt2860_rx_intr(struct rt2860_softc *sc)
    goto skipbpf;
   tap = &sc->sc_rxtapu.th;
   tap->wr_flags = 0;
-  tap->wr_chan_freq = (__builtin_constant_p(ic->ic_ibss_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_freq));
-  tap->wr_chan_flags = (__builtin_constant_p(ic->ic_ibss_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_flags));
+  tap->wr_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_ibss_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_freq));
+  tap->wr_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_ibss_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_flags));
   tap->wr_antsignal = rssi;
   tap->wr_antenna = ant;
   tap->wr_dbm_antsignal = rt2860_rssi2dbm(sc, rssi, ant);
   tap->wr_rate = 2;
-  phy = (__builtin_constant_p(rxwi->phy) ? (__uint16_t)(((__uint16_t)(rxwi->phy) & 0xffU) << 8 | ((__uint16_t)(rxwi->phy) & 0xff00U) >> 8) : __swap16md(rxwi->phy));
+  phy = (__uint16_t)(__builtin_constant_p(rxwi->phy) ? (__uint16_t)(((__uint16_t)(rxwi->phy) & 0xffU) << 8 | ((__uint16_t)(rxwi->phy) & 0xff00U) >> 8) : __swap16md(rxwi->phy));
   switch (phy & 0xc000) {
   case (0 << 14):
    switch ((phy & 0x7f) & ~(1 << 3)) {
@@ -5807,7 +5807,7 @@ skipbpf:
   rxi.rxi_tstamp = 0;
   ieee80211_input(ifp, m, ni, &rxi);
   ieee80211_release_node(ic, ni);
-skip: rxd->sdl0 &= ~(__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15)));
+skip: rxd->sdl0 &= ~(__uint16_t)(__builtin_constant_p((1 << 15)) ? (__uint16_t)(((__uint16_t)((1 << 15)) & 0xffU) << 8 | ((__uint16_t)((1 << 15)) & 0xff00U) >> 8) : __swap16md((1 << 15)));
   bus_dmamap_sync(sc->sc_dmat, sc->rxq.map,
       sc->rxq.cur * sizeof (struct rt2860_rxd),
       sizeof (struct rt2860_rxd), 0x04);
@@ -5927,17 +5927,17 @@ rt2860_tx(struct rt2860_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  txwi->flags = 0;
  txwi->xflags = hasqos ? 0 : (1 << 1);
  txwi->wcid = (type == 0x08) ? rn->wcid : 0xff;
- txwi->len = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
+ txwi->len = (__uint16_t)(__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
  if (rt2860_rates[ridx].phy == IEEE80211_T_DS) {
-  txwi->phy = (__builtin_constant_p((0 << 14)) ? (__uint16_t)(((__uint16_t)((0 << 14)) & 0xffU) << 8 | ((__uint16_t)((0 << 14)) & 0xff00U) >> 8) : __swap16md((0 << 14)));
+  txwi->phy = (__uint16_t)(__builtin_constant_p((0 << 14)) ? (__uint16_t)(((__uint16_t)((0 << 14)) & 0xffU) << 8 | ((__uint16_t)((0 << 14)) & 0xff00U) >> 8) : __swap16md((0 << 14)));
   if (ridx != 0 &&
       (ic->ic_flags & 0x00040000))
    mcs |= (1 << 3);
  } else
-  txwi->phy = (__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
- txwi->phy |= (__builtin_constant_p(mcs) ? (__uint16_t)(((__uint16_t)(mcs) & 0xffU) << 8 | ((__uint16_t)(mcs) & 0xff00U) >> 8) : __swap16md(mcs));
+  txwi->phy = (__uint16_t)(__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
+ txwi->phy |= (__uint16_t)(__builtin_constant_p(mcs) ? (__uint16_t)(((__uint16_t)(mcs) & 0xffU) << 8 | ((__uint16_t)(mcs) & 0xff00U) >> 8) : __swap16md(mcs));
  pid = (mcs + 1) & 0xf;
- txwi->len |= (__builtin_constant_p(pid << 12) ? (__uint16_t)(((__uint16_t)(pid << 12) & 0xffU) << 8 | ((__uint16_t)(pid << 12) & 0xff00U) >> 8) : __swap16md(pid << 12));
+ txwi->len |= (__uint16_t)(__builtin_constant_p(pid << 12) ? (__uint16_t)(((__uint16_t)(pid << 12) & 0xffU) << 8 | ((__uint16_t)(pid << 12) & 0xff00U) >> 8) : __swap16md(pid << 12));
  if (!(*(wh->i_addr1) & 0x01) &&
      (m->M_dat.MH.MH_pkthdr.len + 4 > ic->ic_rtsthreshold ||
       ((ic->ic_flags & 0x00100000) &&
@@ -5953,7 +5953,7 @@ rt2860_tx(struct rt2860_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
    dur = rt2860_rates[ctl_ridx].sp_ack_dur;
   else
    dur = rt2860_rates[ctl_ridx].lp_ack_dur;
-  *(uint16_t *)wh->i_dur = (__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
+  *(uint16_t *)wh->i_dur = (__uint16_t)(__builtin_constant_p(dur) ? (__uint16_t)(((__uint16_t)(dur) & 0xffU) << 8 | ((__uint16_t)(dur) & 0xff00U) >> 8) : __swap16md(dur));
  }
  if ((wh->i_fc[0] &
       (0x0c | 0xf0)) ==
@@ -5964,8 +5964,8 @@ rt2860_tx(struct rt2860_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
   struct mbuf mb;
   tap->wt_flags = 0;
   tap->wt_rate = rt2860_rates[ridx].rate;
-  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_ibss_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_freq));
-  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_ibss_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_flags));
+  tap->wt_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_ibss_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_freq));
+  tap->wt_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_ibss_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_ibss_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_ibss_chan->ic_flags));
   tap->wt_hwqueue = qid;
   if (mcs & (1 << 3))
    tap->wt_flags |= 0x02;
@@ -5989,26 +5989,26 @@ rt2860_tx(struct rt2860_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  }
  qsel = (qid < 4) ? (2 << 1) : (0 << 1);
  txd = &ring->txd[ring->cur];
- txd->sdp0 = (__builtin_constant_p(data->paddr) ? (__uint32_t)(((__uint32_t)(data->paddr) & 0xff) << 24 | ((__uint32_t)(data->paddr) & 0xff00) << 8 | ((__uint32_t)(data->paddr) & 0xff0000) >> 8 | ((__uint32_t)(data->paddr) & 0xff000000) >> 24) : __swap32md(data->paddr));
- txd->sdl0 = (__builtin_constant_p(sizeof (struct rt2860_txwi) + hdrlen) ? (__uint16_t)(((__uint16_t)(sizeof (struct rt2860_txwi) + hdrlen) & 0xffU) << 8 | ((__uint16_t)(sizeof (struct rt2860_txwi) + hdrlen) & 0xff00U) >> 8) : __swap16md(sizeof (struct rt2860_txwi) + hdrlen));
+ txd->sdp0 = (__uint32_t)(__builtin_constant_p(data->paddr) ? (__uint32_t)(((__uint32_t)(data->paddr) & 0xff) << 24 | ((__uint32_t)(data->paddr) & 0xff00) << 8 | ((__uint32_t)(data->paddr) & 0xff0000) >> 8 | ((__uint32_t)(data->paddr) & 0xff000000) >> 24) : __swap32md(data->paddr));
+ txd->sdl0 = (__uint16_t)(__builtin_constant_p(sizeof (struct rt2860_txwi) + hdrlen) ? (__uint16_t)(((__uint16_t)(sizeof (struct rt2860_txwi) + hdrlen) & 0xffU) << 8 | ((__uint16_t)(sizeof (struct rt2860_txwi) + hdrlen) & 0xff00U) >> 8) : __swap16md(sizeof (struct rt2860_txwi) + hdrlen));
  txd->flags = qsel;
  seg = data->map->dm_segs;
  for (nsegs = data->map->dm_nsegs; nsegs >= 2; nsegs -= 2) {
-  txd->sdp1 = (__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
-  txd->sdl1 = (__builtin_constant_p(seg->ds_len) ? (__uint16_t)(((__uint16_t)(seg->ds_len) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len) & 0xff00U) >> 8) : __swap16md(seg->ds_len));
+  txd->sdp1 = (__uint32_t)(__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
+  txd->sdl1 = (__uint16_t)(__builtin_constant_p(seg->ds_len) ? (__uint16_t)(((__uint16_t)(seg->ds_len) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len) & 0xff00U) >> 8) : __swap16md(seg->ds_len));
   seg++;
   ring->cur = (ring->cur + 1) % 64;
   txd = &ring->txd[ring->cur];
-  txd->sdp0 = (__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
-  txd->sdl0 = (__builtin_constant_p(seg->ds_len) ? (__uint16_t)(((__uint16_t)(seg->ds_len) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len) & 0xff00U) >> 8) : __swap16md(seg->ds_len));
+  txd->sdp0 = (__uint32_t)(__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
+  txd->sdl0 = (__uint16_t)(__builtin_constant_p(seg->ds_len) ? (__uint16_t)(((__uint16_t)(seg->ds_len) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len) & 0xff00U) >> 8) : __swap16md(seg->ds_len));
   txd->flags = qsel;
   seg++;
  }
  if (nsegs > 0) {
-  txd->sdp1 = (__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
-  txd->sdl1 = (__builtin_constant_p(seg->ds_len | (1 << 14)) ? (__uint16_t)(((__uint16_t)(seg->ds_len | (1 << 14)) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len | (1 << 14)) & 0xff00U) >> 8) : __swap16md(seg->ds_len | (1 << 14)));
+  txd->sdp1 = (__uint32_t)(__builtin_constant_p(seg->ds_addr) ? (__uint32_t)(((__uint32_t)(seg->ds_addr) & 0xff) << 24 | ((__uint32_t)(seg->ds_addr) & 0xff00) << 8 | ((__uint32_t)(seg->ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(seg->ds_addr) & 0xff000000) >> 24) : __swap32md(seg->ds_addr));
+  txd->sdl1 = (__uint16_t)(__builtin_constant_p(seg->ds_len | (1 << 14)) ? (__uint16_t)(((__uint16_t)(seg->ds_len | (1 << 14)) & 0xffU) << 8 | ((__uint16_t)(seg->ds_len | (1 << 14)) & 0xff00U) >> 8) : __swap16md(seg->ds_len | (1 << 14)));
  } else {
-  txd->sdl0 |= (__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
+  txd->sdl0 |= (__uint16_t)(__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
   txd->sdl1 = 0;
  }
  do { (&sc->data_pool)->slh_first = (&sc->data_pool)->slh_first->next.sle_next; } while (0);
@@ -7755,12 +7755,12 @@ rt2860_setup_beacon(struct rt2860_softc *sc)
   return 55;
  __builtin_memset((&txwi), (0), (sizeof txwi));
  txwi.wcid = 0xff;
- txwi.len = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
+ txwi.len = (__uint16_t)(__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
  ridx = (ic->ic_curmode == IEEE80211_MODE_11A) ?
      4 : 0;
- txwi.phy = (__builtin_constant_p(rt2860_rates[ridx].mcs) ? (__uint16_t)(((__uint16_t)(rt2860_rates[ridx].mcs) & 0xffU) << 8 | ((__uint16_t)(rt2860_rates[ridx].mcs) & 0xff00U) >> 8) : __swap16md(rt2860_rates[ridx].mcs));
+ txwi.phy = (__uint16_t)(__builtin_constant_p(rt2860_rates[ridx].mcs) ? (__uint16_t)(((__uint16_t)(rt2860_rates[ridx].mcs) & 0xffU) << 8 | ((__uint16_t)(rt2860_rates[ridx].mcs) & 0xff00U) >> 8) : __swap16md(rt2860_rates[ridx].mcs));
  if (rt2860_rates[ridx].phy == IEEE80211_T_OFDM)
-  txwi.phy |= (__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
+  txwi.phy |= (__uint16_t)(__builtin_constant_p((1 << 14)) ? (__uint16_t)(((__uint16_t)((1 << 14)) & 0xffU) << 8 | ((__uint16_t)((1 << 14)) & 0xff00U) >> 8) : __swap16md((1 << 14)));
  txwi.txop = 0;
  txwi.flags = (1 << 3);
  txwi.xflags = (1 << 1);

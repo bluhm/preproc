@@ -3422,7 +3422,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5602,11 +5602,11 @@ uath_attach(struct device *parent, struct device *self, void *aux)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof (struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof sc->sc_rxtapu;
- sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
- sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))));
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__uint32_t)(__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL))));
  sc->sc_txtap_len = sizeof sc->sc_txtapu;
- sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
- sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))));
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__uint32_t)(__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_CHANNEL))));
  return;
 fail: uath_close_pipes(sc);
  uath_free_tx_data_list(sc);
@@ -6244,8 +6244,8 @@ uath_data_rxeof(struct usbd_xfer *xfer, void *priv,
   struct mbuf mb;
   struct uath_rx_radiotap_header *tap = &sc->sc_rxtapu.th;
   tap->wr_flags = 0;
-  tap->wr_chan_freq = (__builtin_constant_p(((__uint32_t)(desc->freq))) ? (__uint16_t)(((__uint16_t)(((__uint32_t)(desc->freq))) & 0xffU) << 8 | ((__uint16_t)(((__uint32_t)(desc->freq))) & 0xff00U) >> 8) : __swap16md(((__uint32_t)(desc->freq))));
-  tap->wr_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wr_chan_freq = (__uint16_t)(__builtin_constant_p(((__uint32_t)(desc->freq))) ? (__uint16_t)(((__uint16_t)(((__uint32_t)(desc->freq))) & 0xffU) << 8 | ((__uint16_t)(((__uint32_t)(desc->freq))) & 0xff00U) >> 8) : __swap16md(((__uint32_t)(desc->freq))));
+  tap->wr_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   tap->wr_dbm_antsignal = (int8_t)((__uint32_t)(desc->rssi));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_rxtap_len;
@@ -6330,8 +6330,8 @@ uath_tx_data(struct uath_softc *sc, struct mbuf *m0, struct ieee80211_node *ni)
   struct mbuf mb;
   struct uath_tx_radiotap_header *tap = &sc->sc_txtapu.th;
   tap->wt_flags = 0;
-  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
-  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wt_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m0;

@@ -3055,7 +3055,7 @@ udf_readlblks(struct umount *ump, int sector, int size, struct buf **bp)
 static __inline udfino_t
 udf_getid(struct long_ad *icb)
 {
- return ((__builtin_constant_p(icb->loc.lb_num) ? (__uint32_t)(((__uint32_t)(icb->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(icb->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff000000) >> 24) : __swap32md(icb->loc.lb_num)));
+ return ((__uint32_t)(__builtin_constant_p(icb->loc.lb_num) ? (__uint32_t)(((__uint32_t)(icb->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(icb->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff000000) >> 24) : __swap32md(icb->loc.lb_num)));
 }
 int udf_allocv(struct mount *, struct vnode **, struct proc *);
 int udf_hashlookup(struct umount *, udfino_t, int, struct vnode **);
@@ -3156,8 +3156,8 @@ udf_disklabelspoof(dev_t dev, void (*strat)(struct buf *),
  if (udf_checktag((struct desc_tag *)bp->b_data, TAGID_ANCHOR))
   goto out;
  __builtin_bcopy((bp->b_data), (&avdp), (sizeof(avdp)));
- mvds_start = (__builtin_constant_p(avdp.main_vds_ex.loc) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.loc) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.loc));
- mvds_end = mvds_start + ((__builtin_constant_p(avdp.main_vds_ex.len) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.len) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.len)) - 1) / bsize;
+ mvds_start = (__uint32_t)(__builtin_constant_p(avdp.main_vds_ex.loc) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.loc) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.loc));
+ mvds_end = mvds_start + ((__uint32_t)(__builtin_constant_p(avdp.main_vds_ex.len) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.len) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.len)) - 1) / bsize;
  for (sector = mvds_start; sector < mvds_end; sector++) {
   bp->b_blkno = sector * ((bsize) >> 9);
   bp->b_bcount = bsize;
@@ -3206,7 +3206,7 @@ udf_vat_get(struct umount *ump, uint32_t lb)
  if (error)
   return (error);
  up = ((struct unode *)((vp)->v_data));
- up->un_u.u_vatlen = ((__builtin_constant_p(up->u_fentry->inf_len) ? (__uint64_t)((((__uint64_t)(up->u_fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(up->u_fentry->inf_len)) - 36) >> 2;
+ up->un_u.u_vatlen = ((__uint64_t)(__builtin_constant_p(up->u_fentry->inf_len) ? (__uint64_t)((((__uint64_t)(up->u_fentry->inf_len) & 0xff) << 56) | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00ULL) << 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000ULL) << 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000ULL) << 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000ULL) >> 8 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(up->u_fentry->inf_len) & 0xff00000000000000ULL) >> 56) : __swap64md(up->u_fentry->inf_len)) - 36) >> 2;
  ump->um_vat = malloc(sizeof(struct unode), 140, 0x0001);
        *ump->um_vat = *up;
  ump->um_flags &= ~0x01;
@@ -3243,7 +3243,7 @@ udf_vat_read(struct umount *ump, uint32_t *sector)
    brelse(bp);
   return (22);
  }
- *sector = (__builtin_constant_p(*(uint32_t *)data) ? (__uint32_t)(((__uint32_t)(*(uint32_t *)data) & 0xff) << 24 | ((__uint32_t)(*(uint32_t *)data) & 0xff00) << 8 | ((__uint32_t)(*(uint32_t *)data) & 0xff0000) >> 8 | ((__uint32_t)(*(uint32_t *)data) & 0xff000000) >> 24) : __swap32md(*(uint32_t *)data)) + ump->um_start;
+ *sector = (__uint32_t)(__builtin_constant_p(*(uint32_t *)data) ? (__uint32_t)(((__uint32_t)(*(uint32_t *)data) & 0xff) << 24 | ((__uint32_t)(*(uint32_t *)data) & 0xff00) << 8 | ((__uint32_t)(*(uint32_t *)data) & 0xff0000) >> 8 | ((__uint32_t)(*(uint32_t *)data) & 0xff000000) >> 24) : __swap32md(*(uint32_t *)data)) + ump->um_start;
  brelse(bp);
  return (0);
 }

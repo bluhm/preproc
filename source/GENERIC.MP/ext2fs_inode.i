@@ -3478,7 +3478,7 @@ ext2fs_truncate(struct inode *oip, off_t length, int flags, struct ucred *cred)
  indir_lbn[1] = indir_lbn[0] - ((fs)->e2fs_bsize / sizeof(u_int32_t)) -1;
  indir_lbn[2] = indir_lbn[1] - ((fs)->e2fs_bsize / sizeof(u_int32_t)) * ((fs)->e2fs_bsize / sizeof(u_int32_t)) - 1;
  for (level = 2; level >= 0; level--) {
-  bn = (__builtin_constant_p(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) ? (__uint32_t)(((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff) << 24 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff00) << 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff0000) >> 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff000000) >> 24) : __swap32md(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]));
+  bn = (__uint32_t)(__builtin_constant_p(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) ? (__uint32_t)(((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff) << 24 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff00) << 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff0000) >> 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]) & 0xff000000) >> 24) : __swap32md(oip->dinode_u.e2fs_din->e2di_blocks[12 + level]));
   if (bn != 0) {
    error = ext2fs_indirtrunc(oip, indir_lbn[level],
        ((bn) << (fs)->e2fs_fsbtodb), lastiblock[level], level, &count);
@@ -3495,7 +3495,7 @@ ext2fs_truncate(struct inode *oip, off_t length, int flags, struct ucred *cred)
    goto done;
  }
  for (i = 12 - 1; i > lastblock; i--) {
-  bn = (__builtin_constant_p(oip->dinode_u.e2fs_din->e2di_blocks[i]) ? (__uint32_t)(((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff) << 24 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff00) << 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff0000) >> 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff000000) >> 24) : __swap32md(oip->dinode_u.e2fs_din->e2di_blocks[i]));
+  bn = (__uint32_t)(__builtin_constant_p(oip->dinode_u.e2fs_din->e2di_blocks[i]) ? (__uint32_t)(((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff) << 24 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff00) << 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff0000) >> 8 | ((__uint32_t)(oip->dinode_u.e2fs_din->e2di_blocks[i]) & 0xff000000) >> 24) : __swap32md(oip->dinode_u.e2fs_din->e2di_blocks[i]));
   if (bn == 0)
    continue;
   oip->dinode_u.e2fs_din->e2di_blocks[i] = 0;
@@ -3572,7 +3572,7 @@ ext2fs_indirtrunc(struct inode *ip, int32_t lbn, int32_t dbn, int32_t lastbn, in
  for (i = ((fs)->e2fs_bsize / sizeof(u_int32_t)) - 1,
   nlbn = lbn + 1 - i * factor; i > last;
   i--, nlbn += factor) {
-  nb = (__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i]));
+  nb = (__uint32_t)(__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i]));
   if (nb == 0)
    continue;
   if (level > 0) {
@@ -3588,7 +3588,7 @@ ext2fs_indirtrunc(struct inode *ip, int32_t lbn, int32_t dbn, int32_t lastbn, in
  }
  if (level > 0 && lastbn >= 0) {
   last = lastbn % factor;
-  nb = (__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i]));
+  nb = (__uint32_t)(__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i]));
   if (nb != 0) {
    error = ext2fs_indirtrunc(ip, nlbn, ((nb) << (fs)->e2fs_fsbtodb),
          last, level - 1, &blkcount);

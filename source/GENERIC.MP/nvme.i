@@ -4159,7 +4159,7 @@ nvme_poll(struct nvme_softc *sc, struct nvme_queue *q, struct nvme_ccb *ccb,
  ccb->ccb_done = nvme_poll_done;
  ccb->ccb_cookie = &state;
  nvme_q_submit(sc, q, ccb, nvme_poll_fill);
- while (!((state.c.flags) & ((__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))))) {
+ while (!((state.c.flags) & ((__uint16_t)(__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))))) {
   if (nvme_q_complete(sc, q) == 0)
    delay(10);
  }
@@ -4180,7 +4180,7 @@ nvme_poll_done(struct nvme_softc *sc, struct nvme_ccb *ccb,
     struct nvme_cqe *cqe)
 {
  struct nvme_poll_state *state = ccb->ccb_cookie;
- ((cqe->flags) |= ((__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))));
+ ((cqe->flags) |= ((__uint16_t)(__builtin_constant_p((1 << 0)) ? (__uint16_t)(((__uint16_t)((1 << 0)) & 0xffU) << 8 | ((__uint16_t)((1 << 0)) & 0xff00U) >> 8) : __swap16md((1 << 0)))));
  state->c = *cqe;
 }
 void

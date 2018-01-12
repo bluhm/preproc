@@ -2498,9 +2498,9 @@ ata_get_params(struct ata_drive_datas *drvp, u_int8_t flags,
   dma_free(tb, 512);
   return 1;
  } else {
-  do { __size_t __swap16_multi_n = (10); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb); while (__swap16_multi_n) { *__swap16_multi_v = (__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
-  do { __size_t __swap16_multi_n = (3); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb + 20); while (__swap16_multi_n) { *__swap16_multi_v = (__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
-  do { __size_t __swap16_multi_n = (512 / 2 - 47); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb + 47); while (__swap16_multi_n) { *__swap16_multi_v = (__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
+  do { __size_t __swap16_multi_n = (10); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb); while (__swap16_multi_n) { *__swap16_multi_v = (__uint16_t)(__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
+  do { __size_t __swap16_multi_n = (3); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb + 20); while (__swap16_multi_n) { *__swap16_multi_v = (__uint16_t)(__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
+  do { __size_t __swap16_multi_n = (512 / 2 - 47); __uint16_t *__swap16_multi_v = ((u_int16_t *)tb + 47); while (__swap16_multi_n) { *__swap16_multi_v = (__uint16_t)(__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
   __builtin_bcopy((tb), (prms), (sizeof(struct ataparams)));
   if ((prms->atap_config & 0xc000) ==
       0x8000 &&
@@ -2513,15 +2513,15 @@ ata_get_params(struct ata_drive_datas *drvp, u_int8_t flags,
   }
   for (i = 0; i < sizeof(prms->atap_model); i += 2) {
    p = (u_short *)(prms->atap_model + i);
-   *p = (__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
+   *p = (__uint16_t)(__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
   }
   for (i = 0; i < sizeof(prms->atap_serial); i += 2) {
    p = (u_short *)(prms->atap_serial + i);
-   *p = (__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
+   *p = (__uint16_t)(__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
   }
   for (i = 0; i < sizeof(prms->atap_revision); i += 2) {
    p = (u_short *)(prms->atap_revision + i);
-   *p = (__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
+   *p = (__uint16_t)(__builtin_constant_p(*p) ? (__uint16_t)(((__uint16_t)(*p) & 0xffU) << 8 | ((__uint16_t)(*p) & 0xff00U) >> 8) : __swap16md(*p));
   }
   dma_free(tb, 512);
   return 0;

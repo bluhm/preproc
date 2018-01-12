@@ -4867,13 +4867,13 @@ pciide_dma_init(void *v, int channel, int drive, void *databuf,
   }
   }
   dma_maps->dma_table[seg].base_addr =
-      (__builtin_constant_p(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr));
+      (__uint32_t)(__builtin_constant_p(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dma_maps->dmamap_xfer->dm_segs[seg].ds_addr));
   dma_maps->dma_table[seg].byte_count =
-      (__builtin_constant_p(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) ? (__uint32_t)(((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff) << 24 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff00) << 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff0000) >> 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff000000) >> 24) : __swap32md(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF));
+      (__uint32_t)(__builtin_constant_p(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) ? (__uint32_t)(((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff) << 24 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff00) << 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff0000) >> 8 | ((__uint32_t)(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF) & 0xff000000) >> 24) : __swap32md(dma_maps->dmamap_xfer->dm_segs[seg].ds_len & 0x0000FFFF));
   ;
  }
  dma_maps->dma_table[dma_maps->dmamap_xfer->dm_nsegs -1].byte_count |=
-     (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
+     (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000));
  bus_dmamap_sync(sc->sc_dmat, dma_maps->dmamap_table, 0,
      dma_maps->dmamap_table->dm_mapsize,
      0x04);

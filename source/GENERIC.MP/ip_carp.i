@@ -5544,7 +5544,7 @@ carp_ourether(struct ifnet *ifp, u_int8_t *ena)
  struct srpl *cif;
  struct carp_softc *vh;
  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1349, "_kernel_lock_held()"));
- ((ifp->if_data.ifi_type == 0xf7) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1350, "ifp->if_type == IFT_CARP"));
+ ((ifp->if_data.ifi_type != 0xf7) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 1350, "ifp->if_type != IFT_CARP"));
  cif = &ifp->if_carp_ptr.carp_s;
  for ((vh) = srp_get_locked(&(cif)->sl_head); (vh) != ((void *)0); (vh) = srp_get_locked(&((vh))->sc_list.se_next)) {
   struct carp_vhost_entry *vhe;

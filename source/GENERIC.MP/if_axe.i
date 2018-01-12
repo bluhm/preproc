@@ -4152,7 +4152,7 @@ axe_ax88178_init(struct axe_softc *sc)
  axe_cmd(sc, 0x010D, 0, 0, ((void *)0));
  axe_cmd(sc, 0x200B, 0, 0x0017, &eeprom);
  axe_cmd(sc, 0x010E, 0, 0, ((void *)0));
- eeprom = (__builtin_constant_p(eeprom) ? (__uint16_t)(((__uint16_t)(eeprom) & 0xffU) << 8 | ((__uint16_t)(eeprom) & 0xff00U) >> 8) : __swap16md(eeprom));
+ eeprom = (__uint16_t)(__builtin_constant_p(eeprom) ? (__uint16_t)(((__uint16_t)(eeprom) & 0xffU) << 8 | ((__uint16_t)(eeprom) & 0xff00U) >> 8) : __swap16md(eeprom));
  ;
  if (eeprom == 0xffff) {
   phymode = 0x00;
@@ -4515,13 +4515,13 @@ axe_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
    buf += pktlen;
    __builtin_memcpy((&hdr), (buf), (sizeof(hdr)));
    total_len -= sizeof(hdr);
-   if ((((__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff) ^
-       ((__builtin_constant_p(hdr.ilen) ? (__uint16_t)(((__uint16_t)(hdr.ilen) & 0xffU) << 8 | ((__uint16_t)(hdr.ilen) & 0xff00U) >> 8) : __swap16md(hdr.ilen)) & 0x07ff)) !=
+   if ((((__uint16_t)(__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff) ^
+       ((__uint16_t)(__builtin_constant_p(hdr.ilen) ? (__uint16_t)(((__uint16_t)(hdr.ilen) & 0xffU) << 8 | ((__uint16_t)(hdr.ilen) & 0xff00U) >> 8) : __swap16md(hdr.ilen)) & 0x07ff)) !=
        0x07ff) {
     ifp->if_data.ifi_ierrors++;
     goto done;
    }
-   pktlen = (__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff;
+   pktlen = (__uint16_t)(__builtin_constant_p(hdr.len) ? (__uint16_t)(((__uint16_t)(hdr.len) & 0xffU) << 8 | ((__uint16_t)(hdr.len) & 0xff00U) >> 8) : __swap16md(hdr.len)) & 0x07ff;
    if (pktlen > total_len) {
     ifp->if_data.ifi_ierrors++;
     goto done;
@@ -4638,7 +4638,7 @@ axe_encap(struct axe_softc *sc, struct mbuf *m, int idx)
  c = &sc->axe_cdata.axe_tx_chain[idx];
  if (sc->axe_flags & (0x0001 | 0x0002)) {
   boundary = (sc->axe_udev->speed == 3) ? 512 : 64;
-  hdr.len = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
+  hdr.len = (__uint16_t)(__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(m->M_dat.MH.MH_pkthdr.len));
   hdr.ilen = ~hdr.len;
   __builtin_memcpy((c->axe_buf), (&hdr), (sizeof(hdr)));
   length = sizeof(hdr);

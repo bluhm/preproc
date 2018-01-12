@@ -3344,7 +3344,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5944,7 +5944,7 @@ wi_send_packet(struct wi_usb_softc *sc, int id)
  if (id == 0 || id == 1) {
   wibuf = sc->wi_usb_txmem[id];
   total_len = sizeof (struct wi_frame) +
-      (__builtin_constant_p(wibuf->wi_dat_len) ? (__uint16_t)(((__uint16_t)(wibuf->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(wibuf->wi_dat_len) & 0xff00U) >> 8) : __swap16md(wibuf->wi_dat_len));
+      (__uint16_t)(__builtin_constant_p(wibuf->wi_dat_len) ? (__uint16_t)(((__uint16_t)(wibuf->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(wibuf->wi_dat_len) & 0xff00U) >> 8) : __swap16md(wibuf->wi_dat_len));
   rnd_len = (((total_len)+63) & ~63);
   if ((total_len > sc->wi_usb_txmemsize[id]) ||
      (rnd_len > 2368 )){
@@ -6015,11 +6015,11 @@ wi_cmd_usb(struct wi_softc *wsc, int cmd, int val0, int val1, int val2)
  }
  sc->cmdresp = cmd;
  sc->cmdresperr = 0;
- pcmd->type = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
- pcmd->cmd = (__builtin_constant_p(cmd) ? (__uint16_t)(((__uint16_t)(cmd) & 0xffU) << 8 | ((__uint16_t)(cmd) & 0xff00U) >> 8) : __swap16md(cmd));
- pcmd->param0 = (__builtin_constant_p(val0) ? (__uint16_t)(((__uint16_t)(val0) & 0xffU) << 8 | ((__uint16_t)(val0) & 0xff00U) >> 8) : __swap16md(val0));
- pcmd->param1 = (__builtin_constant_p(val1) ? (__uint16_t)(((__uint16_t)(val1) & 0xffU) << 8 | ((__uint16_t)(val1) & 0xff00U) >> 8) : __swap16md(val1));
- pcmd->param2 = (__builtin_constant_p(val2) ? (__uint16_t)(((__uint16_t)(val2) & 0xffU) << 8 | ((__uint16_t)(val2) & 0xff00U) >> 8) : __swap16md(val2));
+ pcmd->type = (__uint16_t)(__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+ pcmd->cmd = (__uint16_t)(__builtin_constant_p(cmd) ? (__uint16_t)(((__uint16_t)(cmd) & 0xffU) << 8 | ((__uint16_t)(cmd) & 0xff00U) >> 8) : __swap16md(cmd));
+ pcmd->param0 = (__uint16_t)(__builtin_constant_p(val0) ? (__uint16_t)(((__uint16_t)(val0) & 0xffU) << 8 | ((__uint16_t)(val0) & 0xff00U) >> 8) : __swap16md(val0));
+ pcmd->param1 = (__uint16_t)(__builtin_constant_p(val1) ? (__uint16_t)(((__uint16_t)(val1) & 0xffU) << 8 | ((__uint16_t)(val1) & 0xff00U) >> 8) : __swap16md(val1));
+ pcmd->param2 = (__uint16_t)(__builtin_constant_p(val2) ? (__uint16_t)(((__uint16_t)(val2) & 0xffU) << 8 | ((__uint16_t)(val2) & 0xff00U) >> 8) : __swap16md(val2));
  __builtin_bzero((((char*)pcmd)+total_len), (rnd_len - total_len));
  usbd_setup_xfer(c->wi_usb_xfer, sc->wi_usb_ep[1],
      c, c->wi_usb_buf, rnd_len, 0x08 | 0x01,
@@ -6074,9 +6074,9 @@ wi_read_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
  }
  sc->ridltv = ltv;
  sc->ridresperr = 0;
- prid->type = (__builtin_constant_p(3) ? (__uint16_t)(((__uint16_t)(3) & 0xffU) << 8 | ((__uint16_t)(3) & 0xff00U) >> 8) : __swap16md(3));
- prid->frmlen = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
- prid->rid = (__builtin_constant_p(ltv->wi_type) ? (__uint16_t)(((__uint16_t)(ltv->wi_type) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_type) & 0xff00U) >> 8) : __swap16md(ltv->wi_type));
+ prid->type = (__uint16_t)(__builtin_constant_p(3) ? (__uint16_t)(((__uint16_t)(3) & 0xffU) << 8 | ((__uint16_t)(3) & 0xff00U) >> 8) : __swap16md(3));
+ prid->frmlen = (__uint16_t)(__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+ prid->rid = (__uint16_t)(__builtin_constant_p(ltv->wi_type) ? (__uint16_t)(((__uint16_t)(ltv->wi_type) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_type) & 0xff00U) >> 8) : __swap16md(ltv->wi_type));
  __builtin_bzero((((char*)prid)+total_len), (rnd_len - total_len));
  usbd_setup_xfer(c->wi_usb_xfer, sc->wi_usb_ep[1],
      c, c->wi_usb_buf, rnd_len, 0x08 | 0x01,
@@ -6085,13 +6085,13 @@ wi_read_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
  err = wi_usb_do_transmit_sync(sc, c, &sc->ridresperr);
  if (ltv->wi_type == 0xFC00 && wsc->wi_ptype == 0x4
      && ltv->wi_val == wsc->wi_ibss_port) {
-  ltv->wi_val = (__builtin_constant_p(0x4) ? (__uint16_t)(((__uint16_t)(0x4) & 0xffU) << 8 | ((__uint16_t)(0x4) & 0xff00U) >> 8) : __swap16md(0x4));
+  ltv->wi_val = (__uint16_t)(__builtin_constant_p(0x4) ? (__uint16_t)(((__uint16_t)(0x4) & 0xffU) << 8 | ((__uint16_t)(0x4) & 0xff00U) >> 8) : __swap16md(0x4));
  } else if (wsc->sc_firmware_type != 1) {
   int v;
   switch (oltv->wi_type) {
   case 0xFC84:
   case 0xFD44:
-   switch ((__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
+   switch ((__uint16_t)(__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
    case 1: v = 1; break;
    case 2: v = 2; break;
    case 3: v = 6; break;
@@ -6099,16 +6099,16 @@ wi_read_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
    case 7: v = 7; break;
    case 8: v = 11; break;
    case 15: v = 3; break;
-   default: v = 0x100 + (__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)); break;
+   default: v = 0x100 + (__uint16_t)(__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)); break;
    }
-   oltv->wi_val = (__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
+   oltv->wi_val = (__uint16_t)(__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
    break;
   case 0xFC20:
    oltv->wi_len = 2;
-   if (ltv->wi_val & (__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01)))
-    oltv->wi_val = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+   if (ltv->wi_val & (__uint16_t)(__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01)))
+    oltv->wi_val = (__uint16_t)(__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
    else
-    oltv->wi_val = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+    oltv->wi_val = (__uint16_t)(__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
    break;
   case 0xFCB1:
   case 0xFC2A:
@@ -6137,7 +6137,7 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
  int i;
  ;
  if (ltv->wi_type == 0xFC00 &&
-     (__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)) == 0x4) {
+     (__uint16_t)(__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val)) == 0x4) {
   p2ltv.wi_type = 0xFC00;
   p2ltv.wi_len = 2;
   p2ltv.wi_val = wsc->wi_ibss_port;
@@ -6148,7 +6148,7 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
   case 0xFC84:
    p2ltv.wi_type = 0xFC84;
    p2ltv.wi_len = 2;
-   switch ((__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
+   switch ((__uint16_t)(__builtin_constant_p(ltv->wi_val) ? (__uint16_t)(((__uint16_t)(ltv->wi_val) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_val) & 0xff00U) >> 8) : __swap16md(ltv->wi_val))) {
    case 1: v = 1; break;
    case 2: v = 2; break;
    case 3: v = 15; break;
@@ -6158,13 +6158,13 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
    case 11: v = 8; break;
    default: return 22;
    }
-   p2ltv.wi_val = (__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
+   p2ltv.wi_val = (__uint16_t)(__builtin_constant_p(v) ? (__uint16_t)(((__uint16_t)(v) & 0xffU) << 8 | ((__uint16_t)(v) & 0xff00U) >> 8) : __swap16md(v));
    ltv = &p2ltv;
    break;
   case 0xFC20:
    p2ltv.wi_type = 0xFC28;
    p2ltv.wi_len = 2;
-   if (ltv->wi_val & (__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01))) {
+   if (ltv->wi_val & (__uint16_t)(__builtin_constant_p(0x01) ? (__uint16_t)(((__uint16_t)(0x01) & 0xffU) << 8 | ((__uint16_t)(0x01) & 0xff00U) >> 8) : __swap16md(0x01))) {
     val = 0x01;
     if (wsc->wi_authtype != 1 ||
         wsc->sc_firmware_type == 3)
@@ -6178,9 +6178,9 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
      val |= 0x10|0x80;
      break;
     }
-    p2ltv.wi_val = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
+    p2ltv.wi_val = (__uint16_t)(__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
    } else
-    p2ltv.wi_val = (__builtin_constant_p(0x10 | 0x80) ? (__uint16_t)(((__uint16_t)(0x10 | 0x80) & 0xffU) << 8 | ((__uint16_t)(0x10 | 0x80) & 0xff00U) >> 8) : __swap16md(0x10 | 0x80));
+    p2ltv.wi_val = (__uint16_t)(__builtin_constant_p(0x10 | 0x80) ? (__uint16_t)(((__uint16_t)(0x10 | 0x80) & 0xffU) << 8 | ((__uint16_t)(0x10 | 0x80) & 0xff00U) >> 8) : __swap16md(0x10 | 0x80));
    ltv = &p2ltv;
    break;
   case 0xFCB1:
@@ -6198,7 +6198,7 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
     struct wi_ltv_keys *wk;
     wk = (struct wi_ltv_keys *)ltv;
     keylen = wk->wi_keys[wsc->wi_tx_key].wi_keylen;
-    keylen = (__builtin_constant_p(keylen) ? (__uint16_t)(((__uint16_t)(keylen) & 0xffU) << 8 | ((__uint16_t)(keylen) & 0xff00U) >> 8) : __swap16md(keylen));
+    keylen = (__uint16_t)(__builtin_constant_p(keylen) ? (__uint16_t)(((__uint16_t)(keylen) & 0xffU) << 8 | ((__uint16_t)(keylen) & 0xff00U) >> 8) : __swap16md(keylen));
     for (i = 0; i < 4; i++) {
      __builtin_bzero((&ws), (sizeof(ws)));
      ws.wi_len = (keylen > 5) ? 8 : 4;
@@ -6225,9 +6225,9 @@ wi_write_record_usb(struct wi_softc *wsc, struct wi_ltv_gen *ltv)
   wi_usb_tx_unlock(sc);
   return 5;
  }
- prid->type = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
- prid->frmlen = (__builtin_constant_p(ltv->wi_len) ? (__uint16_t)(((__uint16_t)(ltv->wi_len) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_len) & 0xff00U) >> 8) : __swap16md(ltv->wi_len));
- prid->rid = (__builtin_constant_p(ltv->wi_type) ? (__uint16_t)(((__uint16_t)(ltv->wi_type) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_type) & 0xff00U) >> 8) : __swap16md(ltv->wi_type));
+ prid->type = (__uint16_t)(__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+ prid->frmlen = (__uint16_t)(__builtin_constant_p(ltv->wi_len) ? (__uint16_t)(((__uint16_t)(ltv->wi_len) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_len) & 0xff00U) >> 8) : __swap16md(ltv->wi_len));
+ prid->rid = (__uint16_t)(__builtin_constant_p(ltv->wi_type) ? (__uint16_t)(((__uint16_t)(ltv->wi_type) & 0xffU) << 8 | ((__uint16_t)(ltv->wi_type) & 0xff00U) >> 8) : __swap16md(ltv->wi_type));
  if (ltv->wi_len > 1)
   __builtin_bcopy((&ltv->wi_val), (&prid->data[0]), ((ltv->wi_len-1)*2));
  __builtin_bzero((((char*)prid)+total_len), (rnd_len - total_len));
@@ -6547,7 +6547,7 @@ wi_usb_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
  if (total_len < 6)
   goto done;
  uin = (wi_usb_usbin *)(c->wi_usb_buf);
- rtype = (__builtin_constant_p(uin->type) ? (__uint16_t)(((__uint16_t)(uin->type) & 0xffU) << 8 | ((__uint16_t)(uin->type) & 0xff00U) >> 8) : __swap16md(uin->type));
+ rtype = (__uint16_t)(__builtin_constant_p(uin->type) ? (__uint16_t)(((__uint16_t)(uin->type) & 0xffU) << 8 | ((__uint16_t)(uin->type) & 0xff00U) >> 8) : __swap16md(uin->type));
  if ((((rtype) & 0xf000) == 0x2000)) {
   wi_usb_rxfrm(sc, uin, total_len);
   goto done;
@@ -6618,12 +6618,12 @@ void
 wi_usb_cmdresp(struct wi_usb_chain *c)
 {
  struct wi_cmdresp *presp = (struct wi_cmdresp *)(c->wi_usb_buf);
- u_int16_t status = (__builtin_constant_p(presp->status) ? (__uint16_t)(((__uint16_t)(presp->status) & 0xffU) << 8 | ((__uint16_t)(presp->status) & 0xff00U) >> 8) : __swap16md(presp->status));
+ u_int16_t status = (__uint16_t)(__builtin_constant_p(presp->status) ? (__uint16_t)(((__uint16_t)(presp->status) & 0xffU) << 8 | ((__uint16_t)(presp->status) & 0xff00U) >> 8) : __swap16md(presp->status));
  struct wi_usb_softc *sc = c->wi_usb_sc;
  uint16_t type;
  uint16_t cmdresperr;
- type = (__builtin_constant_p(presp->type) ? (__uint16_t)(((__uint16_t)(presp->type) & 0xffU) << 8 | ((__uint16_t)(presp->type) & 0xff00U) >> 8) : __swap16md(presp->type));
- cmdresperr = (__builtin_constant_p(presp->resp0) ? (__uint16_t)(((__uint16_t)(presp->resp0) & 0xffU) << 8 | ((__uint16_t)(presp->resp0) & 0xff00U) >> 8) : __swap16md(presp->resp0));
+ type = (__uint16_t)(__builtin_constant_p(presp->type) ? (__uint16_t)(((__uint16_t)(presp->type) & 0xffU) << 8 | ((__uint16_t)(presp->type) & 0xff00U) >> 8) : __swap16md(presp->type));
+ cmdresperr = (__uint16_t)(__builtin_constant_p(presp->resp0) ? (__uint16_t)(((__uint16_t)(presp->resp0) & 0xffU) << 8 | ((__uint16_t)(presp->resp0) & 0xff00U) >> 8) : __swap16md(presp->resp0));
  ;
  if (sc->cmdresp != (status & 0x003F)) {
   ;
@@ -6637,18 +6637,18 @@ void
 wi_usb_rridresp(struct wi_usb_chain *c)
 {
  struct wi_rridresp *presp = (struct wi_rridresp *)(c->wi_usb_buf);
- u_int16_t frmlen = (__builtin_constant_p(presp->frmlen) ? (__uint16_t)(((__uint16_t)(presp->frmlen) & 0xffU) << 8 | ((__uint16_t)(presp->frmlen) & 0xff00U) >> 8) : __swap16md(presp->frmlen));
+ u_int16_t frmlen = (__uint16_t)(__builtin_constant_p(presp->frmlen) ? (__uint16_t)(((__uint16_t)(presp->frmlen) & 0xffU) << 8 | ((__uint16_t)(presp->frmlen) & 0xff00U) >> 8) : __swap16md(presp->frmlen));
  struct wi_usb_softc *sc = c->wi_usb_sc;
  struct wi_ltv_gen *ltv;
  uint16_t rid;
- rid = (__builtin_constant_p(presp->rid) ? (__uint16_t)(((__uint16_t)(presp->rid) & 0xffU) << 8 | ((__uint16_t)(presp->rid) & 0xff00U) >> 8) : __swap16md(presp->rid));
+ rid = (__uint16_t)(__builtin_constant_p(presp->rid) ? (__uint16_t)(((__uint16_t)(presp->rid) & 0xffU) << 8 | ((__uint16_t)(presp->rid) & 0xff00U) >> 8) : __swap16md(presp->rid));
  ltv = sc->ridltv;
  if (ltv == 0) {
   ;
   return;
  }
  ;
- rid = (__builtin_constant_p(presp->rid) ? (__uint16_t)(((__uint16_t)(presp->rid) & 0xffU) << 8 | ((__uint16_t)(presp->rid) & 0xff00U) >> 8) : __swap16md(presp->rid));
+ rid = (__uint16_t)(__builtin_constant_p(presp->rid) ? (__uint16_t)(((__uint16_t)(presp->rid) & 0xffU) << 8 | ((__uint16_t)(presp->rid) & 0xff00U) >> 8) : __swap16md(presp->rid));
  if (rid != ltv->wi_type) {
   sc->ridresperr = 5;
   return;
@@ -6673,7 +6673,7 @@ wi_usb_wridresp(struct wi_usb_chain *c)
  struct wi_wridresp *presp = (struct wi_wridresp *)(c->wi_usb_buf);
  struct wi_usb_softc *sc = c->wi_usb_sc;
  uint16_t status;
- status = (__builtin_constant_p(presp->status) ? (__uint16_t)(((__uint16_t)(presp->status) & 0xffU) << 8 | ((__uint16_t)(presp->status) & 0xff00U) >> 8) : __swap16md(presp->status));
+ status = (__uint16_t)(__builtin_constant_p(presp->status) ? (__uint16_t)(((__uint16_t)(presp->status) & 0xffU) << 8 | ((__uint16_t)(presp->status) & 0xff00U) >> 8) : __swap16md(presp->status));
  ;
  sc->ridresperr = (status & 0x7F00) >> 8;
  sc->ridltv = 0;
@@ -6696,7 +6696,7 @@ wi_usb_txfrm(struct wi_usb_softc *sc, wi_usb_usbin *uin, int total_len)
  struct wi_softc *wsc = &sc->sc_wi;
  struct ifnet *ifp = &wsc->sc_ic.ic_ac.ac_if;
  s = _splraise(6);
- status = (__builtin_constant_p(uin->type) ? (__uint16_t)(((__uint16_t)(uin->type) & 0xffU) << 8 | ((__uint16_t)(uin->type) & 0xff00U) >> 8) : __swap16md(uin->type));
+ status = (__uint16_t)(__builtin_constant_p(uin->type) ? (__uint16_t)(((__uint16_t)(uin->type) & 0xffU) << 8 | ((__uint16_t)(uin->type) & 0xff00U) >> 8) : __swap16md(uin->type));
  ;
  if (sc->txresp == 0x000B) {
   sc->txresperr=status;

@@ -2099,9 +2099,9 @@ swcr_authenc(struct cryptop *crp)
   case 22:
    __builtin_bzero((blk), (axf->hashsize));
    blkp = (uint32_t *)blk;
-   *blkp = (__builtin_constant_p(aadlen) ? (__uint32_t)(((__uint32_t)(aadlen) & 0xff) << 24 | ((__uint32_t)(aadlen) & 0xff00) << 8 | ((__uint32_t)(aadlen) & 0xff0000) >> 8 | ((__uint32_t)(aadlen) & 0xff000000) >> 24) : __swap32md(aadlen));
+   *blkp = (__uint32_t)(__builtin_constant_p(aadlen) ? (__uint32_t)(((__uint32_t)(aadlen) & 0xff) << 24 | ((__uint32_t)(aadlen) & 0xff00) << 8 | ((__uint32_t)(aadlen) & 0xff0000) >> 8 | ((__uint32_t)(aadlen) & 0xff000000) >> 24) : __swap32md(aadlen));
    blkp = (uint32_t *)blk + 2;
-   *blkp = (__builtin_constant_p(crde->crd_len) ? (__uint32_t)(((__uint32_t)(crde->crd_len) & 0xff) << 24 | ((__uint32_t)(crde->crd_len) & 0xff00) << 8 | ((__uint32_t)(crde->crd_len) & 0xff0000) >> 8 | ((__uint32_t)(crde->crd_len) & 0xff000000) >> 24) : __swap32md(crde->crd_len));
+   *blkp = (__uint32_t)(__builtin_constant_p(crde->crd_len) ? (__uint32_t)(((__uint32_t)(crde->crd_len) & 0xff) << 24 | ((__uint32_t)(crde->crd_len) & 0xff00) << 8 | ((__uint32_t)(crde->crd_len) & 0xff0000) >> 8 | ((__uint32_t)(crde->crd_len) & 0xff000000) >> 24) : __swap32md(crde->crd_len));
    axf->Update(&ctx, blk, axf->hashsize);
    break;
  }

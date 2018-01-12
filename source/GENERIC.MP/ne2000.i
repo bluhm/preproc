@@ -3553,7 +3553,7 @@ ne2000_read_hdr(struct dp8390_softc *sc, int buf, struct dp8390_ring *hdr)
  ne2000_readmem(sc->sc_regt, sc->sc_regh, nsc->sc_asict, nsc->sc_asich,
      buf, (u_int8_t *)hdr, sizeof(struct dp8390_ring),
      nsc->sc_useword);
- hdr->count = (__builtin_constant_p(hdr->count) ? (__uint16_t)(((__uint16_t)(hdr->count) & 0xffU) << 8 | ((__uint16_t)(hdr->count) & 0xff00U) >> 8) : __swap16md(hdr->count));
+ hdr->count = (__uint16_t)(__builtin_constant_p(hdr->count) ? (__uint16_t)(((__uint16_t)(hdr->count) & 0xffU) << 8 | ((__uint16_t)(hdr->count) & 0xff00U) >> 8) : __swap16md(hdr->count));
 }
 int
 ne2000_test_mem(struct dp8390_softc *sc)

@@ -18659,7 +18659,7 @@ static inline u32 si_get_ih_wptr(struct radeon_device *rdev)
 {
  u32 wptr, tmp;
  if (rdev->wb.enabled)
-  wptr = (__builtin_constant_p(rdev->wb.wb[2048/4]) ? (__uint32_t)(((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff) << 24 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff00) << 8 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff000000) >> 24) : __swap32md(rdev->wb.wb[2048/4]));
+  wptr = (__uint32_t)(__builtin_constant_p(rdev->wb.wb[2048/4]) ? (__uint32_t)(((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff) << 24 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff00) << 8 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->wb.wb[2048/4]) & 0xff000000) >> 24) : __swap32md(rdev->wb.wb[2048/4]));
  else
   wptr = r100_mm_rreg(rdev, (0x3e0c), 0);
  if (wptr & (1 << 0)) {
@@ -18692,9 +18692,9 @@ restart_ih:
  si_irq_ack(rdev);
  while (rptr != wptr) {
   ring_index = rptr / 4;
-  src_id = (__builtin_constant_p(rdev->ih.ring[ring_index]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index])) & 0xff;
-  src_data = (__builtin_constant_p(rdev->ih.ring[ring_index + 1]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index + 1])) & 0xfffffff;
-  ring_id = (__builtin_constant_p(rdev->ih.ring[ring_index + 2]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index + 2])) & 0xff;
+  src_id = (__uint32_t)(__builtin_constant_p(rdev->ih.ring[ring_index]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index])) & 0xff;
+  src_data = (__uint32_t)(__builtin_constant_p(rdev->ih.ring[ring_index + 1]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 1]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index + 1])) & 0xfffffff;
+  ring_id = (__uint32_t)(__builtin_constant_p(rdev->ih.ring[ring_index + 2]) ? (__uint32_t)(((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff) << 24 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff00) << 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->ih.ring[ring_index + 2]) & 0xff000000) >> 24) : __swap32md(rdev->ih.ring[ring_index + 2])) & 0xff;
   switch (src_id) {
   case 1:
    switch (src_data) {

@@ -2920,8 +2920,8 @@ auacer_add_entry(struct auacer_chan *chan)
  struct auacer_dmalist *q;
  q = &chan->dmalist[chan->ptr];
  ;
- q->base = (__builtin_constant_p(chan->p) ? (__uint32_t)(((__uint32_t)(chan->p) & 0xff) << 24 | ((__uint32_t)(chan->p) & 0xff00) << 8 | ((__uint32_t)(chan->p) & 0xff0000) >> 8 | ((__uint32_t)(chan->p) & 0xff000000) >> 24) : __swap32md(chan->p));
- q->len = (__builtin_constant_p((chan->blksize / 2) | 0x80000000) ? (__uint32_t)(((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff) << 24 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff00) << 8 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff0000) >> 8 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff000000) >> 24) : __swap32md((chan->blksize / 2) | 0x80000000));
+ q->base = (__uint32_t)(__builtin_constant_p(chan->p) ? (__uint32_t)(((__uint32_t)(chan->p) & 0xff) << 24 | ((__uint32_t)(chan->p) & 0xff00) << 8 | ((__uint32_t)(chan->p) & 0xff0000) >> 8 | ((__uint32_t)(chan->p) & 0xff000000) >> 24) : __swap32md(chan->p));
+ q->len = (__uint32_t)(__builtin_constant_p((chan->blksize / 2) | 0x80000000) ? (__uint32_t)(((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff) << 24 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff00) << 8 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff0000) >> 8 | ((__uint32_t)((chan->blksize / 2) | 0x80000000) & 0xff000000) >> 24) : __swap32md((chan->blksize / 2) | 0x80000000));
  chan->p += chan->blksize;
  if (chan->p >= chan->end)
   chan->p = chan->start;

@@ -4558,7 +4558,7 @@ bge_nvram_getbyte(struct bge_softc *sc, int addr, u_int8_t *dest)
   return (1);
  }
  byte = bus_space_read_4(sc->bge_btag, sc->bge_bhandle, 0x7010);
- *dest = ((__builtin_constant_p(byte) ? (__uint32_t)(((__uint32_t)(byte) & 0xff) << 24 | ((__uint32_t)(byte) & 0xff00) << 8 | ((__uint32_t)(byte) & 0xff0000) >> 8 | ((__uint32_t)(byte) & 0xff000000) >> 24) : __swap32md(byte)) >> ((addr % 4) * 8)) & 0xFF;
+ *dest = ((__uint32_t)(__builtin_constant_p(byte) ? (__uint32_t)(((__uint32_t)(byte) & 0xff) << 24 | ((__uint32_t)(byte) & 0xff00) << 8 | ((__uint32_t)(byte) & 0xff0000) >> 8 | ((__uint32_t)(byte) & 0xff000000) >> 24) : __swap32md(byte)) >> ((addr % 4) * 8)) & 0xFF;
  bus_space_write_4(sc->bge_btag, sc->bge_bhandle, 0x7024, access);
  bus_space_write_4(sc->bge_btag, sc->bge_bhandle, 0x7020, 0x00000020);
  bus_space_read_4(sc->bge_btag, sc->bge_bhandle, 0x7020);

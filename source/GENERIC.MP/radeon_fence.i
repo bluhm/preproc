@@ -11535,7 +11535,7 @@ static void radeon_fence_write(struct radeon_device *rdev, u32 seq, int ring)
 {
  struct radeon_fence_driver *drv = &rdev->fence_drv[ring];
  if (__builtin_expect(!!(rdev->wb.enabled || !drv->scratch_reg), 1)) {
-  *drv->cpu_addr = (__builtin_constant_p(seq) ? (__uint32_t)(((__uint32_t)(seq) & 0xff) << 24 | ((__uint32_t)(seq) & 0xff00) << 8 | ((__uint32_t)(seq) & 0xff0000) >> 8 | ((__uint32_t)(seq) & 0xff000000) >> 24) : __swap32md(seq));
+  *drv->cpu_addr = (__uint32_t)(__builtin_constant_p(seq) ? (__uint32_t)(((__uint32_t)(seq) & 0xff) << 24 | ((__uint32_t)(seq) & 0xff00) << 8 | ((__uint32_t)(seq) & 0xff0000) >> 8 | ((__uint32_t)(seq) & 0xff000000) >> 24) : __swap32md(seq));
  } else {
   r100_mm_wreg(rdev, (drv->scratch_reg), (seq), 0);
  }
@@ -11545,7 +11545,7 @@ static u32 radeon_fence_read(struct radeon_device *rdev, int ring)
  struct radeon_fence_driver *drv = &rdev->fence_drv[ring];
  u32 seq = 0;
  if (__builtin_expect(!!(rdev->wb.enabled || !drv->scratch_reg), 1)) {
-  seq = (__builtin_constant_p(*drv->cpu_addr) ? (__uint32_t)(((__uint32_t)(*drv->cpu_addr) & 0xff) << 24 | ((__uint32_t)(*drv->cpu_addr) & 0xff00) << 8 | ((__uint32_t)(*drv->cpu_addr) & 0xff0000) >> 8 | ((__uint32_t)(*drv->cpu_addr) & 0xff000000) >> 24) : __swap32md(*drv->cpu_addr));
+  seq = (__uint32_t)(__builtin_constant_p(*drv->cpu_addr) ? (__uint32_t)(((__uint32_t)(*drv->cpu_addr) & 0xff) << 24 | ((__uint32_t)(*drv->cpu_addr) & 0xff00) << 8 | ((__uint32_t)(*drv->cpu_addr) & 0xff0000) >> 8 | ((__uint32_t)(*drv->cpu_addr) & 0xff000000) >> 24) : __swap32md(*drv->cpu_addr));
  } else {
   seq = r100_mm_rreg(rdev, (drv->scratch_reg), 0);
  }

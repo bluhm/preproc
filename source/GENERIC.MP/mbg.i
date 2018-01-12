@@ -2612,10 +2612,10 @@ mbg_task_hr(void *arg)
   return;
  }
  tlocal = tstamp.tv_sec * 1000000000LL + tstamp.tv_nsec;
- trecv = (__builtin_constant_p(tframe.sec) ? (__uint32_t)(((__uint32_t)(tframe.sec) & 0xff) << 24 | ((__uint32_t)(tframe.sec) & 0xff00) << 8 | ((__uint32_t)(tframe.sec) & 0xff0000) >> 8 | ((__uint32_t)(tframe.sec) & 0xff000000) >> 24) : __swap32md(tframe.sec)) * 1000000000LL +
-     ((__builtin_constant_p(tframe.frac) ? (__uint32_t)(((__uint32_t)(tframe.frac) & 0xff) << 24 | ((__uint32_t)(tframe.frac) & 0xff00) << 8 | ((__uint32_t)(tframe.frac) & 0xff0000) >> 8 | ((__uint32_t)(tframe.frac) & 0xff000000) >> 24) : __swap32md(tframe.frac)) * 1000000000LL >> 32);
+ trecv = (__uint32_t)(__builtin_constant_p(tframe.sec) ? (__uint32_t)(((__uint32_t)(tframe.sec) & 0xff) << 24 | ((__uint32_t)(tframe.sec) & 0xff00) << 8 | ((__uint32_t)(tframe.sec) & 0xff0000) >> 8 | ((__uint32_t)(tframe.sec) & 0xff000000) >> 24) : __swap32md(tframe.sec)) * 1000000000LL +
+     ((__uint32_t)(__builtin_constant_p(tframe.frac) ? (__uint32_t)(((__uint32_t)(tframe.frac) & 0xff) << 24 | ((__uint32_t)(tframe.frac) & 0xff00) << 8 | ((__uint32_t)(tframe.frac) & 0xff0000) >> 8 | ((__uint32_t)(tframe.frac) & 0xff000000) >> 24) : __swap32md(tframe.frac)) * 1000000000LL >> 32);
  mbg_update_sensor(sc, &tstamp, tlocal - trecv, tframe.signal,
-     (__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)));
+     (__uint16_t)(__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)));
 }
 void
 mbg_update_sensor(struct mbg_softc *sc, struct timespec *tstamp,

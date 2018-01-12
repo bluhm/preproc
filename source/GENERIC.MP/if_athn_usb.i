@@ -3422,7 +3422,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -6784,11 +6784,11 @@ athn_usb_swba(struct athn_usb_softc *usc)
   return;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
  *(uint16_t *)&wh->i_seq[0] =
-     (__builtin_constant_p(ic->ic_bss->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_txseq << 4));
+     (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_txseq << 4));
  ic->ic_bss->ni_txseq++;
  hdr = (struct ar_stream_hdr *)data->buf;
- hdr->tag = (__builtin_constant_p(0x697e) ? (__uint16_t)(((__uint16_t)(0x697e) & 0xffU) << 8 | ((__uint16_t)(0x697e) & 0xff00U) >> 8) : __swap16md(0x697e));
- hdr->len = (__builtin_constant_p(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len));
+ hdr->tag = (__uint16_t)(__builtin_constant_p(0x697e) ? (__uint16_t)(((__uint16_t)(0x697e) & 0xffU) << 8 | ((__uint16_t)(0x697e) & 0xff00U) >> 8) : __swap16md(0x697e));
+ hdr->len = (__uint16_t)(__builtin_constant_p(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(sizeof(*htc) + sizeof(*bcn) + m->M_dat.MH.MH_pkthdr.len));
  htc = (struct ar_htc_frame_hdr *)&hdr[1];
  __builtin_memset((htc), (0), (sizeof(*htc)));
  htc->endpoint_id = usc->ep_bcn;
@@ -6924,9 +6924,9 @@ athn_usb_rx_radiotap(struct athn_softc *sc, struct mbuf *m,
  struct mbuf mb;
  uint8_t rate;
  tap->wr_flags = 0x10;
- tap->wr_tsft = (__builtin_constant_p(((__uint64_t)(rs->rs_tstamp))) ? (__uint64_t)((((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff) << 56) | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00ULL) << 40 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff0000ULL) << 24 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff000000ULL) << 8 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00000000000000ULL) >> 56) : __swap64md(((__uint64_t)(rs->rs_tstamp))));
- tap->wr_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
- tap->wr_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+ tap->wr_tsft = (__uint64_t)(__builtin_constant_p(((__uint64_t)(rs->rs_tstamp))) ? (__uint64_t)((((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff) << 56) | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00ULL) << 40 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff0000ULL) << 24 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff000000ULL) << 8 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((__uint64_t)(rs->rs_tstamp))) & 0xff00000000000000ULL) >> 56) : __swap64md(((__uint64_t)(rs->rs_tstamp))));
+ tap->wr_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+ tap->wr_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
  tap->wr_dbm_antsignal = rs->rs_rssi;
  tap->wr_antenna = rs->rs_antenna;
  tap->wr_rate = 0;
@@ -7068,11 +7068,11 @@ athn_usb_rxeof(struct usbd_xfer *xfer, void *priv,
  ((stream->left == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_athn_usb.c", 1835, "stream->left == 0"));
  while (len >= sizeof(*hdr)) {
   hdr = (struct ar_stream_hdr *)buf;
-  if (hdr->tag != (__builtin_constant_p(0x4e00) ? (__uint16_t)(((__uint16_t)(0x4e00) & 0xffU) << 8 | ((__uint16_t)(0x4e00) & 0xff00U) >> 8) : __swap16md(0x4e00))) {
+  if (hdr->tag != (__uint16_t)(__builtin_constant_p(0x4e00) ? (__uint16_t)(((__uint16_t)(0x4e00) & 0xffU) << 8 | ((__uint16_t)(0x4e00) & 0xff00U) >> 8) : __swap16md(0x4e00))) {
    ;
    break;
   }
-  pktlen = (__builtin_constant_p(hdr->len) ? (__uint16_t)(((__uint16_t)(hdr->len) & 0xffU) << 8 | ((__uint16_t)(hdr->len) & 0xff00U) >> 8) : __swap16md(hdr->len));
+  pktlen = (__uint16_t)(__builtin_constant_p(hdr->len) ? (__uint16_t)(((__uint16_t)(hdr->len) & 0xffU) << 8 | ((__uint16_t)(hdr->len) & 0xff00U) >> 8) : __swap16md(hdr->len));
   buf += sizeof(*hdr);
   len -= sizeof(*hdr);
   if (__builtin_expect(((pktlen <= (1 << 11)) != 0), 1)) {
@@ -7176,8 +7176,8 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
   struct athn_tx_radiotap_header *tap = &sc->sc_txtapu.th;
   struct mbuf mb;
   tap->wt_flags = 0;
-  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
-  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wt_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m;
@@ -7188,7 +7188,7 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  }
  sta_index = an->sta_index;
  hdr = (struct ar_stream_hdr *)data->buf;
- hdr->tag = (__builtin_constant_p(0x697e) ? (__uint16_t)(((__uint16_t)(0x697e) & 0xffU) << 8 | ((__uint16_t)(0x697e) & 0xff00U) >> 8) : __swap16md(0x697e));
+ hdr->tag = (__uint16_t)(__builtin_constant_p(0x697e) ? (__uint16_t)(((__uint16_t)(0x697e) & 0xffU) << 8 | ((__uint16_t)(0x697e) & 0xff00U) >> 8) : __swap16md(0x697e));
  htc = (struct ar_htc_frame_hdr *)&hdr[1];
  __builtin_memset((htc), (0), (sizeof(*htc)));
  if ((wh->i_fc[0] & 0x0c) ==
@@ -7223,7 +7223,7 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  frm += m->M_dat.MH.MH_pkthdr.len;
  m_freem(m);
  htc->payload_len = ((__uint16_t)(frm - (uint8_t *)&htc[1]));
- hdr->len = (__builtin_constant_p(frm - (uint8_t *)&hdr[1]) ? (__uint16_t)(((__uint16_t)(frm - (uint8_t *)&hdr[1]) & 0xffU) << 8 | ((__uint16_t)(frm - (uint8_t *)&hdr[1]) & 0xff00U) >> 8) : __swap16md(frm - (uint8_t *)&hdr[1]));
+ hdr->len = (__uint16_t)(__builtin_constant_p(frm - (uint8_t *)&hdr[1]) ? (__uint16_t)(((__uint16_t)(frm - (uint8_t *)&hdr[1]) & 0xffU) << 8 | ((__uint16_t)(frm - (uint8_t *)&hdr[1]) & 0xff00U) >> 8) : __swap16md(frm - (uint8_t *)&hdr[1]));
  xferlen = frm - data->buf;
  usbd_setup_xfer(data->xfer, usc->tx_data_pipe, data, data->buf,
      xferlen, 0x08 | 0x01, 5000,

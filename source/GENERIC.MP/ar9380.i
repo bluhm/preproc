@@ -3402,7 +3402,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -6881,23 +6881,23 @@ ar9380_swap_rom(struct athn_softc *sc)
  struct ar9380_base_eep_hdr *base = &eep->baseEepHeader;
  struct ar9380_modal_eep_header *modal;
  int i;
- base->regDmn[0] = (__builtin_constant_p(base->regDmn[0]) ? (__uint16_t)(((__uint16_t)(base->regDmn[0]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[0]) & 0xff00U) >> 8) : __swap16md(base->regDmn[0]));
- base->regDmn[1] = (__builtin_constant_p(base->regDmn[1]) ? (__uint16_t)(((__uint16_t)(base->regDmn[1]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[1]) & 0xff00U) >> 8) : __swap16md(base->regDmn[1]));
- base->swreg = (__builtin_constant_p(base->swreg) ? (__uint32_t)(((__uint32_t)(base->swreg) & 0xff) << 24 | ((__uint32_t)(base->swreg) & 0xff00) << 8 | ((__uint32_t)(base->swreg) & 0xff0000) >> 8 | ((__uint32_t)(base->swreg) & 0xff000000) >> 24) : __swap32md(base->swreg));
+ base->regDmn[0] = (__uint16_t)(__builtin_constant_p(base->regDmn[0]) ? (__uint16_t)(((__uint16_t)(base->regDmn[0]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[0]) & 0xff00U) >> 8) : __swap16md(base->regDmn[0]));
+ base->regDmn[1] = (__uint16_t)(__builtin_constant_p(base->regDmn[1]) ? (__uint16_t)(((__uint16_t)(base->regDmn[1]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[1]) & 0xff00U) >> 8) : __swap16md(base->regDmn[1]));
+ base->swreg = (__uint32_t)(__builtin_constant_p(base->swreg) ? (__uint32_t)(((__uint32_t)(base->swreg) & 0xff) << 24 | ((__uint32_t)(base->swreg) & 0xff00) << 8 | ((__uint32_t)(base->swreg) & 0xff0000) >> 8 | ((__uint32_t)(base->swreg) & 0xff000000) >> 24) : __swap32md(base->swreg));
  modal = &eep->modalHeader2G;
- modal->antCtrlCommon = (__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
- modal->antCtrlCommon2 = (__builtin_constant_p(modal->antCtrlCommon2) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon2) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon2));
- modal->papdRateMaskHt20 = (__builtin_constant_p(modal->papdRateMaskHt20) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt20) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt20));
- modal->papdRateMaskHt40 = (__builtin_constant_p(modal->papdRateMaskHt40) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt40) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt40));
+ modal->antCtrlCommon = (__uint32_t)(__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
+ modal->antCtrlCommon2 = (__uint32_t)(__builtin_constant_p(modal->antCtrlCommon2) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon2) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon2));
+ modal->papdRateMaskHt20 = (__uint32_t)(__builtin_constant_p(modal->papdRateMaskHt20) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt20) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt20));
+ modal->papdRateMaskHt40 = (__uint32_t)(__builtin_constant_p(modal->papdRateMaskHt40) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt40) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt40));
  for (i = 0; i < 3; i++)
-  modal->antCtrlChain[i] = (__builtin_constant_p(modal->antCtrlChain[i]) ? (__uint16_t)(((__uint16_t)(modal->antCtrlChain[i]) & 0xffU) << 8 | ((__uint16_t)(modal->antCtrlChain[i]) & 0xff00U) >> 8) : __swap16md(modal->antCtrlChain[i]));
+  modal->antCtrlChain[i] = (__uint16_t)(__builtin_constant_p(modal->antCtrlChain[i]) ? (__uint16_t)(((__uint16_t)(modal->antCtrlChain[i]) & 0xffU) << 8 | ((__uint16_t)(modal->antCtrlChain[i]) & 0xff00U) >> 8) : __swap16md(modal->antCtrlChain[i]));
  modal = &eep->modalHeader5G;
- modal->antCtrlCommon = (__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
- modal->antCtrlCommon2 = (__builtin_constant_p(modal->antCtrlCommon2) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon2) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon2));
- modal->papdRateMaskHt20 = (__builtin_constant_p(modal->papdRateMaskHt20) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt20) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt20));
- modal->papdRateMaskHt40 = (__builtin_constant_p(modal->papdRateMaskHt40) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt40) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt40));
+ modal->antCtrlCommon = (__uint32_t)(__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
+ modal->antCtrlCommon2 = (__uint32_t)(__builtin_constant_p(modal->antCtrlCommon2) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon2) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon2) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon2));
+ modal->papdRateMaskHt20 = (__uint32_t)(__builtin_constant_p(modal->papdRateMaskHt20) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt20) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt20) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt20));
+ modal->papdRateMaskHt40 = (__uint32_t)(__builtin_constant_p(modal->papdRateMaskHt40) ? (__uint32_t)(((__uint32_t)(modal->papdRateMaskHt40) & 0xff) << 24 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff00) << 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff0000) >> 8 | ((__uint32_t)(modal->papdRateMaskHt40) & 0xff000000) >> 24) : __swap32md(modal->papdRateMaskHt40));
  for (i = 0; i < 3; i++)
-  modal->antCtrlChain[i] = (__builtin_constant_p(modal->antCtrlChain[i]) ? (__uint16_t)(((__uint16_t)(modal->antCtrlChain[i]) & 0xffU) << 8 | ((__uint16_t)(modal->antCtrlChain[i]) & 0xff00U) >> 8) : __swap16md(modal->antCtrlChain[i]));
+  modal->antCtrlChain[i] = (__uint16_t)(__builtin_constant_p(modal->antCtrlChain[i]) ? (__uint16_t)(((__uint16_t)(modal->antCtrlChain[i]) & 0xffU) << 8 | ((__uint16_t)(modal->antCtrlChain[i]) & 0xff00U) >> 8) : __swap16md(modal->antCtrlChain[i]));
 }
 void
 ar9380_get_paprd_masks(struct athn_softc *sc, struct ieee80211_channel *c,

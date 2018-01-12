@@ -3268,7 +3268,7 @@ siop_setuptables(siop_cmd)
  int msgoffset = 1;
  int *targ_flags = &sc->targets[target]->flags;
  int quirks;
- siop_cmd->siop_tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
+ siop_cmd->siop_tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__uint32_t)(__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
  __builtin_memset((siop_cmd->siop_tables->msg_out), (0), (sizeof(siop_cmd->siop_tables->msg_out)));
  if (siop_cmd->status == 3)
   siop_cmd->siop_tables->msg_out[0] = (((0) ? 0xc0 : 0x80) | (lun));
@@ -3277,7 +3277,7 @@ siop_setuptables(siop_cmd)
   siop_cmd->siop_tables->msg_out[0] = (((0) ? 0xc0 : 0x80) | (lun));
  else
   siop_cmd->siop_tables->msg_out[0] = (((1) ? 0xc0 : 0x80) | (lun));
- siop_cmd->siop_tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((msgoffset))) : (__builtin_constant_p((msgoffset)) ? (__uint32_t)(((__uint32_t)((msgoffset)) & 0xff) << 24 | ((__uint32_t)((msgoffset)) & 0xff00) << 8 | ((__uint32_t)((msgoffset)) & 0xff0000) >> 8 | ((__uint32_t)((msgoffset)) & 0xff000000) >> 24) : __swap32md((msgoffset))));
+ siop_cmd->siop_tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((msgoffset))) : (__uint32_t)(__builtin_constant_p((msgoffset)) ? (__uint32_t)(((__uint32_t)((msgoffset)) & 0xff) << 24 | ((__uint32_t)((msgoffset)) & 0xff00) << 8 | ((__uint32_t)((msgoffset)) & 0xff0000) >> 8 | ((__uint32_t)((msgoffset)) & 0xff000000) >> 24) : __swap32md((msgoffset))));
  if (sc->targets[target]->status == 1) {
   *targ_flags &= 0x08;
   quirks = xs->sc_link->quirks;
@@ -3315,15 +3315,15 @@ siop_setuptables(siop_cmd)
   siop_cmd->flags |= 0x0002;
  }
  siop_cmd->siop_tables->status =
-     (((sc)->features & 0x00200000) ? ((__uint32_t)((0xff))) : (__builtin_constant_p((0xff)) ? (__uint32_t)(((__uint32_t)((0xff)) & 0xff) << 24 | ((__uint32_t)((0xff)) & 0xff00) << 8 | ((__uint32_t)((0xff)) & 0xff0000) >> 8 | ((__uint32_t)((0xff)) & 0xff000000) >> 24) : __swap32md((0xff))));
+     (((sc)->features & 0x00200000) ? ((__uint32_t)((0xff))) : (__uint32_t)(__builtin_constant_p((0xff)) ? (__uint32_t)(((__uint32_t)((0xff)) & 0xff) << 24 | ((__uint32_t)((0xff)) & 0xff00) << 8 | ((__uint32_t)((0xff)) & 0xff0000) >> 8 | ((__uint32_t)((0xff)) & 0xff000000) >> 24) : __swap32md((0xff))));
  if ((xs->flags & (0x00800 | 0x01000)) ||
      siop_cmd->status == 3) {
   __builtin_bzero((siop_cmd->siop_tables->data), (sizeof(siop_cmd->siop_tables->data)));
   for (i = 0; i < siop_cmd->dmamap_data->dm_nsegs; i++) {
    siop_cmd->siop_tables->data[i].count =
-       (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len))) : (__builtin_constant_p((siop_cmd->dmamap_data->dm_segs[i].ds_len)) ? (__uint32_t)(((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff000000) >> 24) : __swap32md((siop_cmd->dmamap_data->dm_segs[i].ds_len))));
+       (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len))) : (__uint32_t)(__builtin_constant_p((siop_cmd->dmamap_data->dm_segs[i].ds_len)) ? (__uint32_t)(((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_len)) & 0xff000000) >> 24) : __swap32md((siop_cmd->dmamap_data->dm_segs[i].ds_len))));
    siop_cmd->siop_tables->data[i].addr =
-       (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr))) : (__builtin_constant_p((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) ? (__uint32_t)(((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff000000) >> 24) : __swap32md((siop_cmd->dmamap_data->dm_segs[i].ds_addr))));
+       (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr))) : (__uint32_t)(__builtin_constant_p((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) ? (__uint32_t)(((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->dmamap_data->dm_segs[i].ds_addr)) & 0xff000000) >> 24) : __swap32md((siop_cmd->dmamap_data->dm_segs[i].ds_addr))));
   }
  }
 }
@@ -3355,11 +3355,11 @@ siop_wdtr_neg(siop_cmd)
    printf("%s: rejecting invalid wide negotiation from "
        "target %d (%d)\n", sc->sc_dev.dv_xname, target,
        tables->msg_in[3]);
-   tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+   tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__uint32_t)(__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
    tables->msg_out[0] = 0x07;
    return 0x1;
   }
-  tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
+  tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__uint32_t)(__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
   bus_space_write_1(sc->sc_rt, sc->sc_rh,
       0x03,
       (sc->targets[target]->id >> 24) & 0xff);
@@ -3382,7 +3382,7 @@ siop_wdtr_neg(siop_cmd)
    siop_target->flags &= ~0x10;
    sc->targets[target]->id &= ~(0x08 << 24);
   }
-  tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
+  tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__uint32_t)(__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
   bus_space_write_1(sc->sc_rt, sc->sc_rh, 0x03,
       (sc->targets[target]->id >> 24) & 0xff);
   siop_target->status = 5;
@@ -3482,7 +3482,7 @@ siop_ppr_neg(siop_cmd)
   printf("%s: rejecting invalid PPR negotiation from "
       "target %d\n", sc->sc_dev.dv_xname, target);
 reject:
-  tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__uint32_t)(__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
   tables->msg_out[0] = 0x07;
   return 0x1;
  }
@@ -3533,7 +3533,7 @@ siop_sdtr_neg(siop_cmd)
   }
 reject:
   send_msgout = 1;
-  tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__uint32_t)(__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
   tables->msg_out[0] = 0x07;
   sc->targets[target]->id &= ~(0x70 << 24);
   sc->targets[target]->id &= ~(0x80 << 24);
@@ -3588,7 +3588,7 @@ async:
 end:
  if (siop_target->status == 5)
   siop_update_xfer_mode(sc, target);
- tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
+ tables->id = (((sc)->features & 0x00200000) ? ((__uint32_t)((sc->targets[target]->id))) : (__uint32_t)(__builtin_constant_p((sc->targets[target]->id)) ? (__uint32_t)(((__uint32_t)((sc->targets[target]->id)) & 0xff) << 24 | ((__uint32_t)((sc->targets[target]->id)) & 0xff00) << 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff0000) >> 8 | ((__uint32_t)((sc->targets[target]->id)) & 0xff000000) >> 24) : __swap32md((sc->targets[target]->id))));
  bus_space_write_1(sc->sc_rt, sc->sc_rh, 0x03,
      (sc->targets[target]->id >> 24) & 0xff);
  bus_space_write_1(sc->sc_rt, sc->sc_rh, 0x05,
@@ -3611,7 +3611,7 @@ siop_sdtr_msg(siop_cmd, offset, ssync, soff)
  siop_cmd->siop_tables->msg_out[offset + 3] = ssync;
  siop_cmd->siop_tables->msg_out[offset + 4] = soff;
  siop_cmd->siop_tables->t_msgout.count =
-     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x03 + 2))) : (__builtin_constant_p((offset + 0x03 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x03 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x03 + 2))));
+     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x03 + 2))) : (__uint32_t)(__builtin_constant_p((offset + 0x03 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x03 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x03 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x03 + 2))));
 }
 void
 siop_wdtr_msg(siop_cmd, offset, wide)
@@ -3624,7 +3624,7 @@ siop_wdtr_msg(siop_cmd, offset, wide)
  siop_cmd->siop_tables->msg_out[offset + 2] = 0x03;
  siop_cmd->siop_tables->msg_out[offset + 3] = wide;
  siop_cmd->siop_tables->t_msgout.count =
-     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x02 + 2))) : (__builtin_constant_p((offset + 0x02 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x02 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x02 + 2))));
+     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x02 + 2))) : (__uint32_t)(__builtin_constant_p((offset + 0x02 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x02 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x02 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x02 + 2))));
 }
 void
 siop_ppr_msg(siop_cmd, offset, ssync, soff)
@@ -3641,7 +3641,7 @@ siop_ppr_msg(siop_cmd, offset, ssync, soff)
  siop_cmd->siop_tables->msg_out[offset + 6] = 1;
  siop_cmd->siop_tables->msg_out[offset + 7] = 0x02;
  siop_cmd->siop_tables->t_msgout.count =
-     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x06 + 2))) : (__builtin_constant_p((offset + 0x06 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x06 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x06 + 2))));
+     (((siop_cmd->siop_sc)->features & 0x00200000) ? ((__uint32_t)((offset + 0x06 + 2))) : (__uint32_t)(__builtin_constant_p((offset + 0x06 + 2)) ? (__uint32_t)(((__uint32_t)((offset + 0x06 + 2)) & 0xff) << 24 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff00) << 8 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff0000) >> 8 | ((__uint32_t)((offset + 0x06 + 2)) & 0xff000000) >> 24) : __swap32md((offset + 0x06 + 2))));
 }
 void
 siop_minphys(struct buf *bp, struct scsi_link *sl)
@@ -3726,8 +3726,8 @@ siop_sdp(siop_cmd, offset)
   siop_cmd->flags &= ~0x0004;
   table = &siop_cmd->siop_tables->data[offset];
   table->addr =
-      (((sc)->features & 0x00200000) ? ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid))) : (__builtin_constant_p(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) ? (__uint32_t)(((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff) << 24 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff00) << 8 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff0000) >> 8 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff000000) >> 24) : __swap32md(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid))));
-  table->count = (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->resid))) : (__builtin_constant_p((siop_cmd->resid)) ? (__uint32_t)(((__uint32_t)((siop_cmd->resid)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->resid)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->resid)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->resid)) & 0xff000000) >> 24) : __swap32md((siop_cmd->resid))));
+      (((sc)->features & 0x00200000) ? ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid))) : (__uint32_t)(__builtin_constant_p(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) ? (__uint32_t)(((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff) << 24 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff00) << 8 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff0000) >> 8 | ((__uint32_t)(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid)) & 0xff000000) >> 24) : __swap32md(((((sc)->features & 0x00200000) ? ((__uint32_t)((table->addr))) : (__uint32_t)(__builtin_constant_p((table->addr)) ? (__uint32_t)(((__uint32_t)((table->addr)) & 0xff) << 24 | ((__uint32_t)((table->addr)) & 0xff00) << 8 | ((__uint32_t)((table->addr)) & 0xff0000) >> 8 | ((__uint32_t)((table->addr)) & 0xff000000) >> 24) : __swap32md((table->addr)))) + (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid))));
+  table->count = (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->resid))) : (__uint32_t)(__builtin_constant_p((siop_cmd->resid)) ? (__uint32_t)(((__uint32_t)((siop_cmd->resid)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->resid)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->resid)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->resid)) & 0xff000000) >> 24) : __swap32md((siop_cmd->resid))));
  }
  __builtin_bcopy((&siop_cmd->siop_tables->data[offset]), (&siop_cmd->siop_tables->data[0]), ((17 - offset) * sizeof(scr_table_t)));
 }
@@ -3744,11 +3744,11 @@ siop_update_resid(siop_cmd, offset)
      return;
  for (i = 0; i < offset; i++)
   siop_cmd->xs->resid -=
-      (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->siop_tables->data[i].count))) : (__builtin_constant_p((siop_cmd->siop_tables->data[i].count)) ? (__uint32_t)(((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff000000) >> 24) : __swap32md((siop_cmd->siop_tables->data[i].count))));
+      (((sc)->features & 0x00200000) ? ((__uint32_t)((siop_cmd->siop_tables->data[i].count))) : (__uint32_t)(__builtin_constant_p((siop_cmd->siop_tables->data[i].count)) ? (__uint32_t)(((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff) << 24 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff00) << 8 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff0000) >> 8 | ((__uint32_t)((siop_cmd->siop_tables->data[i].count)) & 0xff000000) >> 24) : __swap32md((siop_cmd->siop_tables->data[i].count))));
  if (siop_cmd->flags & 0x0004) {
   table = &siop_cmd->siop_tables->data[offset];
   siop_cmd->xs->resid -=
-      (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid;
+      (((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) - siop_cmd->resid;
  }
 }
 int
@@ -3759,7 +3759,7 @@ siop_iwr(siop_cmd)
  scr_table_t *table;
  struct siop_common_softc *sc = siop_cmd->siop_sc;
  if ((siop_cmd->siop_target->flags & 0x10) == 0) {
-  siop_cmd->siop_tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
+  siop_cmd->siop_tables->t_msgout.count = (((sc)->features & 0x00200000) ? ((__uint32_t)((1))) : (__uint32_t)(__builtin_constant_p((1)) ? (__uint32_t)(((__uint32_t)((1)) & 0xff) << 24 | ((__uint32_t)((1)) & 0xff00) << 8 | ((__uint32_t)((1)) & 0xff0000) >> 8 | ((__uint32_t)((1)) & 0xff000000) >> 24) : __swap32md((1))));
   siop_cmd->siop_tables->msg_out[0] = 0x07;
   return 0x1;
  }
@@ -3768,7 +3768,7 @@ siop_iwr(siop_cmd)
   offset--;
  table = &siop_cmd->siop_tables->data[offset];
  if ((siop_cmd->flags & 0x0004) == 0) {
-  if ((((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) & 1) {
+  if ((((sc)->features & 0x00200000) ? ((__uint32_t)((table->count))) : (__uint32_t)(__builtin_constant_p((table->count)) ? (__uint32_t)(((__uint32_t)((table->count)) & 0xff) << 24 | ((__uint32_t)((table->count)) & 0xff00) << 8 | ((__uint32_t)((table->count)) & 0xff0000) >> 8 | ((__uint32_t)((table->count)) & 0xff000000) >> 24) : __swap32md((table->count)))) & 1) {
    return 0x2;
   } else {
     siop_cmd->flags |= 0x0004;

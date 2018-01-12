@@ -3422,7 +3422,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5281,7 +5281,7 @@ ar5008_read_rom(struct athn_softc *sc)
  if (error != 0)
   return (error);
  if (magic != 0x5aa5) {
-  if (magic != (__builtin_constant_p(0x5aa5) ? (__uint16_t)(((__uint16_t)(0x5aa5) & 0xffU) << 8 | ((__uint16_t)(0x5aa5) & 0xff00U) >> 8) : __swap16md(0x5aa5))) {
+  if (magic != (__uint16_t)(__builtin_constant_p(0x5aa5) ? (__uint16_t)(((__uint16_t)(0x5aa5) & 0xffU) << 8 | ((__uint16_t)(0x5aa5) & 0xff00U) >> 8) : __swap16md(0x5aa5))) {
    ;
    return (5);
   }
@@ -5300,7 +5300,7 @@ ar5008_read_rom(struct athn_softc *sc)
    return (error);
   }
   if (need_swap)
-   *eep = (__builtin_constant_p(*eep) ? (__uint16_t)(((__uint16_t)(*eep) & 0xffU) << 8 | ((__uint16_t)(*eep) & 0xff00U) >> 8) : __swap16md(*eep));
+   *eep = (__uint16_t)(__builtin_constant_p(*eep) ? (__uint16_t)(((__uint16_t)(*eep) & 0xffU) << 8 | ((__uint16_t)(*eep) & 0xff00U) >> 8) : __swap16md(*eep));
   sum ^= *eep;
  }
  if (sum != 0xffff) {
@@ -5316,13 +5316,13 @@ void
 ar5008_swap_rom(struct athn_softc *sc)
 {
  struct ar_base_eep_header *base = sc->eep;
- base->length = (__builtin_constant_p(base->length) ? (__uint16_t)(((__uint16_t)(base->length) & 0xffU) << 8 | ((__uint16_t)(base->length) & 0xff00U) >> 8) : __swap16md(base->length));
- base->version = (__builtin_constant_p(base->version) ? (__uint16_t)(((__uint16_t)(base->version) & 0xffU) << 8 | ((__uint16_t)(base->version) & 0xff00U) >> 8) : __swap16md(base->version));
- base->regDmn[0] = (__builtin_constant_p(base->regDmn[0]) ? (__uint16_t)(((__uint16_t)(base->regDmn[0]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[0]) & 0xff00U) >> 8) : __swap16md(base->regDmn[0]));
- base->regDmn[1] = (__builtin_constant_p(base->regDmn[1]) ? (__uint16_t)(((__uint16_t)(base->regDmn[1]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[1]) & 0xff00U) >> 8) : __swap16md(base->regDmn[1]));
- base->rfSilent = (__builtin_constant_p(base->rfSilent) ? (__uint16_t)(((__uint16_t)(base->rfSilent) & 0xffU) << 8 | ((__uint16_t)(base->rfSilent) & 0xff00U) >> 8) : __swap16md(base->rfSilent));
- base->blueToothOptions = (__builtin_constant_p(base->blueToothOptions) ? (__uint16_t)(((__uint16_t)(base->blueToothOptions) & 0xffU) << 8 | ((__uint16_t)(base->blueToothOptions) & 0xff00U) >> 8) : __swap16md(base->blueToothOptions));
- base->deviceCap = (__builtin_constant_p(base->deviceCap) ? (__uint16_t)(((__uint16_t)(base->deviceCap) & 0xffU) << 8 | ((__uint16_t)(base->deviceCap) & 0xff00U) >> 8) : __swap16md(base->deviceCap));
+ base->length = (__uint16_t)(__builtin_constant_p(base->length) ? (__uint16_t)(((__uint16_t)(base->length) & 0xffU) << 8 | ((__uint16_t)(base->length) & 0xff00U) >> 8) : __swap16md(base->length));
+ base->version = (__uint16_t)(__builtin_constant_p(base->version) ? (__uint16_t)(((__uint16_t)(base->version) & 0xffU) << 8 | ((__uint16_t)(base->version) & 0xff00U) >> 8) : __swap16md(base->version));
+ base->regDmn[0] = (__uint16_t)(__builtin_constant_p(base->regDmn[0]) ? (__uint16_t)(((__uint16_t)(base->regDmn[0]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[0]) & 0xff00U) >> 8) : __swap16md(base->regDmn[0]));
+ base->regDmn[1] = (__uint16_t)(__builtin_constant_p(base->regDmn[1]) ? (__uint16_t)(((__uint16_t)(base->regDmn[1]) & 0xffU) << 8 | ((__uint16_t)(base->regDmn[1]) & 0xff00U) >> 8) : __swap16md(base->regDmn[1]));
+ base->rfSilent = (__uint16_t)(__builtin_constant_p(base->rfSilent) ? (__uint16_t)(((__uint16_t)(base->rfSilent) & 0xffU) << 8 | ((__uint16_t)(base->rfSilent) & 0xff00U) >> 8) : __swap16md(base->rfSilent));
+ base->blueToothOptions = (__uint16_t)(__builtin_constant_p(base->blueToothOptions) ? (__uint16_t)(((__uint16_t)(base->blueToothOptions) & 0xffU) << 8 | ((__uint16_t)(base->blueToothOptions) & 0xff00U) >> 8) : __swap16md(base->blueToothOptions));
+ base->deviceCap = (__uint16_t)(__builtin_constant_p(base->deviceCap) ? (__uint16_t)(((__uint16_t)(base->deviceCap) & 0xffU) << 8 | ((__uint16_t)(base->deviceCap) & 0xff00U) >> 8) : __swap16md(base->deviceCap));
  sc->ops.swap_rom(sc);
 }
 int
@@ -5630,9 +5630,9 @@ ar5008_rx_radiotap(struct athn_softc *sc, struct mbuf *m,
   tsf -= 0x8000;
  tsf = (tsf & ~0x7fff) | tstamp;
  tap->wr_flags = 0x10;
- tap->wr_tsft = (__builtin_constant_p(tsf) ? (__uint64_t)((((__uint64_t)(tsf) & 0xff) << 56) | ((__uint64_t)(tsf) & 0xff00ULL) << 40 | ((__uint64_t)(tsf) & 0xff0000ULL) << 24 | ((__uint64_t)(tsf) & 0xff000000ULL) << 8 | ((__uint64_t)(tsf) & 0xff00000000ULL) >> 8 | ((__uint64_t)(tsf) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(tsf) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(tsf) & 0xff00000000000000ULL) >> 56) : __swap64md(tsf));
- tap->wr_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
- tap->wr_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+ tap->wr_tsft = (__uint64_t)(__builtin_constant_p(tsf) ? (__uint64_t)((((__uint64_t)(tsf) & 0xff) << 56) | ((__uint64_t)(tsf) & 0xff00ULL) << 40 | ((__uint64_t)(tsf) & 0xff0000ULL) << 24 | ((__uint64_t)(tsf) & 0xff000000ULL) << 8 | ((__uint64_t)(tsf) & 0xff00000000ULL) >> 8 | ((__uint64_t)(tsf) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(tsf) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(tsf) & 0xff00000000000000ULL) >> 56) : __swap64md(tsf));
+ tap->wr_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+ tap->wr_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
  tap->wr_dbm_antsignal = (((uint32_t)(ds->ds_status4) & 0xff000000) >> 24);
  tap->wr_antenna = (((uint32_t)(ds->ds_status3) & 0xffffff00) >> 8);
  tap->wr_rate = 0;
@@ -5908,7 +5908,7 @@ ar5008_swba_intr(struct athn_softc *sc)
   return (55);
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
  *(uint16_t *)&wh->i_seq[0] =
-     (__builtin_constant_p(ic->ic_bss->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_txseq << 4));
+     (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_txseq << 4) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_txseq << 4) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_txseq << 4));
  ic->ic_bss->ni_txseq++;
  if (__builtin_expect(((bf->bf_m != ((void *)0)) != 0), 1)) {
   bus_dmamap_sync(sc->sc_dmat, bf->bf_map, 0,
@@ -6117,8 +6117,8 @@ ar5008_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni,
    tap->wt_rate = athn_rates[ridx[0]].hwrate;
   else
    tap->wt_rate = athn_rates[ridx[0]].rate;
-  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
-  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wt_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   tap->wt_hwqueue = qid;
   if (ridx[0] != 0 &&
       (ic->ic_flags & 0x00040000))

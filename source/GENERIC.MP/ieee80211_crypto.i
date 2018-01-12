@@ -2762,7 +2762,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4300,10 +4300,10 @@ ieee80211_kdf(const u_int8_t *key, size_t key_len, const u_int8_t *label,
  HMAC_SHA256_CTX ctx;
  u_int8_t digest[32];
  u_int16_t i, iter, length;
- length = (__builtin_constant_p(len * 8) ? (__uint16_t)(((__uint16_t)(len * 8) & 0xffU) << 8 | ((__uint16_t)(len * 8) & 0xff00U) >> 8) : __swap16md(len * 8));
+ length = (__uint16_t)(__builtin_constant_p(len * 8) ? (__uint16_t)(((__uint16_t)(len * 8) & 0xffU) << 8 | ((__uint16_t)(len * 8) & 0xff00U) >> 8) : __swap16md(len * 8));
  for (i = 1; len != 0; i++) {
   HMAC_SHA256_Init(&ctx, key, key_len);
-  iter = (__builtin_constant_p(i) ? (__uint16_t)(((__uint16_t)(i) & 0xffU) << 8 | ((__uint16_t)(i) & 0xff00U) >> 8) : __swap16md(i));
+  iter = (__uint16_t)(__builtin_constant_p(i) ? (__uint16_t)(((__uint16_t)(i) & 0xffU) << 8 | ((__uint16_t)(i) & 0xff00U) >> 8) : __swap16md(i));
   HMAC_SHA256_Update(&ctx, (u_int8_t *)&iter, sizeof iter);
   HMAC_SHA256_Update(&ctx, label, label_len);
   HMAC_SHA256_Update(&ctx, context, context_len);

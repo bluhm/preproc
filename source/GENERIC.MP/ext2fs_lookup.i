@@ -3023,7 +3023,7 @@ static void
 ext2fs_dirconv2ffs(struct ext2fs_direct *e2dir, struct dirent *ffsdir)
 {
  __builtin_memset((ffsdir), (0), (sizeof(struct dirent)));
- ffsdir->d_fileno = (__builtin_constant_p(e2dir->e2d_ino) ? (__uint32_t)(((__uint32_t)(e2dir->e2d_ino) & 0xff) << 24 | ((__uint32_t)(e2dir->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(e2dir->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(e2dir->e2d_ino) & 0xff000000) >> 24) : __swap32md(e2dir->e2d_ino));
+ ffsdir->d_fileno = (__uint32_t)(__builtin_constant_p(e2dir->e2d_ino) ? (__uint32_t)(((__uint32_t)(e2dir->e2d_ino) & 0xff) << 24 | ((__uint32_t)(e2dir->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(e2dir->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(e2dir->e2d_ino) & 0xff000000) >> 24) : __swap32md(e2dir->e2d_ino));
  ffsdir->d_namlen = e2dir->e2d_namlen;
  ffsdir->d_type = 0;
  strncpy(ffsdir->d_name, e2dir->e2d_name, ffsdir->d_namlen);
@@ -3065,7 +3065,7 @@ ext2fs_readdir(void *v)
   readcnt = e2fs_count - auio.uio_resid;
   dp = (struct ext2fs_direct *) dirbuf;
   while ((char *) dp < (char *) dirbuf + readcnt) {
-   e2d_reclen = (__builtin_constant_p(dp->e2d_reclen) ? (__uint16_t)(((__uint16_t)(dp->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(dp->e2d_reclen) & 0xff00U) >> 8) : __swap16md(dp->e2d_reclen));
+   e2d_reclen = (__uint16_t)(__builtin_constant_p(dp->e2d_reclen) ? (__uint16_t)(((__uint16_t)(dp->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(dp->e2d_reclen) & 0xff00U) >> 8) : __swap16md(dp->e2d_reclen));
    if (e2d_reclen == 0) {
     error = 5;
     break;
@@ -3172,8 +3172,8 @@ searchloop:
   if (entry_found) {
    ep = (struct ext2fs_direct *)
        ((char *)bp->b_data + (entryoffsetinblock & bmask));
-   dp->i_ino = (__builtin_constant_p(ep->e2d_ino) ? (__uint32_t)(((__uint32_t)(ep->e2d_ino) & 0xff) << 24 | ((__uint32_t)(ep->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(ep->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(ep->e2d_ino) & 0xff000000) >> 24) : __swap32md(ep->e2d_ino));
-   dp->i_reclen = (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
+   dp->i_ino = (__uint32_t)(__builtin_constant_p(ep->e2d_ino) ? (__uint32_t)(((__uint32_t)(ep->e2d_ino) & 0xff) << 24 | ((__uint32_t)(ep->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(ep->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(ep->e2d_ino) & 0xff000000) >> 24) : __swap32md(ep->e2d_ino));
+   dp->i_reclen = (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
    goto found;
   }
  }
@@ -3329,14 +3329,14 @@ ext2fs_search_dirblock(struct inode *ip, void *data, int *foundp,
    continue;
   }
   if (ssp->slotstatus != FOUND) {
-   int size = (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
+   int size = (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
    if (ep->e2d_ino != 0)
     size -= (( 8 + ep->e2d_namlen + 3) &~ 3);
    if (size > 0) {
     if (size >= ssp->slotneeded) {
      ssp->slotstatus = FOUND;
      ssp->slotoffset = ip->i_offset;
-     ssp->slotsize = (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
+     ssp->slotsize = (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
     } else if (ssp->slotstatus == NONE) {
      ssp->slotfreespace += size;
      if (ssp->slotoffset == -1)
@@ -3344,7 +3344,7 @@ ext2fs_search_dirblock(struct inode *ip, void *data, int *foundp,
      if (ssp->slotfreespace >= ssp->slotneeded) {
       ssp->slotstatus = COMPACT;
       ssp->slotsize = ip->i_offset +
-         (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) - ssp->slotoffset;
+         (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) - ssp->slotoffset;
      }
     }
    }
@@ -3358,8 +3358,8 @@ ext2fs_search_dirblock(struct inode *ip, void *data, int *foundp,
    }
   }
   *prevoffp = ip->i_offset;
-  ip->i_offset += (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
-  offset += (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
+  ip->i_offset += (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
+  offset += (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen));
   *entryoffsetinblockp = offset;
   if (ep->e2d_ino)
    *endusefulp = ip->i_offset;
@@ -3373,7 +3373,7 @@ ext2fs_dirbadentry(struct vnode *dp, struct ext2fs_direct *de,
 {
  int dirblksize = ((struct inode *)(dp)->v_data)->inode_u.e2fs->e2fs_bsize;
  char *error_msg = ((void *)0);
- int reclen = (__builtin_constant_p(de->e2d_reclen) ? (__uint16_t)(((__uint16_t)(de->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(de->e2d_reclen) & 0xff00U) >> 8) : __swap16md(de->e2d_reclen));
+ int reclen = (__uint16_t)(__builtin_constant_p(de->e2d_reclen) ? (__uint16_t)(((__uint16_t)(de->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(de->e2d_reclen) & 0xff00U) >> 8) : __swap16md(de->e2d_reclen));
  int namlen = de->e2d_namlen;
  if (reclen < (( 8 + 1 + 3) &~ 3))
   error_msg = "rec_len is smaller than minimal";
@@ -3383,12 +3383,12 @@ ext2fs_dirbadentry(struct vnode *dp, struct ext2fs_direct *de,
   error_msg = "reclen is too small for name_len";
  else if (entryoffsetinblock + reclen > dirblksize)
   error_msg = "directory entry across blocks";
- else if ((__builtin_constant_p(de->e2d_ino) ? (__uint32_t)(((__uint32_t)(de->e2d_ino) & 0xff) << 24 | ((__uint32_t)(de->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(de->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(de->e2d_ino) & 0xff000000) >> 24) : __swap32md(de->e2d_ino)) > ((struct inode *)(dp)->v_data)->inode_u.e2fs->e2fs.e2fs_icount)
+ else if ((__uint32_t)(__builtin_constant_p(de->e2d_ino) ? (__uint32_t)(((__uint32_t)(de->e2d_ino) & 0xff) << 24 | ((__uint32_t)(de->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(de->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(de->e2d_ino) & 0xff000000) >> 24) : __swap32md(de->e2d_ino)) > ((struct inode *)(dp)->v_data)->inode_u.e2fs->e2fs.e2fs_icount)
   error_msg = "inode out of bounds";
  if (error_msg != ((void *)0)) {
   printf("bad directory entry: %s\n"
       "offset=%d, inode=%u, rec_len=%d, name_len=%d \n",
-      error_msg, entryoffsetinblock, (__builtin_constant_p(de->e2d_ino) ? (__uint32_t)(((__uint32_t)(de->e2d_ino) & 0xff) << 24 | ((__uint32_t)(de->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(de->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(de->e2d_ino) & 0xff000000) >> 24) : __swap32md(de->e2d_ino)),
+      error_msg, entryoffsetinblock, (__uint32_t)(__builtin_constant_p(de->e2d_ino) ? (__uint32_t)(((__uint32_t)(de->e2d_ino) & 0xff) << 24 | ((__uint32_t)(de->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(de->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(de->e2d_ino) & 0xff000000) >> 24) : __swap32md(de->e2d_ino)),
       reclen, namlen);
   panic(__func__);
  }
@@ -3411,7 +3411,7 @@ ext2fs_direnter(struct inode *ip, struct vnode *dvp,
  if ((cnp->cn_flags & 0x000800) == 0)
   panic("direnter: missing name");
  dp = ((struct inode *)(dvp)->v_data);
- newdir.e2d_ino = (__builtin_constant_p(ip->i_number) ? (__uint32_t)(((__uint32_t)(ip->i_number) & 0xff) << 24 | ((__uint32_t)(ip->i_number) & 0xff00) << 8 | ((__uint32_t)(ip->i_number) & 0xff0000) >> 8 | ((__uint32_t)(ip->i_number) & 0xff000000) >> 24) : __swap32md(ip->i_number));
+ newdir.e2d_ino = (__uint32_t)(__builtin_constant_p(ip->i_number) ? (__uint32_t)(((__uint32_t)(ip->i_number) & 0xff) << 24 | ((__uint32_t)(ip->i_number) & 0xff00) << 8 | ((__uint32_t)(ip->i_number) & 0xff0000) >> 8 | ((__uint32_t)(ip->i_number) & 0xff000000) >> 24) : __swap32md(ip->i_number));
  newdir.e2d_namlen = cnp->cn_namelen;
  if (ip->inode_u.e2fs->e2fs.e2fs_rev > 0 &&
      (ip->inode_u.e2fs->e2fs.e2fs_features_incompat & 0x0002)) {
@@ -3425,7 +3425,7 @@ ext2fs_direnter(struct inode *ip, struct vnode *dvp,
   if (dp->i_offset & (dirblksize - 1))
    panic("ext2fs_direnter: newblk");
   auio.uio_offset = dp->i_offset;
-  newdir.e2d_reclen = (__builtin_constant_p(dirblksize) ? (__uint16_t)(((__uint16_t)(dirblksize) & 0xffU) << 8 | ((__uint16_t)(dirblksize) & 0xff00U) >> 8) : __swap16md(dirblksize));
+  newdir.e2d_reclen = (__uint16_t)(__builtin_constant_p(dirblksize) ? (__uint16_t)(((__uint16_t)(dirblksize) & 0xffU) << 8 | ((__uint16_t)(dirblksize) & 0xff00U) >> 8) : __swap16md(dirblksize));
   auio.uio_resid = newentrysize;
   aiov.iov_len = newentrysize;
   aiov.iov_base = (caddr_t)&newdir;
@@ -3452,32 +3452,32 @@ ext2fs_direnter(struct inode *ip, struct vnode *dvp,
   return (error);
  ep = (struct ext2fs_direct *)dirbuf;
  dsize = (( 8 + ep->e2d_namlen + 3) &~ 3);
- spacefree = (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) - dsize;
- for (loc = (__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)); loc < dp->i_count; ) {
+ spacefree = (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) - dsize;
+ for (loc = (__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)); loc < dp->i_count; ) {
   nep = (struct ext2fs_direct *)(dirbuf + loc);
   if (ep->e2d_ino) {
-   ep->e2d_reclen = (__builtin_constant_p(dsize) ? (__uint16_t)(((__uint16_t)(dsize) & 0xffU) << 8 | ((__uint16_t)(dsize) & 0xff00U) >> 8) : __swap16md(dsize));
+   ep->e2d_reclen = (__uint16_t)(__builtin_constant_p(dsize) ? (__uint16_t)(((__uint16_t)(dsize) & 0xffU) << 8 | ((__uint16_t)(dsize) & 0xff00U) >> 8) : __swap16md(dsize));
    ep = (struct ext2fs_direct *)((char *)ep + dsize);
   } else {
    spacefree += dsize;
   }
   dsize = (( 8 + nep->e2d_namlen + 3) &~ 3);
-  spacefree += (__builtin_constant_p(nep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(nep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(nep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(nep->e2d_reclen)) - dsize;
-  loc += (__builtin_constant_p(nep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(nep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(nep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(nep->e2d_reclen));
+  spacefree += (__uint16_t)(__builtin_constant_p(nep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(nep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(nep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(nep->e2d_reclen)) - dsize;
+  loc += (__uint16_t)(__builtin_constant_p(nep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(nep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(nep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(nep->e2d_reclen));
   __builtin_memcpy((ep), (nep), (dsize));
  }
  if (ep->e2d_ino == 0) {
   if (spacefree + dsize < newentrysize)
    panic("ext2fs_direnter: compact1");
-  newdir.e2d_reclen = (__builtin_constant_p(spacefree + dsize) ? (__uint16_t)(((__uint16_t)(spacefree + dsize) & 0xffU) << 8 | ((__uint16_t)(spacefree + dsize) & 0xff00U) >> 8) : __swap16md(spacefree + dsize));
+  newdir.e2d_reclen = (__uint16_t)(__builtin_constant_p(spacefree + dsize) ? (__uint16_t)(((__uint16_t)(spacefree + dsize) & 0xffU) << 8 | ((__uint16_t)(spacefree + dsize) & 0xff00U) >> 8) : __swap16md(spacefree + dsize));
  } else {
   if (spacefree < newentrysize) {
    printf("ext2fs_direnter: compact2 %u %u",
        (u_int)spacefree, (u_int)newentrysize);
    panic("ext2fs_direnter: compact2");
   }
-  newdir.e2d_reclen = (__builtin_constant_p(spacefree) ? (__uint16_t)(((__uint16_t)(spacefree) & 0xffU) << 8 | ((__uint16_t)(spacefree) & 0xff00U) >> 8) : __swap16md(spacefree));
-  ep->e2d_reclen = (__builtin_constant_p(dsize) ? (__uint16_t)(((__uint16_t)(dsize) & 0xffU) << 8 | ((__uint16_t)(dsize) & 0xff00U) >> 8) : __swap16md(dsize));
+  newdir.e2d_reclen = (__uint16_t)(__builtin_constant_p(spacefree) ? (__uint16_t)(((__uint16_t)(spacefree) & 0xffU) << 8 | ((__uint16_t)(spacefree) & 0xff00U) >> 8) : __swap16md(spacefree));
+  ep->e2d_reclen = (__uint16_t)(__builtin_constant_p(dsize) ? (__uint16_t)(((__uint16_t)(dsize) & 0xffU) << 8 | ((__uint16_t)(dsize) & 0xff00U) >> 8) : __swap16md(dsize));
   ep = (struct ext2fs_direct *)((char *)ep + dsize);
  }
  __builtin_memcpy((ep), (&newdir), (newentrysize));
@@ -3510,7 +3510,7 @@ ext2fs_dirremove(struct vnode *dvp, struct componentname *cnp)
      (char **)&ep, &bp);
  if (error != 0)
   return (error);
- ep->e2d_reclen = (__builtin_constant_p((__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) ? (__uint16_t)(((__uint16_t)((__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) & 0xffU) << 8 | ((__uint16_t)((__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) & 0xff00U) >> 8) : __swap16md((__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen));
+ ep->e2d_reclen = (__uint16_t)(__builtin_constant_p((__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) ? (__uint16_t)(((__uint16_t)((__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) & 0xffU) << 8 | ((__uint16_t)((__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen) & 0xff00U) >> 8) : __swap16md((__uint16_t)(__builtin_constant_p(ep->e2d_reclen) ? (__uint16_t)(((__uint16_t)(ep->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(ep->e2d_reclen) & 0xff00U) >> 8) : __swap16md(ep->e2d_reclen)) + dp->i_reclen));
  error = VOP_BWRITE(bp);
  dp->i_flag |= 0x0002 | 0x0004;
  return (error);
@@ -3525,7 +3525,7 @@ ext2fs_dirrewrite(struct inode *dp, struct inode *ip,
  error = ext2fs_bufatoff(dp, (off_t)dp->i_offset, (char **)&ep, &bp);
  if (error != 0)
   return (error);
- ep->e2d_ino = (__builtin_constant_p(ip->i_number) ? (__uint32_t)(((__uint32_t)(ip->i_number) & 0xff) << 24 | ((__uint32_t)(ip->i_number) & 0xff00) << 8 | ((__uint32_t)(ip->i_number) & 0xff0000) >> 8 | ((__uint32_t)(ip->i_number) & 0xff000000) >> 24) : __swap32md(ip->i_number));
+ ep->e2d_ino = (__uint32_t)(__builtin_constant_p(ip->i_number) ? (__uint32_t)(((__uint32_t)(ip->i_number) & 0xff) << 24 | ((__uint32_t)(ip->i_number) & 0xff00) << 8 | ((__uint32_t)(ip->i_number) & 0xff0000) >> 8 | ((__uint32_t)(ip->i_number) & 0xff000000) >> 24) : __swap32md(ip->i_number));
  if (ip->inode_u.e2fs->e2fs.e2fs_rev > 0 &&
      (ip->inode_u.e2fs->e2fs.e2fs_features_incompat & 0x0002)) {
   ep->e2d_type = inot2ext2dt((((ip->dinode_u.e2fs_din->e2di_mode) & 0170000) >> 12));
@@ -3544,7 +3544,7 @@ ext2fs_dirempty(struct inode *ip, ufsino_t parentino, struct ucred *cred)
  struct ext2fs_direct *dp = (struct ext2fs_direct *)&dbuf;
  int error, namlen;
  size_t count;
- for (off = 0; off < ext2fs_size(ip); off += (__builtin_constant_p(dp->e2d_reclen) ? (__uint16_t)(((__uint16_t)(dp->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(dp->e2d_reclen) & 0xff00U) >> 8) : __swap16md(dp->e2d_reclen))) {
+ for (off = 0; off < ext2fs_size(ip); off += (__uint16_t)(__builtin_constant_p(dp->e2d_reclen) ? (__uint16_t)(((__uint16_t)(dp->e2d_reclen) & 0xffU) << 8 | ((__uint16_t)(dp->e2d_reclen) & 0xff00U) >> 8) : __swap16md(dp->e2d_reclen))) {
   error = vn_rdwr(UIO_READ, ((ip)->i_vnode), (caddr_t)dp, (sizeof (struct ext2fs_dirtemplate) / 2), off,
      UIO_SYSSPACE, 0x08, cred, &count, (__curcpu->ci_self)->ci_curproc);
   if (error || count != 0)
@@ -3560,7 +3560,7 @@ ext2fs_dirempty(struct inode *ip, ufsino_t parentino, struct ucred *cred)
    return (0);
   if (namlen == 1)
    continue;
-  if (dp->e2d_name[1] == '.' && (__builtin_constant_p(dp->e2d_ino) ? (__uint32_t)(((__uint32_t)(dp->e2d_ino) & 0xff) << 24 | ((__uint32_t)(dp->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(dp->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(dp->e2d_ino) & 0xff000000) >> 24) : __swap32md(dp->e2d_ino)) == parentino)
+  if (dp->e2d_name[1] == '.' && (__uint32_t)(__builtin_constant_p(dp->e2d_ino) ? (__uint32_t)(((__uint32_t)(dp->e2d_ino) & 0xff) << 24 | ((__uint32_t)(dp->e2d_ino) & 0xff00) << 8 | ((__uint32_t)(dp->e2d_ino) & 0xff0000) >> 8 | ((__uint32_t)(dp->e2d_ino) & 0xff000000) >> 24) : __swap32md(dp->e2d_ino)) == parentino)
    continue;
   return (0);
  }
@@ -3601,7 +3601,7 @@ ext2fs_checkpath(struct inode *source, struct inode *target,
    error = 20;
    break;
   }
-  ino = (__builtin_constant_p(dirbuf.dotdot_ino) ? (__uint32_t)(((__uint32_t)(dirbuf.dotdot_ino) & 0xff) << 24 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff00) << 8 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff0000) >> 8 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff000000) >> 24) : __swap32md(dirbuf.dotdot_ino));
+  ino = (__uint32_t)(__builtin_constant_p(dirbuf.dotdot_ino) ? (__uint32_t)(((__uint32_t)(dirbuf.dotdot_ino) & 0xff) << 24 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff00) << 8 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff0000) >> 8 | ((__uint32_t)(dirbuf.dotdot_ino) & 0xff000000) >> 24) : __swap32md(dirbuf.dotdot_ino));
   if (ino == source->i_number) {
    error = 22;
    break;

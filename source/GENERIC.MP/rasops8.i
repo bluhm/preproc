@@ -1699,7 +1699,7 @@ rasops8_makestamp(struct rasops_info *ri, long attr)
   stamp[i] |= ((i & 4 ? fg : bg) << 16);
   stamp[i] |= ((i & 8 ? fg : bg) << 24);
   if (ri->ri_flg & 0x0004)
-   stamp[i] = (__builtin_constant_p(stamp[i]) ? (__uint32_t)(((__uint32_t)(stamp[i]) & 0xff) << 24 | ((__uint32_t)(stamp[i]) & 0xff00) << 8 | ((__uint32_t)(stamp[i]) & 0xff0000) >> 8 | ((__uint32_t)(stamp[i]) & 0xff000000) >> 24) : __swap32md(stamp[i]));
+   stamp[i] = (__uint32_t)(__builtin_constant_p(stamp[i]) ? (__uint32_t)(((__uint32_t)(stamp[i]) & 0xff) << 24 | ((__uint32_t)(stamp[i]) & 0xff00) << 8 | ((__uint32_t)(stamp[i]) & 0xff0000) >> 8 | ((__uint32_t)(stamp[i]) & 0xff000000) >> 24) : __swap32md(stamp[i]));
  }
 }
 int

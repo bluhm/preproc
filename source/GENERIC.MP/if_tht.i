@@ -3935,8 +3935,8 @@ tht_start(struct ifnet *ifp)
   bc = sizeof(txt) +
       sizeof(struct tht_pbd) * pkt->tp_dmap->dm_nsegs;
   flags = (3<<16) | (((bc) + 7) >> 3);
-  txt.flags = (__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
-  txt.len = (__builtin_constant_p(pkt->tp_m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(pkt->tp_m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(pkt->tp_m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(pkt->tp_m->M_dat.MH.MH_pkthdr.len));
+  txt.flags = (__uint32_t)(__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
+  txt.len = (__uint16_t)(__builtin_constant_p(pkt->tp_m->M_dat.MH.MH_pkthdr.len) ? (__uint16_t)(((__uint16_t)(pkt->tp_m->M_dat.MH.MH_pkthdr.len) & 0xffU) << 8 | ((__uint16_t)(pkt->tp_m->M_dat.MH.MH_pkthdr.len) & 0xff00U) >> 8) : __swap16md(pkt->tp_m->M_dat.MH.MH_pkthdr.len));
   txt.uid = pkt->tp_id;
   ;
   tht_fifo_write(sc, &sc->sc_txt, &txt, sizeof(txt));
@@ -4036,8 +4036,8 @@ tht_rxf_fill(struct tht_softc *sc, int wait)
    goto free_m;
   pkt->tp_m = m;
   bc = sizeof(rxf) + sizeof(struct tht_pbd) * dmap->dm_nsegs;
-  rxf.bc = (__builtin_constant_p((((bc) + 7) >> 3)) ? (__uint16_t)(((__uint16_t)((((bc) + 7) >> 3)) & 0xffU) << 8 | ((__uint16_t)((((bc) + 7) >> 3)) & 0xff00U) >> 8) : __swap16md((((bc) + 7) >> 3)));
-  rxf.type = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+  rxf.bc = (__uint16_t)(__builtin_constant_p((((bc) + 7) >> 3)) ? (__uint16_t)(((__uint16_t)((((bc) + 7) >> 3)) & 0xffU) << 8 | ((__uint16_t)((((bc) + 7) >> 3)) & 0xff00U) >> 8) : __swap16md((((bc) + 7) >> 3)));
+  rxf.type = (__uint16_t)(__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
   rxf.uid = pkt->tp_id;
   tht_fifo_write(sc, &sc->sc_rxf, &rxf, sizeof(rxf));
   tht_fifo_write_dmap(sc, &sc->sc_rxf, dmap);
@@ -4086,7 +4086,7 @@ tht_rxd(struct tht_softc *sc)
  tht_fifo_pre(sc, &sc->sc_rxd);
  do {
   tht_fifo_read(sc, &sc->sc_rxd, &rxd, sizeof(rxd));
-  flags = (__builtin_constant_p(rxd.flags) ? (__uint32_t)(((__uint32_t)(rxd.flags) & 0xff) << 24 | ((__uint32_t)(rxd.flags) & 0xff00) << 8 | ((__uint32_t)(rxd.flags) & 0xff0000) >> 8 | ((__uint32_t)(rxd.flags) & 0xff000000) >> 24) : __swap32md(rxd.flags));
+  flags = (__uint32_t)(__builtin_constant_p(rxd.flags) ? (__uint32_t)(((__uint32_t)(rxd.flags) & 0xff) << 24 | ((__uint32_t)(rxd.flags) & 0xff00) << 8 | ((__uint32_t)(rxd.flags) & 0xff0000) >> 8 | ((__uint32_t)(rxd.flags) & 0xff000000) >> 24) : __swap32md(rxd.flags));
   bc = ((flags) & 0x1f) * 8;
   bc -= sizeof(rxd);
   pkt = &sc->sc_rx_list.tpl_pkts[rxd.uid];
@@ -4095,7 +4095,7 @@ tht_rxd(struct tht_softc *sc)
       0x02);
   bus_dmamap_unload(dmat, dmap);
   m = pkt->tp_m;
-  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__builtin_constant_p(rxd.len) ? (__uint16_t)(((__uint16_t)(rxd.len) & 0xffU) << 8 | ((__uint16_t)(rxd.len) & 0xff00U) >> 8) : __swap16md(rxd.len));
+  m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = (__uint16_t)(__builtin_constant_p(rxd.len) ? (__uint16_t)(((__uint16_t)(rxd.len) & 0xffU) << 8 | ((__uint16_t)(rxd.len) & 0xff00U) >> 8) : __swap16md(rxd.len));
   ml_enqueue(&ml, m);
   tht_pkt_put(&sc->sc_rx_list, pkt);
   while (bc > 0) {
@@ -4228,9 +4228,9 @@ tht_fifo_write_dmap(struct tht_softc *sc, struct tht_fifo *tf,
  int i;
  for (i = 0; i < dmap->dm_nsegs; i++) {
   dva = dmap->dm_segs[i].ds_addr;
-  pbd.addr_lo = (__builtin_constant_p(dva) ? (__uint32_t)(((__uint32_t)(dva) & 0xff) << 24 | ((__uint32_t)(dva) & 0xff00) << 8 | ((__uint32_t)(dva) & 0xff0000) >> 8 | ((__uint32_t)(dva) & 0xff000000) >> 24) : __swap32md(dva));
-  pbd.addr_hi = (__builtin_constant_p(dva >> 32) ? (__uint32_t)(((__uint32_t)(dva >> 32) & 0xff) << 24 | ((__uint32_t)(dva >> 32) & 0xff00) << 8 | ((__uint32_t)(dva >> 32) & 0xff0000) >> 8 | ((__uint32_t)(dva >> 32) & 0xff000000) >> 24) : __swap32md(dva >> 32));
-  pbd.len = (__builtin_constant_p(dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[i].ds_len));
+  pbd.addr_lo = (__uint32_t)(__builtin_constant_p(dva) ? (__uint32_t)(((__uint32_t)(dva) & 0xff) << 24 | ((__uint32_t)(dva) & 0xff00) << 8 | ((__uint32_t)(dva) & 0xff0000) >> 8 | ((__uint32_t)(dva) & 0xff000000) >> 24) : __swap32md(dva));
+  pbd.addr_hi = (__uint32_t)(__builtin_constant_p(dva >> 32) ? (__uint32_t)(((__uint32_t)(dva >> 32) & 0xff) << 24 | ((__uint32_t)(dva >> 32) & 0xff00) << 8 | ((__uint32_t)(dva >> 32) & 0xff0000) >> 8 | ((__uint32_t)(dva >> 32) & 0xff000000) >> 24) : __swap32md(dva >> 32));
+  pbd.len = (__uint32_t)(__builtin_constant_p(dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[i].ds_len));
   tht_fifo_write(sc, tf, &pbd, sizeof(pbd));
  }
 }

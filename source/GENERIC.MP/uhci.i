@@ -3116,7 +3116,7 @@ uhci_find_prev_qh(struct uhci_soft_qh *pqh, struct uhci_soft_qh *sqh)
 {
  ;
  for (; pqh->hlink != sqh; pqh = pqh->hlink) {
-  if ((__builtin_constant_p(pqh->qh.qh_hlink) ? (__uint32_t)(((__uint32_t)(pqh->qh.qh_hlink) & 0xff) << 24 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff00) << 8 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff0000) >> 8 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff000000) >> 24) : __swap32md(pqh->qh.qh_hlink)) & 0x00000001) {
+  if ((__uint32_t)(__builtin_constant_p(pqh->qh.qh_hlink) ? (__uint32_t)(((__uint32_t)(pqh->qh.qh_hlink) & 0xff) << 24 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff00) << 8 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff0000) >> 8 | ((__uint32_t)(pqh->qh.qh_hlink) & 0xff000000) >> 24) : __swap32md(pqh->qh.qh_hlink)) & 0x00000001) {
    printf("uhci_find_prev_qh: QH not found\n");
    return (((void *)0));
   }
@@ -3165,41 +3165,41 @@ uhci_init(struct uhci_softc *sc)
  if (std == ((void *)0))
   return (USBD_NOMEM);
  std->link.std = ((void *)0);
- std->td.td_link = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
- std->td.td_status = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
- std->td.td_token = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
- std->td.td_buffer = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ std->td.td_link = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ std->td.td_status = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ std->td.td_token = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ std->td.td_buffer = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  lsqh = uhci_alloc_sqh(sc);
  if (lsqh == ((void *)0))
   return (USBD_NOMEM);
  lsqh->hlink = ((void *)0);
- lsqh->qh.qh_hlink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ lsqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  lsqh->elink = std;
- lsqh->qh.qh_elink = (__builtin_constant_p(std->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(std->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(std->physaddr | 0x00000000));
+ lsqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(std->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(std->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(std->physaddr | 0x00000000));
  sc->sc_last_qh = lsqh;
  bsqh = uhci_alloc_sqh(sc);
  if (bsqh == ((void *)0))
   return (USBD_NOMEM);
  bsqh->hlink = lsqh;
- bsqh->qh.qh_hlink = (__builtin_constant_p(lsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(lsqh->physaddr | 0x00000002));
+ bsqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(lsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(lsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(lsqh->physaddr | 0x00000002));
  bsqh->elink = ((void *)0);
- bsqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ bsqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  sc->sc_bulk_start = sc->sc_bulk_end = bsqh;
  chsqh = uhci_alloc_sqh(sc);
  if (chsqh == ((void *)0))
   return (USBD_NOMEM);
  chsqh->hlink = bsqh;
- chsqh->qh.qh_hlink = (__builtin_constant_p(bsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(bsqh->physaddr | 0x00000002));
+ chsqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(bsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(bsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(bsqh->physaddr | 0x00000002));
  chsqh->elink = ((void *)0);
- chsqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ chsqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  sc->sc_hctl_start = sc->sc_hctl_end = chsqh;
  clsqh = uhci_alloc_sqh(sc);
  if (clsqh == ((void *)0))
   return (USBD_NOMEM);
  clsqh->hlink = chsqh;
- clsqh->qh.qh_hlink = (__builtin_constant_p(chsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(chsqh->physaddr | 0x00000002));
+ clsqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(chsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(chsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(chsqh->physaddr | 0x00000002));
  clsqh->elink = ((void *)0);
- clsqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ clsqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  sc->sc_lctl_start = sc->sc_lctl_end = clsqh;
  for(i = 0; i < 128; i++) {
   std = uhci_alloc_std(sc);
@@ -3207,14 +3207,14 @@ uhci_init(struct uhci_softc *sc)
   if (std == ((void *)0) || sqh == ((void *)0))
    return (USBD_NOMEM);
   std->link.sqh = sqh;
-  std->td.td_link = (__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
-  std->td.td_status = (__builtin_constant_p(0x02000000) ? (__uint32_t)(((__uint32_t)(0x02000000) & 0xff) << 24 | ((__uint32_t)(0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x02000000) & 0xff000000) >> 24) : __swap32md(0x02000000));
-  std->td.td_token = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
-  std->td.td_buffer = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+  std->td.td_link = (__uint32_t)(__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
+  std->td.td_status = (__uint32_t)(__builtin_constant_p(0x02000000) ? (__uint32_t)(((__uint32_t)(0x02000000) & 0xff) << 24 | ((__uint32_t)(0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x02000000) & 0xff000000) >> 24) : __swap32md(0x02000000));
+  std->td.td_token = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+  std->td.td_buffer = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
   sqh->hlink = clsqh;
-  sqh->qh.qh_hlink = (__builtin_constant_p(clsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(clsqh->physaddr | 0x00000002));
+  sqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(clsqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(clsqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(clsqh->physaddr | 0x00000002));
   sqh->elink = ((void *)0);
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   sc->sc_vframes[i].htd = std;
   sc->sc_vframes[i].etd = std;
   sc->sc_vframes[i].hqh = sqh;
@@ -3222,7 +3222,7 @@ uhci_init(struct uhci_softc *sc)
   for (j = i;
        j < 1024;
        j += 128)
-   sc->sc_pframes[j] = (__builtin_constant_p(std->physaddr) ? (__uint32_t)(((__uint32_t)(std->physaddr) & 0xff) << 24 | ((__uint32_t)(std->physaddr) & 0xff00) << 8 | ((__uint32_t)(std->physaddr) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr) & 0xff000000) >> 24) : __swap32md(std->physaddr));
+   sc->sc_pframes[j] = (__uint32_t)(__builtin_constant_p(std->physaddr) ? (__uint32_t)(((__uint32_t)(std->physaddr) & 0xff) << 24 | ((__uint32_t)(std->physaddr) & 0xff00) << 8 | ((__uint32_t)(std->physaddr) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr) & 0xff000000) >> 24) : __swap32md(std->physaddr));
  }
  do { ((&sc->sc_intrhead)->lh_first) = ((void *)0); } while (0);
  timeout_set(&sc->sc_root_intr, uhci_poll_hub, sc);
@@ -3353,14 +3353,14 @@ uhci_add_loop(struct uhci_softc *sc) {
  if (++sc->sc_loops == 1) {
   ;
   sc->sc_last_qh->qh.qh_hlink =
-      (__builtin_constant_p(sc->sc_hctl_start->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sc->sc_hctl_start->physaddr | 0x00000002));
+      (__uint32_t)(__builtin_constant_p(sc->sc_hctl_start->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_hctl_start->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sc->sc_hctl_start->physaddr | 0x00000002));
  }
 }
 void
 uhci_rem_loop(struct uhci_softc *sc) {
  if (--sc->sc_loops == 0) {
   ;
-  sc->sc_last_qh->qh.qh_hlink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+  sc->sc_last_qh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  }
 }
 void
@@ -3373,7 +3373,7 @@ uhci_add_hs_ctrl(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  sqh->hlink = eqh->hlink;
  sqh->qh.qh_hlink = eqh->qh.qh_hlink;
  eqh->hlink = sqh;
- eqh->qh.qh_hlink = (__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
+ eqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
  sc->sc_hctl_end = sqh;
 }
 void
@@ -3382,8 +3382,8 @@ uhci_remove_hs_ctrl(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  struct uhci_soft_qh *pqh;
  do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0);
  ;
- if (!(sqh->qh.qh_elink & (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ if (!(sqh->qh.qh_elink & (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   delay(5);
  }
  pqh = uhci_find_prev_qh(sc->sc_hctl_start, sqh);
@@ -3403,7 +3403,7 @@ uhci_add_ls_ctrl(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  sqh->hlink = eqh->hlink;
  sqh->qh.qh_hlink = eqh->qh.qh_hlink;
  eqh->hlink = sqh;
- eqh->qh.qh_hlink = (__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
+ eqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
  sc->sc_lctl_end = sqh;
 }
 void
@@ -3412,8 +3412,8 @@ uhci_remove_ls_ctrl(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  struct uhci_soft_qh *pqh;
  do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0);
  ;
- if (!(sqh->qh.qh_elink & (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ if (!(sqh->qh.qh_elink & (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   delay(5);
  }
  pqh = uhci_find_prev_qh(sc->sc_lctl_start, sqh);
@@ -3433,7 +3433,7 @@ uhci_add_bulk(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  sqh->hlink = eqh->hlink;
  sqh->qh.qh_hlink = eqh->qh.qh_hlink;
  eqh->hlink = sqh;
- eqh->qh.qh_hlink = (__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
+ eqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
  sc->sc_bulk_end = sqh;
  uhci_add_loop(sc);
 }
@@ -3444,8 +3444,8 @@ uhci_remove_bulk(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  do { if (splassert_ctl > 0) { splassert_check(2, __func__); } } while (0);
  ;
  uhci_rem_loop(sc);
- if (!(sqh->qh.qh_elink & (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ if (!(sqh->qh.qh_elink & (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   delay(5);
  }
  pqh = uhci_find_prev_qh(sc->sc_bulk_start, sqh);
@@ -3557,17 +3557,17 @@ uhci_check_intr(struct uhci_softc *sc, struct usbd_xfer *xfer)
   printf("%s: std==0\n", __func__);
   return;
  }
- if ((__builtin_constant_p(lstd->td.td_status) ? (__uint32_t)(((__uint32_t)(lstd->td.td_status) & 0xff) << 24 | ((__uint32_t)(lstd->td.td_status) & 0xff00) << 8 | ((__uint32_t)(lstd->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(lstd->td.td_status) & 0xff000000) >> 24) : __swap32md(lstd->td.td_status)) & 0x00800000) {
+ if ((__uint32_t)(__builtin_constant_p(lstd->td.td_status) ? (__uint32_t)(((__uint32_t)(lstd->td.td_status) & 0xff) << 24 | ((__uint32_t)(lstd->td.td_status) & 0xff00) << 8 | ((__uint32_t)(lstd->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(lstd->td.td_status) & 0xff000000) >> 24) : __swap32md(lstd->td.td_status)) & 0x00800000) {
   ;
   for (std = ux->stdstart; std != lstd; std = std->link.std) {
-   status = (__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
+   status = (__uint32_t)(__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
    if (status & 0x00800000)
     break;
    if (status & 0x00400000)
     goto done;
    if ((status & 0x20000000) &&
          (((status) + 1) & 0x3ff) <
-         (((((__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 21) + 1) & 0x7ff))
+         (((((__uint32_t)(__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 21) + 1) & 0x7ff))
     goto done;
   }
   ;
@@ -3609,7 +3609,7 @@ uhci_idone(struct usbd_xfer *xfer)
    std = stds[n];
    if (++n >= 128)
     n = 0;
-   status = (__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
+   status = (__uint32_t)(__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
    len = (((status) + 1) & 0x3ff);
    xfer->frlengths[i] = len;
    actlen += len;
@@ -3621,11 +3621,11 @@ uhci_idone(struct usbd_xfer *xfer)
  }
  actlen = 0;
  for (std = ux->stdstart; std != ((void *)0); std = std->link.std) {
-  nstatus = (__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
+  nstatus = (__uint32_t)(__builtin_constant_p(std->td.td_status) ? (__uint32_t)(((__uint32_t)(std->td.td_status) & 0xff) << 24 | ((__uint32_t)(std->td.td_status) & 0xff00) << 8 | ((__uint32_t)(std->td.td_status) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_status) & 0xff000000) >> 24) : __swap32md(std->td.td_status));
   if (nstatus & 0x00800000)
    break;
   status = nstatus;
-  if ((((__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) & 0xff) !=
+  if ((((__uint32_t)(__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) & 0xff) !=
       0x0000002d)
    actlen += (((status) + 1) & 0x3ff);
   else {
@@ -3634,7 +3634,7 @@ uhci_idone(struct usbd_xfer *xfer)
   }
  }
  if (std != ((void *)0))
-  upipe->nexttoggle = ((((__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 19) & 1);
+  upipe->nexttoggle = ((((__uint32_t)(__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 19) & 1);
  status &= (0x00020000|0x00040000|0x00100000|0x00200000|0x00400000);
  ;
  xfer->actlen = actlen;
@@ -3753,11 +3753,11 @@ void
 uhci_free_std(struct uhci_softc *sc, struct uhci_soft_td *std)
 {
  int s;
- if ((__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token)) == 0x12345678) {
+ if ((__uint32_t)(__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token)) == 0x12345678) {
   printf("uhci_free_std: freeing free TD %p\n", std);
   return;
  }
- std->td.td_token = (__builtin_constant_p(0x12345678) ? (__uint32_t)(((__uint32_t)(0x12345678) & 0xff) << 24 | ((__uint32_t)(0x12345678) & 0xff00) << 8 | ((__uint32_t)(0x12345678) & 0xff0000) >> 8 | ((__uint32_t)(0x12345678) & 0xff000000) >> 24) : __swap32md(0x12345678));
+ std->td.td_token = (__uint32_t)(__builtin_constant_p(0x12345678) ? (__uint32_t)(((__uint32_t)(0x12345678) & 0xff) << 24 | ((__uint32_t)(0x12345678) & 0xff00) << 8 | ((__uint32_t)(0x12345678) & 0xff0000) >> 8 | ((__uint32_t)(0x12345678) & 0xff000000) >> 24) : __swap32md(0x12345678));
  s = splraise(2);
  std->link.std = sc->sc_freetds;
  sc->sc_freetds = std;
@@ -3854,10 +3854,10 @@ uhci_alloc_std_chain(struct uhci_softc *sc, u_int len, struct usbd_xfer *xfer,
    return (USBD_NOMEM);
   }
   p->link.std = lastp;
-  p->td.td_link = (__builtin_constant_p(lastlink | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(lastlink | 0x00000004 | 0x00000000));
+  p->td.td_link = (__uint32_t)(__builtin_constant_p(lastlink | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(lastlink | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(lastlink | 0x00000004 | 0x00000000));
   lastp = p;
   lastlink = p->physaddr;
-  p->td.td_status = (__builtin_constant_p(status) ? (__uint32_t)(((__uint32_t)(status) & 0xff) << 24 | ((__uint32_t)(status) & 0xff00) << 8 | ((__uint32_t)(status) & 0xff0000) >> 8 | ((__uint32_t)(status) & 0xff000000) >> 24) : __swap32md(status));
+  p->td.td_status = (__uint32_t)(__builtin_constant_p(status) ? (__uint32_t)(((__uint32_t)(status) & 0xff) << 24 | ((__uint32_t)(status) & 0xff00) << 8 | ((__uint32_t)(status) & 0xff0000) >> 8 | ((__uint32_t)(status) & 0xff000000) >> 24) : __swap32md(status));
   if (i == ntd) {
    l = len % mps;
    if (l == 0 && !(flags & 0x08))
@@ -3866,8 +3866,8 @@ uhci_alloc_std_chain(struct uhci_softc *sc, u_int len, struct usbd_xfer *xfer,
   } else
    l = mps;
   p->td.td_token =
-      (__builtin_constant_p(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) ? (__uint32_t)(((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff) << 24 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff00) << 8 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff0000) >> 8 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff000000) >> 24) : __swap32md(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))));
-  p->td.td_buffer = (__builtin_constant_p(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) ? (__uint32_t)(((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff) << 24 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff00) << 8 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff0000) >> 8 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff000000) >> 24) : __swap32md(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))));
+      (__uint32_t)(__builtin_constant_p(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) ? (__uint32_t)(((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff) << 24 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff00) << 8 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff0000) >> 8 | ((__uint32_t)(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))) & 0xff000000) >> 24) : __swap32md(rd ? ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((tog) << 19)) : ((((uint32_t)(l)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((tog) << 19))));
+  p->td.td_buffer = (__uint32_t)(__builtin_constant_p(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) ? (__uint32_t)(((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff) << 24 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff00) << 8 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff0000) >> 8 | ((__uint32_t)(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))) & 0xff000000) >> 24) : __swap32md(((dma)->block->map->dm_segs[0].ds_addr + (dma)->offs + (i * mps))));
   tog ^= 1;
  }
  *sp = lastp;
@@ -3910,7 +3910,7 @@ uhci_device_bulk_start(struct usbd_xfer *xfer)
  err = uhci_alloc_std_chain(sc, len, xfer, &data, &dataend);
  if (err)
   return (err);
- dataend->td.td_status |= (__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
+ dataend->td.td_status |= (__uint32_t)(__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
  ux->stdstart = data;
  ux->stdend = dataend;
  if (!ux->isdone) {
@@ -3918,7 +3918,7 @@ uhci_device_bulk_start(struct usbd_xfer *xfer)
  }
  ux->isdone = 0;
  sqh->elink = data;
- sqh->qh.qh_elink = (__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
+ sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
  s = splraise(2);
  uhci_add_bulk(sc, sqh);
  do { if ((((ux))->inext.le_next = (&(sc)->sc_intrhead)->lh_first) != ((void *)0)) (&(sc)->sc_intrhead)->lh_first->inext.le_prev = &((ux))->inext.le_next; (&(sc)->sc_intrhead)->lh_first = ((ux)); ((ux))->inext.le_prev = &(&(sc)->sc_intrhead)->lh_first; } while (0);
@@ -3963,7 +3963,7 @@ uhci_abort_xfer(struct usbd_xfer *xfer, usbd_status status)
  usb_rem_task(xfer->device, &xfer->abort_task);
  ;
  for (std = ux->stdstart; std != ((void *)0); std = std->link.std)
-  std->td.td_status &= (__builtin_constant_p(~(0x00800000 | 0x01000000)) ? (__uint32_t)(((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff) << 24 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff00) << 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff0000) >> 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff000000) >> 24) : __swap32md(~(0x00800000 | 0x01000000)));
+  std->td.td_status &= (__uint32_t)(__builtin_constant_p(~(0x00800000 | 0x01000000)) ? (__uint32_t)(((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff) << 24 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff00) << 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff0000) >> 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff000000) >> 24) : __swap32md(~(0x00800000 | 0x01000000)));
  _splx(s);
  usb_delay_ms(&sc->sc_bus, 2);
  s = splraise(2);
@@ -4037,7 +4037,7 @@ uhci_device_intr_start(struct usbd_xfer *xfer)
  err = uhci_alloc_std_chain(sc, xfer->length, xfer, &data, &dataend);
  if (err)
   return (err);
- dataend->td.td_status |= (__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
+ dataend->td.td_status |= (__uint32_t)(__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
  s = splraise(2);
  ux->stdstart = data;
  ux->stdend = dataend;
@@ -4049,7 +4049,7 @@ uhci_device_intr_start(struct usbd_xfer *xfer)
  for (i = 0; i < upipe->u.intr.npoll; i++) {
   sqh = upipe->u.intr.qhs[i];
   sqh->elink = data;
-  sqh->qh.qh_elink = (__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
  }
  do { if ((((ux))->inext.le_next = (&(sc)->sc_intrhead)->lh_first) != ((void *)0)) (&(sc)->sc_intrhead)->lh_first->inext.le_prev = &((ux))->inext.le_next; (&(sc)->sc_intrhead)->lh_first = ((ux)); ((ux))->inext.le_prev = &(&(sc)->sc_intrhead)->lh_first; } while (0);
  xfer->status = USBD_IN_PROGRESS;
@@ -4117,22 +4117,22 @@ uhci_device_request(struct usbd_xfer *xfer)
    return (err);
   next = data;
   dataend->link.std = stat;
-  dataend->td.td_link = (__builtin_constant_p(stat->physaddr | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(stat->physaddr | 0x00000004 | 0x00000000));
+  dataend->td.td_link = (__uint32_t)(__builtin_constant_p(stat->physaddr | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(stat->physaddr | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(stat->physaddr | 0x00000004 | 0x00000000));
  } else {
   next = stat;
  }
  upipe->u.ctl.length = len;
  __builtin_memcpy((((void *)((char *)((&upipe->u.ctl.reqdma)->block->kaddr + (&upipe->u.ctl.reqdma)->offs) + (0)))), (req), (sizeof *req));
  setup->link.std = next;
- setup->td.td_link = (__builtin_constant_p(next->physaddr | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(next->physaddr | 0x00000004 | 0x00000000));
- setup->td.td_status = (__builtin_constant_p(((3) << 27) | ls | 0x00800000) ? (__uint32_t)(((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff) << 24 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff00) << 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff0000) >> 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff000000) >> 24) : __swap32md(((3) << 27) | ls | 0x00800000));
- setup->td.td_token = (__builtin_constant_p(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) ? (__uint32_t)(((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff) << 24 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff00) << 8 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff0000) >> 8 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff000000) >> 24) : __swap32md(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)));
- setup->td.td_buffer = (__builtin_constant_p(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) ? (__uint32_t)(((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff) << 24 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff00) << 8 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff0000) >> 8 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff000000) >> 24) : __swap32md(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))));
+ setup->td.td_link = (__uint32_t)(__builtin_constant_p(next->physaddr | 0x00000004 | 0x00000000) ? (__uint32_t)(((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff) << 24 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(next->physaddr | 0x00000004 | 0x00000000) & 0xff000000) >> 24) : __swap32md(next->physaddr | 0x00000004 | 0x00000000));
+ setup->td.td_status = (__uint32_t)(__builtin_constant_p(((3) << 27) | ls | 0x00800000) ? (__uint32_t)(((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff) << 24 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff00) << 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff0000) >> 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000) & 0xff000000) >> 24) : __swap32md(((3) << 27) | ls | 0x00800000));
+ setup->td.td_token = (__uint32_t)(__builtin_constant_p(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) ? (__uint32_t)(((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff) << 24 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff00) << 8 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff0000) >> 8 | ((__uint32_t)(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)) & 0xff000000) >> 24) : __swap32md(((((uint32_t)(sizeof *req)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x0000002d)));
+ setup->td.td_buffer = (__uint32_t)(__builtin_constant_p(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) ? (__uint32_t)(((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff) << 24 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff00) << 8 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff0000) >> 8 | ((__uint32_t)(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))) & 0xff000000) >> 24) : __swap32md(((&upipe->u.ctl.reqdma)->block->map->dm_segs[0].ds_addr + (&upipe->u.ctl.reqdma)->offs + (0))));
  stat->link.std = ((void *)0);
- stat->td.td_link = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
- stat->td.td_status = (__builtin_constant_p(((3) << 27) | ls | 0x00800000 | 0x01000000) ? (__uint32_t)(((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff) << 24 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff00) << 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff000000) >> 24) : __swap32md(((3) << 27) | ls | 0x00800000 | 0x01000000));
- stat->td.td_token = (__builtin_constant_p(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) ? (__uint32_t)(((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff) << 24 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff00) << 8 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff0000) >> 8 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff000000) >> 24) : __swap32md(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))));
- stat->td.td_buffer = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ stat->td.td_link = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ stat->td.td_status = (__uint32_t)(__builtin_constant_p(((3) << 27) | ls | 0x00800000 | 0x01000000) ? (__uint32_t)(((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff) << 24 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff00) << 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(((3) << 27) | ls | 0x00800000 | 0x01000000) & 0xff000000) >> 24) : __swap32md(((3) << 27) | ls | 0x00800000 | 0x01000000));
+ stat->td.td_token = (__uint32_t)(__builtin_constant_p(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) ? (__uint32_t)(((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff) << 24 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff00) << 8 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff0000) >> 8 | ((__uint32_t)(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))) & 0xff000000) >> 24) : __swap32md(usbd_xfer_isread(xfer) ? ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x000000e1 | ((1) << 19)) : ((((uint32_t)(0)-1) << 21) | (((endpt)&0xf) << 15) | ((addr) << 8) | 0x00000069 | ((1) << 19))));
+ stat->td.td_buffer = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  ux->stdstart = setup;
  ux->stdend = stat;
  if (!ux->isdone) {
@@ -4140,7 +4140,7 @@ uhci_device_request(struct usbd_xfer *xfer)
  }
  ux->isdone = 0;
  sqh->elink = setup;
- sqh->qh.qh_elink = (__builtin_constant_p(setup->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(setup->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(setup->physaddr | 0x00000000));
+ sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(setup->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(setup->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(setup->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(setup->physaddr | 0x00000000));
  s = splraise(2);
  if (xfer->device->speed == 1)
   uhci_add_ls_ctrl(sc, sqh);
@@ -4202,12 +4202,12 @@ uhci_device_isoc_enter(struct usbd_xfer *xfer)
   if (++next >= 128)
    next = 0;
   len = xfer->frlengths[i];
-  std->td.td_buffer = (__builtin_constant_p(buf) ? (__uint32_t)(((__uint32_t)(buf) & 0xff) << 24 | ((__uint32_t)(buf) & 0xff00) << 8 | ((__uint32_t)(buf) & 0xff0000) >> 8 | ((__uint32_t)(buf) & 0xff000000) >> 24) : __swap32md(buf));
+  std->td.td_buffer = (__uint32_t)(__builtin_constant_p(buf) ? (__uint32_t)(((__uint32_t)(buf) & 0xff) << 24 | ((__uint32_t)(buf) & 0xff00) << 8 | ((__uint32_t)(buf) & 0xff0000) >> 8 | ((__uint32_t)(buf) & 0xff000000) >> 24) : __swap32md(buf));
   if (i == nframes - 1)
    status |= 0x01000000;
-  std->td.td_status = (__builtin_constant_p(status) ? (__uint32_t)(((__uint32_t)(status) & 0xff) << 24 | ((__uint32_t)(status) & 0xff00) << 8 | ((__uint32_t)(status) & 0xff0000) >> 8 | ((__uint32_t)(status) & 0xff000000) >> 24) : __swap32md(status));
-  std->td.td_token &= (__builtin_constant_p(~0xffe00000) ? (__uint32_t)(((__uint32_t)(~0xffe00000) & 0xff) << 24 | ((__uint32_t)(~0xffe00000) & 0xff00) << 8 | ((__uint32_t)(~0xffe00000) & 0xff0000) >> 8 | ((__uint32_t)(~0xffe00000) & 0xff000000) >> 24) : __swap32md(~0xffe00000));
-  std->td.td_token |= (__builtin_constant_p((((uint32_t)(len)-1) << 21)) ? (__uint32_t)(((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff) << 24 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff00) << 8 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff0000) >> 8 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff000000) >> 24) : __swap32md((((uint32_t)(len)-1) << 21)));
+  std->td.td_status = (__uint32_t)(__builtin_constant_p(status) ? (__uint32_t)(((__uint32_t)(status) & 0xff) << 24 | ((__uint32_t)(status) & 0xff00) << 8 | ((__uint32_t)(status) & 0xff0000) >> 8 | ((__uint32_t)(status) & 0xff000000) >> 24) : __swap32md(status));
+  std->td.td_token &= (__uint32_t)(__builtin_constant_p(~0xffe00000) ? (__uint32_t)(((__uint32_t)(~0xffe00000) & 0xff) << 24 | ((__uint32_t)(~0xffe00000) & 0xff00) << 8 | ((__uint32_t)(~0xffe00000) & 0xff0000) >> 8 | ((__uint32_t)(~0xffe00000) & 0xff000000) >> 24) : __swap32md(~0xffe00000));
+  std->td.td_token |= (__uint32_t)(__builtin_constant_p((((uint32_t)(len)-1) << 21)) ? (__uint32_t)(((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff) << 24 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff00) << 8 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff0000) >> 8 | ((__uint32_t)((((uint32_t)(len)-1) << 21)) & 0xff000000) >> 24) : __swap32md((((uint32_t)(len)-1) << 21)));
   buf += len;
  }
  iso->next = next;
@@ -4265,8 +4265,8 @@ uhci_device_isoc_abort(struct usbd_xfer *xfer)
  maxlen = 0;
  for (i = 0; i < nframes; i++) {
   std = stds[n];
-  std->td.td_status &= (__builtin_constant_p(~(0x00800000 | 0x01000000)) ? (__uint32_t)(((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff) << 24 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff00) << 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff0000) >> 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff000000) >> 24) : __swap32md(~(0x00800000 | 0x01000000)));
-  len = (((((__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 21) + 1) & 0x7ff);
+  std->td.td_status &= (__uint32_t)(__builtin_constant_p(~(0x00800000 | 0x01000000)) ? (__uint32_t)(((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff) << 24 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff00) << 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff0000) >> 8 | ((__uint32_t)(~(0x00800000 | 0x01000000)) & 0xff000000) >> 24) : __swap32md(~(0x00800000 | 0x01000000)));
+  len = (((((__uint32_t)(__builtin_constant_p(std->td.td_token) ? (__uint32_t)(((__uint32_t)(std->td.td_token) & 0xff) << 24 | ((__uint32_t)(std->td.td_token) & 0xff00) << 8 | ((__uint32_t)(std->td.td_token) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_token) & 0xff000000) >> 24) : __swap32md(std->td.td_token))) >> 21) + 1) & 0x7ff);
   if (len > maxlen)
    maxlen = len;
   if (++n >= 128)
@@ -4287,7 +4287,7 @@ uhci_device_isoc_close(struct usbd_pipe *pipe)
  int i, s;
  iso = &upipe->u.iso;
  for (i = 0; i < 128; i++)
-  iso->stds[i]->td.td_status &= (__builtin_constant_p(~0x00800000) ? (__uint32_t)(((__uint32_t)(~0x00800000) & 0xff) << 24 | ((__uint32_t)(~0x00800000) & 0xff00) << 8 | ((__uint32_t)(~0x00800000) & 0xff0000) >> 8 | ((__uint32_t)(~0x00800000) & 0xff000000) >> 24) : __swap32md(~0x00800000));
+  iso->stds[i]->td.td_status &= (__uint32_t)(__builtin_constant_p(~0x00800000) ? (__uint32_t)(((__uint32_t)(~0x00800000) & 0xff) << 24 | ((__uint32_t)(~0x00800000) & 0xff00) << 8 | ((__uint32_t)(~0x00800000) & 0xff0000) >> 8 | ((__uint32_t)(~0x00800000) & 0xff000000) >> 24) : __swap32md(~0x00800000));
  usb_delay_ms(&sc->sc_bus, 2);
  s = splraise(2);
  for (i = 0; i < 128; i++) {
@@ -4330,8 +4330,8 @@ uhci_setup_isoc(struct usbd_pipe *pipe)
   std = uhci_alloc_std(sc);
   if (std == 0)
    goto bad;
-  std->td.td_status = (__builtin_constant_p(0x02000000) ? (__uint32_t)(((__uint32_t)(0x02000000) & 0xff) << 24 | ((__uint32_t)(0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x02000000) & 0xff000000) >> 24) : __swap32md(0x02000000));
-  std->td.td_token = (__builtin_constant_p(token) ? (__uint32_t)(((__uint32_t)(token) & 0xff) << 24 | ((__uint32_t)(token) & 0xff00) << 8 | ((__uint32_t)(token) & 0xff0000) >> 8 | ((__uint32_t)(token) & 0xff000000) >> 24) : __swap32md(token));
+  std->td.td_status = (__uint32_t)(__builtin_constant_p(0x02000000) ? (__uint32_t)(((__uint32_t)(0x02000000) & 0xff) << 24 | ((__uint32_t)(0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x02000000) & 0xff000000) >> 24) : __swap32md(0x02000000));
+  std->td.td_token = (__uint32_t)(__builtin_constant_p(token) ? (__uint32_t)(((__uint32_t)(token) & 0xff) << 24 | ((__uint32_t)(token) & 0xff00) << 8 | ((__uint32_t)(token) & 0xff0000) >> 8 | ((__uint32_t)(token) & 0xff000000) >> 24) : __swap32md(token));
   iso->stds[i] = std;
  }
  s = splraise(2);
@@ -4341,7 +4341,7 @@ uhci_setup_isoc(struct usbd_pipe *pipe)
   std->link = vstd->link;
   std->td.td_link = vstd->td.td_link;
   vstd->link.std = std;
-  vstd->td.td_link = (__builtin_constant_p(std->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(std->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(std->physaddr | 0x00000000));
+  vstd->td.td_link = (__uint32_t)(__builtin_constant_p(std->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(std->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(std->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(std->physaddr | 0x00000000));
  }
  _splx(s);
  iso->next = -1;
@@ -4364,7 +4364,7 @@ uhci_device_isoc_done(struct usbd_xfer *xfer)
                 printf("uhci_device_isoc_done: xfer=%p stdend==NULL\n", xfer);
   return;
  }
- ux->stdend->td.td_status &= (__builtin_constant_p(~0x01000000) ? (__uint32_t)(((__uint32_t)(~0x01000000) & 0xff) << 24 | ((__uint32_t)(~0x01000000) & 0xff00) << 8 | ((__uint32_t)(~0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(~0x01000000) & 0xff000000) >> 24) : __swap32md(~0x01000000));
+ ux->stdend->td.td_status &= (__uint32_t)(__builtin_constant_p(~0x01000000) ? (__uint32_t)(((__uint32_t)(~0x01000000) & 0xff) << 24 | ((__uint32_t)(~0x01000000) & 0xff00) << 8 | ((__uint32_t)(~0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(~0x01000000) & 0xff000000) >> 24) : __swap32md(~0x01000000));
  do { do { if (((ux))->inext.le_next != ((void *)0)) ((ux))->inext.le_next->inext.le_prev = ((ux))->inext.le_prev; *((ux))->inext.le_prev = ((ux))->inext.le_next; (((ux))->inext.le_prev) = ((void *)-1); (((ux))->inext.le_next) = ((void *)-1); } while (0); (ux)->inext.le_prev = ((void *)0); } while (0);
 }
 void
@@ -4380,14 +4380,14 @@ uhci_device_intr_done(struct usbd_xfer *xfer)
  for(i = 0; i < npoll; i++) {
   sqh = upipe->u.intr.qhs[i];
   sqh->elink = ((void *)0);
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
  }
  uhci_free_std_chain(sc, ux->stdstart, ((void *)0));
  if (xfer->pipe->repeat) {
   struct uhci_soft_td *data, *dataend;
   ;
   uhci_alloc_std_chain(sc, xfer->length, xfer, &data, &dataend);
-  dataend->td.td_status |= (__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
+  dataend->td.td_status |= (__uint32_t)(__builtin_constant_p(0x01000000) ? (__uint32_t)(((__uint32_t)(0x01000000) & 0xff) << 24 | ((__uint32_t)(0x01000000) & 0xff00) << 8 | ((__uint32_t)(0x01000000) & 0xff0000) >> 8 | ((__uint32_t)(0x01000000) & 0xff000000) >> 24) : __swap32md(0x01000000));
   ux->stdstart = data;
   ux->stdend = dataend;
   if (!ux->isdone) {
@@ -4397,7 +4397,7 @@ uhci_device_intr_done(struct usbd_xfer *xfer)
   for (i = 0; i < npoll; i++) {
    sqh = upipe->u.intr.qhs[i];
    sqh->elink = data;
-   sqh->qh.qh_elink = (__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
+   sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(data->physaddr | 0x00000000) ? (__uint32_t)(((__uint32_t)(data->physaddr | 0x00000000) & 0xff) << 24 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff00) << 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff0000) >> 8 | ((__uint32_t)(data->physaddr | 0x00000000) & 0xff000000) >> 24) : __swap32md(data->physaddr | 0x00000000));
   }
   xfer->status = USBD_IN_PROGRESS;
  } else {
@@ -4449,7 +4449,7 @@ uhci_add_intr(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  sqh->hlink = eqh->hlink;
  sqh->qh.qh_hlink = eqh->qh.qh_hlink;
  eqh->hlink = sqh;
- eqh->qh.qh_hlink = (__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
+ eqh->qh.qh_hlink = (__uint32_t)(__builtin_constant_p(sqh->physaddr | 0x00000002) ? (__uint32_t)(((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff) << 24 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff00) << 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff0000) >> 8 | ((__uint32_t)(sqh->physaddr | 0x00000002) & 0xff000000) >> 24) : __swap32md(sqh->physaddr | 0x00000002));
  vf->eqh = sqh;
  vf->bandwidth++;
 }
@@ -4459,8 +4459,8 @@ uhci_remove_intr(struct uhci_softc *sc, struct uhci_soft_qh *sqh)
  struct uhci_vframe *vf = &sc->sc_vframes[sqh->pos];
  struct uhci_soft_qh *pqh;
  ;
- if (!(sqh->qh.qh_elink & (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+ if (!(sqh->qh.qh_elink & (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001)))) {
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   delay(5);
  }
  pqh = uhci_find_prev_qh(vf->hqh, sqh);
@@ -4508,7 +4508,7 @@ uhci_device_setintr(struct uhci_softc *sc, struct uhci_pipe *upipe, int ival)
    return (USBD_NOMEM);
   }
   sqh->elink = ((void *)0);
-  sqh->qh.qh_elink = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+  sqh->qh.qh_elink = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
   sqh->pos = ((i * ival + bestoffs) & (128 -1));
   qhs[i] = sqh;
  }

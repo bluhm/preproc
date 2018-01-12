@@ -4472,7 +4472,7 @@ cdioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
    break;
   }
   if (sc->sc_link->quirks & 0x0400)
-   th->len = (__builtin_constant_p(th->len) ? (__uint16_t)(((__uint16_t)(th->len) & 0xffU) << 8 | ((__uint16_t)(th->len) & 0xff00U) >> 8) : __swap16md(th->len));
+   th->len = (__uint16_t)(__builtin_constant_p(th->len) ? (__uint16_t)(((__uint16_t)(th->len) & 0xffU) << 8 | ((__uint16_t)(th->len) & 0xff00U) >> 8) : __swap16md(th->len));
   else
    th->len = ((__uint16_t)(th->len));
   if (th->len > 0)
@@ -4511,12 +4511,12 @@ cdioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
     cte = &toc->entries[ntracks];
     cte->addr_type = 1;
     if (sc->sc_link->quirks & 0x0400) {
-     do { __size_t __swap16_multi_n = (sizeof(cte->addr) / 2); __uint16_t *__swap16_multi_v = ((u_int16_t *)&cte->addr); while (__swap16_multi_n) { *__swap16_multi_v = (__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
+     do { __size_t __swap16_multi_n = (sizeof(cte->addr) / 2); __uint16_t *__swap16_multi_v = ((u_int16_t *)&cte->addr); while (__swap16_multi_n) { *__swap16_multi_v = (__uint16_t)(__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
     } else
      cte->addr.lba = ((__uint32_t)(cte->addr.lba));
    }
   if (sc->sc_link->quirks & 0x0400) {
-   th->len = (__builtin_constant_p(th->len) ? (__uint16_t)(((__uint16_t)(th->len) & 0xffU) << 8 | ((__uint16_t)(th->len) & 0xff00U) >> 8) : __swap16md(th->len));
+   th->len = (__uint16_t)(__builtin_constant_p(th->len) ? (__uint16_t)(((__uint16_t)(th->len) & 0xffU) << 8 | ((__uint16_t)(th->len) & 0xff00U) >> 8) : __swap16md(th->len));
   } else
    th->len = ((__uint16_t)(th->len));
   len = min(len, th->len - (sizeof(th->starting_track) +
@@ -4543,11 +4543,11 @@ cdioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   }
   cte = &toc->entries[0];
   if (sc->sc_link->quirks & 0x0400) {
-   do { __size_t __swap16_multi_n = (sizeof(cte->addr) / 2); __uint16_t *__swap16_multi_v = ((u_int16_t *)&cte->addr); while (__swap16_multi_n) { *__swap16_multi_v = (__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
+   do { __size_t __swap16_multi_n = (sizeof(cte->addr) / 2); __uint16_t *__swap16_multi_v = ((u_int16_t *)&cte->addr); while (__swap16_multi_n) { *__swap16_multi_v = (__uint16_t)(__builtin_constant_p(*__swap16_multi_v) ? (__uint16_t)(((__uint16_t)(*__swap16_multi_v) & 0xffU) << 8 | ((__uint16_t)(*__swap16_multi_v) & 0xff00U) >> 8) : __swap16md(*__swap16_multi_v)); __swap16_multi_v++; __swap16_multi_n--; } } while (0);
   } else
    cte->addr.lba = ((__uint32_t)(cte->addr.lba));
   if (sc->sc_link->quirks & 0x0400)
-   toc->header.len = (__builtin_constant_p(toc->header.len) ? (__uint16_t)(((__uint16_t)(toc->header.len) & 0xffU) << 8 | ((__uint16_t)(toc->header.len) & 0xff00U) >> 8) : __swap16md(toc->header.len));
+   toc->header.len = (__uint16_t)(__builtin_constant_p(toc->header.len) ? (__uint16_t)(((__uint16_t)(toc->header.len) & 0xffU) << 8 | ((__uint16_t)(toc->header.len) & 0xff00U) >> 8) : __swap16md(toc->header.len));
   else
    toc->header.len = ((__uint16_t)(toc->header.len));
   *(int *)addr = (toc->header.len >= 10 && cte->track > 1) ?

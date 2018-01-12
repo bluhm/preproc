@@ -3071,6 +3071,14 @@ void wsevent_fini(struct wseventvar *);
 int wsevent_read(struct wseventvar *, struct uio *, int);
 int wsevent_poll(struct wseventvar *, int, struct proc *);
 int wsevent_kqfilter(struct wseventvar *, struct knote *);
+struct position {
+ int x;
+ int y;
+ int dx;
+ int dy;
+ int acc_dx;
+ int acc_dy;
+};
 struct btn_state {
  u_int buttons;
  u_int sync;
@@ -3080,11 +3088,8 @@ struct motion_state {
  int dy;
  int dz;
  int dw;
- int x;
- int y;
+ struct position pos;
  u_int sync;
- int x_delta;
- int y_delta;
 };
 struct touch_state {
  int pressure;
@@ -3095,8 +3100,7 @@ struct touch_state {
  int prev_contacts;
 };
 struct mt_slot {
- int x;
- int y;
+ struct position pos;
  int pressure;
  int id;
 };
@@ -3118,7 +3122,6 @@ struct axis_filter {
  int rmdr;
  int inv;
  int hysteresis;
- int acc;
  int avg;
  int avg_rmdr;
  int mag_scale;
@@ -3163,6 +3166,7 @@ struct evq_access {
  int result;
 };
 void wsmouse_evq_put(struct evq_access *, int, int);
+int wsmouse_hysteresis(struct wsmouseinput *, struct position *);
 void wsmouse_input_reset(struct wsmouseinput *);
 void wsmouse_input_cleanup(struct wsmouseinput *);
 void wstpad_compat_convert(struct wsmouseinput *, struct evq_access *);
@@ -3551,24 +3555,45 @@ wsmouse_motion(struct device *sc, int dx, int dy, int dz, int dw)
  if (dx || dy || dz || dw)
   motion->sync |= (1 << 0);
 }
+static inline void
+set_x(struct position *pos, int x, u_int *sync, u_int mask)
+{
+ if (*sync & mask) {
+  pos->x -= pos->dx;
+  pos->acc_dx -= pos->dx;
+ }
+ if ((pos->dx = x - pos->x)) {
+  pos->x = x;
+  pos->acc_dx += pos->dx;
+  *sync |= mask;
+ }
+}
+static inline void
+set_y(struct position *pos, int y, u_int *sync, u_int mask)
+{
+ if (*sync & mask) {
+  pos->y -= pos->dy;
+  pos->acc_dy -= pos->dy;
+ }
+ if ((pos->dy = y - pos->y)) {
+  pos->y = y;
+  pos->acc_dy += pos->dy;
+  *sync |= mask;
+ }
+}
+static inline void
+cleardeltas(struct position *pos)
+{
+ pos->dx = pos->acc_dx = 0;
+ pos->dy = pos->acc_dy = 0;
+}
 void
 wsmouse_position(struct device *sc, int x, int y)
 {
  struct motion_state *motion =
      &((struct wsmouse_softc *) sc)->sc_input.motion;
- int delta;
- delta = x - motion->x;
- if (delta) {
-  motion->x = x;
-  motion->sync |= (1 << 1);
-  motion->x_delta = delta;
- }
- delta = y - motion->y;
- if (delta) {
-  motion->y = y;
-  motion->sync |= (1 << 2);
-  motion->y_delta = delta;
- }
+ set_x(&motion->pos, x, &motion->sync, (1 << 1));
+ set_y(&motion->pos, y, &motion->sync, (1 << 2));
 }
 static inline int
 normalized_pressure(struct wsmouseinput *input, int pressure)
@@ -3590,7 +3615,6 @@ wsmouse_touch(struct device *sc, int pressure, int contacts)
   touch->pressure = pressure;
   touch->sync |= (1 << 0);
  }
- touch->prev_contacts = touch->contacts;
  if (contacts != touch->contacts) {
   touch->contacts = contacts;
   touch->sync |= (1 << 1);
@@ -3610,13 +3634,15 @@ wsmouse_mtstate(struct device *sc, int slot, int x, int y, int pressure)
  mt->frame |= bit;
  initial = ((mt->touches & bit) == (mt->sync[0] & bit));
  mts = &mt->slots[slot];
- if (x != mts->x || initial) {
-  mts->x = x;
+ if (initial) {
+  mts->pos.x = x;
+  mts->pos.y = y;
+  cleardeltas(&mts->pos);
   mt->sync[1] |= bit;
- }
- if (y != mts->y || initial) {
-  mts->y = y;
   mt->sync[2] |= bit;
+ } else {
+  set_x(&mts->pos, x, mt->sync + 1, bit);
+  set_y(&mts->pos, y, mt->sync + 2, bit);
  }
  pressure = normalized_pressure(input, pressure);
  if (pressure != mts->pressure || initial) {
@@ -3648,14 +3674,14 @@ wsmouse_set(struct device *sc, enum wsmouseval type, int value, int aux)
  }
  switch (type) {
  case WSMOUSE_REL_X:
-  value += input->motion.x;
+  value += input->motion.pos.x;
  case WSMOUSE_ABS_X:
-  wsmouse_position(sc, value, input->motion.y);
+  wsmouse_position(sc, value, input->motion.pos.y);
   return;
  case WSMOUSE_REL_Y:
-  value += input->motion.y;
+  value += input->motion.pos.y;
  case WSMOUSE_ABS_Y:
-  wsmouse_position(sc, input->motion.x, value);
+  wsmouse_position(sc, input->motion.pos.x, value);
   return;
  case WSMOUSE_PRESSURE:
   wsmouse_touch(sc, value, input->touch.contacts);
@@ -3673,17 +3699,17 @@ wsmouse_set(struct device *sc, enum wsmouseval type, int value, int aux)
   }
   return;
  case WSMOUSE_MT_REL_X:
-  value += mts->x;
+  value += mts->pos.x;
  case WSMOUSE_MT_ABS_X:
-  wsmouse_mtstate(sc, aux, value, mts->y, mts->pressure);
+  wsmouse_mtstate(sc, aux, value, mts->pos.y, mts->pressure);
   return;
  case WSMOUSE_MT_REL_Y:
-  value += mts->y;
+  value += mts->pos.y;
  case WSMOUSE_MT_ABS_Y:
-  wsmouse_mtstate(sc, aux, mts->x, value, mts->pressure);
+  wsmouse_mtstate(sc, aux, mts->pos.x, value, mts->pressure);
   return;
  case WSMOUSE_MT_PRESSURE:
-  wsmouse_mtstate(sc, aux, mts->x, mts->y, value);
+  wsmouse_mtstate(sc, aux, mts->pos.x, mts->pos.y, value);
   return;
  }
 }
@@ -3693,14 +3719,16 @@ wsmouse_touch_update(struct wsmouseinput *input)
  struct motion_state *motion = &input->motion;
  struct touch_state *touch = &input->touch;
  if (touch->pressure == 0) {
-  if (motion->sync & (1 << 1))
-   motion->x -= motion->x_delta;
-  if (motion->sync & (1 << 2))
-   motion->y -= motion->y_delta;
-  motion->sync &= ~((1 << 1) | (1 << 2));
+  if (motion->sync & ((1 << 1) | (1 << 2))) {
+   motion->pos.x -= motion->pos.dx;
+   motion->pos.y -= motion->pos.dy;
+   motion->sync &= ~((1 << 1) | (1 << 2));
+  }
+  if (touch->prev_contacts == 0)
+   touch->sync &= ~(1 << 0);
  }
  if (touch->sync & (1 << 1))
-  motion->x_delta = motion->y_delta = 0;
+  cleardeltas(&motion->pos);
  if ((touch->sync & (1 << 0)) && touch->min_pressure) {
   if (touch->pressure >= input->filter.pressure_hi)
    touch->min_pressure = input->filter.pressure_lo;
@@ -3717,11 +3745,31 @@ wsmouse_mt_update(struct wsmouseinput *input)
    input->mt.sync[i] &= input->mt.touches;
  }
 }
-void
-wsmouse_ptr_ctrl(struct mt_state *mt)
+int
+wsmouse_hysteresis(struct wsmouseinput *input, struct position *pos)
 {
+ if (!(input->filter.h.hysteresis && input->filter.v.hysteresis))
+  return (0);
+ if ((pos->dx > 0 && pos->dx > pos->acc_dx)
+    || (pos->dx < 0 && pos->dx < pos->acc_dx))
+  pos->acc_dx = pos->dx;
+ if ((pos->dy > 0 && pos->dy > pos->acc_dy)
+    || (pos->dy < 0 && pos->dy < pos->acc_dy))
+  pos->acc_dy = pos->dy;
+ return (abs(pos->acc_dx) < input->filter.h.hysteresis
+     && abs(pos->acc_dy) < input->filter.v.hysteresis);
+}
+void
+wsmouse_ptr_ctrl(struct wsmouseinput *input)
+{
+ struct mt_state *mt = &input->mt;
  u_int updates;
  int select, slot;
+ updates = (mt->sync[1] | mt->sync[2]) & ~mt->sync[0];
+ for ((slot) = ffs(updates) - 1; (slot) != -1; (slot) = ffs((updates) & (~1 << (slot))) - 1) {
+  if (wsmouse_hysteresis(input, &mt->slots[slot].pos))
+   updates ^= (1 << slot);
+ }
  mt->prev_ptr = mt->ptr;
  if (mt->num_touches <= 1) {
   mt->ptr = mt->touches;
@@ -3729,7 +3777,6 @@ wsmouse_ptr_ctrl(struct mt_state *mt)
   return;
  }
  select = ((mt->ptr & mt->touches & ~mt->ptr_mask) == 0);
- updates = (mt->sync[1] | mt->sync[2]) & ~mt->sync[0];
  mt->ptr_cycle &= ~(mt->frame ^ updates);
  if (mt->ptr_cycle & updates) {
   select |= ((mt->ptr_cycle & mt->ptr) == 0);
@@ -3754,13 +3801,17 @@ wsmouse_mt_convert(struct device *sc)
  struct mt_state *mt = &input->mt;
  struct mt_slot *mts;
  int slot, pressure;
- wsmouse_ptr_ctrl(mt);
+ wsmouse_ptr_ctrl(input);
  if (mt->ptr) {
   slot = ffs(mt->ptr) - 1;
   mts = &mt->slots[slot];
-  wsmouse_position(sc, mts->x, mts->y);
+  if (mts->pos.x != input->motion.pos.x)
+   input->motion.sync |= (1 << 1);
+  if (mts->pos.y != input->motion.pos.y)
+   input->motion.sync |= (1 << 2);
   if (mt->ptr != mt->prev_ptr)
-   input->motion.x_delta = input->motion.y_delta = 0;
+   mts->pos.dx = mts->pos.dy = 0;
+  __builtin_memcpy((&input->motion.pos), (&mts->pos), (sizeof(struct position)));
   pressure = mts->pressure;
  } else {
   pressure = 0;
@@ -3833,15 +3884,15 @@ wsmouse_motion_sync(struct wsmouseinput *input, struct evq_access *evq)
  }
  if (motion->sync & ((1 << 1) | (1 << 2))) {
   if (motion->sync & (1 << 1)) {
-   x = (h->inv ? h->inv - motion->x : motion->x);
+   x = (h->inv ? h->inv - motion->pos.x : motion->pos.x);
    wsmouse_evq_put(evq, ((input)->filter.swapxy ? 9 : 8), x);
   }
   if (motion->sync & (1 << 2)) {
-   y = (v->inv ? v->inv - motion->y : motion->y);
+   y = (v->inv ? v->inv - motion->pos.y : motion->pos.y);
    wsmouse_evq_put(evq, ((input)->filter.swapxy ? 8 : 9), y);
   }
-  if (motion->x_delta == 0 && motion->y_delta == 0
-      && (input->flags & (1 << 1)))
+  if (motion->pos.dx == 0 && motion->pos.dy == 0
+      && (input->flags & (1 << 1) ))
    wsmouse_evq_put(evq, 25, 0);
  }
 }
@@ -3865,6 +3916,7 @@ clear_sync_flags(struct wsmouseinput *input)
  input->sbtn.sync = 0;
  input->motion.sync = 0;
  input->touch.sync = 0;
+ input->touch.prev_contacts = input->touch.contacts;
  if (input->mt.frame) {
   input->mt.frame = 0;
   for (i = 0; i < 4; i++)
@@ -3882,7 +3934,7 @@ wsmouse_input_sync(struct device *sc)
  evq.put = evq.evar->put;
  evq.result = 0;
  getnanotime(&evq.ts);
- enqueue_randomness(2, (int)(input->btn.buttons ^ input->motion.dx ^ input->motion.dy ^ input->motion.x ^ input->motion.y ^ input->motion.dz ^ input->motion.dw));
+ enqueue_randomness(2, (int)(input->btn.buttons ^ input->motion.dx ^ input->motion.dy ^ input->motion.pos.x ^ input->motion.pos.y ^ input->motion.dz ^ input->motion.dw));
  if (input->mt.frame) {
   wsmouse_mt_update(input);
   wsmouse_mt_convert(sc);
@@ -3894,7 +3946,6 @@ wsmouse_input_sync(struct device *sc)
  if (input->flags & (1 << 16)) {
   input->flags &= ~(1 << 16);
   input->motion.sync &= ((1 << 1) | (1 << 2));
-  input->motion.x_delta = input->motion.y_delta = 0;
  }
  if (input->btn.sync)
   wsmouse_btn_sync(&input->btn, &evq);
@@ -4013,8 +4064,8 @@ wsmouse_mtframe(struct device *sc, struct mtpoint *pt, int size)
  if (mt->num_touches >= size) {
   for ((slot) = ffs(touches) - 1; (slot) != -1; (slot) = ffs((touches) & (~1 << (slot))) - 1)
    for (i = 0; i < size; i++) {
-    dx = pt[i].x - mt->slots[slot].x;
-    dy = pt[i].y - mt->slots[slot].y;
+    dx = pt[i].x - mt->slots[slot].pos.x;
+    dy = pt[i].y - mt->slots[slot].pos.y;
     *p++ = dx * dx + dy * dy;
    }
   m = mt->num_touches;
@@ -4022,8 +4073,8 @@ wsmouse_mtframe(struct device *sc, struct mtpoint *pt, int size)
  } else {
   for (i = 0; i < size; i++)
    for ((slot) = ffs(touches) - 1; (slot) != -1; (slot) = ffs((touches) & (~1 << (slot))) - 1) {
-    dx = pt[i].x - mt->slots[slot].x;
-    dy = pt[i].y - mt->slots[slot].y;
+    dx = pt[i].x - mt->slots[slot].pos.x;
+    dy = pt[i].y - mt->slots[slot].pos.y;
     *p++ = dx * dx + dy * dy;
    }
   m = size;
@@ -4193,11 +4244,9 @@ wsmouse_set_params(struct device *sc,
    break;
   case WSMOUSECFG_X_HYSTERESIS:
    input->filter.h.hysteresis = val;
-   input->filter.h.acc = 0;
    break;
   case WSMOUSECFG_Y_HYSTERESIS:
    input->filter.v.hysteresis = val;
-   input->filter.v.acc = 0;
    break;
   case WSMOUSECFG_DECELERATION:
    input->filter.dclr = val;

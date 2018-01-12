@@ -15248,7 +15248,7 @@ static int radeon_process_i2c_ch(struct radeon_i2c_chan *chan,
  PROCESS_I2C_CHANNEL_TRANSACTION_PARAMETERS args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->ProcessI2cChannelTransaction)-(char*)0)/sizeof(USHORT));
  unsigned char *base;
- u16 out = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+ u16 out = (__uint16_t)(__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
  __builtin_memset((&args), (0), (sizeof(args)));
  base = (unsigned char *)rdev->mode_info.atom_context->scratch;
  if (flags & 1) {
@@ -15264,7 +15264,7 @@ static int radeon_process_i2c_ch(struct radeon_i2c_chan *chan,
    num--;
   if (num)
    __builtin_memcpy((&out), (&buf[1]), (num));
-  args.lpI2CDataOut = (__builtin_constant_p(out) ? (__uint16_t)(((__uint16_t)(out) & 0xffU) << 8 | ((__uint16_t)(out) & 0xff00U) >> 8) : __swap16md(out));
+  args.lpI2CDataOut = (__uint16_t)(__builtin_constant_p(out) ? (__uint16_t)(((__uint16_t)(out) & 0xffU) << 8 | ((__uint16_t)(out) & 0xff00U) >> 8) : __swap16md(out));
  }
  args.ucI2CSpeed = 50;
  args.ucRegIndex = 0;

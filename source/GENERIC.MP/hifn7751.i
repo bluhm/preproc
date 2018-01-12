@@ -3279,28 +3279,28 @@ hifn_alloc_slot(struct hifn_softc *sc, int *cmdp, int *srcp,
  struct hifn_dma *dma = sc->sc_dma;
  if (dma->cmdi == 24) {
   dma->cmdi = 0;
-  dma->cmdr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->cmdr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(24)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  *cmdp = dma->cmdi++;
  dma->cmdk = dma->cmdi;
  if (dma->srci == 80) {
   dma->srci = 0;
-  dma->srcr[80].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->srcr[80].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, srcr[(80)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  *srcp = dma->srci++;
  dma->srck = dma->srci;
  if (dma->dsti == 80) {
   dma->dsti = 0;
-  dma->dstr[80].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->dstr[80].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(80)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  *dstp = dma->dsti++;
  dma->dstk = dma->dsti;
  if (dma->resi == 24) {
   dma->resi = 0;
-  dma->resr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->resr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(24)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  *resp = dma->resi++;
@@ -3313,21 +3313,21 @@ hifn_writeramaddr(struct hifn_softc *sc, int addr, u_int8_t *data)
  struct hifn_base_command wc;
  const u_int32_t masks = 0x80000000 | 0x20000000 | 0x02000000;
  int r, cmdi, resi, srci, dsti;
- wc.masks = (__builtin_constant_p(3 << 13) ? (__uint16_t)(((__uint16_t)(3 << 13) & 0xffU) << 8 | ((__uint16_t)(3 << 13) & 0xff00U) >> 8) : __swap16md(3 << 13));
- wc.session_num = (__builtin_constant_p(addr >> 14) ? (__uint16_t)(((__uint16_t)(addr >> 14) & 0xffU) << 8 | ((__uint16_t)(addr >> 14) & 0xff00U) >> 8) : __swap16md(addr >> 14));
- wc.total_source_count = (__builtin_constant_p(8) ? (__uint16_t)(((__uint16_t)(8) & 0xffU) << 8 | ((__uint16_t)(8) & 0xff00U) >> 8) : __swap16md(8));
- wc.total_dest_count = (__builtin_constant_p(addr & 0x3fff) ? (__uint16_t)(((__uint16_t)(addr & 0x3fff) & 0xffU) << 8 | ((__uint16_t)(addr & 0x3fff) & 0xff00U) >> 8) : __swap16md(addr & 0x3fff));
+ wc.masks = (__uint16_t)(__builtin_constant_p(3 << 13) ? (__uint16_t)(((__uint16_t)(3 << 13) & 0xffU) << 8 | ((__uint16_t)(3 << 13) & 0xff00U) >> 8) : __swap16md(3 << 13));
+ wc.session_num = (__uint16_t)(__builtin_constant_p(addr >> 14) ? (__uint16_t)(((__uint16_t)(addr >> 14) & 0xffU) << 8 | ((__uint16_t)(addr >> 14) & 0xff00U) >> 8) : __swap16md(addr >> 14));
+ wc.total_source_count = (__uint16_t)(__builtin_constant_p(8) ? (__uint16_t)(((__uint16_t)(8) & 0xffU) << 8 | ((__uint16_t)(8) & 0xff00U) >> 8) : __swap16md(8));
+ wc.total_dest_count = (__uint16_t)(__builtin_constant_p(addr & 0x3fff) ? (__uint16_t)(((__uint16_t)(addr & 0x3fff) & 0xffU) << 8 | ((__uint16_t)(addr & 0x3fff) & 0xff00U) >> 8) : __swap16md(addr & 0x3fff));
  hifn_alloc_slot(sc, &cmdi, &srci, &dsti, &resi);
  hifn_write_4((sc), 1, (0x40), (0x00000080 | 0x00008000 | 0x80000000 | 0x00800000));
  __builtin_bzero((dma->command_bufs[cmdi]), ((8 + 8 + 8 + 64 + 260)));
  *(struct hifn_base_command *)dma->command_bufs[cmdi] = wc;
  __builtin_bcopy((data), (&dma->test_src), (sizeof(dma->test_src)));
- dma->srcr[srci].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)));
- dma->dstr[dsti].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)));
- dma->cmdr[cmdi].l = (__builtin_constant_p(16 | masks) ? (__uint32_t)(((__uint32_t)(16 | masks) & 0xff) << 24 | ((__uint32_t)(16 | masks) & 0xff00) << 8 | ((__uint32_t)(16 | masks) & 0xff0000) >> 8 | ((__uint32_t)(16 | masks) & 0xff000000) >> 24) : __swap32md(16 | masks));
- dma->srcr[srci].l = (__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
- dma->dstr[dsti].l = (__builtin_constant_p(4 | masks) ? (__uint32_t)(((__uint32_t)(4 | masks) & 0xff) << 24 | ((__uint32_t)(4 | masks) & 0xff00) << 8 | ((__uint32_t)(4 | masks) & 0xff0000) >> 8 | ((__uint32_t)(4 | masks) & 0xff000000) >> 24) : __swap32md(4 | masks));
- dma->resr[resi].l = (__builtin_constant_p(4 | masks) ? (__uint32_t)(((__uint32_t)(4 | masks) & 0xff) << 24 | ((__uint32_t)(4 | masks) & 0xff00) << 8 | ((__uint32_t)(4 | masks) & 0xff0000) >> 8 | ((__uint32_t)(4 | masks) & 0xff000000) >> 24) : __swap32md(4 | masks));
+ dma->srcr[srci].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)));
+ dma->dstr[dsti].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)));
+ dma->cmdr[cmdi].l = (__uint32_t)(__builtin_constant_p(16 | masks) ? (__uint32_t)(((__uint32_t)(16 | masks) & 0xff) << 24 | ((__uint32_t)(16 | masks) & 0xff00) << 8 | ((__uint32_t)(16 | masks) & 0xff0000) >> 8 | ((__uint32_t)(16 | masks) & 0xff000000) >> 24) : __swap32md(16 | masks));
+ dma->srcr[srci].l = (__uint32_t)(__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
+ dma->dstr[dsti].l = (__uint32_t)(__builtin_constant_p(4 | masks) ? (__uint32_t)(((__uint32_t)(4 | masks) & 0xff) << 24 | ((__uint32_t)(4 | masks) & 0xff00) << 8 | ((__uint32_t)(4 | masks) & 0xff0000) >> 8 | ((__uint32_t)(4 | masks) & 0xff000000) >> 24) : __swap32md(4 | masks));
+ dma->resr[resi].l = (__uint32_t)(__builtin_constant_p(4 | masks) ? (__uint32_t)(((__uint32_t)(4 | masks) & 0xff) << 24 | ((__uint32_t)(4 | masks) & 0xff00) << 8 | ((__uint32_t)(4 | masks) & 0xff0000) >> 8 | ((__uint32_t)(4 | masks) & 0xff000000) >> 24) : __swap32md(4 | masks));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
      0, sc->sc_dmamap->dm_mapsize,
      0x01 | 0x04);
@@ -3336,7 +3336,7 @@ hifn_writeramaddr(struct hifn_softc *sc, int addr, u_int8_t *data)
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       0, sc->sc_dmamap->dm_mapsize,
       0x02 | 0x08);
-  if ((dma->resr[resi].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0)
+  if ((dma->resr[resi].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0)
    break;
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       0, sc->sc_dmamap->dm_mapsize,
@@ -3359,22 +3359,22 @@ hifn_readramaddr(struct hifn_softc *sc, int addr, u_int8_t *data)
  struct hifn_base_command rc;
  const u_int32_t masks = 0x80000000 | 0x20000000 | 0x02000000;
  int r, cmdi, srci, dsti, resi;
- rc.masks = (__builtin_constant_p(2 << 13) ? (__uint16_t)(((__uint16_t)(2 << 13) & 0xffU) << 8 | ((__uint16_t)(2 << 13) & 0xff00U) >> 8) : __swap16md(2 << 13));
- rc.session_num = (__builtin_constant_p(addr >> 14) ? (__uint16_t)(((__uint16_t)(addr >> 14) & 0xffU) << 8 | ((__uint16_t)(addr >> 14) & 0xff00U) >> 8) : __swap16md(addr >> 14));
- rc.total_source_count = (__builtin_constant_p(addr & 0x3fff) ? (__uint16_t)(((__uint16_t)(addr & 0x3fff) & 0xffU) << 8 | ((__uint16_t)(addr & 0x3fff) & 0xff00U) >> 8) : __swap16md(addr & 0x3fff));
- rc.total_dest_count = (__builtin_constant_p(8) ? (__uint16_t)(((__uint16_t)(8) & 0xffU) << 8 | ((__uint16_t)(8) & 0xff00U) >> 8) : __swap16md(8));
+ rc.masks = (__uint16_t)(__builtin_constant_p(2 << 13) ? (__uint16_t)(((__uint16_t)(2 << 13) & 0xffU) << 8 | ((__uint16_t)(2 << 13) & 0xff00U) >> 8) : __swap16md(2 << 13));
+ rc.session_num = (__uint16_t)(__builtin_constant_p(addr >> 14) ? (__uint16_t)(((__uint16_t)(addr >> 14) & 0xffU) << 8 | ((__uint16_t)(addr >> 14) & 0xff00U) >> 8) : __swap16md(addr >> 14));
+ rc.total_source_count = (__uint16_t)(__builtin_constant_p(addr & 0x3fff) ? (__uint16_t)(((__uint16_t)(addr & 0x3fff) & 0xffU) << 8 | ((__uint16_t)(addr & 0x3fff) & 0xff00U) >> 8) : __swap16md(addr & 0x3fff));
+ rc.total_dest_count = (__uint16_t)(__builtin_constant_p(8) ? (__uint16_t)(((__uint16_t)(8) & 0xffU) << 8 | ((__uint16_t)(8) & 0xff00U) >> 8) : __swap16md(8));
  hifn_alloc_slot(sc, &cmdi, &srci, &dsti, &resi);
  hifn_write_4((sc), 1, (0x40), (0x00000080 | 0x00008000 | 0x80000000 | 0x00800000));
  __builtin_bzero((dma->command_bufs[cmdi]), ((8 + 8 + 8 + 64 + 260)));
  *(struct hifn_base_command *)dma->command_bufs[cmdi] = rc;
- dma->srcr[srci].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)));
+ dma->srcr[srci].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_src)));
  dma->test_src = 0;
- dma->dstr[dsti].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)));
+ dma->dstr[dsti].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, test_dst)));
  dma->test_dst = 0;
- dma->cmdr[cmdi].l = (__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
- dma->srcr[srci].l = (__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
- dma->dstr[dsti].l = (__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
- dma->resr[resi].l = (__builtin_constant_p((8 + 4 + 4 + 20 + 4) | masks) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | masks));
+ dma->cmdr[cmdi].l = (__uint32_t)(__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
+ dma->srcr[srci].l = (__uint32_t)(__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
+ dma->dstr[dsti].l = (__uint32_t)(__builtin_constant_p(8 | masks) ? (__uint32_t)(((__uint32_t)(8 | masks) & 0xff) << 24 | ((__uint32_t)(8 | masks) & 0xff00) << 8 | ((__uint32_t)(8 | masks) & 0xff0000) >> 8 | ((__uint32_t)(8 | masks) & 0xff000000) >> 24) : __swap32md(8 | masks));
+ dma->resr[resi].l = (__uint32_t)(__builtin_constant_p((8 + 4 + 4 + 20 + 4) | masks) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | masks) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | masks));
  bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
      0, sc->sc_dmamap->dm_mapsize,
      0x01 | 0x04);
@@ -3383,7 +3383,7 @@ hifn_readramaddr(struct hifn_softc *sc, int addr, u_int8_t *data)
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       0, sc->sc_dmamap->dm_mapsize,
       0x02 | 0x08);
-  if ((dma->resr[resi].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0)
+  if ((dma->resr[resi].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0)
    break;
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       0, sc->sc_dmamap->dm_mapsize,
@@ -3408,17 +3408,17 @@ hifn_init_dma(struct hifn_softc *sc)
  int i;
  hifn_set_retry(sc);
  for (i = 0; i < 24; i++)
-  dma->cmdr[i].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])));
+  dma->cmdr[i].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, command_bufs[i][0])));
  for (i = 0; i < 24; i++)
-  dma->resr[i].p = (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])));
+  dma->resr[i].p = (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, result_bufs[i][0])));
  dma->cmdr[24].p =
-     (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])));
+     (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, cmdr[0])));
  dma->srcr[80].p =
-     (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])));
+     (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, srcr[0])));
  dma->dstr[80].p =
-     (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])));
+     (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, dstr[0])));
  dma->resr[24].p =
-     (__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])));
+     (__uint32_t)(__builtin_constant_p(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) ? (__uint32_t)(((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff) << 24 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff00) << 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])) & 0xff000000) >> 24) : __swap32md(sc->sc_dmamap->dm_segs[0].ds_addr + __builtin_offsetof(struct hifn_dma, resr[0])));
  dma->cmdu = dma->srcu = dma->dstu = dma->resu = 0;
  dma->cmdi = dma->srci = dma->dsti = dma->resi = 0;
  dma->cmdk = dma->srck = dma->dstk = dma->resk = 0;
@@ -3438,46 +3438,46 @@ hifn_write_command(struct hifn_command *cmd, u_int8_t *buf)
  using_crypt = cmd->base_masks & 0x0800;
  using_comp = cmd->base_masks & 0x0100;
  base_cmd = (struct hifn_base_command *)buf_pos;
- base_cmd->masks = (__builtin_constant_p(cmd->base_masks) ? (__uint16_t)(((__uint16_t)(cmd->base_masks) & 0xffU) << 8 | ((__uint16_t)(cmd->base_masks) & 0xff00U) >> 8) : __swap16md(cmd->base_masks));
+ base_cmd->masks = (__uint16_t)(__builtin_constant_p(cmd->base_masks) ? (__uint16_t)(((__uint16_t)(cmd->base_masks) & 0xffU) << 8 | ((__uint16_t)(cmd->base_masks) & 0xff00U) >> 8) : __swap16md(cmd->base_masks));
  slen = cmd->src_map->dm_mapsize;
  if (cmd->sloplen)
   dlen = cmd->dst_map->dm_mapsize - cmd->sloplen +
       sizeof(u_int32_t);
  else
   dlen = cmd->dst_map->dm_mapsize;
- base_cmd->total_source_count = (__builtin_constant_p(slen & 0x0ffff) ? (__uint16_t)(((__uint16_t)(slen & 0x0ffff) & 0xffU) << 8 | ((__uint16_t)(slen & 0x0ffff) & 0xff00U) >> 8) : __swap16md(slen & 0x0ffff));
- base_cmd->total_dest_count = (__builtin_constant_p(dlen & 0x0ffff) ? (__uint16_t)(((__uint16_t)(dlen & 0x0ffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0x0ffff) & 0xff00U) >> 8) : __swap16md(dlen & 0x0ffff));
+ base_cmd->total_source_count = (__uint16_t)(__builtin_constant_p(slen & 0x0ffff) ? (__uint16_t)(((__uint16_t)(slen & 0x0ffff) & 0xffU) << 8 | ((__uint16_t)(slen & 0x0ffff) & 0xff00U) >> 8) : __swap16md(slen & 0x0ffff));
+ base_cmd->total_dest_count = (__uint16_t)(__builtin_constant_p(dlen & 0x0ffff) ? (__uint16_t)(((__uint16_t)(dlen & 0x0ffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0x0ffff) & 0xff00U) >> 8) : __swap16md(dlen & 0x0ffff));
  dlen >>= 16;
  slen >>= 16;
- base_cmd->session_num = (__builtin_constant_p(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) ? (__uint16_t)(((__uint16_t)(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) & 0xffU) << 8 | ((__uint16_t)(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) & 0xff00U) >> 8) : __swap16md(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)));
+ base_cmd->session_num = (__uint16_t)(__builtin_constant_p(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) ? (__uint16_t)(((__uint16_t)(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) & 0xffU) << 8 | ((__uint16_t)(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)) & 0xff00U) >> 8) : __swap16md(((slen << 14) & 0xc000) | ((dlen << 12) & 0x3000)));
  buf_pos += sizeof(struct hifn_base_command);
  if (using_comp) {
   comp_cmd = (struct hifn_comp_command *)buf_pos;
   dlen = cmd->compcrd->crd_len;
-  comp_cmd->source_count = (__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
+  comp_cmd->source_count = (__uint16_t)(__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
   dlen >>= 16;
-  comp_cmd->masks = (__builtin_constant_p(cmd->comp_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->comp_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->comp_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->comp_masks | ((dlen << 14) & 0xc000)));
-  comp_cmd->header_skip = (__builtin_constant_p(cmd->compcrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->compcrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->compcrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->compcrd->crd_skip));
+  comp_cmd->masks = (__uint16_t)(__builtin_constant_p(cmd->comp_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->comp_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->comp_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->comp_masks | ((dlen << 14) & 0xc000)));
+  comp_cmd->header_skip = (__uint16_t)(__builtin_constant_p(cmd->compcrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->compcrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->compcrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->compcrd->crd_skip));
   comp_cmd->reserved = 0;
   buf_pos += sizeof(struct hifn_comp_command);
  }
  if (using_mac) {
   mac_cmd = (struct hifn_mac_command *)buf_pos;
   dlen = cmd->maccrd->crd_len;
-  mac_cmd->source_count = (__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
+  mac_cmd->source_count = (__uint16_t)(__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
   dlen >>= 16;
-  mac_cmd->masks = (__builtin_constant_p(cmd->mac_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->mac_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->mac_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->mac_masks | ((dlen << 14) & 0xc000)));
-  mac_cmd->header_skip = (__builtin_constant_p(cmd->maccrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->maccrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->maccrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->maccrd->crd_skip));
+  mac_cmd->masks = (__uint16_t)(__builtin_constant_p(cmd->mac_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->mac_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->mac_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->mac_masks | ((dlen << 14) & 0xc000)));
+  mac_cmd->header_skip = (__uint16_t)(__builtin_constant_p(cmd->maccrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->maccrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->maccrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->maccrd->crd_skip));
   mac_cmd->reserved = 0;
   buf_pos += sizeof(struct hifn_mac_command);
  }
  if (using_crypt) {
   cry_cmd = (struct hifn_crypt_command *)buf_pos;
   dlen = cmd->enccrd->crd_len;
-  cry_cmd->source_count = (__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
+  cry_cmd->source_count = (__uint16_t)(__builtin_constant_p(dlen & 0xffff) ? (__uint16_t)(((__uint16_t)(dlen & 0xffff) & 0xffU) << 8 | ((__uint16_t)(dlen & 0xffff) & 0xff00U) >> 8) : __swap16md(dlen & 0xffff));
   dlen >>= 16;
-  cry_cmd->masks = (__builtin_constant_p(cmd->cry_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->cry_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->cry_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->cry_masks | ((dlen << 14) & 0xc000)));
-  cry_cmd->header_skip = (__builtin_constant_p(cmd->enccrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->enccrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->enccrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->enccrd->crd_skip));
+  cry_cmd->masks = (__uint16_t)(__builtin_constant_p(cmd->cry_masks | ((dlen << 14) & 0xc000)) ? (__uint16_t)(((__uint16_t)(cmd->cry_masks | ((dlen << 14) & 0xc000)) & 0xffU) << 8 | ((__uint16_t)(cmd->cry_masks | ((dlen << 14) & 0xc000)) & 0xff00U) >> 8) : __swap16md(cmd->cry_masks | ((dlen << 14) & 0xc000)));
+  cry_cmd->header_skip = (__uint16_t)(__builtin_constant_p(cmd->enccrd->crd_skip) ? (__uint16_t)(((__uint16_t)(cmd->enccrd->crd_skip) & 0xffU) << 8 | ((__uint16_t)(cmd->enccrd->crd_skip) & 0xff00U) >> 8) : __swap16md(cmd->enccrd->crd_skip));
   cry_cmd->reserved = 0;
   buf_pos += sizeof(struct hifn_crypt_command);
  }
@@ -3551,12 +3551,12 @@ hifn_dmamap_load_dst(struct hifn_softc *sc, struct hifn_command *cmd)
  int idx, used = 0, i;
  idx = dma->dsti;
  for (i = 0; i < map->dm_nsegs - 1; i++) {
-  dma->dstr[idx].p = (__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
-  dma->dstr[idx].l = (__builtin_constant_p(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len));
+  dma->dstr[idx].p = (__uint32_t)(__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
+  dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x02000000 | map->dm_segs[i].ds_len));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
   used++;
   if (++idx == 80) {
-   dma->dstr[idx].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+   dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
    idx = 0;
   }
@@ -3571,23 +3571,23 @@ hifn_dmamap_load_dst(struct hifn_softc *sc, struct hifn_command *cmd)
   l = 0x80000000 | 0x02000000 | 0x20000000 |
       sizeof(u_int32_t);
   if ((map->dm_segs[i].ds_len - cmd->sloplen) != 0) {
-   dma->dstr[idx].p = (__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
-   dma->dstr[idx].l = (__builtin_constant_p(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)));
+   dma->dstr[idx].p = (__uint32_t)(__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
+   dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x02000000 | (map->dm_segs[i].ds_len - cmd->sloplen)));
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
    used++;
    if (++idx == 80) {
-    dma->dstr[idx].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+    dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
     bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
     idx = 0;
    }
   }
  }
- dma->dstr[idx].p = (__builtin_constant_p(p) ? (__uint32_t)(((__uint32_t)(p) & 0xff) << 24 | ((__uint32_t)(p) & 0xff00) << 8 | ((__uint32_t)(p) & 0xff0000) >> 8 | ((__uint32_t)(p) & 0xff000000) >> 24) : __swap32md(p));
- dma->dstr[idx].l = (__builtin_constant_p(l) ? (__uint32_t)(((__uint32_t)(l) & 0xff) << 24 | ((__uint32_t)(l) & 0xff00) << 8 | ((__uint32_t)(l) & 0xff0000) >> 8 | ((__uint32_t)(l) & 0xff000000) >> 24) : __swap32md(l));
+ dma->dstr[idx].p = (__uint32_t)(__builtin_constant_p(p) ? (__uint32_t)(((__uint32_t)(p) & 0xff) << 24 | ((__uint32_t)(p) & 0xff00) << 8 | ((__uint32_t)(p) & 0xff0000) >> 8 | ((__uint32_t)(p) & 0xff000000) >> 24) : __swap32md(p));
+ dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(l) ? (__uint32_t)(((__uint32_t)(l) & 0xff) << 24 | ((__uint32_t)(l) & 0xff00) << 8 | ((__uint32_t)(l) & 0xff0000) >> 8 | ((__uint32_t)(l) & 0xff000000) >> 24) : __swap32md(l));
  bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
  used++;
  if (++idx == 80) {
-  dma->dstr[idx].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->dstr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, dstr[(idx)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
   idx = 0;
  }
@@ -3606,11 +3606,11 @@ hifn_dmamap_load_src(struct hifn_softc *sc, struct hifn_command *cmd)
  for (i = 0; i < map->dm_nsegs; i++) {
   if (i == map->dm_nsegs - 1)
    last = 0x20000000;
-  dma->srcr[idx].p = (__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
-  dma->srcr[idx].l = (__builtin_constant_p(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last));
+  dma->srcr[idx].p = (__uint32_t)(__builtin_constant_p(map->dm_segs[i].ds_addr) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_addr) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_addr));
+  dma->srcr[idx].l = (__uint32_t)(__builtin_constant_p(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) ? (__uint32_t)(((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff) << 24 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff00) << 8 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff0000) >> 8 | ((__uint32_t)(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last) & 0xff000000) >> 24) : __swap32md(map->dm_segs[i].ds_len | 0x80000000 | 0x02000000 | last));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, srcr[(idx)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
   if (++idx == 80) {
-   dma->srcr[idx].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+   dma->srcr[idx].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, srcr[(80)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
    idx = 0;
   }
@@ -3756,13 +3756,13 @@ hifn_crypto(struct hifn_softc *sc, struct hifn_command *cmd,
  }
  if (dma->cmdi == 24) {
   dma->cmdi = 0;
-  dma->cmdr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->cmdr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(24)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  cmdi = dma->cmdi++;
  cmdlen = hifn_write_command(cmd, dma->command_bufs[cmdi]);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_dmamap, __builtin_offsetof(struct hifn_dma, command_bufs[(cmdi)][0]), (8 + 8 + 8 + 64 + 260), (0x04));
- dma->cmdr[cmdi].l = (__builtin_constant_p(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(cmdlen | 0x80000000 | 0x20000000 | 0x02000000));
+ dma->cmdr[cmdi].l = (__uint32_t)(__builtin_constant_p(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(cmdlen | 0x80000000 | 0x20000000 | 0x02000000));
  bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(cmdi)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  dma->cmdu++;
  if (sc->sc_c_busy == 0) {
@@ -3782,13 +3782,13 @@ hifn_crypto(struct hifn_softc *sc, struct hifn_command *cmd,
  }
  if (dma->resi == 24) {
   dma->resi = 0;
-  dma->resr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->resr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(24)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
  }
  resi = dma->resi++;
  dma->hifn_commands[resi] = cmd;
  bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_dmamap, __builtin_offsetof(struct hifn_dma, result_bufs[(resi)][0]), (8 + 4 + 4 + 20 + 4), (0x01));
- dma->resr[resi].l = (__builtin_constant_p((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000));
+ dma->resr[resi].l = (__uint32_t)(__builtin_constant_p((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000));
  bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(resi)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
  dma->resu++;
  if (sc->sc_r_busy == 0) {
@@ -3898,7 +3898,7 @@ hifn_intr(void *arg)
  i = dma->resk;
  while (dma->resu != 0) {
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(i)]), sizeof(struct hifn_desc), ((0x02 | 0x08)));
-  if (dma->resr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
+  if (dma->resr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(i)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
    break;
   }
@@ -3918,7 +3918,7 @@ hifn_intr(void *arg)
  i = dma->srck; u = dma->srcu;
  while (u != 0) {
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, srcr[(i)]), sizeof(struct hifn_desc), ((0x02 | 0x08)));
-  if (dma->srcr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
+  if (dma->srcr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, srcr[(i)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
    break;
   }
@@ -3931,7 +3931,7 @@ hifn_intr(void *arg)
  i = dma->cmdk; u = dma->cmdu;
  while (u != 0) {
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(i)]), sizeof(struct hifn_desc), ((0x02 | 0x08)));
-  if (dma->cmdr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
+  if (dma->cmdr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
    bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(i)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
    break;
   }
@@ -4245,7 +4245,7 @@ hifn_abort(struct hifn_softc *sc)
  while (u != 0) {
   cmd = dma->hifn_commands[i];
   crp = cmd->crp;
-  if ((dma->resr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0) {
+  if ((dma->resr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) == 0) {
    hifnstats.hst_opackets++;
    (*cmd->cmd_callback)(sc, cmd, dma->result_bufs[i]);
   } else {
@@ -4341,7 +4341,7 @@ hifn_callback(struct hifn_softc *sc, struct hifn_command *cmd,
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       __builtin_offsetof(struct hifn_dma, dstr[i]), sizeof(struct hifn_desc),
       0x02 | 0x08);
-  if (dma->dstr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
+  if (dma->dstr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
    bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
        __builtin_offsetof(struct hifn_dma, dstr[i]),
        sizeof(struct hifn_desc),
@@ -4507,13 +4507,13 @@ hifn_compress_enter(struct hifn_softc *sc, struct hifn_command *cmd)
   return (12);
  if (dma->cmdi == 24) {
   dma->cmdi = 0;
-  dma->cmdr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->cmdr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(24)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  }
  cmdi = dma->cmdi++;
  cmdlen = hifn_write_command(cmd, dma->command_bufs[cmdi]);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_dmamap, __builtin_offsetof(struct hifn_dma, command_bufs[(cmdi)][0]), (8 + 8 + 8 + 64 + 260), (0x04));
- dma->cmdr[cmdi].l = (__builtin_constant_p(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(cmdlen | 0x80000000 | 0x20000000 | 0x02000000));
+ dma->cmdr[cmdi].l = (__uint32_t)(__builtin_constant_p(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(cmdlen | 0x80000000 | 0x20000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(cmdlen | 0x80000000 | 0x20000000 | 0x02000000));
  bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, cmdr[(cmdi)]), sizeof(struct hifn_desc), ((0x04 | 0x01)));
  dma->cmdu++;
  if (sc->sc_c_busy == 0) {
@@ -4533,13 +4533,13 @@ hifn_compress_enter(struct hifn_softc *sc, struct hifn_command *cmd)
  }
  if (dma->resi == 24) {
   dma->resi = 0;
-  dma->resr[24].l = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
+  dma->resr[24].l = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x02000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x02000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x02000000));
   bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(24)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
  }
  resi = dma->resi++;
  dma->hifn_commands[resi] = cmd;
  bus_dmamap_sync((sc)->sc_dmat, (sc)->sc_dmamap, __builtin_offsetof(struct hifn_dma, result_bufs[(resi)][0]), (8 + 4 + 4 + 20 + 4), (0x01));
- dma->resr[resi].l = (__builtin_constant_p((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000));
+ dma->resr[resi].l = (__uint32_t)(__builtin_constant_p((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md((8 + 4 + 4 + 20 + 4) | 0x80000000 | 0x20000000));
  bus_dmamap_sync(((sc))->sc_dmat, ((sc))->sc_dmamap, __builtin_offsetof(struct hifn_dma, resr[(resi)]), sizeof(struct hifn_desc), ((0x01 | 0x04)));
  dma->resu++;
  if (sc->sc_r_busy == 0) {
@@ -4581,7 +4581,7 @@ hifn_callback_comp(struct hifn_softc *sc, struct hifn_command *cmd,
   bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
       __builtin_offsetof(struct hifn_dma, dstr[i]), sizeof(struct hifn_desc),
       0x02 | 0x08);
-  if (dma->dstr[i].l & (__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
+  if (dma->dstr[i].l & (__uint32_t)(__builtin_constant_p(0x80000000) ? (__uint32_t)(((__uint32_t)(0x80000000) & 0xff) << 24 | ((__uint32_t)(0x80000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000) & 0xff000000) >> 24) : __swap32md(0x80000000))) {
    bus_dmamap_sync(sc->sc_dmat, sc->sc_dmamap,
        __builtin_offsetof(struct hifn_dma, dstr[i]),
        sizeof(struct hifn_desc),
@@ -4594,7 +4594,7 @@ hifn_callback_comp(struct hifn_softc *sc, struct hifn_command *cmd,
    u--;
  }
  dma->dstk = i; dma->dstu = u;
- if (baseres.flags & (__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200))) {
+ if (baseres.flags & (__uint16_t)(__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200))) {
   bus_size_t xlen;
   xlen = dstsize;
   m_freem(cmd->dstu.dst_m);
@@ -4625,8 +4625,8 @@ hifn_callback_comp(struct hifn_softc *sc, struct hifn_command *cmd,
    goto out;
   return;
  }
- olen = dstsize - ((__builtin_constant_p(baseres.dst_cnt) ? (__uint16_t)(((__uint16_t)(baseres.dst_cnt) & 0xffU) << 8 | ((__uint16_t)(baseres.dst_cnt) & 0xff00U) >> 8) : __swap16md(baseres.dst_cnt)) |
-     ((((__builtin_constant_p(baseres.session) ? (__uint16_t)(((__uint16_t)(baseres.session) & 0xffU) << 8 | ((__uint16_t)(baseres.session) & 0xff00U) >> 8) : __swap16md(baseres.session)) & 0x3000) >>
+ olen = dstsize - ((__uint16_t)(__builtin_constant_p(baseres.dst_cnt) ? (__uint16_t)(((__uint16_t)(baseres.dst_cnt) & 0xffU) << 8 | ((__uint16_t)(baseres.dst_cnt) & 0xff00U) >> 8) : __swap16md(baseres.dst_cnt)) |
+     ((((__uint16_t)(__builtin_constant_p(baseres.session) ? (__uint16_t)(((__uint16_t)(baseres.session) & 0xffU) << 8 | ((__uint16_t)(baseres.session) & 0xff00U) >> 8) : __swap16md(baseres.session)) & 0x3000) >>
      12) << 16));
  crp->crp_olen = olen - cmd->compcrd->crd_skip;
  bus_dmamap_unload(sc->sc_dmat, cmd->src_map);

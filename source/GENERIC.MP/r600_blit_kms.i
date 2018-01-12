@@ -11913,7 +11913,7 @@ int r600_blit_init(struct radeon_device *rdev)
   rdev->r600_blit.state_len = r6xx_default_size;
  dwords = rdev->r600_blit.state_len;
  while (dwords & 0xf) {
-  packet2s[num_packet2s++] = (__builtin_constant_p((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) ? (__uint32_t)(((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff) << 24 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff00) << 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff000000) >> 24) : __swap32md((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))));
+  packet2s[num_packet2s++] = (__uint32_t)(__builtin_constant_p((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) ? (__uint32_t)(((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff) << 24 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff00) << 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff000000) >> 24) : __swap32md((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))));
   dwords++;
  }
  obj_size = dwords * 4;
@@ -11959,9 +11959,9 @@ int r600_blit_init(struct radeon_device *rdev)
  if (num_packet2s)
   __builtin_memcpy((ptr + rdev->r600_blit.state_offset + (rdev->r600_blit.state_len * 4)), (packet2s), (num_packet2s * 4));
  for (i = 0; i < r6xx_vs_size; i++)
-  *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__builtin_constant_p(r6xx_vs[i]) ? (__uint32_t)(((__uint32_t)(r6xx_vs[i]) & 0xff) << 24 | ((__uint32_t)(r6xx_vs[i]) & 0xff00) << 8 | ((__uint32_t)(r6xx_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(r6xx_vs[i]) & 0xff000000) >> 24) : __swap32md(r6xx_vs[i]));
+  *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__uint32_t)(__builtin_constant_p(r6xx_vs[i]) ? (__uint32_t)(((__uint32_t)(r6xx_vs[i]) & 0xff) << 24 | ((__uint32_t)(r6xx_vs[i]) & 0xff00) << 8 | ((__uint32_t)(r6xx_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(r6xx_vs[i]) & 0xff000000) >> 24) : __swap32md(r6xx_vs[i]));
  for (i = 0; i < r6xx_ps_size; i++)
-  *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__builtin_constant_p(r6xx_ps[i]) ? (__uint32_t)(((__uint32_t)(r6xx_ps[i]) & 0xff) << 24 | ((__uint32_t)(r6xx_ps[i]) & 0xff00) << 8 | ((__uint32_t)(r6xx_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(r6xx_ps[i]) & 0xff000000) >> 24) : __swap32md(r6xx_ps[i]));
+  *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__uint32_t)(__builtin_constant_p(r6xx_ps[i]) ? (__uint32_t)(((__uint32_t)(r6xx_ps[i]) & 0xff) << 24 | ((__uint32_t)(r6xx_ps[i]) & 0xff00) << 8 | ((__uint32_t)(r6xx_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(r6xx_ps[i]) & 0xff000000) >> 24) : __swap32md(r6xx_ps[i]));
  radeon_bo_kunmap(rdev->r600_blit.shader_obj);
  radeon_bo_unreserve(rdev->r600_blit.shader_obj);
  radeon_ttm_set_active_vram_size(rdev, rdev->mc.real_vram_size);

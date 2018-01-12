@@ -2862,7 +2862,7 @@ ext2fs_vinit(struct mount *mp, struct vnode **vpp)
  case VCHR:
  case VBLK:
   vp->v_op = &ext2fs_specvops;
-  nvp = checkalias(vp, (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[0]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[0])), mp);
+  nvp = checkalias(vp, (__uint32_t)(__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[0]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[0]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[0])), mp);
   if (nvp != ((void *)0)) {
    nvp->v_data = vp->v_data;
    vp->v_data = ((void *)0);

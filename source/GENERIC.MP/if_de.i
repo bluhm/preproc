@@ -6073,16 +6073,16 @@ tulip_addr_filter(tulip_softc_t * const sc)
      do { (step).e_enm = ((&(ac)->ac_multiaddrs)->lh_first); do { if ((((enm)) = ((step)).e_enm) != ((void *)0)) ((step)).e_enm = ((((enm)))->enm_list.le_next); } while ( 0); } while ( 0);
      while (enm != ((void *)0)) {
       hash = (ether_crc32_le(enm->enm_addrlo, 6) & 0x1FF);
-      sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
+      sp[hash >> 4] |= (__uint32_t)(__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
   do { if (((enm) = (step).e_enm) != ((void *)0)) (step).e_enm = (((enm))->enm_list.le_next); } while ( 0);
      }
  }
  if ((sc->tulip_flags & 0x00000040) == 0) {
      hash = (ether_crc32_le(etherbroadcastaddr, 6) & 0x1FF);
-     sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
+     sp[hash >> 4] |= (__uint32_t)(__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
      if (sc->tulip_flags & 0x00000004) {
   hash = (ether_crc32_le(sc->tulip_ac.ac_enaddr, 6) & 0x1FF);
-  sp[hash >> 4] |= (__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
+  sp[hash >> 4] |= (__uint32_t)(__builtin_constant_p(1 << (hash & 0xF)) ? (__uint32_t)(((__uint32_t)(1 << (hash & 0xF)) & 0xff) << 24 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff00) << 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff0000) >> 8 | ((__uint32_t)(1 << (hash & 0xF)) & 0xff000000) >> 24) : __swap32md(1 << (hash & 0xF)));
      } else {
   sp[39] = ((u_int16_t *) sc->tulip_ac.ac_enaddr)[0] << 16;
   sp[40] = ((u_int16_t *) sc->tulip_ac.ac_enaddr)[1] << 16;

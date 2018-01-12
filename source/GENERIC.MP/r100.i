@@ -16221,7 +16221,7 @@ int r100_pci_gart_set_page(struct radeon_device *rdev, int i, uint64_t addr)
  if (i < 0 || i > rdev->gart.num_gpu_pages) {
   return -22;
  }
- gtt[i] = (__builtin_constant_p((u32)addr) ? (__uint32_t)(((__uint32_t)((u32)addr) & 0xff) << 24 | ((__uint32_t)((u32)addr) & 0xff00) << 8 | ((__uint32_t)((u32)addr) & 0xff0000) >> 8 | ((__uint32_t)((u32)addr) & 0xff000000) >> 24) : __swap32md((u32)addr));
+ gtt[i] = (__uint32_t)(__builtin_constant_p((u32)addr) ? (__uint32_t)(((__uint32_t)((u32)addr) & 0xff) << 24 | ((__uint32_t)((u32)addr) & 0xff00) << 8 | ((__uint32_t)((u32)addr) & 0xff0000) >> 8 | ((__uint32_t)((u32)addr) & 0xff000000) >> 24) : __swap32md((u32)addr));
  return 0;
 }
 void r100_pci_gart_fini(struct radeon_device *rdev)

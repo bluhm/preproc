@@ -4444,7 +4444,7 @@ export_encap(void **p, struct sockaddr_encap *encap, int type)
   }
   *p += (((sizeof(struct sockaddr_in)) + sizeof(uint64_t) - 1) & ~(sizeof(uint64_t) - 1));
   break;
-        case 0x0004:
+ case 0x0004:
   saddr->sadb_address_len = (sizeof(struct sadb_address)
       + (((sizeof(struct sockaddr_in6)) + sizeof(uint64_t) - 1) & ~(sizeof(uint64_t) - 1))) / sizeof(uint64_t);
   sunion->sa.sa_len = sizeof(struct sockaddr_in6);
@@ -4726,4 +4726,5 @@ export_satype(void **p, struct tdb *tdb)
  sab->sadb_protocol_len = sizeof(struct sadb_protocol) /
      sizeof(uint64_t);
  sab->sadb_protocol_proto = tdb->tdb_satype;
+ *p += sizeof(struct sadb_protocol);
 }

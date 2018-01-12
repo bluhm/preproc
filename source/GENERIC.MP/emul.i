@@ -2677,8 +2677,8 @@ void
 swap_quad(int64_t *p)
 {
  int64_t t;
- t = (__builtin_constant_p(p[0]) ? (__uint64_t)((((__uint64_t)(p[0]) & 0xff) << 56) | ((__uint64_t)(p[0]) & 0xff00ULL) << 40 | ((__uint64_t)(p[0]) & 0xff0000ULL) << 24 | ((__uint64_t)(p[0]) & 0xff000000ULL) << 8 | ((__uint64_t)(p[0]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(p[0]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(p[0]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(p[0]) & 0xff00000000000000ULL) >> 56) : __swap64md(p[0]));
- p[0] = (__builtin_constant_p(p[1]) ? (__uint64_t)((((__uint64_t)(p[1]) & 0xff) << 56) | ((__uint64_t)(p[1]) & 0xff00ULL) << 40 | ((__uint64_t)(p[1]) & 0xff0000ULL) << 24 | ((__uint64_t)(p[1]) & 0xff000000ULL) << 8 | ((__uint64_t)(p[1]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(p[1]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(p[1]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(p[1]) & 0xff00000000000000ULL) >> 56) : __swap64md(p[1]));
+ t = (__uint64_t)(__builtin_constant_p(p[0]) ? (__uint64_t)((((__uint64_t)(p[0]) & 0xff) << 56) | ((__uint64_t)(p[0]) & 0xff00ULL) << 40 | ((__uint64_t)(p[0]) & 0xff0000ULL) << 24 | ((__uint64_t)(p[0]) & 0xff000000ULL) << 8 | ((__uint64_t)(p[0]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(p[0]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(p[0]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(p[0]) & 0xff00000000000000ULL) >> 56) : __swap64md(p[0]));
+ p[0] = (__uint64_t)(__builtin_constant_p(p[1]) ? (__uint64_t)((((__uint64_t)(p[1]) & 0xff) << 56) | ((__uint64_t)(p[1]) & 0xff00ULL) << 40 | ((__uint64_t)(p[1]) & 0xff0000ULL) << 24 | ((__uint64_t)(p[1]) & 0xff000000ULL) << 8 | ((__uint64_t)(p[1]) & 0xff00000000ULL) >> 8 | ((__uint64_t)(p[1]) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(p[1]) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(p[1]) & 0xff00000000000000ULL) >> 56) : __swap64md(p[1]));
  p[1] = t;
 }
 int

@@ -3430,9 +3430,9 @@ pcscp_dma_setup(struct ncr53c9x_softc *sc, caddr_t *addr, size_t *len,
  s_offset = s_addr & 0x0FFF;
  s_addr -= s_offset;
  bus_space_write_4((esc)->sc_st, (esc)->sc_sh, (0x48), (s_offset));
- *mdl++ = (__builtin_constant_p(s_addr) ? (__uint32_t)(((__uint32_t)(s_addr) & 0xff) << 24 | ((__uint32_t)(s_addr) & 0xff00) << 8 | ((__uint32_t)(s_addr) & 0xff0000) >> 8 | ((__uint32_t)(s_addr) & 0xff000000) >> 24) : __swap32md(s_addr));
+ *mdl++ = (__uint32_t)(__builtin_constant_p(s_addr) ? (__uint32_t)(((__uint32_t)(s_addr) & 0xff) << 24 | ((__uint32_t)(s_addr) & 0xff00) << 8 | ((__uint32_t)(s_addr) & 0xff0000) >> 8 | ((__uint32_t)(s_addr) & 0xff000000) >> 24) : __swap32md(s_addr));
  for (seg = 1; seg < nseg; seg++)
-  *mdl++ = (__builtin_constant_p(dmap->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[seg].ds_addr));
+  *mdl++ = (__uint32_t)(__builtin_constant_p(dmap->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[seg].ds_addr));
  return 0;
 }
 void

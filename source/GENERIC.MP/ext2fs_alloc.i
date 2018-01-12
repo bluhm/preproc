@@ -2965,7 +2965,7 @@ ext2fs_blkpref(struct inode *ip, u_int32_t lbn, int baps, u_int32_t *bap)
  if (bap) {
   for (i = baps; i >= 0 ; i--) {
    if (bap[i]) {
-    return (__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i])) + 1;
+    return (__uint32_t)(__builtin_constant_p(bap[i]) ? (__uint32_t)(((__uint32_t)(bap[i]) & 0xff) << 24 | ((__uint32_t)(bap[i]) & 0xff00) << 8 | ((__uint32_t)(bap[i]) & 0xff0000) >> 8 | ((__uint32_t)(bap[i]) & 0xff000000) >> 24) : __swap32md(bap[i])) + 1;
    }
   }
  }

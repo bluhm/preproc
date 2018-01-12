@@ -2708,7 +2708,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4722,11 +4722,11 @@ zyd_complete_attach(struct zyd_softc *sc)
  bpfattach(&sc->sc_drvbpf, ifp, 127,
      sizeof (struct ieee80211_frame) + 64);
  sc->sc_rxtap_len = sizeof sc->sc_rxtapu;
- sc->sc_rxtapu.th.wr_ihdr.it_len = (__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
- sc->sc_rxtapu.th.wr_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))));
+ sc->sc_rxtapu.th.wr_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_rxtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_rxtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_rxtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_rxtap_len));
+ sc->sc_rxtapu.th.wr_ihdr.it_present = (__uint32_t)(__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL) | (1 << IEEE80211_RADIOTAP_RSSI))));
  sc->sc_txtap_len = sizeof sc->sc_txtapu;
- sc->sc_txtapu.th.wt_ihdr.it_len = (__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
- sc->sc_txtapu.th.wt_ihdr.it_present = (__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))));
+ sc->sc_txtapu.th.wt_ihdr.it_len = (__uint16_t)(__builtin_constant_p(sc->sc_txtap_len) ? (__uint16_t)(((__uint16_t)(sc->sc_txtap_len) & 0xffU) << 8 | ((__uint16_t)(sc->sc_txtap_len) & 0xff00U) >> 8) : __swap16md(sc->sc_txtap_len));
+ sc->sc_txtapu.th.wt_ihdr.it_present = (__uint32_t)(__builtin_constant_p(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) ? (__uint32_t)(((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff) << 24 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff00) << 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff0000) >> 8 | ((__uint32_t)(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))) & 0xff000000) >> 24) : __swap32md(((1 << IEEE80211_RADIOTAP_FLAGS) | (1 << IEEE80211_RADIOTAP_RATE) | (1 << IEEE80211_RADIOTAP_CHANNEL))));
 fail: return error;
 }
 int
@@ -4992,7 +4992,7 @@ zyd_cmd_read(struct zyd_softc *sc, const void *reg64, size_t regsize, int olen)
  if ((xfer = usbd_alloc_xfer(sc->sc_udev)) == ((void *)0))
   return 12;
  __builtin_bzero((&cmd), (sizeof(cmd)));
- cmd.code = (__builtin_constant_p(0x0022) ? (__uint16_t)(((__uint16_t)(0x0022) & 0xffU) << 8 | ((__uint16_t)(0x0022) & 0xff00U) >> 8) : __swap16md(0x0022));
+ cmd.code = (__uint16_t)(__builtin_constant_p(0x0022) ? (__uint16_t)(((__uint16_t)(0x0022) & 0xffU) << 8 | ((__uint16_t)(0x0022) & 0xff00U) >> 8) : __swap16md(0x0022));
  __builtin_bcopy((reg64), (cmd.data), (regsize));
  __builtin_bzero((sc->odata), (sizeof(sc->odata)));
  sc->olen = olen;
@@ -5023,11 +5023,11 @@ zyd_read16(struct zyd_softc *sc, uint16_t reg64, uint16_t *val)
 {
  struct zyd_io *odata;
  int error;
- reg64 = (__builtin_constant_p(reg64) ? (__uint16_t)(((__uint16_t)(reg64) & 0xffU) << 8 | ((__uint16_t)(reg64) & 0xff00U) >> 8) : __swap16md(reg64));
+ reg64 = (__uint16_t)(__builtin_constant_p(reg64) ? (__uint16_t)(((__uint16_t)(reg64) & 0xffU) << 8 | ((__uint16_t)(reg64) & 0xff00U) >> 8) : __swap16md(reg64));
  error = zyd_cmd_read(sc, &reg64, sizeof(reg64), sizeof(*odata));
  if (error == 0) {
   odata = (struct zyd_io *)sc->odata;
-  *val = (__builtin_constant_p(odata[0].val) ? (__uint16_t)(((__uint16_t)(odata[0].val) & 0xffU) << 8 | ((__uint16_t)(odata[0].val) & 0xff00U) >> 8) : __swap16md(odata[0].val));
+  *val = (__uint16_t)(__builtin_constant_p(odata[0].val) ? (__uint16_t)(((__uint16_t)(odata[0].val) & 0xffU) << 8 | ((__uint16_t)(odata[0].val) & 0xff00U) >> 8) : __swap16md(odata[0].val));
  }
  return error;
 }
@@ -5037,12 +5037,12 @@ zyd_read32(struct zyd_softc *sc, uint16_t reg64, uint32_t *val)
  struct zyd_io *odata;
  uint16_t regs[2];
  int error;
- regs[0] = (__builtin_constant_p(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) ? (__uint16_t)(((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xffU) << 8 | ((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xff00U) >> 8) : __swap16md(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))));
- regs[1] = (__builtin_constant_p((reg64)) ? (__uint16_t)(((__uint16_t)((reg64)) & 0xffU) << 8 | ((__uint16_t)((reg64)) & 0xff00U) >> 8) : __swap16md((reg64)));
+ regs[0] = (__uint16_t)(__builtin_constant_p(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) ? (__uint16_t)(((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xffU) << 8 | ((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xff00U) >> 8) : __swap16md(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))));
+ regs[1] = (__uint16_t)(__builtin_constant_p((reg64)) ? (__uint16_t)(((__uint16_t)((reg64)) & 0xffU) << 8 | ((__uint16_t)((reg64)) & 0xff00U) >> 8) : __swap16md((reg64)));
  error = zyd_cmd_read(sc, regs, sizeof(regs), sizeof(*odata) * 2);
  if (error == 0) {
   odata = (struct zyd_io *)sc->odata;
-  *val = (__builtin_constant_p(odata[0].val) ? (__uint16_t)(((__uint16_t)(odata[0].val) & 0xffU) << 8 | ((__uint16_t)(odata[0].val) & 0xff00U) >> 8) : __swap16md(odata[0].val)) << 16 | (__builtin_constant_p(odata[1].val) ? (__uint16_t)(((__uint16_t)(odata[1].val) & 0xffU) << 8 | ((__uint16_t)(odata[1].val) & 0xff00U) >> 8) : __swap16md(odata[1].val));
+  *val = (__uint16_t)(__builtin_constant_p(odata[0].val) ? (__uint16_t)(((__uint16_t)(odata[0].val) & 0xffU) << 8 | ((__uint16_t)(odata[0].val) & 0xff00U) >> 8) : __swap16md(odata[0].val)) << 16 | (__uint16_t)(__builtin_constant_p(odata[1].val) ? (__uint16_t)(((__uint16_t)(odata[1].val) & 0xffU) << 8 | ((__uint16_t)(odata[1].val) & 0xff00U) >> 8) : __swap16md(odata[1].val));
  }
  return error;
 }
@@ -5055,7 +5055,7 @@ zyd_cmd_write(struct zyd_softc *sc, u_int16_t code, const void *data, int len)
  if ((xfer = usbd_alloc_xfer(sc->sc_udev)) == ((void *)0))
   return 12;
  __builtin_bzero((&cmd), (sizeof(cmd)));
- cmd.code = (__builtin_constant_p(code) ? (__uint16_t)(((__uint16_t)(code) & 0xffU) << 8 | ((__uint16_t)(code) & 0xff00U) >> 8) : __swap16md(code));
+ cmd.code = (__uint16_t)(__builtin_constant_p(code) ? (__uint16_t)(((__uint16_t)(code) & 0xffU) << 8 | ((__uint16_t)(code) & 0xff00U) >> 8) : __swap16md(code));
  __builtin_bcopy((data), (cmd.data), (len));
  usbd_setup_xfer(xfer, sc->zyd_ep[3], 0,
      &cmd, sizeof(cmd.code) + len,
@@ -5072,18 +5072,18 @@ int
 zyd_write16(struct zyd_softc *sc, uint16_t reg64, uint16_t val)
 {
  struct zyd_io io;
- io.reg64 = (__builtin_constant_p(reg64) ? (__uint16_t)(((__uint16_t)(reg64) & 0xffU) << 8 | ((__uint16_t)(reg64) & 0xff00U) >> 8) : __swap16md(reg64));
- io.val = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
+ io.reg64 = (__uint16_t)(__builtin_constant_p(reg64) ? (__uint16_t)(((__uint16_t)(reg64) & 0xffU) << 8 | ((__uint16_t)(reg64) & 0xff00U) >> 8) : __swap16md(reg64));
+ io.val = (__uint16_t)(__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
  return zyd_cmd_write(sc, 0x0021, &io, sizeof(io));
 }
 int
 zyd_write32(struct zyd_softc *sc, uint16_t reg64, uint32_t val)
 {
  struct zyd_io io[2];
- io[0].reg64 = (__builtin_constant_p(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) ? (__uint16_t)(((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xffU) << 8 | ((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xff00U) >> 8) : __swap16md(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))));
- io[0].val = (__builtin_constant_p(val >> 16) ? (__uint16_t)(((__uint16_t)(val >> 16) & 0xffU) << 8 | ((__uint16_t)(val >> 16) & 0xff00U) >> 8) : __swap16md(val >> 16));
- io[1].reg64 = (__builtin_constant_p((reg64)) ? (__uint16_t)(((__uint16_t)((reg64)) & 0xffU) << 8 | ((__uint16_t)((reg64)) & 0xff00U) >> 8) : __swap16md((reg64)));
- io[1].val = (__builtin_constant_p(val & 0xffff) ? (__uint16_t)(((__uint16_t)(val & 0xffff) & 0xffU) << 8 | ((__uint16_t)(val & 0xffff) & 0xff00U) >> 8) : __swap16md(val & 0xffff));
+ io[0].reg64 = (__uint16_t)(__builtin_constant_p(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) ? (__uint16_t)(((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xffU) << 8 | ((__uint16_t)(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))) & 0xff00U) >> 8) : __swap16md(((reg64) + ((((reg64) & 0xf000) == 0x9000) ? 2 : 1))));
+ io[0].val = (__uint16_t)(__builtin_constant_p(val >> 16) ? (__uint16_t)(((__uint16_t)(val >> 16) & 0xffU) << 8 | ((__uint16_t)(val >> 16) & 0xff00U) >> 8) : __swap16md(val >> 16));
+ io[1].reg64 = (__uint16_t)(__builtin_constant_p((reg64)) ? (__uint16_t)(((__uint16_t)((reg64)) & 0xffU) << 8 | ((__uint16_t)((reg64)) & 0xff00U) >> 8) : __swap16md((reg64)));
+ io[1].val = (__uint16_t)(__builtin_constant_p(val & 0xffff) ? (__uint16_t)(((__uint16_t)(val & 0xffff) & 0xffU) << 8 | ((__uint16_t)(val & 0xffff) & 0xff00U) >> 8) : __swap16md(val & 0xffff));
  return zyd_cmd_write(sc, 0x0021, io, sizeof(io));
 }
 int
@@ -5095,12 +5095,12 @@ zyd_rfwrite(struct zyd_softc *sc, uint32_t val)
  int i;
  (void)zyd_read16(sc, 0x932c, &cr203);
  cr203 &= ~((1 << 1) | (1 << 2) | (1 << 3));
- req.code = (__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
- req.width = (__builtin_constant_p(rf->width) ? (__uint16_t)(((__uint16_t)(rf->width) & 0xffU) << 8 | ((__uint16_t)(rf->width) & 0xff00U) >> 8) : __swap16md(rf->width));
+ req.code = (__uint16_t)(__builtin_constant_p(2) ? (__uint16_t)(((__uint16_t)(2) & 0xffU) << 8 | ((__uint16_t)(2) & 0xff00U) >> 8) : __swap16md(2));
+ req.width = (__uint16_t)(__builtin_constant_p(rf->width) ? (__uint16_t)(((__uint16_t)(rf->width) & 0xffU) << 8 | ((__uint16_t)(rf->width) & 0xff00U) >> 8) : __swap16md(rf->width));
  for (i = 0; i < rf->width; i++) {
-  req.bit[i] = (__builtin_constant_p(cr203) ? (__uint16_t)(((__uint16_t)(cr203) & 0xffU) << 8 | ((__uint16_t)(cr203) & 0xff00U) >> 8) : __swap16md(cr203));
+  req.bit[i] = (__uint16_t)(__builtin_constant_p(cr203) ? (__uint16_t)(((__uint16_t)(cr203) & 0xffU) << 8 | ((__uint16_t)(cr203) & 0xff00U) >> 8) : __swap16md(cr203));
   if (val & (1 << (rf->width - 1 - i)))
-   req.bit[i] |= (__builtin_constant_p((1 << 3)) ? (__uint16_t)(((__uint16_t)((1 << 3)) & 0xffU) << 8 | ((__uint16_t)((1 << 3)) & 0xff00U) >> 8) : __swap16md((1 << 3)));
+   req.bit[i] |= (__uint16_t)(__builtin_constant_p((1 << 3)) ? (__uint16_t)(((__uint16_t)((1 << 3)) & 0xffU) << 8 | ((__uint16_t)((1 << 3)) & 0xff00U) >> 8) : __swap16md((1 << 3)));
  }
  return zyd_cmd_write(sc, 0x0023, &req, 4 + 2 * rf->width);
 }
@@ -5831,7 +5831,7 @@ zyd_intr(struct usbd_xfer *xfer, void *priv, usbd_status status)
   return;
  }
  cmd = (const struct zyd_cmd *)sc->ibuf;
- if ((__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)) == 0xa001) {
+ if ((__uint16_t)(__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)) == 0xa001) {
   struct zyd_notif_retry *retry =
       (struct zyd_notif_retry *)cmd->data;
   struct ieee80211com *ic = &sc->sc_ic;
@@ -5845,10 +5845,10 @@ zyd_intr(struct usbd_xfer *xfer, void *priv, usbd_status status)
   } else
    ni = ic->ic_bss;
   ((struct zyd_node *)ni)->amn.amn_retrycnt++;
-  if ((__builtin_constant_p(retry->count) ? (__uint16_t)(((__uint16_t)(retry->count) & 0xffU) << 8 | ((__uint16_t)(retry->count) & 0xff00U) >> 8) : __swap16md(retry->count)) & 0x100)
+  if ((__uint16_t)(__builtin_constant_p(retry->count) ? (__uint16_t)(((__uint16_t)(retry->count) & 0xffU) << 8 | ((__uint16_t)(retry->count) & 0xff00U) >> 8) : __swap16md(retry->count)) & 0x100)
    ifp->if_data.ifi_oerrors++;
- } else if ((__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)) == 0x9001) {
-  if ((__builtin_constant_p(*(uint16_t *)cmd->data) ? (__uint16_t)(((__uint16_t)(*(uint16_t *)cmd->data) & 0xffU) << 8 | ((__uint16_t)(*(uint16_t *)cmd->data) & 0xff00U) >> 8) : __swap16md(*(uint16_t *)cmd->data)) == 0x9510)
+ } else if ((__uint16_t)(__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)) == 0x9001) {
+  if ((__uint16_t)(__builtin_constant_p(*(uint16_t *)cmd->data) ? (__uint16_t)(((__uint16_t)(*(uint16_t *)cmd->data) & 0xffU) << 8 | ((__uint16_t)(*(uint16_t *)cmd->data) & 0xff00U) >> 8) : __swap16md(*(uint16_t *)cmd->data)) == 0x9510)
    return;
   if (!sc->odone) {
    usbd_get_xfer_status(xfer, ((void *)0), ((void *)0), &len, ((void *)0));
@@ -5858,7 +5858,7 @@ zyd_intr(struct usbd_xfer *xfer, void *priv, usbd_status status)
   }
  } else {
   printf("%s: unknown notification %x\n", sc->sc_dev.dv_xname,
-      (__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)));
+      (__uint16_t)(__builtin_constant_p(cmd->code) ? (__uint16_t)(((__uint16_t)(cmd->code) & 0xffU) << 8 | ((__uint16_t)(cmd->code) & 0xff00U) >> 8) : __swap16md(cmd->code)));
  }
 }
 void
@@ -5914,8 +5914,8 @@ zyd_rx_data(struct zyd_softc *sc, const uint8_t *buf, uint16_t len)
    96, 48, 24, 12, 108, 72, 36, 18
   };
   tap->wr_flags = 0;
-  tap->wr_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
-  tap->wr_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wr_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wr_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   tap->wr_rssi = stat->rssi;
   tap->wr_rate = rates[plcp->signal & 0xf];
   mb.m_hdr.mh_data = (caddr_t)tap;
@@ -6047,7 +6047,7 @@ zyd_tx(struct zyd_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  data->ni = ni;
  xferlen = sizeof (struct zyd_tx_desc) + m->M_dat.MH.MH_pkthdr.len;
  totlen = m->M_dat.MH.MH_pkthdr.len + 4;
- desc->len = (__builtin_constant_p(totlen) ? (__uint16_t)(((__uint16_t)(totlen) & 0xffU) << 8 | ((__uint16_t)(totlen) & 0xff00U) >> 8) : __swap16md(totlen));
+ desc->len = (__uint16_t)(__builtin_constant_p(totlen) ? (__uint16_t)(((__uint16_t)(totlen) & 0xffU) << 8 | ((__uint16_t)(totlen) & 0xff00U) >> 8) : __swap16md(totlen));
  desc->flags = (1 << 0);
  if (!(*(wh->i_addr1) & 0x01)) {
   if (totlen > ic->ic_rtsthreshold) {
@@ -6075,8 +6075,8 @@ zyd_tx(struct zyd_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  pktlen = sizeof (struct zyd_tx_desc) + 10;
  if (sc->mac_rev == 0)
   pktlen += totlen;
- desc->pktlen = (__builtin_constant_p(pktlen) ? (__uint16_t)(((__uint16_t)(pktlen) & 0xffU) << 8 | ((__uint16_t)(pktlen) & 0xff00U) >> 8) : __swap16md(pktlen));
- desc->plcp_length = (__builtin_constant_p((16 * totlen + rate - 1) / rate) ? (__uint16_t)(((__uint16_t)((16 * totlen + rate - 1) / rate) & 0xffU) << 8 | ((__uint16_t)((16 * totlen + rate - 1) / rate) & 0xff00U) >> 8) : __swap16md((16 * totlen + rate - 1) / rate));
+ desc->pktlen = (__uint16_t)(__builtin_constant_p(pktlen) ? (__uint16_t)(((__uint16_t)(pktlen) & 0xffU) << 8 | ((__uint16_t)(pktlen) & 0xff00U) >> 8) : __swap16md(pktlen));
+ desc->plcp_length = (__uint16_t)(__builtin_constant_p((16 * totlen + rate - 1) / rate) ? (__uint16_t)(((__uint16_t)((16 * totlen + rate - 1) / rate) & 0xffU) << 8 | ((__uint16_t)((16 * totlen + rate - 1) / rate) & 0xff00U) >> 8) : __swap16md((16 * totlen + rate - 1) / rate));
  desc->plcp_service = 0;
  if (rate == 22) {
   const int remainder = (16 * totlen) % 22;
@@ -6088,8 +6088,8 @@ zyd_tx(struct zyd_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
   struct zyd_tx_radiotap_header *tap = &sc->sc_txtapu.th;
   tap->wt_flags = 0;
   tap->wt_rate = rate;
-  tap->wt_chan_freq = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
-  tap->wt_chan_flags = (__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
+  tap->wt_chan_freq = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_freq) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_freq) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_freq));
+  tap->wt_chan_flags = (__uint16_t)(__builtin_constant_p(ic->ic_bss->ni_chan->ic_flags) ? (__uint16_t)(((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xffU) << 8 | ((__uint16_t)(ic->ic_bss->ni_chan->ic_flags) & 0xff00U) >> 8) : __swap16md(ic->ic_bss->ni_chan->ic_flags));
   mb.m_hdr.mh_data = (caddr_t)tap;
   mb.m_hdr.mh_len = sc->sc_txtap_len;
   mb.m_hdr.mh_next = m;

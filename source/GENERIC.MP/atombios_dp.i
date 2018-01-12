@@ -15260,12 +15260,12 @@ void radeon_atom_copy_swap(u8 *dst, u8 *src, u8 num_bytes, _Bool to_le)
  dst32 = (u32 *)dst_tmp;
  if (to_le) {
   for (i = 0; i < ((num_bytes + 3) / 4); i++)
-   dst32[i] = (__builtin_constant_p(src32[i]) ? (__uint32_t)(((__uint32_t)(src32[i]) & 0xff) << 24 | ((__uint32_t)(src32[i]) & 0xff00) << 8 | ((__uint32_t)(src32[i]) & 0xff0000) >> 8 | ((__uint32_t)(src32[i]) & 0xff000000) >> 24) : __swap32md(src32[i]));
+   dst32[i] = (__uint32_t)(__builtin_constant_p(src32[i]) ? (__uint32_t)(((__uint32_t)(src32[i]) & 0xff) << 24 | ((__uint32_t)(src32[i]) & 0xff00) << 8 | ((__uint32_t)(src32[i]) & 0xff0000) >> 8 | ((__uint32_t)(src32[i]) & 0xff000000) >> 24) : __swap32md(src32[i]));
   __builtin_memcpy((dst), (dst_tmp), (num_bytes));
  } else {
   u8 dws = num_bytes & ~3;
   for (i = 0; i < ((num_bytes + 3) / 4); i++)
-   dst32[i] = (__builtin_constant_p(src32[i]) ? (__uint32_t)(((__uint32_t)(src32[i]) & 0xff) << 24 | ((__uint32_t)(src32[i]) & 0xff00) << 8 | ((__uint32_t)(src32[i]) & 0xff0000) >> 8 | ((__uint32_t)(src32[i]) & 0xff000000) >> 24) : __swap32md(src32[i]));
+   dst32[i] = (__uint32_t)(__builtin_constant_p(src32[i]) ? (__uint32_t)(((__uint32_t)(src32[i]) & 0xff) << 24 | ((__uint32_t)(src32[i]) & 0xff00) << 8 | ((__uint32_t)(src32[i]) & 0xff0000) >> 8 | ((__uint32_t)(src32[i]) & 0xff000000) >> 24) : __swap32md(src32[i]));
   __builtin_memcpy((dst), (dst_tmp), (dws));
   if (num_bytes % 4) {
    for (i = 0; i < (num_bytes % 4); i++)
@@ -15292,8 +15292,8 @@ static int radeon_process_aux_ch(struct radeon_i2c_chan *chan,
  __builtin_memset((&args), (0), (sizeof(args)));
  base = (unsigned char *)(rdev->mode_info.atom_context->scratch + 1);
  radeon_atom_copy_swap(base, send, send_bytes, 1);
- args.v1.lpAuxRequest = (__builtin_constant_p((u16)(0 + 4)) ? (__uint16_t)(((__uint16_t)((u16)(0 + 4)) & 0xffU) << 8 | ((__uint16_t)((u16)(0 + 4)) & 0xff00U) >> 8) : __swap16md((u16)(0 + 4)));
- args.v1.lpDataOut = (__builtin_constant_p((u16)(16 + 4)) ? (__uint16_t)(((__uint16_t)((u16)(16 + 4)) & 0xffU) << 8 | ((__uint16_t)((u16)(16 + 4)) & 0xff00U) >> 8) : __swap16md((u16)(16 + 4)));
+ args.v1.lpAuxRequest = (__uint16_t)(__builtin_constant_p((u16)(0 + 4)) ? (__uint16_t)(((__uint16_t)((u16)(0 + 4)) & 0xffU) << 8 | ((__uint16_t)((u16)(0 + 4)) & 0xff00U) >> 8) : __swap16md((u16)(0 + 4)));
+ args.v1.lpDataOut = (__uint16_t)(__builtin_constant_p((u16)(16 + 4)) ? (__uint16_t)(((__uint16_t)((u16)(16 + 4)) & 0xffU) << 8 | ((__uint16_t)((u16)(16 + 4)) & 0xff00U) >> 8) : __swap16md((u16)(16 + 4)));
  args.v1.ucDataOutLen = 0;
  args.v1.ucChannelID = chan->rec.i2c_id;
  args.v1.ucDelay = delay / 10;

@@ -3778,7 +3778,7 @@ msk_init_rx_ring(struct sk_if_softc *sc_if)
  struct msk_rx_desc *r;
  __builtin_memset((rd->sk_rx_ring), (0), (sizeof(struct msk_rx_desc) * 512));
  r = &rd->sk_rx_ring[0];
- r->sk_addr = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ r->sk_addr = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  r->sk_opcode = 0x80 | 0x21;
  sc_if->sk_cdata.sk_rx_prod = 1;
  sc_if->sk_cdata.sk_rx_cons = 0;
@@ -3803,7 +3803,7 @@ msk_init_tx_ring(struct sk_if_softc *sc_if)
    return (55);
  }
  t = &rd->sk_tx_ring[0];
- t->sk_addr = (__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
+ t->sk_addr = (__uint32_t)(__builtin_constant_p(0) ? (__uint32_t)(((__uint32_t)(0) & 0xff) << 24 | ((__uint32_t)(0) & 0xff00) << 8 | ((__uint32_t)(0) & 0xff0000) >> 8 | ((__uint32_t)(0) & 0xff000000) >> 24) : __swap32md(0));
  t->sk_opcode = 0x80 | 0x21;
  sc_if->sk_cdata.sk_tx_prod = 1;
  sc_if->sk_cdata.sk_tx_cons = 0;
@@ -3842,7 +3842,7 @@ msk_newbuf(struct sk_if_softc *sc_if)
  if (sc_if->sk_cdata.sk_rx_hiaddr != hiaddr) {
   r = &rd->sk_rx_ring[prod];
   __swapm32((&r->sk_addr), (hiaddr));
-  r->sk_len = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+  r->sk_len = (__uint16_t)(__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
   r->sk_ctl = 0;
   r->sk_opcode = 0x80 | 0x21;
   sc_if->sk_cdata.sk_rx_hiaddr = hiaddr;

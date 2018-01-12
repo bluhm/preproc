@@ -2369,11 +2369,11 @@ uslcom_param(void *vsc, int portno, struct termios *t)
  if (err)
   return (5);
  if (((t->c_cflag) & (0x00010000))) {
-  flowctrl[0] = (__builtin_constant_p(0x00000001 | 0x00000008) ? (__uint32_t)(((__uint32_t)(0x00000001 | 0x00000008) & 0xff) << 24 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff00) << 8 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff000000) >> 24) : __swap32md(0x00000001 | 0x00000008));
-  flowctrl[1] = (__builtin_constant_p(0x00000080) ? (__uint32_t)(((__uint32_t)(0x00000080) & 0xff) << 24 | ((__uint32_t)(0x00000080) & 0xff00) << 8 | ((__uint32_t)(0x00000080) & 0xff0000) >> 8 | ((__uint32_t)(0x00000080) & 0xff000000) >> 24) : __swap32md(0x00000080));
+  flowctrl[0] = (__uint32_t)(__builtin_constant_p(0x00000001 | 0x00000008) ? (__uint32_t)(((__uint32_t)(0x00000001 | 0x00000008) & 0xff) << 24 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff00) << 8 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001 | 0x00000008) & 0xff000000) >> 24) : __swap32md(0x00000001 | 0x00000008));
+  flowctrl[1] = (__uint32_t)(__builtin_constant_p(0x00000080) ? (__uint32_t)(((__uint32_t)(0x00000080) & 0xff) << 24 | ((__uint32_t)(0x00000080) & 0xff00) << 8 | ((__uint32_t)(0x00000080) & 0xff0000) >> 8 | ((__uint32_t)(0x00000080) & 0xff000000) >> 24) : __swap32md(0x00000080));
  } else {
-  flowctrl[0] = (__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
-  flowctrl[1] = (__builtin_constant_p(0x00000040) ? (__uint32_t)(((__uint32_t)(0x00000040) & 0xff) << 24 | ((__uint32_t)(0x00000040) & 0xff00) << 8 | ((__uint32_t)(0x00000040) & 0xff0000) >> 8 | ((__uint32_t)(0x00000040) & 0xff000000) >> 24) : __swap32md(0x00000040));
+  flowctrl[0] = (__uint32_t)(__builtin_constant_p(0x00000001) ? (__uint32_t)(((__uint32_t)(0x00000001) & 0xff) << 24 | ((__uint32_t)(0x00000001) & 0xff00) << 8 | ((__uint32_t)(0x00000001) & 0xff0000) >> 8 | ((__uint32_t)(0x00000001) & 0xff000000) >> 24) : __swap32md(0x00000001));
+  flowctrl[1] = (__uint32_t)(__builtin_constant_p(0x00000040) ? (__uint32_t)(((__uint32_t)(0x00000040) & 0xff) << 24 | ((__uint32_t)(0x00000040) & 0xff00) << 8 | ((__uint32_t)(0x00000040) & 0xff0000) >> 8 | ((__uint32_t)(0x00000040) & 0xff000000) >> 24) : __swap32md(0x00000040));
  }
  flowctrl[2] = 0;
  flowctrl[3] = 0;

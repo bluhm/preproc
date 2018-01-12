@@ -7384,6 +7384,10 @@ const struct usb_known_product usb_known_products[] = {
      "HUAWEI Mobile Modem",
  },
  {
+     0x12d1, 0x1442,
+     "HUAWEI Mobile Modem",
+ },
+ {
      0x12d1, 0x1446,
      "HUAWEI Mobile Modem",
  },

@@ -4425,13 +4425,13 @@ mpii_load_xs_sas3(struct mpii_ccb *ccb)
    io->chain_offset = ((caddr_t)csge - (caddr_t)io) / 4;
    csge->sg_flags = (0x80) |
        (0x00);
-   csge->sg_addr = (__builtin_constant_p(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) ? (__uint64_t)((((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff) << 56) | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00ULL) << 40 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff0000ULL) << 24 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff000000ULL) << 8 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00000000ULL) >> 8 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00000000000000ULL) >> 56) : __swap64md(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)));
-   csge->sg_len = (__builtin_constant_p((dmap->dm_nsegs - i) * sizeof(*sge)) ? (__uint32_t)(((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff) << 24 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff00) << 8 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff0000) >> 8 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff000000) >> 24) : __swap32md((dmap->dm_nsegs - i) * sizeof(*sge)));
+   csge->sg_addr = (__uint64_t)(__builtin_constant_p(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) ? (__uint64_t)((((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff) << 56) | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00ULL) << 40 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff0000ULL) << 24 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff000000ULL) << 8 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00000000ULL) >> 8 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)) & 0xff00000000000000ULL) >> 56) : __swap64md(ccb->ccb_cmd_dva + ((caddr_t)nsge - (caddr_t)io)));
+   csge->sg_len = (__uint32_t)(__builtin_constant_p((dmap->dm_nsegs - i) * sizeof(*sge)) ? (__uint32_t)(((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff) << 24 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff00) << 8 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff0000) >> 8 | ((__uint32_t)((dmap->dm_nsegs - i) * sizeof(*sge)) & 0xff000000) >> 24) : __swap32md((dmap->dm_nsegs - i) * sizeof(*sge)));
   }
   sge = nsge;
   sge->sg_flags = (0x00);
-  sge->sg_len = (__builtin_constant_p(dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[i].ds_len));
-  sge->sg_addr = (__builtin_constant_p(dmap->dm_segs[i].ds_addr) ? (__uint64_t)((((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff) << 56) | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(dmap->dm_segs[i].ds_addr));
+  sge->sg_len = (__uint32_t)(__builtin_constant_p(dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(dmap->dm_segs[i].ds_len));
+  sge->sg_addr = (__uint64_t)(__builtin_constant_p(dmap->dm_segs[i].ds_addr) ? (__uint64_t)((((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff) << 56) | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00ULL) << 40 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(dmap->dm_segs[i].ds_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(dmap->dm_segs[i].ds_addr));
  }
  sge->sg_flags |= (0x40);
  bus_dmamap_sync(sc->sc_dmat, dmap, 0, dmap->dm_mapsize,
@@ -4453,7 +4453,7 @@ mpii_load_xs(struct mpii_ccb *ccb)
  nsge = (struct mpii_sge *)(io + 1);
  csge = nsge + sc->sc_chain_sge;
  if (xs->datalen == 0) {
-  nsge->sg_hdr = (__builtin_constant_p((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) ? (__uint32_t)(((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff) << 24 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff00) << 8 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff000000) >> 24) : __swap32md((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)));
+  nsge->sg_hdr = (__uint32_t)(__builtin_constant_p((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) ? (__uint32_t)(((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff) << 24 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff00) << 8 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff000000) >> 24) : __swap32md((0x1<<28) | (0x1<<31) | (0x1<<30) | (0x1<<24)));
   return (0);
  }
  error = bus_dmamap_load(sc->sc_dmat, dmap, xs->data, xs->datalen, ((void *)0),
@@ -4470,15 +4470,15 @@ mpii_load_xs(struct mpii_ccb *ccb)
    nsge++;
    io->chain_offset = ((caddr_t)csge - (caddr_t)io) / 4;
    len = (dmap->dm_nsegs - i) * sizeof(*sge);
-   csge->sg_hdr = (__builtin_constant_p((0x3<<28) | (0x1<<25) | len) ? (__uint32_t)(((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff) << 24 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff00) << 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff0000) >> 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff000000) >> 24) : __swap32md((0x3<<28) | (0x1<<25) | len));
+   csge->sg_hdr = (__uint32_t)(__builtin_constant_p((0x3<<28) | (0x1<<25) | len) ? (__uint32_t)(((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff) << 24 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff00) << 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff0000) >> 8 | ((__uint32_t)((0x3<<28) | (0x1<<25) | len) & 0xff000000) >> 24) : __swap32md((0x3<<28) | (0x1<<25) | len));
    mpii_dvatosge(csge, ccb->ccb_cmd_dva +
        ((caddr_t)nsge - (caddr_t)io));
   }
   sge = nsge;
-  sge->sg_hdr = (__builtin_constant_p(flags | dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(flags | dmap->dm_segs[i].ds_len));
+  sge->sg_hdr = (__uint32_t)(__builtin_constant_p(flags | dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(flags | dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(flags | dmap->dm_segs[i].ds_len));
   mpii_dvatosge(sge, dmap->dm_segs[i].ds_addr);
  }
- sge->sg_hdr |= (__builtin_constant_p((0x1<<31) | (0x1<<30) | (0x1<<24)) ? (__uint32_t)(((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff) << 24 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff00) << 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff000000) >> 24) : __swap32md((0x1<<31) | (0x1<<30) | (0x1<<24)));
+ sge->sg_hdr |= (__uint32_t)(__builtin_constant_p((0x1<<31) | (0x1<<30) | (0x1<<24)) ? (__uint32_t)(((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff) << 24 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff00) << 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff0000) >> 8 | ((__uint32_t)((0x1<<31) | (0x1<<30) | (0x1<<24)) & 0xff000000) >> 24) : __swap32md((0x1<<31) | (0x1<<30) | (0x1<<24)));
  bus_dmamap_sync(sc->sc_dmat, dmap, 0, dmap->dm_mapsize,
      (xs->flags & 0x00800) ? 0x01 :
      0x04);
@@ -4509,7 +4509,7 @@ mpii_scsi_probe(struct scsi_link *link)
  ehdr.page_number = 0;
  ehdr.page_version = 0;
  ehdr.ext_page_type = (0x12);
- ehdr.ext_page_length = (__builtin_constant_p(sizeof(pg0) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(pg0) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(pg0) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(pg0) / 4));
+ ehdr.ext_page_length = (__uint16_t)(__builtin_constant_p(sizeof(pg0) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(pg0) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(pg0) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(pg0) / 4));
  address = (0x20000000) | (uint32_t)dev->dev_handle;
  if (mpii_req_cfg_page(sc, address, (1<<0),
      &ehdr, 1, &pg0, sizeof(pg0)) != 0) {
@@ -4517,8 +4517,8 @@ mpii_scsi_probe(struct scsi_link *link)
       ((sc)->sc_dev.dv_xname), link->target);
   return (0);
  }
- link->port_wwn = (__builtin_constant_p(pg0.sas_addr) ? (__uint64_t)((((__uint64_t)(pg0.sas_addr) & 0xff) << 56) | ((__uint64_t)(pg0.sas_addr) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.sas_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.sas_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.sas_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.sas_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.sas_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.sas_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.sas_addr));
- link->node_wwn = (__builtin_constant_p(pg0.device_name) ? (__uint64_t)((((__uint64_t)(pg0.device_name) & 0xff) << 56) | ((__uint64_t)(pg0.device_name) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.device_name) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.device_name) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.device_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.device_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.device_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.device_name) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.device_name));
+ link->port_wwn = (__uint64_t)(__builtin_constant_p(pg0.sas_addr) ? (__uint64_t)((((__uint64_t)(pg0.sas_addr) & 0xff) << 56) | ((__uint64_t)(pg0.sas_addr) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.sas_addr) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.sas_addr) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.sas_addr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.sas_addr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.sas_addr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.sas_addr) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.sas_addr));
+ link->node_wwn = (__uint64_t)(__builtin_constant_p(pg0.device_name) ? (__uint64_t)((((__uint64_t)(pg0.device_name) & 0xff) << 56) | ((__uint64_t)(pg0.device_name) & 0xff00ULL) << 40 | ((__uint64_t)(pg0.device_name) & 0xff0000ULL) << 24 | ((__uint64_t)(pg0.device_name) & 0xff000000ULL) << 8 | ((__uint64_t)(pg0.device_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(pg0.device_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(pg0.device_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(pg0.device_name) & 0xff00000000000000ULL) >> 56) : __swap64md(pg0.device_name));
  if (((__mswap32(&pg0.device_info)) & ((1<<13)))) {
   link->flags |= 0x0200;
   link->quirks |= 0x4000;
@@ -4672,7 +4672,7 @@ mpii_handshake_send(struct mpii_softc *sc, void *buf, size_t dwords)
  if (mpii_wait_eq((sc), (0x30), (1<<31), 0) != 0)
   return (1);
  for (i = 0; i < dwords; i++) {
-  mpii_write((sc), (0x00), ((__builtin_constant_p(query[i]) ? (__uint32_t)(((__uint32_t)(query[i]) & 0xff) << 24 | ((__uint32_t)(query[i]) & 0xff00) << 8 | ((__uint32_t)(query[i]) & 0xff0000) >> 8 | ((__uint32_t)(query[i]) & 0xff000000) >> 24) : __swap32md(query[i]))));
+  mpii_write((sc), (0x00), ((__uint32_t)(__builtin_constant_p(query[i]) ? (__uint32_t)(((__uint32_t)(query[i]) & 0xff) << 24 | ((__uint32_t)(query[i]) & 0xff00) << 8 | ((__uint32_t)(query[i]) & 0xff0000) >> 8 | ((__uint32_t)(query[i]) & 0xff000000) >> 24) : __swap32md(query[i]))));
   if (mpii_wait_eq((sc), (0x30), (1<<31), 0) != 0)
    return (1);
  }
@@ -4686,7 +4686,7 @@ mpii_handshake_recv_dword(struct mpii_softc *sc, u_int32_t *dword)
  for (i = 0; i < 2; i++) {
   if (mpii_wait_ne((sc), (0x30), (1<<0), 0) != 0)
    return (1);
-  words[i] = (__builtin_constant_p(mpii_read((sc), (0x00)) & (0xffff)) ? (__uint16_t)(((__uint16_t)(mpii_read((sc), (0x00)) & (0xffff)) & 0xffU) << 8 | ((__uint16_t)(mpii_read((sc), (0x00)) & (0xffff)) & 0xff00U) >> 8) : __swap16md(mpii_read((sc), (0x00)) & (0xffff)));
+  words[i] = (__uint16_t)(__builtin_constant_p(mpii_read((sc), (0x00)) & (0xffff)) ? (__uint16_t)(((__uint16_t)(mpii_read((sc), (0x00)) & (0xffff)) & 0xffU) << 8 | ((__uint16_t)(mpii_read((sc), (0x00)) & (0xffff)) & 0xff00U) >> 8) : __swap16md(mpii_read((sc), (0x00)) & (0xffff)));
   mpii_write((sc), (0x30), (0));
  }
  return (0);
@@ -4964,7 +4964,7 @@ mpii_cfg_coalescing(struct mpii_softc *sc)
  }
  if (!((__mswap32(&ipg.flags)) & ((1<<0))))
   return (0);
- ((ipg.flags) &= ~((__builtin_constant_p((1<<0)) ? (__uint32_t)(((__uint32_t)((1<<0)) & 0xff) << 24 | ((__uint32_t)((1<<0)) & 0xff00) << 8 | ((__uint32_t)((1<<0)) & 0xff0000) >> 8 | ((__uint32_t)((1<<0)) & 0xff000000) >> 24) : __swap32md((1<<0)))));
+ ((ipg.flags) &= ~((__uint32_t)(__builtin_constant_p((1<<0)) ? (__uint32_t)(((__uint32_t)((1<<0)) & 0xff) << 24 | ((__uint32_t)((1<<0)) & 0xff00) << 8 | ((__uint32_t)((1<<0)) & 0xff0000) >> 8 | ((__uint32_t)((1<<0)) & 0xff000000) >> 24) : __swap32md((1<<0)))));
  if (mpii_req_cfg_page(sc, 0, (1<<1), &hdr, 0, &ipg,
      sizeof(ipg)) != 0) {
   ;
@@ -4993,14 +4993,14 @@ mpii_eventnotify(struct mpii_softc *sc)
  enq = ccb->ccb_cmd;
  enq->function = (0x07);
  do { enq->event_masks[0] = 0xffffffff; enq->event_masks[1] = 0xffffffff; enq->event_masks[2] = 0xffffffff; enq->event_masks[3] = 0xffffffff; } while (0);
- do { enq->event_masks[(0x16) / 32] &= (__builtin_constant_p(~(1 << ((0x16) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x16) % 32)))); } while (0);
- do { enq->event_masks[(0x1c) / 32] &= (__builtin_constant_p(~(1 << ((0x1c) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1c) % 32)))); } while (0);
- do { enq->event_masks[(0x0f) / 32] &= (__builtin_constant_p(~(1 << ((0x0f) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x0f) % 32)))); } while (0);
- do { enq->event_masks[(0x1d) / 32] &= (__builtin_constant_p(~(1 << ((0x1d) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1d) % 32)))); } while (0);
- do { enq->event_masks[(0x20) / 32] &= (__builtin_constant_p(~(1 << ((0x20) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x20) % 32)))); } while (0);
- do { enq->event_masks[(0x1e) / 32] &= (__builtin_constant_p(~(1 << ((0x1e) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1e) % 32)))); } while (0);
- do { enq->event_masks[(0x1f) / 32] &= (__builtin_constant_p(~(1 << ((0x1f) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1f) % 32)))); } while (0);
- do { enq->event_masks[(0x14) / 32] &= (__builtin_constant_p(~(1 << ((0x14) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x14) % 32)))); } while (0);
+ do { enq->event_masks[(0x16) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x16) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x16) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x16) % 32)))); } while (0);
+ do { enq->event_masks[(0x1c) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x1c) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1c) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1c) % 32)))); } while (0);
+ do { enq->event_masks[(0x0f) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x0f) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x0f) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x0f) % 32)))); } while (0);
+ do { enq->event_masks[(0x1d) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x1d) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1d) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1d) % 32)))); } while (0);
+ do { enq->event_masks[(0x20) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x20) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x20) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x20) % 32)))); } while (0);
+ do { enq->event_masks[(0x1e) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x1e) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1e) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1e) % 32)))); } while (0);
+ do { enq->event_masks[(0x1f) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x1f) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x1f) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x1f) % 32)))); } while (0);
+ do { enq->event_masks[(0x14) / 32] &= (__uint32_t)(__builtin_constant_p(~(1 << ((0x14) % 32))) ? (__uint32_t)(((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff) << 24 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff00) << 8 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff0000) >> 8 | ((__uint32_t)(~(1 << ((0x14) % 32))) & 0xff000000) >> 24) : __swap32md(~(1 << ((0x14) % 32)))); } while (0);
  mpii_start(sc, ccb);
  return (0);
 }
@@ -5749,7 +5749,7 @@ mpii_start(struct mpii_softc *sc, struct mpii_ccb *ccb)
  switch (rhp->function) {
  case (0x00):
   descr.request_flags = (0x00);
-  descr.dev_handle = (__builtin_constant_p(ccb->ccb_dev_handle) ? (__uint16_t)(((__uint16_t)(ccb->ccb_dev_handle) & 0xffU) << 8 | ((__uint16_t)(ccb->ccb_dev_handle) & 0xff00U) >> 8) : __swap16md(ccb->ccb_dev_handle));
+  descr.dev_handle = (__uint16_t)(__builtin_constant_p(ccb->ccb_dev_handle) ? (__uint16_t)(((__uint16_t)(ccb->ccb_dev_handle) & 0xffU) << 8 | ((__uint16_t)(ccb->ccb_dev_handle) & 0xff00U) >> 8) : __swap16md(ccb->ccb_dev_handle));
   break;
  case (0x01):
   descr.request_flags = (0x06);
@@ -6281,7 +6281,7 @@ mpii_ioctl_vol(struct mpii_softc *sc, struct bioc_vol *bv)
   return (rv);
  }
  bv->bv_nodisk = vpg->num_phys_disks + hcnt;
- bv->bv_size = (__builtin_constant_p(vpg->max_lba) ? (__uint64_t)((((__uint64_t)(vpg->max_lba) & 0xff) << 56) | ((__uint64_t)(vpg->max_lba) & 0xff00ULL) << 40 | ((__uint64_t)(vpg->max_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(vpg->max_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(vpg->max_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(vpg->max_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(vpg->max_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(vpg->max_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(vpg->max_lba)) * __mswap16(&vpg->block_size);
+ bv->bv_size = (__uint64_t)(__builtin_constant_p(vpg->max_lba) ? (__uint64_t)((((__uint64_t)(vpg->max_lba) & 0xff) << 56) | ((__uint64_t)(vpg->max_lba) & 0xff00ULL) << 40 | ((__uint64_t)(vpg->max_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(vpg->max_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(vpg->max_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(vpg->max_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(vpg->max_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(vpg->max_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(vpg->max_lba)) * __mswap16(&vpg->block_size);
  lnk = scsi_get_link(sc->sc_scsibus, dev->slot, 0);
  if (lnk != ((void *)0)) {
   scdev = lnk->device_softc;
@@ -6449,7 +6449,7 @@ mpii_bio_disk(struct mpii_softc *sc, struct bioc_disk *bd, u_int8_t dn)
   bd->bd_status = 0xff;
   break;
  }
- bd->bd_size = (__builtin_constant_p(ppg->dev_max_lba) ? (__uint64_t)((((__uint64_t)(ppg->dev_max_lba) & 0xff) << 56) | ((__uint64_t)(ppg->dev_max_lba) & 0xff00ULL) << 40 | ((__uint64_t)(ppg->dev_max_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(ppg->dev_max_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(ppg->dev_max_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(ppg->dev_max_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(ppg->dev_max_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(ppg->dev_max_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(ppg->dev_max_lba)) * __mswap16(&ppg->block_size);
+ bd->bd_size = (__uint64_t)(__builtin_constant_p(ppg->dev_max_lba) ? (__uint64_t)((((__uint64_t)(ppg->dev_max_lba) & 0xff) << 56) | ((__uint64_t)(ppg->dev_max_lba) & 0xff00ULL) << 40 | ((__uint64_t)(ppg->dev_max_lba) & 0xff0000ULL) << 24 | ((__uint64_t)(ppg->dev_max_lba) & 0xff000000ULL) << 8 | ((__uint64_t)(ppg->dev_max_lba) & 0xff00000000ULL) >> 8 | ((__uint64_t)(ppg->dev_max_lba) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(ppg->dev_max_lba) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(ppg->dev_max_lba) & 0xff00000000000000ULL) >> 56) : __swap64md(ppg->dev_max_lba)) * __mswap16(&ppg->block_size);
  scsi_strvis(bd->bd_vendor, ppg->vendor_id, sizeof(ppg->vendor_id));
  len = strlen(bd->bd_vendor);
  bd->bd_vendor[len] = ' ';

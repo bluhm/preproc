@@ -3559,7 +3559,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5148,7 +5148,7 @@ void wihap_disassoc_req(struct wi_softc *sc, struct wi_frame *rxfrm,
 static __inline u_int16_t
 take_hword(caddr_t *ppkt, int *plen)
 {
- u_int16_t s = (__builtin_constant_p(* (u_int16_t *) *ppkt) ? (__uint16_t)(((__uint16_t)(* (u_int16_t *) *ppkt) & 0xffU) << 8 | ((__uint16_t)(* (u_int16_t *) *ppkt) & 0xff00U) >> 8) : __swap16md(* (u_int16_t *) *ppkt));
+ u_int16_t s = (__uint16_t)(__builtin_constant_p(* (u_int16_t *) *ppkt) ? (__uint16_t)(((__uint16_t)(* (u_int16_t *) *ppkt) & 0xffU) << 8 | ((__uint16_t)(* (u_int16_t *) *ppkt) & 0xff00U) >> 8) : __swap16md(* (u_int16_t *) *ppkt));
  *ppkt += sizeof(u_int16_t);
  *plen -= sizeof(u_int16_t);
  return s;
@@ -5171,7 +5171,7 @@ take_tlv(caddr_t *ppkt, int *plen, int id_expect, void *dst, int maxlen)
 static __inline void
 put_hword(caddr_t *ppkt, u_int16_t s)
 {
- * (u_int16_t *) *ppkt = (__builtin_constant_p(s) ? (__uint16_t)(((__uint16_t)(s) & 0xffU) << 8 | ((__uint16_t)(s) & 0xff00U) >> 8) : __swap16md(s));
+ * (u_int16_t *) *ppkt = (__uint16_t)(__builtin_constant_p(s) ? (__uint16_t)(((__uint16_t)(s) & 0xffU) << 8 | ((__uint16_t)(s) & 0xff00U) >> 8) : __swap16md(s));
  *ppkt += sizeof(u_int16_t);
 }
 static void
@@ -5242,7 +5242,7 @@ wihap_sta_deauth(struct wi_softc *sc, u_int8_t sta_addr[], u_int16_t reason)
   printf("Sending deauth to sta %s\n", ether_sprintf(sta_addr));
  resp_hdr = (struct wi_80211_hdr *)sc->wi_txbuf;
  __builtin_bzero((resp_hdr), (sizeof(struct wi_80211_hdr)));
- resp_hdr->frame_ctl = (__builtin_constant_p(0x0000 | 0x00C0) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x00C0) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x00C0) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x00C0));
+ resp_hdr->frame_ctl = (__uint16_t)(__builtin_constant_p(0x0000 | 0x00C0) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x00C0) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x00C0) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x00C0));
  pkt = (caddr_t)&sc->wi_txbuf + sizeof(struct wi_80211_hdr);
  __builtin_bcopy((sta_addr), (resp_hdr->addr1), (6));
  __builtin_bcopy((sc->sc_ic.ic_myaddr), (resp_hdr->addr2), (6));
@@ -5529,7 +5529,7 @@ wihap_auth_req(struct wi_softc *sc, struct wi_frame *rxfrm,
    break;
   case 3:
    if (challenge_len != 128 || !sta->challenge ||
-       !((__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x4000)) {
+       !((__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x4000)) {
     status = IEEE80211_STATUS_CHALLENGE;
     goto fail;
    }
@@ -5561,7 +5561,7 @@ fail:
   printf("wihap_auth_req: returns status=0x%x\n", status);
  resp_hdr = (struct wi_80211_hdr *)&sc->wi_txbuf;
  __builtin_bzero((resp_hdr), (sizeof(struct wi_80211_hdr)));
- resp_hdr->frame_ctl = (__builtin_constant_p(0x0000 | 0x00B0) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x00B0) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x00B0) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x00B0));
+ resp_hdr->frame_ctl = (__uint16_t)(__builtin_constant_p(0x0000 | 0x00B0) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x00B0) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x00B0) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x00B0));
  __builtin_bcopy((rxfrm->wi_addr2), (resp_hdr->addr1), (6));
  __builtin_bcopy((sc->sc_ic.ic_myaddr), (resp_hdr->addr2), (6));
  __builtin_bcopy((sc->sc_ic.ic_myaddr), (resp_hdr->addr3), (6));
@@ -5594,8 +5594,8 @@ wihap_assoc_req(struct wi_softc *sc, struct wi_frame *rxfrm,
   return;
  capinfo = take_hword(&pkt, &len);
  lstintvl = take_hword(&pkt, &len);
- if ((rxfrm->wi_frame_ctl & (__builtin_constant_p(0x00F0) ? (__uint16_t)(((__uint16_t)(0x00F0) & 0xffU) << 8 | ((__uint16_t)(0x00F0) & 0xff00U) >> 8) : __swap16md(0x00F0))) ==
-     (__builtin_constant_p(0x0020) ? (__uint16_t)(((__uint16_t)(0x0020) & 0xffU) << 8 | ((__uint16_t)(0x0020) & 0xff00U) >> 8) : __swap16md(0x0020))) {
+ if ((rxfrm->wi_frame_ctl & (__uint16_t)(__builtin_constant_p(0x00F0) ? (__uint16_t)(((__uint16_t)(0x00F0) & 0xffU) << 8 | ((__uint16_t)(0x00F0) & 0xff00U) >> 8) : __swap16md(0x00F0))) ==
+     (__uint16_t)(__builtin_constant_p(0x0020) ? (__uint16_t)(((__uint16_t)(0x0020) & 0xffU) << 8 | ((__uint16_t)(0x0020) & 0xff00U) >> 8) : __swap16md(0x0020))) {
   if (len < 6)
    return;
   take_hword(&pkt, &len);
@@ -5668,7 +5668,7 @@ fail:
   printf("wihap_assoc_req: returns status=0x%x\n", status);
  resp_hdr = (struct wi_80211_hdr *)&sc->wi_txbuf;
  __builtin_bzero((resp_hdr), (sizeof(struct wi_80211_hdr)));
- resp_hdr->frame_ctl = (__builtin_constant_p(0x0000 | 0x0010) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x0010) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x0010) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x0010));
+ resp_hdr->frame_ctl = (__uint16_t)(__builtin_constant_p(0x0000 | 0x0010) ? (__uint16_t)(((__uint16_t)(0x0000 | 0x0010) & 0xffU) << 8 | ((__uint16_t)(0x0000 | 0x0010) & 0xff00U) >> 8) : __swap16md(0x0000 | 0x0010));
  pkt = (caddr_t)&sc->wi_txbuf + sizeof(struct wi_80211_hdr);
  __builtin_bcopy((rxfrm->wi_addr2), (resp_hdr->addr1), (6));
  __builtin_bcopy((sc->sc_ic.ic_myaddr), (resp_hdr->addr2), (6));
@@ -5726,11 +5726,11 @@ wihap_disassoc_req(struct wi_softc *sc, struct wi_frame *rxfrm,
 static __inline void
 wihap_debug_frame_type(struct wi_frame *rxfrm)
 {
- printf("wihap_mgmt_input: len=%d ", (__builtin_constant_p(rxfrm->wi_dat_len) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_dat_len) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_dat_len)));
- if ((rxfrm->wi_frame_ctl & (__builtin_constant_p(0x000C) ? (__uint16_t)(((__uint16_t)(0x000C) & 0xffU) << 8 | ((__uint16_t)(0x000C) & 0xff00U) >> 8) : __swap16md(0x000C))) ==
-     (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000))) {
+ printf("wihap_mgmt_input: len=%d ", (__uint16_t)(__builtin_constant_p(rxfrm->wi_dat_len) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_dat_len) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_dat_len) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_dat_len)));
+ if ((rxfrm->wi_frame_ctl & (__uint16_t)(__builtin_constant_p(0x000C) ? (__uint16_t)(((__uint16_t)(0x000C) & 0xffU) << 8 | ((__uint16_t)(0x000C) & 0xff00U) >> 8) : __swap16md(0x000C))) ==
+     (__uint16_t)(__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000))) {
   printf("MGMT: ");
-  switch ((__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0) {
+  switch ((__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0) {
   case 0x0000:
    printf("assoc req: \n");
    break;
@@ -5766,13 +5766,13 @@ wihap_debug_frame_type(struct wi_frame *rxfrm)
    break;
   default:
    printf("unknown (stype=0x%x)\n",
-       (__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0);
+       (__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0);
   }
  }
  else {
   printf("ftype=0x%x (ctl=0x%x)\n",
-      (__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x000C,
-      (__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)));
+      (__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x000C,
+      (__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)));
  }
 }
 void
@@ -5784,10 +5784,10 @@ wihap_mgmt_input(struct wi_softc *sc, struct wi_frame *rxfrm, struct mbuf *m)
   wihap_debug_frame_type(rxfrm);
  pkt = ((caddr_t)((m)->m_hdr.mh_data)) + 0x3C;
  len = m->m_hdr.mh_len - 0x3C;
- if ((rxfrm->wi_frame_ctl & (__builtin_constant_p(0x000C) ? (__uint16_t)(((__uint16_t)(0x000C) & 0xffU) << 8 | ((__uint16_t)(0x000C) & 0xff00U) >> 8) : __swap16md(0x000C))) ==
-     (__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000))) {
+ if ((rxfrm->wi_frame_ctl & (__uint16_t)(__builtin_constant_p(0x000C) ? (__uint16_t)(((__uint16_t)(0x000C) & 0xffU) << 8 | ((__uint16_t)(0x000C) & 0xff00U) >> 8) : __swap16md(0x000C))) ==
+     (__uint16_t)(__builtin_constant_p(0x0000) ? (__uint16_t)(((__uint16_t)(0x0000) & 0xffU) << 8 | ((__uint16_t)(0x0000) & 0xff00U) >> 8) : __swap16md(0x0000))) {
   s = _splraise(1);
-  switch ((__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0) {
+  switch ((__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl)) & 0x00F0) {
   case 0x0000:
    wihap_assoc_req(sc, rxfrm, pkt, len);
    break;
@@ -5860,7 +5860,7 @@ wihap_data_input(struct wi_softc *sc, struct wi_frame *rxfrm, struct mbuf *m)
  struct wihap_sta_info *sta;
  int mcast, s;
  u_int16_t fctl;
- fctl = (__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl));
+ fctl = (__uint16_t)(__builtin_constant_p(rxfrm->wi_frame_ctl) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_frame_ctl) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_frame_ctl) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_frame_ctl));
  if (!(fctl & 0x0100) && !(fctl & 0x0040)) {
   if (ifp->if_flags & 0x4)
    printf("wihap_data_input: no TODS src=%s, fctl=0x%x\n",
@@ -5888,7 +5888,7 @@ wihap_data_input(struct wi_softc *sc, struct wi_frame *rxfrm, struct mbuf *m)
   return (1);
  }
  timeout_add_sec(&sta->tmo, whi->inactivity_time);
- sta->sig_info = (__builtin_constant_p(rxfrm->wi_q_info) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_q_info) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_q_info) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_q_info));
+ sta->sig_info = (__uint16_t)(__builtin_constant_p(rxfrm->wi_q_info) ? (__uint16_t)(((__uint16_t)(rxfrm->wi_q_info) & 0xffU) << 8 | ((__uint16_t)(rxfrm->wi_q_info) & 0xff00U) >> 8) : __swap16md(rxfrm->wi_q_info));
  _splx(s);
  mcast = (rxfrm->wi_addr3[0] & 0x01) != 0;
  if (mcast || wihap_sta_is_assoc(whi, rxfrm->wi_addr3)) {

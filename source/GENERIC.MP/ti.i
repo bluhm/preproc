@@ -3687,7 +3687,7 @@ ti_loadfw(struct ti_softc *sc)
  b = (u_int32_t *)buf;
  cnt = buflen / sizeof(u_int32_t);
  for (i = 0; i < cnt; i++)
-  b[i] = (__builtin_constant_p(b[i]) ? (__uint32_t)(((__uint32_t)(b[i]) & 0xff) << 24 | ((__uint32_t)(b[i]) & 0xff00) << 8 | ((__uint32_t)(b[i]) & 0xff0000) >> 8 | ((__uint32_t)(b[i]) & 0xff000000) >> 24) : __swap32md(b[i]));
+  b[i] = (__uint32_t)(__builtin_constant_p(b[i]) ? (__uint32_t)(((__uint32_t)(b[i]) & 0xff) << 24 | ((__uint32_t)(b[i]) & 0xff00) << 8 | ((__uint32_t)(b[i]) & 0xff0000) >> 8 | ((__uint32_t)(b[i]) & 0xff000000) >> 24) : __swap32md(b[i]));
  tf = (struct tigon_firmware *)buf;
  if (tf->FwReleaseMajor != 0xc ||
      tf->FwReleaseMinor != 0x4 ||

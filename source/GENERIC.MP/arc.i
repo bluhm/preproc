@@ -3960,7 +3960,7 @@ arc_scsi_cmd(struct scsi_xfer *xs)
  if (ccb->ccb_dmamap->dm_nsegs > 17) {
   cmd->flags |= (1<<0);
  }
- cmd->data_len = (__builtin_constant_p(xs->datalen) ? (__uint32_t)(((__uint32_t)(xs->datalen) & 0xff) << 24 | ((__uint32_t)(xs->datalen) & 0xff00) << 8 | ((__uint32_t)(xs->datalen) & 0xff0000) >> 8 | ((__uint32_t)(xs->datalen) & 0xff000000) >> 24) : __swap32md(xs->datalen));
+ cmd->data_len = (__uint32_t)(__builtin_constant_p(xs->datalen) ? (__uint32_t)(((__uint32_t)(xs->datalen) & 0xff) << 24 | ((__uint32_t)(xs->datalen) & 0xff00) << 8 | ((__uint32_t)(xs->datalen) & 0xff0000) >> 8 | ((__uint32_t)(xs->datalen) & 0xff000000) >> 24) : __swap32md(xs->datalen));
  __builtin_bcopy((xs->cmd), (cmd->cdb), (xs->cmdlen));
  bus_dmamap_sync(sc->sc_dmat, ((sc->sc_requests)->adm_map),
      ccb->cmd_dma_offset, 512,
@@ -4040,10 +4040,10 @@ arc_load_xs(struct arc_ccb *ccb)
  }
  for (i = 0; i < dmap->dm_nsegs; i++) {
   sge = &sgl[i];
-  sge->sg_length = (__builtin_constant_p((1<<24) | dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md((1<<24) | dmap->dm_segs[i].ds_len));
+  sge->sg_length = (__uint32_t)(__builtin_constant_p((1<<24) | dmap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)((1<<24) | dmap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md((1<<24) | dmap->dm_segs[i].ds_len));
   addr = dmap->dm_segs[i].ds_addr;
-  sge->sg_hi_addr = (__builtin_constant_p((u_int32_t)(addr >> 32)) ? (__uint32_t)(((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff) << 24 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff000000) >> 24) : __swap32md((u_int32_t)(addr >> 32)));
-  sge->sg_lo_addr = (__builtin_constant_p((u_int32_t)addr) ? (__uint32_t)(((__uint32_t)((u_int32_t)addr) & 0xff) << 24 | ((__uint32_t)((u_int32_t)addr) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)addr) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)addr) & 0xff000000) >> 24) : __swap32md((u_int32_t)addr));
+  sge->sg_hi_addr = (__uint32_t)(__builtin_constant_p((u_int32_t)(addr >> 32)) ? (__uint32_t)(((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff) << 24 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)(addr >> 32)) & 0xff000000) >> 24) : __swap32md((u_int32_t)(addr >> 32)));
+  sge->sg_lo_addr = (__uint32_t)(__builtin_constant_p((u_int32_t)addr) ? (__uint32_t)(((__uint32_t)((u_int32_t)addr) & 0xff) << 24 | ((__uint32_t)((u_int32_t)addr) & 0xff00) << 8 | ((__uint32_t)((u_int32_t)addr) & 0xff0000) >> 8 | ((__uint32_t)((u_int32_t)addr) & 0xff000000) >> 24) : __swap32md((u_int32_t)addr));
  }
  ccb->arc_io_cmd_length = sizeof(struct arc_msg_scsicmd) +
      sizeof(struct arc_sge) * dmap->dm_nsegs;
@@ -4295,7 +4295,7 @@ arc_chipA_firmware(struct arc_softc *sc)
  }
  arc_read_region(sc, 0x0a00, &fwinfo, sizeof(fwinfo));
  ;
- if ((__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
   printf("%s: invalid firmware info from iop\n", ((sc)->sc_dev.dv_xname));
   return (1);
  }
@@ -4309,12 +4309,12 @@ arc_chipA_firmware(struct arc_softc *sc)
  ;
  scsi_strvis(string, fwinfo.fw_version, sizeof(fwinfo.fw_version));
  ;
- if ((__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
   printf("%s: unexpected request frame size (%d != %d)\n",
-      ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
+      ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
   return (1);
  }
- sc->sc_req_count = (__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len));
+ sc->sc_req_count = (__uint32_t)(__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len));
  if (arc_msg0(sc, (0x00000006)) != 0) {
   printf("%s: timeout waiting to start bg rebuild\n",
       ((sc)->sc_dev.dv_xname));
@@ -4324,8 +4324,8 @@ arc_chipA_firmware(struct arc_softc *sc)
  arc_write(sc, 0x002c, ob_doorbell);
  arc_write(sc, 0x0020, (1<<1));
  printf("%s: %d ports, %dMB SDRAM, firmware %s\n",
-     ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
-     (__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
+     ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
+     (__uint32_t)(__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
  return (0);
 }
 int
@@ -4356,7 +4356,7 @@ arc_chipC_firmware(struct arc_softc *sc)
  }
  arc_read_region(sc, 0x2200, &fwinfo, sizeof(fwinfo));
  ;
- if ((__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
   printf("%s: invalid firmware info from iop\n", ((sc)->sc_dev.dv_xname));
   return (1);
  }
@@ -4370,12 +4370,12 @@ arc_chipC_firmware(struct arc_softc *sc)
  ;
  scsi_strvis(string, fwinfo.fw_version, sizeof(fwinfo.fw_version));
  ;
- if ((__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
   printf("%s: unexpected request frame size (%d != %d)\n",
-      ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
+      ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
   return (1);
  }
- sc->sc_req_count = (__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len));
+ sc->sc_req_count = (__uint32_t)(__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len));
  if (arc_msg0(sc, (0x00000006)) != 0) {
   printf("%s: timeout waiting to start bg rebuild\n",
       ((sc)->sc_dev.dv_xname));
@@ -4385,8 +4385,8 @@ arc_chipC_firmware(struct arc_softc *sc)
  arc_write(sc, 0xA0, ob_doorbell);
  arc_write(sc, 0x20, 0x00000004);
  printf("%s: %d ports, %dMB SDRAM, firmware %s\n",
-     ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
-     (__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
+     ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
+     (__uint32_t)(__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
  return (0);
 }
 int
@@ -4408,7 +4408,7 @@ arc_chipD_firmware(struct arc_softc *sc)
  }
  arc_read_region(sc, 0x2200, &fwinfo, sizeof(fwinfo));
  ;
- if ((__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.signature) ? (__uint32_t)(((__uint32_t)(fwinfo.signature) & 0xff) << 24 | ((__uint32_t)(fwinfo.signature) & 0xff00) << 8 | ((__uint32_t)(fwinfo.signature) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.signature) & 0xff000000) >> 24) : __swap32md(fwinfo.signature)) != (0x87974060)) {
   printf("%s: invalid firmware info from iop\n", ((sc)->sc_dev.dv_xname));
   return (1);
  }
@@ -4422,12 +4422,12 @@ arc_chipD_firmware(struct arc_softc *sc)
  ;
  scsi_strvis(string, fwinfo.fw_version, sizeof(fwinfo.fw_version));
  ;
- if ((__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
+ if ((__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)) != 512) {
   printf("%s: unexpected request frame size (%d != %d)\n",
-      ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
+      ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.request_len) ? (__uint32_t)(((__uint32_t)(fwinfo.request_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.request_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.request_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.request_len) & 0xff000000) >> 24) : __swap32md(fwinfo.request_len)), 512);
   return (1);
  }
- sc->sc_req_count = (__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len)) - 1;
+ sc->sc_req_count = (__uint32_t)(__builtin_constant_p(fwinfo.queue_len) ? (__uint32_t)(((__uint32_t)(fwinfo.queue_len) & 0xff) << 24 | ((__uint32_t)(fwinfo.queue_len) & 0xff00) << 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.queue_len) & 0xff000000) >> 24) : __swap32md(fwinfo.queue_len)) - 1;
  if (arc_msg0(sc, (0x00000006)) != 0) {
   printf("%s: timeout waiting to start bg rebuild\n",
       ((sc)->sc_dev.dv_xname));
@@ -4437,8 +4437,8 @@ arc_chipD_firmware(struct arc_softc *sc)
  arc_write(sc, 0x480, ob_doorbell);
  arc_write(sc, 0x460, 0x00000002);
  printf("%s: %d ports, %dMB SDRAM, firmware %s\n",
-     ((sc)->sc_dev.dv_xname), (__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
-     (__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
+     ((sc)->sc_dev.dv_xname), (__uint32_t)(__builtin_constant_p(fwinfo.sata_ports) ? (__uint32_t)(((__uint32_t)(fwinfo.sata_ports) & 0xff) << 24 | ((__uint32_t)(fwinfo.sata_ports) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sata_ports) & 0xff000000) >> 24) : __swap32md(fwinfo.sata_ports)),
+     (__uint32_t)(__builtin_constant_p(fwinfo.sdram_size) ? (__uint32_t)(((__uint32_t)(fwinfo.sdram_size) & 0xff) << 24 | ((__uint32_t)(fwinfo.sdram_size) & 0xff00) << 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff0000) >> 8 | ((__uint32_t)(fwinfo.sdram_size) & 0xff000000) >> 24) : __swap32md(fwinfo.sdram_size)), string);
  return (0);
 }
 void
@@ -4664,7 +4664,7 @@ arc_bio_blink(struct arc_softc *sc, struct bioc_blink *blink)
  default:
   return (22);
  }
- mask = (__builtin_constant_p(sc->sc_ledmask) ? (__uint32_t)(((__uint32_t)(sc->sc_ledmask) & 0xff) << 24 | ((__uint32_t)(sc->sc_ledmask) & 0xff00) << 8 | ((__uint32_t)(sc->sc_ledmask) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_ledmask) & 0xff000000) >> 24) : __swap32md(sc->sc_ledmask));
+ mask = (__uint32_t)(__builtin_constant_p(sc->sc_ledmask) ? (__uint32_t)(((__uint32_t)(sc->sc_ledmask) & 0xff) << 24 | ((__uint32_t)(sc->sc_ledmask) & 0xff00) << 8 | ((__uint32_t)(sc->sc_ledmask) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_ledmask) & 0xff000000) >> 24) : __swap32md(sc->sc_ledmask));
  __builtin_bcopy((&mask), (&request[2]), (4));
  arc_lock(sc);
  error = arc_msgbuf(sc, request, sizeof(request), ((void *)0), 0, 0);
@@ -4730,9 +4730,9 @@ arc_bio_vol(struct arc_softc *sc, struct bioc_vol *bv)
   goto out;
  bv->bv_percent = -1;
  bv->bv_seconds = 0;
- status = (__builtin_constant_p(volinfo->volume_status) ? (__uint32_t)(((__uint32_t)(volinfo->volume_status) & 0xff) << 24 | ((__uint32_t)(volinfo->volume_status) & 0xff00) << 8 | ((__uint32_t)(volinfo->volume_status) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->volume_status) & 0xff000000) >> 24) : __swap32md(volinfo->volume_status));
+ status = (__uint32_t)(__builtin_constant_p(volinfo->volume_status) ? (__uint32_t)(((__uint32_t)(volinfo->volume_status) & 0xff) << 24 | ((__uint32_t)(volinfo->volume_status) & 0xff00) << 8 | ((__uint32_t)(volinfo->volume_status) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->volume_status) & 0xff000000) >> 24) : __swap32md(volinfo->volume_status));
  if (status == 0x0) {
-  if ((__builtin_constant_p(volinfo->fail_mask) ? (__uint32_t)(((__uint32_t)(volinfo->fail_mask) & 0xff) << 24 | ((__uint32_t)(volinfo->fail_mask) & 0xff00) << 8 | ((__uint32_t)(volinfo->fail_mask) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->fail_mask) & 0xff000000) >> 24) : __swap32md(volinfo->fail_mask)) == 0x0)
+  if ((__uint32_t)(__builtin_constant_p(volinfo->fail_mask) ? (__uint32_t)(((__uint32_t)(volinfo->fail_mask) & 0xff) << 24 | ((__uint32_t)(volinfo->fail_mask) & 0xff00) << 8 | ((__uint32_t)(volinfo->fail_mask) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->fail_mask) & 0xff000000) >> 24) : __swap32md(volinfo->fail_mask)) == 0x0)
    bv->bv_status = 0x00;
   else
    bv->bv_status = 0x02;
@@ -4742,13 +4742,13 @@ arc_bio_vol(struct arc_softc *sc, struct bioc_vol *bv)
   bv->bv_status = 0x01;
  else if (status & (1<<0)) {
   bv->bv_status = 0x03;
-  bv->bv_percent = (__builtin_constant_p(volinfo->progress) ? (__uint32_t)(((__uint32_t)(volinfo->progress) & 0xff) << 24 | ((__uint32_t)(volinfo->progress) & 0xff00) << 8 | ((__uint32_t)(volinfo->progress) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->progress) & 0xff000000) >> 24) : __swap32md(volinfo->progress)) / 10;
+  bv->bv_percent = (__uint32_t)(__builtin_constant_p(volinfo->progress) ? (__uint32_t)(((__uint32_t)(volinfo->progress) & 0xff) << 24 | ((__uint32_t)(volinfo->progress) & 0xff00) << 8 | ((__uint32_t)(volinfo->progress) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->progress) & 0xff000000) >> 24) : __swap32md(volinfo->progress)) / 10;
  } else if (status & (1<<3)) {
   bv->bv_status = 0x05;
-  bv->bv_percent = (__builtin_constant_p(volinfo->progress) ? (__uint32_t)(((__uint32_t)(volinfo->progress) & 0xff) << 24 | ((__uint32_t)(volinfo->progress) & 0xff00) << 8 | ((__uint32_t)(volinfo->progress) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->progress) & 0xff000000) >> 24) : __swap32md(volinfo->progress)) / 10;
+  bv->bv_percent = (__uint32_t)(__builtin_constant_p(volinfo->progress) ? (__uint32_t)(((__uint32_t)(volinfo->progress) & 0xff) << 24 | ((__uint32_t)(volinfo->progress) & 0xff00) << 8 | ((__uint32_t)(volinfo->progress) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->progress) & 0xff000000) >> 24) : __swap32md(volinfo->progress)) / 10;
  }
- blocks = (u_int64_t)(__builtin_constant_p(volinfo->capacity2) ? (__uint32_t)(((__uint32_t)(volinfo->capacity2) & 0xff) << 24 | ((__uint32_t)(volinfo->capacity2) & 0xff00) << 8 | ((__uint32_t)(volinfo->capacity2) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->capacity2) & 0xff000000) >> 24) : __swap32md(volinfo->capacity2)) << 32;
- blocks += (u_int64_t)(__builtin_constant_p(volinfo->capacity) ? (__uint32_t)(((__uint32_t)(volinfo->capacity) & 0xff) << 24 | ((__uint32_t)(volinfo->capacity) & 0xff00) << 8 | ((__uint32_t)(volinfo->capacity) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->capacity) & 0xff000000) >> 24) : __swap32md(volinfo->capacity));
+ blocks = (u_int64_t)(__uint32_t)(__builtin_constant_p(volinfo->capacity2) ? (__uint32_t)(((__uint32_t)(volinfo->capacity2) & 0xff) << 24 | ((__uint32_t)(volinfo->capacity2) & 0xff00) << 8 | ((__uint32_t)(volinfo->capacity2) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->capacity2) & 0xff000000) >> 24) : __swap32md(volinfo->capacity2)) << 32;
+ blocks += (u_int64_t)(__uint32_t)(__builtin_constant_p(volinfo->capacity) ? (__uint32_t)(((__uint32_t)(volinfo->capacity) & 0xff) << 24 | ((__uint32_t)(volinfo->capacity) & 0xff00) << 8 | ((__uint32_t)(volinfo->capacity) & 0xff0000) >> 8 | ((__uint32_t)(volinfo->capacity) & 0xff000000) >> 24) : __swap32md(volinfo->capacity));
  bv->bv_size = blocks * 512;
  switch (volinfo->raid_level) {
  case 0x00:
@@ -4830,8 +4830,8 @@ arc_bio_disk(struct arc_softc *sc, struct bioc_disk *bd)
  bd->bd_target = raidinfo->device_array[bd->bd_diskid];
  bd->bd_lun = 0;
  bd->bd_status = 0x00;
- blocks = (u_int64_t)(__builtin_constant_p(diskinfo->capacity2) ? (__uint32_t)(((__uint32_t)(diskinfo->capacity2) & 0xff) << 24 | ((__uint32_t)(diskinfo->capacity2) & 0xff00) << 8 | ((__uint32_t)(diskinfo->capacity2) & 0xff0000) >> 8 | ((__uint32_t)(diskinfo->capacity2) & 0xff000000) >> 24) : __swap32md(diskinfo->capacity2)) << 32;
- blocks += (u_int64_t)(__builtin_constant_p(diskinfo->capacity) ? (__uint32_t)(((__uint32_t)(diskinfo->capacity) & 0xff) << 24 | ((__uint32_t)(diskinfo->capacity) & 0xff00) << 8 | ((__uint32_t)(diskinfo->capacity) & 0xff0000) >> 8 | ((__uint32_t)(diskinfo->capacity) & 0xff000000) >> 24) : __swap32md(diskinfo->capacity));
+ blocks = (u_int64_t)(__uint32_t)(__builtin_constant_p(diskinfo->capacity2) ? (__uint32_t)(((__uint32_t)(diskinfo->capacity2) & 0xff) << 24 | ((__uint32_t)(diskinfo->capacity2) & 0xff00) << 8 | ((__uint32_t)(diskinfo->capacity2) & 0xff0000) >> 8 | ((__uint32_t)(diskinfo->capacity2) & 0xff000000) >> 24) : __swap32md(diskinfo->capacity2)) << 32;
+ blocks += (u_int64_t)(__uint32_t)(__builtin_constant_p(diskinfo->capacity) ? (__uint32_t)(((__uint32_t)(diskinfo->capacity) & 0xff) << 24 | ((__uint32_t)(diskinfo->capacity) & 0xff00) << 8 | ((__uint32_t)(diskinfo->capacity) & 0xff0000) >> 8 | ((__uint32_t)(diskinfo->capacity) & 0xff000000) >> 24) : __swap32md(diskinfo->capacity));
  bd->bd_size = blocks * 512;
  scsi_strvis(model, diskinfo->model, sizeof(diskinfo->model));
  scsi_strvis(serial, diskinfo->serial, sizeof(diskinfo->serial));
@@ -4888,7 +4888,7 @@ arc_msgbuf(struct arc_softc *sc, void *wptr, size_t wbuflen, void *rptr,
  ;
  bufhdr = (struct arc_fw_bufhdr *)wbuf;
  bufhdr->hdr = arc_fw_hdr;
- bufhdr->len = (__builtin_constant_p(wbuflen) ? (__uint16_t)(((__uint16_t)(wbuflen) & 0xffU) << 8 | ((__uint16_t)(wbuflen) & 0xff00U) >> 8) : __swap16md(wbuflen));
+ bufhdr->len = (__uint16_t)(__builtin_constant_p(wbuflen) ? (__uint16_t)(((__uint16_t)(wbuflen) & 0xffU) << 8 | ((__uint16_t)(wbuflen) & 0xff00U) >> 8) : __swap16md(wbuflen));
  __builtin_bcopy((wptr), (wbuf + sizeof(struct arc_fw_bufhdr)), (wbuflen));
  wbuf[wlen - 1] = arc_msg_cksum(wptr, wbuflen);
  read_ok = 1;
@@ -4999,7 +4999,7 @@ arc_msgbuf(struct arc_softc *sc, void *wptr, size_t wbuflen, void *rptr,
    if (sreadok && rdone >= sizeof(struct arc_fw_bufhdr) &&
        rlenhdr == 0) {
     bufhdr = (struct arc_fw_bufhdr *)rbuf;
-    rlenhdr = (__builtin_constant_p(bufhdr->len) ? (__uint16_t)(((__uint16_t)(bufhdr->len) & 0xffU) << 8 | ((__uint16_t)(bufhdr->len) & 0xff00U) >> 8) : __swap16md(bufhdr->len));
+    rlenhdr = (__uint16_t)(__builtin_constant_p(bufhdr->len) ? (__uint16_t)(((__uint16_t)(bufhdr->len) & 0xffU) << 8 | ((__uint16_t)(bufhdr->len) & 0xff00U) >> 8) : __swap16md(bufhdr->len));
     if (rlenhdr < rbuflen) {
      rbuflen = rlenhdr;
      rlen = sizeof(struct arc_fw_bufhdr) +
@@ -5014,7 +5014,7 @@ arc_msgbuf(struct arc_softc *sc, void *wptr, size_t wbuflen, void *rptr,
   error = 5;
   goto out;
  }
- if (bufhdr->len != (__builtin_constant_p(rbuflen) ? (__uint16_t)(((__uint16_t)(rbuflen) & 0xffU) << 8 | ((__uint16_t)(rbuflen) & 0xff00U) >> 8) : __swap16md(rbuflen))) {
+ if (bufhdr->len != (__uint16_t)(__builtin_constant_p(rbuflen) ? (__uint16_t)(((__uint16_t)(rbuflen) & 0xffU) << 8 | ((__uint16_t)(rbuflen) & 0xff00U) >> 8) : __swap16md(rbuflen))) {
   ;
  }
  __builtin_bcopy((rbuf + sizeof(struct arc_fw_bufhdr)), (rptr), (bufhdr->len));

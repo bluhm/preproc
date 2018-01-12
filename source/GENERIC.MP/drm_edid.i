@@ -8983,8 +8983,8 @@ static struct drm_display_mode *drm_mode_detailed(struct drm_device *dev,
  if (!mode)
   return ((void *)0);
  if (quirks & (1 << 1))
-  timing->pixel_clock = (__builtin_constant_p(1088) ? (__uint16_t)(((__uint16_t)(1088) & 0xffU) << 8 | ((__uint16_t)(1088) & 0xff00U) >> 8) : __swap16md(1088));
- mode->clock = (__builtin_constant_p(timing->pixel_clock) ? (__uint16_t)(((__uint16_t)(timing->pixel_clock) & 0xffU) << 8 | ((__uint16_t)(timing->pixel_clock) & 0xff00U) >> 8) : __swap16md(timing->pixel_clock)) * 10;
+  timing->pixel_clock = (__uint16_t)(__builtin_constant_p(1088) ? (__uint16_t)(((__uint16_t)(1088) & 0xffU) << 8 | ((__uint16_t)(1088) & 0xff00U) >> 8) : __swap16md(1088));
+ mode->clock = (__uint16_t)(__builtin_constant_p(timing->pixel_clock) ? (__uint16_t)(((__uint16_t)(timing->pixel_clock) & 0xffU) << 8 | ((__uint16_t)(timing->pixel_clock) & 0xff00U) >> 8) : __swap16md(timing->pixel_clock)) * 10;
  mode->hdisplay = hactive;
  mode->hsync_start = mode->hdisplay + hsync_offset;
  mode->hsync_end = mode->hsync_start + hsync_pulse_width;

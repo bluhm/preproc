@@ -2858,7 +2858,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -4152,7 +4152,7 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
  }
  if (ieee80211_has_seq(wh) &&
      ic->ic_state != IEEE80211_S_SCAN) {
-  nrxseq = (__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >>
+  nrxseq = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >>
       4;
   if (hasqos)
    orxseq = &ni->ni_qos_rxseqs[tid];
@@ -4369,7 +4369,7 @@ ieee80211_defrag(struct ieee80211com *ic, struct mbuf *m, int hdrlen)
  u_int8_t frag;
  int i;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
- rxseq = (__builtin_constant_p(*(const u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)wh->i_seq));
+ rxseq = (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)wh->i_seq));
  seq = rxseq >> 4;
  frag = rxseq & 0x000f;
  if (frag == 0 && !(wh->i_fc[1] & 0x04))
@@ -4433,7 +4433,7 @@ ieee80211_input_ba(struct ieee80211com *ic, struct mbuf *m,
  int idx, count;
  u_int16_t sn;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
- sn = (__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >> 4;
+ sn = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >> 4;
  if (ba->ba_timeout_val != 0)
   timeout_add_usec(&ba->ba_to, ba->ba_timeout_val);
  if (((((u_int16_t)(sn) - (u_int16_t)(ba->ba_winstart)) & 0xfff) > 2048)) {
@@ -4498,7 +4498,7 @@ ieee80211_input_ba_seq(struct ieee80211com *ic, struct ieee80211_node *ni,
   if (ba->ba_buf[ba->ba_head].m != ((void *)0)) {
    wh = ((struct ieee80211_frame *)((ba->ba_buf[ba->ba_head].m)->m_hdr.mh_data));
    ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 729, "ieee80211_has_seq(wh)"));
-   seq = (__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >>
+   seq = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >>
        4;
    if (!((((u_int16_t)(seq) - (u_int16_t)(max_seq)) & 0xfff) > 2048))
     return;
@@ -6101,7 +6101,7 @@ ieee80211_recv_pspoll(struct ieee80211com *ic, struct mbuf *m,
   ic->ic_stats.is_rx_wrongbss++;
   return;
  }
- aid = (__builtin_constant_p(*(u_int16_t *)psp->i_aid) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)psp->i_aid) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)psp->i_aid) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)psp->i_aid));
+ aid = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)psp->i_aid) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)psp->i_aid) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)psp->i_aid) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)psp->i_aid));
  if (aid != ni->ni_associd) {
   ;
   return;

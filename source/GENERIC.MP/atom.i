@@ -15446,7 +15446,7 @@ static uint32_t atom_get_src_int(atom_exec_context *ctx, uint8_t attr,
  case 1:
   idx = get_u8(ctx->ctx->bios, (*ptr));
   (*ptr)++;
-  val = (__builtin_constant_p(ctx->ps[idx]) ? (__uint32_t)(((__uint32_t)(ctx->ps[idx]) & 0xff) << 24 | ((__uint32_t)(ctx->ps[idx]) & 0xff00) << 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff0000) >> 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff000000) >> 24) : __swap32md(ctx->ps[idx]));
+  val = (__uint32_t)(__builtin_constant_p(ctx->ps[idx]) ? (__uint32_t)(((__uint32_t)(ctx->ps[idx]) & 0xff) << 24 | ((__uint32_t)(ctx->ps[idx]) & 0xff00) << 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff0000) >> 8 | ((__uint32_t)(ctx->ps[idx]) & 0xff000000) >> 24) : __swap32md(ctx->ps[idx]));
   if (print)
    do if (atom_debug) { printf("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/atom.c" "PS[0x%02X,0x%04X]", idx, val); } while (0);
   break;
@@ -15710,7 +15710,7 @@ static void atom_put_dst(atom_exec_context *ctx, int arg, uint8_t attr,
   idx = get_u8(ctx->ctx->bios, (*ptr));
   (*ptr)++;
   do if (atom_debug) { printf("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/atom.c" "PS[0x%02X]", idx); } while (0);
-  ctx->ps[idx] = (__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val));
+  ctx->ps[idx] = (__uint32_t)(__builtin_constant_p(val) ? (__uint32_t)(((__uint32_t)(val) & 0xff) << 24 | ((__uint32_t)(val) & 0xff00) << 8 | ((__uint32_t)(val) & 0xff0000) >> 8 | ((__uint32_t)(val) & 0xff000000) >> 24) : __swap32md(val));
   break;
  case 2:
   idx = get_u8(ctx->ctx->bios, (*ptr));
@@ -16443,8 +16443,8 @@ int atom_asic_init(struct atom_context *ctx)
  uint32_t ps[16];
  int ret;
  __builtin_memset((ps), (0), (64));
- ps[0] = (__builtin_constant_p(get_u32(ctx->bios, (hwi + 8))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 8))));
- ps[1] = (__builtin_constant_p(get_u32(ctx->bios, (hwi + 0xC))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 0xC))));
+ ps[0] = (__uint32_t)(__builtin_constant_p(get_u32(ctx->bios, (hwi + 8))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 8))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 8))));
+ ps[1] = (__uint32_t)(__builtin_constant_p(get_u32(ctx->bios, (hwi + 0xC))) ? (__uint32_t)(((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff) << 24 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff00) << 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff0000) >> 8 | ((__uint32_t)(get_u32(ctx->bios, (hwi + 0xC))) & 0xff000000) >> 24) : __swap32md(get_u32(ctx->bios, (hwi + 0xC))));
  if (!ps[0] || !ps[1])
   return 1;
  if (!get_u16(ctx->bios, (ctx->cmd_table + 4 + 2 * 0)))
@@ -16506,7 +16506,7 @@ int atom_allocate_fb_scratch(struct atom_context *ctx)
  if (atom_parse_data_header(ctx, index, ((void *)0), ((void *)0), ((void *)0), &data_offset)) {
   firmware_usage = (struct _ATOM_VRAM_USAGE_BY_FIRMWARE *)(ctx->bios + data_offset);
   do { } while( 0);
-  usage_bytes = (__builtin_constant_p(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) ? (__uint16_t)(((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xffU) << 8 | ((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xff00U) >> 8) : __swap16md(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb)) * 1024;
+  usage_bytes = (__uint16_t)(__builtin_constant_p(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) ? (__uint16_t)(((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xffU) << 8 | ((__uint16_t)(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb) & 0xff00U) >> 8) : __swap16md(firmware_usage->asFirmwareVramReserveInfo[0].usFirmwareUseInKb)) * 1024;
  }
  ctx->scratch_size_bytes = 0;
  if (usage_bytes == 0)

@@ -3799,7 +3799,7 @@ fxp_read_eeprom(struct fxp_softc *sc, u_short *data, int offset,
    bus_space_write_2((sc)->sc_st, (sc)->sc_sh, (14), (reg64));
    delay(4);
   }
-  data[i] = (__builtin_constant_p(data[i]) ? (__uint16_t)(((__uint16_t)(data[i]) & 0xffU) << 8 | ((__uint16_t)(data[i]) & 0xff00U) >> 8) : __swap16md(data[i]));
+  data[i] = (__uint16_t)(__builtin_constant_p(data[i]) ? (__uint16_t)(((__uint16_t)(data[i]) & 0xffU) << 8 | ((__uint16_t)(data[i]) & 0xff00U) >> 8) : __swap16md(data[i]));
   bus_space_write_2((sc)->sc_st, (sc)->sc_sh, (14), (0));
   delay(4);
  }
@@ -3845,13 +3845,13 @@ fxp_start(struct ifnet *ifp)
   txc = txs->tx_cb;
   txc->tbd_number = txs->tx_map->dm_nsegs;
   txc->cb_status = 0;
-  txc->cb_command = (__builtin_constant_p(0x4 | 0x0008) ? (__uint16_t)(((__uint16_t)(0x4 | 0x0008) & 0xffU) << 8 | ((__uint16_t)(0x4 | 0x0008) & 0xff00U) >> 8) : __swap16md(0x4 | 0x0008));
+  txc->cb_command = (__uint16_t)(__builtin_constant_p(0x4 | 0x0008) ? (__uint16_t)(((__uint16_t)(0x4 | 0x0008) & 0xffU) << 8 | ((__uint16_t)(0x4 | 0x0008) & 0xff00U) >> 8) : __swap16md(0x4 | 0x0008));
   txc->tx_threshold = tx_threshold;
   for (seg = 0; seg < txs->tx_map->dm_nsegs; seg++) {
    txc->tbd[seg].tb_addr =
-       (__builtin_constant_p(txs->tx_map->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(txs->tx_map->dm_segs[seg].ds_addr));
+       (__uint32_t)(__builtin_constant_p(txs->tx_map->dm_segs[seg].ds_addr) ? (__uint32_t)(((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff) << 24 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff00) << 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff0000) >> 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_addr) & 0xff000000) >> 24) : __swap32md(txs->tx_map->dm_segs[seg].ds_addr));
    txc->tbd[seg].tb_size =
-       (__builtin_constant_p(txs->tx_map->dm_segs[seg].ds_len) ? (__uint32_t)(((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff) << 24 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff00) << 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff000000) >> 24) : __swap32md(txs->tx_map->dm_segs[seg].ds_len));
+       (__uint32_t)(__builtin_constant_p(txs->tx_map->dm_segs[seg].ds_len) ? (__uint32_t)(((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff) << 24 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff00) << 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(txs->tx_map->dm_segs[seg].ds_len) & 0xff000000) >> 24) : __swap32md(txs->tx_map->dm_segs[seg].ds_len));
   }
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, (txs)->tx_off, sizeof(struct fxp_cb_tx), (0x01|0x04));
   ++cnt;
@@ -3863,11 +3863,11 @@ fxp_start(struct ifnet *ifp)
   txs = txs->tx_next;
   sc->sc_cbt_prod = txs;
   txs->tx_cb->cb_command =
-      (__builtin_constant_p(0x2000 | 0x0 | 0x4000) ? (__uint16_t)(((__uint16_t)(0x2000 | 0x0 | 0x4000) & 0xffU) << 8 | ((__uint16_t)(0x2000 | 0x0 | 0x4000) & 0xff00U) >> 8) : __swap16md(0x2000 | 0x0 | 0x4000));
+      (__uint16_t)(__builtin_constant_p(0x2000 | 0x0 | 0x4000) ? (__uint16_t)(((__uint16_t)(0x2000 | 0x0 | 0x4000) & 0xffU) << 8 | ((__uint16_t)(0x2000 | 0x0 | 0x4000) & 0xff00U) >> 8) : __swap16md(0x2000 | 0x0 | 0x4000));
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, (txs)->tx_off, sizeof(struct fxp_cb_tx), (0x01|0x04));
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, (sc->sc_cbt_prev)->tx_off, sizeof(struct fxp_cb_tx), (0x02|0x08));
   sc->sc_cbt_prev->tx_cb->cb_command &=
-      (__builtin_constant_p(~(0x4000 | 0x2000)) ? (__uint16_t)(((__uint16_t)(~(0x4000 | 0x2000)) & 0xffU) << 8 | ((__uint16_t)(~(0x4000 | 0x2000)) & 0xff00U) >> 8) : __swap16md(~(0x4000 | 0x2000)));
+      (__uint16_t)(__builtin_constant_p(~(0x4000 | 0x2000)) ? (__uint16_t)(((__uint16_t)(~(0x4000 | 0x2000)) & 0xffU) << 8 | ((__uint16_t)(~(0x4000 | 0x2000)) & 0xff00U) >> 8) : __swap16md(~(0x4000 | 0x2000)));
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, (sc->sc_cbt_prev)->tx_off, sizeof(struct fxp_cb_tx), (0x01|0x04));
   sc->sc_cbt_prev = txs;
   fxp_scb_wait(sc);
@@ -3904,8 +3904,8 @@ fxp_intr(void *arg)
    struct fxp_txsw *txs = sc->sc_cbt_cons;
    bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, (txs)->tx_off, sizeof(struct fxp_cb_tx), (0x02 | 0x08));
    while ((txcnt > 0) &&
-      ((txs->tx_cb->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) ||
-      (txs->tx_cb->cb_command & (__builtin_constant_p(0x0) ? (__uint16_t)(((__uint16_t)(0x0) & 0xffU) << 8 | ((__uint16_t)(0x0) & 0xff00U) >> 8) : __swap16md(0x0))))) {
+      ((txs->tx_cb->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) ||
+      (txs->tx_cb->cb_command & (__uint16_t)(__builtin_constant_p(0x0) ? (__uint16_t)(((__uint16_t)(0x0) & 0xffU) << 8 | ((__uint16_t)(0x0) & 0xff00U) >> 8) : __swap16md(0x0))))) {
     if (txs->tx_mbuf != ((void *)0)) {
      bus_dmamap_sync((sc)->sc_dmat, (txs->tx_map), 0, (txs->tx_map)->dm_mapsize, (0x08));
      bus_dmamap_unload(sc->sc_dmat,
@@ -3939,16 +3939,16 @@ rcvloop:
        0x08);
    if (*(u_int16_t *)(rfap +
        __builtin_offsetof(struct fxp_rfa, rfa_status)) &
-       (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) {
+       (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) {
     if (*(u_int16_t *)(rfap +
         __builtin_offsetof(struct fxp_rfa, rfa_status)) &
-        (__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200)))
+        (__uint16_t)(__builtin_constant_p(0x0200) ? (__uint16_t)(((__uint16_t)(0x0200) & 0xffU) << 8 | ((__uint16_t)(0x0200) & 0xff00U) >> 8) : __swap16md(0x0200)))
      rnr = 1;
     sc->rfa_headm = m->m_hdr.mh_next;
     m->m_hdr.mh_next = ((void *)0);
     if (fxp_add_rfabuf(sc, m) == 0) {
      u_int16_t total_len;
-     total_len = (__builtin_constant_p(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size)))) &
+     total_len = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size))) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size)))) &
          ((1 << 11) - 1);
      if (total_len <
          sizeof(struct ether_header)) {
@@ -3957,7 +3957,7 @@ rcvloop:
      }
      if (*(u_int16_t *)(rfap +
          __builtin_offsetof(struct fxp_rfa, rfa_status)) &
-         (__builtin_constant_p(0x0800) ? (__uint16_t)(((__uint16_t)(0x0800) & 0xffU) << 8 | ((__uint16_t)(0x0800) & 0xff00U) >> 8) : __swap16md(0x0800))) {
+         (__uint16_t)(__builtin_constant_p(0x0800) ? (__uint16_t)(((__uint16_t)(0x0800) & 0xffU) << 8 | ((__uint16_t)(0x0800) & 0xff00U) >> 8) : __swap16md(0x0800))) {
       m_freem(m);
       goto rcvloop;
      }
@@ -3986,18 +3986,18 @@ fxp_stats_update(void *arg)
  struct fxp_stats *sp = &sc->sc_ctrl->stats;
  int s;
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, stats), sizeof(struct fxp_stats), (0x02|0x08));
- ifp->if_data.ifi_collisions += (__builtin_constant_p(sp->tx_total_collisions) ? (__uint32_t)(((__uint32_t)(sp->tx_total_collisions) & 0xff) << 24 | ((__uint32_t)(sp->tx_total_collisions) & 0xff00) << 8 | ((__uint32_t)(sp->tx_total_collisions) & 0xff0000) >> 8 | ((__uint32_t)(sp->tx_total_collisions) & 0xff000000) >> 24) : __swap32md(sp->tx_total_collisions));
+ ifp->if_data.ifi_collisions += (__uint32_t)(__builtin_constant_p(sp->tx_total_collisions) ? (__uint32_t)(((__uint32_t)(sp->tx_total_collisions) & 0xff) << 24 | ((__uint32_t)(sp->tx_total_collisions) & 0xff00) << 8 | ((__uint32_t)(sp->tx_total_collisions) & 0xff0000) >> 8 | ((__uint32_t)(sp->tx_total_collisions) & 0xff000000) >> 24) : __swap32md(sp->tx_total_collisions));
  if (sp->rx_good) {
   sc->rx_idle_secs = 0;
  } else if (sc->sc_flags & 0x100)
   sc->rx_idle_secs++;
  ifp->if_data.ifi_ierrors +=
-     (__builtin_constant_p(sp->rx_crc_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_crc_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_crc_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_crc_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_crc_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_crc_errors)) +
-     (__builtin_constant_p(sp->rx_alignment_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_alignment_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_alignment_errors)) +
-     (__builtin_constant_p(sp->rx_rnr_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_rnr_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_rnr_errors)) +
-     (__builtin_constant_p(sp->rx_overrun_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_overrun_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_overrun_errors));
+     (__uint32_t)(__builtin_constant_p(sp->rx_crc_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_crc_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_crc_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_crc_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_crc_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_crc_errors)) +
+     (__uint32_t)(__builtin_constant_p(sp->rx_alignment_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_alignment_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_alignment_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_alignment_errors)) +
+     (__uint32_t)(__builtin_constant_p(sp->rx_rnr_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_rnr_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_rnr_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_rnr_errors)) +
+     (__uint32_t)(__builtin_constant_p(sp->rx_overrun_errors) ? (__uint32_t)(((__uint32_t)(sp->rx_overrun_errors) & 0xff) << 24 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff00) << 8 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff0000) >> 8 | ((__uint32_t)(sp->rx_overrun_errors) & 0xff000000) >> 24) : __swap32md(sp->rx_overrun_errors));
  if (sp->tx_underruns) {
-  ifp->if_data.ifi_oerrors += (__builtin_constant_p(sp->tx_underruns) ? (__uint32_t)(((__uint32_t)(sp->tx_underruns) & 0xff) << 24 | ((__uint32_t)(sp->tx_underruns) & 0xff00) << 8 | ((__uint32_t)(sp->tx_underruns) & 0xff0000) >> 8 | ((__uint32_t)(sp->tx_underruns) & 0xff000000) >> 24) : __swap32md(sp->tx_underruns));
+  ifp->if_data.ifi_oerrors += (__uint32_t)(__builtin_constant_p(sp->tx_underruns) ? (__uint32_t)(((__uint32_t)(sp->tx_underruns) & 0xff) << 24 | ((__uint32_t)(sp->tx_underruns) & 0xff00) << 8 | ((__uint32_t)(sp->tx_underruns) & 0xff0000) >> 8 | ((__uint32_t)(sp->tx_underruns) & 0xff000000) >> 24) : __swap32md(sp->tx_underruns));
   if (tx_threshold < 192)
    tx_threshold += 64;
  }
@@ -4128,7 +4128,7 @@ fxp_init(void *xsc)
  __builtin_bcopy((fxp_cb_config_template), ((void *)&cbp->cb_status), (sizeof(fxp_cb_config_template)));
  prm = (ifp->if_flags & 0x100) ? 1 : 0;
  allm = (ifp->if_flags & 0x200) ? 1 : 0;
- cbp->cb_command = (__builtin_constant_p(0x2 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x2 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x2 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x2 | 0x8000));
+ cbp->cb_command = (__uint16_t)(__builtin_constant_p(0x2 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x2 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x2 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x2 | 0x8000));
  if (allm && !prm)
   cbp->mc_all |= 0x08;
  else
@@ -4169,16 +4169,16 @@ fxp_init(void *xsc)
  do {
   delay(1);
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.cfg), sizeof(struct fxp_cb_config), (0x02|0x08));
- } while ((cbp->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) == 0 && i--);
+ } while ((cbp->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) == 0 && i--);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.cfg), sizeof(struct fxp_cb_config), (0x02|0x08));
- if (!(cbp->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
+ if (!(cbp->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
   printf("%s: config command timeout\n", sc->sc_dev.dv_xname);
   return;
  }
  cb_ias = &sc->sc_ctrl->u.ias;
- cb_ias->cb_status = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
- cb_ias->cb_command = (__builtin_constant_p(0x1 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x1 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x1 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x1 | 0x8000));
- cb_ias->link_addr = (__builtin_constant_p(0xffffffff) ? (__uint32_t)(((__uint32_t)(0xffffffff) & 0xff) << 24 | ((__uint32_t)(0xffffffff) & 0xff00) << 8 | ((__uint32_t)(0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(0xffffffff) & 0xff000000) >> 24) : __swap32md(0xffffffff));
+ cb_ias->cb_status = (__uint16_t)(__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+ cb_ias->cb_command = (__uint16_t)(__builtin_constant_p(0x1 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x1 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x1 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x1 | 0x8000));
+ cb_ias->link_addr = (__uint32_t)(__builtin_constant_p(0xffffffff) ? (__uint32_t)(((__uint32_t)(0xffffffff) & 0xff) << 24 | ((__uint32_t)(0xffffffff) & 0xff00) << 8 | ((__uint32_t)(0xffffffff) & 0xff0000) >> 8 | ((__uint32_t)(0xffffffff) & 0xff000000) >> 24) : __swap32md(0xffffffff));
  __builtin_bcopy((sc->sc_arpcom.ac_enaddr), ((void *)cb_ias->macaddr), (sizeof(sc->sc_arpcom.ac_enaddr)));
  fxp_scb_wait(sc);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.ias), sizeof(struct fxp_cb_ias), (0x01|0x04));
@@ -4188,9 +4188,9 @@ fxp_init(void *xsc)
  do {
   delay(1);
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.ias), sizeof(struct fxp_cb_ias), (0x02|0x08));
- } while (!(cb_ias->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) && i--);
+ } while (!(cb_ias->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) && i--);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.ias), sizeof(struct fxp_cb_ias), (0x02|0x08));
- if (!(cb_ias->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
+ if (!(cb_ias->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
   printf("%s: IAS command timeout\n", sc->sc_dev.dv_xname);
   return;
  }
@@ -4198,13 +4198,13 @@ fxp_init(void *xsc)
  __builtin_bzero((sc->sc_ctrl->tx_cb), (sizeof(struct fxp_cb_tx) * 128));
  txp = sc->sc_ctrl->tx_cb;
  for (i = 0; i < 128; i++) {
-  txp[i].cb_command = (__builtin_constant_p(0x0) ? (__uint16_t)(((__uint16_t)(0x0) & 0xffU) << 8 | ((__uint16_t)(0x0) & 0xff00U) >> 8) : __swap16md(0x0));
-  txp[i].link_addr = (__builtin_constant_p(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) ? (__uint32_t)(((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff) << 24 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff00) << 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff0000) >> 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff000000) >> 24) : __swap32md(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])));
-  txp[i].tbd_array_addr =(__builtin_constant_p(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) ? (__uint32_t)(((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff) << 24 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff00) << 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff000000) >> 24) : __swap32md(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])));
+  txp[i].cb_command = (__uint16_t)(__builtin_constant_p(0x0) ? (__uint16_t)(((__uint16_t)(0x0) & 0xffU) << 8 | ((__uint16_t)(0x0) & 0xff00U) >> 8) : __swap16md(0x0));
+  txp[i].link_addr = (__uint32_t)(__builtin_constant_p(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) ? (__uint32_t)(((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff) << 24 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff00) << 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff0000) >> 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])) & 0xff000000) >> 24) : __swap32md(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[(i + 1) & (128 - 1)])));
+  txp[i].tbd_array_addr =(__uint32_t)(__builtin_constant_p(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) ? (__uint32_t)(((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff) << 24 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff00) << 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff0000) >> 8 | ((__uint32_t)(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])) & 0xff000000) >> 24) : __swap32md(sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, tx_cb[i].tbd[0])));
  }
  sc->sc_cbt_prev = sc->sc_cbt_prod = sc->sc_cbt_cons = sc->txs;
  sc->sc_cbt_cnt = 1;
- sc->sc_ctrl->tx_cb[0].cb_command = (__builtin_constant_p(0x0 | 0x4000 | 0x2000) ? (__uint16_t)(((__uint16_t)(0x0 | 0x4000 | 0x2000) & 0xffU) << 8 | ((__uint16_t)(0x0 | 0x4000 | 0x2000) & 0xff00U) >> 8) : __swap16md(0x0 | 0x4000 | 0x2000));
+ sc->sc_ctrl->tx_cb[0].cb_command = (__uint16_t)(__builtin_constant_p(0x0 | 0x4000 | 0x2000) ? (__uint16_t)(((__uint16_t)(0x0 | 0x4000 | 0x2000) & 0xffU) << 8 | ((__uint16_t)(0x0 | 0x4000 | 0x2000) & 0xff00U) >> 8) : __swap16md(0x0 | 0x4000 | 0x2000));
  bus_dmamap_sync(sc->sc_dmat, sc->tx_cb_map, 0,
      sc->tx_cb_map->dm_mapsize,
      0x01 | 0x04);
@@ -4309,10 +4309,10 @@ fxp_add_rfabuf(struct fxp_softc *sc, struct mbuf *oldm)
  rfap = m->m_hdr.mh_data;
  m->m_hdr.mh_data += sizeof(struct fxp_rfa);
  *(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, size)) =
-     (__builtin_constant_p((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) ? (__uint16_t)(((__uint16_t)((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) & 0xffU) << 8 | ((__uint16_t)((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) & 0xff00U) >> 8) : __swap16md((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))));
+     (__uint16_t)(__builtin_constant_p((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) ? (__uint16_t)(((__uint16_t)((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) & 0xffU) << 8 | ((__uint16_t)((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))) & 0xff00U) >> 8) : __swap16md((1 << 11) - sizeof(struct fxp_rfa) - (2 + sizeof(bus_dmamap_t *))));
  *(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, rfa_status)) = 0;
  *(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, rfa_control)) =
-     (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
+     (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
  *(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, actual_size)) = 0;
  v = -1;
  fxp_lwcopy(&v,
@@ -4323,12 +4323,12 @@ fxp_add_rfabuf(struct fxp_softc *sc, struct mbuf *oldm)
      0x01 | 0x04);
  if (sc->rfa_headm != ((void *)0)) {
   sc->rfa_tailm->m_hdr.mh_next = m;
-  v = (__builtin_constant_p(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) ? (__uint32_t)(((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff) << 24 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff00) << 8 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff0000) >> 8 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff000000) >> 24) : __swap32md(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))));
+  v = (__uint32_t)(__builtin_constant_p(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) ? (__uint32_t)(((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff) << 24 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff00) << 8 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff0000) >> 8 | ((__uint32_t)(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))) & 0xff000000) >> 24) : __swap32md(rxmap->dm_segs[0].ds_addr + (2 + sizeof(bus_dmamap_t *))));
   rfap = sc->rfa_tailm->M_dat.MH.MH_dat.MH_ext.ext_buf + (2 + sizeof(bus_dmamap_t *));
   fxp_lwcopy(&v,
       (u_int32_t *)(rfap + __builtin_offsetof(struct fxp_rfa, link_addr)));
   *(u_int16_t *)(rfap + __builtin_offsetof(struct fxp_rfa, rfa_control)) &=
-      (__builtin_constant_p((u_int16_t)~0x8000) ? (__uint16_t)(((__uint16_t)((u_int16_t)~0x8000) & 0xffU) << 8 | ((__uint16_t)((u_int16_t)~0x8000) & 0xff00U) >> 8) : __swap16md((u_int16_t)~0x8000));
+      (__uint16_t)(__builtin_constant_p((u_int16_t)~0x8000) ? (__uint16_t)(((__uint16_t)((u_int16_t)~0x8000) & 0xffU) << 8 | ((__uint16_t)((u_int16_t)~0x8000) & 0xff00U) >> 8) : __swap16md((u_int16_t)~0x8000));
   bus_dmamap_sync(sc->sc_dmat,
       *((bus_dmamap_t *)sc->rfa_tailm->M_dat.MH.MH_dat.MH_ext.ext_buf), 0,
    (1 << 11), 0x01 | 0x04);
@@ -4430,10 +4430,10 @@ fxp_mc_setup(struct fxp_softc *sc, int doit)
  }
  if (doit == 0)
   return;
- mcsp->cb_status = (__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
- mcsp->cb_command = (__builtin_constant_p(0x3 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x3 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x3 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x3 | 0x8000));
- mcsp->link_addr = (__builtin_constant_p(-1) ? (__uint32_t)(((__uint32_t)(-1) & 0xff) << 24 | ((__uint32_t)(-1) & 0xff00) << 8 | ((__uint32_t)(-1) & 0xff0000) >> 8 | ((__uint32_t)(-1) & 0xff000000) >> 24) : __swap32md(-1));
- mcsp->mc_cnt = (__builtin_constant_p(nmcasts * 6) ? (__uint16_t)(((__uint16_t)(nmcasts * 6) & 0xffU) << 8 | ((__uint16_t)(nmcasts * 6) & 0xff00U) >> 8) : __swap16md(nmcasts * 6));
+ mcsp->cb_status = (__uint16_t)(__builtin_constant_p(0) ? (__uint16_t)(((__uint16_t)(0) & 0xffU) << 8 | ((__uint16_t)(0) & 0xff00U) >> 8) : __swap16md(0));
+ mcsp->cb_command = (__uint16_t)(__builtin_constant_p(0x3 | 0x8000) ? (__uint16_t)(((__uint16_t)(0x3 | 0x8000) & 0xffU) << 8 | ((__uint16_t)(0x3 | 0x8000) & 0xff00U) >> 8) : __swap16md(0x3 | 0x8000));
+ mcsp->link_addr = (__uint32_t)(__builtin_constant_p(-1) ? (__uint32_t)(((__uint32_t)(-1) & 0xff) << 24 | ((__uint32_t)(-1) & 0xff00) << 8 | ((__uint32_t)(-1) & 0xff0000) >> 8 | ((__uint32_t)(-1) & 0xff000000) >> 24) : __swap32md(-1));
+ mcsp->mc_cnt = (__uint16_t)(__builtin_constant_p(nmcasts * 6) ? (__uint16_t)(((__uint16_t)(nmcasts * 6) & 0xffU) << 8 | ((__uint16_t)(nmcasts * 6) & 0xff00U) >> 8) : __swap16md(nmcasts * 6));
  for (i = (10000); (bus_space_read_2((sc)->sc_st, (sc)->sc_sh, (0)) &
      0x00c0) != 0x0000 && i--; delay(1));
  if ((bus_space_read_2((sc)->sc_st, (sc)->sc_sh, (0)) &
@@ -4450,9 +4450,9 @@ fxp_mc_setup(struct fxp_softc *sc, int doit)
  do {
   delay(1);
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.mcs), sizeof(struct fxp_cb_mcs), (0x02|0x08));
- } while (!(mcsp->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) && i--);
+ } while (!(mcsp->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) && i--);
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.mcs), sizeof(struct fxp_cb_mcs), (0x02|0x08));
- if (!(mcsp->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
+ if (!(mcsp->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000)))) {
   printf("%s: multicast command timeout\n", sc->sc_dev.dv_xname);
   return;
  }
@@ -4528,19 +4528,19 @@ reloadit:
  if (sc->sc_flags & 0x40)
   return;
  cbp->cb_status = 0;
- cbp->cb_command = (__builtin_constant_p(0x5|0x8000) ? (__uint16_t)(((__uint16_t)(0x5|0x8000) & 0xffU) << 8 | ((__uint16_t)(0x5|0x8000) & 0xff00U) >> 8) : __swap16md(0x5|0x8000));
+ cbp->cb_command = (__uint16_t)(__builtin_constant_p(0x5|0x8000) ? (__uint16_t)(((__uint16_t)(0x5|0x8000) & 0xffU) << 8 | ((__uint16_t)(0x5|0x8000) & 0xff00U) >> 8) : __swap16md(0x5|0x8000));
  cbp->link_addr = 0xffffffff;
  for (i = 0; i < (sc->sc_ucodelen / sizeof(u_int32_t)); i++)
   cbp->ucode[i] = sc->sc_ucodebuf[i];
  if (uc->int_delay_offset)
   *((u_int16_t *)&cbp->ucode[uc->int_delay_offset]) =
-   (__builtin_constant_p(sc->sc_int_delay + sc->sc_int_delay / 2) ? (__uint16_t)(((__uint16_t)(sc->sc_int_delay + sc->sc_int_delay / 2) & 0xffU) << 8 | ((__uint16_t)(sc->sc_int_delay + sc->sc_int_delay / 2) & 0xff00U) >> 8) : __swap16md(sc->sc_int_delay + sc->sc_int_delay / 2));
+   (__uint16_t)(__builtin_constant_p(sc->sc_int_delay + sc->sc_int_delay / 2) ? (__uint16_t)(((__uint16_t)(sc->sc_int_delay + sc->sc_int_delay / 2) & 0xffU) << 8 | ((__uint16_t)(sc->sc_int_delay + sc->sc_int_delay / 2) & 0xff00U) >> 8) : __swap16md(sc->sc_int_delay + sc->sc_int_delay / 2));
  if (uc->bundle_max_offset)
   *((u_int16_t *)&cbp->ucode[uc->bundle_max_offset]) =
-   (__builtin_constant_p(sc->sc_bundle_max) ? (__uint16_t)(((__uint16_t)(sc->sc_bundle_max) & 0xffU) << 8 | ((__uint16_t)(sc->sc_bundle_max) & 0xff00U) >> 8) : __swap16md(sc->sc_bundle_max));
+   (__uint16_t)(__builtin_constant_p(sc->sc_bundle_max) ? (__uint16_t)(((__uint16_t)(sc->sc_bundle_max) & 0xffU) << 8 | ((__uint16_t)(sc->sc_bundle_max) & 0xff00U) >> 8) : __swap16md(sc->sc_bundle_max));
  if (uc->min_size_mask_offset)
   *((u_int16_t *)&cbp->ucode[uc->min_size_mask_offset]) =
-   (__builtin_constant_p(sc->sc_min_size_mask) ? (__uint16_t)(((__uint16_t)(sc->sc_min_size_mask) & 0xffU) << 8 | ((__uint16_t)(sc->sc_min_size_mask) & 0xff00U) >> 8) : __swap16md(sc->sc_min_size_mask));
+   (__uint16_t)(__builtin_constant_p(sc->sc_min_size_mask) ? (__uint16_t)(((__uint16_t)(sc->sc_min_size_mask) & 0xffU) << 8 | ((__uint16_t)(sc->sc_min_size_mask) & 0xff00U) >> 8) : __swap16md(sc->sc_min_size_mask));
  bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.code), sizeof(struct fxp_cb_ucode), (0x01|0x04));
  fxp_scb_wait(sc);
  bus_space_write_4((sc)->sc_st, (sc)->sc_sh, (4), (sc->tx_cb_map->dm_segs->ds_addr + __builtin_offsetof(struct fxp_ctrl, u.code)));
@@ -4549,7 +4549,7 @@ reloadit:
  do {
   delay(2);
   bus_dmamap_sync((sc)->sc_dmat, (sc)->tx_cb_map, __builtin_offsetof(struct fxp_ctrl, u.code), sizeof(struct fxp_cb_ucode), (0x02|0x08));
- } while (((cbp->cb_status & (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) == 0) && --i);
+ } while (((cbp->cb_status & (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000))) == 0) && --i);
  if (i == 0) {
   printf("%s: timeout loading microcode\n", sc->sc_dev.dv_xname);
   return;

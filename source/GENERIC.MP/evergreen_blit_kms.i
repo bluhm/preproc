@@ -12057,7 +12057,7 @@ int evergreen_blit_init(struct radeon_device *rdev)
   rdev->r600_blit.state_len = cayman_default_size;
  dwords = rdev->r600_blit.state_len;
  while (dwords & 0xf) {
-  packet2s[num_packet2s++] = (__builtin_constant_p((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) ? (__uint32_t)(((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff) << 24 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff00) << 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff000000) >> 24) : __swap32md((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))));
+  packet2s[num_packet2s++] = (__uint32_t)(__builtin_constant_p((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) ? (__uint32_t)(((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff) << 24 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff00) << 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff0000) >> 8 | ((__uint32_t)((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))) & 0xff000000) >> 24) : __swap32md((0x80000000 | ((((0)) << 0) & (0x3fffffff << 0)))));
   dwords++;
  }
  obj_size = dwords * 4;
@@ -12107,17 +12107,17 @@ int evergreen_blit_init(struct radeon_device *rdev)
   if (num_packet2s)
    __builtin_memcpy((ptr + rdev->r600_blit.state_offset + (rdev->r600_blit.state_len * 4)), (packet2s), (num_packet2s * 4));
   for (i = 0; i < evergreen_vs_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__builtin_constant_p(evergreen_vs[i]) ? (__uint32_t)(((__uint32_t)(evergreen_vs[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_vs[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff000000) >> 24) : __swap32md(evergreen_vs[i]));
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__uint32_t)(__builtin_constant_p(evergreen_vs[i]) ? (__uint32_t)(((__uint32_t)(evergreen_vs[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_vs[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_vs[i]) & 0xff000000) >> 24) : __swap32md(evergreen_vs[i]));
   for (i = 0; i < evergreen_ps_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__builtin_constant_p(evergreen_ps[i]) ? (__uint32_t)(((__uint32_t)(evergreen_ps[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_ps[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff000000) >> 24) : __swap32md(evergreen_ps[i]));
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__uint32_t)(__builtin_constant_p(evergreen_ps[i]) ? (__uint32_t)(((__uint32_t)(evergreen_ps[i]) & 0xff) << 24 | ((__uint32_t)(evergreen_ps[i]) & 0xff00) << 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(evergreen_ps[i]) & 0xff000000) >> 24) : __swap32md(evergreen_ps[i]));
  } else {
   __builtin_memcpy((ptr + rdev->r600_blit.state_offset), (cayman_default_state), (rdev->r600_blit.state_len * 4));
   if (num_packet2s)
    __builtin_memcpy((ptr + rdev->r600_blit.state_offset + (rdev->r600_blit.state_len * 4)), (packet2s), (num_packet2s * 4));
   for (i = 0; i < cayman_vs_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__builtin_constant_p(cayman_vs[i]) ? (__uint32_t)(((__uint32_t)(cayman_vs[i]) & 0xff) << 24 | ((__uint32_t)(cayman_vs[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_vs[i]) & 0xff000000) >> 24) : __swap32md(cayman_vs[i]));
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.vs_offset + i * 4) = (__uint32_t)(__builtin_constant_p(cayman_vs[i]) ? (__uint32_t)(((__uint32_t)(cayman_vs[i]) & 0xff) << 24 | ((__uint32_t)(cayman_vs[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_vs[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_vs[i]) & 0xff000000) >> 24) : __swap32md(cayman_vs[i]));
   for (i = 0; i < cayman_ps_size; i++)
-   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__builtin_constant_p(cayman_ps[i]) ? (__uint32_t)(((__uint32_t)(cayman_ps[i]) & 0xff) << 24 | ((__uint32_t)(cayman_ps[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_ps[i]) & 0xff000000) >> 24) : __swap32md(cayman_ps[i]));
+   *(u32 *)((unsigned long)ptr + rdev->r600_blit.ps_offset + i * 4) = (__uint32_t)(__builtin_constant_p(cayman_ps[i]) ? (__uint32_t)(((__uint32_t)(cayman_ps[i]) & 0xff) << 24 | ((__uint32_t)(cayman_ps[i]) & 0xff00) << 8 | ((__uint32_t)(cayman_ps[i]) & 0xff0000) >> 8 | ((__uint32_t)(cayman_ps[i]) & 0xff000000) >> 24) : __swap32md(cayman_ps[i]));
  }
  radeon_bo_kunmap(rdev->r600_blit.shader_obj);
  radeon_bo_unreserve(rdev->r600_blit.shader_obj);

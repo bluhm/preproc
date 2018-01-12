@@ -4496,7 +4496,7 @@ axen_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
   goto done;
  }
  hdr_p = (u_int32_t *)(buf + total_len - sizeof(u_int32_t));
- rx_hdr = (__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
+ rx_hdr = (__uint32_t)(__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
  hdr_offset = (u_int16_t)(rx_hdr >> 16);
  pkt_count = (u_int16_t)(rx_hdr & 0xffff);
  if (total_len > sc->axen_bufsz) {
@@ -4519,7 +4519,7 @@ axen_rxeof(struct usbd_xfer *xfer, void *priv, usbd_status status)
        ifp->if_data.ifi_ierrors += pkt_count;
    goto done;
   }
-  pkt_hdr = (__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
+  pkt_hdr = (__uint32_t)(__builtin_constant_p(*hdr_p) ? (__uint32_t)(((__uint32_t)(*hdr_p) & 0xff) << 24 | ((__uint32_t)(*hdr_p) & 0xff00) << 8 | ((__uint32_t)(*hdr_p) & 0xff0000) >> 8 | ((__uint32_t)(*hdr_p) & 0xff000000) >> 24) : __swap32md(*hdr_p));
   pkt_len = (pkt_hdr >> 16) & 0x1fff;
   ;
   if ((pkt_hdr & (1U << 29)) ||
@@ -4656,7 +4656,7 @@ axen_encap(struct axen_softc *sc, struct mbuf *m, int idx)
   printf("%s: not supported usb bus type", sc->axen_dev.dv_xname);
   return 5;
  }
- hdr.plen = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
+ hdr.plen = (__uint32_t)(__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
  hdr.gso = 0;
  __builtin_memcpy((c->axen_buf), (&hdr), (sizeof(hdr)));
  length = sizeof(hdr);

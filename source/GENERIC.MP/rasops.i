@@ -2104,9 +2104,9 @@ rasops_init_devcmap(struct rasops_info *ri)
   if ((ri->ri_flg & 0x0004) == 0)
    ri->ri_devcmap[i] = c;
   else if (ri->ri_depth == 32)
-   ri->ri_devcmap[i] = (__builtin_constant_p(c) ? (__uint32_t)(((__uint32_t)(c) & 0xff) << 24 | ((__uint32_t)(c) & 0xff00) << 8 | ((__uint32_t)(c) & 0xff0000) >> 8 | ((__uint32_t)(c) & 0xff000000) >> 24) : __swap32md(c));
+   ri->ri_devcmap[i] = (__uint32_t)(__builtin_constant_p(c) ? (__uint32_t)(((__uint32_t)(c) & 0xff) << 24 | ((__uint32_t)(c) & 0xff00) << 8 | ((__uint32_t)(c) & 0xff0000) >> 8 | ((__uint32_t)(c) & 0xff000000) >> 24) : __swap32md(c));
   else if (ri->ri_depth == 16 || ri->ri_depth == 15)
-   ri->ri_devcmap[i] = (__builtin_constant_p(c) ? (__uint16_t)(((__uint16_t)(c) & 0xffU) << 8 | ((__uint16_t)(c) & 0xff00U) >> 8) : __swap16md(c));
+   ri->ri_devcmap[i] = (__uint16_t)(__builtin_constant_p(c) ? (__uint16_t)(((__uint16_t)(c) & 0xffU) << 8 | ((__uint16_t)(c) & 0xff00U) >> 8) : __swap16md(c));
   else
    ri->ri_devcmap[i] = c;
  }

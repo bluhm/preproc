@@ -2493,7 +2493,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
  fs = ip->inode_u.e2fs;
  lbn = bn;
  if (bn < 12) {
-  nb = (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn]));
+  nb = (__uint32_t)(__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[bn]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[bn]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[bn]));
   if (nb != 0) {
    error = bread(vp, bn, fs->e2fs_bsize, &bp);
    if (error) {
@@ -2510,7 +2510,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    return (error);
   ip->inode_ext.e2fs.ext2fs_last_lblk = lbn;
   ip->inode_ext.e2fs.ext2fs_last_blk = newb;
-  ip->dinode_u.e2fs_din->e2di_blocks[bn] = (__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
+  ip->dinode_u.e2fs_din->e2di_blocks[bn] = (__uint32_t)(__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
   ip->i_flag |= 0x0002 | 0x0004;
   bp = getblk(vp, bn, fs->e2fs_bsize, 0, 0);
   bp->b_blkno = ((newb) << (fs)->e2fs_fsbtodb);
@@ -2525,7 +2525,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
  if (num < 1)
   panic ("ext2fs_balloc: ufs_getlbns returned indirect block");
  --num;
- nb = (__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]));
+ nb = (__uint32_t)(__builtin_constant_p(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) ? (__uint32_t)(((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff) << 24 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff00) << 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]) & 0xff000000) >> 24) : __swap32md(ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off]));
  allocib = ((void *)0);
  allocblk = allociblk;
  if (nb == 0) {
@@ -2543,7 +2543,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    goto fail;
   unwindidx = 0;
   allocib = &ip->dinode_u.e2fs_din->e2di_blocks[12 + indirs[0].in_off];
-  *allocib = (__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
+  *allocib = (__uint32_t)(__builtin_constant_p(newb) ? (__uint32_t)(((__uint32_t)(newb) & 0xff) << 24 | ((__uint32_t)(newb) & 0xff00) << 8 | ((__uint32_t)(newb) & 0xff0000) >> 8 | ((__uint32_t)(newb) & 0xff000000) >> 24) : __swap32md(newb));
   ip->i_flag |= 0x0002 | 0x0004;
  }
  for (i = 1;;) {
@@ -2553,7 +2553,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
    goto fail;
   }
   bap = (u_int32_t *)bp->b_data;
-  nb = (__builtin_constant_p(bap[indirs[i].in_off]) ? (__uint32_t)(((__uint32_t)(bap[indirs[i].in_off]) & 0xff) << 24 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff00) << 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff000000) >> 24) : __swap32md(bap[indirs[i].in_off]));
+  nb = (__uint32_t)(__builtin_constant_p(bap[indirs[i].in_off]) ? (__uint32_t)(((__uint32_t)(bap[indirs[i].in_off]) & 0xff) << 24 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff00) << 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff0000) >> 8 | ((__uint32_t)(bap[indirs[i].in_off]) & 0xff000000) >> 24) : __swap32md(bap[indirs[i].in_off]));
   if (i == num)
    break;
   i++;
@@ -2579,7 +2579,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
   }
   if (unwindidx < 0)
    unwindidx = i - 1;
-  bap[indirs[i - 1].in_off] = (__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
+  bap[indirs[i - 1].in_off] = (__uint32_t)(__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
   if (flags & 0x02) {
    bwrite(bp);
   } else {
@@ -2597,7 +2597,7 @@ ext2fs_buf_alloc(struct inode *ip, u_int32_t bn, int size, struct ucred *cred,
   *allocblk++ = nb;
   ip->inode_ext.e2fs.ext2fs_last_lblk = lbn;
   ip->inode_ext.e2fs.ext2fs_last_blk = newb;
-  bap[indirs[num].in_off] = (__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
+  bap[indirs[num].in_off] = (__uint32_t)(__builtin_constant_p(nb) ? (__uint32_t)(((__uint32_t)(nb) & 0xff) << 24 | ((__uint32_t)(nb) & 0xff00) << 8 | ((__uint32_t)(nb) & 0xff0000) >> 8 | ((__uint32_t)(nb) & 0xff000000) >> 24) : __swap32md(nb));
   if (flags & 0x02) {
    bwrite(bp);
   } else {

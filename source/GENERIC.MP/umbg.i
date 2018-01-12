@@ -2172,11 +2172,11 @@ umbg_task(void *arg)
   goto bail_out;
  }
  tlocal = tstamp.tv_sec * 1000000000LL + tstamp.tv_nsec;
- trecv = (__builtin_constant_p(tframe.sec) ? (__uint32_t)(((__uint32_t)(tframe.sec) & 0xff) << 24 | ((__uint32_t)(tframe.sec) & 0xff00) << 8 | ((__uint32_t)(tframe.sec) & 0xff0000) >> 8 | ((__uint32_t)(tframe.sec) & 0xff000000) >> 24) : __swap32md(tframe.sec)) * 1000000000LL +
-     ((__builtin_constant_p(tframe.frac) ? (__uint32_t)(((__uint32_t)(tframe.frac) & 0xff) << 24 | ((__uint32_t)(tframe.frac) & 0xff00) << 8 | ((__uint32_t)(tframe.frac) & 0xff0000) >> 8 | ((__uint32_t)(tframe.frac) & 0xff000000) >> 24) : __swap32md(tframe.frac)) * 1000000000LL >> 32);
+ trecv = (__uint32_t)(__builtin_constant_p(tframe.sec) ? (__uint32_t)(((__uint32_t)(tframe.sec) & 0xff) << 24 | ((__uint32_t)(tframe.sec) & 0xff00) << 8 | ((__uint32_t)(tframe.sec) & 0xff0000) >> 8 | ((__uint32_t)(tframe.sec) & 0xff000000) >> 24) : __swap32md(tframe.sec)) * 1000000000LL +
+     ((__uint32_t)(__builtin_constant_p(tframe.frac) ? (__uint32_t)(((__uint32_t)(tframe.frac) & 0xff) << 24 | ((__uint32_t)(tframe.frac) & 0xff00) << 8 | ((__uint32_t)(tframe.frac) & 0xff0000) >> 8 | ((__uint32_t)(tframe.frac) & 0xff000000) >> 24) : __swap32md(tframe.frac)) * 1000000000LL >> 32);
  sc->sc_timedelta.value = tlocal - trecv;
  if (sc->sc_timedelta.status == SENSOR_S_UNKNOWN ||
-  !((__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)) & 0x01)) {
+  !((__uint16_t)(__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)) & 0x01)) {
   sc->sc_timedelta.status = SENSOR_S_OK;
   timeout_add_sec(&sc->sc_it_to, t_trust);
  }
@@ -2188,7 +2188,7 @@ umbg_task(void *arg)
  else if (signal > 68)
   signal = 68;
  sc->sc_signal.value = signal * 100000 / 68;
- sc->sc_signal.status = (__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)) & 0x01 ?
+ sc->sc_signal.status = (__uint16_t)(__builtin_constant_p(tframe.status) ? (__uint16_t)(((__uint16_t)(tframe.status) & 0xffU) << 8 | ((__uint16_t)(tframe.status) & 0xff00U) >> 8) : __swap16md(tframe.status)) & 0x01 ?
      SENSOR_S_WARN : SENSOR_S_OK;
  sc->sc_signal.tv.tv_sec = sc->sc_timedelta.tv.tv_sec;
  sc->sc_signal.tv.tv_usec = sc->sc_timedelta.tv.tv_usec;

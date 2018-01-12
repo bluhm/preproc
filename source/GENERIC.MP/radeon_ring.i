@@ -15393,7 +15393,7 @@ void radeon_ring_free_size(struct radeon_device *rdev, struct radeon_ring *ring)
 {
  u32 rptr;
  if (rdev->wb.enabled)
-  rptr = (__builtin_constant_p(rdev->wb.wb[ring->rptr_offs/4]) ? (__uint32_t)(((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff) << 24 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff00) << 8 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff000000) >> 24) : __swap32md(rdev->wb.wb[ring->rptr_offs/4]));
+  rptr = (__uint32_t)(__builtin_constant_p(rdev->wb.wb[ring->rptr_offs/4]) ? (__uint32_t)(((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff) << 24 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff00) << 8 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff0000) >> 8 | ((__uint32_t)(rdev->wb.wb[ring->rptr_offs/4]) & 0xff000000) >> 24) : __swap32md(rdev->wb.wb[ring->rptr_offs/4]));
  else
   rptr = r100_mm_rreg(rdev, (ring->rptr_reg), 0);
  ring->rptr = (rptr & ring->ptr_reg_mask) >> ring->ptr_reg_shift;
@@ -15517,7 +15517,7 @@ unsigned radeon_ring_backup(struct radeon_device *rdev, struct radeon_ring *ring
  if (ring->rptr_save_reg)
   ptr = r100_mm_rreg(rdev, (ring->rptr_save_reg), 0);
  else if (rdev->wb.enabled)
-  ptr = (__builtin_constant_p(*ring->next_rptr_cpu_addr) ? (__uint32_t)(((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff) << 24 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff00) << 8 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff0000) >> 8 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff000000) >> 24) : __swap32md(*ring->next_rptr_cpu_addr));
+  ptr = (__uint32_t)(__builtin_constant_p(*ring->next_rptr_cpu_addr) ? (__uint32_t)(((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff) << 24 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff00) << 8 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff0000) >> 8 | ((__uint32_t)(*ring->next_rptr_cpu_addr) & 0xff000000) >> 24) : __swap32md(*ring->next_rptr_cpu_addr));
  else {
   _rw_exit_write(&rdev->ring_lock );
   return 0;

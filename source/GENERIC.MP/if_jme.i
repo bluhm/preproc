@@ -4220,26 +4220,26 @@ jme_encap(struct jme_softc *sc, struct mbuf *m)
   cflags |= 0x01000000;
  }
  desc = &sc->jme_rdata.jme_tx_ring[prod];
- desc->flags = (__builtin_constant_p(cflags) ? (__uint32_t)(((__uint32_t)(cflags) & 0xff) << 24 | ((__uint32_t)(cflags) & 0xff00) << 8 | ((__uint32_t)(cflags) & 0xff0000) >> 8 | ((__uint32_t)(cflags) & 0xff000000) >> 24) : __swap32md(cflags));
+ desc->flags = (__uint32_t)(__builtin_constant_p(cflags) ? (__uint32_t)(((__uint32_t)(cflags) & 0xff) << 24 | ((__uint32_t)(cflags) & 0xff00) << 8 | ((__uint32_t)(cflags) & 0xff0000) >> 8 | ((__uint32_t)(cflags) & 0xff000000) >> 24) : __swap32md(cflags));
  desc->buflen = 0;
- desc->addr_hi = (__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
+ desc->addr_hi = (__uint32_t)(__builtin_constant_p(m->M_dat.MH.MH_pkthdr.len) ? (__uint32_t)(((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff) << 24 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff00) << 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff0000) >> 8 | ((__uint32_t)(m->M_dat.MH.MH_pkthdr.len) & 0xff000000) >> 24) : __swap32md(m->M_dat.MH.MH_pkthdr.len));
  desc->addr_lo = 0;
  sc->jme_cdata.jme_tx_cnt++;
  ((prod) = ((prod) + 1) % (384));
  for (i = 0; i < txd->tx_dmamap->dm_nsegs; i++) {
   desc = &sc->jme_rdata.jme_tx_ring[prod];
-  desc->flags = (__builtin_constant_p(0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x20000000));
-  desc->buflen = (__builtin_constant_p(txd->tx_dmamap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(txd->tx_dmamap->dm_segs[i].ds_len));
+  desc->flags = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x20000000));
+  desc->buflen = (__uint32_t)(__builtin_constant_p(txd->tx_dmamap->dm_segs[i].ds_len) ? (__uint32_t)(((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff) << 24 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff00) << 8 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_dmamap->dm_segs[i].ds_len) & 0xff000000) >> 24) : __swap32md(txd->tx_dmamap->dm_segs[i].ds_len));
   desc->addr_hi =
-      (__builtin_constant_p(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)));
+      (__uint32_t)(__builtin_constant_p(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) >> 32)));
   desc->addr_lo =
-      (__builtin_constant_p(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)));
+      (__uint32_t)(__builtin_constant_p(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (txd->tx_dmamap->dm_segs[i].ds_addr) & 0xFFFFFFFF)));
   sc->jme_cdata.jme_tx_cnt++;
   ((prod) = ((prod) + 1) % (384));
  }
  sc->jme_cdata.jme_tx_prod = prod;
  desc = txd->tx_desc;
- desc->flags |= (__builtin_constant_p(0x80000000 | 0x40000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000));
+ desc->flags |= (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000));
  txd->tx_m = m;
  txd->tx_ndesc = txd->tx_dmamap->dm_nsegs + 1;
  bus_dmamap_sync(sc->sc_dmat, txd->tx_dmamap, 0,
@@ -4478,7 +4478,7 @@ jme_txeof(struct jme_softc *sc)
   txd = &sc->jme_cdata.jme_txdesc[cons];
   if (txd->tx_m == ((void *)0))
    panic("%s: freeing NULL mbuf!", sc->sc_dev.dv_xname);
-  status = (__builtin_constant_p(txd->tx_desc->flags) ? (__uint32_t)(((__uint32_t)(txd->tx_desc->flags) & 0xff) << 24 | ((__uint32_t)(txd->tx_desc->flags) & 0xff00) << 8 | ((__uint32_t)(txd->tx_desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_desc->flags) & 0xff000000) >> 24) : __swap32md(txd->tx_desc->flags));
+  status = (__uint32_t)(__builtin_constant_p(txd->tx_desc->flags) ? (__uint32_t)(((__uint32_t)(txd->tx_desc->flags) & 0xff) << 24 | ((__uint32_t)(txd->tx_desc->flags) & 0xff00) << 8 | ((__uint32_t)(txd->tx_desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_desc->flags) & 0xff000000) >> 24) : __swap32md(txd->tx_desc->flags));
   if ((status & 0x80000000) == 0x80000000)
    break;
   if (status & (0x20000000 | 0x10000000)) {
@@ -4486,7 +4486,7 @@ jme_txeof(struct jme_softc *sc)
   } else {
    if (status & 0x08000000) {
     ifp->if_data.ifi_collisions +=
-        (__builtin_constant_p(txd->tx_desc->buflen) ? (__uint32_t)(((__uint32_t)(txd->tx_desc->buflen) & 0xff) << 24 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff00) << 8 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff000000) >> 24) : __swap32md(txd->tx_desc->buflen)) &
+        (__uint32_t)(__builtin_constant_p(txd->tx_desc->buflen) ? (__uint32_t)(((__uint32_t)(txd->tx_desc->buflen) & 0xff) << 24 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff00) << 8 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(txd->tx_desc->buflen) & 0xff000000) >> 24) : __swap32md(txd->tx_desc->buflen)) &
         0x0000FFFF;
    }
   }
@@ -4518,8 +4518,8 @@ jme_discard_rxbufs(struct jme_softc *sc, int cons, int count)
  int i;
  for (i = 0; i < count; ++i) {
   struct jme_desc *desc = &sc->jme_rdata.jme_rx_ring[cons];
-  desc->flags = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x20000000));
-  desc->buflen = (__builtin_constant_p((1 << 11)) ? (__uint32_t)(((__uint32_t)((1 << 11)) & 0xff) << 24 | ((__uint32_t)((1 << 11)) & 0xff00) << 8 | ((__uint32_t)((1 << 11)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 11)) & 0xff000000) >> 24) : __swap32md((1 << 11)));
+  desc->flags = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x20000000));
+  desc->buflen = (__uint32_t)(__builtin_constant_p((1 << 11)) ? (__uint32_t)(((__uint32_t)((1 << 11)) & 0xff) << 24 | ((__uint32_t)((1 << 11)) & 0xff00) << 8 | ((__uint32_t)((1 << 11)) & 0xff0000) >> 8 | ((__uint32_t)((1 << 11)) & 0xff000000) >> 24) : __swap32md((1 << 11)));
   ((cons) = ((cons) + 1) % (256));
  }
 }
@@ -4535,8 +4535,8 @@ jme_rxpkt(struct jme_softc *sc)
  int cons, count, nsegs;
  cons = sc->jme_cdata.jme_rx_cons;
  desc = &sc->jme_rdata.jme_rx_ring[cons];
- flags = (__builtin_constant_p(desc->flags) ? (__uint32_t)(((__uint32_t)(desc->flags) & 0xff) << 24 | ((__uint32_t)(desc->flags) & 0xff00) << 8 | ((__uint32_t)(desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(desc->flags) & 0xff000000) >> 24) : __swap32md(desc->flags));
- status = (__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen));
+ flags = (__uint32_t)(__builtin_constant_p(desc->flags) ? (__uint32_t)(((__uint32_t)(desc->flags) & 0xff) << 24 | ((__uint32_t)(desc->flags) & 0xff00) << 8 | ((__uint32_t)(desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(desc->flags) & 0xff000000) >> 24) : __swap32md(desc->flags));
+ status = (__uint32_t)(__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen));
  nsegs = (((status) & 0x7F000000) >> 24);
  if (status & (0x00800000 | 0x00400000 | 0x00200000 | 0x00100000 | 0x00080000 | 0x00040000 | 0x00020000 | 0x00010000)) {
   ifp->if_data.ifi_ierrors++;
@@ -4617,12 +4617,12 @@ jme_rxeof(struct jme_softc *sc)
  prog = 0;
  for (;;) {
   desc = &sc->jme_rdata.jme_rx_ring[sc->jme_cdata.jme_rx_cons];
-  if (((__builtin_constant_p(desc->flags) ? (__uint32_t)(((__uint32_t)(desc->flags) & 0xff) << 24 | ((__uint32_t)(desc->flags) & 0xff00) << 8 | ((__uint32_t)(desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(desc->flags) & 0xff000000) >> 24) : __swap32md(desc->flags)) & 0x80000000) == 0x80000000)
+  if (((__uint32_t)(__builtin_constant_p(desc->flags) ? (__uint32_t)(((__uint32_t)(desc->flags) & 0xff) << 24 | ((__uint32_t)(desc->flags) & 0xff00) << 8 | ((__uint32_t)(desc->flags) & 0xff0000) >> 8 | ((__uint32_t)(desc->flags) & 0xff000000) >> 24) : __swap32md(desc->flags)) & 0x80000000) == 0x80000000)
    break;
-  if (((__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen)) & 0x80000000) == 0)
+  if (((__uint32_t)(__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen)) & 0x80000000) == 0)
    break;
-  nsegs = ((((__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen))) & 0x7F000000) >> 24);
-  pktlen = (((__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen))) & 0x0000FFFF);
+  nsegs = ((((__uint32_t)(__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen))) & 0x7F000000) >> 24);
+  pktlen = (((__uint32_t)(__builtin_constant_p(desc->buflen) ? (__uint32_t)(((__uint32_t)(desc->buflen) & 0xff) << 24 | ((__uint32_t)(desc->buflen) & 0xff00) << 8 | ((__uint32_t)(desc->buflen) & 0xff0000) >> 8 | ((__uint32_t)(desc->buflen) & 0xff000000) >> 24) : __swap32md(desc->buflen))) & 0x0000FFFF);
   if (nsegs != (((pktlen) + (((1 << 11)) - 1)) / ((1 << 11)))) {
    printf("%s: RX fragment count(%d) "
        "and packet size(%d) mismach\n",
@@ -4923,12 +4923,12 @@ jme_newbuf(struct jme_softc *sc, struct jme_rxdesc *rxd)
  sc->jme_cdata.jme_rx_sparemap = map;
  rxd->rx_m = m;
  desc = rxd->rx_desc;
- desc->buflen = (__builtin_constant_p(rxd->rx_dmamap->dm_segs[0].ds_len) ? (__uint32_t)(((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff) << 24 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff00) << 8 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff000000) >> 24) : __swap32md(rxd->rx_dmamap->dm_segs[0].ds_len));
+ desc->buflen = (__uint32_t)(__builtin_constant_p(rxd->rx_dmamap->dm_segs[0].ds_len) ? (__uint32_t)(((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff) << 24 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff00) << 8 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff0000) >> 8 | ((__uint32_t)(rxd->rx_dmamap->dm_segs[0].ds_len) & 0xff000000) >> 24) : __swap32md(rxd->rx_dmamap->dm_segs[0].ds_len));
  desc->addr_lo =
-     (__builtin_constant_p(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)));
+     (__uint32_t)(__builtin_constant_p(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) & 0xFFFFFFFF)));
  desc->addr_hi =
-     (__builtin_constant_p(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)));
- desc->flags = (__builtin_constant_p(0x80000000 | 0x40000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x20000000));
+     (__uint32_t)(__builtin_constant_p(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) ? (__uint32_t)(((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff) << 24 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff00) << 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff0000) >> 8 | ((__uint32_t)(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)) & 0xff000000) >> 24) : __swap32md(((uint64_t) (rxd->rx_dmamap->dm_segs[0].ds_addr) >> 32)));
+ desc->flags = (__uint32_t)(__builtin_constant_p(0x80000000 | 0x40000000 | 0x20000000) ? (__uint32_t)(((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff) << 24 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff00) << 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff0000) >> 8 | ((__uint32_t)(0x80000000 | 0x40000000 | 0x20000000) & 0xff000000) >> 24) : __swap32md(0x80000000 | 0x40000000 | 0x20000000));
  return (0);
 }
 void

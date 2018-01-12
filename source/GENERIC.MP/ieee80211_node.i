@@ -4578,7 +4578,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -7097,7 +7097,7 @@ ieee80211_ibss_merge(struct ieee80211com *ic, struct ieee80211_node *ni,
   u_int8_t tstamp[8];
  } u;
  (void)__builtin_memcpy((&u), (&ni->ni_tstamp[0]), (sizeof(u)));
- beacon_tsft = (__builtin_constant_p(u.word) ? (__uint64_t)((((__uint64_t)(u.word) & 0xff) << 56) | ((__uint64_t)(u.word) & 0xff00ULL) << 40 | ((__uint64_t)(u.word) & 0xff0000ULL) << 24 | ((__uint64_t)(u.word) & 0xff000000ULL) << 8 | ((__uint64_t)(u.word) & 0xff00000000ULL) >> 8 | ((__uint64_t)(u.word) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(u.word) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(u.word) & 0xff00000000000000ULL) >> 56) : __swap64md(u.word));
+ beacon_tsft = (__uint64_t)(__builtin_constant_p(u.word) ? (__uint64_t)((((__uint64_t)(u.word) & 0xff) << 56) | ((__uint64_t)(u.word) & 0xff00ULL) << 40 | ((__uint64_t)(u.word) & 0xff0000ULL) << 24 | ((__uint64_t)(u.word) & 0xff000000ULL) << 8 | ((__uint64_t)(u.word) & 0xff00000000ULL) >> 8 | ((__uint64_t)(u.word) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(u.word) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(u.word) & 0xff00000000000000ULL) >> 56) : __swap64md(u.word));
  if (beacon_tsft < local_tsft)
   sign = -1;
  else

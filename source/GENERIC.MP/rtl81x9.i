@@ -3437,7 +3437,7 @@ rl_read_eeprom(struct rl_softc *sc, caddr_t dest, int off, int addr_len,
   rl_eeprom_getword(sc, off + i, addr_len, &word);
   ptr = (u_int16_t *)(dest + (i * 2));
   if (swap)
-   *ptr = (__builtin_constant_p(word) ? (__uint16_t)(((__uint16_t)(word) & 0xffU) << 8 | ((__uint16_t)(word) & 0xff00U) >> 8) : __swap16md(word));
+   *ptr = (__uint16_t)(__builtin_constant_p(word) ? (__uint16_t)(((__uint16_t)(word) & 0xffU) << 8 | ((__uint16_t)(word) & 0xff00U) >> 8) : __swap16md(word));
   else
    *ptr = word;
  }
@@ -3639,7 +3639,7 @@ rl_rxeof(struct rl_softc *sc)
       0, sc->sc_rx_dmamap->dm_mapsize, 0x02);
   rxbufpos = sc->rl_cdata.rl_rx_buf + cur_rx;
   rxstat = *(u_int32_t *)rxbufpos;
-  rxstat = (__builtin_constant_p(rxstat) ? (__uint32_t)(((__uint32_t)(rxstat) & 0xff) << 24 | ((__uint32_t)(rxstat) & 0xff00) << 8 | ((__uint32_t)(rxstat) & 0xff0000) >> 8 | ((__uint32_t)(rxstat) & 0xff000000) >> 24) : __swap32md(rxstat));
+  rxstat = (__uint32_t)(__builtin_constant_p(rxstat) ? (__uint32_t)(((__uint32_t)(rxstat) & 0xff) << 24 | ((__uint32_t)(rxstat) & 0xff00) << 8 | ((__uint32_t)(rxstat) & 0xff0000) >> 8 | ((__uint32_t)(rxstat) & 0xff000000) >> 24) : __swap32md(rxstat));
   total_len = rxstat >> 16;
   if (total_len == 0xFFF0) {
    bus_dmamap_sync(sc->sc_dmat, sc->sc_rx_dmamap,

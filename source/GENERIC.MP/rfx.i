@@ -4259,8 +4259,8 @@ rfx_initialize(struct rfx_softc *sc, struct sbus_attach_args *sa,
   if (offset == (u_int32_t)-1 && value == (u_int32_t)-1)
    break;
   if (cf->version <= 1) {
-   offset = (__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
-   value = (__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
+   offset = (__uint32_t)(__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
+   value = (__uint32_t)(__builtin_constant_p(offset) ? (__uint32_t)(((__uint32_t)(offset) & 0xff) << 24 | ((__uint32_t)(offset) & 0xff00) << 8 | ((__uint32_t)(offset) & 0xff0000) >> 8 | ((__uint32_t)(offset) & 0xff000000) >> 24) : __swap32md(offset));
   }
   if (offset & (1U << 31)) {
    offset = (offset & ~(1U << 31)) - 0x00020000;

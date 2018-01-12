@@ -19483,12 +19483,12 @@ qla_add_loop_port(struct qla_softc *sc, struct qla_fc_port *port)
   return (1);
  }
  pdb = ((void *)(sc->sc_scratch)->qdm_kva);
- if ((__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
+ if ((__uint16_t)(__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
   port->flags |= 1;
  port->port_name = ((__uint64_t)(pdb->port_name));
  port->node_name = ((__uint64_t)(pdb->node_name));
- port->portid = ((__builtin_constant_p(pdb->port_id[0]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[0]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[0]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[0])) << 16) |
-     (__builtin_constant_p(pdb->port_id[1]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[1]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[1]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[1]));
+ port->portid = ((__uint16_t)(__builtin_constant_p(pdb->port_id[0]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[0]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[0]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[0])) << 16) |
+     (__uint16_t)(__builtin_constant_p(pdb->port_id[1]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[1]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[1]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[1]));
  __mtx_enter(&sc->sc_port_mtx );
  disp = qla_classify_port(sc, port->location, port->port_name,
      port->node_name, &pport);
@@ -19525,13 +19525,13 @@ qla_add_fabric_port(struct qla_softc *sc, struct qla_fc_port *port)
   return (1);
  }
  pdb = ((void *)(sc->sc_scratch)->qdm_kva);
- if ((__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
+ if ((__uint16_t)(__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
   port->flags |= 1;
  if (port->location == (2 << 24)) {
   port->node_name = ((__uint64_t)(pdb->node_name));
   port->port_name = ((__uint64_t)(pdb->port_name));
-  port->portid = ((__builtin_constant_p(pdb->port_id[0]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[0]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[0]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[0])) << 16) |
-      (__builtin_constant_p(pdb->port_id[1]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[1]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[1]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[1]));
+  port->portid = ((__uint16_t)(__builtin_constant_p(pdb->port_id[0]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[0]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[0]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[0])) << 16) |
+      (__uint16_t)(__builtin_constant_p(pdb->port_id[1]) ? (__uint16_t)(((__uint16_t)(pdb->port_id[1]) & 0xffU) << 8 | ((__uint16_t)(pdb->port_id[1]) & 0xff00U) >> 8) : __swap16md(pdb->port_id[1]));
   port->location = (port->portid | (2 << 24));
  }
  __mtx_enter(&sc->sc_port_mtx );
@@ -19561,7 +19561,7 @@ qla_add_logged_in_port(struct qla_softc *sc, int loopid, u_int32_t portid)
   node_name = ((__uint64_t)(pdb->node_name));
   port_name = ((__uint64_t)(pdb->port_name));
   flags = 0;
-  if ((__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
+  if ((__uint16_t)(__builtin_constant_p(pdb->prli_svc_word3) ? (__uint16_t)(((__uint16_t)(pdb->prli_svc_word3) & 0xffU) << 8 | ((__uint16_t)(pdb->prli_svc_word3) & 0xff00U) >> 8) : __swap16md(pdb->prli_svc_word3)) & 0x0010)
    flags |= 1;
   for((port) = ((&sc->sc_ports_found)->tqh_first); (port) != ((void *)0); (port) = ((port)->update.tqe_next)) {
    if ((port->node_name == node_name) &&
@@ -19713,10 +19713,10 @@ qla_attach(struct qla_softc *sc)
  } else {
   icb->icb_retry_count = 3;
   icb->icb_retry_delay = 5;
-  icb->icb_exec_throttle = (__builtin_constant_p(16) ? (__uint16_t)(((__uint16_t)(16) & 0xffU) << 8 | ((__uint16_t)(16) & 0xff00U) >> 8) : __swap16md(16));
-  icb->icb_max_alloc = (__builtin_constant_p(256) ? (__uint16_t)(((__uint16_t)(256) & 0xffU) << 8 | ((__uint16_t)(256) & 0xff00U) >> 8) : __swap16md(256));
-  icb->icb_max_frame_len = (__builtin_constant_p(1024) ? (__uint16_t)(((__uint16_t)(1024) & 0xffU) << 8 | ((__uint16_t)(1024) & 0xff00U) >> 8) : __swap16md(1024));
-  icb->icb_fw_options = (__builtin_constant_p(0x0002 | 0x0100 | 0x0001 | 0x0004) ? (__uint16_t)(((__uint16_t)(0x0002 | 0x0100 | 0x0001 | 0x0004) & 0xffU) << 8 | ((__uint16_t)(0x0002 | 0x0100 | 0x0001 | 0x0004) & 0xff00U) >> 8) : __swap16md(0x0002 | 0x0100 | 0x0001 | 0x0004));
+  icb->icb_exec_throttle = (__uint16_t)(__builtin_constant_p(16) ? (__uint16_t)(((__uint16_t)(16) & 0xffU) << 8 | ((__uint16_t)(16) & 0xff00U) >> 8) : __swap16md(16));
+  icb->icb_max_alloc = (__uint16_t)(__builtin_constant_p(256) ? (__uint16_t)(((__uint16_t)(256) & 0xffU) << 8 | ((__uint16_t)(256) & 0xff00U) >> 8) : __swap16md(256));
+  icb->icb_max_frame_len = (__uint16_t)(__builtin_constant_p(1024) ? (__uint16_t)(((__uint16_t)(1024) & 0xffU) << 8 | ((__uint16_t)(1024) & 0xff00U) >> 8) : __swap16md(1024));
+  icb->icb_fw_options = (__uint16_t)(__builtin_constant_p(0x0002 | 0x0100 | 0x0001 | 0x0004) ? (__uint16_t)(((__uint16_t)(0x0002 | 0x0100 | 0x0001 | 0x0004) & 0xffU) << 8 | ((__uint16_t)(0x0002 | 0x0100 | 0x0001 | 0x0004) & 0xff00U) >> 8) : __swap16md(0x0002 | 0x0100 | 0x0001 | 0x0004));
  }
  icb->icb_lun_enables = 0;
  icb->icb_cmd_count = 0;
@@ -19733,8 +19733,8 @@ qla_attach(struct qla_softc *sc)
  dva = ((u_int64_t)(sc->sc_responses)->qdm_map->dm_segs[0].ds_addr);
  __swapm32((&icb->icb_resp_queue_addr_lo), (dva));
  __swapm32((&icb->icb_resp_queue_addr_hi), (dva >> 32));
- icb->icb_fw_options |= (__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
- icb->icb_fw_options &= ~(__builtin_constant_p(0x0008) ? (__uint16_t)(((__uint16_t)(0x0008) & 0xffU) << 8 | ((__uint16_t)(0x0008) & 0xff00U) >> 8) : __swap16md(0x0008));
+ icb->icb_fw_options |= (__uint16_t)(__builtin_constant_p(0x8000) ? (__uint16_t)(((__uint16_t)(0x8000) & 0xffU) << 8 | ((__uint16_t)(0x8000) & 0xff00U) >> 8) : __swap16md(0x8000));
+ icb->icb_fw_options &= ~(__uint16_t)(__builtin_constant_p(0x0008) ? (__uint16_t)(((__uint16_t)(0x0008) & 0xffU) << 8 | ((__uint16_t)(0x0008) & 0xff00U) >> 8) : __swap16md(0x0008));
  sc->sc_mbox[0] = 0x0060;
  sc->sc_mbox[4] = 0;
  sc->sc_mbox[5] = 0;
@@ -19858,10 +19858,10 @@ qla_handle_resp(struct qla_softc *sc, u_int16_t id)
        0x08);
    bus_dmamap_unload(sc->sc_dmat, ccb->ccb_dmamap);
   }
-  xs->status = (__builtin_constant_p(status->scsi_status) ? (__uint16_t)(((__uint16_t)(status->scsi_status) & 0xffU) << 8 | ((__uint16_t)(status->scsi_status) & 0xff00U) >> 8) : __swap16md(status->scsi_status));
-  switch ((__builtin_constant_p(status->completion) ? (__uint16_t)(((__uint16_t)(status->completion) & 0xffU) << 8 | ((__uint16_t)(status->completion) & 0xff00U) >> 8) : __swap16md(status->completion))) {
+  xs->status = (__uint16_t)(__builtin_constant_p(status->scsi_status) ? (__uint16_t)(((__uint16_t)(status->scsi_status) & 0xffU) << 8 | ((__uint16_t)(status->scsi_status) & 0xff00U) >> 8) : __swap16md(status->scsi_status));
+  switch ((__uint16_t)(__builtin_constant_p(status->completion) ? (__uint16_t)(((__uint16_t)(status->completion) & 0xffU) << 8 | ((__uint16_t)(status->completion) & 0xff00U) >> 8) : __swap16md(status->completion))) {
   case 0x0000:
-   if ((__builtin_constant_p(status->scsi_status) ? (__uint16_t)(((__uint16_t)(status->scsi_status) & 0xffU) << 8 | ((__uint16_t)(status->scsi_status) & 0xff00U) >> 8) : __swap16md(status->scsi_status)) &
+   if ((__uint16_t)(__builtin_constant_p(status->scsi_status) ? (__uint16_t)(((__uint16_t)(status->scsi_status) & 0xffU) << 8 | ((__uint16_t)(status->scsi_status) & 0xff00U) >> 8) : __swap16md(status->scsi_status)) &
        0x0200) {
     __builtin_memcpy((&xs->sense), (status->sense_data), (sizeof(xs->sense)));
     xs->error = 1;
@@ -19889,7 +19889,7 @@ qla_handle_resp(struct qla_softc *sc, u_int16_t id)
    break;
   case 0x0007:
   case 0x0015:
-   xs->resid = (__builtin_constant_p(status->resid) ? (__uint32_t)(((__uint32_t)(status->resid) & 0xff) << 24 | ((__uint32_t)(status->resid) & 0xff00) << 8 | ((__uint32_t)(status->resid) & 0xff0000) >> 8 | ((__uint32_t)(status->resid) & 0xff000000) >> 24) : __swap32md(status->resid));
+   xs->resid = (__uint32_t)(__builtin_constant_p(status->resid) ? (__uint32_t)(((__uint32_t)(status->resid) & 0xff) << 24 | ((__uint32_t)(status->resid) & 0xff00) << 8 | ((__uint32_t)(status->resid) & 0xff0000) >> 8 | ((__uint32_t)(status->resid) & 0xff000000) >> 24) : __swap32md(status->resid));
    xs->error = 0;
    break;
   case 0x001C:
@@ -20200,7 +20200,7 @@ qla_sns_req(struct qla_softc *sc, struct qla_dmamem *mem, int reqsize)
  dva = ((u_int64_t)(mem)->qdm_map->dm_segs[0].ds_addr) + reqsize;
  __swapm32((&header->resp_addr_lo), (dva));
  __swapm32((&header->resp_addr_hi), (dva >> 32));
- header->subcmd_len = (__builtin_constant_p((reqsize - sizeof(*header)) / 2) ? (__uint16_t)(((__uint16_t)((reqsize - sizeof(*header)) / 2) & 0xffU) << 8 | ((__uint16_t)((reqsize - sizeof(*header)) / 2) & 0xff00U) >> 8) : __swap16md((reqsize - sizeof(*header)) / 2));
+ header->subcmd_len = (__uint16_t)(__builtin_constant_p((reqsize - sizeof(*header)) / 2) ? (__uint16_t)(((__uint16_t)((reqsize - sizeof(*header)) / 2) & 0xffU) << 8 | ((__uint16_t)((reqsize - sizeof(*header)) / 2) & 0xff00U) >> 8) : __swap16md((reqsize - sizeof(*header)) / 2));
  bus_dmamap_sync(sc->sc_dmat, ((mem)->qdm_map), 0, ((mem)->qdm_size),
      0x01 | 0x04);
  rv = qla_mbox(sc, 0x00cf);
@@ -20400,10 +20400,10 @@ qla_update_fabric(struct qla_softc *sc)
  }
  rft = ((void *)(sc->sc_scratch)->qdm_kva);
  __builtin_memset((rft), (0), (sizeof(*rft) + sizeof(struct qla_sns_req_hdr)));
- rft->subcmd = (__builtin_constant_p(0x0217) ? (__uint16_t)(((__uint16_t)(0x0217) & 0xffU) << 8 | ((__uint16_t)(0x0217) & 0xff00U) >> 8) : __swap16md(0x0217));
- rft->max_word = (__builtin_constant_p(sizeof(struct qla_sns_req_hdr) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(struct qla_sns_req_hdr) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(struct qla_sns_req_hdr) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(struct qla_sns_req_hdr) / 4));
- rft->port_id = (__builtin_constant_p(sc->sc_port_id) ? (__uint32_t)(((__uint32_t)(sc->sc_port_id) & 0xff) << 24 | ((__uint32_t)(sc->sc_port_id) & 0xff00) << 8 | ((__uint32_t)(sc->sc_port_id) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_port_id) & 0xff000000) >> 24) : __swap32md(sc->sc_port_id));
- rft->fc4_types[0] = (__builtin_constant_p(1 << 8) ? (__uint32_t)(((__uint32_t)(1 << 8) & 0xff) << 24 | ((__uint32_t)(1 << 8) & 0xff00) << 8 | ((__uint32_t)(1 << 8) & 0xff0000) >> 8 | ((__uint32_t)(1 << 8) & 0xff000000) >> 24) : __swap32md(1 << 8));
+ rft->subcmd = (__uint16_t)(__builtin_constant_p(0x0217) ? (__uint16_t)(((__uint16_t)(0x0217) & 0xffU) << 8 | ((__uint16_t)(0x0217) & 0xff00U) >> 8) : __swap16md(0x0217));
+ rft->max_word = (__uint16_t)(__builtin_constant_p(sizeof(struct qla_sns_req_hdr) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(struct qla_sns_req_hdr) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(struct qla_sns_req_hdr) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(struct qla_sns_req_hdr) / 4));
+ rft->port_id = (__uint32_t)(__builtin_constant_p(sc->sc_port_id) ? (__uint32_t)(((__uint32_t)(sc->sc_port_id) & 0xff) << 24 | ((__uint32_t)(sc->sc_port_id) & 0xff00) << 8 | ((__uint32_t)(sc->sc_port_id) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_port_id) & 0xff000000) >> 24) : __swap32md(sc->sc_port_id));
+ rft->fc4_types[0] = (__uint32_t)(__builtin_constant_p(1 << 8) ? (__uint32_t)(((__uint32_t)(1 << 8) & 0xff) << 24 | ((__uint32_t)(1 << 8) & 0xff00) << 8 | ((__uint32_t)(1 << 8) & 0xff0000) >> 8 | ((__uint32_t)(1 << 8) & 0xff000000) >> 24) : __swap32md(1 << 8));
  if (qla_sns_req(sc, sc->sc_scratch, sizeof(*rft))) {
   ;
  }
@@ -20434,7 +20434,7 @@ qla_get_port_name_list(struct qla_softc *sc, u_int32_t match)
  while (i * sizeof(*l) < sc->sc_mbox[1]) {
   u_int16_t loopid;
   u_int32_t loc;
-  loopid = (__builtin_constant_p(l[i].loop_id) ? (__uint16_t)(((__uint16_t)(l[i].loop_id) & 0xffU) << 8 | ((__uint16_t)(l[i].loop_id) & 0xff00U) >> 8) : __swap16md(l[i].loop_id));
+  loopid = (__uint16_t)(__builtin_constant_p(l[i].loop_id) ? (__uint16_t)(((__uint16_t)(l[i].loop_id) & 0xffU) << 8 | ((__uint16_t)(l[i].loop_id) & 0xff00U) >> 8) : __swap16md(l[i].loop_id));
   switch (loopid) {
   case 0x7E:
   case 0x80:
@@ -20458,7 +20458,7 @@ qla_get_port_name_list(struct qla_softc *sc, u_int32_t match)
    }
    port->location = loc;
    port->loopid = loopid;
-   port->port_name = (__builtin_constant_p(l[i].port_name) ? (__uint64_t)((((__uint64_t)(l[i].port_name) & 0xff) << 56) | ((__uint64_t)(l[i].port_name) & 0xff00ULL) << 40 | ((__uint64_t)(l[i].port_name) & 0xff0000ULL) << 24 | ((__uint64_t)(l[i].port_name) & 0xff000000ULL) << 8 | ((__uint64_t)(l[i].port_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(l[i].port_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(l[i].port_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(l[i].port_name) & 0xff00000000000000ULL) >> 56) : __swap64md(l[i].port_name));
+   port->port_name = (__uint64_t)(__builtin_constant_p(l[i].port_name) ? (__uint64_t)((((__uint64_t)(l[i].port_name) & 0xff) << 56) | ((__uint64_t)(l[i].port_name) & 0xff00ULL) << 40 | ((__uint64_t)(l[i].port_name) & 0xff0000ULL) << 24 | ((__uint64_t)(l[i].port_name) & 0xff000000ULL) << 8 | ((__uint64_t)(l[i].port_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(l[i].port_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(l[i].port_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(l[i].port_name) & 0xff00000000000000ULL) >> 56) : __swap64md(l[i].port_name));
    ;
    do { (port)->update.tqe_next = ((void *)0); (port)->update.tqe_prev = (&sc->sc_ports_found)->tqh_last; *(&sc->sc_ports_found)->tqh_last = (port); (&sc->sc_ports_found)->tqh_last = &(port)->update.tqe_next; } while (0);
   }
@@ -20477,9 +20477,9 @@ qla_next_fabric_port(struct qla_softc *sc, u_int32_t *firstport,
  int result;
  ga = ((void *)(sc->sc_scratch)->qdm_kva);
  __builtin_memset((ga), (0), (sizeof(*ga) + sizeof(*gar)));
- ga->subcmd = (__builtin_constant_p(0x0100) ? (__uint16_t)(((__uint16_t)(0x0100) & 0xffU) << 8 | ((__uint16_t)(0x0100) & 0xff00U) >> 8) : __swap16md(0x0100));
- ga->max_word = (__builtin_constant_p(sizeof(*gar) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(*gar) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(*gar) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(*gar) / 4));
- ga->port_id = (__builtin_constant_p(*lastport) ? (__uint32_t)(((__uint32_t)(*lastport) & 0xff) << 24 | ((__uint32_t)(*lastport) & 0xff00) << 8 | ((__uint32_t)(*lastport) & 0xff0000) >> 8 | ((__uint32_t)(*lastport) & 0xff000000) >> 24) : __swap32md(*lastport));
+ ga->subcmd = (__uint16_t)(__builtin_constant_p(0x0100) ? (__uint16_t)(((__uint16_t)(0x0100) & 0xffU) << 8 | ((__uint16_t)(0x0100) & 0xff00U) >> 8) : __swap16md(0x0100));
+ ga->max_word = (__uint16_t)(__builtin_constant_p(sizeof(*gar) / 4) ? (__uint16_t)(((__uint16_t)(sizeof(*gar) / 4) & 0xffU) << 8 | ((__uint16_t)(sizeof(*gar) / 4) & 0xff00U) >> 8) : __swap16md(sizeof(*gar) / 4));
+ ga->port_id = (__uint32_t)(__builtin_constant_p(*lastport) ? (__uint32_t)(((__uint32_t)(*lastport) & 0xff) << 24 | ((__uint32_t)(*lastport) & 0xff00) << 8 | ((__uint32_t)(*lastport) & 0xff0000) >> 8 | ((__uint32_t)(*lastport) & 0xff000000) >> 24) : __swap32md(*lastport));
  result = qla_sns_req(sc, sc->sc_scratch, sizeof(*ga));
  if (result) {
   ;
@@ -20963,7 +20963,7 @@ qla_put_cmd(struct qla_softc *sc, void *buf, struct scsi_xfer *xs,
     qla_put_data_seg(&ccb->ccb_t4segs[seg],
         ccb->ccb_dmamap, seg);
    }
-   req->req_type.req4.req4_seg_type = (__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
+   req->req_type.req4.req4_seg_type = (__uint16_t)(__builtin_constant_p(1) ? (__uint16_t)(((__uint16_t)(1) & 0xffU) << 8 | ((__uint16_t)(1) & 0xff00U) >> 8) : __swap16md(1));
    req->req_type.req4.req4_seg_base = 0;
    req->req_type.req4.req4_seg_addr = ccb->ccb_seg_dva;
    __builtin_memset((req->req_type.req4.req4_reserved), (0), (sizeof(req->req_type.req4.req4_reserved)));
@@ -20984,16 +20984,16 @@ qla_put_cmd(struct qla_softc *sc, void *buf, struct scsi_xfer *xs,
   __swapm16((&req->req_time), ((((1)>(xs->timeout/1000))?(1):(xs->timeout/1000))));
  if (sc->sc_expanded_lun) {
   if (sc->sc_2k_logins) {
-   req->req_target = (__builtin_constant_p(target) ? (__uint16_t)(((__uint16_t)(target) & 0xffU) << 8 | ((__uint16_t)(target) & 0xff00U) >> 8) : __swap16md(target));
+   req->req_target = (__uint16_t)(__builtin_constant_p(target) ? (__uint16_t)(((__uint16_t)(target) & 0xffU) << 8 | ((__uint16_t)(target) & 0xff00U) >> 8) : __swap16md(target));
   } else {
-   req->req_target = (__builtin_constant_p(target << 8) ? (__uint16_t)(((__uint16_t)(target << 8) & 0xffU) << 8 | ((__uint16_t)(target << 8) & 0xff00U) >> 8) : __swap16md(target << 8));
+   req->req_target = (__uint16_t)(__builtin_constant_p(target << 8) ? (__uint16_t)(((__uint16_t)(target << 8) & 0xffU) << 8 | ((__uint16_t)(target << 8) & 0xff00U) >> 8) : __swap16md(target << 8));
   }
-  req->req_scclun = (__builtin_constant_p(xs->sc_link->lun) ? (__uint16_t)(((__uint16_t)(xs->sc_link->lun) & 0xffU) << 8 | ((__uint16_t)(xs->sc_link->lun) & 0xff00U) >> 8) : __swap16md(xs->sc_link->lun));
+  req->req_scclun = (__uint16_t)(__builtin_constant_p(xs->sc_link->lun) ? (__uint16_t)(((__uint16_t)(xs->sc_link->lun) & 0xffU) << 8 | ((__uint16_t)(xs->sc_link->lun) & 0xff00U) >> 8) : __swap16md(xs->sc_link->lun));
  } else {
-  req->req_target = (__builtin_constant_p(target << 8 | xs->sc_link->lun) ? (__uint16_t)(((__uint16_t)(target << 8 | xs->sc_link->lun) & 0xffU) << 8 | ((__uint16_t)(target << 8 | xs->sc_link->lun) & 0xff00U) >> 8) : __swap16md(target << 8 | xs->sc_link->lun));
+  req->req_target = (__uint16_t)(__builtin_constant_p(target << 8 | xs->sc_link->lun) ? (__uint16_t)(((__uint16_t)(target << 8 | xs->sc_link->lun) & 0xffU) << 8 | ((__uint16_t)(target << 8 | xs->sc_link->lun) & 0xff00U) >> 8) : __swap16md(target << 8 | xs->sc_link->lun));
  }
  __builtin_memcpy((req->req_cdb), (xs->cmd), (xs->cmdlen));
- req->req_totalcnt = (__builtin_constant_p(xs->datalen) ? (__uint32_t)(((__uint32_t)(xs->datalen) & 0xff) << 24 | ((__uint32_t)(xs->datalen) & 0xff00) << 8 | ((__uint32_t)(xs->datalen) & 0xff0000) >> 8 | ((__uint32_t)(xs->datalen) & 0xff000000) >> 24) : __swap32md(xs->datalen));
+ req->req_totalcnt = (__uint32_t)(__builtin_constant_p(xs->datalen) ? (__uint32_t)(((__uint32_t)(xs->datalen) & 0xff) << 24 | ((__uint32_t)(xs->datalen) & 0xff00) << 8 | ((__uint32_t)(xs->datalen) & 0xff0000) >> 8 | ((__uint32_t)(xs->datalen) & 0xff000000) >> 24) : __swap32md(xs->datalen));
  req->req_handle = ccb->ccb_id;
  qla_dump_iocb(sc, buf);
 }
@@ -21047,7 +21047,7 @@ qla_load_fwchunk_2300(struct qla_softc *sc, struct qla_dmamem *mem,
   words = (((total - done)<(1 << 10))?(total - done):(1 << 10));
   copy = ((void *)(mem)->qdm_kva);
   for (i = 0; i < words; i++) {
-   copy[i] = (__builtin_constant_p(src[done++]) ? (__uint16_t)(((__uint16_t)(src[done++]) & 0xffU) << 8 | ((__uint16_t)(src[done++]) & 0xff00U) >> 8) : __swap16md(src[done++]));
+   copy[i] = (__uint16_t)(__builtin_constant_p(src[done++]) ? (__uint16_t)(((__uint16_t)(src[done++]) & 0xffU) << 8 | ((__uint16_t)(src[done++]) & 0xff00U) >> 8) : __swap16md(src[done++]));
   }
   bus_dmamap_sync(sc->sc_dmat, ((mem)->qdm_map), 0, words * 2,
       0x04);
@@ -21127,7 +21127,7 @@ qla_read_nvram(struct qla_softc *sc)
   qla_write(sc, 0x0E, 0);
   delay(10);
   qla_read(sc, 0x0E);
-  data[i] = (__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
+  data[i] = (__uint16_t)(__builtin_constant_p(val) ? (__uint16_t)(((__uint16_t)(val) & 0xffU) << 8 | ((__uint16_t)(val) & 0xff00U) >> 8) : __swap16md(val));
  }
  csum = 0;
  for (i = 0; i < (sizeof((data)) / sizeof((data)[0])); i++) {

@@ -28807,7 +28807,7 @@ qle_get_port_name_list(struct qle_softc *sc, u_int32_t match)
    }
    port->location = loc;
    port->loopid = loopid;
-   port->port_name = (__builtin_constant_p(l[i].port_name) ? (__uint64_t)((((__uint64_t)(l[i].port_name) & 0xff) << 56) | ((__uint64_t)(l[i].port_name) & 0xff00ULL) << 40 | ((__uint64_t)(l[i].port_name) & 0xff0000ULL) << 24 | ((__uint64_t)(l[i].port_name) & 0xff000000ULL) << 8 | ((__uint64_t)(l[i].port_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(l[i].port_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(l[i].port_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(l[i].port_name) & 0xff00000000000000ULL) >> 56) : __swap64md(l[i].port_name));
+   port->port_name = (__uint64_t)(__builtin_constant_p(l[i].port_name) ? (__uint64_t)((((__uint64_t)(l[i].port_name) & 0xff) << 56) | ((__uint64_t)(l[i].port_name) & 0xff00ULL) << 40 | ((__uint64_t)(l[i].port_name) & 0xff0000ULL) << 24 | ((__uint64_t)(l[i].port_name) & 0xff000000ULL) << 8 | ((__uint64_t)(l[i].port_name) & 0xff00000000ULL) >> 8 | ((__uint64_t)(l[i].port_name) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(l[i].port_name) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(l[i].port_name) & 0xff00000000000000ULL) >> 56) : __swap64md(l[i].port_name));
    ;
    do { (port)->update.tqe_next = ((void *)0); (port)->update.tqe_prev = (&sc->sc_ports_found)->tqh_last; *(&sc->sc_ports_found)->tqh_last = (port); (&sc->sc_ports_found)->tqh_last = &(port)->update.tqe_next; } while (0);
   }
@@ -29012,7 +29012,7 @@ qle_handle_resp(struct qle_softc *sc, u_int32_t id)
     xs->error = 1;
     pp = (u_int32_t *)&xs->sense;
     for (sr = 0; sr < sizeof(xs->sense)/4; sr++) {
-     pp[sr] = (__builtin_constant_p(pp[sr]) ? (__uint32_t)(((__uint32_t)(pp[sr]) & 0xff) << 24 | ((__uint32_t)(pp[sr]) & 0xff00) << 8 | ((__uint32_t)(pp[sr]) & 0xff0000) >> 8 | ((__uint32_t)(pp[sr]) & 0xff000000) >> 24) : __swap32md(pp[sr]));
+     pp[sr] = (__uint32_t)(__builtin_constant_p(pp[sr]) ? (__uint32_t)(((__uint32_t)(pp[sr]) & 0xff) << 24 | ((__uint32_t)(pp[sr]) & 0xff00) << 8 | ((__uint32_t)(pp[sr]) & 0xff0000) >> 8 | ((__uint32_t)(pp[sr]) & 0xff000000) >> 24) : __swap32md(pp[sr]));
     }
    } else {
     xs->error = 0;
@@ -30262,7 +30262,7 @@ qle_read_nvram(struct qle_softc *sc)
    if (tmp & (1U << 31)) {
     v = qle_read(sc, 0x004);
     csum += v;
-    data[i] = (__builtin_constant_p(v) ? (__uint32_t)(((__uint32_t)(v) & 0xff) << 24 | ((__uint32_t)(v) & 0xff00) << 8 | ((__uint32_t)(v) & 0xff0000) >> 8 | ((__uint32_t)(v) & 0xff000000) >> 24) : __swap32md(v));
+    data[i] = (__uint32_t)(__builtin_constant_p(v) ? (__uint32_t)(((__uint32_t)(v) & 0xff) << 24 | ((__uint32_t)(v) & 0xff00) << 8 | ((__uint32_t)(v) & 0xff0000) >> 8 | ((__uint32_t)(v) & 0xff000000) >> 24) : __swap32md(v));
     break;
    }
   }

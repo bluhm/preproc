@@ -3529,7 +3529,7 @@ udf_readlblks(struct umount *ump, int sector, int size, struct buf **bp)
 static __inline udfino_t
 udf_getid(struct long_ad *icb)
 {
- return ((__builtin_constant_p(icb->loc.lb_num) ? (__uint32_t)(((__uint32_t)(icb->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(icb->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff000000) >> 24) : __swap32md(icb->loc.lb_num)));
+ return ((__uint32_t)(__builtin_constant_p(icb->loc.lb_num) ? (__uint32_t)(((__uint32_t)(icb->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(icb->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(icb->loc.lb_num) & 0xff000000) >> 24) : __swap32md(icb->loc.lb_num)));
 }
 int udf_allocv(struct mount *, struct vnode **, struct proc *);
 int udf_hashlookup(struct umount *, udfino_t, int, struct vnode **);
@@ -3667,7 +3667,7 @@ udf_checktag(struct desc_tag *tag, uint16_t id)
  uint8_t *itag;
  uint8_t i, cksum = 0;
  itag = (uint8_t *)tag;
- if ((__builtin_constant_p(tag->id) ? (__uint16_t)(((__uint16_t)(tag->id) & 0xffU) << 8 | ((__uint16_t)(tag->id) & 0xff00U) >> 8) : __swap16md(tag->id)) != id)
+ if ((__uint16_t)(__builtin_constant_p(tag->id) ? (__uint16_t)(((__uint16_t)(tag->id) & 0xffU) << 8 | ((__uint16_t)(tag->id) & 0xff00U) >> 8) : __swap16md(tag->id)) != id)
   return (22);
  for (i = 0; i < 15; i++)
   cksum = cksum + itag[i];
@@ -3723,8 +3723,8 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
  __builtin_bcopy((bp->b_data), (&avdp), (sizeof(struct anchor_vdp)));
  brelse(bp);
  bp = ((void *)0);
- mvds_start = (__builtin_constant_p(avdp.main_vds_ex.loc) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.loc) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.loc));
- mvds_end = mvds_start + ((__builtin_constant_p(avdp.main_vds_ex.len) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.len) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.len)) - 1) / bsize;
+ mvds_start = (__uint32_t)(__builtin_constant_p(avdp.main_vds_ex.loc) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.loc) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.loc) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.loc));
+ mvds_end = mvds_start + ((__uint32_t)(__builtin_constant_p(avdp.main_vds_ex.len) ? (__uint32_t)(((__uint32_t)(avdp.main_vds_ex.len) & 0xff) << 24 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff00) << 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff0000) >> 8 | ((__uint32_t)(avdp.main_vds_ex.len) & 0xff000000) >> 24) : __swap32md(avdp.main_vds_ex.len)) - 1) / bsize;
  for (sector = mvds_start; sector < mvds_end; sector++) {
   if ((error = bread(devvp, sector * ((bsize) >> 9), bsize,
        &bp)) != 0) {
@@ -3733,11 +3733,11 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   }
   lvd = (struct logvol_desc *)bp->b_data;
   if (!udf_checktag(&lvd->tag, TAGID_LOGVOL)) {
-   ump->um_bsize = (__builtin_constant_p(lvd->lb_size) ? (__uint32_t)(((__uint32_t)(lvd->lb_size) & 0xff) << 24 | ((__uint32_t)(lvd->lb_size) & 0xff00) << 8 | ((__uint32_t)(lvd->lb_size) & 0xff0000) >> 8 | ((__uint32_t)(lvd->lb_size) & 0xff000000) >> 24) : __swap32md(lvd->lb_size));
+   ump->um_bsize = (__uint32_t)(__builtin_constant_p(lvd->lb_size) ? (__uint32_t)(((__uint32_t)(lvd->lb_size) & 0xff) << 24 | ((__uint32_t)(lvd->lb_size) & 0xff00) << 8 | ((__uint32_t)(lvd->lb_size) & 0xff0000) >> 8 | ((__uint32_t)(lvd->lb_size) & 0xff000000) >> 24) : __swap32md(lvd->lb_size));
    ump->um_bmask = ump->um_bsize - 1;
    ump->um_bshift = ffs(ump->um_bsize) - 1;
-   fsd_part = (__builtin_constant_p(lvd->_lvd_use.fsd_loc.loc.part_num) ? (__uint16_t)(((__uint16_t)(lvd->_lvd_use.fsd_loc.loc.part_num) & 0xffU) << 8 | ((__uint16_t)(lvd->_lvd_use.fsd_loc.loc.part_num) & 0xff00U) >> 8) : __swap16md(lvd->_lvd_use.fsd_loc.loc.part_num));
-   fsd_offset = (__builtin_constant_p(lvd->_lvd_use.fsd_loc.loc.lb_num) ? (__uint32_t)(((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff) << 24 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff000000) >> 24) : __swap32md(lvd->_lvd_use.fsd_loc.loc.lb_num));
+   fsd_part = (__uint16_t)(__builtin_constant_p(lvd->_lvd_use.fsd_loc.loc.part_num) ? (__uint16_t)(((__uint16_t)(lvd->_lvd_use.fsd_loc.loc.part_num) & 0xffU) << 8 | ((__uint16_t)(lvd->_lvd_use.fsd_loc.loc.part_num) & 0xff00U) >> 8) : __swap16md(lvd->_lvd_use.fsd_loc.loc.part_num));
+   fsd_offset = (__uint32_t)(__builtin_constant_p(lvd->_lvd_use.fsd_loc.loc.lb_num) ? (__uint32_t)(((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff) << 24 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(lvd->_lvd_use.fsd_loc.loc.lb_num) & 0xff000000) >> 24) : __swap32md(lvd->_lvd_use.fsd_loc.loc.lb_num));
    if (udf_find_partmaps(ump, lvd))
     break;
    logvol_found = 1;
@@ -3745,9 +3745,9 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   pd = (struct part_desc *)bp->b_data;
   if (!udf_checktag(&pd->tag, TAGID_PARTITION)) {
    part_found = 1;
-   part_num = (__builtin_constant_p(pd->part_num) ? (__uint16_t)(((__uint16_t)(pd->part_num) & 0xffU) << 8 | ((__uint16_t)(pd->part_num) & 0xff00U) >> 8) : __swap16md(pd->part_num));
-   ump->um_len = ump->um_reallen = (__builtin_constant_p(pd->part_len) ? (__uint32_t)(((__uint32_t)(pd->part_len) & 0xff) << 24 | ((__uint32_t)(pd->part_len) & 0xff00) << 8 | ((__uint32_t)(pd->part_len) & 0xff0000) >> 8 | ((__uint32_t)(pd->part_len) & 0xff000000) >> 24) : __swap32md(pd->part_len));
-   ump->um_start = ump->um_realstart = (__builtin_constant_p(pd->start_loc) ? (__uint32_t)(((__uint32_t)(pd->start_loc) & 0xff) << 24 | ((__uint32_t)(pd->start_loc) & 0xff00) << 8 | ((__uint32_t)(pd->start_loc) & 0xff0000) >> 8 | ((__uint32_t)(pd->start_loc) & 0xff000000) >> 24) : __swap32md(pd->start_loc));
+   part_num = (__uint16_t)(__builtin_constant_p(pd->part_num) ? (__uint16_t)(((__uint16_t)(pd->part_num) & 0xffU) << 8 | ((__uint16_t)(pd->part_num) & 0xff00U) >> 8) : __swap16md(pd->part_num));
+   ump->um_len = ump->um_reallen = (__uint32_t)(__builtin_constant_p(pd->part_len) ? (__uint32_t)(((__uint32_t)(pd->part_len) & 0xff) << 24 | ((__uint32_t)(pd->part_len) & 0xff00) << 8 | ((__uint32_t)(pd->part_len) & 0xff0000) >> 8 | ((__uint32_t)(pd->part_len) & 0xff000000) >> 24) : __swap32md(pd->part_len));
+   ump->um_start = ump->um_realstart = (__uint32_t)(__builtin_constant_p(pd->start_loc) ? (__uint32_t)(((__uint32_t)(pd->start_loc) & 0xff) << 24 | ((__uint32_t)(pd->start_loc) & 0xff00) << 8 | ((__uint32_t)(pd->start_loc) & 0xff0000) >> 8 | ((__uint32_t)(pd->start_loc) & 0xff000000) >> 24) : __swap32md(pd->start_loc));
   }
   brelse(bp);
   bp = ((void *)0);
@@ -3769,17 +3769,17 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   xfentry = (struct extfile_entry *)bp->b_data;
   fentry = (struct file_entry *)bp->b_data;
   if (udf_checktag(&xfentry->tag, TAGID_EXTFENTRY) == 0)
-   la = (struct long_ad *)&xfentry->data[(__builtin_constant_p(xfentry->l_ea) ? (__uint32_t)(((__uint32_t)(xfentry->l_ea) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ea) & 0xff000000) >> 24) : __swap32md(xfentry->l_ea))];
+   la = (struct long_ad *)&xfentry->data[(__uint32_t)(__builtin_constant_p(xfentry->l_ea) ? (__uint32_t)(((__uint32_t)(xfentry->l_ea) & 0xff) << 24 | ((__uint32_t)(xfentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfentry->l_ea) & 0xff000000) >> 24) : __swap32md(xfentry->l_ea))];
   else if (udf_checktag(&fentry->tag, TAGID_FENTRY) == 0)
-   la = (struct long_ad *)&fentry->data[(__builtin_constant_p(fentry->l_ea) ? (__uint32_t)(((__uint32_t)(fentry->l_ea) & 0xff) << 24 | ((__uint32_t)(fentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ea) & 0xff000000) >> 24) : __swap32md(fentry->l_ea))];
+   la = (struct long_ad *)&fentry->data[(__uint32_t)(__builtin_constant_p(fentry->l_ea) ? (__uint32_t)(((__uint32_t)(fentry->l_ea) & 0xff) << 24 | ((__uint32_t)(fentry->l_ea) & 0xff00) << 8 | ((__uint32_t)(fentry->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fentry->l_ea) & 0xff000000) >> 24) : __swap32md(fentry->l_ea))];
   else {
    printf("Invalid Metadata File FE @ sector %d! (tag.id %d)\n",
        sector, fentry->tag.id);
    error = 22;
    goto bail;
   }
-  ump->um_meta_start = (__builtin_constant_p(la->loc.lb_num) ? (__uint32_t)(((__uint32_t)(la->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(la->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(la->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(la->loc.lb_num) & 0xff000000) >> 24) : __swap32md(la->loc.lb_num));
-  ump->um_meta_len = (__builtin_constant_p(la->len) ? (__uint32_t)(((__uint32_t)(la->len) & 0xff) << 24 | ((__uint32_t)(la->len) & 0xff00) << 8 | ((__uint32_t)(la->len) & 0xff0000) >> 8 | ((__uint32_t)(la->len) & 0xff000000) >> 24) : __swap32md(la->len));
+  ump->um_meta_start = (__uint32_t)(__builtin_constant_p(la->loc.lb_num) ? (__uint32_t)(((__uint32_t)(la->loc.lb_num) & 0xff) << 24 | ((__uint32_t)(la->loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(la->loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(la->loc.lb_num) & 0xff000000) >> 24) : __swap32md(la->loc.lb_num));
+  ump->um_meta_len = (__uint32_t)(__builtin_constant_p(la->len) ? (__uint32_t)(((__uint32_t)(la->len) & 0xff) << 24 | ((__uint32_t)(la->len) & 0xff00) << 8 | ((__uint32_t)(la->len) & 0xff0000) >> 8 | ((__uint32_t)(la->len) & 0xff000000) >> 24) : __swap32md(la->len));
   if (bp != ((void *)0)) {
    brelse(bp);
    bp = ((void *)0);
@@ -3823,8 +3823,8 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   error = 22;
   goto bail;
  }
- sector = (__builtin_constant_p(ump->um_root_icb.loc.lb_num) ? (__uint32_t)(((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff) << 24 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff000000) >> 24) : __swap32md(ump->um_root_icb.loc.lb_num));
- size = (__builtin_constant_p(ump->um_root_icb.len) ? (__uint32_t)(((__uint32_t)(ump->um_root_icb.len) & 0xff) << 24 | ((__uint32_t)(ump->um_root_icb.len) & 0xff00) << 8 | ((__uint32_t)(ump->um_root_icb.len) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_root_icb.len) & 0xff000000) >> 24) : __swap32md(ump->um_root_icb.len));
+ sector = (__uint32_t)(__builtin_constant_p(ump->um_root_icb.loc.lb_num) ? (__uint32_t)(((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff) << 24 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff00) << 8 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_root_icb.loc.lb_num) & 0xff000000) >> 24) : __swap32md(ump->um_root_icb.loc.lb_num));
+ size = (__uint32_t)(__builtin_constant_p(ump->um_root_icb.len) ? (__uint32_t)(((__uint32_t)(ump->um_root_icb.len) & 0xff) << 24 | ((__uint32_t)(ump->um_root_icb.len) & 0xff00) << 8 | ((__uint32_t)(ump->um_root_icb.len) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_root_icb.len) & 0xff000000) >> 24) : __swap32md(ump->um_root_icb.len));
  udf_vat_map(ump, &sector);
  if ((error = udf_readlblks(ump, sector, size, &bp)) != 0) {
   printf("Cannot read sector %d\n", sector);
@@ -3969,7 +3969,7 @@ udf_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
  fe = (struct file_entry *)bp->b_data;
  error = udf_checktag(&xfe->tag, TAGID_EXTFENTRY);
  if (error == 0) {
-  size = (__builtin_constant_p(xfe->l_ea) ? (__uint32_t)(((__uint32_t)(xfe->l_ea) & 0xff) << 24 | ((__uint32_t)(xfe->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfe->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfe->l_ea) & 0xff000000) >> 24) : __swap32md(xfe->l_ea)) + (__builtin_constant_p(xfe->l_ad) ? (__uint32_t)(((__uint32_t)(xfe->l_ad) & 0xff) << 24 | ((__uint32_t)(xfe->l_ad) & 0xff00) << 8 | ((__uint32_t)(xfe->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(xfe->l_ad) & 0xff000000) >> 24) : __swap32md(xfe->l_ad));
+  size = (__uint32_t)(__builtin_constant_p(xfe->l_ea) ? (__uint32_t)(((__uint32_t)(xfe->l_ea) & 0xff) << 24 | ((__uint32_t)(xfe->l_ea) & 0xff00) << 8 | ((__uint32_t)(xfe->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(xfe->l_ea) & 0xff000000) >> 24) : __swap32md(xfe->l_ea)) + (__uint32_t)(__builtin_constant_p(xfe->l_ad) ? (__uint32_t)(((__uint32_t)(xfe->l_ad) & 0xff) << 24 | ((__uint32_t)(xfe->l_ad) & 0xff00) << 8 | ((__uint32_t)(xfe->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(xfe->l_ad) & 0xff000000) >> 24) : __swap32md(xfe->l_ad));
  } else {
   error = udf_checktag(&fe->tag, TAGID_FENTRY);
   if (error) {
@@ -3979,7 +3979,7 @@ udf_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
     brelse(bp);
    return (12);
   } else
-   size = (__builtin_constant_p(fe->l_ea) ? (__uint32_t)(((__uint32_t)(fe->l_ea) & 0xff) << 24 | ((__uint32_t)(fe->l_ea) & 0xff00) << 8 | ((__uint32_t)(fe->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fe->l_ea) & 0xff000000) >> 24) : __swap32md(fe->l_ea)) + (__builtin_constant_p(fe->l_ad) ? (__uint32_t)(((__uint32_t)(fe->l_ad) & 0xff) << 24 | ((__uint32_t)(fe->l_ad) & 0xff00) << 8 | ((__uint32_t)(fe->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(fe->l_ad) & 0xff000000) >> 24) : __swap32md(fe->l_ad));
+   size = (__uint32_t)(__builtin_constant_p(fe->l_ea) ? (__uint32_t)(((__uint32_t)(fe->l_ea) & 0xff) << 24 | ((__uint32_t)(fe->l_ea) & 0xff00) << 8 | ((__uint32_t)(fe->l_ea) & 0xff0000) >> 8 | ((__uint32_t)(fe->l_ea) & 0xff000000) >> 24) : __swap32md(fe->l_ea)) + (__uint32_t)(__builtin_constant_p(fe->l_ad) ? (__uint32_t)(((__uint32_t)(fe->l_ad) & 0xff) << 24 | ((__uint32_t)(fe->l_ad) & 0xff00) << 8 | ((__uint32_t)(fe->l_ad) & 0xff0000) >> 8 | ((__uint32_t)(fe->l_ad) & 0xff000000) >> 24) : __swap32md(fe->l_ad));
  }
  up->u_fentry = malloc(size + 216, 141, 0x0002 | 0x0008);
  if (up->u_fentry == ((void *)0)) {
@@ -4104,29 +4104,29 @@ udf_get_spartmap(struct umount *ump, struct part_map_spare *pms)
 {
  struct buf *bp;
  int i, error;
- ump->um_stbl = malloc((__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size)), 140, 0x0002);
+ ump->um_stbl = malloc((__uint32_t)(__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size)), 140, 0x0002);
  if (ump->um_stbl == ((void *)0))
   return (12);
- __builtin_bzero((ump->um_stbl), ((__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size))));
- ump->um_psecs = (__builtin_constant_p(pms->packet_len) ? (__uint16_t)(((__uint16_t)(pms->packet_len) & 0xffU) << 8 | ((__uint16_t)(pms->packet_len) & 0xff00U) >> 8) : __swap16md(pms->packet_len)) / ump->um_bsize;
- error = udf_readlblks(ump, (__builtin_constant_p(pms->st_loc[0]) ? (__uint32_t)(((__uint32_t)(pms->st_loc[0]) & 0xff) << 24 | ((__uint32_t)(pms->st_loc[0]) & 0xff00) << 8 | ((__uint32_t)(pms->st_loc[0]) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_loc[0]) & 0xff000000) >> 24) : __swap32md(pms->st_loc[0])),
-     (__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size)), &bp);
+ __builtin_bzero((ump->um_stbl), ((__uint32_t)(__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size))));
+ ump->um_psecs = (__uint16_t)(__builtin_constant_p(pms->packet_len) ? (__uint16_t)(((__uint16_t)(pms->packet_len) & 0xffU) << 8 | ((__uint16_t)(pms->packet_len) & 0xff00U) >> 8) : __swap16md(pms->packet_len)) / ump->um_bsize;
+ error = udf_readlblks(ump, (__uint32_t)(__builtin_constant_p(pms->st_loc[0]) ? (__uint32_t)(((__uint32_t)(pms->st_loc[0]) & 0xff) << 24 | ((__uint32_t)(pms->st_loc[0]) & 0xff00) << 8 | ((__uint32_t)(pms->st_loc[0]) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_loc[0]) & 0xff000000) >> 24) : __swap32md(pms->st_loc[0])),
+     (__uint32_t)(__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size)), &bp);
  if (error) {
   if (bp != ((void *)0))
    brelse(bp);
   free(ump->um_stbl, 140, 0);
   return (error);
  }
- __builtin_bcopy((bp->b_data), (ump->um_stbl), ((__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size))));
+ __builtin_bcopy((bp->b_data), (ump->um_stbl), ((__uint32_t)(__builtin_constant_p(pms->st_size) ? (__uint32_t)(((__uint32_t)(pms->st_size) & 0xff) << 24 | ((__uint32_t)(pms->st_size) & 0xff00) << 8 | ((__uint32_t)(pms->st_size) & 0xff0000) >> 8 | ((__uint32_t)(pms->st_size) & 0xff000000) >> 24) : __swap32md(pms->st_size))));
  brelse(bp);
  bp = ((void *)0);
  if (udf_checktag(&ump->um_stbl->tag, 0)) {
   free(ump->um_stbl, 140, 0);
   return (22);
  }
- for (i = 0; i < (__builtin_constant_p(ump->um_stbl->rt_l) ? (__uint16_t)(((__uint16_t)(ump->um_stbl->rt_l) & 0xffU) << 8 | ((__uint16_t)(ump->um_stbl->rt_l) & 0xff00U) >> 8) : __swap16md(ump->um_stbl->rt_l)); i++) {
+ for (i = 0; i < (__uint16_t)(__builtin_constant_p(ump->um_stbl->rt_l) ? (__uint16_t)(((__uint16_t)(ump->um_stbl->rt_l) & 0xffU) << 8 | ((__uint16_t)(ump->um_stbl->rt_l) & 0xff00U) >> 8) : __swap16md(ump->um_stbl->rt_l)); i++) {
   ump->um_stbl_len = i;
-  if ((__builtin_constant_p(ump->um_stbl->entries[i].org) ? (__uint32_t)(((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff) << 24 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff00) << 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff000000) >> 24) : __swap32md(ump->um_stbl->entries[i].org)) >= 0xfffffff0)
+  if ((__uint32_t)(__builtin_constant_p(ump->um_stbl->entries[i].org) ? (__uint32_t)(((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff) << 24 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff00) << 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff0000) >> 8 | ((__uint32_t)(ump->um_stbl->entries[i].org) & 0xff000000) >> 24) : __swap32md(ump->um_stbl->entries[i].org)) >= 0xfffffff0)
    break;
  }
  return (0);
@@ -4145,7 +4145,7 @@ udf_find_partmaps(struct umount *ump, struct logvol_desc *lvd)
  unsigned char regid_id[23 + 1];
  int i, ptype, psize, error;
  uint8_t *pmap = (uint8_t *) &lvd->maps[0];
- for (i = 0; i < (__builtin_constant_p(lvd->n_pm) ? (__uint32_t)(((__uint32_t)(lvd->n_pm) & 0xff) << 24 | ((__uint32_t)(lvd->n_pm) & 0xff00) << 8 | ((__uint32_t)(lvd->n_pm) & 0xff0000) >> 8 | ((__uint32_t)(lvd->n_pm) & 0xff000000) >> 24) : __swap32md(lvd->n_pm)); i++) {
+ for (i = 0; i < (__uint32_t)(__builtin_constant_p(lvd->n_pm) ? (__uint32_t)(((__uint32_t)(lvd->n_pm) & 0xff) << 24 | ((__uint32_t)(lvd->n_pm) & 0xff00) << 8 | ((__uint32_t)(lvd->n_pm) & 0xff0000) >> 8 | ((__uint32_t)(lvd->n_pm) & 0xff000000) >> 24) : __swap32md(lvd->n_pm)); i++) {
   ptype = pmap[0];
   psize = pmap[1];
   if (ptype != 1 && ptype != 2)

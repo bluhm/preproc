@@ -6001,7 +6001,7 @@ oce_stop(struct oce_softc *sc)
   oce_drain_eq(eq);
  for (i = 0, rq = sc->sc_rq[0]; i < sc->sc_nrq; i++, rq = sc->sc_rq[i]) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.rq_id = (__builtin_constant_p(rq->id) ? (__uint16_t)(((__uint16_t)(rq->id) & 0xffU) << 8 | ((__uint16_t)(rq->id) & 0xff00U) >> 8) : __swap16md(rq->id));
+  cmd.params.req.rq_id = (__uint16_t)(__builtin_constant_p(rq->id) ? (__uint16_t)(((__uint16_t)(rq->id) & 0xffU) << 8 | ((__uint16_t)(rq->id) & 0xff00U) >> 8) : __swap16md(rq->id));
   oce_cmd(sc, SUBSYS_NIC, OPCODE_NIC_DELETE_RQ,
       0x0000, &cmd, sizeof(cmd));
   delay(1000);
@@ -6579,7 +6579,7 @@ oce_destroy_wq(struct oce_wq *wq)
  struct oce_pkt *pkt;
  if (wq->id >= 0) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.wq_id = (__builtin_constant_p(wq->id) ? (__uint16_t)(((__uint16_t)(wq->id) & 0xffU) << 8 | ((__uint16_t)(wq->id) & 0xff00U) >> 8) : __swap16md(wq->id));
+  cmd.params.req.wq_id = (__uint16_t)(__builtin_constant_p(wq->id) ? (__uint16_t)(((__uint16_t)(wq->id) & 0xffU) << 8 | ((__uint16_t)(wq->id) & 0xff00U) >> 8) : __swap16md(wq->id));
   oce_cmd(sc, SUBSYS_NIC, OPCODE_NIC_DELETE_WQ, 0x0000,
       &cmd, sizeof(cmd));
  }
@@ -6660,7 +6660,7 @@ oce_destroy_rq(struct oce_rq *rq)
  struct oce_pkt *pkt;
  if (rq->id >= 0) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.rq_id = (__builtin_constant_p(rq->id) ? (__uint16_t)(((__uint16_t)(rq->id) & 0xffU) << 8 | ((__uint16_t)(rq->id) & 0xff00U) >> 8) : __swap16md(rq->id));
+  cmd.params.req.rq_id = (__uint16_t)(__builtin_constant_p(rq->id) ? (__uint16_t)(((__uint16_t)(rq->id) & 0xffU) << 8 | ((__uint16_t)(rq->id) & 0xff00U) >> 8) : __swap16md(rq->id));
   oce_cmd(sc, SUBSYS_NIC, OPCODE_NIC_DELETE_RQ, 0x0000,
       &cmd, sizeof(cmd));
  }
@@ -6722,7 +6722,7 @@ oce_destroy_eq(struct oce_eq *eq)
  struct oce_softc *sc = eq->sc;
  if (eq->id >= 0) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.id = (__builtin_constant_p(eq->id) ? (__uint16_t)(((__uint16_t)(eq->id) & 0xffU) << 8 | ((__uint16_t)(eq->id) & 0xff00U) >> 8) : __swap16md(eq->id));
+  cmd.params.req.id = (__uint16_t)(__builtin_constant_p(eq->id) ? (__uint16_t)(((__uint16_t)(eq->id) & 0xffU) << 8 | ((__uint16_t)(eq->id) & 0xff00U) >> 8) : __swap16md(eq->id));
   oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_DESTROY_EQ,
       0x0000, &cmd, sizeof(cmd));
  }
@@ -6788,7 +6788,7 @@ oce_destroy_mq(struct oce_mq *mq)
  struct oce_softc *sc = mq->sc;
  if (mq->id >= 0) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.id = (__builtin_constant_p(mq->id) ? (__uint16_t)(((__uint16_t)(mq->id) & 0xffU) << 8 | ((__uint16_t)(mq->id) & 0xff00U) >> 8) : __swap16md(mq->id));
+  cmd.params.req.id = (__uint16_t)(__builtin_constant_p(mq->id) ? (__uint16_t)(((__uint16_t)(mq->id) & 0xffU) << 8 | ((__uint16_t)(mq->id) & 0xff00U) >> 8) : __swap16md(mq->id));
   oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_DESTROY_MQ,
       0x0000, &cmd, sizeof(cmd));
  }
@@ -6832,7 +6832,7 @@ oce_destroy_cq(struct oce_cq *cq)
  struct oce_softc *sc = cq->sc;
  if (cq->id >= 0) {
   __builtin_memset((&cmd), (0), (sizeof(cmd)));
-  cmd.params.req.id = (__builtin_constant_p(cq->id) ? (__uint16_t)(((__uint16_t)(cq->id) & 0xffU) << 8 | ((__uint16_t)(cq->id) & 0xff00U) >> 8) : __swap16md(cq->id));
+  cmd.params.req.id = (__uint16_t)(__builtin_constant_p(cq->id) ? (__uint16_t)(((__uint16_t)(cq->id) & 0xffU) << 8 | ((__uint16_t)(cq->id) & 0xff00U) >> 8) : __swap16md(cq->id));
   oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_DESTROY_CQ,
       0x0000, &cmd, sizeof(cmd));
  }
@@ -7263,8 +7263,8 @@ oce_create_iface(struct oce_softc *sc, uint8_t *macaddr)
   caps_en |= 0x000004;
  __builtin_memset((&cmd), (0), (sizeof(cmd)));
  cmd.params.req.version = 0;
- cmd.params.req.cap_flags = (__builtin_constant_p(caps) ? (__uint32_t)(((__uint32_t)(caps) & 0xff) << 24 | ((__uint32_t)(caps) & 0xff00) << 8 | ((__uint32_t)(caps) & 0xff0000) >> 8 | ((__uint32_t)(caps) & 0xff000000) >> 24) : __swap32md(caps));
- cmd.params.req.enable_flags = (__builtin_constant_p(caps_en) ? (__uint32_t)(((__uint32_t)(caps_en) & 0xff) << 24 | ((__uint32_t)(caps_en) & 0xff00) << 8 | ((__uint32_t)(caps_en) & 0xff0000) >> 8 | ((__uint32_t)(caps_en) & 0xff000000) >> 24) : __swap32md(caps_en));
+ cmd.params.req.cap_flags = (__uint32_t)(__builtin_constant_p(caps) ? (__uint32_t)(((__uint32_t)(caps) & 0xff) << 24 | ((__uint32_t)(caps) & 0xff00) << 8 | ((__uint32_t)(caps) & 0xff0000) >> 8 | ((__uint32_t)(caps) & 0xff000000) >> 24) : __swap32md(caps));
+ cmd.params.req.enable_flags = (__uint32_t)(__builtin_constant_p(caps_en) ? (__uint32_t)(((__uint32_t)(caps_en) & 0xff) << 24 | ((__uint32_t)(caps_en) & 0xff00) << 8 | ((__uint32_t)(caps_en) & 0xff0000) >> 8 | ((__uint32_t)(caps_en) & 0xff000000) >> 24) : __swap32md(caps_en));
  if (macaddr != ((void *)0)) {
   __builtin_memcpy((&cmd.params.req.mac_addr[0]), (macaddr), (6));
   cmd.params.req.mac_invalid = 0;
@@ -7274,9 +7274,9 @@ oce_create_iface(struct oce_softc *sc, uint8_t *macaddr)
      0x0000, &cmd, sizeof(cmd));
  if (err)
   return (err);
- sc->sc_if_id = (__builtin_constant_p(cmd.params.rsp.if_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.if_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.if_id));
+ sc->sc_if_id = (__uint32_t)(__builtin_constant_p(cmd.params.rsp.if_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.if_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.if_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.if_id));
  if (macaddr != ((void *)0))
-  sc->sc_pmac_id = (__builtin_constant_p(cmd.params.rsp.pmac_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.pmac_id));
+  sc->sc_pmac_id = (__uint32_t)(__builtin_constant_p(cmd.params.rsp.pmac_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.pmac_id));
  return (0);
 }
 int
@@ -7322,7 +7322,7 @@ oce_update_mcast(struct oce_softc *sc,
  struct mbx_set_common_iface_multicast cmd;
  __builtin_memset((&cmd), (0), (sizeof(cmd)));
  __builtin_memcpy((&cmd.params.req.mac[0]), (&multi[0]), (naddr * 6));
- cmd.params.req.num_mac = (__builtin_constant_p(naddr) ? (__uint16_t)(((__uint16_t)(naddr) & 0xffU) << 8 | ((__uint16_t)(naddr) & 0xff00U) >> 8) : __swap16md(naddr));
+ cmd.params.req.num_mac = (__uint16_t)(__builtin_constant_p(naddr) ? (__uint16_t)(((__uint16_t)(naddr) & 0xffU) << 8 | ((__uint16_t)(naddr) & 0xff00U) >> 8) : __swap16md(naddr));
  cmd.params.req.if_id = sc->sc_if_id;
  return (oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_SET_IFACE_MULTICAST,
      0x0000, &cmd, sizeof(cmd)));
@@ -7351,7 +7351,7 @@ oce_get_link_status(struct oce_softc *sc)
      0x0000, &cmd, sizeof(cmd));
  if (err)
   return (err);
- sc->sc_link_up = ((__builtin_constant_p(cmd.params.rsp.logical_link_status) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.logical_link_status)) ==
+ sc->sc_link_up = ((__uint32_t)(__builtin_constant_p(cmd.params.rsp.logical_link_status) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.logical_link_status) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.logical_link_status)) ==
      1);
  if (cmd.params.rsp.mac_speed < 5)
   sc->sc_link_speed = cmd.params.rsp.mac_speed;
@@ -7392,12 +7392,12 @@ oce_macaddr_add(struct oce_softc *sc, uint8_t *enaddr, uint32_t *pmac)
  struct mbx_add_common_iface_mac cmd;
  int err;
  __builtin_memset((&cmd), (0), (sizeof(cmd)));
- cmd.params.req.if_id = (__builtin_constant_p(sc->sc_if_id) ? (__uint16_t)(((__uint16_t)(sc->sc_if_id) & 0xffU) << 8 | ((__uint16_t)(sc->sc_if_id) & 0xff00U) >> 8) : __swap16md(sc->sc_if_id));
+ cmd.params.req.if_id = (__uint16_t)(__builtin_constant_p(sc->sc_if_id) ? (__uint16_t)(((__uint16_t)(sc->sc_if_id) & 0xffU) << 8 | ((__uint16_t)(sc->sc_if_id) & 0xff00U) >> 8) : __swap16md(sc->sc_if_id));
  __builtin_memcpy((cmd.params.req.mac_address), (enaddr), (6));
  err = oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_ADD_IFACE_MAC,
      0x0000, &cmd, sizeof(cmd));
  if (err == 0)
-  *pmac = (__builtin_constant_p(cmd.params.rsp.pmac_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.pmac_id));
+  *pmac = (__uint32_t)(__builtin_constant_p(cmd.params.rsp.pmac_id) ? (__uint32_t)(((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff) << 24 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff00) << 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff0000) >> 8 | ((__uint32_t)(cmd.params.rsp.pmac_id) & 0xff000000) >> 24) : __swap32md(cmd.params.rsp.pmac_id));
  return (err);
 }
 int
@@ -7405,8 +7405,8 @@ oce_macaddr_del(struct oce_softc *sc, uint32_t pmac)
 {
  struct mbx_del_common_iface_mac cmd;
  __builtin_memset((&cmd), (0), (sizeof(cmd)));
- cmd.params.req.if_id = (__builtin_constant_p(sc->sc_if_id) ? (__uint16_t)(((__uint16_t)(sc->sc_if_id) & 0xffU) << 8 | ((__uint16_t)(sc->sc_if_id) & 0xff00U) >> 8) : __swap16md(sc->sc_if_id));
- cmd.params.req.pmac_id = (__builtin_constant_p(pmac) ? (__uint32_t)(((__uint32_t)(pmac) & 0xff) << 24 | ((__uint32_t)(pmac) & 0xff00) << 8 | ((__uint32_t)(pmac) & 0xff0000) >> 8 | ((__uint32_t)(pmac) & 0xff000000) >> 24) : __swap32md(pmac));
+ cmd.params.req.if_id = (__uint16_t)(__builtin_constant_p(sc->sc_if_id) ? (__uint16_t)(((__uint16_t)(sc->sc_if_id) & 0xffU) << 8 | ((__uint16_t)(sc->sc_if_id) & 0xff00U) >> 8) : __swap16md(sc->sc_if_id));
+ cmd.params.req.pmac_id = (__uint32_t)(__builtin_constant_p(pmac) ? (__uint32_t)(((__uint32_t)(pmac) & 0xff) << 24 | ((__uint32_t)(pmac) & 0xff00) << 8 | ((__uint32_t)(pmac) & 0xff0000) >> 8 | ((__uint32_t)(pmac) & 0xff000000) >> 24) : __swap32md(pmac));
  return (oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_DEL_IFACE_MAC,
      0x0000, &cmd, sizeof(cmd)));
 }
@@ -7429,15 +7429,15 @@ oce_new_rq(struct oce_softc *sc, struct oce_rq *rq)
   cmd.params.req.frag_size = ilog2(rq->fragsize);
  cmd.params.req.num_pages = npages;
  cmd.params.req.cq_id = rq->cq->id;
- cmd.params.req.if_id = (__builtin_constant_p(sc->sc_if_id) ? (__uint32_t)(((__uint32_t)(sc->sc_if_id) & 0xff) << 24 | ((__uint32_t)(sc->sc_if_id) & 0xff00) << 8 | ((__uint32_t)(sc->sc_if_id) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_if_id) & 0xff000000) >> 24) : __swap32md(sc->sc_if_id));
- cmd.params.req.max_frame_size = (__builtin_constant_p(rq->mtu) ? (__uint16_t)(((__uint16_t)(rq->mtu) & 0xffU) << 8 | ((__uint16_t)(rq->mtu) & 0xff00U) >> 8) : __swap16md(rq->mtu));
- cmd.params.req.is_rss_queue = (__builtin_constant_p(rq->rss) ? (__uint32_t)(((__uint32_t)(rq->rss) & 0xff) << 24 | ((__uint32_t)(rq->rss) & 0xff00) << 8 | ((__uint32_t)(rq->rss) & 0xff0000) >> 8 | ((__uint32_t)(rq->rss) & 0xff000000) >> 24) : __swap32md(rq->rss));
+ cmd.params.req.if_id = (__uint32_t)(__builtin_constant_p(sc->sc_if_id) ? (__uint32_t)(((__uint32_t)(sc->sc_if_id) & 0xff) << 24 | ((__uint32_t)(sc->sc_if_id) & 0xff00) << 8 | ((__uint32_t)(sc->sc_if_id) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_if_id) & 0xff000000) >> 24) : __swap32md(sc->sc_if_id));
+ cmd.params.req.max_frame_size = (__uint16_t)(__builtin_constant_p(rq->mtu) ? (__uint16_t)(((__uint16_t)(rq->mtu) & 0xffU) << 8 | ((__uint16_t)(rq->mtu) & 0xff00U) >> 8) : __swap16md(rq->mtu));
+ cmd.params.req.is_rss_queue = (__uint32_t)(__builtin_constant_p(rq->rss) ? (__uint32_t)(((__uint32_t)(rq->rss) & 0xff) << 24 | ((__uint32_t)(rq->rss) & 0xff00) << 8 | ((__uint32_t)(rq->rss) & 0xff0000) >> 8 | ((__uint32_t)(rq->rss) & 0xff000000) >> 24) : __swap32md(rq->rss));
  err = oce_cmd(sc, SUBSYS_NIC, OPCODE_NIC_CREATE_RQ,
      (((sc)->sc_flags) & (0x00000008)) ? 0x0001 : 0x0000, &cmd,
      sizeof(cmd));
  if (err)
   return (err);
- rq->id = (__builtin_constant_p(cmd.params.rsp.rq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.rq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.rq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.rq_id));
+ rq->id = (__uint16_t)(__builtin_constant_p(cmd.params.rsp.rq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.rq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.rq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.rq_id));
  rq->rss_cpuid = cmd.params.rsp.rss_cpuid;
  return (0);
 }
@@ -7458,14 +7458,14 @@ oce_new_wq(struct oce_softc *sc, struct oce_wq *wq)
  cmd.params.req.nic_wq_type = 0x02;
  cmd.params.req.num_pages = npages;
  cmd.params.req.wq_size = ilog2(wq->nitems) + 1;
- cmd.params.req.cq_id = (__builtin_constant_p(wq->cq->id) ? (__uint16_t)(((__uint16_t)(wq->cq->id) & 0xffU) << 8 | ((__uint16_t)(wq->cq->id) & 0xff00U) >> 8) : __swap16md(wq->cq->id));
+ cmd.params.req.cq_id = (__uint16_t)(__builtin_constant_p(wq->cq->id) ? (__uint16_t)(((__uint16_t)(wq->cq->id) & 0xffU) << 8 | ((__uint16_t)(wq->cq->id) & 0xff00U) >> 8) : __swap16md(wq->cq->id));
  cmd.params.req.ulp_num = 1;
  err = oce_cmd(sc, SUBSYS_NIC, OPCODE_NIC_CREATE_WQ,
      (((sc)->sc_flags) & (0x00000008)) ? 0x0001 : 0x0000, &cmd,
      sizeof(cmd));
  if (err)
   return (err);
- wq->id = (__builtin_constant_p(cmd.params.rsp.wq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.wq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.wq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.wq_id));
+ wq->id = (__uint16_t)(__builtin_constant_p(cmd.params.rsp.wq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.wq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.wq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.wq_id));
  return (0);
 }
 int
@@ -7491,7 +7491,7 @@ oce_new_mq(struct oce_softc *sc, struct oce_mq *mq)
      0x0000, &cmd, sizeof(cmd));
  if (err)
   return (err);
- mq->id = (__builtin_constant_p(cmd.params.rsp.mq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.mq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.mq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.mq_id));
+ mq->id = (__uint16_t)(__builtin_constant_p(cmd.params.rsp.mq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.mq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.mq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.mq_id));
  return (0);
 }
 int
@@ -7506,17 +7506,17 @@ oce_new_eq(struct oce_softc *sc, struct oce_eq *eq)
   printf("%s: failed to load the eq ring\n", __func__);
   return (-1);
  }
- cmd.params.req.ctx.num_pages = (__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
+ cmd.params.req.ctx.num_pages = (__uint16_t)(__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
  cmd.params.req.ctx.valid = 1;
  cmd.params.req.ctx.size = (eq->isize == 4) ? 0 : 1;
  cmd.params.req.ctx.count = ilog2(eq->nitems / 256);
  cmd.params.req.ctx.armed = 0;
- cmd.params.req.ctx.delay_mult = (__builtin_constant_p(eq->delay) ? (__uint32_t)(((__uint32_t)(eq->delay) & 0xff) << 24 | ((__uint32_t)(eq->delay) & 0xff00) << 8 | ((__uint32_t)(eq->delay) & 0xff0000) >> 8 | ((__uint32_t)(eq->delay) & 0xff000000) >> 24) : __swap32md(eq->delay));
+ cmd.params.req.ctx.delay_mult = (__uint32_t)(__builtin_constant_p(eq->delay) ? (__uint32_t)(((__uint32_t)(eq->delay) & 0xff) << 24 | ((__uint32_t)(eq->delay) & 0xff00) << 8 | ((__uint32_t)(eq->delay) & 0xff0000) >> 8 | ((__uint32_t)(eq->delay) & 0xff000000) >> 24) : __swap32md(eq->delay));
  err = oce_cmd(sc, SUBSYS_COMMON, OPCODE_COMMON_CREATE_EQ,
      0x0000, &cmd, sizeof(cmd));
  if (err)
   return (err);
- eq->id = (__builtin_constant_p(cmd.params.rsp.eq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.eq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.eq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.eq_id));
+ eq->id = (__uint16_t)(__builtin_constant_p(cmd.params.rsp.eq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.eq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.eq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.eq_id));
  return (0);
 }
 int
@@ -7534,7 +7534,7 @@ oce_new_cq(struct oce_softc *sc, struct oce_cq *cq)
  }
  ctx = &cmd.params.req.cq_ctx;
  if ((((sc)->sc_flags) & (0x00000008))) {
-  ctx->v2.num_pages = (__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
+  ctx->v2.num_pages = (__uint16_t)(__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
   ctx->v2.page_size = 1;
   ctx->v2.eventable = cq->eventable;
   ctx->v2.valid = 1;
@@ -7550,7 +7550,7 @@ oce_new_cq(struct oce_softc *sc, struct oce_cq *cq)
     ctx->v2.cqe_count = cq->nitems;
   }
  } else {
-  ctx->v0.num_pages = (__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
+  ctx->v0.num_pages = (__uint16_t)(__builtin_constant_p(npages) ? (__uint16_t)(((__uint16_t)(npages) & 0xffU) << 8 | ((__uint16_t)(npages) & 0xff00U) >> 8) : __swap16md(npages));
   ctx->v0.eventable = cq->eventable;
   ctx->v0.valid = 1;
   ctx->v0.count = ilog2(cq->nitems / 256);
@@ -7564,7 +7564,7 @@ oce_new_cq(struct oce_softc *sc, struct oce_cq *cq)
      sizeof(cmd));
  if (err)
   return (err);
- cq->id = (__builtin_constant_p(cmd.params.rsp.cq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.cq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.cq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.cq_id));
+ cq->id = (__uint16_t)(__builtin_constant_p(cmd.params.rsp.cq_id) ? (__uint16_t)(((__uint16_t)(cmd.params.rsp.cq_id) & 0xffU) << 8 | ((__uint16_t)(cmd.params.rsp.cq_id) & 0xff00U) >> 8) : __swap16md(cmd.params.rsp.cq_id));
  return (0);
 }
 int

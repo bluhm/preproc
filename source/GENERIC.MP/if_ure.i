@@ -4282,8 +4282,8 @@ ure_iff(struct ure_softc *sc)
     hashes[1] |= (1 << (hash - 32));
    do { if (((enm) = (step).e_enm) != ((void *)0)) (step).e_enm = (((enm))->enm_list.le_next); } while ( 0);
   }
-  hash = (__builtin_constant_p(hashes[0]) ? (__uint32_t)(((__uint32_t)(hashes[0]) & 0xff) << 24 | ((__uint32_t)(hashes[0]) & 0xff00) << 8 | ((__uint32_t)(hashes[0]) & 0xff0000) >> 8 | ((__uint32_t)(hashes[0]) & 0xff000000) >> 24) : __swap32md(hashes[0]));
-  hashes[0] = (__builtin_constant_p(hashes[1]) ? (__uint32_t)(((__uint32_t)(hashes[1]) & 0xff) << 24 | ((__uint32_t)(hashes[1]) & 0xff00) << 8 | ((__uint32_t)(hashes[1]) & 0xff0000) >> 8 | ((__uint32_t)(hashes[1]) & 0xff000000) >> 24) : __swap32md(hashes[1]));
+  hash = (__uint32_t)(__builtin_constant_p(hashes[0]) ? (__uint32_t)(((__uint32_t)(hashes[0]) & 0xff) << 24 | ((__uint32_t)(hashes[0]) & 0xff00) << 8 | ((__uint32_t)(hashes[0]) & 0xff0000) >> 8 | ((__uint32_t)(hashes[0]) & 0xff000000) >> 24) : __swap32md(hashes[0]));
+  hashes[0] = (__uint32_t)(__builtin_constant_p(hashes[1]) ? (__uint32_t)(((__uint32_t)(hashes[1]) & 0xff) << 24 | ((__uint32_t)(hashes[1]) & 0xff00) << 8 | ((__uint32_t)(hashes[1]) & 0xff0000) >> 8 | ((__uint32_t)(hashes[1]) & 0xff000000) >> 24) : __swap32md(hashes[1]));
   hashes[1] = hash;
  }
  ure_write_4(sc, 0xcd00, 0x0100, hashes[0]);

@@ -12095,7 +12095,7 @@ int rs400_gart_set_page(struct radeon_device *rdev, int i, uint64_t addr)
  entry = (((u32)(addr)) & ~((1 << 13) - 1)) |
   ((((u32)(((addr) >> 16) >> 16)) & 0xff) << 4) |
   (1 << 2) | (1 << 3);
- entry = (__builtin_constant_p(entry) ? (__uint32_t)(((__uint32_t)(entry) & 0xff) << 24 | ((__uint32_t)(entry) & 0xff00) << 8 | ((__uint32_t)(entry) & 0xff0000) >> 8 | ((__uint32_t)(entry) & 0xff000000) >> 24) : __swap32md(entry));
+ entry = (__uint32_t)(__builtin_constant_p(entry) ? (__uint32_t)(((__uint32_t)(entry) & 0xff) << 24 | ((__uint32_t)(entry) & 0xff00) << 8 | ((__uint32_t)(entry) & 0xff0000) >> 8 | ((__uint32_t)(entry) & 0xff000000) >> 24) : __swap32md(entry));
  gtt[i] = entry;
  return 0;
 }

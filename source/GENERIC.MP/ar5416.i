@@ -3402,7 +3402,7 @@ ieee80211_get_qos(const struct ieee80211_frame *wh)
   frm = ((const struct ieee80211_qosframe_addr4 *)wh)->i_qos;
  else
   frm = ((const struct ieee80211_qosframe *)wh)->i_qos;
- return (__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
+ return (__uint16_t)(__builtin_constant_p(*(const u_int16_t *)frm) ? (__uint16_t)(((__uint16_t)(*(const u_int16_t *)frm) & 0xffU) << 8 | ((__uint16_t)(*(const u_int16_t *)frm) & 0xff00U) >> 8) : __swap16md(*(const u_int16_t *)frm));
 }
 enum {
  IEEE80211_ELEMID_SSID = 0,
@@ -5878,14 +5878,14 @@ ar5416_swap_rom(struct athn_softc *sc)
  int i, j;
  for (i = 0; i < 2; i++) {
   modal = &eep->modalHeader[i];
-  modal->antCtrlCommon = (__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
+  modal->antCtrlCommon = (__uint32_t)(__builtin_constant_p(modal->antCtrlCommon) ? (__uint32_t)(((__uint32_t)(modal->antCtrlCommon) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlCommon) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlCommon) & 0xff000000) >> 24) : __swap32md(modal->antCtrlCommon));
   for (j = 0; j < 3; j++) {
    modal->antCtrlChain[j] =
-       (__builtin_constant_p(modal->antCtrlChain[j]) ? (__uint32_t)(((__uint32_t)(modal->antCtrlChain[j]) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff000000) >> 24) : __swap32md(modal->antCtrlChain[j]));
+       (__uint32_t)(__builtin_constant_p(modal->antCtrlChain[j]) ? (__uint32_t)(((__uint32_t)(modal->antCtrlChain[j]) & 0xff) << 24 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff00) << 8 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff0000) >> 8 | ((__uint32_t)(modal->antCtrlChain[j]) & 0xff000000) >> 24) : __swap32md(modal->antCtrlChain[j]));
   }
   for (j = 0; j < 5; j++) {
    modal->spurChans[j].spurChan =
-       (__builtin_constant_p(modal->spurChans[j].spurChan) ? (__uint16_t)(((__uint16_t)(modal->spurChans[j].spurChan) & 0xffU) << 8 | ((__uint16_t)(modal->spurChans[j].spurChan) & 0xff00U) >> 8) : __swap16md(modal->spurChans[j].spurChan));
+       (__uint16_t)(__builtin_constant_p(modal->spurChans[j].spurChan) ? (__uint16_t)(((__uint16_t)(modal->spurChans[j].spurChan) & 0xffU) << 8 | ((__uint16_t)(modal->spurChans[j].spurChan) & 0xff00U) >> 8) : __swap16md(modal->spurChans[j].spurChan));
   }
  }
 }
