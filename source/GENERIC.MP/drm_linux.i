@@ -8012,8 +8012,8 @@ alloc_pages(unsigned int gfp_mask, unsigned int order)
  if (gfp_mask & 0x0008)
   flags |= 0x0004;
  do { (&mlist)->tqh_first = ((void *)0); (&mlist)->tqh_last = &(&mlist)->tqh_first; } while (0);
- if (uvm_pglistalloc((1 << 13) << order, 0, -1, (1 << 13), 0,
-     &mlist, 1, flags))
+ if (uvm_pglistalloc((1 << 13) << order, dma_constraint.ucr_low,
+     dma_constraint.ucr_high, (1 << 13), 0, &mlist, 1, flags))
   return ((void *)0);
  return ((&mlist)->tqh_first);
 }

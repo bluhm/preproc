@@ -2925,6 +2925,10 @@ mpls_input(struct ifnet *ifp, struct mbuf *m)
  struct rt_mpls *rt_mpls;
  uint8_t ttl;
  int hasbos;
+ if (!((ifp->if_xflags) & (0x8))) {
+  m_freem(m);
+  return;
+ }
  if (m->m_hdr.mh_flags & (0x0100 | 0x0200)) {
   m_freem(m);
   return;
@@ -3022,7 +3026,7 @@ do_v6:
    ifp->if_output(ifp, m, ((rt)->rt_dest), rt);
    goto done;
   }
-  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 207, "rt->rt_gateway"));
+  ((rt->rt_gateway) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netmpls/mpls_input.c", 212, "rt->rt_gateway"));
   switch(rt->rt_gateway->sa_family) {
   case 2:
    if ((m = mpls_ip_adjttl(m, ttl)) == ((void *)0))

@@ -4880,49 +4880,11 @@ gif_start(struct ifnet *ifp)
    continue;
   }
   if (ifp->if_bpf) {
-   int offset;
-   sa_family_t family;
-   u_int8_t proto;
-   switch (sc->gif_psrc->sa_family) {
-   case 2:
-    offset = sizeof(struct ip);
-    proto = ((struct ip *)((m)->m_hdr.mh_data))->ip_p;
-    break;
-   case 24:
-    offset = sizeof(struct ip6_hdr);
-    proto = ((struct ip6_hdr *)((m)->m_hdr.mh_data))->ip6_ctlun.ip6_un1.ip6_un1_nxt;
-    break;
-   default:
-    proto = 0;
-    break;
-   }
-   switch (proto) {
-   case 4:
-    family = 2;
-    break;
-   case 41:
-    family = 24;
-    break;
-   case 97:
-    family = 18;
-    offset += sizeof(struct etherip_header);
-    break;
-   case 137:
-    family = 33;
-    break;
-   default:
-    offset = 0;
-    family = sc->gif_psrc->sa_family;
-    break;
-   }
-   m->m_hdr.mh_data += offset;
-   m->m_hdr.mh_len -= offset;
-   m->M_dat.MH.MH_pkthdr.len -= offset;
-   bpf_mtap_af(ifp->if_bpf, family, m, (1<<1));
-   m->m_hdr.mh_data -= offset;
-   m->m_hdr.mh_len += offset;
-   m->M_dat.MH.MH_pkthdr.len += offset;
+   bpf_mtap_af(ifp->if_bpf, m->M_dat.MH.MH_pkthdr.ph_family, m,
+       (1<<1));
   }
+  if (gif_encap(ifp, &m, m->M_dat.MH.MH_pkthdr.ph_family) != 0)
+   continue;
   switch (sc->gif_psrc->sa_family) {
   case 2:
    ip_send(m);
@@ -4972,9 +4934,7 @@ gif_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
   error = 50;
   goto end;
  }
- error = gif_encap(ifp, &m, dst->sa_family);
- if (error)
-  goto end;
+ m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
  error = if_enqueue(ifp, m);
 end:
  if (error)

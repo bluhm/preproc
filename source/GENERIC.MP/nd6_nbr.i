@@ -3473,7 +3473,6 @@ carpstat_inc(enum carpstat_counters c)
 {
  counters_inc(carpcounters, c);
 }
-void carp_ifdetach (struct ifnet *);
 int carp_proto_input(struct mbuf **, int *, int, int);
 void carp_carpdev_state(void *);
 void carp_group_demote_adj(struct ifnet *, int, char *);
