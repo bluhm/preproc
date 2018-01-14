@@ -3559,6 +3559,8 @@ static inline void
 set_x(struct position *pos, int x, u_int *sync, u_int mask)
 {
  if (*sync & mask) {
+  if (x == pos->x)
+   return;
   pos->x -= pos->dx;
   pos->acc_dx -= pos->dx;
  }
@@ -3572,6 +3574,8 @@ static inline void
 set_y(struct position *pos, int y, u_int *sync, u_int mask)
 {
  if (*sync & mask) {
+  if (y == pos->y)
+   return;
   pos->y -= pos->dy;
   pos->acc_dy -= pos->dy;
  }

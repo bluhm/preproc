@@ -3794,6 +3794,7 @@ struct filterops *sysfilt_ops[] = {
  &proc_filtops,
  &sig_filtops,
  &timer_filtops,
+ &file_filtops,
 };
 void KQREF(struct kqueue *);
 void KQRELE(struct kqueue *);
@@ -4087,7 +4088,7 @@ kqueue_register(struct kqueue *kq, struct kevent *kev, struct proc *p)
  struct knote *kn = ((void *)0);
  int s, error = 0;
  if (kev->filter < 0) {
-  if (kev->filter + 7 < 0)
+  if (kev->filter + 8 < 0)
    return (22);
   fops = sysfilt_ops[~kev->filter];
  }
@@ -4499,7 +4500,7 @@ knote_enqueue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1085, "(kn->kn_status & KN_QUEUED) == 0"));
+ (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1086, "(kn->kn_status & KN_QUEUED) == 0"));
  do { (kn)->kn_tqe.tqe_next = ((void *)0); (kn)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (kn); (&kq->kq_head)->tqh_last = &(kn)->kn_tqe.tqe_next; } while (0);
  kn->kn_status |= 0x0002;
  kq->kq_count++;
@@ -4511,7 +4512,7 @@ knote_dequeue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1100, "kn->kn_status & KN_QUEUED"));
+ ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1101, "kn->kn_status & KN_QUEUED"));
  do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
  kn->kn_status &= ~0x0002;
  kq->kq_count--;

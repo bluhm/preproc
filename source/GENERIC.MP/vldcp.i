@@ -3928,13 +3928,13 @@ retry:
   }
   goto retry;
  }
- _splx(s);
  ret = uiomove(lc->lc_rxq->lq_va + rx_head, 64, uio);
  rx_head += 64;
  rx_head &= ((lc->lc_rxq->lq_nentries * 64) - 1);
  err = hv_ldc_rx_set_qhead(lc->lc_id, rx_head);
  if (err != 0)
   printf("%s: hv_ldc_rx_set_qhead %d\n", __func__, err);
+ _splx(s);
  device_unref(&sc->sc_dv);
  return (ret);
 }

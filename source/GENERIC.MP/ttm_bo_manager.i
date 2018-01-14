@@ -5179,17 +5179,27 @@ sg_page(struct scatterlist *sgl)
 size_t sg_copy_from_buffer(struct scatterlist *, unsigned int,
     const void *, size_t);
 struct firmware {
+ size_t size;
  const u8 *data;
 };
 static inline int
 request_firmware(const struct firmware **fw, const char *name,
     struct device *device)
 {
- return -22;
+ int r;
+ struct firmware *f = malloc(sizeof(struct firmware), 145, 0x0001);
+ *fw = f;
+ r = loadfirmware(name, ((u_char **)(__uintptr_t)(const void *)(&f->data)), &f->size);
+ if (r != 0)
+  return -r;
+ else
+  return 0;
 }
 static inline void
 release_firmware(const struct firmware *fw)
 {
+ free(((u_char *)(__uintptr_t)(const void *)(fw->data)), 145, fw->size);
+ free(((struct firmware *)(__uintptr_t)(const void *)(fw)), 145, sizeof(*fw));
 }
 void *memchr_inv(const void *, int, size_t);
 typedef unsigned long drm_handle_t;
@@ -7586,6 +7596,7 @@ struct drm_device {
  struct device device;
  struct device *dev;
  struct drm_driver *driver;
+ struct klist note;
  struct pci_dev _pdev;
  struct pci_dev *pdev;
  u_int16_t pci_device;
@@ -7774,6 +7785,7 @@ int drm_agp_alloc_ioctl(struct drm_device *, void *, struct drm_file *);
 int drm_agp_free_ioctl(struct drm_device *, void *, struct drm_file *);
 int drm_agp_unbind_ioctl(struct drm_device *, void *, struct drm_file *);
 int drm_agp_bind_ioctl(struct drm_device *, void *, struct drm_file *);
+void drm_sysfs_hotplug_event(struct drm_device *);
 static inline int
 drm_sysfs_connector_add(struct drm_connector *connector)
 {
@@ -7781,10 +7793,6 @@ drm_sysfs_connector_add(struct drm_connector *connector)
 }
 static inline void
 drm_sysfs_connector_remove(struct drm_connector *connector)
-{
-}
-static inline void
-drm_sysfs_hotplug_event(struct drm_device *dev)
 {
 }
 int drm_gem_init(struct drm_device *dev);

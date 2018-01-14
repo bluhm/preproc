@@ -3103,6 +3103,8 @@ ext2fs_write(void *v)
   if (size < xfersize)
    xfersize = size;
   error = uiomove(bp->b_data + blkoffset, xfersize, uio);
+  if (error != 0 && !(flags & 0x01))
+   __builtin_memset((bp->b_data + blkoffset), (0), (xfersize));
   if (ioflag & 0x04)
    (void)bwrite(bp);
   else if (xfersize + blkoffset == fs->e2fs_bsize)
