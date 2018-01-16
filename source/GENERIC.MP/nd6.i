@@ -4407,6 +4407,7 @@ nd6_free(struct rtentry *rt)
    rt6_flush(&in6, ifp);
   }
  }
+ ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 725, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
  nd6_invalidate(rt);
  if (!((rt->rt_flags) & (0x800|0x20000)))
   rtdeletemsg(rt, ifp, ifp->if_data.ifi_rdomain);
@@ -4516,7 +4517,7 @@ nd6_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
    ln->ln_state = 1;
    ln->ln_byhint = 0;
    rt->rt_rmx.rmx_expire = 0;
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 944, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 945, "ifa == rt->rt_ifa"));
   } else if (rt->rt_flags & 0x4000) {
    ln->ln_state = 1;
    ln->ln_byhint = 0;
@@ -4778,7 +4779,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1365, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1366, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

@@ -3439,9 +3439,10 @@ void
 arptfree(struct rtentry *rt)
 {
  struct ifnet *ifp;
+ ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 697, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
  arpinvalidate(rt);
  ifp = if_get(rt->rt_ifidx);
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 700, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 701, "ifp != NULL"));
  if (!((rt->rt_flags) & (0x800|0x20000)))
   rtdeletemsg(rt, ifp, ifp->if_data.ifi_rdomain);
  if_put(ifp);

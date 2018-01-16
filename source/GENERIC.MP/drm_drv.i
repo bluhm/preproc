@@ -5521,6 +5521,10 @@ finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 static inline long
 schedule_timeout(long timeout, wait_queue_head_t **wait)
 {
+ if (cold) {
+  delay((timeout * 1000000) / hz);
+  return -60;
+ }
  return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
 }
 struct idr_entry {
@@ -5757,8 +5761,12 @@ struct i2c_msg {
  uint8_t *buf;
 };
 struct i2c_algorithm {
- u32 (*functionality)(struct i2c_adapter *);
  int (*master_xfer)(struct i2c_adapter *, struct i2c_msg *, int);
+ u32 (*functionality)(struct i2c_adapter *);
+};
+extern struct i2c_algorithm i2c_bit_algo;
+struct i2c_algo_bit_data {
+ struct i2c_controller ic;
 };
 int i2c_transfer(struct i2c_adapter *, struct i2c_msg *, int);
 static inline void *
@@ -5794,7 +5802,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1686, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;

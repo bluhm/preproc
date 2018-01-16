@@ -4680,6 +4680,10 @@ finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 static inline long
 schedule_timeout(long timeout, wait_queue_head_t **wait)
 {
+ if (cold) {
+  delay((timeout * 1000000) / hz);
+  return -60;
+ }
  return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
 }
 struct idr_entry {
@@ -4916,8 +4920,12 @@ struct i2c_msg {
  uint8_t *buf;
 };
 struct i2c_algorithm {
- u32 (*functionality)(struct i2c_adapter *);
  int (*master_xfer)(struct i2c_adapter *, struct i2c_msg *, int);
+ u32 (*functionality)(struct i2c_adapter *);
+};
+extern struct i2c_algorithm i2c_bit_algo;
+struct i2c_algo_bit_data {
+ struct i2c_controller ic;
 };
 int i2c_transfer(struct i2c_adapter *, struct i2c_msg *, int);
 static inline void *
@@ -4953,7 +4961,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1675, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1686, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -8289,14 +8297,12 @@ sg_copy_from_buffer(struct scatterlist *sgl, unsigned int nents,
  panic("%s", __func__);
 }
 int
-i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 {
  void *cmd = ((void *)0);
  int cmdlen = 0;
  int err, ret = 0;
  int op;
- if (adap->algo)
-  return adap->algo->master_xfer(adap, msgs, num);
  (*(&adap->ic)->ic_acquire_bus)((&adap->ic)->ic_cookie, (0));
  while (num > 2) {
   op = (msgs->flags & 0x0001) ? I2C_OP_READ : I2C_OP_WRITE;
@@ -8317,8 +8323,10 @@ i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
   num--;
   ret++;
  }
- op = (msgs->flags & 0x0001) ? I2C_OP_READ_WITH_STOP : I2C_OP_WRITE_WITH_STOP;
- err = iic_exec(&adap->ic, op, msgs->addr, cmd, cmdlen, msgs->buf, msgs->len, 0);
+ op = (msgs->flags & 0x0001) ?
+     I2C_OP_READ_WITH_STOP : I2C_OP_WRITE_WITH_STOP;
+ err = iic_exec(&adap->ic, op, msgs->addr, cmd, cmdlen,
+     msgs->buf, msgs->len, 0);
  if (err) {
   ret = -err;
   goto fail;
@@ -8329,6 +8337,32 @@ fail:
  (*(&adap->ic)->ic_release_bus)((&adap->ic)->ic_cookie, (0));
  return ret;
 }
+int
+i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+{
+ if (adap->algo)
+  return adap->algo->master_xfer(adap, msgs, num);
+ return i2c_master_xfer(adap, msgs, num);
+}
+int
+i2c_bb_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+{
+ struct i2c_algo_bit_data *algo = adap->algo_data;
+ struct i2c_adapter bb;
+ __builtin_memset((&bb), (0), (sizeof(bb)));
+ bb.ic = algo->ic;
+ bb.retries = adap->retries;
+ return i2c_master_xfer(&bb, msgs, num);
+}
+uint32_t
+i2c_bb_functionality(struct i2c_adapter *adap)
+{
+ return 0 | 0;
+}
+struct i2c_algorithm i2c_bit_algo = {
+ .master_xfer = i2c_bb_master_xfer,
+ .functionality = i2c_bb_functionality
+};
 void
 backlight_do_update_status(void *arg)
 {
