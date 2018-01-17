@@ -4766,8 +4766,6 @@ struct pool_allocator m_pool_allocator = {
 };
 static void (*mextfree_fns[4])(caddr_t, u_int, void *);
 static u_int num_extfree_fns;
-const char *mclpool_warnmsg =
-    "WARNING: mclpools limit reached; increase kern.maxclusters";
 void
 mbinit(void)
 {
@@ -4796,7 +4794,7 @@ mbinit(void)
   m_pool_init(&mclpools[i], mclsizes[i], 64, mclnames[i]);
  }
  (void)mextfree_register(m_extfree_pool);
- ((num_extfree_fns == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 198, "num_extfree_fns == 1"));
+ ((num_extfree_fns == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 195, "num_extfree_fns == 1"));
 }
 void
 mbcpuinit()
@@ -4871,7 +4869,7 @@ m_resethdr(struct mbuf *m)
 {
  int len = m->M_dat.MH.MH_pkthdr.len;
  u_int8_t loopcnt = m->M_dat.MH.MH_pkthdr.ph_loopcnt;
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 303, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 300, "m->m_flags & M_PKTHDR"));
  m->m_hdr.mh_flags &= (0x0001|0x0002|0x0004|0x0008|0x2000);
  m_tag_delete_chain(m);
  pf_mbuf_unlink_state_key(m);
@@ -4994,7 +4992,7 @@ m_extunref(struct mbuf *m)
 u_int
 mextfree_register(void (*fn)(caddr_t, u_int, void *))
 {
- ((num_extfree_fns < (sizeof((mextfree_fns)) / sizeof((mextfree_fns)[0]))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 469, "num_extfree_fns < nitems(mextfree_fns)"));
+ ((num_extfree_fns < (sizeof((mextfree_fns)) / sizeof((mextfree_fns)[0]))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 466, "num_extfree_fns < nitems(mextfree_fns)"));
  mextfree_fns[num_extfree_fns] = fn;
  return num_extfree_fns++;
 }
@@ -5002,7 +5000,7 @@ void
 m_extfree(struct mbuf *m)
 {
  if (m_extunref(m) == 0) {
-  ((m->M_dat.MH.MH_dat.MH_ext.ext_free_fn < num_extfree_fns) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 478, "m->m_ext.ext_free_fn < num_extfree_fns"));
+  ((m->M_dat.MH.MH_dat.MH_ext.ext_free_fn < num_extfree_fns) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 475, "m->m_ext.ext_free_fn < num_extfree_fns"));
   mextfree_fns[m->M_dat.MH.MH_dat.MH_ext.ext_free_fn](m->M_dat.MH.MH_dat.MH_ext.ext_buf,
       m->M_dat.MH.MH_dat.MH_ext.ext_size, m->M_dat.MH.MH_dat.MH_ext.ext_arg);
  }
@@ -5032,7 +5030,7 @@ m_defrag(struct mbuf *m, int how)
  struct mbuf *m0;
  if (m->m_hdr.mh_next == ((void *)0))
   return (0);
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 523, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 520, "m->m_flags & M_PKTHDR"));
  if ((m0 = m_gethdr(how, m->m_hdr.mh_type)) == ((void *)0))
   return (55);
  if (m->M_dat.MH.MH_pkthdr.len > ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
@@ -5344,7 +5342,7 @@ m_pullup(struct mbuf *n, int len)
   m->m_hdr.mh_len = 0;
   m->m_hdr.mh_data += adj;
  }
- ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 934, "M_TRAILINGSPACE(m) >= len"));
+ ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 931, "M_TRAILINGSPACE(m) >= len"));
  do {
   if (n == ((void *)0)) {
    (void)m_free(m);
@@ -5460,8 +5458,8 @@ m_makespace(struct mbuf *m0, int skip, int hlen, int *off)
 {
  struct mbuf *m;
  unsigned remain;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1082, "m0->m_flags & M_PKTHDR"));
- ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1089, "hlen < MHLEN"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1079, "m0->m_flags & M_PKTHDR"));
+ ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1086, "hlen < MHLEN"));
  for (m = m0; m && skip > m->m_hdr.mh_len; m = m->m_hdr.mh_next)
   skip -= m->m_hdr.mh_len;
  if (m == ((void *)0))
@@ -5630,7 +5628,7 @@ int
 m_dup_pkthdr(struct mbuf *to, struct mbuf *from, int wait)
 {
  int error;
- ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1321, "from->m_flags & M_PKTHDR"));
+ ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1318, "from->m_flags & M_PKTHDR"));
  to->m_hdr.mh_flags = (to->m_hdr.mh_flags & (0x0001 | 0x0008));
  to->m_hdr.mh_flags |= (from->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000));
  to->M_dat.MH.MH_pkthdr = from->M_dat.MH.MH_pkthdr;
@@ -5648,7 +5646,7 @@ m_dup_pkt(struct mbuf *m0, unsigned int adj, int wait)
 {
  struct mbuf *m;
  int len;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1349, "m0->m_flags & M_PKTHDR"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1346, "m0->m_flags & M_PKTHDR"));
  len = m0->M_dat.MH.MH_pkthdr.len + adj;
  if (len > (64 * 1024))
   return (((void *)0));

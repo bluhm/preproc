@@ -3189,7 +3189,7 @@ arpresolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   __builtin_memcpy((desten), (((caddr_t)((sdl)->sdl_data + (sdl)->sdl_nlen))), (sdl->sdl_alen));
   return (0);
  }
- if (ifp->if_flags & 0x80)
+ if (ifp->if_flags & (0x80|0x20))
   goto bad;
  la = (struct llinfo_arp *)rt->rt_llinfo;
  ((la != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 368, "la != NULL"));

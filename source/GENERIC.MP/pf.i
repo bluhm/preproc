@@ -3250,6 +3250,52 @@ ifatoia(struct ifaddr *ifa)
 {
  return ((struct in_ifaddr *)(ifa));
 }
+struct in_ifaddr {
+ struct ifaddr ia_ifa;
+ u_int32_t ia_net;
+ u_int32_t ia_netmask;
+ struct { struct in_ifaddr *tqe_next; struct in_ifaddr **tqe_prev; } ia_list;
+ struct sockaddr_in ia_addr;
+ struct sockaddr_in ia_dstaddr;
+ struct sockaddr_in ia_sockmask;
+ struct in_multi *ia_allhosts;
+};
+struct in_aliasreq {
+ char ifra_name[16];
+ union {
+  struct sockaddr_in ifrau_addr;
+  int ifrau_align;
+ } ifra_ifrau;
+ struct sockaddr_in ifra_dstaddr;
+ struct sockaddr_in ifra_mask;
+};
+struct router_info {
+ unsigned int rti_ifidx;
+ int rti_type;
+ int rti_age;
+ struct router_info *rti_next;
+};
+struct in_multi {
+ struct ifmaddr inm_ifma;
+ struct sockaddr_in inm_sin;
+ u_int inm_state;
+ u_int inm_timer;
+ struct router_info *inm_rti;
+};
+static __inline struct in_multi *
+ifmatoinm(struct ifmaddr *ifma)
+{
+       return ((struct in_multi *)(ifma));
+}
+int in_ifinit(struct ifnet *,
+     struct in_ifaddr *, struct sockaddr_in *, int);
+struct in_multi *in_addmulti(struct in_addr *, struct ifnet *);
+void in_delmulti(struct in_multi *);
+int in_hasmulti(struct in_addr *, struct ifnet *);
+void in_ifscrub(struct ifnet *, struct in_ifaddr *);
+int in_control(struct socket *, u_long, caddr_t, struct ifnet *);
+int in_ioctl(u_long, caddr_t, struct ifnet *, int);
+void in_prefixlen2mask(struct in_addr *, int);
 struct ip {
  u_int ip_v:4,
     ip_hl:4;
@@ -5058,6 +5104,148 @@ int divert_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int divert_attach(struct socket *, int);
 int divert_detach(struct socket *);
+struct in6_addrlifetime {
+ time_t ia6t_expire;
+ time_t ia6t_preferred;
+ u_int32_t ia6t_vltime;
+ u_int32_t ia6t_pltime;
+};
+struct nd_ifinfo;
+struct in6_ifextra {
+ struct nd_ifinfo *nd_ifinfo;
+ void *rs_lhcookie;
+ int nprefixes;
+ int ndefrouters;
+};
+struct in6_ifaddr {
+ struct ifaddr ia_ifa;
+ struct sockaddr_in6 ia_addr;
+ struct sockaddr_in6 ia_dstaddr;
+ struct sockaddr_in6 ia_prefixmask;
+ struct { struct in6_ifaddr *tqe_next; struct in6_ifaddr **tqe_prev; } ia_list;
+ int ia6_flags;
+ struct in6_addrlifetime ia6_lifetime;
+ time_t ia6_createtime;
+ time_t ia6_updatetime;
+ struct { struct in6_multi_mship *lh_first; } ia6_memberships;
+};
+struct in6_ifstat {
+ u_int64_t ifs6_in_receive;
+ u_int64_t ifs6_in_hdrerr;
+ u_int64_t ifs6_in_toobig;
+ u_int64_t ifs6_in_noroute;
+ u_int64_t ifs6_in_addrerr;
+ u_int64_t ifs6_in_protounknown;
+ u_int64_t ifs6_in_truncated;
+ u_int64_t ifs6_in_discard;
+ u_int64_t ifs6_in_deliver;
+ u_int64_t ifs6_out_forward;
+ u_int64_t ifs6_out_request;
+ u_int64_t ifs6_out_discard;
+ u_int64_t ifs6_out_fragok;
+ u_int64_t ifs6_out_fragfail;
+ u_int64_t ifs6_out_fragcreat;
+ u_int64_t ifs6_reass_reqd;
+ u_int64_t ifs6_reass_ok;
+ u_int64_t ifs6_reass_fail;
+ u_int64_t ifs6_in_mcast;
+ u_int64_t ifs6_out_mcast;
+};
+struct icmp6_ifstat {
+ u_int64_t ifs6_in_msg;
+ u_int64_t ifs6_in_error;
+ u_int64_t ifs6_in_dstunreach;
+ u_int64_t ifs6_in_adminprohib;
+ u_int64_t ifs6_in_timeexceed;
+ u_int64_t ifs6_in_paramprob;
+ u_int64_t ifs6_in_pkttoobig;
+ u_int64_t ifs6_in_echo;
+ u_int64_t ifs6_in_echoreply;
+ u_int64_t ifs6_in_routersolicit;
+ u_int64_t ifs6_in_routeradvert;
+ u_int64_t ifs6_in_neighborsolicit;
+ u_int64_t ifs6_in_neighboradvert;
+ u_int64_t ifs6_in_redirect;
+ u_int64_t ifs6_in_mldquery;
+ u_int64_t ifs6_in_mldreport;
+ u_int64_t ifs6_in_mlddone;
+ u_int64_t ifs6_out_msg;
+ u_int64_t ifs6_out_error;
+ u_int64_t ifs6_out_dstunreach;
+ u_int64_t ifs6_out_adminprohib;
+ u_int64_t ifs6_out_timeexceed;
+ u_int64_t ifs6_out_paramprob;
+ u_int64_t ifs6_out_pkttoobig;
+ u_int64_t ifs6_out_echo;
+ u_int64_t ifs6_out_echoreply;
+ u_int64_t ifs6_out_routersolicit;
+ u_int64_t ifs6_out_routeradvert;
+ u_int64_t ifs6_out_neighborsolicit;
+ u_int64_t ifs6_out_neighboradvert;
+ u_int64_t ifs6_out_redirect;
+ u_int64_t ifs6_out_mldquery;
+ u_int64_t ifs6_out_mldreport;
+ u_int64_t ifs6_out_mlddone;
+};
+struct in6_ifreq {
+ char ifr_name[16];
+ union {
+  struct sockaddr_in6 ifru_addr;
+  struct sockaddr_in6 ifru_dstaddr;
+  short ifru_flags;
+  int ifru_flags6;
+  int ifru_metric;
+  caddr_t ifru_data;
+  struct in6_addrlifetime ifru_lifetime;
+  struct in6_ifstat ifru_stat;
+  struct icmp6_ifstat ifru_icmp6stat;
+ } ifr_ifru;
+};
+struct in6_aliasreq {
+ char ifra_name[16];
+ union {
+  struct sockaddr_in6 ifrau_addr;
+  int ifrau_align;
+  } ifra_ifrau;
+ struct sockaddr_in6 ifra_dstaddr;
+ struct sockaddr_in6 ifra_prefixmask;
+ int ifra_flags;
+ struct in6_addrlifetime ifra_lifetime;
+};
+struct in6_multi_mship {
+ struct in6_multi *i6mm_maddr;
+ struct { struct in6_multi_mship *le_next; struct in6_multi_mship **le_prev; } i6mm_chain;
+};
+struct in6_multi {
+ struct ifmaddr in6m_ifma;
+ struct sockaddr_in6 in6m_sin;
+ u_int in6m_state;
+ u_int in6m_timer;
+};
+static __inline struct in6_multi *
+ifmatoin6m(struct ifmaddr *ifma)
+{
+       return ((struct in6_multi *)(ifma));
+}
+struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
+void in6_delmulti(struct in6_multi *);
+int in6_hasmulti(struct in6_addr *, struct ifnet *);
+struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
+void in6_leavegroup(struct in6_multi_mship *);
+int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
+int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
+int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,
+ struct in6_ifaddr *);
+void in6_purgeaddr(struct ifaddr *);
+int in6if_do_dad(struct ifnet *);
+void *in6_domifattach(struct ifnet *);
+void in6_domifdetach(struct ifnet *, void *);
+struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
+struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
+int in6_addr2scopeid(unsigned int, struct in6_addr *);
+int in6_matchlen(struct in6_addr *, struct in6_addr *);
+void in6_prefixlen2mask(struct in6_addr *, int);
+void in6_purgeprefix(struct ifnet *);
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -7741,7 +7929,7 @@ pf_state_key_attach(struct pf_state_key *sk, struct pf_state *s, int idx)
  struct pf_state_item *si;
  struct pf_state_key *cur;
  struct pf_state *olds = ((void *)0);
- ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 710, "s->key[idx] == NULL"));
+ ((s->key[idx] == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 712, "s->key[idx] == NULL"));
  if ((cur = pf_state_tree_RB_INSERT(&pf_statetbl, sk)) != ((void *)0)) {
   for((si) = ((&cur->states)->tqh_first); (si) != ((void *)0); (si) = ((si)->entry.tqe_next))
    if (si->s->kif == s->kif &&
@@ -8178,7 +8366,7 @@ pf_purge_expired_rules(void)
   return;
  while ((r = ((&pf_rule_gcl)->slh_first)) != ((void *)0)) {
   do { if ((&pf_rule_gcl)->slh_first == (r)) { do { ((&pf_rule_gcl))->slh_first = ((&pf_rule_gcl))->slh_first->gcle.sle_next; } while (0); } else { struct pf_rule *curelm = (&pf_rule_gcl)->slh_first; while (curelm->gcle.sle_next != (r)) curelm = curelm->gcle.sle_next; curelm->gcle.sle_next = curelm->gcle.sle_next->gcle.sle_next; } ((r)->gcle.sle_next) = ((void *)-1); } while (0);
-  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1229, "r->rule_flag & PFRULE_EXPIRED"));
+  ((r->rule_flag & 0x00400000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1231, "r->rule_flag & PFRULE_EXPIRED"));
   pf_purge_rule(r);
  }
 }
@@ -8191,7 +8379,7 @@ void
 pf_purge(void *xnloops)
 {
  int *nloops = xnloops;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1245);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1247);
  do { _rw_enter_write(&netlock ); } while (0);
  (void)(0);
  pf_purge_expired_states(1 + (pf_status.states
@@ -8218,8 +8406,8 @@ pf_state_expires(const struct pf_state *state)
  u_int32_t states;
  if (state->timeout == PFTM_PURGE)
   return (0);
- ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1285, "state->timeout != PFTM_UNLINKED"));
- ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1286, "state->timeout < PFTM_MAX"));
+ ((state->timeout != PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1287, "state->timeout != PFTM_UNLINKED"));
+ ((state->timeout < PFTM_MAX) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1288, "state->timeout < PFTM_MAX"));
  timeout = state->rule.ptr->timeout[state->timeout];
  if (!timeout)
   timeout = pf_default_rule.timeout[state->timeout];
@@ -8316,7 +8504,7 @@ pf_free_state(struct pf_state *cur)
  (void)(0);
  if (pfsync_state_in_use(cur))
   return;
- ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1409, "cur->timeout == PFTM_UNLINKED"));
+ ((cur->timeout == PFTM_UNLINKED) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 1411, "cur->timeout == PFTM_UNLINKED"));
  if (--cur->rule.ptr->states_cur == 0 &&
      cur->rule.ptr->src_nodes == 0)
   pf_rm_rule(((void *)0), cur->rule.ptr);
@@ -11784,12 +11972,14 @@ pf_route(struct pf_pdesc *pd, struct pf_rule *r, struct pf_state *s)
   }
   ip = ((struct ip *)((m0)->m_hdr.mh_data));
  }
- in_proto_cksum_out(m0, ifp);
  rt = rtalloc(sintosa(dst), 1, rtableid);
  if (!rtisvalid(rt)) {
   ipstat_inc(ips_noroute);
   goto bad;
  }
+ if ((((__uint32_t)(ip->ip_src.s_addr)) >> 24) == 127)
+  ip->ip_src = ifatoia(rt->rt_ifa)->ia_addr.sin_addr;
+ in_proto_cksum_out(m0, ifp);
  if (((__uint16_t)(ip->ip_len)) <= ifp->if_data.ifi_mtu) {
   ip->ip_sum = 0;
   if (ifp->if_data.ifi_capabilities & 0x00000001)
@@ -11906,7 +12096,6 @@ pf_route6(struct pf_pdesc *pd, struct pf_rule *r, struct pf_state *s)
    goto bad;
   }
  }
- in6_proto_cksum_out(m0, ifp);
  if ((((((&dst->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&dst->sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) || ((((&dst->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff) && (((&dst->sin6_addr)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x02))) || ((((&dst->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff) && (((&dst->sin6_addr)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x01)))))
   dst->sin6_addr.__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifp->if_index));
  rt = rtalloc(sin6tosa(dst), 1, rtableid);
@@ -11914,6 +12103,9 @@ pf_route6(struct pf_pdesc *pd, struct pf_rule *r, struct pf_state *s)
   ip6stat_inc(ip6s_noroute);
   goto bad;
  }
+ if (((*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&ip6->ip6_src)->__u6_addr.__u6_addr8[12]) == ((__uint32_t)(1)))))
+  ip6->ip6_src = ifatoia6(rt->rt_ifa)->ia_addr.sin6_addr;
+ in6_proto_cksum_out(m0, ifp);
  if ((mtag = m_tag_find(m0, 0x0800, ((void *)0)))) {
   (void) pf_refragment6(&m0, mtag, dst, ifp, rt);
  } else if ((u_long)m0->M_dat.MH.MH_pkthdr.len <= ifp->if_data.ifi_mtu) {
@@ -12757,7 +12949,7 @@ pf_inp_lookup(struct mbuf *m)
  else
   inp = m->M_dat.MH.MH_pkthdr.pf.statekey->inp;
  if (inp && inp->inp_pf_sk)
-  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7190, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
+  ((m->M_dat.MH.MH_pkthdr.pf.statekey == inp->inp_pf_sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7197, "m->m_pkthdr.pf.statekey == inp->inp_pf_sk"));
  return (inp);
 }
 void
@@ -12780,9 +12972,9 @@ pf_inp_unlink(struct inpcb *inp)
 void
 pf_state_key_link_reverse(struct pf_state_key *sk, struct pf_state_key *skrev)
 {
- ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7229, "sk->reverse == NULL"));
+ ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7236, "sk->reverse == NULL"));
  sk->reverse = pf_state_key_ref(skrev);
- ((skrev->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7231, "skrev->reverse == NULL"));
+ ((skrev->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7238, "skrev->reverse == NULL"));
  skrev->reverse = pf_state_key_ref(sk);
 }
 void
@@ -12807,9 +12999,9 @@ void
 pf_state_key_unref(struct pf_state_key *sk)
 {
  if (refcnt_rele(&(sk->refcnt))) {
-  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7266, "!pf_state_key_isvalid(sk)"));
-  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7268, "sk->reverse == NULL"));
-  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7270, "sk->inp == NULL"));
+  ((!pf_state_key_isvalid(sk)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7273, "!pf_state_key_isvalid(sk)"));
+  ((sk->reverse == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7275, "sk->reverse == NULL"));
+  ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7277, "sk->inp == NULL"));
   pool_put(&pf_state_key_pl, sk);
  }
 }
@@ -12830,15 +13022,15 @@ pf_mbuf_unlink_state_key(struct mbuf *m)
 void
 pf_mbuf_link_state_key(struct mbuf *m, struct pf_state_key *sk)
 {
- ((m->M_dat.MH.MH_pkthdr.pf.statekey == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7295, "m->m_pkthdr.pf.statekey == NULL"));
+ ((m->M_dat.MH.MH_pkthdr.pf.statekey == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7302, "m->m_pkthdr.pf.statekey == NULL"));
  m->M_dat.MH.MH_pkthdr.pf.statekey = pf_state_key_ref(sk);
 }
 void
 pf_state_key_link_inpcb(struct pf_state_key *sk, struct inpcb *inp)
 {
- ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7302, "sk->inp == NULL"));
+ ((sk->inp == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7309, "sk->inp == NULL"));
  sk->inp = inp;
- ((inp->inp_pf_sk == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7304, "inp->inp_pf_sk == NULL"));
+ ((inp->inp_pf_sk == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7311, "inp->inp_pf_sk == NULL"));
  inp->inp_pf_sk = pf_state_key_ref(sk);
 }
 void
@@ -12846,7 +13038,7 @@ pf_inpcb_unlink_state_key(struct inpcb *inp)
 {
  struct pf_state_key *sk = inp->inp_pf_sk;
  if (sk != ((void *)0)) {
-  ((sk->inp == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7314, "sk->inp == inp"));
+  ((sk->inp == inp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7321, "sk->inp == inp"));
   sk->inp = ((void *)0);
   inp->inp_pf_sk = ((void *)0);
   pf_state_key_unref(sk);
@@ -12857,7 +13049,7 @@ pf_state_key_unlink_inpcb(struct pf_state_key *sk)
 {
  struct inpcb *inp = sk->inp;
  if (inp != ((void *)0)) {
-  ((inp->inp_pf_sk == sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7327, "inp->inp_pf_sk == sk"));
+  ((inp->inp_pf_sk == sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7334, "inp->inp_pf_sk == sk"));
   sk->inp = ((void *)0);
   inp->inp_pf_sk = ((void *)0);
   pf_state_key_unref(sk);
@@ -12868,7 +13060,7 @@ pf_state_key_unlink_reverse(struct pf_state_key *sk)
 {
  struct pf_state_key *skrev = sk->reverse;
  if (skrev != ((void *)0)) {
-  ((skrev->reverse == sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7340, "skrev->reverse == sk"));
+  ((skrev->reverse == sk) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf.c", 7347, "skrev->reverse == sk"));
   sk->reverse = ((void *)0);
   skrev->reverse = ((void *)0);
   pf_state_key_unref(skrev);
