@@ -5102,7 +5102,7 @@ allocate_copybuffer(struct wsdisplay_softc *sc)
  }
  if (size != sc->sc_copybuffer_size && sc->sc_copybuffer_size != 0) {
   __builtin_bzero((sc->sc_copybuffer), (sc->sc_copybuffer_size));
-  free(sc->sc_copybuffer, 2, 0);
+  free(sc->sc_copybuffer, 2, sc->sc_copybuffer_size);
  }
  if ((sc->sc_copybuffer = (char *)malloc(size, 2, 0x0002)) ==
      ((void *)0)) {

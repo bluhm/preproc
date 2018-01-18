@@ -3798,7 +3798,7 @@ getkeyrepeat:
        (0x00000020 | 0x80000000));
    wskbd_update_layout(sc->id, enc);
   }
-  free(buf, 127, 0);
+  free(buf, 127, len);
   return(error);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct wskbd_map_data) & 0x1fff) << 16) | ((('W')) << 8) | ((13))):
   umdp = (struct wskbd_map_data *)data;
