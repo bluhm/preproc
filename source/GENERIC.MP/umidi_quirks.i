@@ -2037,10 +2037,6 @@ static struct umq_data umq_YAMAHA_YAMAHA_UX256_ANYIFACE[] = {
  { 1, (void *)&umq_YAMAHA_YAMAHA_UX256_ANYIFACE_fixed_ep_desc },
  { 0, }
 };
-static struct umq_data umq_YAMAHA_ANYPRODUCT_ANYIFACE[] = {
- { 2, ((void *)0) },
- { 0, }
-};
 static struct umq_fixed_ep_endpoint umq_ROLAND_ROLAND_UM1_2_fixed_ep_endpoints[1 +1]; static struct umq_fixed_ep_desc umq_ROLAND_ROLAND_UM1_2_fixed_ep_desc = { 1, 1, &umq_ROLAND_ROLAND_UM1_2_fixed_ep_endpoints[0], &umq_ROLAND_ROLAND_UM1_2_fixed_ep_endpoints[1], }; static struct umq_fixed_ep_endpoint umq_ROLAND_ROLAND_UM1_2_fixed_ep_endpoints[1 +1] = {
  { 0, 1 },
  { 1, 1 }
@@ -2179,7 +2175,6 @@ static struct umq_data umq_ROLAND_ROLAND_UMONE_ANYIFACE[] = {
 };
 struct umidi_quirk umidi_quirklist[] = {
  { 0x0499, 0x1000, -1, umq_YAMAHA_YAMAHA_UX256_ANYIFACE, 0 },
- { 0x0499, -1, -1, umq_YAMAHA_ANYPRODUCT_ANYIFACE, 0 },
  { 0x0582, 0x0009, 2, umq_ROLAND_ROLAND_UM1_2, 0 },
  { 0x0582, 0x0003, 2, umq_ROLAND_ROLAND_SC8850_2, 0 },
  { 0x0582, 0x0016, 2, umq_ROLAND_ROLAND_SD90_2, 0 },

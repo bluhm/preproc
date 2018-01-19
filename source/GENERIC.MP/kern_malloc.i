@@ -1032,6 +1032,427 @@ void malloc_printit(int (*)(const char *, ...));
 void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
+struct mdproc {
+ struct trapframe64 *md_tf;
+ struct fpstate64 *md_fpstate;
+ volatile int md_astpending;
+};
+struct kevent {
+ __uintptr_t ident;
+ short filter;
+ unsigned short flags;
+ unsigned int fflags;
+ __int64_t data;
+ void *udata;
+};
+struct knote;
+struct klist { struct knote *slh_first; };
+struct filterops {
+ int f_isfd;
+ int (*f_attach)(struct knote *kn);
+ void (*f_detach)(struct knote *kn);
+ int (*f_event)(struct knote *kn, long hint);
+};
+struct knote {
+ struct { struct knote *sle_next; } kn_link;
+ struct { struct knote *sle_next; } kn_selnext;
+ struct { struct knote *tqe_next; struct knote **tqe_prev; } kn_tqe;
+ struct kqueue *kn_kq;
+ struct kevent kn_kevent;
+ int kn_status;
+ int kn_sfflags;
+ __int64_t kn_sdata;
+ union {
+  struct file *p_fp;
+  struct process *p_process;
+ } kn_ptr;
+ const struct filterops *kn_fop;
+ void *kn_hook;
+};
+struct proc;
+extern void knote(struct klist *list, long hint);
+extern void knote_activate(struct knote *);
+extern void knote_remove(struct proc *p, struct klist *list);
+extern void knote_fdclose(struct proc *p, int fd);
+extern void knote_processexit(struct proc *);
+extern int kqueue_register(struct kqueue *kq,
+      struct kevent *kev, struct proc *p);
+extern int filt_seltrue(struct knote *kn, long hint);
+extern int seltrue_kqfilter(dev_t, struct knote *);
+extern void klist_invalidate(struct klist *);
+struct selinfo {
+ struct klist si_note;
+ pid_t si_seltid;
+ short si_flags;
+};
+struct proc;
+void selrecord(struct proc *selector, struct selinfo *);
+void selwakeup(struct selinfo *);
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
+{
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+ return (n);
+}
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+ return (r);
+}
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
+struct process;
+struct session {
+ int s_count;
+ struct process *s_leader;
+ struct vnode *s_ttyvp;
+ struct tty *s_ttyp;
+ char s_login[32];
+ pid_t s_verauthppid;
+ uid_t s_verauthuid;
+ struct timeout s_verauthto;
+};
+void zapverauth( void *);
+struct pgrp {
+ struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
+ struct { struct process *lh_first; } pg_members;
+ struct session *pg_session;
+ pid_t pg_id;
+ int pg_jobc;
+};
+struct exec_package;
+struct proc;
+struct ps_strings;
+struct uvm_object;
+union sigval;
+struct emul {
+ char e_name[8];
+ int *e_errno;
+ void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
+ int e_nosys;
+ int e_nsysent;
+ struct sysent *e_sysent;
+ char **e_syscallnames;
+ int e_arglen;
+ void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
+        void *, void *);
+ void (*e_setregs)(struct proc *, struct exec_package *,
+      u_long, register_t *);
+ int (*e_fixup)(struct proc *, struct exec_package *);
+ int (*e_coredump)(struct proc *, void *cookie);
+ char *e_sigcode;
+ char *e_esigcode;
+ char *e_esigret;
+ int e_flags;
+ struct uvm_object *e_sigobject;
+};
+struct tusage {
+ struct timespec tu_runtime;
+ uint64_t tu_uticks;
+ uint64_t tu_sticks;
+ uint64_t tu_iticks;
+};
+struct process {
+ struct proc *ps_mainproc;
+ struct ucred *ps_ucred;
+ struct { struct process *le_next; struct process **le_prev; } ps_list;
+ struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
+ struct { struct process *le_next; struct process **le_prev; } ps_pglist;
+ struct process *ps_pptr;
+ struct { struct process *le_next; struct process **le_prev; } ps_sibling;
+ struct { struct process *lh_first; } ps_children;
+ struct { struct process *le_next; struct process **le_prev; } ps_hash;
+ struct sigacts *ps_sigacts;
+ struct vnode *ps_textvp;
+ struct filedesc *ps_fd;
+ struct vmspace *ps_vmspace;
+ pid_t ps_pid;
+ struct klist ps_klist;
+ int ps_flags;
+ struct proc *ps_single;
+ int ps_singlecount;
+ int ps_traceflag;
+ struct vnode *ps_tracevp;
+ struct ucred *ps_tracecred;
+ pid_t ps_oppid;
+ int ps_ptmask;
+ struct ptrace_state *ps_ptstat;
+ struct rusage *ps_ru;
+ struct tusage ps_tu;
+ struct rusage ps_cru;
+ struct itimerval ps_timer[3];
+ u_int64_t ps_wxcounter;
+ struct plimit *ps_limit;
+ struct pgrp *ps_pgrp;
+ struct emul *ps_emul;
+ char ps_comm[16 +1];
+ vaddr_t ps_strings;
+ vaddr_t ps_sigcode;
+ vaddr_t ps_sigcoderet;
+ u_long ps_sigcookie;
+ u_int ps_rtableid;
+ char ps_nice;
+ struct uprof {
+  caddr_t pr_base;
+  size_t pr_size;
+  u_long pr_off;
+  u_int pr_scale;
+ } ps_prof;
+ u_short ps_acflag;
+ uint64_t ps_pledge;
+ uint64_t ps_execpledge;
+ int64_t ps_kbind_cookie;
+ u_long ps_kbind_addr;
+ int ps_refcnt;
+ struct timespec ps_start;
+ struct timeout ps_realit_to;
+};
+struct lock_list_entry;
+struct proc {
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
+ struct { struct proc *le_next; struct proc **le_prev; } p_list;
+ struct process *p_p;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
+ struct futex *p_futex;
+ struct filedesc *p_fd;
+ struct vmspace *p_vmspace;
+ int p_flag;
+ u_char p_spare;
+ char p_stat;
+ char p_pad1[1];
+ u_char p_descfd;
+ pid_t p_tid;
+ struct { struct proc *le_next; struct proc **le_prev; } p_hash;
+ int p_dupfd;
+ long p_thrslpid;
+ u_int p_estcpu;
+ int p_cpticks;
+ const volatile void *p_wchan;
+ struct timeout p_sleep_to;
+ const char *p_wmesg;
+ fixpt_t p_pctcpu;
+ u_int p_slptime;
+ u_int p_uticks;
+ u_int p_sticks;
+ u_int p_iticks;
+ struct cpu_info * volatile p_cpu;
+ struct rusage p_ru;
+ struct tusage p_tu;
+ struct timespec p_rtime;
+ int p_siglist;
+ sigset_t p_sigmask;
+ u_char p_priority;
+ u_char p_usrpri;
+ int p_pledge_syscall;
+ struct ucred *p_ucred;
+ struct sigaltstack p_sigstk;
+ u_long p_prof_addr;
+ u_long p_prof_ticks;
+ struct user *p_addr;
+ struct mdproc p_md;
+ sigset_t p_oldmask;
+ int p_sisig;
+ union sigval p_sigval;
+ long p_sitrapno;
+ int p_sicode;
+ u_short p_xstat;
+ struct lock_list_entry *p_sleeplocks;
+};
+struct uidinfo {
+ struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
+ uid_t ui_uid;
+ long ui_proccnt;
+ long ui_lockcnt;
+};
+struct uidinfo *uid_find(uid_t);
+extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
+extern u_long tidhash;
+extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
+extern u_long pidhash;
+extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
+extern u_long pgrphash;
+extern struct proc proc0;
+extern struct process process0;
+extern int nprocesses, maxprocess;
+extern int nthreads, maxthread;
+extern int randompid;
+struct proclist { struct proc *lh_first; };
+struct processlist { struct process *lh_first; };
+extern struct processlist allprocess;
+extern struct processlist zombprocess;
+extern struct proclist allproc;
+extern struct process *initprocess;
+extern struct proc *reaperproc;
+extern struct proc *syncerproc;
+extern struct pool process_pool;
+extern struct pool proc_pool;
+extern struct pool rusage_pool;
+extern struct pool ucred_pool;
+extern struct pool session_pool;
+extern struct pool pgrp_pool;
+void freepid(pid_t);
+struct process *prfind(pid_t);
+struct process *zombiefind(pid_t);
+struct proc *tfind(pid_t);
+struct pgrp *pgfind(pid_t);
+void proc_printit(struct proc *p, const char *modif,
+    int (*pr)(const char *, ...));
+int chgproccnt(uid_t uid, int diff);
+int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
+void fixjobc(struct process *, struct pgrp *, int);
+int inferior(struct process *, struct process *);
+void leavepgrp(struct process *);
+void preempt(void);
+void pgdelete(struct pgrp *);
+void procinit(void);
+void resetpriority(struct proc *);
+void setrunnable(struct proc *);
+void endtsleep(void *);
+void unsleep(struct proc *);
+void reaper(void);
+void exit1(struct proc *, int, int);
+void exit2(struct proc *);
+int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
+     register_t *);
+void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
+     void *_tcb, void (*_func)(void *), void *_arg);
+void cpu_exit(struct proc *);
+void process_initialize(struct process *, struct proc *);
+int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
+     void *_arg, register_t *_retval, struct proc **_newprocp);
+int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
+     pid_t *_tidptr, register_t *_retval);
+int groupmember(gid_t, struct ucred *);
+void dorefreshcreds(struct process *, struct proc *);
+void dosigsuspend(struct proc *, sigset_t);
+static inline void
+refreshcreds(struct proc *p)
+{
+ struct process *pr = p->p_p;
+ if (pr->ps_ucred != p->p_ucred)
+  dorefreshcreds(pr, p);
+}
+enum single_thread_mode {
+ SINGLE_SUSPEND,
+ SINGLE_PTRACE,
+ SINGLE_UNWIND,
+ SINGLE_EXIT
+};
+int single_thread_set(struct proc *, enum single_thread_mode, int);
+void single_thread_wait(struct process *);
+void single_thread_clear(struct proc *, int);
+int single_thread_check(struct proc *, int);
+void child_return(void *);
+int proc_cansugid(struct proc *);
+struct sleep_state {
+ int sls_s;
+ int sls_catch;
+ int sls_do_sleep;
+ int sls_sig;
+};
+struct cond {
+ int c_wait;
+};
+void proc_trampoline_mp(void);
+struct cpuset {
+ int cs_set[(((256) - 1)/32 + 1)];
+};
+void cpuset_init_cpu(struct cpu_info *);
+void cpuset_clear(struct cpuset *);
+void cpuset_add(struct cpuset *, struct cpu_info *);
+void cpuset_del(struct cpuset *, struct cpu_info *);
+int cpuset_isset(struct cpuset *, struct cpu_info *);
+void cpuset_add_all(struct cpuset *);
+void cpuset_copy(struct cpuset *, struct cpuset *);
+void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
+void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
+void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
+struct cpu_info *cpuset_first(struct cpuset *);
 typedef __int_least8_t int_least8_t;
 typedef __uint_least8_t uint_least8_t;
 typedef __int_least16_t int_least16_t;
@@ -1633,15 +2054,6 @@ int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
 typedef off_t voff_t;
@@ -2238,7 +2650,7 @@ malloc(size_t size, int type, int flags)
  int wake;
  if (((unsigned long)type) <= 1 || ((unsigned long)type) >= 146)
   panic("malloc: bogus type %d", type);
- ((flags & (0x0001 | 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 170, "flags & (M_WAITOK | M_NOWAIT)"));
+ ((flags & (0x0001 | 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 171, "flags & (M_WAITOK | M_NOWAIT)"));
  if ((flags & 0x0002) == 0) {
   extern int pool_debug;
   assertwaitok();
@@ -2267,6 +2679,9 @@ malloc(size_t size, int type, int flags)
    __mtx_leave(&malloc_mtx );
    return (((void *)0));
   }
+  if (((flags) & (0x0001)) && (__curcpu->ci_self)->ci_curproc == &proc0)
+   panic("%s: cannot sleep for memory during boot",
+       __func__);
   if (ksp->ks_limblocks < 65535)
    ksp->ks_limblocks++;
   msleep(ksp, &malloc_mtx, 0 +2, memname[type], 0);
@@ -2328,10 +2743,10 @@ malloc(size_t size, int type, int flags)
  if (freshalloc == 0 && ((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first))))) {
   int rv;
   vaddr_t addr = (vaddr_t)((__typeof(((&kbp->kb_freelist)->sqx_first)))((&kbp->kb_freelist)->sqx_cookie ^ (unsigned long)(((&kbp->kb_freelist)->sqx_first))));
-  vm_map_lock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 298);
+  vm_map_lock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 304);
   rv = uvm_map_checkprot(kmem_map, addr,
       addr + sizeof(struct kmem_freelist), 0x02);
-  vm_map_unlock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 301);
+  vm_map_unlock_ln(kmem_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_malloc.c", 307);
   if (!rv) {
    printf("%s %zd of object %p size 0x%lx %s %s"
        " (invalid addr %p)\n",
