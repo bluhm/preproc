@@ -7718,6 +7718,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
     error = copyout(pstore, p, sizeof(*p));
     if (error) {
      free(pstore, 127, sizeof(*pstore));
+     (void)(0);
      goto fail;
     }
     p++;
