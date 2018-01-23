@@ -5393,6 +5393,7 @@ struct vxlan_softc {
  u_int sc_rdomain;
  int64_t sc_vnetid;
  u_int8_t sc_ttl;
+ struct task sc_sendtask;
  struct { struct vxlan_softc *le_next; struct vxlan_softc **le_prev; } sc_entry;
 };
 void vxlanattach(int);
@@ -5410,6 +5411,7 @@ int vxlan_output(struct ifnet *, struct mbuf *);
 void vxlan_addr_change(void *);
 void vxlan_if_change(void *);
 void vxlan_link_change(void *);
+void vxlan_send_dispatch(void *);
 int vxlan_sockaddr_cmp(struct sockaddr *, struct sockaddr *);
 uint16_t vxlan_sockaddr_port(struct sockaddr *);
 struct if_clone vxlan_cloner =
@@ -5438,6 +5440,7 @@ vxlan_clone_create(struct if_clone *ifc, int unit)
  sc->sc_imo.imo_max_memberships = 15;
  sc->sc_dstport = ((__uint16_t)(4789));
  sc->sc_vnetid = 0x01ffffff;
+ task_set(&sc->sc_sendtask, vxlan_send_dispatch, sc);
  ifp = &sc->sc_ac.ac_if;
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "vxlan%d", unit);
  ifp->if_flags = 0x2 | 0x800 | 0x8000;
@@ -5470,6 +5473,8 @@ vxlan_clone_destroy(struct ifnet *ifp)
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
  if_detach(ifp);
+ if (!task_del(net_tq(ifp->if_index), &sc->sc_sendtask))
+  taskq_barrier(net_tq(ifp->if_index));
  free(sc->sc_imo.imo_membership, 53, 0);
  free(sc, 2, sizeof(*sc));
  return (0);
@@ -5559,15 +5564,32 @@ vxlan_multicast_join(struct ifnet *ifp, struct sockaddr *src,
 void
 vxlanstart(struct ifnet *ifp)
 {
+ struct vxlan_softc *sc = (struct vxlan_softc *)ifp->if_softc;
+ task_add(net_tq(ifp->if_index), &sc->sc_sendtask);
+}
+void
+vxlan_send_dispatch(void *xsc)
+{
+ struct vxlan_softc *sc = xsc;
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
  struct mbuf *m;
+ struct mbuf_list ml;
+ ml_init(&ml);
  for (;;) {
   do { (m) = ifq_dequeue(&ifp->if_snd); } while ( 0);
   if (m == ((void *)0))
-   return;
+   break;
   if (ifp->if_bpf)
    bpf_mtap(ifp->if_bpf, m, (1<<1));
+  ml_enqueue(&ml, m);
+ }
+ if (((&ml)->ml_len == 0))
+  return;
+ do { _rw_enter_read(&netlock ); } while (0);
+ while ((m = ml_dequeue(&ml)) != ((void *)0)) {
   vxlan_output(ifp, m);
  }
+ do { _rw_exit_read(&netlock ); } while (0);
 }
 int
 vxlan_config(struct ifnet *ifp, struct sockaddr *src, struct sockaddr *dst)

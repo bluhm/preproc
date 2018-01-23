@@ -5197,9 +5197,8 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
  }
  if (inp) {
   tp = ((struct tcpcb *)(inp)->inp_ppcb);
-  if (tp == ((void *)0)) {
+  if (tp == ((void *)0))
    return (0);
-  }
   ostate = tp->t_state;
  } else
   ostate = 0;
@@ -5516,15 +5515,13 @@ tcp_detach(struct socket *so)
    error = 22;
   return (error);
  }
- if (inp) {
-  tp = ((struct tcpcb *)(inp)->inp_ppcb);
-  if (tp == ((void *)0)) {
-   return (0);
-  }
-  ostate = tp->t_state;
- } else
-  ostate = 0;
- tcp_disconnect(tp);
+ tp = ((struct tcpcb *)(inp)->inp_ppcb);
+ if (tp == ((void *)0))
+  return (0);
+ ostate = tp->t_state;
+ tp = tcp_disconnect(tp);
+ if (tp && (so->so_options & 0x0001))
+  tcp_trace(2, ostate, tp, (caddr_t)0, 1, 0);
  return (error);
 }
 struct tcpcb *

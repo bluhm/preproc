@@ -5106,7 +5106,8 @@ ip_etherip_output(struct ifnet *ifp, struct mbuf *m)
  pf_pkt_addr_changed(m);
  etheripstat_pkt(etherips_opackets, etherips_obytes, m->M_dat.MH.MH_pkthdr.len -
      (sizeof(struct ip) + sizeof(struct etherip_header)));
- return ip_output(m, ((void *)0), ((void *)0), 0x2, ((void *)0), ((void *)0), 0);
+ ip_send(m);
+ return (0);
 }
 int
 ip_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
@@ -5225,7 +5226,8 @@ ip6_etherip_output(struct ifnet *ifp, struct mbuf *m)
  pf_pkt_addr_changed(m);
  etheripstat_pkt(etherips_opackets, etherips_obytes, m->M_dat.MH.MH_pkthdr.len -
      (sizeof(struct ip6_hdr) + sizeof(struct etherip_header)));
- return ip6_output(m, 0, ((void *)0), 0x04, 0, ((void *)0));
+ ip6_send(m);
+ return (0);
 drop:
  m_freem(m);
  return (error);

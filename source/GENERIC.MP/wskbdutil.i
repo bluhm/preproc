@@ -1605,7 +1605,8 @@ wskbd_init_keymap(int newlen, struct wscons_keymap **map, int *maplen)
  int i;
  if (newlen != *maplen) {
   if (*maplen > 0)
-   free(*map, 2, 0);
+   free(*map, 2,
+       *maplen * sizeof(struct wscons_keymap));
   *maplen = newlen;
   *map = mallocarray(newlen, sizeof(struct wscons_keymap),
       2, 0x0001);

@@ -3461,7 +3461,8 @@ wskbd_detach(struct device *self, int flags)
   }
   _splx(s);
  }
- free(sc->sc_map, 2, 0);
+ free(sc->sc_map, 2,
+     sc->sc_maplen * sizeof(struct wscons_keymap));
  for (maj = 0; maj < nchrdev; maj++)
   if (cdevsw[maj].d_open == wskbdopen)
    break;
