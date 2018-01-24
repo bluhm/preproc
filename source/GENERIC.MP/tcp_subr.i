@@ -3733,7 +3733,7 @@ struct tcphdr {
 };
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[4];
+extern const tcp_timer_func_t tcp_timer_funcs[5];
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3761,7 +3761,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[4];
+ struct timeout t_timer[5];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -3824,7 +3824,6 @@ struct tcpcb {
  u_short t_pmtud_ip_len;
  u_short t_pmtud_ip_hl;
  int pf;
- struct timeout t_reap_to;
 };
 extern int tcp_delack_ticks;
 void tcp_delack(void *);
@@ -4101,6 +4100,7 @@ tcpstat_pkt(enum tcpstat_counters pcounter, enum tcpstat_counters bcounter,
 {
  counters_pkt(tcpcounters, pcounter, bcounter, v);
 }
+extern struct pool tcpcb_pool;
 extern struct inpcbtable tcbtable;
 extern u_int32_t tcp_now;
 extern int tcp_do_rfc1323;
@@ -4124,7 +4124,6 @@ extern int tcp_syn_cache_active;
 void tcp_canceltimers(struct tcpcb *);
 struct tcpcb *
   tcp_close(struct tcpcb *);
-void tcp_reaper(void *);
 int tcp_freeq(struct tcpcb *);
 void tcp6_ctlinput(int, struct sockaddr *, u_int, void *);
 void tcp_ctlinput(int, struct sockaddr *, u_int, void *);
@@ -4474,9 +4473,8 @@ tcp_newtcpcb(struct inpcb *inp)
  tp->t_maxseg = tcp_mssdflt;
  tp->t_maxopd = 0;
  timeout_set_proc(&(tp)->t_delack_to, tcp_delack, tp);
- for (i = 0; i < 4; i++)
+ for (i = 0; i < 5; i++)
   timeout_set_proc(&(tp)->t_timer[(i)], tcp_timer_funcs[(i)], tp);
- timeout_set(&tp->t_reap_to, tcp_reaper, tp);
  tp->sack_enable = tcp_do_sack;
  tp->t_flags = tcp_do_rfc1323 ? (0x0020|0x0080) : 0;
  tp->t_inpcb = inp;
@@ -4533,18 +4531,11 @@ tcp_close(struct tcpcb *tp)
  }
  m_free(tp->t_template);
  tp->t_flags |= 0x00200000;
- timeout_add(&tp->t_reap_to, 0);
- inp->inp_ppcb = 0;
+ timeout_add(&(tp)->t_timer[(4)], (0) * (hz / 2));
+ inp->inp_ppcb = ((void *)0);
  soisdisconnected(so);
  in_pcbdetach(inp);
  return (((void *)0));
-}
-void
-tcp_reaper(void *arg)
-{
- struct tcpcb *tp = arg;
- pool_put(&tcpcb_pool, tp);
- tcpstat_inc(tcps_closed);
 }
 int
 tcp_freeq(struct tcpcb *tp)

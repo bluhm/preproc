@@ -4389,7 +4389,7 @@ struct udphdr {
  u_int16_t uh_sum;
 };
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[4];
+extern const tcp_timer_func_t tcp_timer_funcs[5];
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -4417,7 +4417,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[4];
+ struct timeout t_timer[5];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -4480,7 +4480,6 @@ struct tcpcb {
  u_short t_pmtud_ip_len;
  u_short t_pmtud_ip_hl;
  int pf;
- struct timeout t_reap_to;
 };
 extern int tcp_delack_ticks;
 void tcp_delack(void *);
@@ -4757,6 +4756,7 @@ tcpstat_pkt(enum tcpstat_counters pcounter, enum tcpstat_counters bcounter,
 {
  counters_pkt(tcpcounters, pcounter, bcounter, v);
 }
+extern struct pool tcpcb_pool;
 extern struct inpcbtable tcbtable;
 extern u_int32_t tcp_now;
 extern int tcp_do_rfc1323;
@@ -4780,7 +4780,6 @@ extern int tcp_syn_cache_active;
 void tcp_canceltimers(struct tcpcb *);
 struct tcpcb *
   tcp_close(struct tcpcb *);
-void tcp_reaper(void *);
 int tcp_freeq(struct tcpcb *);
 void tcp6_ctlinput(int, struct sockaddr *, u_int, void *);
 void tcp_ctlinput(int, struct sockaddr *, u_int, void *);

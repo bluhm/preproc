@@ -3401,7 +3401,7 @@ rt6_flush(struct in6_addr *gateway, struct ifnet *ifp)
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (!(((gateway)->__u6_addr.__u6_addr8[0] == 0xfe) && (((gateway)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80)))
   return;
- gateway->__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifp->if_index));
+ ((gateway->__u6_addr.__u6_addr16[1] != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6_rtr.c", 185, "gateway->s6_addr16[1] != 0"));
  rtable_walk(ifp->if_data.ifi_rdomain, 24, rt6_deleteroute, gateway);
 }
 int

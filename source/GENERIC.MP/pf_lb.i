@@ -4044,7 +4044,7 @@ struct tcphdr {
 };
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[4];
+extern const tcp_timer_func_t tcp_timer_funcs[5];
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
