@@ -2755,6 +2755,8 @@ int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
 int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
+void *bpfsattach(caddr_t *, const char *, u_int, u_int);
+void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
 struct __trhead { struct trunk_softc *slh_first; } trunk_list;
