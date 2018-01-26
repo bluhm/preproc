@@ -1327,7 +1327,7 @@ _kernel_lock_init(void)
 void
 _kernel_lock(const char *file, int line)
 {
- do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 80, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 104, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  ___mp_lock((&kernel_lock) );
 }
 void

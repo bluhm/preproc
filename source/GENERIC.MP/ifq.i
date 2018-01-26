@@ -2737,12 +2737,8 @@ void
 ifiq_destroy(struct ifiqueue *ifiq)
 {
  if (!task_del(ifiq->ifiq_softnet, &ifiq->ifiq_task)) {
-  int netlocked = (rw_status(&netlock) == 0x0001UL);
-  if (netlocked)
-   do { _rw_exit_write(&netlock ); } while (0);
+  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0);
   taskq_barrier(ifiq->ifiq_softnet);
-  if (netlocked)
-   do { _rw_enter_write(&netlock ); } while (0);
  }
  ml_purge(&ifiq->ifiq_ml);
 }
@@ -2865,7 +2861,7 @@ priq_enq(struct ifqueue *ifq, struct mbuf *m)
  struct mbuf *n = ((void *)0);
  unsigned int prio;
  pq = ifq->ifq_q;
- ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 619, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
+ ((m->M_dat.MH.MH_pkthdr.pf.prio <= 8 - 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 612, "m->m_pkthdr.pf.prio <= IFQ_MAXPRIO"));
  if (((ifq)->ifq_len) >= ifq->ifq_maxlen) {
   for (prio = 0; prio < m->M_dat.MH.MH_pkthdr.pf.prio; prio++) {
    pl = &pq->pq_lists[prio];
@@ -2902,7 +2898,7 @@ void
 priq_deq_commit(struct ifqueue *ifq, struct mbuf *m, void *cookie)
 {
  struct mbuf_list *pl = cookie;
- ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 669, "MBUF_LIST_FIRST(pl) == m"));
+ ((((pl)->ml_head) == m) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ifq.c", 662, "MBUF_LIST_FIRST(pl) == m"));
  ml_dequeue(pl);
 }
 void
