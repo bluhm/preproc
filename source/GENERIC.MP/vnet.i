@@ -4688,6 +4688,13 @@ vnet_rx_intr(void *arg)
    lc->lc_tx_seqid = 0;
    lc->lc_state = 0;
    lc->lc_reset(lc);
+   if (rx_head == rx_tail)
+    break;
+   ;
+   err = hv_ldc_rx_set_qhead(lc->lc_id, rx_tail);
+   if (err == 0)
+    break;
+   printf("%s: hv_ldc_rx_set_qhead %d\n", __func__, err);
    break;
   case 1:
    ;
@@ -4699,6 +4706,13 @@ vnet_rx_intr(void *arg)
    lc->lc_state = 0;
    lc->lc_reset(lc);
    timeout_add_msec(&sc->sc_handshake_to, 500);
+   if (rx_head == rx_tail)
+    break;
+   ;
+   err = hv_ldc_rx_set_qhead(lc->lc_id, rx_tail);
+   if (err == 0)
+    break;
+   printf("%s: hv_ldc_rx_set_qhead %d\n", __func__, err);
    break;
   }
   lc->lc_rx_state = rx_state;
@@ -4915,7 +4929,7 @@ vnet_rx_vio_rdx(struct vnet_softc *sc, struct vio_msg_tag *tag)
      ((sc->sc_vio_state) & (0x0400))) {
   vnet_link_state(sc);
   vnet_setmulti(sc, 1);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 661);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 677);
   ifq_clr_oactive(&ifp->if_snd);
   vnet_start(ifp);
   _kernel_unlock();
@@ -5101,7 +5115,7 @@ vnet_rx_vio_dring_data(struct vnet_softc *sc, struct vio_msg_tag *tag)
   count = sc->sc_tx_prod - sc->sc_tx_cons;
   if (count > 0 && sc->sc_peer_state != 0x01)
    vnet_send_dring_data(sc, cons);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 889);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 905);
   if (count < (sc->sc_vd->vd_nentries - 1))
    ifq_clr_oactive(&ifp->if_snd);
   if (count == 0)
@@ -5297,7 +5311,7 @@ vnet_start(struct ifnet *ifp)
   if (ifp->if_bpf)
    bpf_mtap(ifp->if_bpf, m, (1<<1));
   pmap_extract((&kernel_pmap_), (vaddr_t)buf, &pa);
-  (((pa & ~((1 << 13) - 1)) == (pa & 0x007fffffffffe000ULL)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1137, "(pa & ~PAGE_MASK) == (pa & LDC_MTE_RA_MASK)"));
+  (((pa & ~((1 << 13) - 1)) == (pa & 0x007fffffffffe000ULL)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1153, "(pa & ~PAGE_MASK) == (pa & LDC_MTE_RA_MASK)"));
   while (map->lm_slot[map->lm_next].entry != 0) {
    map->lm_next++;
    map->lm_next &= (map->lm_nentries - 1);
@@ -5355,7 +5369,7 @@ vnet_start_desc(struct ifnet *ifp)
   if (ifp->if_bpf)
    bpf_mtap(ifp->if_bpf, m, (1<<1));
   pmap_extract((&kernel_pmap_), (vaddr_t)buf, &pa);
-  (((pa & ~((1 << 13) - 1)) == (pa & 0x007fffffffffe000ULL)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1214, "(pa & ~PAGE_MASK) == (pa & LDC_MTE_RA_MASK)"));
+  (((pa & ~((1 << 13) - 1)) == (pa & 0x007fffffffffe000ULL)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1230, "(pa & ~PAGE_MASK) == (pa & LDC_MTE_RA_MASK)"));
   while (map->lm_slot[map->lm_next].entry != 0) {
    map->lm_next++;
    map->lm_next &= (map->lm_nentries - 1);
@@ -5446,7 +5460,7 @@ vnet_link_state(struct vnet_softc *sc)
 {
  struct ifnet *ifp = &sc->sc_ac.ac_if;
  int link_state = 2;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1328);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1344);
  if (((sc->sc_vio_state) & (0x0800)) &&
      ((sc->sc_vio_state) & (0x0400)))
   link_state = 6;
@@ -5473,7 +5487,7 @@ vnet_setmulti(struct vnet_softc *sc, int set)
  mi.tag.stype_env = 0x0101;
  mi.tag.sid = sc->sc_local_sid;
  mi.set = set ? 1 : 0;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1358);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/dev/vnet.c", 1374);
  do { (step).e_enm = ((&(ac)->ac_multiaddrs)->lh_first); do { if ((((enm)) = ((step)).e_enm) != ((void *)0)) ((step)).e_enm = ((((enm)))->enm_list.le_next); } while ( 0); } while ( 0);
  while (enm != ((void *)0)) {
   __builtin_bcopy((enm->enm_addrlo), (mi.mcast_addr[count]), (6));

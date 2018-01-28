@@ -3819,6 +3819,13 @@ vldcp_rx_intr(void *arg)
    break;
   case 2:
    ;
+   if (rx_head == rx_tail)
+    break;
+   ;
+   err = hv_ldc_rx_set_qhead(lc->lc_id, rx_tail);
+   if (err == 0)
+    break;
+   printf("%s: hv_ldc_rx_set_qhead %d\n", __func__, err);
    break;
   }
   lc->lc_rx_state = rx_state;
@@ -3911,12 +3918,12 @@ retry:
   device_unref(&sc->sc_dv);
   return (5);
  }
+ ;
  if (rx_state != 1) {
   _splx(s);
   device_unref(&sc->sc_dv);
   return (5);
  }
- ;
  if (rx_head == rx_tail) {
   cbus_intr_setenabled(sc->sc_bustag, sc->sc_rx_ino,
       1);

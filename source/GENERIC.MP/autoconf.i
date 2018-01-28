@@ -6991,10 +6991,11 @@ nail_bootdev(struct device *dev, struct bootpath *bp)
  bootpath_store(1, ((void *)0));
 }
 struct nam2blk nam2blk[] = {
- { "sd", 7 },
  { "rd", 5 },
- { "wd", 12 },
- { "cd", 18 },
+ { "sd", 7 },
  { "vnd", 8 },
+ { "wd", 12 },
+ { "fd", 16 },
+ { "cd", 18 },
  { ((void *)0), -1 }
 };
