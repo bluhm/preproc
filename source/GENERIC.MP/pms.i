@@ -2542,7 +2542,6 @@ static const struct alps_model {
  { 0x7321, 0xf8, (1 << 1) },
  { 0x7322, 0xf8, (1 << 1) },
  { 0x7325, 0xcf, (1 << 1) },
- { 0x7331, 0x8f, (1 << 2) },
 };
 static struct wsmouse_param synaptics_params[] = {
  { WSMOUSECFG_PRESSURE_LO, 25 },
@@ -3480,10 +3479,11 @@ alps_get_hwinfo(struct pms_softc *sc)
    hw = wsmouse_get_hw(sc->sc_wsmousedev);
    hw->type = 16;
    hw->hw_type = WSMOUSEHW_TOUCHPAD;
-   hw->x_min = 130;
-   hw->y_min = 130;
-   hw->x_max = 840;
-   hw->y_max = 640;
+   hw->x_min = 0;
+   hw->y_min = 0;
+   hw->x_max = 1023;
+   hw->y_max = 767;
+   hw->contacts_max = 1;
    return (0);
   }
  return (-1);
@@ -3652,7 +3652,7 @@ pms_proc_alps(struct pms_softc *sc)
  }
  if ((sc->sc_dev_enable & 0x01) == 0)
   return;
- y = 640 - y + 130;
+ y = 767 - y + 0;
  if (alps->gesture == 0x01) {
   do { wsmouse_buttons((sc->sc_wsmousedev), (buttons)); wsmouse_position((sc->sc_wsmousedev), (alps->old_x), (alps->old_y)); wsmouse_touch((sc->sc_wsmousedev), (40), (0)); wsmouse_input_sync(sc->sc_wsmousedev); } while (0);
   if (z > 0) {
