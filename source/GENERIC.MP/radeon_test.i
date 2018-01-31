@@ -4090,6 +4090,7 @@ hlist_del_init(struct hlist_node *node)
  node->next = ((void *)0);
  node->prev = ((void *)0);
 }
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
 typedef int irqreturn_t;
 enum irqreturn {
  IRQ_NONE = 0,
@@ -4304,6 +4305,12 @@ _complete_all(struct completion *x )
 struct workqueue_struct;
 static inline struct workqueue_struct *
 alloc_ordered_workqueue(const char *name, int flags)
+{
+ struct taskq *tq = taskq_create(name, 1, 6, 0);
+ return (struct workqueue_struct *)tq;
+}
+static inline struct workqueue_struct *
+create_singlethread_workqueue(const char *name)
 {
  struct taskq *tq = taskq_create(name, 1, 6, 0);
  return (struct workqueue_struct *)tq;
@@ -4558,6 +4565,11 @@ kasprintf(int flags, const char *fmt, ...)
   __builtin_va_end((ap));
  }
  return buf;
+}
+static inline void *
+vmalloc(unsigned long size)
+{
+ return malloc(size, 145, 0x0001 | 0x0004);
 }
 static inline void *
 vzalloc(unsigned long size)
@@ -4892,6 +4904,27 @@ pci_bus_read_config_byte(struct pci_bus *bus, unsigned int devfn,
  *val = (v >> ((reg64 & 0x3) * 8));
  return 0;
 }
+static inline int
+pci_pcie_cap(struct pci_dev *pdev)
+{
+ int pos;
+ if (!pci_get_capability(pdev->pc, pdev->tag, 0x10,
+     &pos, ((void *)0)))
+  return -22;
+ return pos;
+}
+static inline int
+pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
+{
+ int pos;
+ if (!pci_get_capability(pdev->pc, pdev->tag, 0x10,
+     &pos, ((void *)0))) {
+  *val = 0;
+  return -22;
+ }
+ *val = pci_conf_read(pdev->pc, pdev->tag, pos + off);
+ return 0;
+}
 typedef enum {
  PCI_D0,
  PCI_D1,
@@ -4938,6 +4971,7 @@ i2c_set_adapdata(struct i2c_adapter *adap, void *data)
 {
  adap->data = data;
 }
+int i2c_bit_add_bus(struct i2c_adapter *);
 static inline u32
 ioread32(const volatile void *addr)
 {
@@ -4953,6 +4987,11 @@ iowrite32(u32 val, volatile void *addr)
 {
  *(volatile uint32_t *)addr = val;
 }
+static inline void
+iowrite64(u64 val, volatile void *addr)
+{
+ *(volatile uint64_t *)addr = val;
+}
 static inline int
 access_ok(int type, const void *addr, unsigned long size)
 {
@@ -4961,7 +5000,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1686, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -4969,6 +5008,18 @@ void *kmap(struct vm_page *);
 void kunmap(void *addr);
 void *vmap(struct vm_page **, unsigned int, unsigned long, pgprot_t);
 void vunmap(void *, size_t);
+static inline unsigned long
+gcd(unsigned long a, unsigned long b)
+{
+ unsigned long c;
+ c = a % b;
+ while (c != 0) {
+  a = b;
+  b = c;
+  c = a % b;
+ }
+ return (b);
+}
 static inline unsigned long
 roundup_pow_of_two(unsigned long x)
 {
@@ -5024,6 +5075,11 @@ static inline int
 power_supply_is_system_supplied(void)
 {
  return (1);
+}
+static inline int
+pm_runtime_get_sync(struct device *dev)
+{
+ return 0;
 }
 static inline int
 isascii(int c)

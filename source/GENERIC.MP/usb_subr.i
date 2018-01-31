@@ -5324,6 +5324,10 @@ const struct usb_known_product usb_known_products[] = {
      "DWA-127",
  },
  {
+     0x2001, 0x3c1e,
+     "DWA-125 rev B2",
+ },
+ {
      0x2001, 0x3c1f,
      "DWA-162 Wireless Adapter",
  },
