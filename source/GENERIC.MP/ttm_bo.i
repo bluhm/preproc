@@ -4358,7 +4358,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4669,7 +4669,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4820,12 +4820,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4921,6 +4923,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5008,7 +5015,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5923,7 +5930,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7439,35 +7446,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8406,7 +8413,7 @@ static inline uint32_t ttm_bo_type_flags(unsigned type)
 static void ttm_bo_release_list(struct kref *list_kref)
 {
  struct ttm_buffer_object *bo =
-     ({ __typeof( ((struct ttm_buffer_object *)0)->list_kref ) *__mptr = (list_kref); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, list_kref) );});
+     ({ const __typeof( ((struct ttm_buffer_object *)0)->list_kref ) *__mptr = (list_kref); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, list_kref) );});
  struct ttm_bo_device *bdev = bo->bdev;
  size_t acc_size = bo->acc_size;
  ((!((*(&bo->list_kref.refcount)))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo.c", 150, "!((*(&bo->list_kref.refcount)))"));
@@ -8773,12 +8780,12 @@ static int ttm_bo_delayed_delete(struct ttm_bo_device *bdev, _Bool remove_all)
  __mtx_enter(&glob->lru_lock );
  if (list_empty(&bdev->ddestroy))
   goto out_unlock;
- entry = ({ __typeof( ((struct ttm_buffer_object *)0)->ddestroy ) *__mptr = ((&bdev->ddestroy)->next); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, ddestroy) );});
+ entry = ({ const __typeof( ((struct ttm_buffer_object *)0)->ddestroy ) *__mptr = ((&bdev->ddestroy)->next); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, ddestroy) );});
  kref_get(&entry->list_kref);
  for (;;) {
   struct ttm_buffer_object *nentry = ((void *)0);
   if (entry->ddestroy.next != &bdev->ddestroy) {
-   nentry = ({ __typeof( ((struct ttm_buffer_object *)0)->ddestroy ) *__mptr = ((&entry->ddestroy)->next); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, ddestroy) );});
+   nentry = ({ const __typeof( ((struct ttm_buffer_object *)0)->ddestroy ) *__mptr = ((&entry->ddestroy)->next); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, ddestroy) );});
    kref_get(&nentry->list_kref);
   }
   ret = ttm_bo_reserve_locked(entry, 0, !remove_all, 0, 0);
@@ -8805,7 +8812,7 @@ out:
 static void ttm_bo_delayed_workqueue(struct work_struct *work)
 {
  struct ttm_bo_device *bdev =
-     ({ __typeof( ((struct ttm_bo_device *)0)->wq.work ) *__mptr = (work); (struct ttm_bo_device *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_device, wq.work) );});
+     ({ const __typeof( ((struct ttm_bo_device *)0)->wq.work ) *__mptr = (work); (struct ttm_bo_device *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_device, wq.work) );});
  if (ttm_bo_delayed_delete(bdev, 0)) {
   schedule_delayed_work(&bdev->wq,
           ((hz / 100) < 1) ? 1 : hz / 100);
@@ -8814,7 +8821,7 @@ static void ttm_bo_delayed_workqueue(struct work_struct *work)
 static void ttm_bo_release(struct kref *kref)
 {
  struct ttm_buffer_object *bo =
-     ({ __typeof( ((struct ttm_buffer_object *)0)->kref ) *__mptr = (kref); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, kref) );});
+     ({ const __typeof( ((struct ttm_buffer_object *)0)->kref ) *__mptr = (kref); (struct ttm_buffer_object *)( (char *)__mptr - __builtin_offsetof(struct ttm_buffer_object, kref) );});
  struct ttm_bo_device *bdev = bo->bdev;
  struct ttm_mem_type_manager *man = &bdev->man[bo->mem.mem_type];
  drm_vma_offset_remove(&bdev->vma_manager, &bo->vma_node);
@@ -8900,7 +8907,7 @@ static int ttm_mem_evict_first(struct ttm_bo_device *bdev,
  struct ttm_buffer_object *bo;
  int ret = -16, put_count;
  __mtx_enter(&glob->lru_lock );
- for (bo = ({ __typeof( ((__typeof(*bo) *)0)->lru ) *__mptr = ((&man->lru)->next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), lru) );}); &bo->lru != (&man->lru); bo = ({ __typeof( ((__typeof(*bo) *)0)->lru ) *__mptr = (bo->lru.next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), lru) );})) {
+ for (bo = ({ const __typeof( ((__typeof(*bo) *)0)->lru ) *__mptr = ((&man->lru)->next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), lru) );}); &bo->lru != (&man->lru); bo = ({ const __typeof( ((__typeof(*bo) *)0)->lru ) *__mptr = (bo->lru.next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), lru) );})) {
   ret = ttm_bo_reserve_locked(bo, 0, 1, 0, 0);
   if (!ret)
    break;
@@ -9387,7 +9394,7 @@ int ttm_bo_init_mm(struct ttm_bo_device *bdev, unsigned type,
 static void ttm_bo_global_kobj_release(struct kobject *kobj)
 {
  struct ttm_bo_global *glob =
-  ({ __typeof( ((struct ttm_bo_global *)0)->kobj ) *__mptr = (kobj); (struct ttm_bo_global *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global, kobj) );});
+  ({ const __typeof( ((struct ttm_bo_global *)0)->kobj ) *__mptr = (kobj); (struct ttm_bo_global *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global, kobj) );});
  ttm_mem_unregister_shrink(glob->mem_glob, &glob->shrink);
  km_free(glob->dummy_read_page, (1 << 13), &kv_any, &kp_dma_zero);
  kfree(glob);
@@ -9402,7 +9409,7 @@ void ttm_bo_global_release(struct drm_global_reference *ref)
 int ttm_bo_global_init(struct drm_global_reference *ref)
 {
  struct ttm_bo_global_ref *bo_ref =
-  ({ __typeof( ((struct ttm_bo_global_ref *)0)->ref ) *__mptr = (ref); (struct ttm_bo_global_ref *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global_ref, ref) );});
+  ({ const __typeof( ((struct ttm_bo_global_ref *)0)->ref ) *__mptr = (ref); (struct ttm_bo_global_ref *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global_ref, ref) );});
  struct ttm_bo_global *glob = ref->object;
  int ret;
  _rw_init_flags(&glob->device_list_mutex, "ttm_devlist", 0, ((void *)0));
@@ -9625,13 +9632,13 @@ void ttm_bo_synccpu_write_release(struct ttm_buffer_object *bo)
 static int ttm_bo_swapout(struct ttm_mem_shrink *shrink)
 {
  struct ttm_bo_global *glob =
-     ({ __typeof( ((struct ttm_bo_global *)0)->shrink ) *__mptr = (shrink); (struct ttm_bo_global *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global, shrink) );});
+     ({ const __typeof( ((struct ttm_bo_global *)0)->shrink ) *__mptr = (shrink); (struct ttm_bo_global *)( (char *)__mptr - __builtin_offsetof(struct ttm_bo_global, shrink) );});
  struct ttm_buffer_object *bo;
  int ret = -16;
  int put_count;
  uint32_t swap_placement = ((1 << 16) | (1 << 0));
  __mtx_enter(&glob->lru_lock );
- for (bo = ({ __typeof( ((__typeof(*bo) *)0)->swap ) *__mptr = ((&glob->swap_lru)->next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), swap) );}); &bo->swap != (&glob->swap_lru); bo = ({ __typeof( ((__typeof(*bo) *)0)->swap ) *__mptr = (bo->swap.next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), swap) );})) {
+ for (bo = ({ const __typeof( ((__typeof(*bo) *)0)->swap ) *__mptr = ((&glob->swap_lru)->next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), swap) );}); &bo->swap != (&glob->swap_lru); bo = ({ const __typeof( ((__typeof(*bo) *)0)->swap ) *__mptr = (bo->swap.next); (__typeof(*bo) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bo), swap) );})) {
   ret = ttm_bo_reserve_locked(bo, 0, 1, 0, 0);
   if (!ret)
    break;

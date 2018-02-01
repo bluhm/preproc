@@ -3607,7 +3607,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -3918,7 +3918,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4069,12 +4069,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4170,6 +4172,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -4257,7 +4264,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -6307,7 +6314,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7823,35 +7830,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -9099,7 +9106,7 @@ static struct drm_dp_mst_branch *drm_dp_add_mst_branch_device(u8 lct, u8 *rad)
 static void drm_dp_free_mst_port(struct kref *kref);
 static void drm_dp_free_mst_branch_device(struct kref *kref)
 {
- struct drm_dp_mst_branch *mstb = ({ __typeof( ((struct drm_dp_mst_branch *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_branch *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_branch, kref) );});
+ struct drm_dp_mst_branch *mstb = ({ const __typeof( ((struct drm_dp_mst_branch *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_branch *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_branch, kref) );});
  if (mstb->port_parent) {
   if (list_empty(&mstb->port_parent->next))
    kref_put(&mstb->port_parent->kref, drm_dp_free_mst_port);
@@ -9108,13 +9115,13 @@ static void drm_dp_free_mst_branch_device(struct kref *kref)
 }
 static void drm_dp_destroy_mst_branch_device(struct kref *kref)
 {
- struct drm_dp_mst_branch *mstb = ({ __typeof( ((struct drm_dp_mst_branch *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_branch *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_branch, kref) );});
+ struct drm_dp_mst_branch *mstb = ({ const __typeof( ((struct drm_dp_mst_branch *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_branch *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_branch, kref) );});
  struct drm_dp_mst_port *port, *tmp;
  _Bool wake_tx = 0;
  kref_init(kref);
  if (mstb->port_parent && list_empty(&mstb->port_parent->next))
   kref_get(&mstb->port_parent->kref);
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}), tmp = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = tmp, tmp = ({ __typeof( ((__typeof(*tmp) *)0)->next ) *__mptr = (tmp->next.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}), tmp = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->next ) *__mptr = (tmp->next.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), next) );})) {
   list_del(&port->next);
   drm_dp_put_port(port);
  }
@@ -9155,7 +9162,7 @@ static void drm_dp_port_teardown_pdt(struct drm_dp_mst_port *port, int old_pdt)
 }
 static void drm_dp_destroy_port(struct kref *kref)
 {
- struct drm_dp_mst_port *port = ({ __typeof( ((struct drm_dp_mst_port *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, kref) );});
+ struct drm_dp_mst_port *port = ({ const __typeof( ((struct drm_dp_mst_port *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, kref) );});
  struct drm_dp_mst_topology_mgr *mgr = port->mgr;
  if (!port->input) {
   port->vcpi.num_slots = 0;
@@ -9185,7 +9192,7 @@ static struct drm_dp_mst_branch *drm_dp_mst_get_validated_mstb_ref_locked(struct
   kref_get(&mstb->kref);
   return mstb;
  }
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
   if (port->mstb) {
    rmstb = drm_dp_mst_get_validated_mstb_ref_locked(port->mstb, to_find);
    if (rmstb)
@@ -9206,7 +9213,7 @@ static struct drm_dp_mst_branch *drm_dp_get_validated_mstb_ref(struct drm_dp_mst
 static struct drm_dp_mst_port *drm_dp_mst_get_port_ref_locked(struct drm_dp_mst_branch *mstb, struct drm_dp_mst_port *to_find)
 {
  struct drm_dp_mst_port *port, *mport;
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
   if (port == to_find) {
    kref_get(&port->kref);
    return port;
@@ -9231,7 +9238,7 @@ static struct drm_dp_mst_port *drm_dp_get_validated_port_ref(struct drm_dp_mst_t
 static struct drm_dp_mst_port *drm_dp_get_port(struct drm_dp_mst_branch *mstb, u8 port_num)
 {
  struct drm_dp_mst_port *port;
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
   if (port->port_num == port_num) {
    kref_get(&port->kref);
    return port;
@@ -9429,7 +9436,7 @@ static struct drm_dp_mst_branch *drm_dp_get_mst_branch_device(struct drm_dp_mst_
  for (i = 0; i < lct - 1; i++) {
   int shift = (i % 2) ? 0 : 4;
   int port_num = (rad[i / 2] >> shift) & 0xf;
-  for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+  for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
    if (port->port_num == port_num) {
     mstb = port->mstb;
     if (!mstb) {
@@ -9453,7 +9460,7 @@ static struct drm_dp_mst_branch *get_mst_branch_device_by_guid_helper(
  struct drm_dp_mst_port *port;
  if (__builtin_memcmp((mstb->guid), (guid), (16)) == 0)
   return mstb;
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
   if (!port->mstb)
    continue;
   found_mstb = get_mst_branch_device_by_guid_helper(port->mstb, guid);
@@ -9481,7 +9488,7 @@ static void drm_dp_check_and_send_link_address(struct drm_dp_mst_topology_mgr *m
  struct drm_dp_mst_branch *mstb_child;
  if (!mstb->link_address_sent)
   drm_dp_send_link_address(mgr, mstb);
- for (port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
+ for (port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = ((&mstb->ports)->next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );}); &port->next != (&mstb->ports); port = ({ const __typeof( ((__typeof(*port) *)0)->next ) *__mptr = (port->next.next); (__typeof(*port) *)( (char *)__mptr - __builtin_offsetof(__typeof(*port), next) );})) {
   if (port->input)
    continue;
   if (!port->ddps)
@@ -9499,7 +9506,7 @@ static void drm_dp_check_and_send_link_address(struct drm_dp_mst_topology_mgr *m
 }
 static void drm_dp_mst_link_probe_work(struct work_struct *work)
 {
- struct drm_dp_mst_topology_mgr *mgr = ({ __typeof( ((struct drm_dp_mst_topology_mgr *)0)->work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, work) );});
+ struct drm_dp_mst_topology_mgr *mgr = ({ const __typeof( ((struct drm_dp_mst_topology_mgr *)0)->work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, work) );});
  struct drm_dp_mst_branch *mstb;
  _rw_enter_write(&mgr->lock );
  mstb = mgr->mst_primary;
@@ -9635,7 +9642,7 @@ static void process_single_down_tx_qlock(struct drm_dp_mst_topology_mgr *mgr)
   return;
  }
  mgr->tx_down_in_progress = 1;
- txmsg = ({ __typeof( ((struct drm_dp_sideband_msg_tx *)0)->next ) *__mptr = ((&mgr->tx_msg_downq)->next); (struct drm_dp_sideband_msg_tx *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_sideband_msg_tx, next) );});
+ txmsg = ({ const __typeof( ((struct drm_dp_sideband_msg_tx *)0)->next ) *__mptr = ((&mgr->tx_msg_downq)->next); (struct drm_dp_sideband_msg_tx *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_sideband_msg_tx, next) );});
  ret = process_single_tx_qlock(mgr, txmsg, 0);
  if (ret == 1) {
   list_del(&txmsg->next);
@@ -9856,7 +9863,7 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
  for (i = 0; i < mgr->max_payloads; i++) {
   req_payload.start_slot = cur_slots;
   if (mgr->proposed_vcpis[i]) {
-   port = ({ __typeof( ((struct drm_dp_mst_port *)0)->vcpi ) *__mptr = (mgr->proposed_vcpis[i]); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, vcpi) );});
+   port = ({ const __typeof( ((struct drm_dp_mst_port *)0)->vcpi ) *__mptr = (mgr->proposed_vcpis[i]); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, vcpi) );});
    port = drm_dp_get_validated_port_ref(mgr, port);
    if (!port) {
     _rw_exit_write(&mgr->payload_lock );
@@ -9916,7 +9923,7 @@ int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr)
  for (i = 0; i < mgr->max_payloads; i++) {
   if (!mgr->proposed_vcpis[i])
    continue;
-  port = ({ __typeof( ((struct drm_dp_mst_port *)0)->vcpi ) *__mptr = (mgr->proposed_vcpis[i]); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, vcpi) );});
+  port = ({ const __typeof( ((struct drm_dp_mst_port *)0)->vcpi ) *__mptr = (mgr->proposed_vcpis[i]); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, vcpi) );});
   do { } while( 0);
   if (mgr->payloads[i].payload_state == 1) {
    ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
@@ -10508,7 +10515,7 @@ static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr)
 }
 static void drm_dp_tx_work(struct work_struct *work)
 {
- struct drm_dp_mst_topology_mgr *mgr = ({ __typeof( ((struct drm_dp_mst_topology_mgr *)0)->tx_work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, tx_work) );});
+ struct drm_dp_mst_topology_mgr *mgr = ({ const __typeof( ((struct drm_dp_mst_topology_mgr *)0)->tx_work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, tx_work) );});
  _rw_enter_write(&mgr->qlock );
  if (mgr->tx_down_in_progress)
   process_single_down_tx_qlock(mgr);
@@ -10516,18 +10523,18 @@ static void drm_dp_tx_work(struct work_struct *work)
 }
 static void drm_dp_free_mst_port(struct kref *kref)
 {
- struct drm_dp_mst_port *port = ({ __typeof( ((struct drm_dp_mst_port *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, kref) );});
+ struct drm_dp_mst_port *port = ({ const __typeof( ((struct drm_dp_mst_port *)0)->kref ) *__mptr = (kref); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, kref) );});
  kref_put(&port->parent->kref, drm_dp_free_mst_branch_device);
  kfree(port);
 }
 static void drm_dp_destroy_connector_work(struct work_struct *work)
 {
- struct drm_dp_mst_topology_mgr *mgr = ({ __typeof( ((struct drm_dp_mst_topology_mgr *)0)->destroy_connector_work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, destroy_connector_work) );});
+ struct drm_dp_mst_topology_mgr *mgr = ({ const __typeof( ((struct drm_dp_mst_topology_mgr *)0)->destroy_connector_work ) *__mptr = (work); (struct drm_dp_mst_topology_mgr *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_topology_mgr, destroy_connector_work) );});
  struct drm_dp_mst_port *port;
  _Bool send_hotplug = 0;
  for (;;) {
   _rw_enter_write(&mgr->destroy_connector_lock );
-  port = (list_empty(&mgr->destroy_connector_list) ? ((void *)0) : ({ __typeof( ((struct drm_dp_mst_port *)0)->next ) *__mptr = ((&mgr->destroy_connector_list)->next); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, next) );}));
+  port = (list_empty(&mgr->destroy_connector_list) ? ((void *)0) : ({ const __typeof( ((struct drm_dp_mst_port *)0)->next ) *__mptr = ((&mgr->destroy_connector_list)->next); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, next) );}));
   if (!port) {
    _rw_exit_write(&mgr->destroy_connector_lock );
    break;
@@ -10599,7 +10606,7 @@ static int drm_dp_mst_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs
           int num)
 {
  struct drm_dp_aux *aux = adapter->algo_data;
- struct drm_dp_mst_port *port = ({ __typeof( ((struct drm_dp_mst_port *)0)->aux ) *__mptr = (aux); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, aux) );});
+ struct drm_dp_mst_port *port = ({ const __typeof( ((struct drm_dp_mst_port *)0)->aux ) *__mptr = (aux); (struct drm_dp_mst_port *)( (char *)__mptr - __builtin_offsetof(struct drm_dp_mst_port, aux) );});
  struct drm_dp_mst_branch *mstb;
  struct drm_dp_mst_topology_mgr *mgr = port->mgr;
  unsigned int i;

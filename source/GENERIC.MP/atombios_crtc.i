@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -15328,7 +15335,7 @@ static void atombios_overscan_setup(struct drm_crtc *crtc,
 {
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  SET_CRTC_OVERSCAN_PARAMETERS args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->SetCRTC_OverScan)-(char*)0)/sizeof(USHORT));
  int a1, a2;
@@ -15366,11 +15373,11 @@ static void atombios_scaler_setup(struct drm_crtc *crtc)
 {
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  ENABLE_SCALER_PARAMETERS args;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->EnableScaler)-(char*)0)/sizeof(USHORT));
  struct radeon_encoder *radeon_encoder =
-  ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  enum radeon_tv_std tv_std = TV_STD_NTSC;
  _Bool is_tv = 0, is_cv = 0;
  if (!((rdev->family >= CHIP_RS600)) && radeon_crtc->crtc_id)
@@ -15441,7 +15448,7 @@ static void atombios_scaler_setup(struct drm_crtc *crtc)
 }
 static void atombios_lock_crtc(struct drm_crtc *crtc, int lock)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  int index =
@@ -15454,7 +15461,7 @@ static void atombios_lock_crtc(struct drm_crtc *crtc, int lock)
 }
 static void atombios_enable_crtc(struct drm_crtc *crtc, int state)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->EnableCRTC)-(char*)0)/sizeof(USHORT));
@@ -15466,7 +15473,7 @@ static void atombios_enable_crtc(struct drm_crtc *crtc, int state)
 }
 static void atombios_enable_crtc_memreq(struct drm_crtc *crtc, int state)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->EnableCRTCMemReq)-(char*)0)/sizeof(USHORT));
@@ -15478,7 +15485,7 @@ static void atombios_enable_crtc_memreq(struct drm_crtc *crtc, int state)
 }
 static void atombios_blank_crtc(struct drm_crtc *crtc, int state)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->BlankCRTC)-(char*)0)/sizeof(USHORT));
@@ -15490,7 +15497,7 @@ static void atombios_blank_crtc(struct drm_crtc *crtc, int state)
 }
 static void atombios_powergate_crtc(struct drm_crtc *crtc, int state)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  int index = (((char*)(&((ATOM_MASTER_LIST_OF_COMMAND_TABLES*)0)->EnableDispPowerGating)-(char*)0)/sizeof(USHORT));
@@ -15504,7 +15511,7 @@ void atombios_crtc_dpms(struct drm_crtc *crtc, int mode)
 {
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  switch (mode) {
  case 0:
   radeon_crtc->enabled = 1;
@@ -15534,7 +15541,7 @@ static void
 atombios_set_crtc_dtd_timing(struct drm_crtc *crtc,
         struct drm_display_mode *mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  SET_CRTC_USING_DTD_TIMING_PARAMETERS args;
@@ -15574,7 +15581,7 @@ atombios_set_crtc_dtd_timing(struct drm_crtc *crtc,
 static void atombios_crtc_set_timing(struct drm_crtc *crtc,
          struct drm_display_mode *mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  SET_CRTC_TIMING_PARAMETERS args;
@@ -15756,11 +15763,11 @@ union adjust_pixel_clock {
 static u32 atombios_adjust_pll(struct drm_crtc *crtc,
           struct drm_display_mode *mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct drm_encoder *encoder = radeon_crtc->encoder;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct drm_connector *connector = radeon_get_connector_for_encoder(encoder);
  u32 adjusted_clock = mode->clock;
  int encoder_mode = atombios_get_encoder_mode(encoder);
@@ -15796,7 +15803,7 @@ static u32 atombios_adjust_pll(struct drm_crtc *crtc,
  if ((radeon_encoder->devices & (((0x1L << 0x00000001 ) | (0x1L << 0x00000005 )) | ((0x1L << 0x00000003 ) | (0x1L << 0x00000007 ) | (0x1L << 0x00000009 ) | (0x1L << 0x0000000A ) | (0x1L << 0x0000000B ) | (0x1L << 0x00000006 )))) ||
      (radeon_encoder_get_dp_bridge_encoder_id(encoder) != 0x00)) {
   if (connector) {
-   struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+   struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
    struct radeon_connector_atom_dig *dig_connector =
     radeon_connector->con_priv;
    dp_clock = dig_connector->dp_clock;
@@ -16084,11 +16091,11 @@ static void atombios_crtc_program_pll(struct drm_crtc *crtc,
 }
 static _Bool atombios_crtc_prepare_pll(struct drm_crtc *crtc, struct drm_display_mode *mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_encoder *radeon_encoder =
-  ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  int encoder_mode = atombios_get_encoder_mode(radeon_crtc->encoder);
  radeon_crtc->bpc = 8;
  radeon_crtc->ss_enabled = 0;
@@ -16098,7 +16105,7 @@ static _Bool atombios_crtc_prepare_pll(struct drm_crtc *crtc, struct drm_display
   struct drm_connector *connector =
    radeon_get_connector_for_encoder(radeon_crtc->encoder);
   struct radeon_connector *radeon_connector =
-   ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+   ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
   struct radeon_connector_atom_dig *dig_connector =
    radeon_connector->con_priv;
   int dp_clock;
@@ -16170,11 +16177,11 @@ static _Bool atombios_crtc_prepare_pll(struct drm_crtc *crtc, struct drm_display
 }
 static void atombios_crtc_set_pll(struct drm_crtc *crtc, struct drm_display_mode *mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_encoder *radeon_encoder =
-  ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  u32 pll_clock = mode->clock;
  u32 ref_div = 0, fb_div = 0, frac_fb_div = 0, post_div = 0;
  struct radeon_pll *pll;
@@ -16233,7 +16240,7 @@ static int dce4_crtc_do_set_base(struct drm_crtc *crtc,
      struct drm_framebuffer *fb,
      int x, int y, int atomic)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_framebuffer *radeon_fb;
@@ -16251,15 +16258,15 @@ static int dce4_crtc_do_set_base(struct drm_crtc *crtc,
   return 0;
  }
  if (atomic) {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
   target_fb = fb;
  }
  else {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (crtc->primary->fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (crtc->primary->fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
   target_fb = crtc->primary->fb;
  }
  obj = radeon_fb->obj;
- rbo = ({ __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
+ rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
  r = radeon_bo_reserve(rbo, 0);
  if (__builtin_expect(!!(r != 0), 0))
   return r;
@@ -16379,8 +16386,8 @@ static int dce4_crtc_do_set_base(struct drm_crtc *crtc,
  r100_mm_wreg(rdev, (0x6848 + radeon_crtc->crtc_offset), (tmp), 0);
  r100_mm_wreg(rdev, (0x6ef8 + radeon_crtc->crtc_offset), (0), 0);
  if (!atomic && fb && fb != crtc->primary->fb) {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
-  rbo = ({ __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((radeon_fb->obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((radeon_fb->obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
   r = radeon_bo_reserve(rbo, 0);
   if (__builtin_expect(!!(r != 0), 0))
    return r;
@@ -16394,7 +16401,7 @@ static int avivo_crtc_do_set_base(struct drm_crtc *crtc,
       struct drm_framebuffer *fb,
       int x, int y, int atomic)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_framebuffer *radeon_fb;
@@ -16411,15 +16418,15 @@ static int avivo_crtc_do_set_base(struct drm_crtc *crtc,
   return 0;
  }
  if (atomic) {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
   target_fb = fb;
  }
  else {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (crtc->primary->fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (crtc->primary->fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
   target_fb = crtc->primary->fb;
  }
  obj = radeon_fb->obj;
- rbo = ({ __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
+ rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
  r = radeon_bo_reserve(rbo, 0);
  if (__builtin_expect(!!(r != 0), 0))
   return r;
@@ -16512,8 +16519,8 @@ static int avivo_crtc_do_set_base(struct drm_crtc *crtc,
  r100_mm_wreg(rdev, (0x6148 + radeon_crtc->crtc_offset), (tmp), 0);
  r100_mm_wreg(rdev, (0x60e4 + radeon_crtc->crtc_offset), (0), 0);
  if (!atomic && fb && fb != crtc->primary->fb) {
-  radeon_fb = ({ __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
-  rbo = ({ __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((radeon_fb->obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
+  radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
+  rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((radeon_fb->obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
   r = radeon_bo_reserve(rbo, 0);
   if (__builtin_expect(!!(r != 0), 0))
    return r;
@@ -16552,7 +16559,7 @@ static void radeon_legacy_atom_fixup(struct drm_crtc *crtc)
 {
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  u32 disp_merge_cntl;
  switch (radeon_crtc->crtc_id) {
  case 0:
@@ -16575,10 +16582,10 @@ static u32 radeon_get_pll_use_mask(struct drm_crtc *crtc)
  struct drm_crtc *test_crtc;
  struct radeon_crtc *test_radeon_crtc;
  u32 pll_in_use = 0;
- for (test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
+ for (test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
   if (crtc == test_crtc)
    continue;
-  test_radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+  test_radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
   if (test_radeon_crtc->pll_id != 0xFF)
    pll_in_use |= (1 << test_radeon_crtc->pll_id);
  }
@@ -16589,10 +16596,10 @@ static int radeon_get_shared_dp_ppll(struct drm_crtc *crtc)
  struct drm_device *dev = crtc->dev;
  struct drm_crtc *test_crtc;
  struct radeon_crtc *test_radeon_crtc;
- for (test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
+ for (test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
   if (crtc == test_crtc)
    continue;
-  test_radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+  test_radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
   if (test_radeon_crtc->encoder &&
       (((atombios_get_encoder_mode(test_radeon_crtc->encoder)) == 0) || ((atombios_get_encoder_mode(test_radeon_crtc->encoder)) == 5))) {
    if (test_radeon_crtc->pll_id != 0xFF)
@@ -16603,7 +16610,7 @@ static int radeon_get_shared_dp_ppll(struct drm_crtc *crtc)
 }
 static int radeon_get_shared_nondp_ppll(struct drm_crtc *crtc)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct drm_crtc *test_crtc;
  struct radeon_crtc *test_radeon_crtc;
@@ -16611,10 +16618,10 @@ static int radeon_get_shared_nondp_ppll(struct drm_crtc *crtc)
  adjusted_clock = radeon_crtc->adjusted_clock;
  if (adjusted_clock == 0)
   return 0xFF;
- for (test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
+ for (test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );}); &test_crtc->head != (&dev->mode_config.crtc_list); test_crtc = ({ const __typeof( ((__typeof(*test_crtc) *)0)->head ) *__mptr = (test_crtc->head.next); (__typeof(*test_crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*test_crtc), head) );})) {
   if (crtc == test_crtc)
    continue;
-  test_radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+  test_radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (test_crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
   if (test_radeon_crtc->encoder &&
       !(((atombios_get_encoder_mode(test_radeon_crtc->encoder)) == 0) || ((atombios_get_encoder_mode(test_radeon_crtc->encoder)) == 5))) {
    if (test_radeon_crtc->connector == radeon_crtc->connector) {
@@ -16633,11 +16640,11 @@ static int radeon_get_shared_nondp_ppll(struct drm_crtc *crtc)
 }
 static int radeon_atom_pick_pll(struct drm_crtc *crtc)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_encoder *radeon_encoder =
-  ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  u32 pll_in_use;
  int pll;
  if (((rdev->family >= CHIP_ARUBA) && (rdev->flags & RADEON_IS_IGP))) {
@@ -16728,11 +16735,11 @@ int atombios_crtc_mode_set(struct drm_crtc *crtc,
       struct drm_display_mode *adjusted_mode,
       int x, int y, struct drm_framebuffer *old_fb)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_encoder *radeon_encoder =
-  ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (radeon_crtc->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  _Bool is_tvcv = 0;
  if (radeon_encoder->active_device &
      (((0x1L << 0x00000002 )) | (0x1L << 0x00000008 )))
@@ -16760,10 +16767,10 @@ static _Bool atombios_crtc_mode_fixup(struct drm_crtc *crtc,
          const struct drm_display_mode *mode,
          struct drm_display_mode *adjusted_mode)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct drm_encoder *encoder;
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
   if (encoder->crtc == crtc) {
    radeon_crtc->encoder = encoder;
    radeon_crtc->connector = radeon_get_connector_for_encoder(encoder);
@@ -16787,7 +16794,7 @@ static _Bool atombios_crtc_mode_fixup(struct drm_crtc *crtc,
 }
 static void atombios_crtc_prepare(struct drm_crtc *crtc)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  radeon_crtc->in_mode_set = 1;
@@ -16798,14 +16805,14 @@ static void atombios_crtc_prepare(struct drm_crtc *crtc)
 }
 static void atombios_crtc_commit(struct drm_crtc *crtc)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  atombios_crtc_dpms(crtc, 0);
  atombios_lock_crtc(crtc, 0);
  radeon_crtc->in_mode_set = 0;
 }
 static void atombios_crtc_disable(struct drm_crtc *crtc)
 {
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  struct drm_device *dev = crtc->dev;
  struct radeon_device *rdev = dev->dev_private;
  struct radeon_atom_ss ss;

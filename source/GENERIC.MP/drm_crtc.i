@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8465,7 +8472,7 @@ static void __drm_framebuffer_unregister(struct drm_device *dev,
 static void drm_framebuffer_free(struct kref *kref)
 {
  struct drm_framebuffer *fb =
-   ({ __typeof( ((struct drm_framebuffer *)0)->refcount ) *__mptr = (kref); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, refcount) );});
+   ({ const __typeof( ((struct drm_framebuffer *)0)->refcount ) *__mptr = (kref); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, refcount) );});
  struct drm_device *dev = fb->dev;
  _rw_enter_write(&dev->mode_config.fb_lock );
  if (fb->base.id) {
@@ -8484,7 +8491,7 @@ static struct drm_framebuffer *__drm_framebuffer_lookup(struct drm_device *dev,
  if (!obj || (obj->type != 0xfbfbfbfb) || (obj->id != id))
   fb = ((void *)0);
  else
-  fb = ({ __typeof( ((struct drm_framebuffer *)0)->base ) *__mptr = (obj); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, base) );});
+  fb = ({ const __typeof( ((struct drm_framebuffer *)0)->base ) *__mptr = (obj); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, base) );});
  _rw_exit_write(&dev->mode_config.idr_mutex );
  return fb;
 }
@@ -8547,7 +8554,7 @@ void drm_framebuffer_remove(struct drm_framebuffer *fb)
  ({ int __ret = !!(!list_empty(&fb->filp_head)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!list_empty(&fb->filp_head)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_crtc.c", 609); __builtin_expect(!!(__ret), 0); });
  if ((*(&fb->refcount.refcount)) > 1) {
   drm_modeset_lock_all(dev);
-  for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
+  for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
    if (crtc->primary->fb == fb) {
     __builtin_memset((&set), (0), (sizeof(struct drm_mode_set)));
     set.crtc = crtc;
@@ -8557,7 +8564,7 @@ void drm_framebuffer_remove(struct drm_framebuffer *fb)
      printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to reset crtc %p when fb was deleted\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , crtc);
    }
   }
-  for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
+  for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
    if (plane->fb == fb)
     drm_plane_force_disable(plane);
   }
@@ -8617,7 +8624,7 @@ unsigned int drm_crtc_index(struct drm_crtc *crtc)
 {
  unsigned int index = 0;
  struct drm_crtc *tmp;
- for (tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
+ for (tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
   if (tmp == crtc)
    return index;
   index++;
@@ -8741,9 +8748,9 @@ void drm_connector_cleanup(struct drm_connector *connector)
   drm_mode_put_tile_group(dev, connector->tile_group);
   connector->tile_group = ((void *)0);
  }
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );}))
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ const __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );}))
   drm_mode_remove(connector, mode);
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = t, t = ({ __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );}))
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = t, t = ({ const __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );}))
   drm_mode_remove(connector, mode);
  ida_remove(&drm_connector_enum_list[connector->connector_type].ida,
      connector->connector_type_id);
@@ -8766,7 +8773,7 @@ unsigned int drm_connector_index(struct drm_connector *connector)
  struct drm_connector *tmp;
  struct drm_mode_config *config = &connector->dev->mode_config;
  ({ int __ret = !!(!drm_modeset_is_locked(&config->connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&config->connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_crtc.c", 1001); __builtin_expect(!!(__ret), 0); });
- for (assert_drm_connector_list_read_locked(&(connector->dev)->mode_config), tmp = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(connector->dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &tmp->head != (&(connector->dev)->mode_config.connector_list); tmp = ({ __typeof( ((typeof(*(tmp)) *)0)->head ) *__mptr = (((tmp)->head.next)); (typeof(*(tmp)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(tmp)), head) );})) {
+ for (assert_drm_connector_list_read_locked(&(connector->dev)->mode_config), tmp = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(connector->dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &tmp->head != (&(connector->dev)->mode_config.connector_list); tmp = ({ const __typeof( ((typeof(*(tmp)) *)0)->head ) *__mptr = (((tmp)->head.next)); (typeof(*(tmp)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(tmp)), head) );})) {
   if (tmp == connector)
    return index;
   index++;
@@ -8798,7 +8805,7 @@ void drm_connector_unregister(struct drm_connector *connector)
 void drm_connector_unplug_all(struct drm_device *dev)
 {
  struct drm_connector *connector;
- for (connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}))
+ for (connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}))
   drm_connector_unregister(connector);
 }
 ;
@@ -8926,7 +8933,7 @@ unsigned int drm_plane_index(struct drm_plane *plane)
 {
  unsigned int index = 0;
  struct drm_plane *tmp;
- for (tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(plane->dev)->mode_config.plane_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(plane->dev)->mode_config.plane_list); tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
+ for (tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(plane->dev)->mode_config.plane_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(plane->dev)->mode_config.plane_list); tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
   if (tmp == plane)
    return index;
   index++;
@@ -8939,7 +8946,7 @@ drm_plane_from_index(struct drm_device *dev, int idx)
 {
  struct drm_plane *plane;
  unsigned int i = 0;
- for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
+ for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
   if (i == idx)
    return plane;
   i++;
@@ -9241,7 +9248,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
  if (card_res->count_fbs >= fb_count) {
   copied = 0;
   fb_id = (uint32_t *)(unsigned long)card_res->fb_id_ptr;
-  for (fb = ({ __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = ((&file_priv->fbs)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}); &fb->filp_head != (&file_priv->fbs); fb = ({ __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = (fb->filp_head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );})) {
+  for (fb = ({ const __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = ((&file_priv->fbs)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}); &fb->filp_head != (&file_priv->fbs); fb = ({ const __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = (fb->filp_head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );})) {
    if (-copyout(&(fb->base.id), fb_id + copied, sizeof(fb->base.id))) {
     _rw_exit_write(&file_priv->fbs_lock );
     return -14;
@@ -9252,11 +9259,11 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
  card_res->count_fbs = fb_count;
  _rw_exit_write(&file_priv->fbs_lock );
  _rw_enter_write(&dev->mode_config.mutex );
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}))
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}))
   crtc_count++;
- for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
+ for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
   connector_count++;
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}))
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}))
   encoder_count++;
  card_res->max_height = dev->mode_config.max_height;
  card_res->min_height = dev->mode_config.min_height;
@@ -9265,7 +9272,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
  if (card_res->count_crtcs >= crtc_count) {
   copied = 0;
   crtc_id = (uint32_t *)(unsigned long)card_res->crtc_id_ptr;
-  for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
+  for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
    do { } while( 0);
    if (-copyout(&(crtc->base.id), crtc_id + copied, sizeof(crtc->base.id))) {
     ret = -14;
@@ -9278,7 +9285,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
  if (card_res->count_encoders >= encoder_count) {
   copied = 0;
   encoder_id = (uint32_t *)(unsigned long)card_res->encoder_id_ptr;
-  for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
+  for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
    do { } while( 0);
    if (-copyout(&(encoder->base.id), encoder_id + copied, sizeof(encoder->base.id))) {
     ret = -14;
@@ -9291,7 +9298,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
  if (card_res->count_connectors >= connector_count) {
   copied = 0;
   connector_id = (uint32_t *)(unsigned long)card_res->connector_id_ptr;
-  for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
+  for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
    do { } while( 0);
    if (-copyout(&(connector->base.id), connector_id + copied, sizeof(connector->base.id))) {
     ret = -14;
@@ -9418,7 +9425,7 @@ int drm_mode_getconnector(struct drm_device *dev, void *data,
           dev->mode_config.max_width,
           dev->mode_config.max_height);
  }
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}))
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}))
   if (drm_mode_expose_to_userspace(mode, file_priv))
    mode_count++;
  out_resp->connector_id = connector->base.id;
@@ -9437,7 +9444,7 @@ int drm_mode_getconnector(struct drm_device *dev, void *data,
  if ((out_resp->count_modes >= mode_count) && mode_count) {
   copied = 0;
   mode_ptr = (struct drm_mode_modeinfo *)(unsigned long)out_resp->modes_ptr;
-  for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+  for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
    if (!drm_mode_expose_to_userspace(mode, file_priv))
     continue;
    drm_mode_convert_to_umode(&u_mode, mode);
@@ -9481,7 +9488,7 @@ static struct drm_crtc *drm_encoder_get_crtc(struct drm_encoder *encoder)
  struct drm_connector *connector;
  struct drm_device *dev = encoder->dev;
  _Bool uses_atomic = 0;
- for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
+ for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
   if (!connector->state)
    continue;
   uses_atomic = 1;
@@ -9536,7 +9543,7 @@ int drm_mode_getplane_res(struct drm_device *dev, void *data,
  if (num_planes &&
      (plane_resp->count_planes >= num_planes)) {
   plane_ptr = (uint32_t *)(unsigned long)plane_resp->plane_id_ptr;
-  for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
+  for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
    if (plane->type != DRM_PLANE_TYPE_OVERLAY &&
        !file_priv->universal_planes)
     continue;
@@ -9723,7 +9730,7 @@ int drm_mode_set_config_internal(struct drm_mode_set *set)
  struct drm_framebuffer *fb;
  struct drm_crtc *tmp;
  int ret;
- for (tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}))
+ for (tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}))
   tmp->primary->old_fb = tmp->primary->fb;
  fb = set->fb;
  ret = crtc->funcs->set_config(set);
@@ -9731,7 +9738,7 @@ int drm_mode_set_config_internal(struct drm_mode_set *set)
   crtc->primary->crtc = crtc;
   crtc->primary->fb = fb;
  }
- for (tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
+ for (tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = ((&(crtc->dev)->mode_config.crtc_list)->next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );}); &tmp->head != (&(crtc->dev)->mode_config.crtc_list); tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
   if (tmp->primary->fb)
    drm_framebuffer_reference(tmp->primary->fb);
   if (tmp->primary->old_fb)
@@ -10253,10 +10260,10 @@ struct drm_mode_rmfb_work {
 };
 static void drm_mode_rmfb_work_fn(struct work_struct *w)
 {
- struct drm_mode_rmfb_work *arg = ({ __typeof( ((typeof(*arg) *)0)->work ) *__mptr = (w); (typeof(*arg) *)( (char *)__mptr - __builtin_offsetof(typeof(*arg), work) );});
+ struct drm_mode_rmfb_work *arg = ({ const __typeof( ((typeof(*arg) *)0)->work ) *__mptr = (w); (typeof(*arg) *)( (char *)__mptr - __builtin_offsetof(typeof(*arg), work) );});
  while (!list_empty(&arg->fbs)) {
   struct drm_framebuffer *fb =
-   ({ __typeof( ((typeof(*fb) *)0)->filp_head ) *__mptr = ((&arg->fbs)->next); (typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(typeof(*fb), filp_head) );});
+   ({ const __typeof( ((typeof(*fb) *)0)->filp_head ) *__mptr = ((&arg->fbs)->next); (typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(typeof(*fb), filp_head) );});
   list_del_init(&fb->filp_head);
   drm_framebuffer_remove(fb);
  }
@@ -10275,7 +10282,7 @@ int drm_mode_rmfb(struct drm_device *dev,
  fb = __drm_framebuffer_lookup(dev, *id);
  if (!fb)
   goto fail_lookup;
- for (fbl = ({ __typeof( ((__typeof(*fbl) *)0)->filp_head ) *__mptr = ((&file_priv->fbs)->next); (__typeof(*fbl) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbl), filp_head) );}); &fbl->filp_head != (&file_priv->fbs); fbl = ({ __typeof( ((__typeof(*fbl) *)0)->filp_head ) *__mptr = (fbl->filp_head.next); (__typeof(*fbl) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbl), filp_head) );}))
+ for (fbl = ({ const __typeof( ((__typeof(*fbl) *)0)->filp_head ) *__mptr = ((&file_priv->fbs)->next); (__typeof(*fbl) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbl), filp_head) );}); &fbl->filp_head != (&file_priv->fbs); fbl = ({ const __typeof( ((__typeof(*fbl) *)0)->filp_head ) *__mptr = (fbl->filp_head.next); (__typeof(*fbl) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbl), filp_head) );}))
   if (fb == fbl)
    found = 1;
  if (!found)
@@ -10390,7 +10397,7 @@ void drm_fb_release(struct drm_file *priv)
  struct drm_framebuffer *fb, *tfb;
  struct drm_mode_rmfb_work arg;
  INIT_LIST_HEAD(&arg.fbs);
- for (fb = ({ __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = ((&priv->fbs)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}), tfb = ({ __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = (fb->filp_head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}); &fb->filp_head != (&priv->fbs); fb = tfb, tfb = ({ __typeof( ((__typeof(*tfb) *)0)->filp_head ) *__mptr = (tfb->filp_head.next); (__typeof(*tfb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tfb), filp_head) );})) {
+ for (fb = ({ const __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = ((&priv->fbs)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}), tfb = ({ const __typeof( ((__typeof(*fb) *)0)->filp_head ) *__mptr = (fb->filp_head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), filp_head) );}); &fb->filp_head != (&priv->fbs); fb = tfb, tfb = ({ const __typeof( ((__typeof(*tfb) *)0)->filp_head ) *__mptr = (tfb->filp_head.next); (__typeof(*tfb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tfb), filp_head) );})) {
   if ((*(&fb->refcount.refcount)) > 1) {
    list_move_tail(&fb->filp_head, &arg.fbs);
   } else {
@@ -10552,7 +10559,7 @@ int drm_property_add_enum(struct drm_property *property, int index,
    (value > 63))
   return -22;
  if (!list_empty(&property->enum_list)) {
-  for (prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );})) {
+  for (prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );})) {
    if (prop_enum->value == value) {
     strncpy(prop_enum->name, name, 32);
     prop_enum->name[32 -1] = '\0';
@@ -10574,7 +10581,7 @@ int drm_property_add_enum(struct drm_property *property, int index,
 void drm_property_destroy(struct drm_device *dev, struct drm_property *property)
 {
  struct drm_property_enum *prop_enum, *pt;
- for (prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}), pt = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = pt, pt = ({ __typeof( ((__typeof(*pt) *)0)->head ) *__mptr = (pt->head.next); (__typeof(*pt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*pt), head) );})) {
+ for (prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}), pt = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = pt, pt = ({ const __typeof( ((__typeof(*pt) *)0)->head ) *__mptr = (pt->head.next); (__typeof(*pt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*pt), head) );})) {
   list_del(&prop_enum->head);
   kfree(prop_enum);
  }
@@ -10619,7 +10626,7 @@ int drm_object_property_get_value(struct drm_mode_object *obj,
 {
  int i;
  if (obj->type == 0xc0c0c0c0) {
-  struct drm_connector *connector = ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
+  struct drm_connector *connector = ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
   if (property == connector->backlight_property) {
    struct backlight_device *bd =
     connector->backlight_device;
@@ -10664,7 +10671,7 @@ int drm_mode_getproperty_ioctl(struct drm_device *dev,
  }
  if (drm_property_type_is(property, (1<<3)) ||
    drm_property_type_is(property, (1<<5))) {
-  for (prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}))
+  for (prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}))
    enum_count++;
  }
  value_count = property->num_values;
@@ -10686,7 +10693,7 @@ int drm_mode_getproperty_ioctl(struct drm_device *dev,
   if ((out_resp->count_enum_blobs >= enum_count) && enum_count) {
    copied = 0;
    enum_ptr = (struct drm_mode_property_enum *)(unsigned long)out_resp->enum_blob_ptr;
-   for (prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );})) {
+   for (prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = ((&property->enum_list)->next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );}); &prop_enum->head != (&property->enum_list); prop_enum = ({ const __typeof( ((__typeof(*prop_enum) *)0)->head ) *__mptr = (prop_enum->head.next); (__typeof(*prop_enum) *)( (char *)__mptr - __builtin_offsetof(__typeof(*prop_enum), head) );})) {
     if (copy_to_user(&enum_ptr[copied].value, &prop_enum->value, sizeof(uint64_t))) {
      ret = -14;
      goto done;
@@ -10740,7 +10747,7 @@ drm_property_create_blob(struct drm_device *dev, size_t length,
 static void drm_property_free_blob(struct kref *kref)
 {
  struct drm_property_blob *blob =
-  ({ __typeof( ((struct drm_property_blob *)0)->refcount ) *__mptr = (kref); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, refcount) );});
+  ({ const __typeof( ((struct drm_property_blob *)0)->refcount ) *__mptr = (kref); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, refcount) );});
  ({ int __ret = !!(!(rw_status(&blob->dev->mode_config.blob_lock) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&blob->dev->mode_config.blob_lock) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_crtc.c", 4257); __builtin_expect(!!(__ret), 0); });
  list_del(&blob->head_global);
  list_del(&blob->head_file);
@@ -10773,7 +10780,7 @@ void drm_property_destroy_user_blobs(struct drm_device *dev,
 {
  struct drm_property_blob *blob, *bt;
  _rw_enter_write(&dev->mode_config.blob_lock );
- for (blob = ({ __typeof( ((__typeof(*blob) *)0)->head_file ) *__mptr = ((&file_priv->blobs)->next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_file) );}), bt = ({ __typeof( ((__typeof(*blob) *)0)->head_file ) *__mptr = (blob->head_file.next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_file) );}); &blob->head_file != (&file_priv->blobs); blob = bt, bt = ({ __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = (bt->head_file.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );})) {
+ for (blob = ({ const __typeof( ((__typeof(*blob) *)0)->head_file ) *__mptr = ((&file_priv->blobs)->next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_file) );}), bt = ({ const __typeof( ((__typeof(*blob) *)0)->head_file ) *__mptr = (blob->head_file.next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_file) );}); &blob->head_file != (&file_priv->blobs); blob = bt, bt = ({ const __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = (bt->head_file.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );})) {
   list_del_init(&blob->head_file);
   drm_property_unreference_blob_locked(blob);
  }
@@ -10797,7 +10804,7 @@ static struct drm_property_blob *__drm_property_lookup_blob(struct drm_device *d
  if (!obj || (obj->type != 0xbbbbbbbb) || (obj->id != id))
   blob = ((void *)0);
  else
-  blob = ({ __typeof( ((struct drm_property_blob *)0)->base ) *__mptr = (obj); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, base) );});
+  blob = ({ const __typeof( ((struct drm_property_blob *)0)->base ) *__mptr = (obj); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, base) );});
  _rw_exit_write(&dev->mode_config.idr_mutex );
  return blob;
 }
@@ -10917,7 +10924,7 @@ int drm_mode_destroyblob_ioctl(struct drm_device *dev,
   ret = -2;
   goto err;
  }
- for (bt = ({ __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = ((&file_priv->blobs)->next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );}); &bt->head_file != (&file_priv->blobs); bt = ({ __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = (bt->head_file.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );})) {
+ for (bt = ({ const __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = ((&file_priv->blobs)->next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );}); &bt->head_file != (&file_priv->blobs); bt = ({ const __typeof( ((__typeof(*bt) *)0)->head_file ) *__mptr = (bt->head_file.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_file) );})) {
   if (bt == blob) {
    found = 1;
    break;
@@ -11057,9 +11064,9 @@ void drm_property_change_valid_put(struct drm_property *property,
   return;
  if (drm_property_type_is(property, ((1) << 6))) {
   if (property->values[0] == 0xfbfbfbfb)
-   drm_framebuffer_unreference(({ __typeof( ((struct drm_framebuffer *)0)->base ) *__mptr = (ref); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, base) );}));
+   drm_framebuffer_unreference(({ const __typeof( ((struct drm_framebuffer *)0)->base ) *__mptr = (ref); (struct drm_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct drm_framebuffer, base) );}));
  } else if (drm_property_type_is(property, (1<<4)))
-  drm_property_unreference_blob(({ __typeof( ((struct drm_property_blob *)0)->base ) *__mptr = (ref); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, base) );}));
+  drm_property_unreference_blob(({ const __typeof( ((struct drm_property_blob *)0)->base ) *__mptr = (ref); (struct drm_property_blob *)( (char *)__mptr - __builtin_offsetof(struct drm_property_blob, base) );}));
 }
 int drm_mode_connector_property_set_ioctl(struct drm_device *dev,
            void *data, struct drm_file *file_priv)
@@ -11078,7 +11085,7 @@ static int drm_mode_connector_set_obj_prop(struct drm_mode_object *obj,
         uint64_t value)
 {
  int ret = -22;
- struct drm_connector *connector = ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
+ struct drm_connector *connector = ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
  if (property == connector->dev->mode_config.dpms_property) {
   ret = 0;
   if (connector->funcs->dpms)
@@ -11098,7 +11105,7 @@ static int drm_mode_crtc_set_obj_prop(struct drm_mode_object *obj,
           uint64_t value)
 {
  int ret = -22;
- struct drm_crtc *crtc = ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
+ struct drm_crtc *crtc = ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
  if (crtc->funcs->set_property)
   ret = crtc->funcs->set_property(crtc, property, value);
  if (!ret)
@@ -11174,7 +11181,7 @@ int drm_mode_obj_set_property_ioctl(struct drm_device *dev, void *data,
   ret = -2;
   goto out;
  }
- property = ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (prop_obj); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );});
+ property = ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (prop_obj); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );});
  if (!drm_property_change_valid_get(property, arg->value, &ref))
   goto out;
  switch (arg_obj->type) {
@@ -11186,7 +11193,7 @@ int drm_mode_obj_set_property_ioctl(struct drm_device *dev, void *data,
   ret = drm_mode_crtc_set_obj_prop(arg_obj, property, arg->value);
   break;
  case 0xeeeeeeee:
-  ret = drm_mode_plane_set_obj_prop(({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (arg_obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}),
+  ret = drm_mode_plane_set_obj_prop(({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (arg_obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}),
         property, arg->value);
   break;
  }
@@ -11404,17 +11411,17 @@ void drm_mode_config_reset(struct drm_device *dev)
  struct drm_plane *plane;
  struct drm_encoder *encoder;
  struct drm_connector *connector;
- for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}))
+ for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}))
   if (plane->funcs->reset)
    plane->funcs->reset(plane);
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}))
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}))
   if (crtc->funcs->reset)
    crtc->funcs->reset(crtc);
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}))
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&(dev)->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&(dev)->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}))
   if (encoder->funcs->reset)
    encoder->funcs->reset(encoder);
  _rw_enter_write(&dev->mode_config.mutex );
- for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
+ for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
   if (connector->funcs->reset)
    connector->funcs->reset(connector);
  _rw_exit_write(&dev->mode_config.mutex );
@@ -11674,26 +11681,26 @@ void drm_mode_config_cleanup(struct drm_device *dev)
  struct drm_property *property, *pt;
  struct drm_property_blob *blob, *bt;
  struct drm_plane *plane, *plt;
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}), enct = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = enct, enct = ({ __typeof( ((__typeof(*enct) *)0)->head ) *__mptr = (enct->head.next); (__typeof(*enct) *)( (char *)__mptr - __builtin_offsetof(__typeof(*enct), head) );})) {
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}), enct = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = enct, enct = ({ const __typeof( ((__typeof(*enct) *)0)->head ) *__mptr = (enct->head.next); (__typeof(*enct) *)( (char *)__mptr - __builtin_offsetof(__typeof(*enct), head) );})) {
   encoder->funcs->destroy(encoder);
  }
- for (connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}), ot = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ot, ot = ({ __typeof( ((__typeof(*ot) *)0)->head ) *__mptr = (ot->head.next); (__typeof(*ot) *)( (char *)__mptr - __builtin_offsetof(__typeof(*ot), head) );})) {
+ for (connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}), ot = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ot, ot = ({ const __typeof( ((__typeof(*ot) *)0)->head ) *__mptr = (ot->head.next); (__typeof(*ot) *)( (char *)__mptr - __builtin_offsetof(__typeof(*ot), head) );})) {
   connector->funcs->destroy(connector);
  }
- for (property = ({ __typeof( ((__typeof(*property) *)0)->head ) *__mptr = ((&dev->mode_config.property_list)->next); (__typeof(*property) *)( (char *)__mptr - __builtin_offsetof(__typeof(*property), head) );}), pt = ({ __typeof( ((__typeof(*property) *)0)->head ) *__mptr = (property->head.next); (__typeof(*property) *)( (char *)__mptr - __builtin_offsetof(__typeof(*property), head) );}); &property->head != (&dev->mode_config.property_list); property = pt, pt = ({ __typeof( ((__typeof(*pt) *)0)->head ) *__mptr = (pt->head.next); (__typeof(*pt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*pt), head) );})) {
+ for (property = ({ const __typeof( ((__typeof(*property) *)0)->head ) *__mptr = ((&dev->mode_config.property_list)->next); (__typeof(*property) *)( (char *)__mptr - __builtin_offsetof(__typeof(*property), head) );}), pt = ({ const __typeof( ((__typeof(*property) *)0)->head ) *__mptr = (property->head.next); (__typeof(*property) *)( (char *)__mptr - __builtin_offsetof(__typeof(*property), head) );}); &property->head != (&dev->mode_config.property_list); property = pt, pt = ({ const __typeof( ((__typeof(*pt) *)0)->head ) *__mptr = (pt->head.next); (__typeof(*pt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*pt), head) );})) {
   drm_property_destroy(dev, property);
  }
- for (blob = ({ __typeof( ((__typeof(*blob) *)0)->head_global ) *__mptr = ((&dev->mode_config.property_blob_list)->next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_global) );}), bt = ({ __typeof( ((__typeof(*blob) *)0)->head_global ) *__mptr = (blob->head_global.next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_global) );}); &blob->head_global != (&dev->mode_config.property_blob_list); blob = bt, bt = ({ __typeof( ((__typeof(*bt) *)0)->head_global ) *__mptr = (bt->head_global.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_global) );})) {
+ for (blob = ({ const __typeof( ((__typeof(*blob) *)0)->head_global ) *__mptr = ((&dev->mode_config.property_blob_list)->next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_global) );}), bt = ({ const __typeof( ((__typeof(*blob) *)0)->head_global ) *__mptr = (blob->head_global.next); (__typeof(*blob) *)( (char *)__mptr - __builtin_offsetof(__typeof(*blob), head_global) );}); &blob->head_global != (&dev->mode_config.property_blob_list); blob = bt, bt = ({ const __typeof( ((__typeof(*bt) *)0)->head_global ) *__mptr = (bt->head_global.next); (__typeof(*bt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*bt), head_global) );})) {
   drm_property_unreference_blob(blob);
  }
  ({ int __ret = !!(!list_empty(&dev->mode_config.fb_list)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!list_empty(&dev->mode_config.fb_list)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_crtc.c", 5851); __builtin_expect(!!(__ret), 0); });
- for (fb = ({ __typeof( ((__typeof(*fb) *)0)->head ) *__mptr = ((&dev->mode_config.fb_list)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), head) );}), fbt = ({ __typeof( ((__typeof(*fb) *)0)->head ) *__mptr = (fb->head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), head) );}); &fb->head != (&dev->mode_config.fb_list); fb = fbt, fbt = ({ __typeof( ((__typeof(*fbt) *)0)->head ) *__mptr = (fbt->head.next); (__typeof(*fbt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbt), head) );})) {
+ for (fb = ({ const __typeof( ((__typeof(*fb) *)0)->head ) *__mptr = ((&dev->mode_config.fb_list)->next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), head) );}), fbt = ({ const __typeof( ((__typeof(*fb) *)0)->head ) *__mptr = (fb->head.next); (__typeof(*fb) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fb), head) );}); &fb->head != (&dev->mode_config.fb_list); fb = fbt, fbt = ({ const __typeof( ((__typeof(*fbt) *)0)->head ) *__mptr = (fbt->head.next); (__typeof(*fbt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*fbt), head) );})) {
   drm_framebuffer_free(&fb->refcount);
  }
- for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&dev->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}), plt = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&dev->mode_config.plane_list); plane = plt, plt = ({ __typeof( ((__typeof(*plt) *)0)->head ) *__mptr = (plt->head.next); (__typeof(*plt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plt), head) );})) {
+ for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&dev->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}), plt = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&dev->mode_config.plane_list); plane = plt, plt = ({ const __typeof( ((__typeof(*plt) *)0)->head ) *__mptr = (plt->head.next); (__typeof(*plt) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plt), head) );})) {
   plane->funcs->destroy(plane);
  }
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}), ct = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&dev->mode_config.crtc_list); crtc = ct, ct = ({ __typeof( ((__typeof(*ct) *)0)->head ) *__mptr = (ct->head.next); (__typeof(*ct) *)( (char *)__mptr - __builtin_offsetof(__typeof(*ct), head) );})) {
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}), ct = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&dev->mode_config.crtc_list); crtc = ct, ct = ({ const __typeof( ((__typeof(*ct) *)0)->head ) *__mptr = (ct->head.next); (__typeof(*ct) *)( (char *)__mptr - __builtin_offsetof(__typeof(*ct), head) );})) {
   crtc->funcs->destroy(crtc);
  }
  idr_destroy(&dev->mode_config.tile_idr);
@@ -11719,7 +11726,7 @@ struct drm_property *drm_mode_create_rotation_property(struct drm_device *dev,
 ;
 static void drm_tile_group_free(struct kref *kref)
 {
- struct drm_tile_group *tg = ({ __typeof( ((struct drm_tile_group *)0)->refcount ) *__mptr = (kref); (struct drm_tile_group *)( (char *)__mptr - __builtin_offsetof(struct drm_tile_group, refcount) );});
+ struct drm_tile_group *tg = ({ const __typeof( ((struct drm_tile_group *)0)->refcount ) *__mptr = (kref); (struct drm_tile_group *)( (char *)__mptr - __builtin_offsetof(struct drm_tile_group, refcount) );});
  struct drm_device *dev = tg->dev;
  _rw_enter_write(&dev->mode_config.idr_mutex );
  idr_remove(&dev->mode_config.tile_idr, tg->id);

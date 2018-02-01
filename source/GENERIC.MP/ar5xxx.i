@@ -5238,11 +5238,11 @@ ath_hal_init_channels(struct ath_hal *hal, HAL_CHANNEL *channels,
   if ((hal->ah_capabilities.cap_mode & HAL_MODE_11B) &&
       (ar5k_2ghz_channels[i].rc_mode & 0x0020))
    all_channels[c].channelFlags = (0x0080 | 0x0020);
-  if ((hal->ah_capabilities.cap_mode & HAL_MODE_11G) &&
-      (ar5k_2ghz_channels[i].rc_mode & 0x0040)) {
-   all_channels[c].channelFlags |=
-       hal->ah_version == AR5K_AR5211 ?
-       (0x0080 | 0x0040) : (0x0080 | 0x0400);
+  if (hal->ah_capabilities.cap_mode & HAL_MODE_11G) {
+   if (ar5k_2ghz_channels[i].rc_mode & 0x0020)
+       all_channels[c].channelFlags = (0x0080 | 0x0020);
+   if (ar5k_2ghz_channels[i].rc_mode & 0x0040)
+    all_channels[c].channelFlags |= ((0x0080 | 0x0400) | (0x0080 | 0x0040));
   }
   all_channels[c++].channel = ar5k_2ghz_channels[i].rc_channel;
  }

@@ -5127,11 +5127,11 @@ rsu_newstate_cb(struct rsu_softc *sc, void *arg)
 {
  struct rsu_cmd_newstate *cmd = arg;
  struct ieee80211com *ic = &sc->sc_ic;
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
  enum ieee80211_state ostate;
  int error, s;
  s = _splraise(6);
  ostate = ic->ic_state;
- ;
  if (ostate == IEEE80211_S_RUN) {
   timeout_del(&sc->calib_to);
   (void)rsu_disconnect(sc);
@@ -5145,6 +5145,10 @@ rsu_newstate_cb(struct rsu_softc *sc, void *arg)
    printf("%s: could not send site survey command\n",
        sc->sc_dev.dv_xname);
   }
+  if (ifp->if_flags & 0x4)
+   printf("%s: %s -> %s\n", ifp->if_xname,
+       ieee80211_state_name[ic->ic_state],
+       ieee80211_state_name[cmd->state]);
   ic->ic_state = cmd->state;
   _splx(s);
   return;
@@ -5158,12 +5162,20 @@ rsu_newstate_cb(struct rsu_softc *sc, void *arg)
    _splx(s);
    return;
   }
+  if (ifp->if_flags & 0x4)
+   printf("%s: %s -> %s\n", ifp->if_xname,
+       ieee80211_state_name[ic->ic_state],
+       ieee80211_state_name[cmd->state]);
   ic->ic_state = cmd->state;
   if (ic->ic_flags & 0x00200000)
    ic->ic_bss->ni_rsn_supp_state = RSNA_SUPP_PTKSTART;
   _splx(s);
   return;
  case IEEE80211_S_ASSOC:
+  if (ifp->if_flags & 0x4)
+   printf("%s: %s -> %s\n", ifp->if_xname,
+       ieee80211_state_name[ic->ic_state],
+       ieee80211_state_name[cmd->state]);
   ic->ic_state = cmd->state;
   _splx(s);
   return;

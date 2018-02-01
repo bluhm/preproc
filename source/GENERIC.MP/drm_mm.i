@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -7994,7 +8001,7 @@ int drm_mm_reserve_node(struct drm_mm *mm, struct drm_mm_node *node)
  u64 hole_end;
  ((!(node == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 188, "!(node == ((void *)0))"));
  end = node->start + node->size;
- for (hole = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((0) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &hole->hole_stack != &(mm)->hole_stack ? hole_start = drm_mm_hole_node_start(hole), hole_end = drm_mm_hole_node_end(hole), 1 : 0; hole = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((0) ? hole->hole_stack.prev : hole->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
+ for (hole = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((0) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &hole->hole_stack != &(mm)->hole_stack ? hole_start = drm_mm_hole_node_start(hole), hole_end = drm_mm_hole_node_end(hole), 1 : 0; hole = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((0) ? hole->hole_stack.prev : hole->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
   if (hole_start > node->start || hole_end < end)
    continue;
   node->mm = mm;
@@ -8110,7 +8117,7 @@ void drm_mm_remove_node(struct drm_mm_node *node)
   return;
  ((!(node->scanned_block || node->scanned_prev_free || node->scanned_next_free)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 375, "!(node->scanned_block || node->scanned_prev_free || node->scanned_next_free)"));
  prev_node =
-     ({ __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
+     ({ const __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
  if (node->hole_follows) {
   ((!(__drm_mm_hole_node_start(node) == __drm_mm_hole_node_end(node))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 382, "!(__drm_mm_hole_node_start(node) == __drm_mm_hole_node_end(node))"));
   list_del(&node->hole_stack);
@@ -8152,7 +8159,7 @@ static struct drm_mm_node *drm_mm_search_free_generic(const struct drm_mm *mm,
  ((!(mm->scanned_blocks)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 429, "!(mm->scanned_blocks)"));
  best = ((void *)0);
  best_size = ~0UL;
- for (entry = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &entry->hole_stack != &(mm)->hole_stack ? adj_start = drm_mm_hole_node_start(entry), adj_end = drm_mm_hole_node_end(entry), 1 : 0; entry = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? entry->hole_stack.prev : entry->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
+ for (entry = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &entry->hole_stack != &(mm)->hole_stack ? adj_start = drm_mm_hole_node_start(entry), adj_end = drm_mm_hole_node_end(entry), 1 : 0; entry = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? entry->hole_stack.prev : entry->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
   u64 hole_size = adj_end - adj_start;
   if (mm->color_adjust) {
    mm->color_adjust(entry, color, &adj_start, &adj_end);
@@ -8186,7 +8193,7 @@ static struct drm_mm_node *drm_mm_search_free_in_range_generic(const struct drm_
  ((!(mm->scanned_blocks)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 473, "!(mm->scanned_blocks)"));
  best = ((void *)0);
  best_size = ~0UL;
- for (entry = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &entry->hole_stack != &(mm)->hole_stack ? adj_start = drm_mm_hole_node_start(entry), adj_end = drm_mm_hole_node_end(entry), 1 : 0; entry = ({ __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? entry->hole_stack.prev : entry->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
+ for (entry = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? (mm)->hole_stack.prev : (mm)->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );}); &entry->hole_stack != &(mm)->hole_stack ? adj_start = drm_mm_hole_node_start(entry), adj_end = drm_mm_hole_node_end(entry), 1 : 0; entry = ({ const __typeof( ((struct drm_mm_node *)0)->hole_stack ) *__mptr = ((flags & DRM_MM_SEARCH_BELOW) ? entry->hole_stack.prev : entry->hole_stack.next); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, hole_stack) );})) {
   u64 hole_size = adj_end - adj_start;
   if (adj_start < start)
    adj_start = start;
@@ -8264,7 +8271,7 @@ _Bool drm_mm_scan_add_block(struct drm_mm_node *node)
  mm->scanned_blocks++;
  ((!(node->scanned_block)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 647, "!(node->scanned_block)"));
  node->scanned_block = 1;
- prev_node = ({ __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
+ prev_node = ({ const __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
  node->scanned_preceeds_hole = prev_node->hole_follows;
  prev_node->hole_follows = 1;
  list_del(&node->node_list);
@@ -8298,7 +8305,7 @@ _Bool drm_mm_scan_remove_block(struct drm_mm_node *node)
  mm->scanned_blocks--;
  ((!(!node->scanned_block)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.c", 708, "!(!node->scanned_block)"));
  node->scanned_block = 0;
- prev_node = ({ __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
+ prev_node = ({ const __typeof( ((struct drm_mm_node *)0)->node_list ) *__mptr = (node->node_list.prev); (struct drm_mm_node *)( (char *)__mptr - __builtin_offsetof(struct drm_mm_node, node_list) );});
  prev_node->hole_follows = node->scanned_preceeds_hole;
  list_add(&node->node_list, &prev_node->node_list);
   return (drm_mm_hole_node_end(node) > mm->scan_hit_start &&
@@ -8351,7 +8358,7 @@ void drm_mm_debug_table(struct drm_mm *mm, const char *prefix)
  struct drm_mm_node *entry;
  u64 total_used = 0, total_free = 0, total = 0;
  total_free += drm_mm_debug_hole(&mm->head_node, prefix);
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->node_list ) *__mptr = ((&(mm)->head_node.node_list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), node_list) );}); &entry->node_list != (&(mm)->head_node.node_list); entry = ({ __typeof( ((__typeof(*entry) *)0)->node_list ) *__mptr = (entry->node_list.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), node_list) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->node_list ) *__mptr = ((&(mm)->head_node.node_list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), node_list) );}); &entry->node_list != (&(mm)->head_node.node_list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->node_list ) *__mptr = (entry->node_list.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), node_list) );})) {
   do { } while(0);
   total_used += entry->size;
   total_free += drm_mm_debug_hole(entry, prefix);

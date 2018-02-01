@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8357,7 +8364,7 @@ extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
 static void ttm_eu_backoff_reservation_locked(struct list_head *list)
 {
  struct ttm_validate_buffer *entry;
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   struct ttm_buffer_object *bo = entry->bo;
   if (!entry->reserved)
    continue;
@@ -8373,7 +8380,7 @@ static void ttm_eu_backoff_reservation_locked(struct list_head *list)
 static void ttm_eu_del_from_lru_locked(struct list_head *list)
 {
  struct ttm_validate_buffer *entry;
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   struct ttm_buffer_object *bo = entry->bo;
   if (!entry->reserved)
    continue;
@@ -8386,7 +8393,7 @@ static void ttm_eu_del_from_lru_locked(struct list_head *list)
 static void ttm_eu_list_ref_sub(struct list_head *list)
 {
  struct ttm_validate_buffer *entry;
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   struct ttm_buffer_object *bo = entry->bo;
   if (entry->put_count) {
    ttm_bo_list_ref_sub(bo, entry->put_count, 1);
@@ -8413,7 +8420,7 @@ void ttm_eu_backoff_reservation(struct list_head *list)
  struct ttm_bo_global *glob;
  if (list_empty(list))
   return;
- entry = ({ __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );});
+ entry = ({ const __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );});
  glob = entry->bo->glob;
  __mtx_enter(&glob->lru_lock );
  ttm_eu_backoff_reservation_locked(list);
@@ -8428,17 +8435,17 @@ int ttm_eu_reserve_buffers(struct list_head *list)
  uint32_t val_seq;
  if (list_empty(list))
   return 0;
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   entry->reserved = 0;
   entry->put_count = 0;
   entry->removed = 0;
  }
- entry = ({ __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );});
+ entry = ({ const __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );});
  glob = entry->bo->glob;
 retry:
  __mtx_enter(&glob->lru_lock );
  val_seq = entry->bo->bdev->val_seq++;
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   struct ttm_buffer_object *bo = entry->bo;
 retry_this_bo:
   ret = ttm_bo_reserve_locked(bo, 1, 1, 1, val_seq);
@@ -8490,13 +8497,13 @@ void ttm_eu_fence_buffer_objects(struct list_head *list, void *sync_obj)
  struct ttm_bo_driver *driver;
  if (list_empty(list))
   return;
- bo = ({ __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );})->bo;
+ bo = ({ const __typeof( ((struct ttm_validate_buffer *)0)->head ) *__mptr = ((list)->next); (struct ttm_validate_buffer *)( (char *)__mptr - __builtin_offsetof(struct ttm_validate_buffer, head) );})->bo;
  bdev = bo->bdev;
  driver = bdev->driver;
  glob = bo->glob;
  __mtx_enter(&glob->lru_lock );
  __mtx_enter(&bdev->fence_lock );
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   bo = entry->bo;
   entry->old_sync_obj = bo->sync_obj;
   bo->sync_obj = driver->sync_obj_ref(sync_obj);
@@ -8505,7 +8512,7 @@ void ttm_eu_fence_buffer_objects(struct list_head *list, void *sync_obj)
  }
  __mtx_leave(&bdev->fence_lock );
  __mtx_leave(&glob->lru_lock );
- for (entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
+ for (entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = ((list)->next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );}); &entry->head != (list); entry = ({ const __typeof( ((__typeof(*entry) *)0)->head ) *__mptr = (entry->head.next); (__typeof(*entry) *)( (char *)__mptr - __builtin_offsetof(__typeof(*entry), head) );})) {
   if (entry->old_sync_obj)
    driver->sync_obj_unref(&entry->old_sync_obj);
  }

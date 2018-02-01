@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -15312,7 +15319,7 @@ typedef struct {
 #pragma pack()
 static void radeon_legacy_encoder_disable(struct drm_encoder *encoder)
 {
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  const struct drm_encoder_helper_funcs *encoder_funcs;
  encoder_funcs = encoder->helper_private;
  encoder_funcs->dpms(encoder, 3);
@@ -15322,7 +15329,7 @@ static void radeon_legacy_lvds_update(struct drm_encoder *encoder, int mode)
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t lvds_gen_cntl, lvds_pll_cntl, pixclks_cntl, disp_pwr_man;
  int panel_pwr_delay = 2000;
  _Bool is_mac = 0;
@@ -15398,7 +15405,7 @@ static void radeon_legacy_lvds_update(struct drm_encoder *encoder, int mode)
 static void radeon_legacy_lvds_dpms(struct drm_encoder *encoder, int mode)
 {
  struct radeon_device *rdev = encoder->dev->dev_private;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  do { } while( 0);
  if (radeon_encoder->enc_priv) {
   if (rdev->is_atom_bios) {
@@ -15435,8 +15442,8 @@ static void radeon_legacy_lvds_mode_set(struct drm_encoder *encoder,
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t lvds_pll_cntl, lvds_gen_cntl, lvds_ss_gen_cntl;
  do { } while( 0);
  lvds_pll_cntl = r100_mm_rreg(rdev, (0x02d4), 0);
@@ -15491,7 +15498,7 @@ static _Bool radeon_legacy_mode_fixup(struct drm_encoder *encoder,
          const struct drm_display_mode *mode,
          struct drm_display_mode *adjusted_mode)
 {
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  radeon_encoder_set_active_device(encoder);
  drm_mode_set_crtcinfo(adjusted_mode, 0);
  if (radeon_encoder->active_device & (((0x1L << 0x00000001 ) | (0x1L << 0x00000005 ))))
@@ -15659,7 +15666,7 @@ static void radeon_legacy_backlight_exit(struct radeon_encoder *radeon_encoder)
 }
 static void radeon_lvds_enc_destroy(struct drm_encoder *encoder)
 {
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  if (radeon_encoder->enc_priv) {
   radeon_legacy_backlight_exit(radeon_encoder);
   kfree(radeon_encoder->enc_priv);
@@ -15729,8 +15736,8 @@ static void radeon_legacy_primary_dac_mode_set(struct drm_encoder *encoder,
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t disp_output_cntl, dac_cntl, dac2_cntl, dac_macro_cntl;
  do { } while( 0);
  if (radeon_crtc->crtc_id == 0) {
@@ -15880,8 +15887,8 @@ static void radeon_legacy_tmds_int_mode_set(struct drm_encoder *encoder,
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t tmp, tmds_pll_cntl, tmds_transmitter_cntl, fp_gen_cntl;
  int i;
  do { } while( 0);
@@ -16017,8 +16024,8 @@ static void radeon_legacy_tmds_ext_mode_set(struct drm_encoder *encoder,
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t fp2_gen_cntl;
  do { } while( 0);
  if (rdev->is_atom_bios) {
@@ -16069,7 +16076,7 @@ static void radeon_legacy_tmds_ext_mode_set(struct drm_encoder *encoder,
 }
 static void radeon_ext_tmds_enc_destroy(struct drm_encoder *encoder)
 {
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  kfree(radeon_encoder->enc_priv);
  drm_encoder_cleanup(encoder);
  kfree(radeon_encoder);
@@ -16089,7 +16096,7 @@ static void radeon_legacy_tv_dac_dpms(struct drm_encoder *encoder, int mode)
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  uint32_t fp2_gen_cntl = 0, crtc2_gen_cntl = 0, tv_dac_cntl = 0;
  uint32_t tv_master_cntl = 0;
  _Bool is_tv;
@@ -16190,8 +16197,8 @@ static void radeon_legacy_tv_dac_mode_set(struct drm_encoder *encoder,
 {
  struct drm_device *dev = encoder->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (encoder->crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct radeon_encoder_tv_dac *tv_dac = radeon_encoder->enc_priv;
  uint32_t tv_dac_cntl, gpiopad_a = 0, dac2_cntl, disp_output_cntl = 0;
  uint32_t disp_hw_debug = 0, fp2_gen_cntl = 0, disp_tv_out_cntl = 0;
@@ -16492,12 +16499,12 @@ static enum drm_connector_status radeon_legacy_tv_dac_detect(struct drm_encoder 
  uint32_t gpiopad_a = 0, pixclks_cntl, tmp;
  uint32_t disp_output_cntl = 0, disp_hw_debug = 0, crtc_ext_cntl = 0;
  enum drm_connector_status found = connector_status_disconnected;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct radeon_encoder_tv_dac *tv_dac = radeon_encoder->enc_priv;
  _Bool color = 1;
  struct drm_crtc *crtc;
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&dev->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
-  struct radeon_crtc *radeon_crtc = ({ __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&dev->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
+  struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
   if ((radeon_crtc->crtc_id == 1) && crtc->enabled) {
    if (encoder->crtc != crtc) {
     return connector_status_disconnected;
@@ -16654,8 +16661,8 @@ radeon_add_legacy_encoder(struct drm_device *dev, uint32_t encoder_enum, uint32_
  struct radeon_device *rdev = dev->dev_private;
  struct drm_encoder *encoder;
  struct radeon_encoder *radeon_encoder;
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->encoder_enum == encoder_enum) {
    radeon_encoder->devices |= supported_device;
    return;

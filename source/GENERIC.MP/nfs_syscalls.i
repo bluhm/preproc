@@ -5313,7 +5313,7 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
  }
  slp->ns_so = so;
  slp->ns_nam = mynam;
- fp->f_count++;
+ do { (fp)->f_count++; } while (0);
  slp->ns_fp = fp;
  so->so_upcallarg = (caddr_t)slp;
  so->so_upcall = nfsrv_rcv;

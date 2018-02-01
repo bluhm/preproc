@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -15423,7 +15430,7 @@ void radeon_connector_hotplug(struct drm_connector *connector)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  if (radeon_connector->hpd.hpd == RADEON_HPD_NONE)
   return;
  (rdev)->asic->hpd.set_polarity((rdev), (radeon_connector->hpd.hpd));
@@ -15459,7 +15466,7 @@ int radeon_get_monitor_bpc(struct drm_connector *connector)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct radeon_connector_atom_dig *dig_connector;
  int bpc = 8;
  switch (connector->connector_type) {
@@ -15496,7 +15503,7 @@ int radeon_get_monitor_bpc(struct drm_connector *connector)
    const struct drm_connector_helper_funcs *connector_funcs =
     connector->helper_private;
    struct drm_encoder *encoder = connector_funcs->best_encoder(connector);
-   struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+   struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
    struct radeon_encoder_atom_dig *dig = radeon_encoder->enc_priv;
    if (dig->lcd_misc & 0x10)
     bpc = 6;
@@ -15527,7 +15534,7 @@ radeon_connector_update_scratch_regs(struct drm_connector *connector, enum drm_c
         0xe0e0e0e0);
   if (!obj)
    continue;
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
   if ((encoder == best_encoder) && (status == connector_status_connected))
    connected = 1;
   else
@@ -15549,7 +15556,7 @@ static struct drm_encoder *radeon_find_encoder(struct drm_connector *connector, 
   obj = drm_mode_object_find(connector->dev, connector->encoder_ids[i], 0xe0e0e0e0);
   if (!obj)
    continue;
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
   if (encoder->encoder_type == encoder_type)
    return encoder;
  }
@@ -15564,7 +15571,7 @@ static struct drm_encoder *radeon_best_single_encoder(struct drm_connector *conn
   obj = drm_mode_object_find(connector->dev, enc_id, 0xe0e0e0e0);
   if (!obj)
    return ((void *)0);
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
   return encoder;
  }
  return ((void *)0);
@@ -15579,10 +15586,10 @@ radeon_connector_analog_encoder_conflict_solve(struct drm_connector *connector,
  struct drm_connector *conflict;
  struct radeon_connector *radeon_conflict;
  int i;
- for (conflict = ({ __typeof( ((__typeof(*conflict) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*conflict) *)( (char *)__mptr - __builtin_offsetof(__typeof(*conflict), head) );}); &conflict->head != (&dev->mode_config.connector_list); conflict = ({ __typeof( ((__typeof(*conflict) *)0)->head ) *__mptr = (conflict->head.next); (__typeof(*conflict) *)( (char *)__mptr - __builtin_offsetof(__typeof(*conflict), head) );})) {
+ for (conflict = ({ const __typeof( ((__typeof(*conflict) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*conflict) *)( (char *)__mptr - __builtin_offsetof(__typeof(*conflict), head) );}); &conflict->head != (&dev->mode_config.connector_list); conflict = ({ const __typeof( ((__typeof(*conflict) *)0)->head ) *__mptr = (conflict->head.next); (__typeof(*conflict) *)( (char *)__mptr - __builtin_offsetof(__typeof(*conflict), head) );})) {
   if (conflict == connector)
    continue;
-  radeon_conflict = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (conflict); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+  radeon_conflict = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (conflict); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
   for (i = 0; i < 3; i++) {
    if (conflict->encoder_ids[i] == 0)
     break;
@@ -15610,7 +15617,7 @@ radeon_connector_analog_encoder_conflict_solve(struct drm_connector *connector,
 static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encoder)
 {
  struct drm_device *dev = encoder->dev;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct drm_display_mode *mode = ((void *)0);
  struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
  if (native_mode->hdisplay != 0 &&
@@ -15631,7 +15638,7 @@ static struct drm_display_mode *radeon_fp_native_mode(struct drm_encoder *encode
 static void radeon_add_common_modes(struct drm_encoder *encoder, struct drm_connector *connector)
 {
  struct drm_device *dev = encoder->dev;
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct drm_display_mode *mode = ((void *)0);
  struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
  int i;
@@ -15689,7 +15696,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   encoder = radeon_find_encoder(connector, 2);
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (!radeon_encoder->enc_priv)
    return 0;
   dig = radeon_encoder->enc_priv;
@@ -15703,7 +15710,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   encoder = radeon_find_encoder(connector, 2);
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->underscan_type != val) {
    radeon_encoder->underscan_type = val;
    radeon_property_change_mode(&radeon_encoder->base);
@@ -15713,7 +15720,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   encoder = radeon_find_encoder(connector, 2);
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->underscan_hborder != val) {
    radeon_encoder->underscan_hborder = val;
    radeon_property_change_mode(&radeon_encoder->base);
@@ -15723,7 +15730,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   encoder = radeon_find_encoder(connector, 2);
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->underscan_vborder != val) {
    radeon_encoder->underscan_vborder = val;
    radeon_property_change_mode(&radeon_encoder->base);
@@ -15736,7 +15743,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   }
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (!radeon_encoder->enc_priv)
    return 0;
   if (((rdev->family >= CHIP_RS600)) || radeon_r4xx_atom) {
@@ -15752,7 +15759,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
  }
  if (property == rdev->mode_info.load_detect_property) {
   struct radeon_connector *radeon_connector =
-   ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+   ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
   if (val == 0)
    radeon_connector->dac_load_detect = 0;
   else
@@ -15764,7 +15771,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
   encoder = radeon_find_encoder(connector, 2);
   if (!encoder)
    return 0;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   tmds = radeon_encoder->enc_priv;
   if (!tmds)
    return 0;
@@ -15784,10 +15791,10 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
 static void radeon_fixup_lvds_native_mode(struct drm_encoder *encoder,
        struct drm_connector *connector)
 {
- struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
  struct drm_display_mode *t, *mode;
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ const __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
   if (mode->type & (1<<3)) {
    if (mode->hdisplay != native_mode->hdisplay ||
        mode->vdisplay != native_mode->vdisplay)
@@ -15795,7 +15802,7 @@ static void radeon_fixup_lvds_native_mode(struct drm_encoder *encoder,
   }
  }
  if (!native_mode->clock) {
-  for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
+  for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), t = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = t, t = ({ const __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
    if (mode->hdisplay == native_mode->hdisplay &&
        mode->vdisplay == native_mode->vdisplay) {
     *native_mode = *mode;
@@ -15812,7 +15819,7 @@ static void radeon_fixup_lvds_native_mode(struct drm_encoder *encoder,
 }
 static int radeon_lvds_get_modes(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct drm_encoder *encoder;
  int ret = 0;
  struct drm_display_mode *mode;
@@ -15847,7 +15854,7 @@ static int radeon_lvds_mode_valid(struct drm_connector *connector,
  if ((mode->hdisplay < 320) || (mode->vdisplay < 240))
   return MODE_PANEL;
  if (encoder) {
-  struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
   if ((mode->hdisplay > native_mode->hdisplay) ||
       (mode->vdisplay > native_mode->vdisplay))
@@ -15863,11 +15870,11 @@ static int radeon_lvds_mode_valid(struct drm_connector *connector,
 static enum drm_connector_status
 radeon_lvds_detect(struct drm_connector *connector, _Bool force)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct drm_encoder *encoder = radeon_best_single_encoder(connector);
  enum drm_connector_status ret = connector_status_disconnected;
  if (encoder) {
-  struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
   if (native_mode->hdisplay >= 320 && native_mode->vdisplay >= 240)
    ret = connector_status_connected;
@@ -15887,7 +15894,7 @@ radeon_lvds_detect(struct drm_connector *connector, _Bool force)
 }
 static void radeon_connector_destroy(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  if (radeon_connector->edid)
   kfree(radeon_connector->edid);
  kfree(radeon_connector->con_priv);
@@ -15906,10 +15913,10 @@ static int radeon_lvds_set_property(struct drm_connector *connector,
  if (property != dev->mode_config.scaling_mode_property)
   return 0;
  if (connector->encoder)
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (connector->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (connector->encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  else {
   const struct drm_connector_helper_funcs *connector_funcs = connector->helper_private;
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (connector_funcs->best_encoder(connector)); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (connector_funcs->best_encoder(connector)); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
  }
  switch (value) {
  case 0: rmx_type = RMX_OFF; break;
@@ -15938,7 +15945,7 @@ static const struct drm_connector_funcs radeon_lvds_connector_funcs = {
 };
 static int radeon_vga_get_modes(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  int ret;
  ret = radeon_ddc_get_modes(radeon_connector);
  return ret;
@@ -15957,7 +15964,7 @@ radeon_vga_detect(struct drm_connector *connector, _Bool force)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct drm_encoder *encoder;
  const struct drm_encoder_helper_funcs *encoder_funcs;
  _Bool dret = 0;
@@ -16052,7 +16059,7 @@ radeon_tv_detect(struct drm_connector *connector, _Bool force)
 {
  struct drm_encoder *encoder;
  const struct drm_encoder_helper_funcs *encoder_funcs;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  enum drm_connector_status ret = connector_status_disconnected;
  if (!radeon_connector->dac_load_detect)
   return ret;
@@ -16082,7 +16089,7 @@ static const struct drm_connector_funcs radeon_tv_connector_funcs = {
 };
 static int radeon_dvi_get_modes(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  int ret;
  ret = radeon_ddc_get_modes(radeon_connector);
  return ret;
@@ -16091,7 +16098,7 @@ static _Bool radeon_check_hpd_status_unchanged(struct drm_connector *connector)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  enum drm_connector_status status;
  if (rdev->family >= CHIP_R600
    && radeon_connector->hpd.hpd != RADEON_HPD_NONE) {
@@ -16109,7 +16116,7 @@ radeon_dvi_detect(struct drm_connector *connector, _Bool force)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct drm_encoder *encoder = ((void *)0);
  const struct drm_encoder_helper_funcs *encoder_funcs;
  struct drm_mode_object *obj;
@@ -16148,10 +16155,10 @@ radeon_dvi_detect(struct drm_connector *connector, _Bool force)
    if (radeon_connector->shared_ddc && (ret == connector_status_connected)) {
     struct drm_connector *list_connector;
     struct radeon_connector *list_radeon_connector;
-    for (list_connector = ({ __typeof( ((__typeof(*list_connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*list_connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*list_connector), head) );}); &list_connector->head != (&dev->mode_config.connector_list); list_connector = ({ __typeof( ((__typeof(*list_connector) *)0)->head ) *__mptr = (list_connector->head.next); (__typeof(*list_connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*list_connector), head) );})) {
+    for (list_connector = ({ const __typeof( ((__typeof(*list_connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*list_connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*list_connector), head) );}); &list_connector->head != (&dev->mode_config.connector_list); list_connector = ({ const __typeof( ((__typeof(*list_connector) *)0)->head ) *__mptr = (list_connector->head.next); (__typeof(*list_connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*list_connector), head) );})) {
      if (connector == list_connector)
       continue;
-     list_radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (list_connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+     list_radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (list_connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
      if (list_radeon_connector->shared_ddc &&
          (list_radeon_connector->ddc_bus->rec.i2c_id ==
           radeon_connector->ddc_bus->rec.i2c_id)) {
@@ -16186,7 +16193,7 @@ radeon_dvi_detect(struct drm_connector *connector, _Bool force)
          0xe0e0e0e0);
    if (!obj)
     continue;
-   encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+   encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
    if (encoder->encoder_type != 1 &&
        encoder->encoder_type != 4)
     continue;
@@ -16230,7 +16237,7 @@ out:
 static struct drm_encoder *radeon_dvi_encoder(struct drm_connector *connector)
 {
  int enc_id = connector->encoder_ids[0];
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct drm_mode_object *obj;
  struct drm_encoder *encoder;
  int i;
@@ -16240,7 +16247,7 @@ static struct drm_encoder *radeon_dvi_encoder(struct drm_connector *connector)
   obj = drm_mode_object_find(connector->dev, connector->encoder_ids[i], 0xe0e0e0e0);
   if (!obj)
    continue;
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
   if (radeon_connector->use_digital == 1) {
    if (encoder->encoder_type == 2)
     return encoder;
@@ -16254,14 +16261,14 @@ static struct drm_encoder *radeon_dvi_encoder(struct drm_connector *connector)
   obj = drm_mode_object_find(connector->dev, enc_id, 0xe0e0e0e0);
   if (!obj)
    return ((void *)0);
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
   return encoder;
  }
  return ((void *)0);
 }
 static void radeon_dvi_force(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  if (connector->force == DRM_FORCE_ON)
   radeon_connector->use_digital = 0;
  if (connector->force == DRM_FORCE_ON_DIGITAL)
@@ -16272,7 +16279,7 @@ static int radeon_dvi_mode_valid(struct drm_connector *connector,
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  if (radeon_connector->use_digital &&
      (rdev->family == CHIP_RV100) &&
      (mode->clock > 135000))
@@ -16312,7 +16319,7 @@ static const struct drm_connector_funcs radeon_dvi_connector_funcs = {
 };
 static void radeon_dp_connector_destroy(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct radeon_connector_atom_dig *radeon_dig_connector = radeon_connector->con_priv;
  if (radeon_connector->edid)
   kfree(radeon_connector->edid);
@@ -16325,7 +16332,7 @@ static void radeon_dp_connector_destroy(struct drm_connector *connector)
 }
 static int radeon_dp_get_modes(struct drm_connector *connector)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct radeon_connector_atom_dig *radeon_dig_connector = radeon_connector->con_priv;
  struct drm_encoder *encoder = radeon_best_single_encoder(connector);
  int ret;
@@ -16387,8 +16394,8 @@ u16 radeon_connector_encoder_get_dp_bridge_encoder_id(struct drm_connector *conn
   obj = drm_mode_object_find(connector->dev, connector->encoder_ids[i], 0xe0e0e0e0);
   if (!obj)
    continue;
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   switch (radeon_encoder->encoder_id) {
   case 0x23:
   case 0x22:
@@ -16412,8 +16419,8 @@ _Bool radeon_connector_encoder_is_hbr2(struct drm_connector *connector)
   obj = drm_mode_object_find(connector->dev, connector->encoder_ids[i], 0xe0e0e0e0);
   if (!obj)
    continue;
-  encoder = ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+  encoder = ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (obj); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );});
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->caps & 0x01)
    found = 1;
  }
@@ -16435,7 +16442,7 @@ radeon_dp_detect(struct drm_connector *connector, _Bool force)
 {
  struct drm_device *dev = connector->dev;
  struct radeon_device *rdev = dev->dev_private;
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  enum drm_connector_status ret = connector_status_disconnected;
  struct radeon_connector_atom_dig *radeon_dig_connector = radeon_connector->con_priv;
  struct drm_encoder *encoder = radeon_best_single_encoder(connector);
@@ -16448,7 +16455,7 @@ radeon_dp_detect(struct drm_connector *connector, _Bool force)
  if ((connector->connector_type == 14) ||
      (connector->connector_type == 7)) {
   if (encoder) {
-   struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+   struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
    struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
    if (native_mode->hdisplay >= 320 && native_mode->vdisplay >= 240)
     ret = connector_status_connected;
@@ -16497,7 +16504,7 @@ radeon_dp_detect(struct drm_connector *connector, _Bool force)
 static int radeon_dp_mode_valid(struct drm_connector *connector,
       struct drm_display_mode *mode)
 {
- struct radeon_connector *radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ struct radeon_connector *radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
  struct radeon_connector_atom_dig *radeon_dig_connector = radeon_connector->con_priv;
  if ((connector->connector_type == 14) ||
      (connector->connector_type == 7)) {
@@ -16505,7 +16512,7 @@ static int radeon_dp_mode_valid(struct drm_connector *connector,
   if ((mode->hdisplay < 320) || (mode->vdisplay < 240))
    return MODE_PANEL;
   if (encoder) {
-   struct radeon_encoder *radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+   struct radeon_encoder *radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
    struct drm_display_mode *native_mode = &radeon_encoder->native_mode;
    if ((mode->hdisplay > native_mode->hdisplay) ||
        (mode->vdisplay > native_mode->vdisplay))
@@ -16582,8 +16589,8 @@ radeon_add_atom_connector(struct drm_device *dev,
       (connector_type == 9)) &&
      (radeon_tv == 0))
   return;
- for (connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );})) {
-  radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ for (connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );})) {
+  radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
   if (radeon_connector->connector_id == connector_id) {
    radeon_connector->devices |= supported_device;
    return;
@@ -16600,8 +16607,8 @@ radeon_add_atom_connector(struct drm_device *dev,
    }
   }
  }
- for (encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
-  radeon_encoder = ({ __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+ for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
+  radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
   if (radeon_encoder->devices & supported_device) {
    switch (radeon_encoder->encoder_id) {
    case 0x23:
@@ -16939,8 +16946,8 @@ radeon_add_legacy_connector(struct drm_device *dev,
       (connector_type == 9)) &&
      (radeon_tv == 0))
   return;
- for (connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );})) {
-  radeon_connector = ({ __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+ for (connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );})) {
+  radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
   if (radeon_connector->connector_id == connector_id) {
    radeon_connector->devices |= supported_device;
    return;

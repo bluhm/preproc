@@ -5945,13 +5945,16 @@ atu_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct atu_softc *sc = ifp->if_softc;
  enum ieee80211_state ostate = ic->ic_state;
- ;
  switch (nstate) {
  case IEEE80211_S_SCAN:
   __builtin_memcpy((ic->ic_chan_scan), (ic->ic_chan_active), (sizeof(ic->ic_chan_active)));
   ieee80211_free_allnodes(ic);
   sc->sc_cmd = 1;
   usb_add_task(sc->atu_udev, &sc->sc_task);
+  if (ifp->if_flags & 0x4)
+   printf("%s: %s -> %s\n", ifp->if_xname,
+       ieee80211_state_name[ic->ic_state],
+       ieee80211_state_name[nstate]);
   ic->ic_state = nstate;
   return (0);
  case IEEE80211_S_AUTH:

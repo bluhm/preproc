@@ -5246,24 +5246,25 @@ ar5k_ar5211_reset(struct ath_hal *hal, HAL_OPMODE op_mode, HAL_CHANNEL *channel,
  if (ar5k_ar5211_nic_wakeup(hal, channel->channelFlags) == AH_FALSE)
   return (AH_FALSE);
  hal->ah_op_mode = op_mode;
- switch (channel->channelFlags & ((0x0100 | 0x0040) | (0x0080 | 0x0020) | (0x0080 | 0x0400) | (0x0080 | 0x0040) | ((0x0100 | 0x0040) | 0x1000))) {
- case (0x0100 | 0x0040):
+ if ((channel->channelFlags & (0x0100 | 0x0040)) == (0x0100 | 0x0040)) {
   mode = 0;
   freq = 0;
   ee_mode = 0;
-  break;
- case (0x0080 | 0x0020):
-  mode = 2;
+ } else if ((channel->channelFlags & (0x0080 | 0x0020)) == (0x0080 | 0x0020)) {
+  if (hal->ah_capabilities.cap_mode & HAL_MODE_11B) {
+   mode = 2;
+   ee_mode = 1;
+  } else {
+   mode = 3;
+   ee_mode = 2;
+  }
   freq = 1;
-  ee_mode = 1;
-  break;
- case (0x0080 | 0x0400):
- case (0x0080 | 0x0040):
+ } else if ((channel->channelFlags & ((0x0080 | 0x0400) | (0x0080 | 0x0040))) ==
+     ((0x0080 | 0x0400) | (0x0080 | 0x0040))) {
   mode = 3;
   freq = 1;
   ee_mode = 2;
-  break;
- default:
+ } else {
   printf("%s: " "invalid channel: %d\n", __func__, channel->channel);
   return (AH_FALSE);
  }

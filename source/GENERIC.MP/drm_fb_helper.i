@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8324,7 +8331,7 @@ int drm_fb_helper_single_add_all_connectors(struct drm_fb_helper *fb_helper)
  if (!drm_fbdev_emulation)
   return 0;
  _rw_enter_write(&dev->mode_config.mutex );
- for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
+ for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
   struct drm_fb_helper_connector *fb_helper_connector;
   fb_helper_connector = kzalloc(sizeof(struct drm_fb_helper_connector), (0x0001 | 0x0004));
   if (!fb_helper_connector)
@@ -8440,7 +8447,7 @@ int drm_fb_helper_debug_enter(struct fb_info *info)
  struct drm_fb_helper *helper = info->par;
  const struct drm_crtc_helper_funcs *funcs;
  int i;
- for (helper = ({ __typeof( ((__typeof(*helper) *)0)->kernel_fb_list ) *__mptr = ((&kernel_fb_helper_list)->next); (__typeof(*helper) *)( (char *)__mptr - __builtin_offsetof(__typeof(*helper), kernel_fb_list) );}); &helper->kernel_fb_list != (&kernel_fb_helper_list); helper = ({ __typeof( ((__typeof(*helper) *)0)->kernel_fb_list ) *__mptr = (helper->kernel_fb_list.next); (__typeof(*helper) *)( (char *)__mptr - __builtin_offsetof(__typeof(*helper), kernel_fb_list) );})) {
+ for (helper = ({ const __typeof( ((__typeof(*helper) *)0)->kernel_fb_list ) *__mptr = ((&kernel_fb_helper_list)->next); (__typeof(*helper) *)( (char *)__mptr - __builtin_offsetof(__typeof(*helper), kernel_fb_list) );}); &helper->kernel_fb_list != (&kernel_fb_helper_list); helper = ({ const __typeof( ((__typeof(*helper) *)0)->kernel_fb_list ) *__mptr = (helper->kernel_fb_list.next); (__typeof(*helper) *)( (char *)__mptr - __builtin_offsetof(__typeof(*helper), kernel_fb_list) );})) {
   for (i = 0; i < helper->crtc_count; i++) {
    struct drm_mode_set *mode_set =
     &helper->crtc_info[i].mode_set;
@@ -8462,7 +8469,7 @@ static struct drm_framebuffer *drm_mode_config_fb(struct drm_crtc *crtc)
 {
  struct drm_device *dev = crtc->dev;
  struct drm_crtc *c;
- for (c = ({ __typeof( ((__typeof(*c) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*c) *)( (char *)__mptr - __builtin_offsetof(__typeof(*c), head) );}); &c->head != (&(dev)->mode_config.crtc_list); c = ({ __typeof( ((__typeof(*c) *)0)->head ) *__mptr = (c->head.next); (__typeof(*c) *)( (char *)__mptr - __builtin_offsetof(__typeof(*c), head) );})) {
+ for (c = ({ const __typeof( ((__typeof(*c) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*c) *)( (char *)__mptr - __builtin_offsetof(__typeof(*c), head) );}); &c->head != (&(dev)->mode_config.crtc_list); c = ({ const __typeof( ((__typeof(*c) *)0)->head ) *__mptr = (c->head.next); (__typeof(*c) *)( (char *)__mptr - __builtin_offsetof(__typeof(*c), head) );})) {
   if (crtc->base.id == c->base.id)
    return c->primary->fb;
  }
@@ -8506,7 +8513,7 @@ static int restore_fbdev_mode_atomic(struct drm_fb_helper *fb_helper)
  state->acquire_ctx = dev->mode_config.acquire_ctx;
 retry:
  plane_mask = 0;
- for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
+ for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
   struct drm_plane_state *plane_state;
   plane_state = drm_atomic_get_plane_state(state, plane);
   if (IS_ERR(plane_state)) {
@@ -8549,7 +8556,7 @@ static int restore_fbdev_mode(struct drm_fb_helper *fb_helper)
  drm_warn_on_modeset_not_all_locked(dev);
  if (fb_helper->atomic)
   return restore_fbdev_mode_atomic(fb_helper);
- for (plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
+ for (plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );}); &plane->head != (&(dev)->mode_config.plane_list); plane = ({ const __typeof( ((__typeof(*plane) *)0)->head ) *__mptr = (plane->head.next); (__typeof(*plane) *)( (char *)__mptr - __builtin_offsetof(__typeof(*plane), head) );})) {
   if (plane->type != DRM_PLANE_TYPE_PRIMARY)
    drm_plane_force_disable(plane);
   if (dev->mode_config.rotation_property) {
@@ -8600,7 +8607,7 @@ static _Bool drm_fb_helper_is_bound(struct drm_fb_helper *fb_helper)
  struct drm_device *dev = fb_helper->dev;
  struct drm_crtc *crtc;
  int bound = 0, crtcs_bound = 0;
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
   if (crtc->primary->fb)
    crtcs_bound++;
   if (crtc->primary->fb == fb_helper->fb)
@@ -8711,7 +8718,7 @@ int drm_fb_helper_init(struct drm_device *dev,
   fb_helper->crtc_info[i].mode_set.num_connectors = 0;
  }
  i = 0;
- for (crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&(dev)->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&(dev)->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );})) {
   fb_helper->crtc_info[i].mode_set.crtc = crtc;
   i++;
  }
@@ -8861,7 +8868,7 @@ static int drm_fb_helper_probe_connector_modes(struct drm_fb_helper *fb_helper,
 struct drm_display_mode *drm_has_preferred_mode(struct drm_fb_helper_connector *fb_connector, int width, int height)
 {
  struct drm_display_mode *mode;
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_connector->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_connector->connector->modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_connector->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_connector->connector->modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
   if (mode->hdisplay > width ||
       mode->vdisplay > height)
    continue;
@@ -8888,7 +8895,7 @@ struct drm_display_mode *drm_pick_cmdline_mode(struct drm_fb_helper_connector *f
   goto create_mode;
  prefer_non_interlace = !cmdline_mode->interlace;
 again:
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_helper_conn->connector->modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_helper_conn->connector->modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
   if (mode->hdisplay != cmdline_mode->xres ||
       mode->vdisplay != cmdline_mode->yres)
    continue;
@@ -8989,7 +8996,7 @@ static _Bool drm_target_cloned(struct drm_fb_helper *fb_helper,
   if (!enabled[i])
    continue;
   fb_helper_conn = fb_helper->connector_info[i];
-  for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_helper_conn->connector->modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+  for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&fb_helper_conn->connector->modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
    if (drm_mode_equal(mode, dmt_mode))
     modes[i] = mode;
   }
@@ -9069,7 +9076,7 @@ retry:
    modes[i] = drm_has_preferred_mode(fb_helper_conn, width, height);
   }
   if (!modes[i] && !list_empty(&fb_helper_conn->connector->modes)) {
-   for (modes[i] = ({ __typeof( ((__typeof(*modes[i]) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*modes[i]) *)( (char *)__mptr - __builtin_offsetof(__typeof(*modes[i]), head) );}); &modes[i]->head != (&fb_helper_conn->connector->modes); modes[i] = ({ __typeof( ((__typeof(*modes[i]) *)0)->head ) *__mptr = (modes[i]->head.next); (__typeof(*modes[i]) *)( (char *)__mptr - __builtin_offsetof(__typeof(*modes[i]), head) );}))
+   for (modes[i] = ({ const __typeof( ((__typeof(*modes[i]) *)0)->head ) *__mptr = ((&fb_helper_conn->connector->modes)->next); (__typeof(*modes[i]) *)( (char *)__mptr - __builtin_offsetof(__typeof(*modes[i]), head) );}); &modes[i]->head != (&fb_helper_conn->connector->modes); modes[i] = ({ const __typeof( ((__typeof(*modes[i]) *)0)->head ) *__mptr = (modes[i]->head.next); (__typeof(*modes[i]) *)( (char *)__mptr - __builtin_offsetof(__typeof(*modes[i]), head) );}))
     break;
   }
   do { } while( 0);

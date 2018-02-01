@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8631,21 +8638,21 @@ int drm_atomic_get_property(struct drm_mode_object *obj,
  int ret;
  switch (obj->type) {
  case 0xc0c0c0c0: {
-  struct drm_connector *connector = ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
+  struct drm_connector *connector = ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
   ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic.c", 916); __builtin_expect(!!(__ret), 0); });
   ret = drm_atomic_connector_get_property(connector,
     connector->state, property, val);
   break;
  }
  case 0xcccccccc: {
-  struct drm_crtc *crtc = ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
+  struct drm_crtc *crtc = ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
   ({ int __ret = !!(!drm_modeset_is_locked(&crtc->mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&crtc->mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic.c", 923); __builtin_expect(!!(__ret), 0); });
   ret = drm_atomic_crtc_get_property(crtc,
     crtc->state, property, val);
   break;
  }
  case 0xeeeeeeee: {
-  struct drm_plane *plane = ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
+  struct drm_plane *plane = ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
   ({ int __ret = !!(!drm_modeset_is_locked(&plane->mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&plane->mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic.c", 930); __builtin_expect(!!(__ret), 0); });
   ret = drm_atomic_plane_get_property(plane,
     plane->state, property, val);
@@ -8730,7 +8737,7 @@ drm_atomic_add_affected_connectors(struct drm_atomic_state *state,
  if (ret)
   return ret;
  do { } while(0);
- for (assert_drm_connector_list_read_locked(&(state->dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(state->dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(state->dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
+ for (assert_drm_connector_list_read_locked(&(state->dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(state->dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(state->dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );})) {
   if (connector->state->crtc != crtc)
    continue;
   conn_state = drm_atomic_get_connector_state(state, connector);
@@ -8746,7 +8753,7 @@ drm_atomic_add_affected_planes(struct drm_atomic_state *state,
 {
  struct drm_plane *plane;
  ({ int __ret = !!(!drm_atomic_get_existing_crtc_state(state, crtc)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_atomic_get_existing_crtc_state(state, crtc)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_atomic.c", 1138); __builtin_expect(!!(__ret), 0); });
- for ((plane) = ({ __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((&(state->dev)->mode_config.plane_list)->next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );}); &(plane)->head != (&(state->dev)->mode_config.plane_list); (plane) = ({ __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((plane)->head.next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );})) if ((crtc->state->plane_mask) & (1 << drm_plane_index(plane))) {
+ for ((plane) = ({ const __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((&(state->dev)->mode_config.plane_list)->next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );}); &(plane)->head != (&(state->dev)->mode_config.plane_list); (plane) = ({ const __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((plane)->head.next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );})) if ((crtc->state->plane_mask) & (1 << drm_plane_index(plane))) {
   struct drm_plane_state *plane_state =
    drm_atomic_get_plane_state(state, plane);
   if (IS_ERR(plane_state))
@@ -8893,7 +8900,7 @@ static int atomic_set_prop(struct drm_atomic_state *state,
   return -22;
  switch (obj->type) {
  case 0xc0c0c0c0: {
-  struct drm_connector *connector = ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
+  struct drm_connector *connector = ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (obj); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );});
   struct drm_connector_state *connector_state;
   connector_state = drm_atomic_get_connector_state(state, connector);
   if (IS_ERR(connector_state)) {
@@ -8905,7 +8912,7 @@ static int atomic_set_prop(struct drm_atomic_state *state,
   break;
  }
  case 0xcccccccc: {
-  struct drm_crtc *crtc = ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
+  struct drm_crtc *crtc = ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (obj); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );});
   struct drm_crtc_state *crtc_state;
   crtc_state = drm_atomic_get_crtc_state(state, crtc);
   if (IS_ERR(crtc_state)) {
@@ -8917,7 +8924,7 @@ static int atomic_set_prop(struct drm_atomic_state *state,
   break;
  }
  case 0xeeeeeeee: {
-  struct drm_plane *plane = ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
+  struct drm_plane *plane = ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
   struct drm_plane_state *plane_state;
   plane_state = drm_atomic_get_plane_state(state, plane);
   if (IS_ERR(plane_state)) {
@@ -8940,7 +8947,7 @@ void drm_atomic_clean_old_fb(struct drm_device *dev,
         int ret)
 {
  struct drm_plane *plane;
- for ((plane) = ({ __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );}); &(plane)->head != (&(dev)->mode_config.plane_list); (plane) = ({ __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((plane)->head.next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );})) if ((plane_mask) & (1 << drm_plane_index(plane))) {
+ for ((plane) = ({ const __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((&(dev)->mode_config.plane_list)->next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );}); &(plane)->head != (&(dev)->mode_config.plane_list); (plane) = ({ const __typeof( ((__typeof(*(plane)) *)0)->head ) *__mptr = ((plane)->head.next); (__typeof(*(plane)) *)( (char *)__mptr - __builtin_offsetof(__typeof(*(plane)), head) );})) if ((plane_mask) & (1 << drm_plane_index(plane))) {
   if (ret == 0) {
    struct drm_framebuffer *new_fb = plane->state->fb;
    if (new_fb)
@@ -9038,7 +9045,7 @@ retry:
   }
   if (obj->type == 0xeeeeeeee && count_props &&
       !(arg->flags & 0x0100)) {
-   plane = ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
+   plane = ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (obj); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );});
    plane_mask |= (1 << drm_plane_index(plane));
    plane->old_fb = plane->fb;
   }

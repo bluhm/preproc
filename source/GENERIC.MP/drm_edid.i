@@ -4350,7 +4350,7 @@ struct delayed_work {
 static inline struct delayed_work *
 to_delayed_work(struct work_struct *work)
 {
- return ({ __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
+ return ({ const __typeof( ((struct delayed_work *)0)->work ) *__mptr = (work); (struct delayed_work *)( (char *)__mptr - __builtin_offsetof(struct delayed_work, work) );});
 }
 static void
 __delayed_work_tick(void *arg)
@@ -4661,7 +4661,7 @@ kobject_get(struct kobject *obj)
 static inline void
 kobject_release(struct kref *ref)
 {
- struct kobject *obj = ({ __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
+ struct kobject *obj = ({ const __typeof( ((struct kobject *)0)->kref ) *__mptr = (ref); (struct kobject *)( (char *)__mptr - __builtin_offsetof(struct kobject, kref) );});
  if (obj->type && obj->type->release)
   obj->type->release(obj);
 }
@@ -4812,12 +4812,14 @@ struct dmi_system_id {
         struct dmi_strmatch matches[4];
 };
 int dmi_check_system(const struct dmi_system_id *);
+_Bool dmi_match(int, const char *);
 struct resource {
  u_long start;
 };
 struct pci_bus {
  pci_chipset_tag_t pc;
  unsigned char number;
+ pcitag_t *bridgetag;
 };
 struct pci_dev {
  struct pci_bus _bus;
@@ -4913,6 +4915,11 @@ pci_pcie_cap(struct pci_dev *pdev)
   return -22;
  return pos;
 }
+static inline _Bool
+pci_is_root_bus(struct pci_bus *pbus)
+{
+ return (pbus->bridgetag == ((void *)0));
+}
 static inline int
 pcie_capability_read_dword(struct pci_dev *pdev, int off, u32 *val)
 {
@@ -5000,7 +5007,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1767, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc, 0);
 }
 typedef int pgprot_t;
@@ -5915,7 +5922,7 @@ static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
 }
 static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
- return ({ __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
 }
 static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
 {
@@ -7431,35 +7438,35 @@ static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
 }
 static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
 }
 static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
  uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
 }
 static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
 }
 static inline struct drm_property *drm_property_find(struct drm_device *dev,
   uint32_t id)
 {
  struct drm_mode_object *mo;
  mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
+ return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
 }
 static inline void
 assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
@@ -8736,8 +8743,8 @@ static void edid_fixup_preferred(struct drm_connector *connector,
   target_refresh = 60;
  if (quirks & (1 << 2))
   target_refresh = 75;
- preferred_mode = ({ __typeof( ((struct drm_display_mode *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (struct drm_display_mode *)( (char *)__mptr - __builtin_offsetof(struct drm_display_mode, head) );});
- for (cur_mode = ({ __typeof( ((__typeof(*cur_mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*cur_mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur_mode), head) );}), t = ({ __typeof( ((__typeof(*cur_mode) *)0)->head ) *__mptr = (cur_mode->head.next); (__typeof(*cur_mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur_mode), head) );}); &cur_mode->head != (&connector->probed_modes); cur_mode = t, t = ({ __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
+ preferred_mode = ({ const __typeof( ((struct drm_display_mode *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (struct drm_display_mode *)( (char *)__mptr - __builtin_offsetof(struct drm_display_mode, head) );});
+ for (cur_mode = ({ const __typeof( ((__typeof(*cur_mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*cur_mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur_mode), head) );}), t = ({ const __typeof( ((__typeof(*cur_mode) *)0)->head ) *__mptr = (cur_mode->head.next); (__typeof(*cur_mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur_mode), head) );}); &cur_mode->head != (&connector->probed_modes); cur_mode = t, t = ({ const __typeof( ((__typeof(*t) *)0)->head ) *__mptr = (t->head.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), head) );})) {
   cur_mode->type &= ~(1<<3);
   if (cur_mode == preferred_mode)
    continue;
@@ -8939,7 +8946,7 @@ drm_mode_std(struct drm_connector *connector, struct edid *edid,
   hsize = 1366;
   vsize = 768;
  }
- for (m = ({ __typeof( ((__typeof(*m) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}); &m->head != (&connector->probed_modes); m = ({ __typeof( ((__typeof(*m) *)0)->head ) *__mptr = (m->head.next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}))
+ for (m = ({ const __typeof( ((__typeof(*m) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}); &m->head != (&connector->probed_modes); m = ({ const __typeof( ((__typeof(*m) *)0)->head ) *__mptr = (m->head.next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}))
   if (m->hdisplay == hsize && m->vdisplay == vsize &&
       drm_mode_vrefresh(m) == vrefresh_rate)
    return ((void *)0);
@@ -9155,7 +9162,7 @@ static _Bool valid_inferred_mode(const struct drm_connector *connector,
 {
  const struct drm_display_mode *m;
  _Bool ok = 0;
- for (m = ({ __typeof( ((__typeof(*m) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}); &m->head != (&connector->probed_modes); m = ({ __typeof( ((__typeof(*m) *)0)->head ) *__mptr = (m->head.next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );})) {
+ for (m = ({ const __typeof( ((__typeof(*m) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );}); &m->head != (&connector->probed_modes); m = ({ const __typeof( ((__typeof(*m) *)0)->head ) *__mptr = (m->head.next); (__typeof(*m) *)( (char *)__mptr - __builtin_offsetof(__typeof(*m), head) );})) {
   if (mode->hdisplay == m->hdisplay &&
       mode->vdisplay == m->vdisplay &&
       drm_mode_vrefresh(mode) == drm_mode_vrefresh(m))
@@ -9578,7 +9585,7 @@ add_alternate_cea_modes(struct drm_connector *connector, struct edid *edid)
  int modes = 0;
  if (!drm_find_cea_extension(edid))
   return 0;
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
   const struct drm_display_mode *cea_mode = ((void *)0);
   struct drm_display_mode *newmode;
   u8 mode_idx = drm_match_cea_mode(mode) - 1;
@@ -9610,7 +9617,7 @@ add_alternate_cea_modes(struct drm_connector *connector, struct edid *edid)
    newmode->clock = clock2;
   list_add_tail(&newmode->head, &list);
  }
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&list)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), tmp = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&list); mode = tmp, tmp = ({ __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&list)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}), tmp = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&list); mode = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->head ) *__mptr = (tmp->head.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), head) );})) {
   list_del(&mode->head);
   drm_mode_probed_add(connector, mode);
   modes++;
@@ -9683,7 +9690,7 @@ static int add_hdmi_mandatory_stereo_modes(struct drm_connector *connector)
  struct list_head stereo_modes;
  int modes = 0, i;
  INIT_LIST_HEAD(&stereo_modes);
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
   for (i = 0; i < (sizeof((stereo_mandatory_modes)) / sizeof((stereo_mandatory_modes)[0])); i++) {
    const struct stereo_mandatory_mode *mandatory;
    struct drm_display_mode *new_mode;
@@ -10140,7 +10147,7 @@ struct drm_connector *drm_select_eld(struct drm_encoder *encoder)
  struct drm_device *dev = encoder->dev;
  ({ int __ret = !!(!(rw_status(&dev->mode_config.mutex) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&dev->mode_config.mutex) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3477); __builtin_expect(!!(__ret), 0); });
  ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3478); __builtin_expect(!!(__ret), 0); });
- for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
+ for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
   if (connector->encoder == encoder && connector->eld[0])
    return connector;
  return ((void *)0);
@@ -10387,7 +10394,7 @@ void drm_set_preferred_mode(struct drm_connector *connector,
       int hpref, int vpref)
 {
  struct drm_display_mode *mode;
- for (mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
+ for (mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = ((&connector->probed_modes)->next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );}); &mode->head != (&connector->probed_modes); mode = ({ const __typeof( ((__typeof(*mode) *)0)->head ) *__mptr = (mode->head.next); (__typeof(*mode) *)( (char *)__mptr - __builtin_offsetof(__typeof(*mode), head) );})) {
   if (mode->hdisplay == hpref &&
       mode->vdisplay == vpref)
    mode->type |= (1<<3);
