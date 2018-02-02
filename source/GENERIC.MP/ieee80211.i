@@ -2156,6 +2156,7 @@ int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
      void (*)(const void *, void *, size_t));
 int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
 int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
 void *bpfsattach(caddr_t *, const char *, u_int, u_int);

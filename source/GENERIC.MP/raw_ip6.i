@@ -3466,7 +3466,7 @@ int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 void ip6_freepcbopts(struct ip6_pktopts *);
 void ip6_freemoptions(struct ip6_moptions *);
 int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
-u_int8_t *ip6_get_prevhdr(struct mbuf *, int);
+int ip6_get_prevhdr(struct mbuf *, int);
 int ip6_nexthdr(struct mbuf *, int, int, int *);
 int ip6_lasthdr(struct mbuf *, int, int, int *);
 int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
@@ -5673,10 +5673,9 @@ rip6_input(struct mbuf **mp, int *offp, int proto, int af)
   if (proto == 59 || proto == 58) {
    m_freem(m);
   } else {
-   u_int8_t *prvnxtp = ip6_get_prevhdr(m, *offp);
+   int prvnxt = ip6_get_prevhdr(m, *offp);
    icmp6_error(m, 4,
-       1,
-       prvnxtp - ((u_int8_t *)((m)->m_hdr.mh_data)));
+       1, prvnxt);
   }
   counters = counters_enter(&ref, ip6counters);
   counters[ip6s_delivered]--;

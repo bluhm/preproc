@@ -3391,7 +3391,7 @@ int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 void ip6_freepcbopts(struct ip6_pktopts *);
 void ip6_freemoptions(struct ip6_moptions *);
 int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
-u_int8_t *ip6_get_prevhdr(struct mbuf *, int);
+int ip6_get_prevhdr(struct mbuf *, int);
 int ip6_nexthdr(struct mbuf *, int, int, int *);
 int ip6_lasthdr(struct mbuf *, int, int, int *);
 int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
@@ -3495,6 +3495,7 @@ int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
      void (*)(const void *, void *, size_t));
 int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
 int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
 void *bpfsattach(caddr_t *, const char *, u_int, u_int);
@@ -5248,7 +5249,7 @@ ip6_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
  if (!etherip_allow && (m->m_hdr.mh_flags & (0x0800|0x0400)) == 0) {
   m_freem(m);
   etheripstat_inc(etherips_pdrops);
-  return 59;
+  return 257;
  }
  ip6 = ((const struct ip6_hdr *)((m)->m_hdr.mh_data));
  in6_recoverscope(&ipsrc, &ip6->ip6_src);

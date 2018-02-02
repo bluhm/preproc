@@ -2045,6 +2045,7 @@ int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
      void (*)(const void *, void *, size_t));
 int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
 int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
 void *bpfsattach(caddr_t *, const char *, u_int, u_int);
@@ -4955,7 +4956,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
  struct ip *ip;
  struct ip6_ext *ip6e;
  struct ip6_hdr ip6;
- int ad, alloc, nxt;
+ int ad, alloc, nxt, noff;
  switch (proto) {
  case 2:
   *m0 = m = m_pullup(m, skip);
@@ -4969,7 +4970,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
   ip->ip_ttl = 0;
   ip->ip_sum = 0;
   ip->ip_off = 0;
-  ptr = ((unsigned char *)((m)->m_hdr.mh_data)) + sizeof(struct ip);
+  ptr = ((unsigned char *)((m)->m_hdr.mh_data));
   for (off = sizeof(struct ip); off < skip;) {
    if (ptr[off] == 0 || ptr[off] == 1 ||
        off + 1 < skip)
@@ -5008,8 +5009,9 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
      m_freem(m);
      return 22;
     }
-    if (out)
-     __builtin_bcopy((ptr + off + ptr[off + 1] - sizeof(struct in_addr)), (&(ip->ip_dst)), (sizeof(struct in_addr)));
+    if (out &&
+        ptr[off + 1] >= 2 + sizeof(struct in_addr))
+     __builtin_memcpy((&ip->ip_dst), (ptr + off + ptr[off + 1] - sizeof(struct in_addr)), (sizeof(struct in_addr)));
    default:
     if (ptr[off + 1] < 2) {
      ;
@@ -5018,7 +5020,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
      return 22;
     }
     count = ptr[off + 1];
-    __builtin_memcpy((ptr), (ipseczeroes), (count));
+    __builtin_memset((ptr + off), (0), (count));
     off += count;
     break;
    }
@@ -5069,44 +5071,39 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    break;
   nxt = ip6.ip6_ctlun.ip6_un1.ip6_un1_nxt & 0xff;
   for (off = 0; off < skip - sizeof(struct ip6_hdr);) {
+   if (off + sizeof(struct ip6_ext) >
+       skip - sizeof(struct ip6_hdr))
+    goto error6;
+   ip6e = (struct ip6_ext *)(ptr + off);
    switch (nxt) {
    case 0:
    case 60:
-    ip6e = (struct ip6_ext *) (ptr + off);
+    noff = off + ((ip6e->ip6e_len + 1) << 3);
+    if (noff > skip - sizeof(struct ip6_hdr))
+     goto error6;
     for (count = off + sizeof(struct ip6_ext);
-         count < off + ((ip6e->ip6e_len + 1) << 3);) {
+         count < noff;) {
      if (ptr[count] == 0x00) {
       count++;
       continue;
      }
-     if (count > off +
-         ((ip6e->ip6e_len + 1) << 3)) {
-      ahstat_inc(ahs_hdrops);
-      m_freem(m);
-      if (alloc)
-       free(ptr, 76, 0);
-      return 22;
-     }
-     ad = ptr[count + 1];
+     if (count + 2 > noff)
+      goto error6;
+     ad = ptr[count + 1] + 2;
+     if (count + ad > noff)
+      goto error6;
      if (ptr[count] & 0x20)
-      __builtin_memcpy((ptr + count), (ipseczeroes), (ptr[count + 1]));
+      __builtin_memset((ptr + count), (0), (ad));
      count += ad;
-     if (count >
-         skip - sizeof(struct ip6_hdr)) {
-      ahstat_inc(ahs_hdrops);
-      m_freem(m);
-      if (alloc)
-       free(ptr, 76, 0);
-      return 22;
-     }
     }
+    if (count != noff)
+     goto error6;
     off += ((ip6e->ip6e_len + 1) << 3);
     nxt = ip6e->ip6e_nxt;
     break;
    case 43:
        {
     struct ip6_rthdr *rh;
-    ip6e = (struct ip6_ext *) (ptr + off);
     rh = (struct ip6_rthdr *)(ptr + off);
     if (out && rh->ip6r_type == 0) {
      struct ip6_rthdr0 *rh0;
@@ -5133,6 +5130,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
        }
    default:
     ;
+error6:
     if (alloc)
      free(ptr, 76, 0);
     ahstat_inc(ahs_hdrops);

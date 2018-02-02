@@ -3374,6 +3374,7 @@ int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
      void (*)(const void *, void *, size_t));
 int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
 int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
 void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
 void bpfdetach(struct ifnet *);
 void *bpfsattach(caddr_t *, const char *, u_int, u_int);
@@ -4708,6 +4709,30 @@ _bpf_mtap(caddr_t arg, const struct mbuf *m, u_int direction,
  return (drop);
 }
 int
+bpf_tap_hdr(caddr_t arg, const void *hdr, unsigned int hdrlen,
+    const void *buf, unsigned int buflen, u_int direction)
+{
+ struct m_hdr mh, md;
+ struct mbuf *m0 = ((void *)0);
+ struct mbuf **mp = &m0;
+ if (hdr != ((void *)0)) {
+  mh.mh_flags = 0;
+  mh.mh_next = ((void *)0);
+  mh.mh_len = hdrlen;
+  mh.mh_data = (void *)hdr;
+  *mp = (struct mbuf *)&mh;
+  mp = &mh.mh_next;
+ }
+ if (buf != ((void *)0)) {
+  md.mh_flags = 0;
+  md.mh_next = ((void *)0);
+  md.mh_len = buflen;
+  md.mh_data = (void *)buf;
+  *mp = (struct mbuf *)&md;
+ }
+ return _bpf_mtap(arg, m0, direction, bpf_mcopy);
+}
+int
 bpf_mtap(caddr_t arg, const struct mbuf *m, u_int direction)
 {
  return _bpf_mtap(arg, m, direction, ((void *)0));
@@ -4746,7 +4771,7 @@ bpf_mtap_ether(caddr_t arg, const struct mbuf *m, u_int direction)
  {
   return bpf_mtap(arg, m, direction);
  }
- ((m->m_hdr.mh_len >= ((6 * 2) + 2)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1374, "m->m_len >= ETHER_HDR_LEN"));
+ ((m->m_hdr.mh_len >= ((6 * 2) + 2)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1413, "m->m_len >= ETHER_HDR_LEN"));
  prio = m->M_dat.MH.MH_pkthdr.pf.prio;
  if (prio <= 1)
   prio = !prio;
@@ -4781,7 +4806,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
    ++d->bd_dcount;
    return;
   }
-  ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1446, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+  ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1485, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
   do_wakeup = 1;
   curlen = 0;
  }
@@ -4798,7 +4823,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
  if (d->bd_rdStart && (d->bd_rtout + d->bd_rdStart < ticks)) {
   if (d->bd_fbuf != ((void *)0)) {
    d->bd_rdStart = 0;
-   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1481, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1520, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
    do_wakeup = 1;
   }
  }
@@ -4834,7 +4859,7 @@ bpf_put(struct bpf_d *bd)
  free(bd->bd_sbuf, 2, 0);
  free(bd->bd_hbuf, 2, 0);
  free(bd->bd_fbuf, 2, 0);
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1533, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1572, "_kernel_lock_held()"));
  srp_update_locked(&bpf_insn_gc, &bd->bd_rfilter, ((void *)0));
  srp_update_locked(&bpf_insn_gc, &bd->bd_wfilter, ((void *)0));
  free(bd, 2, sizeof(*bd));
@@ -4867,7 +4892,7 @@ void
 bpfdetach(struct ifnet *ifp)
 {
  struct bpf_if *bp, *nbp, **pbp = &bpf_iflist;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1584, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1623, "_kernel_lock_held()"));
  for (bp = bpf_iflist; bp; bp = nbp) {
   nbp = bp->bif_next;
   if (bp->bif_ifp == ifp) {
@@ -4941,7 +4966,7 @@ struct bpf_d *
 bpfilter_lookup(int unit)
 {
  struct bpf_d *bd;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1676, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1715, "_kernel_lock_held()"));
  for((bd) = ((&bpf_d_list)->lh_first); (bd)!= ((void *)0); (bd) = ((bd)->bd_list.le_next))
   if (bd->bd_unit == unit)
    return (bd);

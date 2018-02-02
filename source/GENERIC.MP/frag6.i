@@ -3160,7 +3160,7 @@ int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 void ip6_freepcbopts(struct ip6_pktopts *);
 void ip6_freemoptions(struct ip6_moptions *);
 int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
-u_int8_t *ip6_get_prevhdr(struct mbuf *, int);
+int ip6_get_prevhdr(struct mbuf *, int);
 int ip6_nexthdr(struct mbuf *, int, int, int *);
 int ip6_lasthdr(struct mbuf *, int, int, int *);
 int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
@@ -3686,10 +3686,6 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   pool_put(&ip6q_pool, q6);
   goto dropfrag;
  }
- {
-  u_int8_t *prvnxtp = ip6_get_prevhdr(m, offset);
-  *prvnxtp = nxt;
- }
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;
  frag6_nfragpackets--;
@@ -3700,6 +3696,14 @@ frag6_input(struct mbuf **mp, int *offp, int proto, int af)
   for (t = m; t; t = t->m_hdr.mh_next)
    plen += t->m_hdr.mh_len;
   m->M_dat.MH.MH_pkthdr.len = plen;
+ }
+ {
+  int prvnxt = ip6_get_prevhdr(m, offset);
+  uint8_t *prvnxtp;
+  do { struct mbuf *t; int tmp; if ((m)->m_hdr.mh_len >= (prvnxt) + (sizeof(*prvnxtp))) (prvnxtp) = (uint8_t *)(((caddr_t)(((m))->m_hdr.mh_data)) + (prvnxt)); else { t = m_pulldown((m), (prvnxt), (sizeof(*prvnxtp)), &tmp); if (t) { if (t->m_hdr.mh_len < tmp + (sizeof(*prvnxtp))) panic("m_pulldown malfunction"); (prvnxtp) = (uint8_t *)(((caddr_t)((t)->m_hdr.mh_data)) + tmp); } else { (prvnxtp) = (uint8_t *)((void *)0); (m) = ((void *)0); } } } while ( 0);
+  if (prvnxtp == ((void *)0))
+   goto dropfrag;
+  *prvnxtp = nxt;
  }
  ip6stat_inc(ip6s_reassembled);
  *mp = m;

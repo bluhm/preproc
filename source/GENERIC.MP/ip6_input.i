@@ -3419,7 +3419,7 @@ int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 void ip6_freepcbopts(struct ip6_pktopts *);
 void ip6_freemoptions(struct ip6_moptions *);
 int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
-u_int8_t *ip6_get_prevhdr(struct mbuf *, int);
+int ip6_get_prevhdr(struct mbuf *, int);
 int ip6_nexthdr(struct mbuf *, int, int, int *);
 int ip6_lasthdr(struct mbuf *, int, int, int *);
 int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
@@ -6532,36 +6532,37 @@ ip6_pullexthdr(struct mbuf *m, size_t off, int nxt)
  n->m_hdr.mh_len = elen;
  return n;
 }
-u_int8_t *
+int
 ip6_get_prevhdr(struct mbuf *m, int off)
 {
  struct ip6_hdr *ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
- if (off == sizeof(struct ip6_hdr))
-  return (&ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt);
- else {
-  int len, nxt;
-  struct ip6_ext *ip6e = ((void *)0);
+ if (off == sizeof(struct ip6_hdr)) {
+  return __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_nxt);
+ } else if (off < sizeof(struct ip6_hdr)) {
+  panic("%s: off < sizeof(struct ip6_hdr)", __func__);
+ } else {
+  int len, nlen, nxt;
+  struct ip6_ext ip6e;
   nxt = ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
   len = sizeof(struct ip6_hdr);
+  nlen = 0;
   while (len < off) {
-   ip6e = (struct ip6_ext *)(((caddr_t)((m)->m_hdr.mh_data)) + len);
+   m_copydata(m, len, sizeof(ip6e), (caddr_t)&ip6e);
    switch (nxt) {
    case 44:
-    len += sizeof(struct ip6_frag);
+    nlen = sizeof(struct ip6_frag);
     break;
    case 51:
-    len += (ip6e->ip6e_len + 2) << 2;
+    nlen = (ip6e.ip6e_len + 2) << 2;
     break;
    default:
-    len += (ip6e->ip6e_len + 1) << 3;
+    nlen = (ip6e.ip6e_len + 1) << 3;
     break;
    }
-   nxt = ip6e->ip6e_nxt;
+   len += nlen;
+   nxt = ip6e.ip6e_nxt;
   }
-  if (ip6e)
-   return (&ip6e->ip6e_nxt);
-  else
-   return ((void *)0);
+  return (len - nlen);
  }
 }
 int
