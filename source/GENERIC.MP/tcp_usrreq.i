@@ -5194,13 +5194,10 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
    m_freem(m);
   return (error);
  }
- if (inp) {
-  tp = ((struct tcpcb *)(inp)->inp_ppcb);
-  if (tp == ((void *)0))
-   return (0);
-  ostate = tp->t_state;
- } else
-  ostate = 0;
+ tp = ((struct tcpcb *)(inp)->inp_ppcb);
+ if (tp == ((void *)0))
+  return (0);
+ ostate = tp->t_state;
  switch (req) {
  case 2:
   error = in_pcbbind(inp, nam, p);

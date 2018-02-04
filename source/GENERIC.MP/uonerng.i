@@ -2434,6 +2434,66 @@ struct usb_attach_arg {
  struct usbd_interface **ifaces;
  int nifaces;
 };
+typedef int32_t bpf_int32;
+typedef u_int32_t bpf_u_int32;
+struct bpf_program {
+ u_int bf_len;
+ struct bpf_insn *bf_insns;
+};
+struct bpf_stat {
+ u_int bs_recv;
+ u_int bs_drop;
+};
+struct bpf_version {
+ u_short bv_major;
+ u_short bv_minor;
+};
+struct bpf_timeval {
+ u_int32_t tv_sec;
+ u_int32_t tv_usec;
+};
+struct bpf_hdr {
+ struct bpf_timeval bh_tstamp;
+ u_int32_t bh_caplen;
+ u_int32_t bh_datalen;
+ u_int16_t bh_hdrlen;
+};
+struct bpf_insn {
+ u_int16_t code;
+ u_char jt;
+ u_char jf;
+ u_int32_t k;
+};
+struct bpf_dltlist {
+ u_int bfl_len;
+ u_int *bfl_list;
+};
+struct bpf_ops {
+ u_int32_t (*ldw)(const void *, u_int32_t, int *);
+ u_int32_t (*ldh)(const void *, u_int32_t, int *);
+ u_int32_t (*ldb)(const void *, u_int32_t, int *);
+};
+
+u_int bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int)
+     __attribute__ ((__bounded__ (__buffer__, 2, 4) ));
+u_int _bpf_filter(const struct bpf_insn *, const struct bpf_ops *,
+      const void *, u_int);
+
+struct ifnet;
+struct mbuf;
+int bpf_validate(struct bpf_insn *, int);
+int bpf_mtap(caddr_t, const struct mbuf *, u_int);
+int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
+     void (*)(const void *, void *, size_t));
+int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
+int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
+void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
+void bpfdetach(struct ifnet *);
+void *bpfsattach(caddr_t *, const char *, u_int, u_int);
+void bpfsdetach(void *);
+void bpfilterattach(int);
+u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
 struct usb_dma_block;
 struct usb_dma {
  struct usb_dma_block *block;
@@ -2486,6 +2546,8 @@ struct usbd_hub {
 struct usbd_bus {
  struct device bdev;
  struct usbd_bus_methods *methods;
+ void *bpfif;
+ caddr_t bpf;
  u_int32_t pipe_size;
  struct usbd_device *root_hub;
  struct usbd_device *devices[128];
@@ -2597,6 +2659,7 @@ int usbd_detach(struct usbd_device *, struct device *);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
+void usb_tap(struct usbd_bus *, struct usbd_xfer *, uint8_t);
 static inline int
 usbd_xfer_isread(struct usbd_xfer *xfer)
 {

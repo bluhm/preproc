@@ -3699,6 +3699,8 @@ struct usbd_hub {
 struct usbd_bus {
  struct device bdev;
  struct usbd_bus_methods *methods;
+ void *bpfif;
+ caddr_t bpf;
  u_int32_t pipe_size;
  struct usbd_device *root_hub;
  struct usbd_device *devices[128];
@@ -3810,6 +3812,7 @@ int usbd_detach(struct usbd_device *, struct device *);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
+void usb_tap(struct usbd_bus *, struct usbd_xfer *, uint8_t);
 static inline int
 usbd_xfer_isread(struct usbd_xfer *xfer)
 {

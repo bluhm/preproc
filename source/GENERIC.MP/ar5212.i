@@ -5309,7 +5309,6 @@ ar5k_ar5212_reset(struct ath_hal *hal, HAL_OPMODE op_mode, HAL_CHANNEL *channel,
    mode = 2;
    ee_mode = 1;
   } else {
-   mode = 2;
    mode = 3;
    ee_mode = 2;
   }
