@@ -3719,6 +3719,8 @@ extern int ieee80211_ibss_merge(struct ieee80211com *,
   struct ieee80211_node *, u_int64_t);
 extern void ieee80211_reset_erp(struct ieee80211com *);
 extern void ieee80211_set_shortslottime(struct ieee80211com *, int);
+extern void ieee80211_auth_open_confirm(struct ieee80211com *,
+     struct ieee80211_node *, uint16_t);
 extern void ieee80211_auth_open(struct ieee80211com *,
      const struct ieee80211_frame *, struct ieee80211_node *,
      struct ieee80211_rxinfo *rs, u_int16_t, u_int16_t);
@@ -3796,6 +3798,8 @@ struct ieee80211com {
         struct ieee80211_node *, int, int, int);
  int (*ic_newstate)(struct ieee80211com *,
         enum ieee80211_state, int);
+ int (*ic_newauth)(struct ieee80211com *,
+        struct ieee80211_node *, int, uint16_t);
  void (*ic_newassoc)(struct ieee80211com *,
         struct ieee80211_node *, int);
  void (*ic_node_leave)(struct ieee80211com *,
@@ -4360,6 +4364,20 @@ ieee80211_delba_request(struct ieee80211com *ic, struct ieee80211_node *ni,
  }
 }
 void
+ieee80211_auth_open_confirm(struct ieee80211com *ic,
+    struct ieee80211_node *ni, uint16_t seq)
+{
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
+ ((*(ic)->ic_send_mgmt)(ic, ni, 0xb0, seq + 1, 0));
+ if (ifp->if_flags & 0x4)
+  printf("%s: station %s %s authenticated (open)\n",
+      ifp->if_xname,
+      ether_sprintf((u_int8_t *)ni->ni_macaddr),
+      ni->ni_state != IEEE80211_STA_CACHE ?
+      "newly" : "already");
+ do { (ni)->ni_state = (IEEE80211_STA_AUTH); } while (0);
+}
+void
 ieee80211_auth_open(struct ieee80211com *ic, const struct ieee80211_frame *wh,
     struct ieee80211_node *ni, struct ieee80211_rxinfo *rxi, u_int16_t seq,
     u_int16_t status)
@@ -4398,14 +4416,10 @@ ieee80211_auth_open(struct ieee80211com *ic, const struct ieee80211_frame *wh,
    ni->ni_rstamp = rxi->rxi_tstamp;
    ni->ni_chan = ic->ic_bss->ni_chan;
   }
-  ((*(ic)->ic_send_mgmt)(ic, ni, 0xb0, seq + 1, 0));
-  if (ifp->if_flags & 0x4)
-   printf("%s: station %s %s authenticated (open)\n",
-       ifp->if_xname,
-       ether_sprintf((u_int8_t *)ni->ni_macaddr),
-       ni->ni_state != IEEE80211_STA_CACHE ?
-       "newly" : "already");
-  do { (ni)->ni_state = (IEEE80211_STA_AUTH); } while (0);
+  if (ic->ic_newauth && ic->ic_newauth(ic, ni,
+      ni->ni_state != IEEE80211_STA_CACHE, seq) != 0)
+   break;
+  ieee80211_auth_open_confirm(ic, ni, seq);
   break;
  case IEEE80211_M_STA:
   if (ic->ic_state != IEEE80211_S_AUTH ||

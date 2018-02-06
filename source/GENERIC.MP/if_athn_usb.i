@@ -4343,6 +4343,8 @@ extern int ieee80211_ibss_merge(struct ieee80211com *,
   struct ieee80211_node *, u_int64_t);
 extern void ieee80211_reset_erp(struct ieee80211com *);
 extern void ieee80211_set_shortslottime(struct ieee80211com *, int);
+extern void ieee80211_auth_open_confirm(struct ieee80211com *,
+     struct ieee80211_node *, uint16_t);
 extern void ieee80211_auth_open(struct ieee80211com *,
      const struct ieee80211_frame *, struct ieee80211_node *,
      struct ieee80211_rxinfo *rs, u_int16_t, u_int16_t);
@@ -4420,6 +4422,8 @@ struct ieee80211com {
         struct ieee80211_node *, int, int, int);
  int (*ic_newstate)(struct ieee80211com *,
         enum ieee80211_state, int);
+ int (*ic_newauth)(struct ieee80211com *,
+        struct ieee80211_node *, int, uint16_t);
  void (*ic_newassoc)(struct ieee80211com *,
         struct ieee80211_node *, int);
  void (*ic_node_leave)(struct ieee80211com *,
@@ -5420,24 +5424,19 @@ struct ar_wmi_cmd_reg_write {
  uint32_t val;
 } __attribute__((__packed__));
 struct ar_htc_target_sta {
- uint16_t associd;
- uint16_t txpower;
- uint32_t pariwisekey;
  uint8_t macaddr[6];
  uint8_t bssid[6];
  uint8_t sta_index;
  uint8_t vif_index;
- uint8_t vif_sta;
+ uint8_t is_vif_sta;
  uint16_t flags;
  uint16_t htcap;
- uint8_t valid;
- uint16_t capinfo;
- uint32_t reserved[2];
- uint16_t txseqmgmt;
- uint8_t is_vif_sta;
  uint16_t maxampdu;
+ uint8_t pad;
+ uint16_t txseqmgmt;
  uint16_t iv16;
  uint32_t iv32;
+ void *ni_vap;
 } __attribute__((__packed__));
 struct ar_htc_rateset {
  uint8_t rs_nrates;
@@ -5446,6 +5445,7 @@ struct ar_htc_rateset {
 struct ar_htc_target_rate {
  uint8_t sta_index;
  uint8_t isnew;
+ uint8_t pad[2];
  uint32_t capflags;
  struct ar_htc_rateset lg_rates;
  struct ar_htc_rateset ht_rates;
@@ -5458,31 +5458,29 @@ struct ar_htc_target_aggr {
 } __attribute__((__packed__));
 struct ar_htc_target_vif {
  uint8_t index;
- uint8_t des_bssid[6];
  uint32_t opmode;
  uint8_t myaddr[6];
- uint8_t bssid[6];
- uint32_t flags;
- uint32_t flags_ext;
- uint16_t ps_sta;
- uint16_t rtsthreshold;
  uint8_t ath_cap;
- int8_t mcast_rate;
+ uint16_t rtsthreshold;
+ uint8_t pad;
+ int8_t nodeindex;
+ void *iv_bss;
 } __attribute__((__packed__));
 struct ar_htc_cap_target {
- uint32_t flags;
- uint32_t flags_ext;
  uint32_t ampdu_limit;
  uint8_t ampdu_subframes;
- uint8_t ht_txchainmask;
- uint8_t lg_txchainmask;
- uint8_t rtscts_ratecode;
- uint8_t protmode;
+ uint8_t enable_coex;
+ uint8_t txchainmask;
+ uint8_t pad;
 } __attribute__((__packed__));
-struct ar_wmi_evt_txrate {
- uint32_t txrate;
- uint8_t rssi_thresh;
- uint8_t per;
+struct ar_wmi_evt_txstatus {
+ uint8_t cookie;
+ uint8_t rate;
+ uint8_t flags;
+} __attribute__((__packed__));
+struct ar_wmi_evt_txstatus_list {
+ uint8_t count;
+ struct ar_wmi_evt_txstatus ts[12];
 } __attribute__((__packed__));
 struct ar_htc_frame_hdr {
  uint8_t endpoint_id;
@@ -5501,7 +5499,8 @@ struct ar_tx_frame {
  uint32_t flags;
  uint8_t key_type;
  uint8_t key_idx;
- uint8_t reserved[26];
+ uint8_t cookie;
+ uint8_t pad;
 } __attribute__((__packed__));
 struct ar_tx_mgmt {
  uint8_t node_idx;
@@ -5510,7 +5509,8 @@ struct ar_tx_mgmt {
  uint8_t flags;
  uint8_t key_type;
  uint8_t key_idx;
- uint16_t reserved;
+ uint8_t cookie;
+ uint8_t pad;
 } __attribute__((__packed__));
 struct ar_tx_bcn {
  uint8_t len_changed;
@@ -5638,7 +5638,9 @@ struct athn_usb_softc {
  uint8_t ep_uapsd;
  uint8_t ep_mgmt;
  uint8_t ep_data[4];
- uint8_t nnodes;
+ uint8_t free_node_slots;
+ void (*sc_node_free)(struct ieee80211com *,
+         struct ieee80211_node *);
 };
 static const struct athn_usb_type {
  struct usb_devno devno;
@@ -5706,16 +5708,26 @@ void athn_usb_newstate_cb(struct athn_usb_softc *, void *);
 void athn_usb_newassoc(struct ieee80211com *,
       struct ieee80211_node *, int);
 void athn_usb_newassoc_cb(struct athn_usb_softc *, void *);
-void athn_usb_node_leave(struct ieee80211com *,
+struct ieee80211_node *athn_usb_node_alloc(struct ieee80211com *);
+void athn_usb_count_active_sta(void *, struct ieee80211_node *);
+void athn_usb_newauth_cb(struct athn_usb_softc *, void *);
+int athn_usb_newauth(struct ieee80211com *,
+      struct ieee80211_node *, int, uint16_t);
+void athn_usb_node_free(struct ieee80211com *,
       struct ieee80211_node *);
-void athn_usb_node_leave_cb(struct athn_usb_softc *, void *);
+void athn_usb_node_free_cb(struct athn_usb_softc *, void *);
 int athn_usb_ampdu_tx_start(struct ieee80211com *,
       struct ieee80211_node *, uint8_t);
 void athn_usb_ampdu_tx_start_cb(struct athn_usb_softc *, void *);
 void athn_usb_ampdu_tx_stop(struct ieee80211com *,
       struct ieee80211_node *, uint8_t);
 void athn_usb_ampdu_tx_stop_cb(struct athn_usb_softc *, void *);
+void athn_usb_clean_nodes(void *, struct ieee80211_node *);
 int athn_usb_create_node(struct athn_usb_softc *,
+      struct ieee80211_node *);
+int athn_usb_node_set_rates(struct athn_usb_softc *,
+      struct ieee80211_node *);
+int athn_usb_remove_node(struct athn_usb_softc *,
       struct ieee80211_node *);
 void athn_usb_rx_enable(struct athn_softc *);
 int athn_set_chan(struct athn_softc *, struct ieee80211_channel *,
@@ -5735,6 +5747,7 @@ void athn_usb_delete_key_cb(struct athn_usb_softc *, void *);
 void athn_usb_bcneof(struct usbd_xfer *, void *,
       usbd_status);
 void athn_usb_swba(struct athn_usb_softc *);
+void athn_usb_tx_status(void *, struct ieee80211_node *);
 void athn_usb_rx_wmi_ctrl(struct athn_usb_softc *, uint8_t *, int);
 void athn_usb_intr(struct usbd_xfer *, void *,
       usbd_status);
@@ -5853,8 +5866,11 @@ athn_usb_attachhook(struct device *self)
  ifp->if_ioctl = athn_usb_ioctl;
  ifp->if_start = athn_usb_start;
  ifp->if_watchdog = athn_usb_watchdog;
+ ic->ic_node_alloc = athn_usb_node_alloc;
+ ic->ic_newauth = athn_usb_newauth;
  ic->ic_newassoc = athn_usb_newassoc;
- ic->ic_node_leave = athn_usb_node_leave;
+ usc->sc_node_free = ic->ic_node_free;
+ ic->ic_node_free = athn_usb_node_free;
  ic->ic_updateslot = athn_usb_updateslot;
  ic->ic_updateedca = athn_usb_updateedca;
  ic->ic_newstate = athn_usb_newstate;
@@ -6083,7 +6099,7 @@ athn_usb_do_async(struct athn_usb_softc *usc,
  s = splraise(2);
  cmd = &ring->cmd[ring->cur];
  cmd->cb = cb;
- ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_athn_usb.c", 601, "len <= sizeof(cmd->data)"));
+ ((len <= sizeof(cmd->data)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_athn_usb.c", 618, "len <= sizeof(cmd->data)"));
  __builtin_memcpy((cmd->data), (arg), (len));
  ring->cur = (ring->cur + 1) % 32;
  if (++ring->queued == 1)
@@ -6107,12 +6123,9 @@ athn_usb_load_firmware(struct athn_usb_softc *usc)
  int s, mlen, error;
  if (usc->flags & 0x01) {
   dd = usbd_get_device_descriptor(usc->sc_udev);
-  if (((dd->bcdDevice)[0] | ((dd->bcdDevice)[1] << 8)) == 0x0202)
-   name = "athn-ar7010-11";
-  else
-   name = "athn-ar7010";
+  name = "athn-open-ar7010";
  } else
-  name = "athn-ar9271";
+  name = "athn-open-ar9271";
  if ((error = loadfirmware(name, &fw, &fwsize)) != 0) {
   printf("%s: failed loadfirmware of file %s (error %d)\n",
       usc->sc_sc.sc_dev.dv_xname, name, error);
@@ -6338,7 +6351,7 @@ athn_usb_read_rom(struct athn_softc *sc)
  for (i = 0; i < sc->eep_size / 16; i++) {
   for (j = 0; j < 8; j++, addr += 4)
    addrs[j] = ((__uint32_t)(addr));
-  error = athn_usb_wmi_xcmd(usc, 0x017,
+  error = athn_usb_wmi_xcmd(usc, 0x014,
       addrs, sizeof(addrs), vals);
   if (error != 0)
    break;
@@ -6355,7 +6368,7 @@ athn_usb_read(struct athn_softc *sc, uint32_t addr)
  int error;
  athn_usb_write_barrier(sc);
  addr = ((__uint32_t)(addr));
- error = athn_usb_wmi_xcmd(usc, 0x017,
+ error = athn_usb_wmi_xcmd(usc, 0x014,
      &addr, sizeof(addr), &val);
  if (error != 0)
   return (0xdeadbeef);
@@ -6376,7 +6389,7 @@ athn_usb_write_barrier(struct athn_softc *sc)
  struct athn_usb_softc *usc = (struct athn_usb_softc *)sc;
  if (usc->wcount == 0)
   return;
- (void)athn_usb_wmi_xcmd(usc, 0x018,
+ (void)athn_usb_wmi_xcmd(usc, 0x015,
      usc->wbuf, usc->wcount * sizeof(usc->wbuf[0]), ((void *)0));
  usc->wcount = 0;
 }
@@ -6432,17 +6445,12 @@ athn_usb_newstate_cb(struct athn_usb_softc *usc, void *arg)
  struct ieee80211com *ic = &sc->sc_ic;
  enum ieee80211_state ostate;
  uint32_t reg64, imask;
- uint8_t sta_index;
  int s, error;
  timeout_del(&sc->calib_to);
  s = _splraise(6);
  ostate = ic->ic_state;
- ;
- if (ostate == IEEE80211_S_RUN) {
-  sta_index = ((struct athn_node *)ic->ic_bss)->sta_index;
-  (void)athn_usb_wmi_xcmd(usc, 0x013,
-      &sta_index, sizeof(sta_index), ((void *)0));
-  usc->nnodes--;
+ if (ostate == IEEE80211_S_RUN && ic->ic_opmode == IEEE80211_M_STA) {
+  athn_usb_remove_node(usc, ic->ic_bss);
   reg64 = (sc)->ops.read((sc), (0x803c));
   reg64 = (reg64 & ~0x00000200) |
       0x00000010;
@@ -6455,13 +6463,21 @@ athn_usb_newstate_cb(struct athn_usb_softc *usc, void *arg)
   break;
  case IEEE80211_S_SCAN:
   athn_set_led(sc, !sc->led_state);
-  (void)athn_usb_switch_chan(sc, ic->ic_bss->ni_chan, ((void *)0));
+  error = athn_usb_switch_chan(sc, ic->ic_bss->ni_chan, ((void *)0));
+  if (error)
+   printf("%s: could not switch to channel %d\n",
+       usc->sc_sc.sc_dev.dv_xname,
+       ieee80211_chan2ieee(ic, ic->ic_bss->ni_chan));
   if (!usbd_is_dying(usc->sc_udev))
    timeout_add_msec(&sc->scan_to, 200);
   break;
  case IEEE80211_S_AUTH:
   athn_set_led(sc, 0);
   error = athn_usb_switch_chan(sc, ic->ic_bss->ni_chan, ((void *)0));
+  if (error)
+   printf("%s: could not switch to channel %d\n",
+       usc->sc_sc.sc_dev.dv_xname,
+       ieee80211_chan2ieee(ic, ic->ic_bss->ni_chan));
   break;
  case IEEE80211_S_ASSOC:
   break;
@@ -6469,10 +6485,16 @@ athn_usb_newstate_cb(struct athn_usb_softc *usc, void *arg)
   athn_set_led(sc, 1);
   if (ic->ic_opmode == IEEE80211_M_MONITOR)
    break;
-  error = athn_usb_create_node(usc, ic->ic_bss);
+  if (ic->ic_opmode == IEEE80211_M_STA) {
+   error = athn_usb_create_node(usc, ic->ic_bss);
+   if (error)
+    printf("%s: could not update firmware station "
+        "table\n", usc->sc_sc.sc_dev.dv_xname);
+  }
   athn_set_bss(sc, ic->ic_bss);
-  athn_usb_wmi_xcmd(usc, 0x003, ((void *)0), 0, ((void *)0));
+  athn_usb_wmi_xcmd(usc, 0x004, ((void *)0), 0, ((void *)0));
   if (ic->ic_opmode == IEEE80211_M_HOSTAP) {
+   athn_usb_switch_chan(sc, ic->ic_bss->ni_chan, ((void *)0));
    athn_set_hostap_timers(sc);
    imask = ((__uint32_t)(0x00010000));
   } else
@@ -6485,7 +6507,7 @@ athn_usb_newstate_cb(struct athn_usb_softc *usc, void *arg)
    (sc)->ops.write((sc), (0x803c), (reg64));
    (sc)->ops.write_barrier((sc));
   }
-  athn_usb_wmi_xcmd(usc, 0x004,
+  athn_usb_wmi_xcmd(usc, 0x005,
       &imask, sizeof(imask), ((void *)0));
   break;
  }
@@ -6497,7 +6519,8 @@ athn_usb_newassoc(struct ieee80211com *ic, struct ieee80211_node *ni,
     int isnew)
 {
  struct athn_usb_softc *usc = ic->ic_ac.ac_if.if_softc;
- if (ic->ic_opmode != IEEE80211_M_HOSTAP || !isnew)
+ if (ic->ic_opmode != IEEE80211_M_HOSTAP &&
+     ic->ic_state != IEEE80211_S_RUN)
   return;
  ieee80211_ref_node(ni);
  athn_usb_do_async(usc, athn_usb_newassoc_cb, &ni, sizeof(ni));
@@ -6505,31 +6528,124 @@ athn_usb_newassoc(struct ieee80211com *ic, struct ieee80211_node *ni,
 void
 athn_usb_newassoc_cb(struct athn_usb_softc *usc, void *arg)
 {
- struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+  struct ieee80211com *ic = &usc->sc_sc.sc_ic;
  struct ieee80211_node *ni = *(void **)arg;
+ struct athn_node *an = (struct athn_node *)ni;
  int s;
- s = _splraise(6);
- if (ni->ni_associd != 0 && ni->ni_state == IEEE80211_STA_ASSOC)
-  (void)athn_usb_create_node(usc, ni);
+ if (ic->ic_state != IEEE80211_S_RUN)
+  return;
+  s = _splraise(6);
+ if (an->sta_index != 0)
+  (void)athn_usb_node_set_rates(usc, ni);
  ieee80211_release_node(ic, ni);
  _splx(s);
 }
-void
-athn_usb_node_leave(struct ieee80211com *ic, struct ieee80211_node *ni)
+struct ieee80211_node *
+athn_usb_node_alloc(struct ieee80211com *ic)
 {
- struct athn_usb_softc *usc = ic->ic_ac.ac_if.if_softc;
- uint8_t sta_index;
- sta_index = ((struct athn_node *)ni)->sta_index;
- athn_usb_do_async(usc, athn_usb_node_leave_cb,
-     &sta_index, sizeof(sta_index));
+ struct athn_node *an;
+ an = malloc(sizeof(struct athn_node), 2, 0x0002 | 0x0008);
+ return (struct ieee80211_node *)an;
 }
 void
-athn_usb_node_leave_cb(struct athn_usb_softc *usc, void *arg)
+athn_usb_count_active_sta(void *arg, struct ieee80211_node *ni)
 {
+ int *nsta = arg;
+ struct athn_node *an = (struct athn_node *)ni;
+ if (an->sta_index == 0)
+  return;
+ if ((ni->ni_state == IEEE80211_STA_AUTH ||
+     ni->ni_state == IEEE80211_STA_ASSOC) &&
+     ni->ni_inact < (300/5))
+  (*nsta)++;
+}
+struct athn_usb_newauth_cb_arg {
+ struct ieee80211_node *ni;
+ uint16_t seq;
+};
+void
+athn_usb_newauth_cb(struct athn_usb_softc *usc, void *arg)
+{
+ struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+ struct athn_usb_newauth_cb_arg *a = arg;
+ struct ieee80211_node *ni = a->ni;
+ uint16_t seq = a->seq;
+ struct athn_node *an = (struct athn_node *)ni;
+ int s, error = 0;
+ free(arg, 2, sizeof(*arg));
+ if (ic->ic_state != IEEE80211_S_RUN)
+  return;
+ s = _splraise(6);
+ if (an->sta_index == 0) {
+  error = athn_usb_create_node(usc, ni);
+  if (error)
+   printf("%s: could not add station %s to firmware "
+       "table\n", usc->sc_sc.sc_dev.dv_xname,
+       ether_sprintf(ni->ni_macaddr));
+ }
+ if (error == 0)
+  ieee80211_auth_open_confirm(ic, ni, seq);
+ ieee80211_unref_node(&ni);
+ _splx(s);
+}
+int
+athn_usb_newauth(struct ieee80211com *ic, struct ieee80211_node *ni,
+    int isnew, uint16_t seq)
+{
+ struct athn_usb_softc *usc = ic->ic_ac.ac_if.if_softc;
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
+ struct athn_node *an = (struct athn_node *)ni;
+ int nsta;
+ struct athn_usb_newauth_cb_arg *arg;
+ if (ic->ic_opmode != IEEE80211_M_HOSTAP)
+  return 0;
+ if (!isnew && an->sta_index != 0)
+  return 0;
+ nsta = 1;
+ ieee80211_iterate_nodes(ic, athn_usb_count_active_sta, &nsta);
+ if (nsta >= 8) {
+  if (ifp->if_flags & 0x4)
+   printf("%s: cannot authenticate station %s: firmware "
+       "table is full\n", usc->sc_sc.sc_dev.dv_xname,
+       ether_sprintf(ni->ni_macaddr));
+  return 28;
+ }
+ arg = malloc(sizeof(*arg), 2, 0x0002);
+ if (arg == ((void *)0))
+  return 12;
+ arg->ni = ieee80211_ref_node(ni);
+ arg->seq = seq;
+ athn_usb_do_async(usc, athn_usb_newauth_cb, arg, sizeof(*arg));
+ return 16;
+}
+void
+athn_usb_node_free(struct ieee80211com *ic, struct ieee80211_node *ni)
+{
+ struct athn_usb_softc *usc = ic->ic_ac.ac_if.if_softc;
+ struct athn_node *an = (struct athn_node *)ni;
+ if (an->sta_index != 0)
+  athn_usb_do_async(usc, athn_usb_node_free_cb,
+      &an->sta_index, sizeof(an->sta_index));
+ usc->sc_node_free(ic, ni);
+}
+void
+athn_usb_node_free_cb(struct athn_usb_softc *usc, void *arg)
+{
+ struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
  uint8_t sta_index = *(uint8_t *)arg;
- (void)athn_usb_wmi_xcmd(usc, 0x013,
+ int error;
+ error = athn_usb_wmi_xcmd(usc, 0x011,
      &sta_index, sizeof(sta_index), ((void *)0));
- usc->nnodes--;
+ if (error) {
+  printf("%s: could not remove station %u from firmware table\n",
+      usc->sc_sc.sc_dev.dv_xname, sta_index);
+  return;
+ }
+ usc->free_node_slots |= (1 << sta_index);
+ if (ifp->if_flags & 0x4)
+  printf("%s: station %u removed from firmware table\n",
+      usc->sc_sc.sc_dev.dv_xname, sta_index);
 }
 int
 athn_usb_ampdu_tx_start(struct ieee80211com *ic, struct ieee80211_node *ni,
@@ -6552,7 +6668,7 @@ athn_usb_ampdu_tx_start_cb(struct athn_usb_softc *usc, void *arg)
  aggr.sta_index = cmd->sta_index;
  aggr.tidno = cmd->tid;
  aggr.aggr_enable = 1;
- (void)athn_usb_wmi_xcmd(usc, 0x01f,
+ (void)athn_usb_wmi_xcmd(usc, 0x019,
      &aggr, sizeof(aggr), ((void *)0));
 }
 void
@@ -6575,35 +6691,69 @@ athn_usb_ampdu_tx_stop_cb(struct athn_usb_softc *usc, void *arg)
  aggr.sta_index = cmd->sta_index;
  aggr.tidno = cmd->tid;
  aggr.aggr_enable = 0;
- (void)athn_usb_wmi_xcmd(usc, 0x01f,
+ (void)athn_usb_wmi_xcmd(usc, 0x019,
      &aggr, sizeof(aggr), ((void *)0));
+}
+void
+athn_usb_clean_nodes(void *arg, struct ieee80211_node *ni)
+{
+ struct athn_usb_softc *usc = arg;
+ struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+ struct athn_node *an = (struct athn_node *)ni;
+ if (an->sta_index == 0)
+  return;
+ if (ni->ni_state != IEEE80211_STA_AUTH &&
+     ni->ni_state != IEEE80211_STA_ASSOC) {
+  athn_usb_remove_node(usc, ni);
+  return;
+ }
+ if (ni->ni_inact >= (300/5)) {
+  ((*(ic)->ic_send_mgmt)(ic, ni, 0xc0, IEEE80211_REASON_AUTH_EXPIRE, 0));
+  ieee80211_node_leave(ic, ni);
+ }
 }
 int
 athn_usb_create_node(struct athn_usb_softc *usc, struct ieee80211_node *ni)
 {
  struct athn_node *an = (struct athn_node *)ni;
  struct ar_htc_target_sta sta;
- struct ar_htc_target_rate rate;
- int error, i, j;
- if (usc->nnodes > 8)
+ int error, sta_index;
+ struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
+ if (ic->ic_opmode == IEEE80211_M_HOSTAP)
+  ieee80211_iterate_nodes(ic, athn_usb_clean_nodes, usc);
+ if (usc->free_node_slots == 0x00)
   return 55;
- an->sta_index = ((ni->ni_associd) &~ 0xc000);
+ sta_index = ffs(usc->free_node_slots) - 1;
+ if (sta_index < 0 || sta_index >= 8)
+  return 28;
  __builtin_memset((&sta), (0), (sizeof(sta)));
  __builtin_memcpy((sta.macaddr), (ni->ni_macaddr), (6));
  __builtin_memcpy((sta.bssid), (ni->ni_bssid), (6));
- sta.associd = ((__uint16_t)(ni->ni_associd));
- sta.valid = 1;
- sta.sta_index = an->sta_index;
+ sta.sta_index = sta_index;
  sta.maxampdu = 0xffff;
  if (ni->ni_flags & 0x0400)
   sta.flags |= ((__uint16_t)(0x0008));
- error = athn_usb_wmi_xcmd(usc, 0x012,
+ error = athn_usb_wmi_xcmd(usc, 0x010,
      &sta, sizeof(sta), ((void *)0));
  if (error != 0)
   return (error);
- usc->nnodes++;
+ an->sta_index = sta_index;
+ usc->free_node_slots &= ~(1 << an->sta_index);
+ if (ifp->if_flags & 0x4)
+  printf("%s: station %u (%s) added to firmware table\n",
+      usc->sc_sc.sc_dev.dv_xname, sta_index,
+      ether_sprintf(ni->ni_macaddr));
+ return athn_usb_node_set_rates(usc, ni);
+}
+int
+athn_usb_node_set_rates(struct athn_usb_softc *usc, struct ieee80211_node *ni)
+{
+ struct athn_node *an = (struct athn_node *)ni;
+ struct ar_htc_target_rate rate;
+ int i, j;
  __builtin_memset((&rate), (0), (sizeof(rate)));
- rate.sta_index = sta.sta_index;
+ rate.sta_index = an->sta_index;
  rate.isnew = 1;
  rate.lg_rates.rs_nrates = ni->ni_rates.rs_nrates;
  __builtin_memcpy((rate.lg_rates.rs_rates), (ni->ni_rates.rs_rates), (ni->ni_rates.rs_nrates));
@@ -6620,9 +6770,31 @@ athn_usb_create_node(struct athn_usb_softc *usc, struct ieee80211_node *ni)
   if (ni->ni_rxmcs[1])
    rate.capflags |= ((__uint32_t)(0x00000001));
  }
- error = athn_usb_wmi_xcmd(usc, 0x01a,
+ return athn_usb_wmi_xcmd(usc, 0x017,
      &rate, sizeof(rate), ((void *)0));
- return (error);
+}
+int
+athn_usb_remove_node(struct athn_usb_softc *usc, struct ieee80211_node *ni)
+{
+ struct athn_node *an = (struct athn_node *)ni;
+ int error;
+ struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+ struct ifnet *ifp = &ic->ic_ac.ac_if;
+ error = athn_usb_wmi_xcmd(usc, 0x011,
+     &an->sta_index, sizeof(an->sta_index), ((void *)0));
+ if (error) {
+  printf("%s: could not remove station %u (%s) from "
+      "firmware table\n", usc->sc_sc.sc_dev.dv_xname, an->sta_index,
+      ether_sprintf(ni->ni_macaddr));
+  return error;
+ }
+ if (ifp->if_flags & 0x4)
+  printf("%s: station %u (%s) removed from firmware table\n",
+      usc->sc_sc.sc_dev.dv_xname, an->sta_index,
+      ether_sprintf(ni->ni_macaddr));
+ usc->free_node_slots |= (1 << an->sta_index);
+ an->sta_index = 0;
+ return 0;
 }
 void
 athn_usb_rx_enable(struct athn_softc *sc)
@@ -6637,13 +6809,13 @@ athn_usb_switch_chan(struct athn_softc *sc, struct ieee80211_channel *c,
  struct athn_usb_softc *usc = (struct athn_usb_softc *)sc;
  uint16_t mode;
  int error;
- error = athn_usb_wmi_xcmd(usc, 0x003, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x004, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto reset;
- error = athn_usb_wmi_xcmd(usc, 0x00c, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x00b, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto reset;
- error = athn_usb_wmi_xcmd(usc, 0x00e, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x00d, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto reset;
  if (c->ic_flags != sc->curchan->ic_flags ||
@@ -6660,17 +6832,23 @@ athn_usb_switch_chan(struct athn_softc *sc, struct ieee80211_channel *c,
   error = athn_hw_reset(sc, c, extc, 0);
   if (error != 0)
    return (error);
+  error = athn_set_chan(sc, c, extc);
+  if (((sc)->mac_ver == 0x140) && error == 0)
+   ar9271_load_ani(sc);
+  if (error != 0)
+   return (error);
  }
- error = athn_usb_wmi_xcmd(usc, 0x00d, ((void *)0), 0, ((void *)0));
+ sc->ops.set_txpower(sc, c, extc);
+ error = athn_usb_wmi_xcmd(usc, 0x00c, ((void *)0), 0, ((void *)0));
  if (error != 0)
   return (error);
  athn_rx_start(sc);
- mode = ((__uint16_t)((((c)->ic_flags & 0x0080) != 0) ? 8 : 7));
- error = athn_usb_wmi_xcmd(usc, 0x010,
+ mode = ((__uint16_t)((((c)->ic_flags & 0x0080) != 0) ? 1 : 0));
+ error = athn_usb_wmi_xcmd(usc, 0x00f,
      &mode, sizeof(mode), ((void *)0));
  if (error != 0)
   return (error);
- error = athn_usb_wmi_xcmd(usc, 0x004, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x005, ((void *)0), 0, ((void *)0));
  return (error);
 }
 void
@@ -6811,10 +6989,23 @@ athn_usb_swba(struct athn_usb_softc *usc)
   usc->tx_bcn = data;
 }
 void
+athn_usb_tx_status(void *arg, struct ieee80211_node *ni)
+{
+ struct ar_wmi_evt_txstatus *ts = arg;
+ struct athn_node *an = (struct athn_node *)ni;
+ uint8_t rate_index = (ts->rate & 0x0f);
+ if (an->sta_index != ts->cookie)
+  return;
+ if (ts->flags & 0x08) {
+  if (((ni->ni_rxmcs)[(rate_index)>>3] & (1<<((rate_index)&(8 -1)))))
+   ni->ni_txmcs = rate_index;
+ } else if (rate_index < ni->ni_rates.rs_nrates)
+  ni->ni_txrate = rate_index;
+}
+void
 athn_usb_rx_wmi_ctrl(struct athn_usb_softc *usc, uint8_t *buf, int len)
 {
  struct ar_wmi_cmd_hdr *wmi;
- struct ar_wmi_evt_txrate *txrate;
  uint16_t cmd_id;
  if (__builtin_expect(((len < sizeof(*wmi)) != 0), 0))
   return;
@@ -6833,10 +7024,32 @@ athn_usb_rx_wmi_ctrl(struct athn_usb_softc *usc, uint8_t *buf, int len)
  case 0x002:
   athn_usb_swba(usc);
   break;
- case 0x008:
-  txrate = (struct ar_wmi_evt_txrate *)&wmi[1];
-  ;
+ case 0x007: {
+  struct ar_wmi_evt_txstatus_list *tsl;
+  int i;
+  tsl = (struct ar_wmi_evt_txstatus_list *)&wmi[1];
+  for (i = 0; i < tsl->count && i < (sizeof((tsl->ts)) / sizeof((tsl->ts)[0])); i++) {
+   struct ieee80211com *ic = &usc->sc_sc.sc_ic;
+   struct athn_node *an = (struct athn_node *)ic->ic_bss;
+   struct ar_wmi_evt_txstatus *ts = &tsl->ts[i];
+   uint8_t qid;
+   if (ts->cookie == 0)
+    continue;
+   qid = (ts->rate & 0xf0) >>
+    4;
+   if (qid != usc->ep_data[EDCA_AC_BE] &&
+       qid != usc->ep_data[EDCA_AC_BK] &&
+       qid != usc->ep_data[EDCA_AC_VI] &&
+       qid != usc->ep_data[EDCA_AC_VO])
+    continue;
+   if (ts->cookie == an->sta_index)
+    athn_usb_tx_status(ts, ic->ic_bss);
+   else
+    ieee80211_iterate_nodes(ic, athn_usb_tx_status,
+        ts);
+  }
   break;
+ }
  case 0x003:
   printf("%s: fatal firmware error\n", usc->sc_sc.sc_dev.dv_xname);
   break;
@@ -7068,7 +7281,7 @@ athn_usb_rxeof(struct usbd_xfer *xfer, void *priv,
    goto resubmit;
   }
  }
- ((stream->left == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_athn_usb.c", 1835, "stream->left == 0"));
+ ((stream->left == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/if_athn_usb.c", 2128, "stream->left == 0"));
  while (len >= sizeof(*hdr)) {
   hdr = (struct ar_stream_hdr *)buf;
   if (hdr->tag != (__uint16_t)(__builtin_constant_p(0x4e00) ? (__uint16_t)(((__uint16_t)(0x4e00) & 0xffU) << 8 | ((__uint16_t)(0x4e00) & 0xff00U) >> 8) : __swap16md(0x4e00))) {
@@ -7158,7 +7371,7 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
  struct ar_tx_mgmt *txm;
  uint8_t *frm;
  uint16_t qos;
- uint8_t sta_index, qid, tid = 0;
+ uint8_t qid, tid = 0;
  int hasqos, xferlen, error;
  wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));
  if (wh->i_fc[1] & 0x40) {
@@ -7189,7 +7402,6 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
   mb.m_hdr.mh_flags = 0;
   bpf_mtap(sc->sc_drvbpf, &mb, (1<<1));
  }
- sta_index = an->sta_index;
  hdr = (struct ar_stream_hdr *)data->buf;
  hdr->tag = (__uint16_t)(__builtin_constant_p(0x697e) ? (__uint16_t)(((__uint16_t)(0x697e) & 0xffU) << 8 | ((__uint16_t)(0x697e) & 0xff00U) >> 8) : __swap16md(0x697e));
  htc = (struct ar_htc_frame_hdr *)&hdr[1];
@@ -7200,7 +7412,7 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
   txf = (struct ar_tx_frame *)&htc[1];
   __builtin_memset((txf), (0), (sizeof(*txf)));
   txf->data_type = 2;
-  txf->node_idx = sta_index;
+  txf->node_idx = an->sta_index;
   txf->vif_idx = 0;
   txf->tid = tid;
   if (m->M_dat.MH.MH_pkthdr.len + 4 > ic->ic_rtsthreshold)
@@ -7212,14 +7424,16 @@ athn_usb_tx(struct athn_softc *sc, struct mbuf *m, struct ieee80211_node *ni)
     txf->flags |= ((__uint32_t)(0x00000002));
   }
   txf->key_idx = 0xff;
+  txf->cookie = an->sta_index;
   frm = (uint8_t *)&txf[1];
  } else {
   htc->endpoint_id = usc->ep_mgmt;
   txm = (struct ar_tx_mgmt *)&htc[1];
   __builtin_memset((txm), (0), (sizeof(*txm)));
-  txm->node_idx = sta_index;
+  txm->node_idx = an->sta_index;
   txm->vif_idx = 0;
   txm->key_idx = 0xff;
+  txm->cookie = an->sta_index;
   frm = (uint8_t *)&txm[1];
  }
  m_copydata(m, 0, m->M_dat.MH.MH_pkthdr.len, (caddr_t)frm);
@@ -7374,22 +7588,22 @@ athn_usb_init(struct ifnet *ifp)
  error = athn_set_power_awake(sc);
  if (error != 0)
   goto fail;
- error = athn_usb_wmi_xcmd(usc, 0x00f, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x00e, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto fail;
  error = athn_hw_reset(sc, c, extc, 1);
  if (error != 0)
   goto fail;
  ops->set_txpower(sc, c, extc);
- mode = ((__uint16_t)((((c)->ic_flags & 0x0080) != 0) ? 8 : 7));
- error = athn_usb_wmi_xcmd(usc, 0x010,
+ mode = ((__uint16_t)((((c)->ic_flags & 0x0080) != 0) ? 1 : 0));
+ error = athn_usb_wmi_xcmd(usc, 0x00f,
      &mode, sizeof(mode), ((void *)0));
  if (error != 0)
   goto fail;
  error = athn_usb_wmi_xcmd(usc, 0x006, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto fail;
- error = athn_usb_wmi_xcmd(usc, 0x00d, ((void *)0), 0, ((void *)0));
+ error = athn_usb_wmi_xcmd(usc, 0x00c, ((void *)0), 0, ((void *)0));
  if (error != 0)
   goto fail;
  athn_rx_start(sc);
@@ -7415,7 +7629,7 @@ athn_usb_init(struct ifnet *ifp)
  }
  hvif.rtsthreshold = ((__uint16_t)(ic->ic_rtsthreshold));
  ;
- error = athn_usb_wmi_xcmd(usc, 0x015,
+ error = athn_usb_wmi_xcmd(usc, 0x013,
      &hvif, sizeof(hvif), ((void *)0));
  if (error != 0)
   goto fail;
@@ -7426,21 +7640,17 @@ athn_usb_init(struct ifnet *ifp)
  sta.vif_index = hvif.index;
  sta.maxampdu = 0xffff;
  ;
- error = athn_usb_wmi_xcmd(usc, 0x012,
+ error = athn_usb_wmi_xcmd(usc, 0x010,
      &sta, sizeof(sta), ((void *)0));
  if (error != 0)
   goto fail;
- usc->nnodes++;
+ usc->free_node_slots = ~(1 << sta.sta_index);
  __builtin_memset((&hic), (0), (sizeof(hic)));
- hic.flags = ((__uint32_t)(0x400c2400));
- hic.flags_ext = ((__uint32_t)(0x00106080));
  hic.ampdu_limit = ((__uint32_t)(0x0000ffff));
  hic.ampdu_subframes = 20;
- hic.protmode = 1;
- hic.lg_txchainmask = sc->txchainmask;
- hic.ht_txchainmask = sc->txchainmask;
+ hic.txchainmask = sc->txchainmask;
  ;
- error = athn_usb_wmi_xcmd(usc, 0x01d,
+ error = athn_usb_wmi_xcmd(usc, 0x018,
      &hic, sizeof(hic), ((void *)0));
  if (error != 0)
   goto fail;
@@ -7483,18 +7693,21 @@ athn_usb_stop(struct ifnet *ifp)
  athn_usb_wait_async(usc);
  timeout_del(&sc->scan_to);
  timeout_del(&sc->calib_to);
+ for (sta_index = 1; sta_index < 8; sta_index++) {
+  if (usc->free_node_slots & (1 << sta_index))
+   continue;
+  (void)athn_usb_wmi_xcmd(usc, 0x011,
+      &sta_index, sizeof(sta_index), ((void *)0));
+ }
  __builtin_memset((&hvif), (0), (sizeof(hvif)));
  hvif.index = 0;
  __builtin_memcpy((hvif.myaddr), (ic->ic_myaddr), (6));
- (void)athn_usb_wmi_xcmd(usc, 0x014,
+ (void)athn_usb_wmi_xcmd(usc, 0x012,
      &hvif, sizeof(hvif), ((void *)0));
- sta_index = 0;
- (void)athn_usb_wmi_xcmd(usc, 0x013,
-     &sta_index, sizeof(sta_index), ((void *)0));
- usc->nnodes--;
- (void)athn_usb_wmi_xcmd(usc, 0x003, ((void *)0), 0, ((void *)0));
- (void)athn_usb_wmi_xcmd(usc, 0x00c, ((void *)0), 0, ((void *)0));
- (void)athn_usb_wmi_xcmd(usc, 0x00e, ((void *)0), 0, ((void *)0));
+ usc->free_node_slots = 0xff;
+ (void)athn_usb_wmi_xcmd(usc, 0x004, ((void *)0), 0, ((void *)0));
+ (void)athn_usb_wmi_xcmd(usc, 0x00b, ((void *)0), 0, ((void *)0));
+ (void)athn_usb_wmi_xcmd(usc, 0x00d, ((void *)0), 0, ((void *)0));
  athn_reset(sc, 0);
  athn_init_pll(sc, ((void *)0));
  athn_set_power_awake(sc);

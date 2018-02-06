@@ -5063,6 +5063,14 @@ struct ifbropreq {
  u_int64_t ifbop_desg_bridge;
  struct timeval ifbop_last_tc_time;
 };
+struct ifbrarpf {
+ u_int16_t brla_flags;
+ u_int16_t brla_op;
+ struct ether_addr brla_sha;
+ struct in_addr brla_spa;
+ struct ether_addr brla_tha;
+ struct in_addr brla_tpa;
+};
 struct ifbrlreq {
  char ifbr_name[16];
  char ifbr_ifsname[16];
@@ -5071,6 +5079,7 @@ struct ifbrlreq {
  struct ether_addr ifbr_src;
  struct ether_addr ifbr_dst;
  char ifbr_tagname[64];
+ struct ifbrarpf ifbr_arpf;
 };
 struct ifbrlconf {
  char ifbrl_name[16];
@@ -5089,6 +5098,7 @@ struct brl_node {
  u_int16_t brl_tag;
  u_int8_t brl_action;
  u_int8_t brl_flags;
+ struct ifbrarpf brl_arpf;
 };
 struct bstp_timer {
  u_int16_t active;
@@ -5781,6 +5791,7 @@ bridge_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *sa,
  struct ether_addr *dst;
  struct bridge_softc *sc;
  struct bridge_tunneltag *brtag;
+ struct bridge_iflist *ifl;
  int error;
  if (ifp->if_bridgeport == ((void *)0)) {
   m_freem(m);
@@ -5833,6 +5844,11 @@ bridge_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *sa,
      continue;
     }
    }
+   ifl = (struct bridge_iflist *)dst_if->if_bridgeport;
+   ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 790, "ifl != NULL"));
+   if (bridge_filterrule(&ifl->bif_brlout, eh, mc) ==
+       0x01)
+    continue;
    error = bridge_ifenqueue(sc, dst_if, mc);
    if (error)
     continue;
@@ -5885,7 +5901,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  sc->sc_if.if_data.ifi_ipackets++;
  sc->sc_if.if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  ifl = (struct bridge_iflist *)src_if->if_bridgeport;
- ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 858, "ifl != NULL"));
+ ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 865, "ifl != NULL"));
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(eh)) {
   m_freem(m);
   return;
@@ -5984,7 +6000,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
 int
 bridge_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1006, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1013, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);
@@ -6017,8 +6033,7 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
  bridge_span(sc, m);
  eh = ((struct ether_header *)((m)->m_hdr.mh_data));
  if ((*(eh->ether_dhost) & 0x01)) {
-  if (__builtin_bcmp((eh->ether_dhost), (bstp_etheraddr), (6 - 1))
-      == 0) {
+  if (__builtin_memcmp((eh->ether_dhost), (bstp_etheraddr), (6 - 1)) == 0) {
    if (eh->ether_dhost[6 - 1] == 0) {
     if ((m = bstp_input(sc->sc_stp, ifl->bif_stp,
         eh, m)) == ((void *)0))
@@ -6046,7 +6061,7 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
   if (ifl->ifp->if_data.ifi_type != 0x06)
    continue;
   ac = (struct arpcom *)ifl->ifp;
-  if (__builtin_bcmp((ac->ac_enaddr), (eh->ether_dhost), (6)) == 0
+  if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_dhost), (6)) == 0
       || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
           !carp_ourether(ifl->ifp, eh->ether_dhost))
       ) {
@@ -6064,7 +6079,7 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
    bridge_ifinput(ifl->ifp, m);
    return;
   }
-  if (__builtin_bcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0
+  if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0
       || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
    !carp_ourether(ifl->ifp, eh->ether_shost))
       ) {

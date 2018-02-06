@@ -3879,6 +3879,14 @@ struct ifbropreq {
  u_int64_t ifbop_desg_bridge;
  struct timeval ifbop_last_tc_time;
 };
+struct ifbrarpf {
+ u_int16_t brla_flags;
+ u_int16_t brla_op;
+ struct ether_addr brla_sha;
+ struct in_addr brla_spa;
+ struct ether_addr brla_tha;
+ struct in_addr brla_tpa;
+};
 struct ifbrlreq {
  char ifbr_name[16];
  char ifbr_ifsname[16];
@@ -3887,6 +3895,7 @@ struct ifbrlreq {
  struct ether_addr ifbr_src;
  struct ether_addr ifbr_dst;
  char ifbr_tagname[64];
+ struct ifbrarpf ifbr_arpf;
 };
 struct ifbrlconf {
  char ifbrl_name[16];
@@ -3905,6 +3914,7 @@ struct brl_node {
  u_int16_t brl_tag;
  u_int8_t brl_action;
  u_int8_t brl_flags;
+ struct ifbrarpf brl_arpf;
 };
 struct bstp_timer {
  u_int16_t active;
@@ -4396,7 +4406,7 @@ bridge_rtdaddr(struct bridge_softc *sc, struct ether_addr *ea)
  struct bridge_rtnode *p;
  h = bridge_hash(sc, ea);
  for((p) = ((&sc->sc_rts[h])->lh_first); (p)!= ((void *)0); (p) = ((p)->brt_next.le_next)) {
-  if (__builtin_bcmp((ea), (&p->brt_addr), (sizeof(p->brt_addr))) == 0) {
+  if (__builtin_memcmp((ea), (&p->brt_addr), (sizeof(p->brt_addr))) == 0) {
    do { if ((p)->brt_next.le_next != ((void *)0)) (p)->brt_next.le_next->brt_next.le_prev = (p)->brt_next.le_prev; *(p)->brt_next.le_prev = (p)->brt_next.le_next; ((p)->brt_next.le_prev) = ((void *)-1); ((p)->brt_next.le_next) = ((void *)-1); } while (0);
    sc->sc_brtcnt--;
    free(p, 2, sizeof *p);
@@ -4521,6 +4531,7 @@ bridge_brlconf(struct bridge_softc *sc, struct ifbrlconf *bc)
   req.ifbr_flags = n->brl_flags;
   req.ifbr_src = n->brl_src;
   req.ifbr_dst = n->brl_dst;
+  req.ifbr_arpf = n->brl_arpf;
   req.ifbr_tagname[0] = '\0';
   if (n->brl_tag)
    pf_tag2tagname(n->brl_tag, req.ifbr_tagname);
@@ -4541,6 +4552,7 @@ bridge_brlconf(struct bridge_softc *sc, struct ifbrlconf *bc)
   req.ifbr_flags = n->brl_flags;
   req.ifbr_src = n->brl_src;
   req.ifbr_dst = n->brl_dst;
+  req.ifbr_arpf = n->brl_arpf;
   req.ifbr_tagname[0] = '\0';
   if (n->brl_tag)
    pf_tag2tagname(n->brl_tag, req.ifbr_tagname);
@@ -4556,28 +4568,70 @@ done:
  return (error);
 }
 u_int8_t
+bridge_arpfilter(struct brl_node *n, struct ether_header *eh, struct mbuf *m)
+{
+ struct ether_arp ea;
+ if (!(n->brl_arpf.brla_flags & (0x01|0x02)))
+  return (1);
+ if (((__uint16_t)(eh->ether_type)) != 0x0806)
+  return (0);
+ if (m->M_dat.MH.MH_pkthdr.len <= ((6 * 2) + 2) + sizeof(ea))
+  return (0);
+ m_copydata(m, ((6 * 2) + 2), sizeof(ea), (caddr_t)&ea);
+ if (((__uint16_t)(ea.ea_hdr.ar_hrd)) != 1 ||
+     ((__uint16_t)(ea.ea_hdr.ar_pro)) != 0x0800 ||
+     ea.ea_hdr.ar_hln != 6 ||
+     ea.ea_hdr.ar_pln != sizeof(struct in_addr))
+  return (0);
+ if ((n->brl_arpf.brla_flags & 0x01) &&
+     ((__uint16_t)(ea.ea_hdr.ar_op)) != 1 &&
+     ((__uint16_t)(ea.ea_hdr.ar_op)) != 2)
+  return (0);
+ if ((n->brl_arpf.brla_flags & 0x02) &&
+     ((__uint16_t)(ea.ea_hdr.ar_op)) != 3 &&
+     ((__uint16_t)(ea.ea_hdr.ar_op)) != 4)
+  return (0);
+ if (n->brl_arpf.brla_op && ((__uint16_t)(ea.ea_hdr.ar_op)) != n->brl_arpf.brla_op)
+  return (0);
+ if (n->brl_arpf.brla_flags & 0x10 &&
+     __builtin_memcmp((ea.arp_sha), (&n->brl_arpf.brla_sha), (6)))
+  return (0);
+ if (n->brl_arpf.brla_flags & 0x40 &&
+     __builtin_memcmp((ea.arp_tha), (&n->brl_arpf.brla_tha), (6)))
+  return (0);
+ if (n->brl_arpf.brla_flags & 0x20 &&
+     __builtin_memcmp((ea.arp_spa), (&n->brl_arpf.brla_spa), (sizeof(struct in_addr))))
+  return (0);
+ if (n->brl_arpf.brla_flags & 0x80 &&
+     __builtin_memcmp((ea.arp_tpa), (&n->brl_arpf.brla_tpa), (sizeof(struct in_addr))))
+  return (0);
+ return (1);
+}
+u_int8_t
 bridge_filterrule(struct brl_head *h, struct ether_header *eh, struct mbuf *m)
 {
  struct brl_node *n;
  u_int8_t flags;
  for((n) = ((h)->sqh_first); (n) != ((void *)0); (n) = ((n)->brl_next.sqe_next)) {
+  if (!bridge_arpfilter(n, eh, m))
+   continue;
   flags = n->brl_flags & (0x02|0x01);
   if (flags == 0)
    goto return_action;
   if (flags == (0x02|0x01)) {
-   if (__builtin_bcmp((eh->ether_shost), (&n->brl_src), (6)))
+   if (__builtin_memcmp((eh->ether_shost), (&n->brl_src), (6)))
     continue;
-   if (__builtin_bcmp((eh->ether_dhost), (&n->brl_dst), (6)))
+   if (__builtin_memcmp((eh->ether_dhost), (&n->brl_dst), (6)))
     continue;
    goto return_action;
   }
   if (flags == 0x02) {
-   if (__builtin_bcmp((eh->ether_shost), (&n->brl_src), (6)))
+   if (__builtin_memcmp((eh->ether_shost), (&n->brl_src), (6)))
     continue;
    goto return_action;
   }
   if (flags == 0x01) {
-   if (__builtin_bcmp((eh->ether_dhost), (&n->brl_dst), (6)))
+   if (__builtin_memcmp((eh->ether_dhost), (&n->brl_dst), (6)))
     continue;
    goto return_action;
   }
@@ -4598,6 +4652,7 @@ bridge_addrule(struct bridge_iflist *bif, struct ifbrlreq *req, int out)
  __builtin_bcopy((&req->ifbr_dst), (&n->brl_dst), (sizeof(struct ether_addr)));
  n->brl_action = req->ifbr_action;
  n->brl_flags = req->ifbr_flags;
+ n->brl_arpf = req->ifbr_arpf;
  if (req->ifbr_tagname[0])
   n->brl_tag = pf_tagname2tag(req->ifbr_tagname, 1);
  else

@@ -4993,6 +4993,14 @@ struct ifbropreq {
  u_int64_t ifbop_desg_bridge;
  struct timeval ifbop_last_tc_time;
 };
+struct ifbrarpf {
+ u_int16_t brla_flags;
+ u_int16_t brla_op;
+ struct ether_addr brla_sha;
+ struct in_addr brla_spa;
+ struct ether_addr brla_tha;
+ struct in_addr brla_tpa;
+};
 struct ifbrlreq {
  char ifbr_name[16];
  char ifbr_ifsname[16];
@@ -5001,6 +5009,7 @@ struct ifbrlreq {
  struct ether_addr ifbr_src;
  struct ether_addr ifbr_dst;
  char ifbr_tagname[64];
+ struct ifbrarpf ifbr_arpf;
 };
 struct ifbrlconf {
  char ifbrl_name[16];
@@ -5019,6 +5028,7 @@ struct brl_node {
  u_int16_t brl_tag;
  u_int8_t brl_action;
  u_int8_t brl_flags;
+ struct ifbrarpf brl_arpf;
 };
 struct bstp_timer {
  u_int16_t active;
