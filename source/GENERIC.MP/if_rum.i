@@ -3454,7 +3454,7 @@ struct ieee80211_node {
  size_t ni_unref_arg_size;
 };
 struct ieee80211_tree { struct rb_tree rbh_root; };
-static __inline void
+static inline void
 ieee80211_node_incref(struct ieee80211_node *ni)
 {
  int s;
@@ -3462,7 +3462,7 @@ ieee80211_node_incref(struct ieee80211_node *ni)
  ni->ni_refcnt++;
  _splx(s);
 }
-static __inline u_int
+static inline u_int
 ieee80211_node_decref(struct ieee80211_node *ni)
 {
  u_int refcnt;
@@ -3472,71 +3472,76 @@ ieee80211_node_decref(struct ieee80211_node *ni)
  _splx(s);
  return refcnt;
 }
-static __inline struct ieee80211_node *
+static inline struct ieee80211_node *
 ieee80211_ref_node(struct ieee80211_node *ni)
 {
  ieee80211_node_incref(ni);
  return ni;
 }
-static __inline void
+static inline void
 ieee80211_unref_node(struct ieee80211_node **ni)
 {
  ieee80211_node_decref(*ni);
  *ni = ((void *)0);
 }
+static inline int
+ieee80211_node_supports_ht(struct ieee80211_node *ni)
+{
+ return (ni->ni_rxmcs[0] & 0xff);
+}
 struct ieee80211com;
-extern void ieee80211_node_attach(struct ifnet *);
-extern void ieee80211_node_lateattach(struct ifnet *);
-extern void ieee80211_node_detach(struct ifnet *);
-extern void ieee80211_begin_scan(struct ifnet *);
-extern void ieee80211_next_scan(struct ifnet *);
-extern void ieee80211_end_scan(struct ifnet *);
-extern void ieee80211_reset_scan(struct ifnet *);
-extern struct ieee80211_node *ieee80211_alloc_node(struct ieee80211com *,
+typedef void ieee80211_iter_func(void *, struct ieee80211_node *);
+void ieee80211_node_attach(struct ifnet *);
+void ieee80211_node_lateattach(struct ifnet *);
+void ieee80211_node_detach(struct ifnet *);
+void ieee80211_begin_scan(struct ifnet *);
+void ieee80211_next_scan(struct ifnet *);
+void ieee80211_end_scan(struct ifnet *);
+void ieee80211_reset_scan(struct ifnet *);
+struct ieee80211_node *ieee80211_alloc_node(struct ieee80211com *,
   const u_int8_t *);
-extern struct ieee80211_node *ieee80211_dup_bss(struct ieee80211com *,
+struct ieee80211_node *ieee80211_dup_bss(struct ieee80211com *,
   const u_int8_t *);
-extern struct ieee80211_node *ieee80211_find_node(struct ieee80211com *,
+struct ieee80211_node *ieee80211_find_node(struct ieee80211com *,
   const u_int8_t *);
-extern struct ieee80211_node *ieee80211_find_rxnode(struct ieee80211com *,
+struct ieee80211_node *ieee80211_find_rxnode(struct ieee80211com *,
   const struct ieee80211_frame *);
-extern struct ieee80211_node *ieee80211_find_txnode(struct ieee80211com *,
+struct ieee80211_node *ieee80211_find_txnode(struct ieee80211com *,
   const u_int8_t *);
-extern struct ieee80211_node *
+struct ieee80211_node *
   ieee80211_find_node_for_beacon(struct ieee80211com *,
   const u_int8_t *, const struct ieee80211_channel *,
   const char *, u_int8_t);
-extern void ieee80211_release_node(struct ieee80211com *,
+void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-extern void ieee80211_free_allnodes(struct ieee80211com *);
-typedef void ieee80211_iter_func(void *, struct ieee80211_node *);
-extern void ieee80211_iterate_nodes(struct ieee80211com *ic,
+void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
-extern void ieee80211_clean_cached(struct ieee80211com *ic);
-extern void ieee80211_clean_nodes(struct ieee80211com *, int);
+void ieee80211_clean_cached(struct ieee80211com *);
+void ieee80211_clean_nodes(struct ieee80211com *, int);
 void ieee80211_setup_htcaps(struct ieee80211_node *, const uint8_t *,
     uint8_t);
 void ieee80211_clear_htcaps(struct ieee80211_node *);
 int ieee80211_setup_htop(struct ieee80211_node *, const uint8_t *,
     uint8_t);
-extern int ieee80211_setup_rates(struct ieee80211com *,
+int ieee80211_setup_rates(struct ieee80211com *,
      struct ieee80211_node *, const u_int8_t *, const u_int8_t *, int);
-extern int ieee80211_iserp_sta(const struct ieee80211_node *);
-extern void ieee80211_count_longslotsta(void *, struct ieee80211_node *);
-extern void ieee80211_count_nonerpsta(void *, struct ieee80211_node *);
-extern void ieee80211_count_pssta(void *, struct ieee80211_node *);
-extern void ieee80211_count_rekeysta(void *, struct ieee80211_node *);
-extern void ieee80211_node_join(struct ieee80211com *,
+int ieee80211_iserp_sta(const struct ieee80211_node *);
+void ieee80211_count_longslotsta(void *, struct ieee80211_node *);
+void ieee80211_count_nonerpsta(void *, struct ieee80211_node *);
+void ieee80211_count_pssta(void *, struct ieee80211_node *);
+void ieee80211_count_rekeysta(void *, struct ieee80211_node *);
+void ieee80211_node_join(struct ieee80211com *,
   struct ieee80211_node *, int);
-extern void ieee80211_node_leave(struct ieee80211com *,
+void ieee80211_node_leave(struct ieee80211com *,
   struct ieee80211_node *);
-extern int ieee80211_match_bss(struct ieee80211com *,
+int ieee80211_match_bss(struct ieee80211com *,
   struct ieee80211_node *);
-extern void ieee80211_create_ibss(struct ieee80211com* ,
+void ieee80211_create_ibss(struct ieee80211com* ,
   struct ieee80211_channel *);
-extern void ieee80211_notify_dtim(struct ieee80211com *);
-extern void ieee80211_set_tim(struct ieee80211com *, int, int);
-extern int ieee80211_node_cmp(const struct ieee80211_node *,
+void ieee80211_notify_dtim(struct ieee80211com *);
+void ieee80211_set_tim(struct ieee80211com *, int, int);
+int ieee80211_node_cmp(const struct ieee80211_node *,
   const struct ieee80211_node *);
 extern const struct rb_type *const ieee80211_tree_RBT_TYPE; __attribute__((__unused__)) static inline void ieee80211_tree_RBT_INIT(struct ieee80211_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_INSERT(struct ieee80211_tree *head, struct ieee80211_node *elm) { return _rb_insert(ieee80211_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_REMOVE(struct ieee80211_tree *head, struct ieee80211_node *elm) { return _rb_remove(ieee80211_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_FIND(struct ieee80211_tree *head, const struct ieee80211_node *key) { return _rb_find(ieee80211_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_NFIND(struct ieee80211_tree *head, const struct ieee80211_node *key) { return _rb_nfind(ieee80211_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_ROOT(struct ieee80211_tree *head) { return _rb_root(ieee80211_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int ieee80211_tree_RBT_EMPTY(struct ieee80211_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_MIN(struct ieee80211_tree *head) { return _rb_min(ieee80211_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_MAX(struct ieee80211_tree *head) { return _rb_max(ieee80211_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_NEXT(struct ieee80211_node *elm) { return _rb_next(ieee80211_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_PREV(struct ieee80211_node *elm) { return _rb_prev(ieee80211_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_LEFT(struct ieee80211_node *elm) { return _rb_left(ieee80211_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_RIGHT(struct ieee80211_node *elm) { return _rb_right(ieee80211_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct ieee80211_node * ieee80211_tree_RBT_PARENT(struct ieee80211_node *elm) { return _rb_parent(ieee80211_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void ieee80211_tree_RBT_SET_LEFT(struct ieee80211_node *elm, struct ieee80211_node *left) { return _rb_set_left(ieee80211_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void ieee80211_tree_RBT_SET_RIGHT(struct ieee80211_node *elm, struct ieee80211_node *right) { return _rb_set_right(ieee80211_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void ieee80211_tree_RBT_SET_PARENT(struct ieee80211_node *elm, struct ieee80211_node *parent) { return _rb_set_parent(ieee80211_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void ieee80211_tree_RBT_POISON(struct ieee80211_node *elm, unsigned long poison) { return _rb_poison(ieee80211_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int ieee80211_tree_RBT_CHECK(struct ieee80211_node *elm, unsigned long poison) { return _rb_check(ieee80211_tree_RBT_TYPE, elm, poison); };
 enum ieee80211_state {

@@ -5046,7 +5046,7 @@ ttwrite(struct tty *tp, struct uio *uio, int flag)
  int cc, ce, obufcc = 0;
  struct proc *p;
  struct process *pr;
- int i, hiwat, error, s;
+ int hiwat, error, s;
  size_t cnt;
  u_char obuf[512];
  hiwat = tp->t_hiwat;
@@ -5119,6 +5119,7 @@ loop:
    }
   }
   while (cc > 0) {
+   int i;
    if (!((tp->t_termios.c_oflag) & (0x00000001)))
     ce = cc;
    else {

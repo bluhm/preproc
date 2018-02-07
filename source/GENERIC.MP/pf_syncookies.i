@@ -1428,36 +1428,6 @@ int mq_enlist(struct mbuf_queue *, struct mbuf_list *);
 void mq_delist(struct mbuf_queue *, struct mbuf_list *);
 struct mbuf * mq_dechain(struct mbuf_queue *);
 unsigned int mq_purge(struct mbuf_queue *);
-struct mbuf;
-struct sockaddr;
-struct socket;
-struct domain;
-struct proc;
-struct protosw {
- short pr_type;
- struct domain *pr_domain;
- short pr_protocol;
- short pr_flags;
- int (*pr_input)(struct mbuf **, int *, int, int);
- int (*pr_output)(struct mbuf *, struct socket *, struct sockaddr *,
-      struct mbuf *);
- void (*pr_ctlinput)(int, struct sockaddr *, u_int, void *);
- int (*pr_ctloutput)(int, struct socket *, int, int, struct mbuf *);
- int (*pr_usrreq)(struct socket *, int, struct mbuf *,
-      struct mbuf *, struct mbuf *, struct proc *);
- int (*pr_attach)(struct socket *, int);
- int (*pr_detach)(struct socket *);
- void (*pr_init)(void);
- void (*pr_fasttimo)(void);
- void (*pr_slowtimo)(void);
- int (*pr_sysctl)(int *, u_int, void *, size_t *, void *, size_t);
-};
-struct sockaddr;
-const struct protosw *pffindproto(int, int, int);
-const struct protosw *pffindtype(int, int);
-void pfctlinput(int, struct sockaddr *);
-extern u_char ip_protox[];
-extern const struct protosw inetsw[];
 typedef __socklen_t socklen_t;
 typedef __sa_family_t sa_family_t;
 struct linger {
@@ -1764,330 +1734,562 @@ int recvit(struct proc *, int, struct msghdr *, caddr_t,
       register_t *);
 int doaccept(struct proc *, int, struct sockaddr *, socklen_t *, int,
      register_t *);
-struct uvmexp {
- int pagesize;
- int pagemask;
- int pageshift;
- int npages;
- int free;
- int active;
- int inactive;
- int paging;
- int wired;
- int zeropages;
- int reserve_pagedaemon;
- int reserve_kernel;
- int anonpages;
- int vnodepages;
- int vtextpages;
- int freemin;
- int freetarg;
- int inactarg;
- int wiredmax;
- int anonmin;
- int vtextmin;
- int vnodemin;
- int anonminpct;
- int vtextminpct;
- int vnodeminpct;
- int nswapdev;
- int swpages;
- int swpginuse;
- int swpgonly;
- int nswget;
- int nanon;
- int nanonneeded;
- int nfreeanon;
- int faults;
- int traps;
- int intrs;
- int swtch;
- int softs;
- int syscalls;
- int pageins;
- int obsolete_swapins;
- int obsolete_swapouts;
- int pgswapin;
- int pgswapout;
- int forks;
- int forks_ppwait;
- int forks_sharevm;
- int pga_zerohit;
- int pga_zeromiss;
- int zeroaborts;
- int fltnoram;
- int fltnoanon;
- int fltnoamap;
- int fltpgwait;
- int fltpgrele;
- int fltrelck;
- int fltrelckok;
- int fltanget;
- int fltanretry;
- int fltamcopy;
- int fltnamap;
- int fltnomap;
- int fltlget;
- int fltget;
- int flt_anon;
- int flt_acow;
- int flt_obj;
- int flt_prcopy;
- int flt_przero;
- int pdwoke;
- int pdrevs;
- int pdswout;
- int pdfreed;
- int pdscans;
- int pdanscan;
- int pdobscan;
- int pdreact;
- int pdbusy;
- int pdpageouts;
- int pdpending;
- int pddeact;
- int pdreanon;
- int pdrevnode;
- int pdrevtext;
- int fpswtch;
- int kmapent;
+extern long hostid;
+extern char hostname[256];
+extern int hostnamelen;
+extern char domainname[256];
+extern int domainnamelen;
+extern struct timespec boottime;
+extern struct timezone tz;
+extern int tick;
+extern int tickfix;
+extern int tickfixinterval;
+extern int tickadj;
+extern int ticks;
+extern int hz;
+extern int stathz;
+extern int profhz;
+extern int lbolt;
+extern int tickdelta;
+extern long timedelta;
+extern int64_t adjtimedelta;
+extern struct bintime naptime;
+struct kinfo_pool {
+ unsigned int pr_size;
+ unsigned int pr_pgsize;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_hardlimit;
+ unsigned int pr_npages;
+ unsigned int pr_nout;
+ unsigned int pr_nitems;
+ unsigned long pr_nget;
+ unsigned long pr_nput;
+ unsigned long pr_nfail;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
 };
-struct _ps_strings {
- void *val;
+struct kinfo_pool_cache {
+ uint64_t pr_ngc;
+ unsigned int pr_len;
+ unsigned int pr_nitems;
+ unsigned int pr_contention;
 };
-struct ctlname {
- char *ctl_name;
- int ctl_type;
+struct kinfo_pool_cache_cpu {
+ unsigned int pr_cpu;
+ uint64_t pr_nget;
+ uint64_t pr_nfail;
+ uint64_t pr_nput;
+ uint64_t pr_nlget;
+ uint64_t pr_nlfail;
+ uint64_t pr_nlput;
 };
-struct kinfo_proc {
- u_int64_t p_forw;
- u_int64_t p_back;
- u_int64_t p_paddr;
- u_int64_t p_addr;
- u_int64_t p_fd;
- u_int64_t p_stats;
- u_int64_t p_limit;
- u_int64_t p_vmspace;
- u_int64_t p_sigacts;
- u_int64_t p_sess;
- u_int64_t p_tsess;
- u_int64_t p_ru;
- int32_t p_eflag;
- int32_t p_exitsig;
- int32_t p_flag;
- int32_t p_pid;
- int32_t p_ppid;
- int32_t p_sid;
- int32_t p__pgid;
- int32_t p_tpgid;
- u_int32_t p_uid;
- u_int32_t p_ruid;
- u_int32_t p_gid;
- u_int32_t p_rgid;
- u_int32_t p_groups[16];
- int16_t p_ngroups;
- int16_t p_jobc;
- u_int32_t p_tdev;
- u_int32_t p_estcpu;
- u_int32_t p_rtime_sec;
- u_int32_t p_rtime_usec;
- int32_t p_cpticks;
- u_int32_t p_pctcpu;
- u_int32_t p_swtime;
- u_int32_t p_slptime;
- int32_t p_schedflags;
- u_int64_t p_uticks;
- u_int64_t p_sticks;
- u_int64_t p_iticks;
- u_int64_t p_tracep;
- int32_t p_traceflag;
- int32_t p_holdcnt;
- int32_t p_siglist;
- u_int32_t p_sigmask;
- u_int32_t p_sigignore;
- u_int32_t p_sigcatch;
- int8_t p_stat;
- u_int8_t p_priority;
- u_int8_t p_usrpri;
- u_int8_t p_nice;
- u_int16_t p_xstat;
- u_int16_t p_acflag;
- char p_comm[24];
- char p_wmesg[8];
- u_int64_t p_wchan;
- char p_login[32];
- int32_t p_vm_rssize;
- int32_t p_vm_tsize;
- int32_t p_vm_dsize;
- int32_t p_vm_ssize;
- int64_t p_uvalid;
- u_int64_t p_ustart_sec;
- u_int32_t p_ustart_usec;
- u_int32_t p_uutime_sec;
- u_int32_t p_uutime_usec;
- u_int32_t p_ustime_sec;
- u_int32_t p_ustime_usec;
- u_int64_t p_uru_maxrss;
- u_int64_t p_uru_ixrss;
- u_int64_t p_uru_idrss;
- u_int64_t p_uru_isrss;
- u_int64_t p_uru_minflt;
- u_int64_t p_uru_majflt;
- u_int64_t p_uru_nswap;
- u_int64_t p_uru_inblock;
- u_int64_t p_uru_oublock;
- u_int64_t p_uru_msgsnd;
- u_int64_t p_uru_msgrcv;
- u_int64_t p_uru_nsignals;
- u_int64_t p_uru_nvcsw;
- u_int64_t p_uru_nivcsw;
- u_int32_t p_uctime_sec;
- u_int32_t p_uctime_usec;
- int32_t p_psflags;
- int32_t p_spare;
- u_int32_t p_svuid;
- u_int32_t p_svgid;
- char p_emul[8];
- u_int64_t p_rlim_rss_cur;
- u_int64_t p_cpuid;
- u_int64_t p_vm_map_size;
- int32_t p_tid;
- u_int32_t p_rtableid;
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
 };
-struct kinfo_vmentry {
- u_long kve_start;
- u_long kve_end;
- u_long kve_guard;
- u_long kve_fspace;
- u_long kve_fspace_augment;
- u_int64_t kve_offset;
- int kve_wired_count;
- int kve_etype;
- int kve_protection;
- int kve_max_protection;
- int kve_advice;
- int kve_inheritance;
- u_int8_t kve_flags;
+struct rb_tree {
+ struct rb_entry *rbt_root;
 };
-struct kinfo_file {
- uint64_t f_fileaddr;
- uint32_t f_flag;
- uint32_t f_iflags;
- uint32_t f_type;
- uint32_t f_count;
- uint32_t f_msgcount;
- uint32_t f_usecount;
- uint64_t f_ucred;
- uint32_t f_uid;
- uint32_t f_gid;
- uint64_t f_ops;
- uint64_t f_offset;
- uint64_t f_data;
- uint64_t f_rxfer;
- uint64_t f_rwfer;
- uint64_t f_seek;
- uint64_t f_rbytes;
- uint64_t f_wbytes;
- uint64_t v_un;
- uint32_t v_type;
- uint32_t v_tag;
- uint32_t v_flag;
- uint32_t va_rdev;
- uint64_t v_data;
- uint64_t v_mount;
- uint64_t va_fileid;
- uint64_t va_size;
- uint32_t va_mode;
- uint32_t va_fsid;
- char f_mntonname[96];
- uint32_t so_type;
- uint32_t so_state;
- uint64_t so_pcb;
- uint32_t so_protocol;
- uint32_t so_family;
- uint64_t inp_ppcb;
- uint32_t inp_lport;
- uint32_t inp_laddru[4];
- uint32_t inp_fport;
- uint32_t inp_faddru[4];
- uint64_t unp_conn;
- uint64_t pipe_peer;
- uint32_t pipe_state;
- uint32_t kq_count;
- uint32_t kq_state;
- uint32_t __unused1;
- uint32_t p_pid;
- int32_t fd_fd;
- uint32_t fd_ofileflags;
- uint32_t p_uid;
- uint32_t p_gid;
- uint32_t p_tid;
- char p_comm[24];
- uint32_t inp_rtableid;
- uint64_t so_splice;
- int64_t so_splicelen;
- uint64_t so_rcv_cc;
- uint64_t so_snd_cc;
- uint64_t unp_refs;
- uint64_t unp_nextref;
- uint64_t unp_addr;
- char unp_path[104];
- uint32_t inp_proto;
- uint32_t t_state;
- uint64_t t_rcv_wnd;
- uint64_t t_snd_wnd;
- uint64_t t_snd_cwnd;
- uint32_t va_nlink;
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
 };
-typedef int (sysctlfn)(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
-int sysctl_int(void *, size_t *, void *, size_t, int *);
-int sysctl_int_lower(void *, size_t *, void *, size_t, int *);
-int sysctl_rdint(void *, size_t *, void *, int);
-int sysctl_int_arr(int **, int *, u_int, void *, size_t *, void *, size_t);
-int sysctl_quad(void *, size_t *, void *, size_t, int64_t *);
-int sysctl_rdquad(void *, size_t *, void *, int64_t);
-int sysctl_string(void *, size_t *, void *, size_t, char *, size_t);
-int sysctl_tstring(void *, size_t *, void *, size_t, char *, size_t);
-int sysctl__string(void *, size_t *, void *, size_t, char *, size_t, int);
-int sysctl_rdstring(void *, size_t *, void *, const char *);
-int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
-int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
-int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
-int sysctl_doproc(int *, u_int, char *, size_t *);
-struct mbuf_queue;
-int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
-    struct mbuf_queue *);
-struct rtentry;
-struct walkarg;
-int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
-int sysctl_rtable(int *, u_int, void *, size_t *, void *, size_t);
-int sysctl_clockrate(char *, size_t *, void *);
-int sysctl_vnode(char *, size_t *, struct proc *);
-int sysctl_dopool(int *, u_int, char *, size_t *);
-int kern_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-       struct proc *);
-int hw_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int vm_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int fs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-int fs_posix_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-    struct proc *);
-int net_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int cpu_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int vfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-      struct proc *);
-int sysctl_sysvipc(int *, u_int, void *, size_t *);
-int sysctl_wdog(int *, u_int, void *, size_t *, void *, size_t);
-extern int (*cpu_cpuspeed)(int *);
-extern void (*cpu_setperf)(int);
-int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
+struct pool;
+struct pool_request;
+struct pool_lock_ops;
+struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
+struct pool_allocator {
+ void *(*pa_alloc)(struct pool *, int, int *);
+ void (*pa_free)(struct pool *, void *);
+ size_t pa_pagesz;
+};
+struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
+struct pool_cache_item;
+struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
+struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
+struct pool {
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
+ struct { struct pool *sqe_next; }
+   pr_poollist;
+ struct pool_pagelist
+   pr_emptypages;
+ struct pool_pagelist
+   pr_fullpages;
+ struct pool_pagelist
+   pr_partpages;
+ struct pool_page_header *
+   pr_curpage;
+ unsigned int pr_size;
+ unsigned int pr_minitems;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_npages;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_slack;
+ unsigned int pr_nitems;
+ unsigned int pr_nout;
+ unsigned int pr_hardlimit;
+ unsigned int pr_serial;
+ unsigned int pr_pgsize;
+ vaddr_t pr_pgmask;
+ struct pool_allocator *
+   pr_alloc;
+ const char * pr_wchan;
+ int pr_flags;
+ int pr_ipl;
+ struct phtree { struct rb_tree rbh_root; }
+   pr_phtree;
+ struct cpumem * pr_cache;
+ unsigned long pr_cache_magic[2];
+ union pool_lock pr_cache_lock;
+ struct pool_cache_lists
+   pr_cache_lists;
+ u_int pr_cache_nitems;
+ u_int pr_cache_items;
+ u_int pr_cache_contention;
+ u_int pr_cache_contention_prev;
+ int pr_cache_tick;
+ int pr_cache_nout;
+ uint64_t pr_cache_ngc;
+ u_int pr_align;
+ u_int pr_maxcolors;
+ int pr_phoffset;
+ const char *pr_hardlimit_warning;
+ struct timeval pr_hardlimit_ratecap;
+ struct timeval pr_hardlimit_warning_last;
+ union pool_lock pr_requests_lock;
+ struct pool_requests
+   pr_requests;
+ unsigned int pr_requesting;
+ unsigned long pr_nget;
+ unsigned long pr_nfail;
+ unsigned long pr_nput;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+ const struct kmem_pa_mode *
+   pr_crange;
+};
+extern struct pool_allocator pool_allocator_single;
+extern struct pool_allocator pool_allocator_multi;
+struct pool_request {
+ struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
+ void (*pr_handler)(struct pool *, void *, void *);
+ void *pr_cookie;
+ void *pr_item;
+};
+void pool_init(struct pool *, size_t, u_int, int, int,
+      const char *, struct pool_allocator *);
+void pool_cache_init(struct pool *);
+void pool_destroy(struct pool *);
+void pool_setlowat(struct pool *, int);
+void pool_sethiwat(struct pool *, int);
+int pool_sethardlimit(struct pool *, u_int, const char *, int);
+struct uvm_constraint_range;
+void pool_set_constraints(struct pool *,
+      const struct kmem_pa_mode *mode);
+void *pool_get(struct pool *, int) __attribute__((__malloc__));
+void pool_request_init(struct pool_request *,
+      void (*)(struct pool *, void *, void *), void *);
+void pool_request(struct pool *, struct pool_request *);
+void pool_put(struct pool *, void *);
+int pool_reclaim(struct pool *);
+void pool_reclaim_all(void);
+int pool_prime(struct pool *, int);
+void pool_printit(struct pool *, const char *,
+      int (*)(const char *, ...));
+void pool_walk(struct pool *, int, int (*)(const char *, ...),
+      void (*)(void *, int, int (*)(const char *, ...)));
+void dma_alloc_init(void);
+void *dma_alloc(size_t size, int flags);
+void dma_free(void *m, size_t size);
+struct mdproc {
+ struct trapframe64 *md_tf;
+ struct fpstate64 *md_fpstate;
+ volatile int md_astpending;
+};
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
+{
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
+}
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+ return (n);
+}
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+ return (r);
+}
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
+struct process;
+struct session {
+ int s_count;
+ struct process *s_leader;
+ struct vnode *s_ttyvp;
+ struct tty *s_ttyp;
+ char s_login[32];
+ pid_t s_verauthppid;
+ uid_t s_verauthuid;
+ struct timeout s_verauthto;
+};
+void zapverauth( void *);
+struct pgrp {
+ struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
+ struct { struct process *lh_first; } pg_members;
+ struct session *pg_session;
+ pid_t pg_id;
+ int pg_jobc;
+};
+struct exec_package;
+struct proc;
+struct ps_strings;
+struct uvm_object;
+union sigval;
+struct emul {
+ char e_name[8];
+ int *e_errno;
+ void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
+ int e_nosys;
+ int e_nsysent;
+ struct sysent *e_sysent;
+ char **e_syscallnames;
+ int e_arglen;
+ void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
+        void *, void *);
+ void (*e_setregs)(struct proc *, struct exec_package *,
+      u_long, register_t *);
+ int (*e_fixup)(struct proc *, struct exec_package *);
+ int (*e_coredump)(struct proc *, void *cookie);
+ char *e_sigcode;
+ char *e_esigcode;
+ char *e_esigret;
+ int e_flags;
+ struct uvm_object *e_sigobject;
+};
+struct tusage {
+ struct timespec tu_runtime;
+ uint64_t tu_uticks;
+ uint64_t tu_sticks;
+ uint64_t tu_iticks;
+};
+struct process {
+ struct proc *ps_mainproc;
+ struct ucred *ps_ucred;
+ struct { struct process *le_next; struct process **le_prev; } ps_list;
+ struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
+ struct { struct process *le_next; struct process **le_prev; } ps_pglist;
+ struct process *ps_pptr;
+ struct { struct process *le_next; struct process **le_prev; } ps_sibling;
+ struct { struct process *lh_first; } ps_children;
+ struct { struct process *le_next; struct process **le_prev; } ps_hash;
+ struct sigacts *ps_sigacts;
+ struct vnode *ps_textvp;
+ struct filedesc *ps_fd;
+ struct vmspace *ps_vmspace;
+ pid_t ps_pid;
+ struct klist ps_klist;
+ int ps_flags;
+ struct proc *ps_single;
+ int ps_singlecount;
+ int ps_traceflag;
+ struct vnode *ps_tracevp;
+ struct ucred *ps_tracecred;
+ pid_t ps_oppid;
+ int ps_ptmask;
+ struct ptrace_state *ps_ptstat;
+ struct rusage *ps_ru;
+ struct tusage ps_tu;
+ struct rusage ps_cru;
+ struct itimerval ps_timer[3];
+ u_int64_t ps_wxcounter;
+ struct plimit *ps_limit;
+ struct pgrp *ps_pgrp;
+ struct emul *ps_emul;
+ char ps_comm[16 +1];
+ vaddr_t ps_strings;
+ vaddr_t ps_sigcode;
+ vaddr_t ps_sigcoderet;
+ u_long ps_sigcookie;
+ u_int ps_rtableid;
+ char ps_nice;
+ struct uprof {
+  caddr_t pr_base;
+  size_t pr_size;
+  u_long pr_off;
+  u_int pr_scale;
+ } ps_prof;
+ u_short ps_acflag;
+ uint64_t ps_pledge;
+ uint64_t ps_execpledge;
+ int64_t ps_kbind_cookie;
+ u_long ps_kbind_addr;
+ int ps_refcnt;
+ struct timespec ps_start;
+ struct timeout ps_realit_to;
+};
+struct lock_list_entry;
+struct proc {
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
+ struct { struct proc *le_next; struct proc **le_prev; } p_list;
+ struct process *p_p;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
+ struct futex *p_futex;
+ struct filedesc *p_fd;
+ struct vmspace *p_vmspace;
+ int p_flag;
+ u_char p_spare;
+ char p_stat;
+ char p_pad1[1];
+ u_char p_descfd;
+ pid_t p_tid;
+ struct { struct proc *le_next; struct proc **le_prev; } p_hash;
+ int p_dupfd;
+ long p_thrslpid;
+ u_int p_estcpu;
+ int p_cpticks;
+ const volatile void *p_wchan;
+ struct timeout p_sleep_to;
+ const char *p_wmesg;
+ fixpt_t p_pctcpu;
+ u_int p_slptime;
+ u_int p_uticks;
+ u_int p_sticks;
+ u_int p_iticks;
+ struct cpu_info * volatile p_cpu;
+ struct rusage p_ru;
+ struct tusage p_tu;
+ struct timespec p_rtime;
+ int p_siglist;
+ sigset_t p_sigmask;
+ u_char p_priority;
+ u_char p_usrpri;
+ int p_pledge_syscall;
+ struct ucred *p_ucred;
+ struct sigaltstack p_sigstk;
+ u_long p_prof_addr;
+ u_long p_prof_ticks;
+ struct user *p_addr;
+ struct mdproc p_md;
+ sigset_t p_oldmask;
+ int p_sisig;
+ union sigval p_sigval;
+ long p_sitrapno;
+ int p_sicode;
+ u_short p_xstat;
+ struct lock_list_entry *p_sleeplocks;
+};
+struct uidinfo {
+ struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
+ uid_t ui_uid;
+ long ui_proccnt;
+ long ui_lockcnt;
+};
+struct uidinfo *uid_find(uid_t);
+extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
+extern u_long tidhash;
+extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
+extern u_long pidhash;
+extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
+extern u_long pgrphash;
+extern struct proc proc0;
+extern struct process process0;
+extern int nprocesses, maxprocess;
+extern int nthreads, maxthread;
+extern int randompid;
+struct proclist { struct proc *lh_first; };
+struct processlist { struct process *lh_first; };
+extern struct processlist allprocess;
+extern struct processlist zombprocess;
+extern struct proclist allproc;
+extern struct process *initprocess;
+extern struct proc *reaperproc;
+extern struct proc *syncerproc;
+extern struct pool process_pool;
+extern struct pool proc_pool;
+extern struct pool rusage_pool;
+extern struct pool ucred_pool;
+extern struct pool session_pool;
+extern struct pool pgrp_pool;
+void freepid(pid_t);
+struct process *prfind(pid_t);
+struct process *zombiefind(pid_t);
+struct proc *tfind(pid_t);
+struct pgrp *pgfind(pid_t);
+void proc_printit(struct proc *p, const char *modif,
+    int (*pr)(const char *, ...));
+int chgproccnt(uid_t uid, int diff);
+int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
+void fixjobc(struct process *, struct pgrp *, int);
+int inferior(struct process *, struct process *);
+void leavepgrp(struct process *);
+void preempt(void);
+void pgdelete(struct pgrp *);
+void procinit(void);
+void resetpriority(struct proc *);
+void setrunnable(struct proc *);
+void endtsleep(void *);
+void unsleep(struct proc *);
+void reaper(void);
+void exit1(struct proc *, int, int);
+void exit2(struct proc *);
+int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
+     register_t *);
+void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
+     void *_tcb, void (*_func)(void *), void *_arg);
+void cpu_exit(struct proc *);
+void process_initialize(struct process *, struct proc *);
+int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
+     void *_arg, register_t *_retval, struct proc **_newprocp);
+int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
+     pid_t *_tidptr, register_t *_retval);
+int groupmember(gid_t, struct ucred *);
+void dorefreshcreds(struct process *, struct proc *);
+void dosigsuspend(struct proc *, sigset_t);
+static inline void
+refreshcreds(struct proc *p)
+{
+ struct process *pr = p->p_p;
+ if (pr->ps_ucred != p->p_ucred)
+  dorefreshcreds(pr, p);
+}
+enum single_thread_mode {
+ SINGLE_SUSPEND,
+ SINGLE_PTRACE,
+ SINGLE_UNWIND,
+ SINGLE_EXIT
+};
+int single_thread_set(struct proc *, enum single_thread_mode, int);
+void single_thread_wait(struct process *);
+void single_thread_clear(struct proc *, int);
+int single_thread_check(struct proc *, int);
+void child_return(void *);
+int proc_cansugid(struct proc *);
+struct sleep_state {
+ int sls_s;
+ int sls_catch;
+ int sls_do_sleep;
+ int sls_sig;
+};
+struct cond {
+ int c_wait;
+};
+void proc_trampoline_mp(void);
+struct cpuset {
+ int cs_set[(((256) - 1)/32 + 1)];
+};
+void cpuset_init_cpu(struct cpu_info *);
+void cpuset_clear(struct cpuset *);
+void cpuset_add(struct cpuset *, struct cpu_info *);
+void cpuset_del(struct cpuset *, struct cpu_info *);
+int cpuset_isset(struct cpuset *, struct cpu_info *);
+void cpuset_add_all(struct cpuset *);
+void cpuset_copy(struct cpuset *, struct cpuset *);
+void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
+void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
+void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
+struct cpu_info *cpuset_first(struct cpuset *);
+struct syslog_data {
+ int log_stat;
+ const char *log_tag;
+ int log_fac;
+ int log_mask;
+};
+void logpri(int);
+void log(int, const char *, ...)
+    __attribute__((__format__(__kprintf__,2,3)));
+int addlog(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+void logwakeup(void);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -2305,377 +2507,6 @@ int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
 struct taskq * net_tq(unsigned int);
-struct rt_kmetrics {
- u_int64_t rmx_pksent;
- int64_t rmx_expire;
- u_int rmx_locks;
- u_int rmx_mtu;
-};
-struct rt_metrics {
- u_int64_t rmx_pksent;
- int64_t rmx_expire;
- u_int rmx_locks;
- u_int rmx_mtu;
- u_int rmx_refcnt;
- u_int rmx_hopcount;
- u_int rmx_recvpipe;
- u_int rmx_sendpipe;
- u_int rmx_ssthresh;
- u_int rmx_rtt;
- u_int rmx_rttvar;
- u_int rmx_pad;
-};
-struct art_root {
- struct srp ar_root;
- struct rwlock ar_lock;
- uint8_t ar_bits[32];
- uint8_t ar_nlvl;
- uint8_t ar_alen;
- uint8_t ar_off;
- unsigned int ar_rtableid;
-};
-struct rtentry;
-struct art_node {
- union {
-     struct srpl an__rtlist;
-     struct art_node *an__gc;
- } an_pointer;
- uint8_t an_plen;
-};
-void art_init(void);
-struct art_root *art_alloc(unsigned int, unsigned int, unsigned int);
-struct art_node *art_insert(struct art_root *, struct art_node *, void *,
-       int);
-struct art_node *art_delete(struct art_root *, struct art_node *, void *,
-       int);
-struct art_node *art_match(struct art_root *, void *, struct srp_ref *);
-struct art_node *art_lookup(struct art_root *, void *, int,
-       struct srp_ref *);
-int art_walk(struct art_root *,
-       int (*)(struct art_node *, void *), void *);
-struct art_node *art_get(void *, uint8_t);
-void art_put(struct art_node *);
-int rtable_satoplen(sa_family_t, struct sockaddr *);
-void rtable_init(void);
-int rtable_exists(unsigned int);
-int rtable_add(unsigned int);
-unsigned int rtable_l2(unsigned int);
-unsigned int rtable_loindex(unsigned int);
-void rtable_l2set(unsigned int, unsigned int, unsigned int);
-struct rtentry *rtable_lookup(unsigned int, struct sockaddr *,
-       struct sockaddr *, struct sockaddr *, uint8_t);
-struct rtentry *rtable_match(unsigned int, struct sockaddr *, uint32_t *);
-struct rtentry *rtable_iterate(struct rtentry *);
-int rtable_insert(unsigned int, struct sockaddr *,
-       struct sockaddr *, struct sockaddr *, uint8_t,
-       struct rtentry *);
-int rtable_delete(unsigned int, struct sockaddr *,
-       struct sockaddr *, struct rtentry *);
-int rtable_walk(unsigned int, sa_family_t,
-       int (*)(struct rtentry *, void *, unsigned int), void *);
-int rtable_mpath_capable(unsigned int, sa_family_t);
-struct rtentry *rtable_mpath_match(unsigned int, struct rtentry *,
-       struct sockaddr *, uint8_t);
-int rtable_mpath_reprio(unsigned int, struct sockaddr *,
-       struct sockaddr *, uint8_t, struct rtentry *);
-struct rtentry {
- struct sockaddr *rt_dest;
- struct { struct srp se_next; } rt_next;
- struct sockaddr *rt_gateway;
- struct ifaddr *rt_ifa;
- caddr_t rt_llinfo;
- union {
-  struct rtentry *_nh;
-  unsigned int _ref;
- } RT_gw;
- struct rtentry *rt_parent;
- struct { struct rttimer *lh_first; } rt_timer;
- struct rt_kmetrics rt_rmx;
- unsigned int rt_ifidx;
- unsigned int rt_flags;
- int rt_refcnt;
- int rt_plen;
- uint16_t rt_labelid;
- uint8_t rt_priority;
-};
-struct rtstat {
- u_int32_t rts_badredirect;
- u_int32_t rts_dynamic;
- u_int32_t rts_newgateway;
- u_int32_t rts_unreach;
- u_int32_t rts_wildcard;
-};
-struct rt_tableinfo {
- u_short rti_tableid;
- u_short rti_domainid;
-};
-struct rt_msghdr {
- u_short rtm_msglen;
- u_char rtm_version;
- u_char rtm_type;
- u_short rtm_hdrlen;
- u_short rtm_index;
- u_short rtm_tableid;
- u_char rtm_priority;
- u_char rtm_mpls;
- int rtm_addrs;
- int rtm_flags;
- int rtm_fmask;
- pid_t rtm_pid;
- int rtm_seq;
- int rtm_errno;
- u_int rtm_inits;
- struct rt_metrics rtm_rmx;
-};
-struct sockaddr_rtlabel {
- u_int8_t sr_len;
- sa_family_t sr_family;
- char sr_label[32];
-};
-struct sockaddr_rtdns {
- u_int8_t sr_len;
- sa_family_t sr_family;
- char sr_dns[128];
-};
-struct sockaddr_rtstatic {
- u_int8_t sr_len;
- sa_family_t sr_family;
- char sr_static[128];
-};
-struct sockaddr_rtsearch {
- u_int8_t sr_len;
- sa_family_t sr_family;
- char sr_search[128];
-};
-struct route {
- struct rtentry *ro_rt;
- u_long ro_tableid;
- struct sockaddr ro_dst;
-};
-struct rt_addrinfo {
- int rti_addrs;
- struct sockaddr *rti_info[15];
- int rti_flags;
- struct ifaddr *rti_ifa;
- struct rt_msghdr *rti_rtm;
- u_char rti_mpls;
-};
-struct cpumem {
- void *mem;
-};
-struct cpumem_iter {
- unsigned int cpu;
-} ;
-struct counters_ref {
- uint64_t g;
- uint64_t *c;
-};
-static inline unsigned int
-_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
-{
- __asm volatile("cas [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline unsigned long
-_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline void *
-_atomic_cas_ptr(volatile void *p, void *e, void *n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*(volatile unsigned long *)p)
-     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
- return (n);
-}
-static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
-static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-static inline void *
-_atomic_swap_ptr(volatile void *p, void *v)
-{
- void *e, *r;
- r = *(void **)p;
- do {
-  e = r;
-  r = _atomic_cas_ptr((p), (e), (v));
- } while (r != e);
- return (r);
-}
-static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static __inline void
-atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e | v));
- } while (r != e);
-}
-static __inline void
-atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e & ~v));
- } while (r != e);
-}
-struct pool;
-struct cpumem *cpumem_get(struct pool *);
-void cpumem_put(struct pool *, struct cpumem *);
-struct cpumem *cpumem_malloc(size_t, int);
-struct cpumem *cpumem_malloc_ncpus(struct cpumem *, size_t, int);
-void cpumem_free(struct cpumem *, int, size_t);
-void *cpumem_first(struct cpumem_iter *, struct cpumem *);
-void *cpumem_next(struct cpumem_iter *, struct cpumem *);
-static inline void *
-cpumem_enter(struct cpumem *cm)
-{
- return (cm[(__curcpu->ci_cpuid)].mem);
-}
-static inline void
-cpumem_leave(struct cpumem *cm, void *mem)
-{
-}
-struct cpumem *counters_alloc(unsigned int);
-struct cpumem *counters_alloc_ncpus(struct cpumem *, unsigned int);
-void counters_free(struct cpumem *, unsigned int);
-void counters_read(struct cpumem *, uint64_t *, unsigned int);
-void counters_zero(struct cpumem *, unsigned int);
-static inline uint64_t *
-counters_enter(struct counters_ref *ref, struct cpumem *cm)
-{
- ref->c = cpumem_enter(cm);
- ref->g = ++(*ref->c);
- __asm volatile("membar " "#StoreStore" ::: "memory");
- return (ref->c + 1);
-}
-static inline void
-counters_leave(struct counters_ref *ref, struct cpumem *cm)
-{
- __asm volatile("membar " "#StoreStore" ::: "memory");
- (*ref->c) = ++ref->g;
- cpumem_leave(cm, ref->c);
-}
-static inline void
-counters_inc(struct cpumem *cm, unsigned int c)
-{
- struct counters_ref ref;
- uint64_t *counters;
- counters = counters_enter(&ref, cm);
- counters[c]++;
- counters_leave(&ref, cm);
-}
-static inline void
-counters_add(struct cpumem *cm, unsigned int c, uint64_t v)
-{
- struct counters_ref ref;
- uint64_t *counters;
- counters = counters_enter(&ref, cm);
- counters[c] += v;
- counters_leave(&ref, cm);
-}
-static inline void
-counters_pkt(struct cpumem *cm, unsigned int c, unsigned int b, uint64_t v)
-{
- struct counters_ref ref;
- uint64_t *counters;
- counters = counters_enter(&ref, cm);
- counters[c]++;
- counters[b] += v;
- counters_leave(&ref, cm);
-}
-enum rtstat_counters {
- rts_badredirect,
- rts_dynamic,
- rts_newgateway,
- rts_unreach,
- rts_wildcard,
- rts_ncounters
-};
-static inline void
-rtstat_inc(enum rtstat_counters c)
-{
- extern struct cpumem *rtcounters;
- counters_inc(rtcounters, c);
-}
-struct rttimer {
- struct { struct rttimer *tqe_next; struct rttimer **tqe_prev; } rtt_next;
- struct { struct rttimer *le_next; struct rttimer **le_prev; } rtt_link;
- struct rttimer_queue *rtt_queue;
- struct rtentry *rtt_rt;
- void (*rtt_func)(struct rtentry *,
-       struct rttimer *);
- time_t rtt_time;
- u_int rtt_tableid;
-};
-struct rttimer_queue {
- long rtq_timeout;
- unsigned long rtq_count;
- struct { struct rttimer *tqh_first; struct rttimer **tqh_last; } rtq_head;
- struct { struct rttimer_queue *le_next; struct rttimer_queue **le_prev; } rtq_link;
-};
-const char *rtlabel_id2name(u_int16_t);
-u_int16_t rtlabel_name2id(char *);
-struct sockaddr *rtlabel_id2sa(u_int16_t, struct sockaddr_rtlabel *);
-void rtlabel_unref(u_int16_t);
-extern struct rtstat rtstat;
-struct mbuf;
-struct socket;
-struct ifnet;
-struct sockaddr_in6;
-struct bfd_config;
-void route_init(void);
-void rtm_ifchg(struct ifnet *);
-void rtm_ifannounce(struct ifnet *, int);
-void rtm_bfd(struct bfd_config *);
-void rt_maskedcopy(struct sockaddr *,
-     struct sockaddr *, struct sockaddr *);
-struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
-void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
-void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
-int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
-struct rtentry *rt_getll(struct rtentry *);
-int rt_timer_add(struct rtentry *,
-               void(*)(struct rtentry *, struct rttimer *),
-        struct rttimer_queue *, u_int);
-void rt_timer_remove_all(struct rtentry *);
-struct rttimer_queue *rt_timer_queue_create(u_int);
-void rt_timer_queue_change(struct rttimer_queue *, long);
-void rt_timer_queue_destroy(struct rttimer_queue *);
-unsigned long rt_timer_queue_count(struct rttimer_queue *);
-void rt_timer_timer(void *);
-int rtisvalid(struct rtentry *);
-int rt_hash(struct rtentry *, struct sockaddr *, uint32_t *);
-struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
-struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
-void rtref(struct rtentry *);
-void rtfree(struct rtentry *);
-int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
-int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
-void rt_ifa_purge(struct ifaddr *);
-int rt_ifa_addlocal(struct ifaddr *);
-int rt_ifa_dellocal(struct ifaddr *);
-void rtredirect(struct sockaddr *, struct sockaddr *, struct sockaddr *, struct rtentry **, unsigned int);
-int rtrequest(int, struct rt_addrinfo *, u_int8_t, struct rtentry **,
-      u_int);
-int rtrequest_delete(struct rt_addrinfo *, u_int8_t, struct ifnet *,
-      struct rtentry **, u_int);
-void rt_if_track(struct ifnet *);
-int rt_if_linkstate_change(struct rtentry *, void *, u_int);
-int rtdeletemsg(struct rtentry *, struct ifnet *, u_int);
 struct ifnet;
 struct ifq_ops;
 struct ifqueue {
@@ -2928,17 +2759,316 @@ u_int if_rxr_get(struct if_rxring *, u_int);
 int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
 int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
      struct if_rxring *);
-extern int netisr;
-extern struct task if_input_task_locked;
-void arpintr(void);
-void ipintr(void);
-void ip6intr(void);
-void pppintr(void);
-void bridgeintr(void);
-void pppoeintr(void);
-void switchintr(void);
-void pfsyncintr(void);
-void pipexintr(void);
+struct rt_kmetrics {
+ u_int64_t rmx_pksent;
+ int64_t rmx_expire;
+ u_int rmx_locks;
+ u_int rmx_mtu;
+};
+struct rt_metrics {
+ u_int64_t rmx_pksent;
+ int64_t rmx_expire;
+ u_int rmx_locks;
+ u_int rmx_mtu;
+ u_int rmx_refcnt;
+ u_int rmx_hopcount;
+ u_int rmx_recvpipe;
+ u_int rmx_sendpipe;
+ u_int rmx_ssthresh;
+ u_int rmx_rtt;
+ u_int rmx_rttvar;
+ u_int rmx_pad;
+};
+struct art_root {
+ struct srp ar_root;
+ struct rwlock ar_lock;
+ uint8_t ar_bits[32];
+ uint8_t ar_nlvl;
+ uint8_t ar_alen;
+ uint8_t ar_off;
+ unsigned int ar_rtableid;
+};
+struct rtentry;
+struct art_node {
+ union {
+     struct srpl an__rtlist;
+     struct art_node *an__gc;
+ } an_pointer;
+ uint8_t an_plen;
+};
+void art_init(void);
+struct art_root *art_alloc(unsigned int, unsigned int, unsigned int);
+struct art_node *art_insert(struct art_root *, struct art_node *, void *,
+       int);
+struct art_node *art_delete(struct art_root *, struct art_node *, void *,
+       int);
+struct art_node *art_match(struct art_root *, void *, struct srp_ref *);
+struct art_node *art_lookup(struct art_root *, void *, int,
+       struct srp_ref *);
+int art_walk(struct art_root *,
+       int (*)(struct art_node *, void *), void *);
+struct art_node *art_get(void *, uint8_t);
+void art_put(struct art_node *);
+int rtable_satoplen(sa_family_t, struct sockaddr *);
+void rtable_init(void);
+int rtable_exists(unsigned int);
+int rtable_add(unsigned int);
+unsigned int rtable_l2(unsigned int);
+unsigned int rtable_loindex(unsigned int);
+void rtable_l2set(unsigned int, unsigned int, unsigned int);
+struct rtentry *rtable_lookup(unsigned int, struct sockaddr *,
+       struct sockaddr *, struct sockaddr *, uint8_t);
+struct rtentry *rtable_match(unsigned int, struct sockaddr *, uint32_t *);
+struct rtentry *rtable_iterate(struct rtentry *);
+int rtable_insert(unsigned int, struct sockaddr *,
+       struct sockaddr *, struct sockaddr *, uint8_t,
+       struct rtentry *);
+int rtable_delete(unsigned int, struct sockaddr *,
+       struct sockaddr *, struct rtentry *);
+int rtable_walk(unsigned int, sa_family_t,
+       int (*)(struct rtentry *, void *, unsigned int), void *);
+int rtable_mpath_capable(unsigned int, sa_family_t);
+struct rtentry *rtable_mpath_match(unsigned int, struct rtentry *,
+       struct sockaddr *, uint8_t);
+int rtable_mpath_reprio(unsigned int, struct sockaddr *,
+       struct sockaddr *, uint8_t, struct rtentry *);
+struct rtentry {
+ struct sockaddr *rt_dest;
+ struct { struct srp se_next; } rt_next;
+ struct sockaddr *rt_gateway;
+ struct ifaddr *rt_ifa;
+ caddr_t rt_llinfo;
+ union {
+  struct rtentry *_nh;
+  unsigned int _ref;
+ } RT_gw;
+ struct rtentry *rt_parent;
+ struct { struct rttimer *lh_first; } rt_timer;
+ struct rt_kmetrics rt_rmx;
+ unsigned int rt_ifidx;
+ unsigned int rt_flags;
+ int rt_refcnt;
+ int rt_plen;
+ uint16_t rt_labelid;
+ uint8_t rt_priority;
+};
+struct rtstat {
+ u_int32_t rts_badredirect;
+ u_int32_t rts_dynamic;
+ u_int32_t rts_newgateway;
+ u_int32_t rts_unreach;
+ u_int32_t rts_wildcard;
+};
+struct rt_tableinfo {
+ u_short rti_tableid;
+ u_short rti_domainid;
+};
+struct rt_msghdr {
+ u_short rtm_msglen;
+ u_char rtm_version;
+ u_char rtm_type;
+ u_short rtm_hdrlen;
+ u_short rtm_index;
+ u_short rtm_tableid;
+ u_char rtm_priority;
+ u_char rtm_mpls;
+ int rtm_addrs;
+ int rtm_flags;
+ int rtm_fmask;
+ pid_t rtm_pid;
+ int rtm_seq;
+ int rtm_errno;
+ u_int rtm_inits;
+ struct rt_metrics rtm_rmx;
+};
+struct sockaddr_rtlabel {
+ u_int8_t sr_len;
+ sa_family_t sr_family;
+ char sr_label[32];
+};
+struct sockaddr_rtdns {
+ u_int8_t sr_len;
+ sa_family_t sr_family;
+ char sr_dns[128];
+};
+struct sockaddr_rtstatic {
+ u_int8_t sr_len;
+ sa_family_t sr_family;
+ char sr_static[128];
+};
+struct sockaddr_rtsearch {
+ u_int8_t sr_len;
+ sa_family_t sr_family;
+ char sr_search[128];
+};
+struct route {
+ struct rtentry *ro_rt;
+ u_long ro_tableid;
+ struct sockaddr ro_dst;
+};
+struct rt_addrinfo {
+ int rti_addrs;
+ struct sockaddr *rti_info[15];
+ int rti_flags;
+ struct ifaddr *rti_ifa;
+ struct rt_msghdr *rti_rtm;
+ u_char rti_mpls;
+};
+struct cpumem {
+ void *mem;
+};
+struct cpumem_iter {
+ unsigned int cpu;
+} ;
+struct counters_ref {
+ uint64_t g;
+ uint64_t *c;
+};
+struct pool;
+struct cpumem *cpumem_get(struct pool *);
+void cpumem_put(struct pool *, struct cpumem *);
+struct cpumem *cpumem_malloc(size_t, int);
+struct cpumem *cpumem_malloc_ncpus(struct cpumem *, size_t, int);
+void cpumem_free(struct cpumem *, int, size_t);
+void *cpumem_first(struct cpumem_iter *, struct cpumem *);
+void *cpumem_next(struct cpumem_iter *, struct cpumem *);
+static inline void *
+cpumem_enter(struct cpumem *cm)
+{
+ return (cm[(__curcpu->ci_cpuid)].mem);
+}
+static inline void
+cpumem_leave(struct cpumem *cm, void *mem)
+{
+}
+struct cpumem *counters_alloc(unsigned int);
+struct cpumem *counters_alloc_ncpus(struct cpumem *, unsigned int);
+void counters_free(struct cpumem *, unsigned int);
+void counters_read(struct cpumem *, uint64_t *, unsigned int);
+void counters_zero(struct cpumem *, unsigned int);
+static inline uint64_t *
+counters_enter(struct counters_ref *ref, struct cpumem *cm)
+{
+ ref->c = cpumem_enter(cm);
+ ref->g = ++(*ref->c);
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ return (ref->c + 1);
+}
+static inline void
+counters_leave(struct counters_ref *ref, struct cpumem *cm)
+{
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ (*ref->c) = ++ref->g;
+ cpumem_leave(cm, ref->c);
+}
+static inline void
+counters_inc(struct cpumem *cm, unsigned int c)
+{
+ struct counters_ref ref;
+ uint64_t *counters;
+ counters = counters_enter(&ref, cm);
+ counters[c]++;
+ counters_leave(&ref, cm);
+}
+static inline void
+counters_add(struct cpumem *cm, unsigned int c, uint64_t v)
+{
+ struct counters_ref ref;
+ uint64_t *counters;
+ counters = counters_enter(&ref, cm);
+ counters[c] += v;
+ counters_leave(&ref, cm);
+}
+static inline void
+counters_pkt(struct cpumem *cm, unsigned int c, unsigned int b, uint64_t v)
+{
+ struct counters_ref ref;
+ uint64_t *counters;
+ counters = counters_enter(&ref, cm);
+ counters[c]++;
+ counters[b] += v;
+ counters_leave(&ref, cm);
+}
+enum rtstat_counters {
+ rts_badredirect,
+ rts_dynamic,
+ rts_newgateway,
+ rts_unreach,
+ rts_wildcard,
+ rts_ncounters
+};
+static inline void
+rtstat_inc(enum rtstat_counters c)
+{
+ extern struct cpumem *rtcounters;
+ counters_inc(rtcounters, c);
+}
+struct rttimer {
+ struct { struct rttimer *tqe_next; struct rttimer **tqe_prev; } rtt_next;
+ struct { struct rttimer *le_next; struct rttimer **le_prev; } rtt_link;
+ struct rttimer_queue *rtt_queue;
+ struct rtentry *rtt_rt;
+ void (*rtt_func)(struct rtentry *,
+       struct rttimer *);
+ time_t rtt_time;
+ u_int rtt_tableid;
+};
+struct rttimer_queue {
+ long rtq_timeout;
+ unsigned long rtq_count;
+ struct { struct rttimer *tqh_first; struct rttimer **tqh_last; } rtq_head;
+ struct { struct rttimer_queue *le_next; struct rttimer_queue **le_prev; } rtq_link;
+};
+const char *rtlabel_id2name(u_int16_t);
+u_int16_t rtlabel_name2id(char *);
+struct sockaddr *rtlabel_id2sa(u_int16_t, struct sockaddr_rtlabel *);
+void rtlabel_unref(u_int16_t);
+extern struct rtstat rtstat;
+struct mbuf;
+struct socket;
+struct ifnet;
+struct sockaddr_in6;
+struct bfd_config;
+void route_init(void);
+void rtm_ifchg(struct ifnet *);
+void rtm_ifannounce(struct ifnet *, int);
+void rtm_bfd(struct bfd_config *);
+void rt_maskedcopy(struct sockaddr *,
+     struct sockaddr *, struct sockaddr *);
+struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
+void rtm_send(struct rtentry *, int, int, unsigned int);
+void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
+int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
+struct rtentry *rt_getll(struct rtentry *);
+int rt_timer_add(struct rtentry *,
+               void(*)(struct rtentry *, struct rttimer *),
+        struct rttimer_queue *, u_int);
+void rt_timer_remove_all(struct rtentry *);
+struct rttimer_queue *rt_timer_queue_create(u_int);
+void rt_timer_queue_change(struct rttimer_queue *, long);
+void rt_timer_queue_destroy(struct rttimer_queue *);
+unsigned long rt_timer_queue_count(struct rttimer_queue *);
+void rt_timer_timer(void *);
+int rtisvalid(struct rtentry *);
+int rt_hash(struct rtentry *, struct sockaddr *, uint32_t *);
+struct rtentry *rtalloc_mpath(struct sockaddr *, uint32_t *, u_int);
+struct rtentry *rtalloc(struct sockaddr *, int, unsigned int);
+void rtref(struct rtentry *);
+void rtfree(struct rtentry *);
+int rt_ifa_add(struct ifaddr *, int, struct sockaddr *);
+int rt_ifa_del(struct ifaddr *, int, struct sockaddr *);
+void rt_ifa_purge(struct ifaddr *);
+int rt_ifa_addlocal(struct ifaddr *);
+int rt_ifa_dellocal(struct ifaddr *);
+void rtredirect(struct sockaddr *, struct sockaddr *, struct sockaddr *, struct rtentry **, unsigned int);
+int rtrequest(int, struct rt_addrinfo *, u_int8_t, struct rtentry **,
+      u_int);
+int rtrequest_delete(struct rt_addrinfo *, u_int8_t, struct ifnet *,
+      struct rtentry **, u_int);
+void rt_if_track(struct ifnet *);
+int rt_if_linkstate_change(struct rtentry *, void *, u_int);
+int rtdeletemsg(struct rtentry *, struct ifnet *, u_int);
 typedef __in_addr_t in_addr_t;
 typedef __in_port_t in_port_t;
 struct in_addr {
@@ -3292,6 +3422,91 @@ int rip_usrreq(struct socket *,
 int rip_attach(struct socket *, int);
 int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
+typedef u_int32_t tcp_seq;
+struct tcphdr {
+ u_int16_t th_sport;
+ u_int16_t th_dport;
+ tcp_seq th_seq;
+ tcp_seq th_ack;
+ u_int32_t th_off:4,
+    th_x2:4;
+ u_int8_t th_flags;
+ u_int16_t th_win;
+ u_int16_t th_sum;
+ u_int16_t th_urp;
+};
+extern tcp_seq tcp_iss;
+struct udphdr {
+ u_int16_t uh_sport;
+ u_int16_t uh_dport;
+ u_int16_t uh_ulen;
+ u_int16_t uh_sum;
+};
+struct icmp_ra_addr {
+ u_int32_t ira_addr;
+ u_int32_t ira_preference;
+};
+struct icmp {
+ u_int8_t icmp_type;
+ u_int8_t icmp_code;
+ u_int16_t icmp_cksum;
+ union {
+  u_int8_t ih_pptr;
+  struct ih_exthdr {
+   u_int8_t iex_pad;
+   u_int8_t iex_length;
+  } ih_exthdr;
+  struct in_addr ih_gwaddr;
+  struct ih_idseq {
+     u_int16_t icd_id;
+     u_int16_t icd_seq;
+  } ih_idseq;
+  int32_t ih_void;
+  struct ih_pmtu {
+     u_int16_t ipm_void;
+     u_int16_t ipm_nextmtu;
+  } ih_pmtu;
+  struct ih_rtradv {
+   u_int8_t irt_num_addrs;
+   u_int8_t irt_wpa;
+   u_int16_t irt_lifetime;
+  } ih_rtradv;
+ } icmp_hun;
+ union {
+  struct id_ts {
+     u_int32_t its_otime;
+     u_int32_t its_rtime;
+     u_int32_t its_ttime;
+  } id_ts;
+  struct id_ip {
+     struct ip idi_ip;
+  } id_ip;
+  u_int32_t id_mask;
+  int8_t id_data[1];
+ } icmp_dun;
+};
+struct icmp_ext_hdr {
+ u_int8_t ieh_version;
+ u_int8_t ieh_res;
+ u_int16_t ieh_cksum;
+};
+struct icmp_ext_obj_hdr {
+ u_int16_t ieo_length;
+ u_int8_t ieo_cnum;
+ u_int8_t ieo_ctype;
+};
+struct mbuf *
+ icmp_do_error(struct mbuf *, int, int, u_int32_t, int);
+void icmp_error(struct mbuf *, int, int, u_int32_t, int);
+int icmp_input(struct mbuf **, int *, int, int);
+void icmp_init(void);
+int icmp_reflect(struct mbuf *, struct mbuf **, struct in_ifaddr *);
+void icmp_send(struct mbuf *, struct mbuf *);
+int icmp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+struct rtentry *
+ icmp_mtudisc_clone(struct in_addr, u_int);
+void icmp_mtudisc(struct icmp *, u_int);
+int icmp_do_exthdr(struct mbuf *, u_int16_t, u_int8_t, void *, size_t);
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -3881,47 +4096,6 @@ struct sockaddr_encap {
   struct ipsec_policy *PolicyHead;
  } Sen;
 };
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct ipsec_id {
  u_int16_t type;
  int16_t len;
@@ -4288,196 +4462,576 @@ int in6_pcbnotify(struct inpcbtable *, struct sockaddr_in6 *,
  void (*)(struct inpcb *, int));
 int in6_selecthlim(struct inpcb *);
 int in_pcbpickport(u_int16_t *, void *, int, struct inpcb *, struct proc *);
-struct in6_addrlifetime {
- time_t ia6t_expire;
- time_t ia6t_preferred;
- u_int32_t ia6t_vltime;
- u_int32_t ia6t_pltime;
+typedef void (*tcp_timer_func_t)(void *);
+extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcptv_keep_init;
+extern int tcp_always_keepalive;
+extern int tcp_keepidle;
+extern int tcp_keepintvl;
+extern int tcp_maxidle;
+extern int tcp_ttl;
+extern int tcp_backoff[];
+void tcp_timer_init(void);
+struct sackblk {
+ tcp_seq start;
+ tcp_seq end;
 };
-struct nd_ifinfo;
-struct in6_ifextra {
- struct nd_ifinfo *nd_ifinfo;
- void *rs_lhcookie;
- int nprefixes;
- int ndefrouters;
+struct sackhole {
+ tcp_seq start;
+ tcp_seq end;
+ int dups;
+ tcp_seq rxmit;
+ struct sackhole *next;
 };
-struct in6_ifaddr {
- struct ifaddr ia_ifa;
- struct sockaddr_in6 ia_addr;
- struct sockaddr_in6 ia_dstaddr;
- struct sockaddr_in6 ia_prefixmask;
- struct { struct in6_ifaddr *tqe_next; struct in6_ifaddr **tqe_prev; } ia_list;
- int ia6_flags;
- struct in6_addrlifetime ia6_lifetime;
- time_t ia6_createtime;
- time_t ia6_updatetime;
- struct { struct in6_multi_mship *lh_first; } ia6_memberships;
+struct tcpqehead { struct tcpqent *tqh_first; struct tcpqent **tqh_last; };
+struct tcpqent {
+ struct { struct tcpqent *tqe_next; struct tcpqent **tqe_prev; } tcpqe_q;
+ struct tcphdr *tcpqe_tcp;
+ struct mbuf *tcpqe_m;
 };
-struct in6_ifstat {
- u_int64_t ifs6_in_receive;
- u_int64_t ifs6_in_hdrerr;
- u_int64_t ifs6_in_toobig;
- u_int64_t ifs6_in_noroute;
- u_int64_t ifs6_in_addrerr;
- u_int64_t ifs6_in_protounknown;
- u_int64_t ifs6_in_truncated;
- u_int64_t ifs6_in_discard;
- u_int64_t ifs6_in_deliver;
- u_int64_t ifs6_out_forward;
- u_int64_t ifs6_out_request;
- u_int64_t ifs6_out_discard;
- u_int64_t ifs6_out_fragok;
- u_int64_t ifs6_out_fragfail;
- u_int64_t ifs6_out_fragcreat;
- u_int64_t ifs6_reass_reqd;
- u_int64_t ifs6_reass_ok;
- u_int64_t ifs6_reass_fail;
- u_int64_t ifs6_in_mcast;
- u_int64_t ifs6_out_mcast;
+struct tcpcb {
+ struct tcpqehead t_segq;
+ struct timeout t_timer[5];
+ short t_state;
+ short t_rxtshift;
+ short t_rxtcur;
+ short t_dupacks;
+ u_short t_maxseg;
+ char t_force;
+ u_int t_flags;
+ struct mbuf *t_template;
+ struct inpcb *t_inpcb;
+ struct timeout t_delack_to;
+ tcp_seq snd_una;
+ tcp_seq snd_nxt;
+ tcp_seq snd_up;
+ tcp_seq snd_wl1;
+ tcp_seq snd_wl2;
+ tcp_seq iss;
+ u_long snd_wnd;
+ int sack_enable;
+ int snd_numholes;
+ struct sackhole *snd_holes;
+ tcp_seq snd_last;
+ u_long rcv_wnd;
+ tcp_seq rcv_nxt;
+ tcp_seq rcv_up;
+ tcp_seq irs;
+ tcp_seq rcv_lastsack;
+ int rcv_numsacks;
+ struct sackblk sackblks[6];
+ tcp_seq rcv_adv;
+ tcp_seq snd_max;
+ u_long snd_cwnd;
+ u_long snd_ssthresh;
+ u_int rfbuf_cnt;
+ u_int32_t rfbuf_ts;
+ u_short t_maxopd;
+ u_short t_peermss;
+ uint32_t t_rcvtime;
+ uint32_t t_rtttime;
+ tcp_seq t_rtseq;
+ short t_srtt;
+ short t_rttvar;
+ u_short t_rttmin;
+ u_long max_sndwnd;
+ char t_oobflags;
+ char t_iobc;
+ short t_softerror;
+ u_char snd_scale;
+ u_char rcv_scale;
+ u_char request_r_scale;
+ u_char requested_s_scale;
+ u_int32_t ts_recent;
+ u_int32_t ts_modulate;
+ u_int32_t ts_recent_age;
+ tcp_seq last_ack_sent;
+ struct { struct syn_cache *lh_first; } t_sc;
+ u_int t_pmtud_mss_acked;
+ u_int t_pmtud_mtu_sent;
+ tcp_seq t_pmtud_th_seq;
+ u_int t_pmtud_nextmtu;
+ u_short t_pmtud_ip_len;
+ u_short t_pmtud_ip_hl;
+ int pf;
 };
-struct icmp6_ifstat {
- u_int64_t ifs6_in_msg;
- u_int64_t ifs6_in_error;
- u_int64_t ifs6_in_dstunreach;
- u_int64_t ifs6_in_adminprohib;
- u_int64_t ifs6_in_timeexceed;
- u_int64_t ifs6_in_paramprob;
- u_int64_t ifs6_in_pkttoobig;
- u_int64_t ifs6_in_echo;
- u_int64_t ifs6_in_echoreply;
- u_int64_t ifs6_in_routersolicit;
- u_int64_t ifs6_in_routeradvert;
- u_int64_t ifs6_in_neighborsolicit;
- u_int64_t ifs6_in_neighboradvert;
- u_int64_t ifs6_in_redirect;
- u_int64_t ifs6_in_mldquery;
- u_int64_t ifs6_in_mldreport;
- u_int64_t ifs6_in_mlddone;
- u_int64_t ifs6_out_msg;
- u_int64_t ifs6_out_error;
- u_int64_t ifs6_out_dstunreach;
- u_int64_t ifs6_out_adminprohib;
- u_int64_t ifs6_out_timeexceed;
- u_int64_t ifs6_out_paramprob;
- u_int64_t ifs6_out_pkttoobig;
- u_int64_t ifs6_out_echo;
- u_int64_t ifs6_out_echoreply;
- u_int64_t ifs6_out_routersolicit;
- u_int64_t ifs6_out_routeradvert;
- u_int64_t ifs6_out_neighborsolicit;
- u_int64_t ifs6_out_neighboradvert;
- u_int64_t ifs6_out_redirect;
- u_int64_t ifs6_out_mldquery;
- u_int64_t ifs6_out_mldreport;
- u_int64_t ifs6_out_mlddone;
+extern int tcp_delack_ticks;
+void tcp_delack(void *);
+struct tcp_opt_info {
+ int ts_present;
+ u_int32_t ts_val;
+ u_int32_t ts_ecr;
+ u_int16_t maxseg;
 };
-struct in6_ifreq {
- char ifr_name[16];
+union syn_cache_sa {
+ struct sockaddr sa;
+ struct sockaddr_in sin;
+ struct sockaddr_in6 sin6;
+};
+struct syn_cache {
+ struct { struct syn_cache *tqe_next; struct syn_cache **tqe_prev; } sc_bucketq;
+ struct timeout sc_timer;
  union {
-  struct sockaddr_in6 ifru_addr;
-  struct sockaddr_in6 ifru_dstaddr;
-  short ifru_flags;
-  int ifru_flags6;
-  int ifru_metric;
-  caddr_t ifru_data;
-  struct in6_addrlifetime ifru_lifetime;
-  struct in6_ifstat ifru_stat;
-  struct icmp6_ifstat ifru_icmp6stat;
- } ifr_ifru;
+  struct route route4;
+  struct route_in6 route6;
+ } sc_route_u;
+ long sc_win;
+ struct syn_cache_head *sc_buckethead;
+ struct syn_cache_set *sc_set;
+ u_int32_t sc_hash;
+ u_int32_t sc_timestamp;
+ u_int32_t sc_modulate;
+ union syn_cache_sa sc_src;
+ union syn_cache_sa sc_dst;
+ tcp_seq sc_irs;
+ tcp_seq sc_iss;
+ u_int sc_rtableid;
+ u_int sc_rxtcur;
+ u_int sc_rxttot;
+ u_short sc_rxtshift;
+ u_short sc_flags;
+ struct mbuf *sc_ipopts;
+ u_int16_t sc_peermaxseg;
+ u_int16_t sc_ourmaxseg;
+ u_int sc_request_r_scale : 4,
+    sc_requested_s_scale : 4;
+ struct tcpcb *sc_tp;
+ struct { struct syn_cache *le_next; struct syn_cache **le_prev; } sc_tpq;
 };
-struct in6_aliasreq {
- char ifra_name[16];
- union {
-  struct sockaddr_in6 ifrau_addr;
-  int ifrau_align;
-  } ifra_ifrau;
- struct sockaddr_in6 ifra_dstaddr;
- struct sockaddr_in6 ifra_prefixmask;
- int ifra_flags;
- struct in6_addrlifetime ifra_lifetime;
+struct syn_cache_head {
+ struct { struct syn_cache *tqh_first; struct syn_cache **tqh_last; } sch_bucket;
+ u_short sch_length;
 };
-struct in6_multi_mship {
- struct in6_multi *i6mm_maddr;
- struct { struct in6_multi_mship *le_next; struct in6_multi_mship **le_prev; } i6mm_chain;
+struct syn_cache_set {
+ struct syn_cache_head *scs_buckethead;
+ int scs_size;
+ int scs_count;
+ int scs_use;
+ u_int32_t scs_random[5];
 };
-struct in6_multi {
- struct ifmaddr in6m_ifma;
- struct sockaddr_in6 in6m_sin;
- u_int in6m_state;
- u_int in6m_timer;
+struct tcpstat {
+ u_int32_t tcps_connattempt;
+ u_int32_t tcps_accepts;
+ u_int32_t tcps_connects;
+ u_int32_t tcps_drops;
+ u_int32_t tcps_conndrops;
+ u_int32_t tcps_closed;
+ u_int32_t tcps_segstimed;
+ u_int32_t tcps_rttupdated;
+ u_int32_t tcps_delack;
+ u_int32_t tcps_timeoutdrop;
+ u_int32_t tcps_rexmttimeo;
+ u_int32_t tcps_persisttimeo;
+ u_int32_t tcps_persistdrop;
+ u_int32_t tcps_keeptimeo;
+ u_int32_t tcps_keepprobe;
+ u_int32_t tcps_keepdrops;
+ u_int32_t tcps_sndtotal;
+ u_int32_t tcps_sndpack;
+ u_int64_t tcps_sndbyte;
+ u_int32_t tcps_sndrexmitpack;
+ u_int64_t tcps_sndrexmitbyte;
+ u_int64_t tcps_sndrexmitfast;
+ u_int32_t tcps_sndacks;
+ u_int32_t tcps_sndprobe;
+ u_int32_t tcps_sndurg;
+ u_int32_t tcps_sndwinup;
+ u_int32_t tcps_sndctrl;
+ u_int32_t tcps_rcvtotal;
+ u_int32_t tcps_rcvpack;
+ u_int64_t tcps_rcvbyte;
+ u_int32_t tcps_rcvbadsum;
+ u_int32_t tcps_rcvbadoff;
+ u_int32_t tcps_rcvmemdrop;
+ u_int32_t tcps_rcvnosec;
+ u_int32_t tcps_rcvshort;
+ u_int32_t tcps_rcvduppack;
+ u_int64_t tcps_rcvdupbyte;
+ u_int32_t tcps_rcvpartduppack;
+ u_int64_t tcps_rcvpartdupbyte;
+ u_int32_t tcps_rcvoopack;
+ u_int64_t tcps_rcvoobyte;
+ u_int32_t tcps_rcvpackafterwin;
+ u_int64_t tcps_rcvbyteafterwin;
+ u_int32_t tcps_rcvafterclose;
+ u_int32_t tcps_rcvwinprobe;
+ u_int32_t tcps_rcvdupack;
+ u_int32_t tcps_rcvacktoomuch;
+ u_int32_t tcps_rcvacktooold;
+ u_int32_t tcps_rcvackpack;
+ u_int64_t tcps_rcvackbyte;
+ u_int32_t tcps_rcvwinupd;
+ u_int32_t tcps_pawsdrop;
+ u_int32_t tcps_predack;
+ u_int32_t tcps_preddat;
+ u_int32_t tcps_pcbhashmiss;
+ u_int32_t tcps_noport;
+ u_int32_t tcps_badsyn;
+ u_int32_t tcps_dropsyn;
+ u_int32_t tcps_rcvbadsig;
+ u_int64_t tcps_rcvgoodsig;
+ u_int32_t tcps_inswcsum;
+ u_int32_t tcps_outswcsum;
+ u_int32_t tcps_ecn_accepts;
+ u_int32_t tcps_ecn_rcvece;
+ u_int32_t tcps_ecn_rcvcwr;
+ u_int32_t tcps_ecn_rcvce;
+ u_int32_t tcps_ecn_sndect;
+ u_int32_t tcps_ecn_sndece;
+ u_int32_t tcps_ecn_sndcwr;
+ u_int32_t tcps_cwr_ecn;
+ u_int32_t tcps_cwr_frecovery;
+ u_int32_t tcps_cwr_timeout;
+ u_int64_t tcps_sc_added;
+ u_int64_t tcps_sc_completed;
+ u_int64_t tcps_sc_timed_out;
+ u_int64_t tcps_sc_overflowed;
+ u_int64_t tcps_sc_reset;
+ u_int64_t tcps_sc_unreach;
+ u_int64_t tcps_sc_bucketoverflow;
+ u_int64_t tcps_sc_aborted;
+ u_int64_t tcps_sc_dupesyn;
+ u_int64_t tcps_sc_dropped;
+ u_int64_t tcps_sc_collisions;
+ u_int64_t tcps_sc_retransmitted;
+ u_int64_t tcps_sc_seedrandom;
+ u_int64_t tcps_sc_hash_size;
+ u_int64_t tcps_sc_entry_count;
+ u_int64_t tcps_sc_entry_limit;
+ u_int64_t tcps_sc_bucket_maxlen;
+ u_int64_t tcps_sc_bucket_limit;
+ u_int64_t tcps_sc_uses_left;
+ u_int64_t tcps_conndrained;
+ u_int64_t tcps_sack_recovery_episode;
+ u_int64_t tcps_sack_rexmits;
+ u_int64_t tcps_sack_rexmit_bytes;
+ u_int64_t tcps_sack_rcv_opts;
+ u_int64_t tcps_sack_snd_opts;
 };
-static __inline struct in6_multi *
-ifmatoin6m(struct ifmaddr *ifma)
+struct tcp_ident_mapping {
+ struct sockaddr_storage faddr, laddr;
+ int euid, ruid;
+ u_int rdomain;
+};
+enum tcpstat_counters {
+ tcps_connattempt,
+ tcps_accepts,
+ tcps_connects,
+ tcps_drops,
+ tcps_conndrops,
+ tcps_closed,
+ tcps_segstimed,
+ tcps_rttupdated,
+ tcps_delack,
+ tcps_timeoutdrop,
+ tcps_rexmttimeo,
+ tcps_persisttimeo,
+ tcps_persistdrop,
+ tcps_keeptimeo,
+ tcps_keepprobe,
+ tcps_keepdrops,
+ tcps_sndtotal,
+ tcps_sndpack,
+ tcps_sndbyte,
+ tcps_sndrexmitpack,
+ tcps_sndrexmitbyte,
+ tcps_sndrexmitfast,
+ tcps_sndacks,
+ tcps_sndprobe,
+ tcps_sndurg,
+ tcps_sndwinup,
+ tcps_sndctrl,
+ tcps_rcvtotal,
+ tcps_rcvpack,
+ tcps_rcvbyte,
+ tcps_rcvbadsum,
+ tcps_rcvbadoff,
+ tcps_rcvmemdrop,
+ tcps_rcvnosec,
+ tcps_rcvshort,
+ tcps_rcvduppack,
+ tcps_rcvdupbyte,
+ tcps_rcvpartduppack,
+ tcps_rcvpartdupbyte,
+ tcps_rcvoopack,
+ tcps_rcvoobyte,
+ tcps_rcvpackafterwin,
+ tcps_rcvbyteafterwin,
+ tcps_rcvafterclose,
+ tcps_rcvwinprobe,
+ tcps_rcvdupack,
+ tcps_rcvacktoomuch,
+ tcps_rcvacktooold,
+ tcps_rcvackpack,
+ tcps_rcvackbyte,
+ tcps_rcvwinupd,
+ tcps_pawsdrop,
+ tcps_predack,
+ tcps_preddat,
+ tcps_pcbhashmiss,
+ tcps_noport,
+ tcps_badsyn,
+ tcps_dropsyn,
+ tcps_rcvbadsig,
+ tcps_rcvgoodsig,
+ tcps_inswcsum,
+ tcps_outswcsum,
+ tcps_ecn_accepts,
+ tcps_ecn_rcvece,
+ tcps_ecn_rcvcwr,
+ tcps_ecn_rcvce,
+ tcps_ecn_sndect,
+ tcps_ecn_sndece,
+ tcps_ecn_sndcwr,
+ tcps_cwr_ecn,
+ tcps_cwr_frecovery,
+ tcps_cwr_timeout,
+ tcps_sc_added,
+ tcps_sc_completed,
+ tcps_sc_timed_out,
+ tcps_sc_overflowed,
+ tcps_sc_reset,
+ tcps_sc_unreach,
+ tcps_sc_bucketoverflow,
+ tcps_sc_aborted,
+ tcps_sc_dupesyn,
+ tcps_sc_dropped,
+ tcps_sc_collisions,
+ tcps_sc_retransmitted,
+ tcps_sc_seedrandom,
+ tcps_sc_hash_size,
+ tcps_sc_entry_count,
+ tcps_sc_entry_limit,
+ tcps_sc_bucket_maxlen,
+ tcps_sc_bucket_limit,
+ tcps_sc_uses_left,
+ tcps_conndrained,
+ tcps_sack_recovery_episode,
+ tcps_sack_rexmits,
+ tcps_sack_rexmit_bytes,
+ tcps_sack_rcv_opts,
+ tcps_sack_snd_opts,
+ tcps_ncounters,
+};
+extern struct cpumem *tcpcounters;
+static inline void
+tcpstat_inc(enum tcpstat_counters c)
 {
-       return ((struct in6_multi *)(ifma));
+ counters_inc(tcpcounters, c);
 }
-struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
-void in6_delmulti(struct in6_multi *);
-int in6_hasmulti(struct in6_addr *, struct ifnet *);
-struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
-void in6_leavegroup(struct in6_multi_mship *);
-int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
-int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
-int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,
- struct in6_ifaddr *);
-void in6_purgeaddr(struct ifaddr *);
-int in6if_do_dad(struct ifnet *);
-void *in6_domifattach(struct ifnet *);
-void in6_domifdetach(struct ifnet *, void *);
-struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
-struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
-int in6_addr2scopeid(unsigned int, struct in6_addr *);
-int in6_matchlen(struct in6_addr *, struct in6_addr *);
-void in6_prefixlen2mask(struct in6_addr *, int);
-void in6_purgeprefix(struct ifnet *);
-struct div6stat {
+static inline void
+tcpstat_add(enum tcpstat_counters c, uint64_t v)
+{
+ counters_add(tcpcounters, c, v);
+}
+static inline void
+tcpstat_pkt(enum tcpstat_counters pcounter, enum tcpstat_counters bcounter,
+    uint64_t v)
+{
+ counters_pkt(tcpcounters, pcounter, bcounter, v);
+}
+extern struct pool tcpcb_pool;
+extern struct inpcbtable tcbtable;
+extern u_int32_t tcp_now;
+extern int tcp_do_rfc1323;
+extern int tcptv_keep_init;
+extern int tcp_mssdflt;
+extern int tcp_rst_ppslim;
+extern int tcp_ack_on_push;
+extern int tcp_do_sack;
+extern struct pool sackhl_pool;
+extern int tcp_sackhole_limit;
+extern int tcp_do_ecn;
+extern int tcp_do_rfc3390;
+extern struct pool tcpqe_pool;
+extern int tcp_reass_limit;
+extern int tcp_syn_hash_size;
+extern int tcp_syn_cache_limit;
+extern int tcp_syn_bucket_limit;
+extern int tcp_syn_use_limit;
+extern struct syn_cache_set tcp_syn_cache[];
+extern int tcp_syn_cache_active;
+void tcp_canceltimers(struct tcpcb *);
+struct tcpcb *
+  tcp_close(struct tcpcb *);
+int tcp_freeq(struct tcpcb *);
+void tcp6_ctlinput(int, struct sockaddr *, u_int, void *);
+void tcp_ctlinput(int, struct sockaddr *, u_int, void *);
+int tcp_ctloutput(int, struct socket *, int, int, struct mbuf *);
+struct tcpcb *
+  tcp_disconnect(struct tcpcb *);
+struct tcpcb *
+  tcp_drop(struct tcpcb *, int);
+int tcp_dooptions(struct tcpcb *, u_char *, int, struct tcphdr *,
+  struct mbuf *, int, struct tcp_opt_info *, u_int);
+void tcp_init(void);
+int tcp_input(struct mbuf **, int *, int, int);
+int tcp_mss(struct tcpcb *, int);
+void tcp_mss_update(struct tcpcb *);
+u_int tcp_hdrsz(struct tcpcb *);
+void tcp_mtudisc(struct inpcb *, int);
+void tcp_mtudisc_increase(struct inpcb *, int);
+void tcp6_mtudisc(struct inpcb *, int);
+void tcp6_mtudisc_callback(struct sockaddr_in6 *, u_int);
+struct tcpcb *
+  tcp_newtcpcb(struct inpcb *);
+void tcp_notify(struct inpcb *, int);
+int tcp_output(struct tcpcb *);
+void tcp_pulloutofband(struct socket *, u_int, struct mbuf *, int);
+int tcp_reass(struct tcpcb *, struct tcphdr *, struct mbuf *, int *);
+void tcp_rscale(struct tcpcb *, u_long);
+void tcp_respond(struct tcpcb *, caddr_t, struct tcphdr *, tcp_seq,
+  tcp_seq, int, u_int);
+void tcp_setpersist(struct tcpcb *);
+void tcp_update_sndspace(struct tcpcb *);
+void tcp_update_rcvspace(struct tcpcb *);
+void tcp_slowtimo(void);
+struct mbuf *
+  tcp_template(struct tcpcb *);
+void tcp_trace(short, short, struct tcpcb *, caddr_t, int, int);
+struct tcpcb *
+  tcp_usrclosed(struct tcpcb *);
+int tcp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int tcp_usrreq(struct socket *,
+     int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
+int tcp_attach(struct socket *, int);
+int tcp_detach(struct socket *);
+void tcp_xmit_timer(struct tcpcb *, int);
+void tcpdropoldhalfopen(struct tcpcb *, u_int16_t);
+void tcp_sack_option(struct tcpcb *,struct tcphdr *,u_char *,int);
+void tcp_update_sack_list(struct tcpcb *tp, tcp_seq, tcp_seq);
+void tcp_del_sackholes(struct tcpcb *, struct tcphdr *);
+void tcp_clean_sackreport(struct tcpcb *tp);
+void tcp_sack_adjust(struct tcpcb *tp);
+struct sackhole *
+  tcp_sack_output(struct tcpcb *tp);
+u_long tcp_seq_subtract(u_long, u_long );
+int tcp_signature_apply(caddr_t, caddr_t, unsigned int);
+int tcp_signature(struct tdb *, int, struct mbuf *, struct tcphdr *,
+     int, int, char *);
+void tcp_set_iss_tsm(struct tcpcb *);
+void syn_cache_unreach(struct sockaddr *, struct sockaddr *,
+    struct tcphdr *, u_int);
+void syn_cache_init(void);
+void syn_cache_cleanup(struct tcpcb *);
+struct udpiphdr {
+ struct ipovly ui_i;
+ struct udphdr ui_u;
+};
+struct udpstat {
+ u_long udps_ipackets;
+ u_long udps_hdrops;
+ u_long udps_badsum;
+ u_long udps_nosum;
+ u_long udps_badlen;
+ u_long udps_noport;
+ u_long udps_noportbcast;
+ u_long udps_nosec;
+ u_long udps_fullsock;
+ u_long udps_pcbhashmiss;
+ u_long udps_inswcsum;
+ u_long udps_opackets;
+ u_long udps_outswcsum;
+};
+enum udpstat_counters {
+ udps_ipackets,
+ udps_hdrops,
+ udps_badsum,
+ udps_nosum,
+ udps_badlen,
+ udps_noport,
+ udps_noportbcast,
+ udps_nosec,
+ udps_fullsock,
+ udps_pcbhashmiss,
+ udps_inswcsum,
+ udps_opackets,
+ udps_outswcsum,
+ udps_ncounters
+};
+extern struct cpumem *udpcounters;
+static inline void
+udpstat_inc(enum udpstat_counters c)
+{
+ counters_inc(udpcounters, c);
+}
+extern struct inpcbtable udbtable;
+extern struct udpstat udpstat;
+void udp6_ctlinput(int, struct sockaddr *, u_int, void *);
+void udp_ctlinput(int, struct sockaddr *, u_int, void *);
+void udp_init(void);
+int udp_input(struct mbuf **, int *, int, int);
+int udp6_output(struct inpcb *, struct mbuf *, struct mbuf *,
+ struct mbuf *);
+int udp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int udp_usrreq(struct socket *,
+     int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
+int udp_attach(struct socket *, int);
+int udp_detach(struct socket *);
+struct icmpstat {
+ u_long icps_error;
+ u_long icps_toofreq;
+ u_long icps_oldshort;
+ u_long icps_oldicmp;
+ u_long icps_outhist[40 + 1];
+ u_long icps_badcode;
+ u_long icps_tooshort;
+ u_long icps_checksum;
+ u_long icps_badlen;
+ u_long icps_reflect;
+ u_long icps_bmcastecho;
+ u_long icps_inhist[40 + 1];
+};
+enum icmpstat_counters {
+ icps_error,
+ icps_toofreq,
+ icps_oldshort,
+ icps_oldicmp,
+ icps_outhist,
+ icps_badcode = icps_outhist + 40 + 1,
+ icps_tooshort,
+ icps_checksum,
+ icps_badlen,
+ icps_reflect,
+ icps_bmcastecho,
+ icps_inhist,
+ icps_ncounters = icps_inhist + 40 + 1
+};
+extern struct cpumem *icmpcounters;
+static inline void
+icmpstat_inc(enum icmpstat_counters c)
+{
+ counters_inc(icmpcounters, c);
+}
+struct divstat {
  u_long divs_ipackets;
  u_long divs_noport;
  u_long divs_fullsock;
  u_long divs_opackets;
  u_long divs_errors;
 };
-enum div6stat_counters {
- div6s_ipackets,
- div6s_noport,
- div6s_fullsock,
- div6s_opackets,
- div6s_errors,
- div6s_ncounters,
+enum divstat_counters {
+ divs_ipackets,
+ divs_noport,
+ divs_fullsock,
+ divs_opackets,
+ divs_errors,
+ divs_ncounters,
 };
-extern struct cpumem *div6counters;
+extern struct cpumem *divcounters;
 static inline void
-div6stat_inc(enum div6stat_counters c)
+divstat_inc(enum divstat_counters c)
 {
- counters_inc(div6counters, c);
+ counters_inc(divcounters, c);
 }
-extern struct inpcbtable divb6table;
-void divert6_init(void);
-int divert6_packet(struct mbuf *, int, u_int16_t);
-int divert6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int divert6_usrreq(struct socket *,
+extern struct inpcbtable divbtable;
+void divert_init(void);
+int divert_packet(struct mbuf *, int, u_int16_t);
+int divert_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int divert_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
-int divert6_attach(struct socket *, int);
-int divert6_detach(struct socket *);
-typedef u_int32_t tcp_seq;
-struct tcphdr {
- u_int16_t th_sport;
- u_int16_t th_dport;
- tcp_seq th_seq;
- tcp_seq th_ack;
- u_int32_t th_off:4,
-    th_x2:4;
- u_int8_t th_flags;
- u_int16_t th_win;
- u_int16_t th_sum;
- u_int16_t th_urp;
-};
-struct udphdr {
- u_int16_t uh_sport;
- u_int16_t uh_dport;
- u_int16_t uh_ulen;
- u_int16_t uh_sum;
-};
+int divert_attach(struct socket *, int);
+int divert_detach(struct socket *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -5565,280 +6119,310 @@ int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
 struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
-struct inpcbtable divb6table;
-struct cpumem *div6counters;
-u_int divert6_sendspace = (65536 + 100);
-u_int divert6_recvspace = (65536 + 100);
-int *divert6ctl_vars[4] = { ((void *)0), &divert6_recvspace, &divert6_sendspace, ((void *)0) };
-int divb6hashsize = 128;
-int divert6_output(struct inpcb *, struct mbuf *, struct mbuf *,
-     struct mbuf *);
+extern struct rwlock pf_lock;
+struct pf_pdesc {
+ struct {
+  int done;
+  uid_t uid;
+  gid_t gid;
+  pid_t pid;
+ } lookup;
+ u_int64_t tot_len;
+ struct pf_addr nsaddr;
+ struct pf_addr ndaddr;
+ struct pfi_kif *kif;
+ struct mbuf *m;
+ struct pf_addr *src;
+ struct pf_addr *dst;
+ u_int16_t *pcksum;
+ u_int16_t *sport;
+ u_int16_t *dport;
+ u_int16_t osport;
+ u_int16_t odport;
+ u_int16_t nsport;
+ u_int16_t ndport;
+ u_int32_t off;
+ u_int32_t hdrlen;
+ u_int32_t p_len;
+ u_int32_t extoff;
+ u_int32_t fragoff;
+ u_int32_t jumbolen;
+ u_int32_t badopts;
+ u_int16_t rdomain;
+ u_int16_t virtual_proto;
+ sa_family_t af;
+ sa_family_t naf;
+ u_int8_t proto;
+ u_int8_t tos;
+ u_int8_t ttl;
+ u_int8_t dir;
+ u_int8_t sidx;
+ u_int8_t didx;
+ u_int8_t destchg;
+ u_int8_t pflog;
+ union {
+  struct tcphdr tcp;
+  struct udphdr udp;
+  struct icmp icmp;
+  struct icmp6_hdr icmp6;
+  struct mld_hdr mld;
+  struct nd_neighbor_solicit nd_ns;
+ } hdr;
+};
+extern struct task pf_purge_task;
+extern struct timeout pf_purge_to;
+extern void pf_purge_timeout(void *);
+extern void pf_purge(void *);
+struct pfloghdr {
+ u_int8_t length;
+ sa_family_t af;
+ u_int8_t action;
+ u_int8_t reason;
+ char ifname[16];
+ char ruleset[16];
+ u_int32_t rulenr;
+ u_int32_t subrulenr;
+ uid_t uid;
+ pid_t pid;
+ uid_t rule_uid;
+ pid_t rule_pid;
+ u_int8_t dir;
+ u_int8_t rewritten;
+ sa_family_t naf;
+ u_int8_t pad[1];
+ struct pf_addr saddr;
+ struct pf_addr daddr;
+ u_int16_t sport;
+ u_int16_t dport;
+};
+struct pflog_softc {
+ struct ifnet sc_if;
+ int sc_unit;
+};
+union pf_syncookie {
+ uint8_t cookie;
+ struct {
+  uint8_t oddeven:1,
+   sack_ok:1,
+   wscale_idx:3,
+   mss_idx:3;
+ } flags;
+};
+static struct {
+ struct timeout keytimeout;
+ volatile uint oddeven;
+ uint8_t key[2][16];
+ uint32_t hiwat;
+ uint32_t lowat;
+} pf_syncookie_status;
+void pf_syncookie_rotate(void *);
+void pf_syncookie_newkey(void);
+uint32_t pf_syncookie_mac(struct pf_pdesc *, union pf_syncookie,
+      uint32_t);
+uint32_t pf_syncookie_generate(struct pf_pdesc *, uint16_t);
 void
-divert6_init(void)
+pf_syncookies_init(void)
 {
- in_pcbinit(&divb6table, divb6hashsize);
- div6counters = counters_alloc(div6s_ncounters);
+ timeout_set(&pf_syncookie_status.keytimeout,
+     pf_syncookie_rotate, ((void *)0));
+ pf_syncookie_status.hiwat = 10000/4;
+ pf_syncookie_status.lowat = 10000/8;
+ pf_syncookies_setmode(0);
 }
 int
-divert6_output(struct inpcb *inp, struct mbuf *m, struct mbuf *nam,
-    struct mbuf *control)
+pf_syncookies_setmode(u_int8_t mode)
 {
- struct sockaddr_in6 *sin6;
- int error, min_hdrlen, nxt, off, dir;
- struct ip6_hdr *ip6;
- m_freem(control);
- if ((error = in6_nam2sin6(nam, &sin6)))
-  goto fail;
- if (m->M_dat.MH.MH_pkthdr.len < sizeof(struct ip6_hdr))
-  goto fail;
- if ((m = m_pullup(m, sizeof(struct ip6_hdr))) == ((void *)0)) {
-  div6stat_inc(div6s_errors);
-  return (55);
- }
- ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
- if ((ip6->ip6_ctlun.ip6_un2_vfc & 0xf0) != 0x60)
-  goto fail;
- if (m->M_dat.MH.MH_pkthdr.len < sizeof(struct ip6_hdr) + ((__uint16_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_plen)))
-  goto fail;
- off = ip6_lasthdr(m, 0, 41, &nxt);
- if (off < sizeof(struct ip6_hdr))
-  goto fail;
- dir = (((*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&sin6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ? PF_OUT : PF_IN);
- switch (nxt) {
- case 6:
-  min_hdrlen = sizeof(struct tcphdr);
-  m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0002;
-  break;
- case 17:
-  min_hdrlen = sizeof(struct udphdr);
-  m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0004;
-  break;
- case 58:
-  min_hdrlen = sizeof(struct icmp6_hdr);
-  m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0200;
-  break;
- default:
-  min_hdrlen = 0;
-  break;
- }
- if (min_hdrlen && m->M_dat.MH.MH_pkthdr.len < off + min_hdrlen)
-  goto fail;
- m->M_dat.MH.MH_pkthdr.pf.flags |= 0x10;
- if (dir == PF_IN) {
-  struct rtentry *rt;
-  struct ifnet *ifp;
-  rt = rtalloc(sin6tosa(sin6), 0, inp->inp_rtableid);
-  if (!rtisvalid(rt) || !((rt->rt_flags) & (0x200000))) {
-   rtfree(rt);
-   error = 49;
-   goto fail;
-  }
-  m->M_dat.MH.MH_pkthdr.ph_ifidx = rt->rt_ifidx;
-  rtfree(rt);
-  in6_proto_cksum_out(m, ((void *)0));
-  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-  if (ifp == ((void *)0)) {
-   error = 50;
-   goto fail;
-  }
-  ipv6_input(ifp, m);
-  if_put(ifp);
- } else {
-  m->M_dat.MH.MH_pkthdr.ph_rtableid = inp->inp_rtableid;
-  error = ip6_output(m, ((void *)0), &inp->inp_ru.ru_route6,
-      0x0020 | 0x2, ((void *)0), ((void *)0));
- }
- div6stat_inc(div6s_opackets);
- return (error);
-fail:
- div6stat_inc(div6s_errors);
- m_freem(m);
- return (error ? error : 22);
-}
-int
-divert6_packet(struct mbuf *m, int dir, u_int16_t divert_port)
-{
- struct inpcb *inp;
- struct socket *sa = ((void *)0);
- struct sockaddr_in6 addr;
- inp = ((void *)0);
- div6stat_inc(div6s_ipackets);
- if (m->m_hdr.mh_len < sizeof(struct ip6_hdr) &&
-     (m = m_pullup(m, sizeof(struct ip6_hdr))) == ((void *)0)) {
-  div6stat_inc(div6s_errors);
-  return (0);
- }
- for((inp) = ((&divb6table.inpt_queue)->tqh_first); (inp) != ((void *)0); (inp) = ((inp)->inp_queue.tqe_next)) {
-  if (inp->inp_lport == divert_port)
-   break;
- }
- __builtin_memset((&addr), (0), (sizeof(addr)));
- addr.sin6_family = 24;
- addr.sin6_len = sizeof(addr);
- if (dir == PF_IN) {
-  struct ifaddr *ifa;
-  struct ifnet *ifp;
-  ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx);
-  if (ifp == ((void *)0)) {
-   m_freem(m);
-   return (0);
-  }
-  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
-   if (ifa->ifa_addr->sa_family != 24)
-    continue;
-   addr.sin6_addr = satosin6(ifa->ifa_addr)->sin6_addr;
-   break;
-  }
-  if_put(ifp);
- }
- if (inp) {
-  sa = inp->inp_socket;
-  if (sbappendaddr(sa, &sa->so_rcv, sin6tosa(&addr), m, ((void *)0)) == 0) {
-   div6stat_inc(div6s_fullsock);
-   m_freem(m);
-   return (0);
-  } else {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_divert.c", 227);
-   sorwakeup(inp->inp_socket);
-   _kernel_unlock();
-  }
- }
- if (sa == ((void *)0)) {
-  div6stat_inc(div6s_noport);
-  m_freem(m);
- }
- return (0);
-}
-int
-divert6_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
-    struct mbuf *control, struct proc *p)
-{
- struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
- int error = 0;
- soassertlocked(so);
- if (req == 11) {
-  return (in6_control(so, (u_long)m, (caddr_t)addr,
-      (struct ifnet *)control));
- }
- if (inp == ((void *)0)) {
-  error = 22;
-  goto release;
- }
- switch (req) {
- case 2:
-  error = in_pcbbind(inp, addr, p);
-  break;
- case 7:
-  socantsendmore(so);
-  break;
- case 9:
-  return (divert6_output(inp, m, addr, control));
- case 10:
-  soisdisconnected(so);
-  in_pcbdetach(inp);
-  break;
- case 15:
-  in6_setsockaddr(inp, addr);
-  break;
- case 16:
-  in6_setpeeraddr(inp, addr);
-  break;
- case 12:
-  return (0);
- case 3:
- case 4:
- case 17:
- case 5:
- case 6:
- case 14:
- case 18:
- case 19:
- case 20:
- case 21:
-  error = 45;
-  break;
- case 8:
- case 13:
-  return (45);
- default:
-  panic("divert6_usrreq");
- }
-release:
- m_freem(control);
- m_freem(m);
- return (error);
-}
-int
-divert6_attach(struct socket *so, int proto)
-{
- int error;
- if (so->so_pcb != ((void *)0))
-  return 22;
- if ((so->so_state & 0x080) == 0)
-  return 13;
- error = in_pcballoc(so, &divb6table);
- if (error)
-  return (error);
- error = soreserve(so, divert6_sendspace, divert6_recvspace);
- if (error)
-  return (error);
- ((struct inpcb *)(so)->so_pcb)->inp_flags |= 0x008;
- return (0);
-}
-int
-divert6_detach(struct socket *so)
-{
- struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
- soassertlocked(so);
- if (inp == ((void *)0))
+ if (mode > 2)
   return (22);
- in_pcbdetach(inp);
+ if (pf_status.syncookies_mode == mode)
+  return (0);
+ pf_status.syncookies_mode = mode;
+ if (pf_status.syncookies_mode == 1) {
+  pf_syncookie_newkey();
+  pf_status.syncookies_active = 1;
+ }
  return (0);
 }
 int
-divert6_sysctl_div6stat(void *oldp, size_t *oldlenp, void *newp)
+pf_syncookies_setwats(u_int32_t hiwat, u_int32_t lowat)
 {
- uint64_t counters[div6s_ncounters];
- struct div6stat div6stat;
- u_long *words = (u_long *)&div6stat;
- int i;
- extern char _ctassert[(sizeof(div6stat) == ((sizeof((counters)) / sizeof((counters)[0])) * sizeof(u_long))) ? 1 : -1 ] __attribute__((__unused__));
- counters_read(div6counters, counters, (sizeof((counters)) / sizeof((counters)[0])));
- for (i = 0; i < (sizeof((counters)) / sizeof((counters)[0])); i++)
-  words[i] = (u_long)counters[i];
- return (sysctl_rdstruct(oldp, oldlenp, newp,
-     &div6stat, sizeof(div6stat)));
+ if (lowat > hiwat)
+  return (22);
+ pf_syncookie_status.hiwat = hiwat;
+ pf_syncookie_status.lowat = lowat;
+ return (0);
 }
 int
-divert6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
-    void *newp, size_t newlen)
+pf_synflood_check(struct pf_pdesc *pd)
 {
- int error;
- if (namelen != 1)
-  return (20);
- switch (name[0]) {
- case 2:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_int(oldp, oldlenp, newp, newlen,
-      &divert6_sendspace);
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
- case 1:
-  do { _rw_enter_write(&netlock ); } while (0);
-  error = sysctl_int(oldp, oldlenp, newp, newlen,
-      &divert6_recvspace);
-  do { _rw_exit_write(&netlock ); } while (0);
-  return (error);
- case 3:
-  return (divert6_sysctl_div6stat(oldp, oldlenp, newp));
- default:
-  if (name[0] < 4) {
-   do { _rw_enter_write(&netlock ); } while (0);
-   error = sysctl_int_arr(divert6ctl_vars, name, namelen,
-       oldp, oldlenp, newp, newlen);
-   do { _rw_exit_write(&netlock ); } while (0);
-   return (error);
-  }
-  return (42);
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 171, "pd->proto == IPPROTO_TCP"));
+ if (pd->m && (pd->m->M_dat.MH.MH_pkthdr.pf.tag & 0x02))
+  return (0);
+ if (pf_status.syncookies_mode != 2)
+  return (pf_status.syncookies_mode);
+ if (!pf_status.syncookies_active &&
+     pf_status.states_halfopen > pf_syncookie_status.hiwat) {
+  pf_syncookie_newkey();
+  pf_status.syncookies_active = 1;
+  do { if (pf_status.debug >= (4)) { log(4, "pf: "); addlog("synflood detected, enabling syncookies"); addlog("\n"); } } while (0);
  }
+ return (pf_status.syncookies_active);
+}
+void
+pf_syncookie_send(struct pf_pdesc *pd)
+{
+ uint16_t mss;
+ uint32_t iss;
+ mss = max(tcp_mssdflt, pf_get_mss(pd));
+ iss = pf_syncookie_generate(pd, mss);
+ pf_send_tcp(((void *)0), pd->af, pd->dst, pd->src, *pd->dport, *pd->sport,
+     iss, ((__uint32_t)(pd->hdr.tcp.th_seq)) + 1, 0x02|0x10, 0, mss,
+     0, 1, 0, pd->rdomain);
+ pf_status.syncookies_inflight[pf_syncookie_status.oddeven]++;
+}
+uint8_t
+pf_syncookie_validate(struct pf_pdesc *pd)
+{
+ uint32_t hash, ack, seq;
+ union pf_syncookie cookie;
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 210, "pd->proto == IPPROTO_TCP"));
+ seq = ((__uint32_t)(pd->hdr.tcp.th_seq)) - 1;
+ ack = ((__uint32_t)(pd->hdr.tcp.th_ack)) - 1;
+ cookie.cookie = (ack & 0xff) ^ (ack >> 24);
+ hash = pf_syncookie_mac(pd, cookie, seq);
+ if ((ack & ~0xff) != (hash & ~0xff))
+  return (0);
+ pf_status.syncookies_inflight[cookie.flags.oddeven]--;
+ return (1);
+}
+void
+pf_syncookie_rotate(void *arg)
+{
+ if (pf_status.syncookies_active &&
+     ((pf_status.syncookies_mode == 2 &&
+     pf_status.states_halfopen + pf_status.syncookies_inflight[0] +
+     pf_status.syncookies_inflight[1] < pf_syncookie_status.lowat) ||
+     pf_status.syncookies_mode == 0)) {
+  pf_status.syncookies_active = 0;
+  do { if (pf_status.debug >= (4)) { log(4, "pf: "); addlog("syncookies disabled"); addlog("\n"); } } while (0);
+ }
+ if (!pf_status.syncookies_active &&
+     pf_status.syncookies_inflight[0] == 0 &&
+     pf_status.syncookies_inflight[1] == 0) {
+  __builtin_memset((pf_syncookie_status.key[0]), (0), (16));
+  __builtin_memset((pf_syncookie_status.key[1]), (0), (16));
+  return;
+ }
+ pf_syncookie_newkey();
+}
+void
+pf_syncookie_newkey(void)
+{
+ pf_syncookie_status.oddeven = (pf_syncookie_status.oddeven + 1) & 0x1;
+ pf_status.syncookies_inflight[pf_syncookie_status.oddeven] = 0;
+ arc4random_buf(pf_syncookie_status.key[pf_syncookie_status.oddeven],
+     16);
+ timeout_add_sec(&pf_syncookie_status.keytimeout,
+     15);
+}
+static int pf_syncookie_msstab[] =
+    { 216, 536, 1200, 1360, 1400, 1440, 1452, 1460 };
+static int pf_syncookie_wstab[] = { 0, 0, 1, 2, 4, 6, 7, 8 };
+uint32_t
+pf_syncookie_mac(struct pf_pdesc *pd, union pf_syncookie cookie, uint32_t seq)
+{
+ SIPHASH_CTX ctx;
+ uint32_t siphash[2];
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 288, "pd->proto == IPPROTO_TCP"));
+ SipHash_Init((&ctx), ((SIPHASH_KEY *)&pf_syncookie_status.key[cookie.flags.oddeven]));
+ switch (pd->af) {
+ case 2:
+  SipHash_Update((&ctx), 2, 4, (pd->src), (sizeof(pd->src->pfa.v4)));
+  SipHash_Update((&ctx), 2, 4, (pd->dst), (sizeof(pd->dst->pfa.v4)));
+  break;
+ case 24:
+  SipHash_Update((&ctx), 2, 4, (pd->src), (sizeof(pd->src->pfa.v6)));
+  SipHash_Update((&ctx), 2, 4, (pd->dst), (sizeof(pd->dst->pfa.v6)));
+  break;
+ default:
+  panic("unknown address family");
+ }
+ SipHash_Update((&ctx), 2, 4, (pd->sport), (sizeof(*pd->sport)));
+ SipHash_Update((&ctx), 2, 4, (pd->dport), (sizeof(*pd->dport)));
+ SipHash_Update((&ctx), 2, 4, (&seq), (sizeof(seq)));
+ SipHash_Update((&ctx), 2, 4, (&cookie), (sizeof(cookie)));
+ SipHash_Final(((uint8_t *)&siphash), (&ctx), 2, 4);
+ return (siphash[0] ^ siphash[1]);
+}
+uint32_t
+pf_syncookie_generate(struct pf_pdesc *pd, uint16_t mss)
+{
+ uint8_t i, wscale;
+ uint32_t iss, hash;
+ union pf_syncookie cookie;
+ cookie.cookie = 0;
+ for (i = (sizeof((pf_syncookie_msstab)) / sizeof((pf_syncookie_msstab)[0])) - 1;
+     pf_syncookie_msstab[i] > mss && i > 0; i--)
+            ;
+ cookie.flags.mss_idx = i;
+ wscale = pf_get_wscale(pd);
+ for (i = (sizeof((pf_syncookie_wstab)) / sizeof((pf_syncookie_wstab)[0])) - 1;
+     pf_syncookie_wstab[i] > wscale && i > 0; i--)
+            ;
+ cookie.flags.wscale_idx = i;
+ cookie.flags.sack_ok = 0;
+ cookie.flags.oddeven = pf_syncookie_status.oddeven;
+ hash = pf_syncookie_mac(pd, cookie, ((__uint32_t)(pd->hdr.tcp.th_seq)));
+ iss = hash & ~0xff;
+ iss |= cookie.cookie ^ (hash >> 24);
+ return (iss);
+}
+struct mbuf *
+pf_syncookie_recreate_syn(struct pf_pdesc *pd)
+{
+ uint8_t wscale;
+ uint16_t mss;
+ uint32_t ack, seq;
+ union pf_syncookie cookie;
+ seq = ((__uint32_t)(pd->hdr.tcp.th_seq)) - 1;
+ ack = ((__uint32_t)(pd->hdr.tcp.th_ack)) - 1;
+ cookie.cookie = (ack & 0xff) ^ (ack >> 24);
+ if (cookie.flags.mss_idx >= (sizeof((pf_syncookie_msstab)) / sizeof((pf_syncookie_msstab)[0])) ||
+     cookie.flags.wscale_idx >= (sizeof((pf_syncookie_wstab)) / sizeof((pf_syncookie_wstab)[0])))
+  return (((void *)0));
+ mss = pf_syncookie_msstab[cookie.flags.mss_idx];
+ wscale = pf_syncookie_wstab[cookie.flags.wscale_idx];
+ return (pf_build_tcp(((void *)0), pd->af, pd->src, pd->dst, *pd->sport,
+     *pd->dport, seq, 0, 0x02, wscale, mss, pd->ttl, 0,
+     0x02, cookie.flags.sack_ok, pd->rdomain));
+}
+int
+pf_check_sack(struct pf_pdesc *pd)
+{
+ struct tcphdr *th = &pd->hdr.tcp;
+ int hlen = (th->th_off << 2) - sizeof(*th);
+ uint8_t opts[40], *opt = opts;
+ int olen;
+ if (hlen < 2 || hlen > 40 ||
+     !pf_pull_hdr(pd->m, pd->off + sizeof(*th), opts, hlen, ((void *)0), ((void *)0),
+     pd->af))
+  return (0);
+ while (hlen >= 2) {
+  olen = opt[1];
+  switch (*opt) {
+  case 0:
+  case 1:
+   opt++;
+   hlen--;
+   break;
+  case 4:
+   return (1);
+  default:
+   if (olen < 2)
+    olen = 2;
+   hlen -= olen;
+   opt += olen;
+  }
+ }
+ return (0);
 }

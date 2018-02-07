@@ -4531,7 +4531,7 @@ tcp_close(struct tcpcb *tp)
  }
  m_free(tp->t_template);
  tp->t_flags |= 0x00200000;
- timeout_add(&(tp)->t_timer[(4)], (0) * (hz / 2));
+ do { (((tp)->t_flags) |= (0x04000000 << (4))); timeout_add(&(tp)->t_timer[(4)], (0) * (hz / 2)); } while (0);
  inp->inp_ppcb = ((void *)0);
  soisdisconnected(so);
  in_pcbdetach(inp);

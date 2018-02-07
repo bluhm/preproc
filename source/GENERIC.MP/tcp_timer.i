@@ -4240,7 +4240,7 @@ tcp_canceltimers(struct tcpcb *tp)
 {
  int i;
  for (i = 0; i < 5; i++)
-  timeout_del(&(tp)->t_timer[(i)]);
+  do { (((tp)->t_flags) &= ~(0x04000000 << (i))); timeout_del(&(tp)->t_timer[(i)]); } while (0);
 }
 int tcp_backoff[12 + 1] =
     { 1, 2, 4, 8, 16, 32, 64, 64, 64, 64, 64, 64, 64 };
@@ -4264,8 +4264,10 @@ tcp_timer_rexmt(void *arg)
  struct tcpcb *tp = arg;
  uint32_t rto;
  do { _rw_enter_write(&netlock ); } while (0);
- if (tp->t_flags & 0x00200000)
+ if (!(((tp)->t_flags) & (0x04000000)) ||
+     ((&tp->t_timer[0])->to_flags & 2))
   goto out;
+ (((tp)->t_flags) &= ~(0x04000000));
  if ((tp->t_flags & 0x00400000) && tp->t_inpcb &&
      ((int)((tp->t_pmtud_th_seq)-(tp->snd_una)) >= 0) &&
      ((int)((tp->t_pmtud_th_seq)-((int)(tp->snd_una + tp->t_maxseg))) < 0)) {
@@ -4298,7 +4300,7 @@ tcp_timer_rexmt(void *arg)
  if (rto < tp->t_rttmin)
   rto = tp->t_rttmin;
  do { (tp->t_rxtcur) = (rto * tcp_backoff[tp->t_rxtshift]); if ((tp->t_rxtcur) < (tp->t_rttmin)) (tp->t_rxtcur) = (tp->t_rttmin); else if ((tp->t_rxtcur) > (( 64*2))) (tp->t_rxtcur) = (( 64*2)); } while ( 0);
- timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
+ do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
  if (ip_mtudisc && tp->t_inpcb &&
      ((tp->t_state) >= 4) &&
      tp->t_rxtshift > 12 / 6) {
@@ -4361,10 +4363,12 @@ tcp_timer_persist(void *arg)
  struct tcpcb *tp = arg;
  uint32_t rto;
  do { _rw_enter_write(&netlock ); } while (0);
- if ((tp->t_flags & 0x00200000) ||
-            ((&(tp)->t_timer[(0)])->to_flags & 2)) {
+ if (!(((tp)->t_flags) & (0x08000000)) ||
+     ((&tp->t_timer[1])->to_flags & 2))
   goto out;
- }
+ (((tp)->t_flags) &= ~(0x08000000));
+ if ((((tp)->t_flags) & (0x04000000 << (0))))
+  goto out;
  tcpstat_inc(tcps_persisttimeo);
  rto = ((((tp)->t_srtt >> 3) + (tp)->t_rttvar) >> 2);
  if (rto < tp->t_rttmin)
@@ -4388,8 +4392,10 @@ tcp_timer_keep(void *arg)
 {
  struct tcpcb *tp = arg;
  do { _rw_enter_write(&netlock ); } while (0);
- if (tp->t_flags & 0x00200000)
+ if (!(((tp)->t_flags) & (0x10000000)) ||
+     ((&tp->t_timer[2])->to_flags & 2))
   goto out;
+ (((tp)->t_flags) &= ~(0x10000000));
  tcpstat_inc(tcps_keeptimeo);
  if (((tp->t_state) >= 4) == 0)
   goto dropit;
@@ -4402,9 +4408,9 @@ tcp_timer_keep(void *arg)
   tcpstat_inc(tcps_keepprobe);
   tcp_respond(tp, ((caddr_t)((tp->t_template)->m_hdr.mh_data)),
       ((void *)0), tp->rcv_nxt, tp->snd_una - 1, 0, 0);
-  timeout_add(&(tp)->t_timer[(2)], (tcp_keepintvl) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepintvl) * (hz / 2)); } while (0);
  } else
-  timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
  return;
@@ -4418,12 +4424,14 @@ tcp_timer_2msl(void *arg)
 {
  struct tcpcb *tp = arg;
  do { _rw_enter_write(&netlock ); } while (0);
- if (tp->t_flags & 0x00200000)
+ if (!(((tp)->t_flags) & (0x20000000)) ||
+     ((&tp->t_timer[3])->to_flags & 2))
   goto out;
+ (((tp)->t_flags) &= ~(0x20000000));
  tcp_timer_freesack(tp);
  if (tp->t_state != 10 &&
      ((tcp_maxidle == 0) || ((tcp_now - tp->t_rcvtime) <= tcp_maxidle)))
-  timeout_add(&(tp)->t_timer[(3)], (tcp_keepintvl) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_keepintvl) * (hz / 2)); } while (0);
  else
   tp = tcp_close(tp);
  out:

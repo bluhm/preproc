@@ -3913,6 +3913,7 @@ struct pf_status {
  u_int64_t pcounters[2][2][3];
  u_int64_t bcounters[2][2];
  u_int64_t stateid;
+ u_int64_t syncookies_inflight[2];
  time_t since;
  u_int32_t running;
  u_int32_t states;
@@ -3921,6 +3922,9 @@ struct pf_status {
  u_int32_t debug;
  u_int32_t hostid;
  u_int32_t reass;
+ u_int8_t syncookies_active;
+ u_int8_t syncookies_mode;
+ u_int8_t pad[2];
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
@@ -4108,6 +4112,10 @@ struct pfioc_iface {
  int pfiio_size;
  int pfiio_nzero;
  int pfiio_flags;
+};
+struct pfioc_synflwats {
+ u_int32_t hiwat;
+ u_int32_t lowat;
 };
 struct pf_pdesc;
 struct pf_src_tree { struct pf_src_node *rbh_root; };
@@ -4359,6 +4367,13 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+void pf_syncookies_init(void);
+int pf_syncookies_setmode(u_int8_t);
+int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_synflood_check(struct pf_pdesc *);
+void pf_syncookie_send(struct pf_pdesc *);
+u_int8_t pf_syncookie_validate(struct pf_pdesc *);
+struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -4471,7 +4486,7 @@ struct pfi_kif *
 pfi_kif_find(const char *kif_name)
 {
  struct pfi_kif_cmp s;
- __builtin_bzero((&s), (sizeof(s)));
+ __builtin_memset((&s), (0), (sizeof(s)));
  strlcpy(s.pfik_name, kif_name, sizeof(s.pfik_name));
  return (pfi_ifhead_RB_FIND(&pfi_ifs, (struct pfi_kif *)&s));
 }
@@ -4834,7 +4849,7 @@ pfi_address_add(struct sockaddr *sa, sa_family_t af, u_int8_t net)
  if (af == 2 && net > 32)
   net = 128;
  p = pfi_buffer + pfi_buffer_cnt++;
- __builtin_bzero((p), (sizeof(*p)));
+ __builtin_memset((p), (0), (sizeof(*p)));
  p->pfra_af = af;
  p->pfra_net = net;
  if (af == 2)
@@ -4894,8 +4909,8 @@ pfi_update_status(const char *name, struct pf_status *pfs)
  int i, j, k;
  if (*name == '\0' && pfs == ((void *)0)) {
   for ((p) = pfi_ifhead_RB_MINMAX(&pfi_ifs, -1); (p) != ((void *)0); (p) = pfi_ifhead_RB_NEXT(p)) {
-   __builtin_bzero((p->pfik_packets), (sizeof(p->pfik_packets)));
-   __builtin_bzero((p->pfik_bytes), (sizeof(p->pfik_bytes)));
+   __builtin_memset((p->pfik_packets), (0), (sizeof(p->pfik_packets)));
+   __builtin_memset((p->pfik_bytes), (0), (sizeof(p->pfik_bytes)));
    p->pfik_tzero = time_second;
   }
   return;
@@ -4908,22 +4923,22 @@ pfi_update_status(const char *name, struct pf_status *pfs)
  if (p->pfik_group != ((void *)0)) {
   __builtin_memcpy((&ifg_members), (&p->pfik_group->ifg_members), (sizeof(ifg_members)));
  } else {
-  __builtin_bzero((&p_member), (sizeof(p_member)));
+  __builtin_memset((&p_member), (0), (sizeof(p_member)));
   p_member.ifgm_ifp = p->pfik_ifp;
   do { (&ifg_members)->tqh_first = ((void *)0); (&ifg_members)->tqh_last = &(&ifg_members)->tqh_first; } while (0);
   do { (&p_member)->ifgm_next.tqe_next = ((void *)0); (&p_member)->ifgm_next.tqe_prev = (&ifg_members)->tqh_last; *(&ifg_members)->tqh_last = (&p_member); (&ifg_members)->tqh_last = &(&p_member)->ifgm_next.tqe_next; } while (0);
  }
  if (pfs) {
-  __builtin_bzero((pfs->pcounters), (sizeof(pfs->pcounters)));
-  __builtin_bzero((pfs->bcounters), (sizeof(pfs->bcounters)));
+  __builtin_memset((pfs->pcounters), (0), (sizeof(pfs->pcounters)));
+  __builtin_memset((pfs->bcounters), (0), (sizeof(pfs->bcounters)));
  }
  for((ifgm) = ((&ifg_members)->tqh_first); (ifgm) != ((void *)0); (ifgm) = ((ifgm)->ifgm_next.tqe_next)) {
   if (ifgm->ifgm_ifp == ((void *)0))
    continue;
   p = (struct pfi_kif *)ifgm->ifgm_ifp->if_pf_kif;
   if (pfs == ((void *)0)) {
-   __builtin_bzero((p->pfik_packets), (sizeof(p->pfik_packets)));
-   __builtin_bzero((p->pfik_bytes), (sizeof(p->pfik_bytes)));
+   __builtin_memset((p->pfik_packets), (0), (sizeof(p->pfik_packets)));
+   __builtin_memset((p->pfik_bytes), (0), (sizeof(p->pfik_bytes)));
    p->pfik_tzero = time_second;
    continue;
   }

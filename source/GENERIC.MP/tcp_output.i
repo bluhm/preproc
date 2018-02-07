@@ -4093,7 +4093,7 @@ again:
     flags &= ~0x01;
    win = 1;
   } else {
-   timeout_del(&(tp)->t_timer[(1)]);
+   do { (((tp)->t_flags) &= ~(0x04000000 << (1))); timeout_del(&(tp)->t_timer[(1)]); } while (0);
    tp->t_rxtshift = 0;
   }
  }
@@ -4103,10 +4103,10 @@ again:
  if (len < 0) {
   len = 0;
   if (win == 0) {
-   timeout_del(&(tp)->t_timer[(0)]);
+   do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
    tp->t_rxtshift = 0;
    tp->snd_nxt = tp->snd_una;
-   if (((&(tp)->t_timer[(1)])->to_flags & 2) == 0)
+   if ((((tp)->t_flags) & (0x04000000 << (1))) == 0)
     tcp_setpersist(tp);
   }
  }
@@ -4152,13 +4152,13 @@ again:
      ((tp->t_flags & 0x0010) == 0 || tp->snd_nxt == tp->snd_una))
   goto send;
  if (((int)((tp->snd_max)-(tp->snd_una)) > 0) &&
-     ((&(tp)->t_timer[(0)])->to_flags & 2) == 0 &&
-     ((&(tp)->t_timer[(1)])->to_flags & 2) == 0) {
-  timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
+     (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
+     (((tp)->t_flags) & (0x04000000 << (1))) == 0) {
+  do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
   return (0);
  }
- if (so->so_snd.sb_cc && ((&(tp)->t_timer[(0)])->to_flags & 2) == 0 &&
-     ((&(tp)->t_timer[(1)])->to_flags & 2) == 0) {
+ if (so->so_snd.sb_cc && (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
+     (((tp)->t_flags) & (0x04000000 << (1))) == 0) {
   tp->t_rxtshift = 0;
   tcp_setpersist(tp);
  }
@@ -4334,7 +4334,7 @@ send:
  if ((flags & 0x01) && (tp->t_flags & 0x0010) &&
      (tp->snd_nxt == tp->snd_max))
   tp->snd_nxt--;
- if (len || (flags & (0x02|0x01)) || ((&(tp)->t_timer[(1)])->to_flags & 2))
+ if (len || (flags & (0x02|0x01)) || (((tp)->t_flags) & (0x04000000 << (1))))
   th->th_seq = ((__uint32_t)(tp->snd_nxt));
  else
   th->th_seq = ((__uint32_t)(tp->snd_max));
@@ -4427,7 +4427,7 @@ send:
   }
  }
  m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0002;
- if (tp->t_force == 0 || ((&(tp)->t_timer[(1)])->to_flags & 2) == 0) {
+ if (tp->t_force == 0 || (((tp)->t_flags) & (0x04000000 << (1))) == 0) {
   tcp_seq startseq = tp->snd_nxt;
   if (flags & (0x02|0x01)) {
    if (flags & 0x02)
@@ -4453,25 +4453,25 @@ send:
   }
  timer:
   if (tp->sack_enable && sack_rxmit &&
-      ((&(tp)->t_timer[(0)])->to_flags & 2) == 0 &&
+      (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
       tp->snd_nxt != tp->snd_max) {
-   timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
-   if (((&(tp)->t_timer[(1)])->to_flags & 2)) {
-    timeout_del(&(tp)->t_timer[(1)]);
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+   if ((((tp)->t_flags) & (0x04000000 << (1)))) {
+    do { (((tp)->t_flags) &= ~(0x04000000 << (1))); timeout_del(&(tp)->t_timer[(1)]); } while (0);
     tp->t_rxtshift = 0;
    }
   }
-  if (((&(tp)->t_timer[(0)])->to_flags & 2) == 0 &&
+  if ((((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
       tp->snd_nxt != tp->snd_una) {
-   timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
-   if (((&(tp)->t_timer[(1)])->to_flags & 2)) {
-    timeout_del(&(tp)->t_timer[(1)]);
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+   if ((((tp)->t_flags) & (0x04000000 << (1)))) {
+    do { (((tp)->t_flags) &= ~(0x04000000 << (1))); timeout_del(&(tp)->t_timer[(1)]); } while (0);
     tp->t_rxtshift = 0;
    }
   }
   if (len == 0 && so->so_snd.sb_cc &&
-      ((&(tp)->t_timer[(0)])->to_flags & 2) == 0 &&
-      ((&(tp)->t_timer[(1)])->to_flags & 2) == 0) {
+      (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
+      (((tp)->t_flags) & (0x04000000 << (1))) == 0) {
    tp->t_rxtshift = 0;
    tcp_setpersist(tp);
   }
@@ -4567,12 +4567,12 @@ tcp_setpersist(struct tcpcb *tp)
 {
  int t = ((tp->t_srtt >> 2) + tp->t_rttvar) >> (1 + 2);
  int nticks;
- if (((&(tp)->t_timer[(0)])->to_flags & 2))
+ if ((((tp)->t_flags) & (0x04000000 << (0))))
   panic("tcp_output REXMT");
  if (t < tp->t_rttmin)
   t = tp->t_rttmin;
  do { (nticks) = (t * tcp_backoff[tp->t_rxtshift]); if ((nticks) < (( 5*2))) (nticks) = (( 5*2)); else if ((nticks) > (( 60*2))) (nticks) = (( 60*2)); } while ( 0);
- timeout_add(&(tp)->t_timer[(1)], (nticks) * (hz / 2));
+ do { (((tp)->t_flags) |= (0x04000000 << (1))); timeout_add(&(tp)->t_timer[(1)], (nticks) * (hz / 2)); } while (0);
  if (tp->t_rxtshift < 12)
   tp->t_rxtshift++;
 }

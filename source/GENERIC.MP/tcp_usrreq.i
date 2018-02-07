@@ -5246,7 +5246,7 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   soisconnecting(so);
   tcpstat_inc(tcps_connattempt);
   tp->t_state = 2;
-  timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2)); } while (0);
   tcp_set_iss_tsm(tp);
   (tp)->snd_una = (tp)->snd_nxt = (tp)->snd_max = (tp)->snd_up = (tp)->iss;
   tp->snd_last = tp->snd_una;
@@ -5558,7 +5558,7 @@ tcp_usrclosed(struct tcpcb *tp)
  if (tp && tp->t_state >= 9) {
   soisdisconnected(tp->t_inpcb->inp_socket);
   if (tp->t_state == 9)
-   timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2));
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2)); } while (0);
  }
  return (tp);
 }

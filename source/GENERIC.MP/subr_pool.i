@@ -3395,9 +3395,11 @@ pool_p_alloc(struct pool *pp, int flags, int *slowdown)
  struct pool_page_header *ph;
  struct pool_item *pi;
  caddr_t addr;
+ unsigned int order;
+ int o;
  int n;
  pl_assert_unlocked(pp, &pp->pr_lock);
- ((pp->pr_size >= sizeof(*pi)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 923, "pp->pr_size >= sizeof(*pi)"));
+ ((pp->pr_size >= sizeof(*pi)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 925, "pp->pr_size >= sizeof(*pi)"));
  addr = pool_allocator_alloc(pp, flags, slowdown);
  if (addr == ((void *)0))
   return (((void *)0));
@@ -3421,10 +3423,18 @@ pool_p_alloc(struct pool *pp, int flags, int *slowdown)
  else
   ((ph->ph_magic) &= ~((1 << 3)));
  n = pp->pr_itemsperpage;
+ o = 32;
  while (n--) {
   pi = (struct pool_item *)addr;
   pi->pi_magic = ((u_long)(pi) ^ (ph)->ph_magic);
-  do { (pi)->pi_list.sqx_next = ((__typeof(((void *)0)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((void *)0)))); *(((__typeof((&ph->ph_items)->sqx_last))((&ph->ph_items)->sqx_cookie ^ (unsigned long)((&ph->ph_items)->sqx_last)))) = ((__typeof((pi)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)((pi)))); (&ph->ph_items)->sqx_last = ((__typeof(&(pi)->pi_list.sqx_next))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(&(pi)->pi_list.sqx_next))); } while (0);
+  if (o == 32) {
+   order = arc4random();
+   o = 0;
+  }
+  if (((order) & (1 << o++)))
+   do { (pi)->pi_list.sqx_next = ((__typeof(((void *)0)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((void *)0)))); *(((__typeof((&ph->ph_items)->sqx_last))((&ph->ph_items)->sqx_cookie ^ (unsigned long)((&ph->ph_items)->sqx_last)))) = ((__typeof((pi)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)((pi)))); (&ph->ph_items)->sqx_last = ((__typeof(&(pi)->pi_list.sqx_next))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(&(pi)->pi_list.sqx_next))); } while (0);
+  else
+   do { if (((pi)->pi_list.sqx_next = (&ph->ph_items)->sqx_first) == ((__typeof(((void *)0)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((void *)0))))) (&ph->ph_items)->sqx_last = ((__typeof(&(pi)->pi_list.sqx_next))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(&(pi)->pi_list.sqx_next))); (&ph->ph_items)->sqx_first = ((__typeof((pi)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)((pi)))); } while (0);
   if ((((ph)->ph_magic) & ((1 << 3))))
    poison_mem(pi + 1, pp->pr_size - sizeof(*pi));
   addr += pp->pr_size;
@@ -3436,7 +3446,7 @@ pool_p_free(struct pool *pp, struct pool_page_header *ph)
 {
  struct pool_item *pi;
  pl_assert_unlocked(pp, &pp->pr_lock);
- ((ph->ph_nmissing == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 976, "ph->ph_nmissing == 0"));
+ ((ph->ph_nmissing == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 987, "ph->ph_nmissing == 0"));
  for ((pi) = ((__typeof(((&ph->ph_items)->sqx_first)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((&ph->ph_items)->sqx_first)))); (pi) != ((void *)0); (pi) = ((__typeof(((pi)->pi_list.sqx_next)))((&ph->ph_items)->sqx_cookie ^ (unsigned long)(((pi)->pi_list.sqx_next))))) {
   if (__builtin_expect(((pi->pi_magic != ((u_long)(pi) ^ (ph)->ph_magic)) != 0), 0)) {
    panic("%s: %s free list modified: "
@@ -4030,7 +4040,7 @@ pool_multi_alloc_ni(struct pool *pp, int flags, int *slowdown)
   kv.kv_align = pp->pr_pgsize;
  kd.kd_waitok = ((flags) & (0x0001));
  kd.kd_slowdown = slowdown;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1680);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1691);
  v = km_alloc(pp->pr_pgsize, &kv, pp->pr_crange, &kd);
  _kernel_unlock();
  return (v);
@@ -4041,7 +4051,7 @@ pool_multi_free_ni(struct pool *pp, void *v)
  struct kmem_va_mode kv = kv_any;
  if (((pp)->pr_phoffset != 0))
   kv.kv_align = pp->pr_pgsize;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1695);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1706);
  km_free(v, pp->pr_pgsize, &kv, pp->pr_crange);
  _kernel_unlock();
 }
@@ -4057,7 +4067,7 @@ pool_cache_init(struct pool *pp)
       64, 0, 0x0001 | 0x0010,
       "plcache", ((void *)0));
  }
- ((pp->pr_size >= sizeof(struct pool_cache_item)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1718, "pp->pr_size >= sizeof(struct pool_cache_item)"));
+ ((pp->pr_size >= sizeof(struct pool_cache_item)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 1729, "pp->pr_size >= sizeof(struct pool_cache_item)"));
  cm = cpumem_get(&pool_caches);
  (pp)->pr_lock_ops->pl_init(pp, &pp->pr_cache_lock, ((void *)0));
  arc4random_buf(pp->pr_cache_magic, sizeof(pp->pr_cache_magic));
@@ -4460,7 +4470,7 @@ pool_lock_rw_assert_locked(union pool_lock *lock)
 void
 pool_lock_rw_assert_unlocked(union pool_lock *lock)
 {
- ((rw_status(&lock->prl_rwlock) != 0x0001UL) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 2269, "rw_status(&lock->prl_rwlock) != RW_WRITE"));
+ ((rw_status(&lock->prl_rwlock) != 0x0001UL) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_pool.c", 2280, "rw_status(&lock->prl_rwlock) != RW_WRITE"));
 }
 int
 pool_lock_rw_sleep(void *ident, union pool_lock *lock, int priority,

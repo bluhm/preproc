@@ -3421,6 +3421,7 @@ struct pf_status {
  u_int64_t pcounters[2][2][3];
  u_int64_t bcounters[2][2];
  u_int64_t stateid;
+ u_int64_t syncookies_inflight[2];
  time_t since;
  u_int32_t running;
  u_int32_t states;
@@ -3429,6 +3430,9 @@ struct pf_status {
  u_int32_t debug;
  u_int32_t hostid;
  u_int32_t reass;
+ u_int8_t syncookies_active;
+ u_int8_t syncookies_mode;
+ u_int8_t pad[2];
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
@@ -3616,6 +3620,10 @@ struct pfioc_iface {
  int pfiio_size;
  int pfiio_nzero;
  int pfiio_flags;
+};
+struct pfioc_synflwats {
+ u_int32_t hiwat;
+ u_int32_t lowat;
 };
 struct pf_pdesc;
 struct pf_src_tree { struct pf_src_node *rbh_root; };
@@ -3867,6 +3875,13 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+void pf_syncookies_init(void);
+int pf_syncookies_setmode(u_int8_t);
+int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_synflood_check(struct pf_pdesc *);
+void pf_syncookie_send(struct pf_pdesc *);
+u_int8_t pf_syncookie_validate(struct pf_pdesc *);
+struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
 struct pfloghdr {
  u_int8_t length;
  sa_family_t af;
@@ -5664,7 +5679,7 @@ pf_normalize_tcp_init(struct pf_pdesc *pd, struct pf_state_peer *src)
  src->scrub = pool_get(&pf_state_scrub_pl, 0x0002);
  if (src->scrub == ((void *)0))
   return (1);
- __builtin_bzero((src->scrub), (sizeof(*src->scrub)));
+ __builtin_memset((src->scrub), (0), (sizeof(*src->scrub)));
  switch (pd->af) {
  case 2: {
   struct ip *h = ((struct ip *)((pd->m)->m_hdr.mh_data));

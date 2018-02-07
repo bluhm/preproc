@@ -5234,6 +5234,7 @@ struct pf_status {
  u_int64_t pcounters[2][2][3];
  u_int64_t bcounters[2][2];
  u_int64_t stateid;
+ u_int64_t syncookies_inflight[2];
  time_t since;
  u_int32_t running;
  u_int32_t states;
@@ -5242,6 +5243,9 @@ struct pf_status {
  u_int32_t debug;
  u_int32_t hostid;
  u_int32_t reass;
+ u_int8_t syncookies_active;
+ u_int8_t syncookies_mode;
+ u_int8_t pad[2];
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
@@ -5429,6 +5433,10 @@ struct pfioc_iface {
  int pfiio_size;
  int pfiio_nzero;
  int pfiio_flags;
+};
+struct pfioc_synflwats {
+ u_int32_t hiwat;
+ u_int32_t lowat;
 };
 struct pf_pdesc;
 struct pf_src_tree { struct pf_src_node *rbh_root; };
@@ -5680,6 +5688,13 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+void pf_syncookies_init(void);
+int pf_syncookies_setmode(u_int8_t);
+int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_synflood_check(struct pf_pdesc *);
+void pf_syncookie_send(struct pf_pdesc *);
+u_int8_t pf_syncookie_validate(struct pf_pdesc *);
+struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
 struct tcpiphdr tcp_saveti;
 int tcp_mss_adv(struct mbuf *, int);
 int tcp_flush_queue(struct tcpcb *);
@@ -6335,7 +6350,7 @@ findpcb:
  }
  tp->t_rcvtime = tcp_now;
  if (((tp->t_state) >= 4))
-  timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
  if (tp->sack_enable)
   tcp_del_sackholes(tp, th);
  if (optp || (tp->t_flags & 0x0400))
@@ -6390,9 +6405,9 @@ findpcb:
     tp->snd_last = tp->snd_una;
     m_freem(m);
     if (tp->snd_una == tp->snd_max)
-     timeout_del(&(tp)->t_timer[(0)]);
-    else if (((&(tp)->t_timer[(1)])->to_flags & 2) == 0)
-     timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
+     do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
+    else if ((((tp)->t_flags) & (0x04000000 << (1))) == 0)
+     do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
     tcp_update_sndspace(tp);
     if (sb_notify(so, &so->so_snd)) {
      tp->t_flags |= 0x01000000;
@@ -6477,7 +6492,7 @@ findpcb:
    if (((int)((tp->snd_nxt)-(tp->snd_una)) < 0))
     tp->snd_nxt = tp->snd_una;
   }
-  timeout_del(&(tp)->t_timer[(0)]);
+  do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
   tp->irs = th->th_seq;
   tcp_mss(tp, opti.maxseg);
   if (tp->t_rxtshift > 0)
@@ -6501,7 +6516,7 @@ findpcb:
    soisconnected(so);
    tp->t_flags &= ~0x01000000;
    tp->t_state = 4;
-   timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
+   do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
    if ((tp->t_flags & (0x0040|0x0020)) ==
     (0x0040|0x0020)) {
     tp->snd_scale = tp->requested_s_scale;
@@ -6650,7 +6665,7 @@ findpcb:
   soisconnected(so);
   tp->t_flags &= ~0x01000000;
   tp->t_state = 4;
-  timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2));
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
   if ((tp->t_flags & (0x0040|0x0020)) ==
    (0x0040|0x0020)) {
    tp->snd_scale = tp->requested_s_scale;
@@ -6700,7 +6715,7 @@ findpcb:
    }
    if (tiwin == tp->snd_wnd) {
     tcpstat_inc(tcps_rcvdupack);
-    if (((&(tp)->t_timer[(0)])->to_flags & 2) == 0)
+    if ((((tp)->t_flags) & (0x04000000 << (0))) == 0)
      tp->t_dupacks = 0;
     else if (++tp->t_dupacks == tcprexmtthresh) {
      tcp_seq onxt = tp->snd_nxt;
@@ -6716,7 +6731,7 @@ findpcb:
      tp->snd_ssthresh = win * tp->t_maxseg;
      tp->snd_last = tp->snd_max;
      if (tp->sack_enable) {
-      timeout_del(&(tp)->t_timer[(0)]);
+      do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
       tp->t_rtttime = 0;
       tp->t_flags |= 0x00020000;
       tcpstat_inc(tcps_cwr_frecovery);
@@ -6726,7 +6741,7 @@ findpcb:
                 tp->t_maxseg * tp->t_dupacks;
       goto drop;
      }
-     timeout_del(&(tp)->t_timer[(0)]);
+     do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
      tp->t_rtttime = 0;
      tp->snd_nxt = th->th_ack;
      tp->snd_cwnd = tp->t_maxseg;
@@ -6778,10 +6793,10 @@ findpcb:
   else if (tp->t_rtttime && ((int)((th->th_ack)-(tp->t_rtseq)) > 0))
    tcp_xmit_timer(tp, tcp_now - tp->t_rtttime);
   if (th->th_ack == tp->snd_max) {
-   timeout_del(&(tp)->t_timer[(0)]);
+   do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
    tp->t_flags |= 0x00800000;
-  } else if (((&(tp)->t_timer[(1)])->to_flags & 2) == 0)
-   timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
+  } else if ((((tp)->t_flags) & (0x04000000 << (1))) == 0)
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
   {
   u_int cw = tp->snd_cwnd;
   u_int incr = tp->t_maxseg;
@@ -6824,7 +6839,7 @@ findpcb:
      tp->t_flags |= 0x01000000;
      soisdisconnected(so);
      tp->t_flags &= ~0x01000000;
-     timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2));
+     do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2)); } while (0);
     }
     tp->t_state = 9;
    }
@@ -6833,7 +6848,7 @@ findpcb:
    if (ourfinisacked) {
     tp->t_state = 10;
     tcp_canceltimers(tp);
-    timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+    do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
     tp->t_flags |= 0x01000000;
     soisdisconnected(so);
     tp->t_flags &= ~0x01000000;
@@ -6846,7 +6861,7 @@ findpcb:
    }
    break;
   case 10:
-   timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
    goto dropafterack;
   }
  }
@@ -6937,13 +6952,13 @@ dodata:
   case 9:
    tp->t_state = 10;
    tcp_canceltimers(tp);
-   timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
    tp->t_flags |= 0x01000000;
    soisdisconnected(so);
    tp->t_flags &= ~0x01000000;
    break;
   case 10:
-   timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2));
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
    break;
   }
  }
@@ -7404,7 +7419,7 @@ tcp_clean_sackreport(struct tcpcb *tp)
 void
 tcp_sack_partialack(struct tcpcb *tp, struct tcphdr *th)
 {
- timeout_del(&(tp)->t_timer[(0)]);
+ do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
  tp->t_rtttime = 0;
  if (tp->snd_cwnd > (th->th_ack - tp->snd_una)) {
   tp->snd_cwnd -= th->th_ack - tp->snd_una;
@@ -7601,7 +7616,7 @@ tcp_newreno_partialack(struct tcpcb *tp, struct tcphdr *th)
 {
  tcp_seq onxt = tp->snd_nxt;
  u_long ocwnd = tp->snd_cwnd;
- timeout_del(&(tp)->t_timer[(0)]);
+ do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
  tp->t_rtttime = 0;
  tp->snd_nxt = th->th_ack;
  tp->snd_cwnd = tp->t_maxseg + (th->th_ack - tp->snd_una);
@@ -7956,7 +7971,7 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  (tp)->rcv_adv = (tp)->rcv_nxt = (tp)->irs + 1;
  tp->t_state = 3;
  tp->t_rcvtime = tcp_now;
- timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2));
+ do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2)); } while (0);
  tcpstat_inc(tcps_accepts);
  tcp_mss(tp, sc->sc_peermaxseg);
  if (sc->sc_peermaxseg)
@@ -7967,7 +7982,7 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  tp->rcv_up = sc->sc_irs + 1;
  tp->snd_up = tp->snd_una;
  tp->snd_max = tp->snd_nxt = tp->iss+1;
- timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2));
+ do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
  if (sc->sc_win > 0 && ((int)((tp->rcv_nxt + sc->sc_win)-(tp->rcv_adv)) > 0))
   tp->rcv_adv = tp->rcv_nxt + sc->sc_win;
  tp->last_ack_sent = tp->rcv_nxt;

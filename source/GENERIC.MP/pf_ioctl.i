@@ -5764,6 +5764,7 @@ struct pf_status {
  u_int64_t pcounters[2][2][3];
  u_int64_t bcounters[2][2];
  u_int64_t stateid;
+ u_int64_t syncookies_inflight[2];
  time_t since;
  u_int32_t running;
  u_int32_t states;
@@ -5772,6 +5773,9 @@ struct pf_status {
  u_int32_t debug;
  u_int32_t hostid;
  u_int32_t reass;
+ u_int8_t syncookies_active;
+ u_int8_t syncookies_mode;
+ u_int8_t pad[2];
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
@@ -5959,6 +5963,10 @@ struct pfioc_iface {
  int pfiio_size;
  int pfiio_nzero;
  int pfiio_flags;
+};
+struct pfioc_synflwats {
+ u_int32_t hiwat;
+ u_int32_t lowat;
 };
 struct pf_pdesc;
 struct pf_src_tree { struct pf_src_node *rbh_root; };
@@ -6210,6 +6218,13 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+void pf_syncookies_init(void);
+int pf_syncookies_setmode(u_int8_t);
+int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_synflood_check(struct pf_pdesc *);
+void pf_syncookie_send(struct pf_pdesc *);
+u_int8_t pf_syncookie_validate(struct pf_pdesc *);
+struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
 extern struct rwlock pf_lock;
 struct pf_pdesc {
  struct {
@@ -6448,6 +6463,7 @@ pfattach(int num)
  pfr_initialize();
  pfi_initialize();
  pf_osfp_initialize();
+ pf_syncookies_init();
  pool_sethardlimit(pf_pool_limits[PF_LIMIT_STATES].pp,
      pf_pool_limits[PF_LIMIT_STATES].limit, ((void *)0), 0);
  if (physmem <= ((100*1024*1024) >> 13))
@@ -6491,7 +6507,7 @@ pfattach(int num)
  pf_default_rule.nat.addr.type = PF_ADDR_NONE;
  pf_default_rule.route.addr.type = PF_ADDR_NONE;
  pf_normalize_init();
- __builtin_bzero((&pf_status), (sizeof(pf_status)));
+ __builtin_memset((&pf_status), (0), (sizeof(pf_status)));
  pf_status.debug = 3;
  pf_status.reass = 0x01;
  pf_status.hostid = arc4random();
@@ -6561,7 +6577,7 @@ pf_purge_rule(struct pf_rule *rule)
 {
  u_int32_t nr = 0;
  struct pf_ruleset *ruleset;
- (((rule != ((void *)0)) && (rule->ruleset != ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 311, "(rule != NULL) && (rule->ruleset != NULL)"));
+ (((rule != ((void *)0)) && (rule->ruleset != ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 312, "(rule != NULL) && (rule->ruleset != NULL)"));
  ruleset = rule->ruleset;
  pf_rm_rule(ruleset->rules.active.ptr, rule);
  ruleset->rules.active.rcount--;
@@ -6802,7 +6818,7 @@ pf_create_queues(void)
   if (ifp == ((void *)0))
    continue;
   qif = pf_ifp2q(list, ifp);
-  ((qif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 620, "qif != NULL"));
+  ((qif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_ioctl.c", 621, "qif != NULL"));
   error = qif->pfqops->pfq_addqueue(qif->disc, q);
   if (error != 0)
    goto error;
@@ -7177,7 +7193,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    (void)(0);
    break;
   }
-  __builtin_bcopy((qs), (&pq->queue), (sizeof(pq->queue)));
+  __builtin_memcpy((&pq->queue), (qs), (sizeof(pq->queue)));
   (void)(0);
   break;
  }
@@ -7202,7 +7218,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    (void)(0);
    break;
   }
-  __builtin_bcopy((qs), (&pq->queue), (sizeof(pq->queue)));
+  __builtin_memcpy((&pq->queue), (qs), (sizeof(pq->queue)));
   if ((qs->flags & 0x0001) && qs->parent_qid == 0 &&
       !(qs->flags & 0x0002))
    error = pfq_fqcodel_ops->pfq_qstats(qs, pq->buf,
@@ -7230,7 +7246,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    (void)(0);
    break;
   }
-  __builtin_bcopy((&q->queue), (qs), (sizeof(*qs)));
+  __builtin_memcpy((qs), (&q->queue), (sizeof(*qs)));
   qs->qid = pf_qname2qid(qs->qname, 1);
   if (qs->parent[0] && (qs->parent_qid =
       pf_qname2qid(qs->parent, 0)) == 0) {
@@ -7385,8 +7401,8 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    (void)(0);
    break;
   }
-  __builtin_bcopy((rule), (&pr->rule), (sizeof(struct pf_rule)));
-  __builtin_bzero((&pr->rule.entries), (sizeof(pr->rule.entries)));
+  __builtin_memcpy((&pr->rule), (rule), (sizeof(struct pf_rule)));
+  __builtin_memset((&pr->rule.entries), (0), (sizeof(pr->rule.entries)));
   pr->rule.kif = ((void *)0);
   pr->rule.nat.kif = ((void *)0);
   pr->rule.rdr.kif = ((void *)0);
@@ -7395,7 +7411,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   pr->rule.anchor = ((void *)0);
   pr->rule.overload_tbl = ((void *)0);
   pr->rule.pktrate.limit /= 1000;
-  __builtin_bzero((&pr->rule.gcle), (sizeof(pr->rule.gcle)));
+  __builtin_memset((&pr->rule.gcle), (0), (sizeof(pr->rule.gcle)));
   pr->rule.ruleset = ((void *)0);
   if (pf_anchor_copyout(ruleset, rule, pr)) {
    error = 16;
@@ -7682,7 +7698,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pfioc_state *ps = (struct pfioc_state *)addr;
   struct pf_state *s;
   struct pf_state_cmp id_key;
-  __builtin_bzero((&id_key), (sizeof(id_key)));
+  __builtin_memset((&id_key), (0), (sizeof(id_key)));
   id_key.id = ps->state.id;
   id_key.creatorid = ps->state.creatorid;
   (void)(0);
@@ -7734,7 +7750,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pf_status) & 0x1fff) << 16) | ((('D')) << 8) | ((21))): {
   struct pf_status *s = (struct pf_status *)addr;
   (void)(0);
-  __builtin_bcopy((&pf_status), (s), (sizeof(struct pf_status)));
+  __builtin_memcpy((s), (&pf_status), (sizeof(struct pf_status)));
   pfi_update_status(s->ifname, s);
   (void)(0);
   break;
@@ -7743,7 +7759,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pfioc_iface *pi = (struct pfioc_iface *)addr;
   (void)(0);
   if (pi->pfiio_name[0] == 0) {
-   __builtin_bzero((pf_status.ifname), (16));
+   __builtin_memset((pf_status.ifname), (0), (16));
    (void)(0);
    break;
   }
@@ -7760,9 +7776,9 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    (void)(0);
    break;
   }
-  __builtin_bzero((pf_status.counters), (sizeof(pf_status.counters)));
-  __builtin_bzero((pf_status.fcounters), (sizeof(pf_status.fcounters)));
-  __builtin_bzero((pf_status.scounters), (sizeof(pf_status.scounters)));
+  __builtin_memset((pf_status.counters), (0), (sizeof(pf_status.counters)));
+  __builtin_memset((pf_status.fcounters), (0), (sizeof(pf_status.fcounters)));
+  __builtin_memset((pf_status.scounters), (0), (sizeof(pf_status.scounters)));
   pf_status.since = time_uptime;
   (void)(0);
   break;
@@ -8164,7 +8180,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   ioe = malloc(sizeof(*ioe), 127, 0x0001);
   table = malloc(sizeof(*table), 127, 0x0001);
   pf_default_rule_new = pf_default_rule;
-  __builtin_bzero((&pf_trans_set), (sizeof(pf_trans_set)));
+  __builtin_memset((&pf_trans_set), (0), (sizeof(pf_trans_set)));
   for (i = 0; i < io->size; i++) {
    if (copyin(io->array+i, ioe, sizeof(*ioe))) {
     free(table, 127, sizeof(*table));
@@ -8183,7 +8199,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
-    __builtin_bzero((table), (sizeof(*table)));
+    __builtin_memset((table), (0), (sizeof(*table)));
     strlcpy(table->pfrt_anchor, ioe->anchor,
         sizeof(table->pfrt_anchor));
     if ((error = pfr_ina_begin(table,
@@ -8247,7 +8263,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
-    __builtin_bzero((table), (sizeof(*table)));
+    __builtin_memset((table), (0), (sizeof(*table)));
     strlcpy(table->pfrt_anchor, ioe->anchor,
         sizeof(table->pfrt_anchor));
     if ((error = pfr_ina_rollback(table,
@@ -8358,7 +8374,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    }
    switch (ioe->type) {
    case PF_TRANS_TABLE:
-    __builtin_bzero((table), (sizeof(*table)));
+    __builtin_memset((table), (0), (sizeof(*table)));
     strlcpy(table->pfrt_anchor, ioe->anchor,
         sizeof(table->pfrt_anchor));
     if ((error = pfr_ina_commit(table, ioe->ticket,
@@ -8427,8 +8443,8 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    int secs = time_uptime, diff;
    if ((nr + 1) * sizeof(*p) > (unsigned)psn->psn_len)
     break;
-   __builtin_bcopy((n), (pstore), (sizeof(*pstore)));
-   __builtin_bzero((&pstore->entry), (sizeof(pstore->entry)));
+   __builtin_memcpy((pstore), (n), (sizeof(*pstore)));
+   __builtin_memset((&pstore->entry), (0), (sizeof(pstore->entry)));
    pstore->rule.ptr = ((void *)0);
    pstore->kif = ((void *)0);
    pstore->rule.nr = n->rule.ptr->nr;
@@ -8543,6 +8559,16 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   (void)(0);
   break;
  }
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_synflwats) & 0x1fff) << 16) | ((('D')) << 8) | ((97))): {
+  struct pfioc_synflwats *io = (struct pfioc_synflwats *)addr;
+  error = pf_syncookies_setwats(io->hiwat, io->lowat);
+  break;
+ }
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(u_int8_t) & 0x1fff) << 16) | ((('D')) << 8) | ((98))): {
+  u_int8_t *mode = (u_int8_t *)addr;
+  error = pf_syncookies_setmode(*mode);
+  break;
+ }
  default:
   error = 19;
   break;
@@ -8566,7 +8592,7 @@ pf_trans_set_commit(void)
 void
 pf_pool_copyin(struct pf_pool *from, struct pf_pool *to)
 {
- __builtin_bcopy((from), (to), (sizeof(*to)));
+ __builtin_memmove((to), (from), (sizeof(*to)));
  to->kif = ((void *)0);
 }
 int

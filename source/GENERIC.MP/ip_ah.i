@@ -4092,6 +4092,7 @@ struct pf_status {
  u_int64_t pcounters[2][2][3];
  u_int64_t bcounters[2][2];
  u_int64_t stateid;
+ u_int64_t syncookies_inflight[2];
  time_t since;
  u_int32_t running;
  u_int32_t states;
@@ -4100,6 +4101,9 @@ struct pf_status {
  u_int32_t debug;
  u_int32_t hostid;
  u_int32_t reass;
+ u_int8_t syncookies_active;
+ u_int8_t syncookies_mode;
+ u_int8_t pad[2];
  char ifname[16];
  u_int8_t pf_chksum[16];
 };
@@ -4287,6 +4291,10 @@ struct pfioc_iface {
  int pfiio_size;
  int pfiio_nzero;
  int pfiio_flags;
+};
+struct pfioc_synflwats {
+ u_int32_t hiwat;
+ u_int32_t lowat;
 };
 struct pf_pdesc;
 struct pf_src_tree { struct pf_src_node *rbh_root; };
@@ -4538,6 +4546,13 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
        u_int16_t, u_int16_t, u_int32_t, u_int32_t,
        u_int8_t, u_int16_t, u_int16_t, u_int8_t, int,
        u_int16_t, u_int);
+void pf_syncookies_init(void);
+int pf_syncookies_setmode(u_int8_t);
+int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_synflood_check(struct pf_pdesc *);
+void pf_syncookie_send(struct pf_pdesc *);
+u_int8_t pf_syncookie_validate(struct pf_pdesc *);
+struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
 struct pfsync_header {
  u_int8_t version;
  u_int8_t _pad;
@@ -4878,7 +4893,7 @@ extern struct comp_algo comp_algo_lzs;
 void ah_output_cb(struct cryptop *);
 void ah_input_cb(struct cryptop *);
 int ah_massage_headers(struct mbuf **, int, int, int, int);
-unsigned char ipseczeroes[256];
+const unsigned char ipseczeroes[256];
 int
 ah_attach(void)
 {
@@ -4948,16 +4963,16 @@ ah_zeroize(struct tdb *tdbp)
  return err;
 }
 int
-ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
+ah_massage_headers(struct mbuf **m0, int af, int skip, int alg, int out)
 {
  struct mbuf *m = *m0;
  unsigned char *ptr;
- int off, count;
+ int error, off, count;
  struct ip *ip;
  struct ip6_ext *ip6e;
  struct ip6_hdr ip6;
  int ad, alloc, nxt, noff;
- switch (proto) {
+ switch (af) {
  case 2:
   *m0 = m = m_pullup(m, skip);
   if (m == ((void *)0)) {
@@ -4972,10 +4987,8 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
   ip->ip_off = 0;
   ptr = ((unsigned char *)((m)->m_hdr.mh_data));
   for (off = sizeof(struct ip); off < skip;) {
-   if (ptr[off] == 0 || ptr[off] == 1 ||
-       off + 1 < skip)
-    ;
-   else {
+   if (ptr[off] != 0 && ptr[off] != 1 &&
+       off + 1 >= skip) {
     ;
     ahstat_inc(ahs_hdrops);
     m_freem(m);
@@ -5048,7 +5061,14 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    ip6.ip6_src.__u6_addr.__u6_addr16[1] = 0;
   if ((((((&ip6.ip6_dst)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&ip6.ip6_dst)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) || ((((&ip6.ip6_dst)->__u6_addr.__u6_addr8[0] == 0xff) && (((&ip6.ip6_dst)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x02))) || ((((&ip6.ip6_dst)->__u6_addr.__u6_addr8[0] == 0xff) && (((&ip6.ip6_dst)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x01)))))
    ip6.ip6_dst.__u6_addr.__u6_addr16[1] = 0;
-  m_copyback(m, 0, sizeof(struct ip6_hdr), &ip6, 0x0002);
+  error = m_copyback(m, 0, sizeof(struct ip6_hdr), &ip6,
+      0x0002);
+  if (error) {
+   ;
+   ahstat_inc(ahs_hdrops);
+   m_freem(m);
+   return error;
+  }
   if (skip - sizeof(struct ip6_hdr) > 0) {
    if (m->m_hdr.mh_len <= skip) {
     ptr = malloc(skip - sizeof(struct ip6_hdr),
@@ -5069,7 +5089,7 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
    }
   } else
    break;
-  nxt = ip6.ip6_ctlun.ip6_un1.ip6_un1_nxt & 0xff;
+  nxt = ip6.ip6_ctlun.ip6_un1.ip6_un1_nxt;
   for (off = 0; off < skip - sizeof(struct ip6_hdr);) {
    if (off + sizeof(struct ip6_ext) >
        skip - sizeof(struct ip6_hdr))
@@ -5098,8 +5118,6 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
     }
     if (count != noff)
      goto error6;
-    off += ((ip6e->ip6e_len + 1) << 3);
-    nxt = ip6e->ip6e_nxt;
     break;
    case 43:
        {
@@ -5120,12 +5138,17 @@ ah_massage_headers(struct mbuf **m0, int proto, int skip, int alg, int out)
          (caddr_t)&ip6);
      addr[0] = ip6.ip6_dst;
      ip6.ip6_dst = finaldst;
-     m_copyback(m, 0, sizeof(ip6), &ip6,
-         0x0002);
+     error = m_copyback(m, 0, sizeof(ip6),
+         &ip6, 0x0002);
+     if (error) {
+      if (alloc)
+       free(ptr, 76, 0);
+      ahstat_inc(ahs_hdrops);
+      m_freem(m);
+      return error;
+     }
      rh0->ip6r0_segleft = 0;
     }
-    off += ((ip6e->ip6e_len + 1) << 3);
-    nxt = ip6e->ip6e_nxt;
     break;
        }
    default:
@@ -5137,11 +5160,18 @@ error6:
     m_freem(m);
     return 22;
    }
+   off += ((ip6e->ip6e_len + 1) << 3);
+   nxt = ip6e->ip6e_nxt;
   }
   if (alloc) {
-   m_copyback(m, sizeof(struct ip6_hdr),
+   error = m_copyback(m, sizeof(struct ip6_hdr),
        skip - sizeof(struct ip6_hdr), ptr, 0x0002);
    free(ptr, 76, 0);
+   if (error) {
+    ahstat_inc(ahs_hdrops);
+    m_freem(m);
+    return error;
+   }
   }
   break;
  }
@@ -5154,7 +5184,7 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  struct tdb_crypto *tc;
  u_int32_t btsx, esn;
  u_int8_t hl;
- int rplen;
+ int error, rplen;
  struct cryptodesc *crda = ((void *)0);
  struct cryptop *crp;
  rplen = 8 + sizeof(u_int32_t);
@@ -5240,11 +5270,12 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  }
  m_copydata(m, 0, skip + rplen + ahx->authsize, (caddr_t) (tc + 1));
  m_copyback(m, skip + rplen, ahx->authsize, ipseczeroes, 0x0002);
- if ((btsx = ah_massage_headers(&m, tdb->tdb_dst.sa.sa_family,
-     skip, ahx->type, 0)) != 0) {
+ error = ah_massage_headers(&m, tdb->tdb_dst.sa.sa_family, skip,
+     ahx->type, 0);
+ if (error) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  return btsx;
+  return error;
  }
  crp->crp_ilen = m->M_dat.MH.MH_pkthdr.len;
  crp->crp_flags = 0x0001;
@@ -5395,7 +5426,7 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  struct mbuf *mi;
  struct cryptop *crp;
  u_int16_t iplen;
- int len, rplen, roff;
+ int error, rplen, roff;
  u_int8_t prot;
  struct ah *ah;
  struct ifnet *encif;
@@ -5532,11 +5563,12 @@ ah_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  ((u_int8_t *) (tc + 1))[protoff] = 51;
  prot = 51;
  m_copyback(m, protoff, sizeof(u_int8_t), &prot, 0x0002);
- if ((len = ah_massage_headers(&m, tdb->tdb_dst.sa.sa_family,
-     skip, ahx->type, 1)) != 0) {
+ error = ah_massage_headers(&m, tdb->tdb_dst.sa.sa_family, skip,
+     ahx->type, 1);
+ if (error) {
   free(tc, 76, 0);
   crypto_freereq(crp);
-  return len;
+  return error;
  }
  crp->crp_ilen = m->M_dat.MH.MH_pkthdr.len;
  crp->crp_flags = 0x0001;
