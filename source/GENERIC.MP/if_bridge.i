@@ -4374,7 +4374,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -6013,9 +6013,19 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  }
 }
 int
+bridge_ourether(struct bridge_iflist *ifl, uint8_t *ena)
+{
+ struct arpcom *ac = (struct arpcom *)ifl->ifp;
+ if (__builtin_memcmp((ac->ac_enaddr), (ena), (6)) == 0)
+  return (1);
+ if (carp_ourether(ifl->ifp, ena))
+  return (1);
+ return (0);
+}
+int
 bridge_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1013, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1032, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);
@@ -6030,7 +6040,6 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
  struct bridge_iflist *ifl;
  struct bridge_iflist *srcifl;
  struct ether_header *eh;
- struct arpcom *ac;
  struct mbuf *mc;
  ifl = (struct bridge_iflist *)ifp->if_bridgeport;
  if (ifl == ((void *)0))
@@ -6075,11 +6084,7 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
  for((ifl) = ((&sc->sc_iflist)->tqh_first); (ifl) != ((void *)0); (ifl) = ((ifl)->next.tqe_next)) {
   if (ifl->ifp->if_data.ifi_type != 0x06)
    continue;
-  ac = (struct arpcom *)ifl->ifp;
-  if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_dhost), (6)) == 0
-      || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
-          !carp_ourether(ifl->ifp, eh->ether_dhost))
-      ) {
+  if (bridge_ourether(ifl, eh->ether_dhost)) {
    if (srcifl->bif_flags & 0x0001)
     bridge_rtupdate(sc,
         (struct ether_addr *)&eh->ether_shost,
@@ -6094,10 +6099,7 @@ bridge_process(struct ifnet *ifp, struct mbuf *m)
    bridge_ifinput(ifl->ifp, m);
    return;
   }
-  if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0
-      || (!(srp_get_locked(&(&ifl->ifp->if_carp_ptr.carp_s)->sl_head) == ((void *)0)) &&
-   !carp_ourether(ifl->ifp, eh->ether_shost))
-      ) {
+  if (bridge_ourether(ifl, eh->ether_shost)) {
    m_freem(m);
    return;
   }

@@ -3734,6 +3734,7 @@ struct tcphdr {
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3825,7 +3826,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -4531,7 +4531,7 @@ tcp_close(struct tcpcb *tp)
  }
  m_free(tp->t_template);
  tp->t_flags |= 0x00200000;
- do { (((tp)->t_flags) |= (0x04000000 << (4))); timeout_add(&(tp)->t_timer[(4)], (0) * (hz / 2)); } while (0);
+ do { (((tp)->t_flags) |= (0x04000000 << (4))); timeout_add_msec(&(tp)->t_timer[(4)], (0) * 500); } while (0);
  inp->inp_ppcb = ((void *)0);
  soisdisconnected(so);
  in_pcbdetach(inp);

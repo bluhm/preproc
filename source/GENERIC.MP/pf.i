@@ -4564,6 +4564,7 @@ struct tcphdr {
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -4655,7 +4656,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -5984,7 +5984,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];

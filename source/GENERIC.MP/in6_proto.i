@@ -3539,6 +3539,7 @@ struct tcphdr {
 };
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3630,7 +3631,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -4643,6 +4643,37 @@ int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
 int ip6_etherip_input(struct mbuf **, int *, int, int);
+struct gre_h {
+ u_int16_t flags;
+ u_int16_t ptype;
+} __attribute__((__packed__));
+struct greip {
+ struct ip gi_i;
+ struct gre_h gi_g;
+} __attribute__((__packed__));
+struct gre_sre {
+ u_int16_t sre_family;
+ u_char sre_offset;
+ u_char sre_length;
+ u_char *sre_rtinfo;
+};
+struct greioctl {
+ int unit;
+ struct in_addr addr;
+};
+struct mobile_h {
+ u_int16_t proto;
+ u_int16_t hcrc;
+ u_int32_t odst;
+ u_int32_t osrc;
+} __attribute__((__packed__));
+struct mobip_h {
+ struct ip mi;
+ struct mobile_h mh;
+} __attribute__((__packed__));
+int gre_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int gre_input(struct mbuf **, int *, int, int);
+int gre_input6(struct mbuf **, int *, int, int);
 u_char ip6_protox[256];
 const struct protosw inet6sw[] = {
 {
@@ -4815,6 +4846,17 @@ const struct protosw inet6sw[] = {
   .pr_protocol = 97,
   .pr_flags = 0x01|0x02,
   .pr_input = ip6_etherip_input,
+  .pr_ctloutput = rip6_ctloutput,
+  .pr_usrreq = rip6_usrreq,
+  .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
+},
+{
+  .pr_type = 3,
+  .pr_domain = &inet6domain,
+  .pr_protocol = 47,
+  .pr_flags = 0x01|0x02,
+  .pr_input = gre_input6,
   .pr_ctloutput = rip6_ctloutput,
   .pr_usrreq = rip6_usrreq,
   .pr_attach = rip6_attach,

@@ -4086,7 +4086,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];

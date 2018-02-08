@@ -4138,6 +4138,7 @@ struct tcphdr {
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -4229,7 +4230,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -5228,7 +5228,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -6350,7 +6350,7 @@ findpcb:
  }
  tp->t_rcvtime = tcp_now;
  if (((tp->t_state) >= 4))
-  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepidle) * 500); } while (0);
  if (tp->sack_enable)
   tcp_del_sackholes(tp, th);
  if (optp || (tp->t_flags & 0x0400))
@@ -6407,7 +6407,7 @@ findpcb:
     if (tp->snd_una == tp->snd_max)
      do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
     else if ((((tp)->t_flags) & (0x04000000 << (1))) == 0)
-     do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+     do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
     tcp_update_sndspace(tp);
     if (sb_notify(so, &so->so_snd)) {
      tp->t_flags |= 0x01000000;
@@ -6428,7 +6428,7 @@ findpcb:
    tp->rcv_nxt += tlen;
    tcpstat_pkt(tcps_rcvpack, tcps_rcvbyte, tlen);
    do { if (tp && tp->t_inpcb && (tp->t_inpcb->inp_flags & 0x100) && rtisvalid(tp->t_inpcb->inp_ru.ru_route6.ro_rt)) { nd6_nud_hint(tp->t_inpcb->inp_ru.ru_route6.ro_rt); } } while (0);
-   do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add(&(tp)->t_delack_to, tcp_delack_ticks); } } while ( 0); if_put(ifp); } while (0);
+   do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add_msec(&(tp)->t_delack_to, tcp_delack_msecs); } } while ( 0); if_put(ifp); } while (0);
    if (so->so_state & 0x020)
     m_freem(m);
    else {
@@ -6516,7 +6516,7 @@ findpcb:
    soisconnected(so);
    tp->t_flags &= ~0x01000000;
    tp->t_state = 4;
-   do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepidle) * 500); } while (0);
    if ((tp->t_flags & (0x0040|0x0020)) ==
     (0x0040|0x0020)) {
     tp->snd_scale = tp->requested_s_scale;
@@ -6665,7 +6665,7 @@ findpcb:
   soisconnected(so);
   tp->t_flags &= ~0x01000000;
   tp->t_state = 4;
-  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepidle) * 500); } while (0);
   if ((tp->t_flags & (0x0040|0x0020)) ==
    (0x0040|0x0020)) {
    tp->snd_scale = tp->requested_s_scale;
@@ -6796,7 +6796,7 @@ findpcb:
    do { (((tp)->t_flags) &= ~(0x04000000 << (0))); timeout_del(&(tp)->t_timer[(0)]); } while (0);
    tp->t_flags |= 0x00800000;
   } else if ((((tp)->t_flags) & (0x04000000 << (1))) == 0)
-   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
   {
   u_int cw = tp->snd_cwnd;
   u_int incr = tp->t_maxseg;
@@ -6839,7 +6839,7 @@ findpcb:
      tp->t_flags |= 0x01000000;
      soisdisconnected(so);
      tp->t_flags &= ~0x01000000;
-     do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2)); } while (0);
+     do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (tcp_maxidle) * 500); } while (0);
     }
     tp->t_state = 9;
    }
@@ -6848,7 +6848,7 @@ findpcb:
    if (ourfinisacked) {
     tp->t_state = 10;
     tcp_canceltimers(tp);
-    do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
+    do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (2 * ( 30*2)) * 500); } while (0);
     tp->t_flags |= 0x01000000;
     soisdisconnected(so);
     tp->t_flags &= ~0x01000000;
@@ -6861,7 +6861,7 @@ findpcb:
    }
    break;
   case 10:
-   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (2 * ( 30*2)) * 500); } while (0);
    goto dropafterack;
   }
  }
@@ -6909,7 +6909,7 @@ dodata:
   tcp_seq lastend = th->th_seq + tlen;
   if (th->th_seq == tp->rcv_nxt && (((&tp->t_segq)->tqh_first) == ((void *)0)) &&
       tp->t_state == 4) {
-   do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add(&(tp)->t_delack_to, tcp_delack_ticks); } } while ( 0); if_put(ifp); } while (0);
+   do { struct ifnet *ifp = ((void *)0); if (m && (m->m_hdr.mh_flags & 0x0002)) ifp = if_get(m->M_dat.MH.MH_pkthdr.ph_ifidx); if ((tp)->t_flags & 0x0002 || (tcp_ack_on_push && (tiflags) & 0x08) || (ifp && (ifp->if_flags & 0x8))) tp->t_flags |= 0x0001; else do { if (((tp)->t_flags & 0x0002) == 0) { (tp)->t_flags |= 0x0002; timeout_add_msec(&(tp)->t_delack_to, tcp_delack_msecs); } } while ( 0); if_put(ifp); } while (0);
    tp->rcv_nxt += tlen;
    tiflags = th->th_flags & 0x01;
    tcpstat_pkt(tcps_rcvpack, tcps_rcvbyte, tlen);
@@ -6952,13 +6952,13 @@ dodata:
   case 9:
    tp->t_state = 10;
    tcp_canceltimers(tp);
-   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (2 * ( 30*2)) * 500); } while (0);
    tp->t_flags |= 0x01000000;
    soisdisconnected(so);
    tp->t_flags &= ~0x01000000;
    break;
   case 10:
-   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (2 * ( 30*2)) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (2 * ( 30*2)) * 500); } while (0);
    break;
   }
  }
@@ -7971,7 +7971,7 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  (tp)->rcv_adv = (tp)->rcv_nxt = (tp)->irs + 1;
  tp->t_state = 3;
  tp->t_rcvtime = tcp_now;
- do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2)); } while (0);
+ do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcptv_keep_init) * 500); } while (0);
  tcpstat_inc(tcps_accepts);
  tcp_mss(tp, sc->sc_peermaxseg);
  if (sc->sc_peermaxseg)
@@ -7982,7 +7982,7 @@ syn_cache_get(struct sockaddr *src, struct sockaddr *dst, struct tcphdr *th,
  tp->rcv_up = sc->sc_irs + 1;
  tp->snd_up = tp->snd_una;
  tp->snd_max = tp->snd_nxt = tp->iss+1;
- do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+ do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
  if (sc->sc_win > 0 && ((int)((tp->rcv_nxt + sc->sc_win)-(tp->rcv_adv)) > 0))
   tp->rcv_adv = tp->rcv_nxt + sc->sc_win;
  tp->last_ack_sent = tp->rcv_nxt;

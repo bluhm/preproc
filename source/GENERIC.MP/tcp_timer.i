@@ -3668,6 +3668,7 @@ struct tcphdr {
 };
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3759,7 +3760,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -4189,7 +4189,7 @@ int tcp_keepidle;
 int tcp_keepintvl;
 int tcp_maxpersistidle;
 int tcp_maxidle;
-int tcp_delack_ticks;
+int tcp_delack_msecs;
 void tcp_timer_rexmt(void *);
 void tcp_timer_persist(void *);
 void tcp_timer_keep(void *);
@@ -4211,8 +4211,8 @@ tcp_timer_init(void)
   tcp_keepintvl = ( 75*2);
  if (tcp_maxpersistidle == 0)
   tcp_maxpersistidle = (120*60*2);
- if (tcp_delack_ticks == 0)
-  tcp_delack_ticks = (hz / 5);
+ if (tcp_delack_msecs == 0)
+  tcp_delack_msecs = 200;
 }
 void
 tcp_delack(void *arg)
@@ -4300,7 +4300,7 @@ tcp_timer_rexmt(void *arg)
  if (rto < tp->t_rttmin)
   rto = tp->t_rttmin;
  do { (tp->t_rxtcur) = (rto * tcp_backoff[tp->t_rxtshift]); if ((tp->t_rxtcur) < (tp->t_rttmin)) (tp->t_rxtcur) = (tp->t_rttmin); else if ((tp->t_rxtcur) > (( 64*2))) (tp->t_rxtcur) = (( 64*2)); } while ( 0);
- do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+ do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
  if (ip_mtudisc && tp->t_inpcb &&
      ((tp->t_state) >= 4) &&
      tp->t_rxtshift > 12 / 6) {
@@ -4408,9 +4408,9 @@ tcp_timer_keep(void *arg)
   tcpstat_inc(tcps_keepprobe);
   tcp_respond(tp, ((caddr_t)((tp->t_template)->m_hdr.mh_data)),
       ((void *)0), tp->rcv_nxt, tp->snd_una - 1, 0, 0);
-  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepintvl) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepintvl) * 500); } while (0);
  } else
-  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcp_keepidle) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepidle) * 500); } while (0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
  return;
@@ -4431,7 +4431,7 @@ tcp_timer_2msl(void *arg)
  tcp_timer_freesack(tp);
  if (tp->t_state != 10 &&
      ((tcp_maxidle == 0) || ((tcp_now - tp->t_rcvtime) <= tcp_maxidle)))
-  do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_keepintvl) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (tcp_keepintvl) * 500); } while (0);
  else
   tp = tcp_close(tp);
  out:

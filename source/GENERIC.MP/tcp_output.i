@@ -3525,6 +3525,7 @@ u_char tcp_outflags[11] = {
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3616,7 +3617,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -4154,7 +4154,7 @@ again:
  if (((int)((tp->snd_max)-(tp->snd_una)) > 0) &&
      (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
      (((tp)->t_flags) & (0x04000000 << (1))) == 0) {
-  do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
   return (0);
  }
  if (so->so_snd.sb_cc && (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
@@ -4455,7 +4455,7 @@ send:
   if (tp->sack_enable && sack_rxmit &&
       (((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
       tp->snd_nxt != tp->snd_max) {
-   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
    if ((((tp)->t_flags) & (0x04000000 << (1)))) {
     do { (((tp)->t_flags) &= ~(0x04000000 << (1))); timeout_del(&(tp)->t_timer[(1)]); } while (0);
     tp->t_rxtshift = 0;
@@ -4463,7 +4463,7 @@ send:
   }
   if ((((tp)->t_flags) & (0x04000000 << (0))) == 0 &&
       tp->snd_nxt != tp->snd_una) {
-   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add(&(tp)->t_timer[(0)], (tp->t_rxtcur) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (0))); timeout_add_msec(&(tp)->t_timer[(0)], (tp->t_rxtcur) * 500); } while (0);
    if ((((tp)->t_flags) & (0x04000000 << (1)))) {
     do { (((tp)->t_flags) &= ~(0x04000000 << (1))); timeout_del(&(tp)->t_timer[(1)]); } while (0);
     tp->t_rxtshift = 0;
@@ -4545,7 +4545,7 @@ out:
    return (0);
   }
   if (tp->t_flags & 0x0002)
-   timeout_add(&(tp)->t_delack_to, tcp_delack_ticks);
+   timeout_add_msec(&(tp)->t_delack_to, tcp_delack_msecs);
   return (error);
  }
  if (packetlen > tp->t_pmtud_mtu_sent)
@@ -4572,7 +4572,7 @@ tcp_setpersist(struct tcpcb *tp)
  if (t < tp->t_rttmin)
   t = tp->t_rttmin;
  do { (nticks) = (t * tcp_backoff[tp->t_rxtshift]); if ((nticks) < (( 5*2))) (nticks) = (( 5*2)); else if ((nticks) > (( 60*2))) (nticks) = (( 60*2)); } while ( 0);
- do { (((tp)->t_flags) |= (0x04000000 << (1))); timeout_add(&(tp)->t_timer[(1)], (nticks) * (hz / 2)); } while (0);
+ do { (((tp)->t_flags) |= (0x04000000 << (1))); timeout_add_msec(&(tp)->t_timer[(1)], (nticks) * 500); } while (0);
  if (tp->t_rxtshift < 12)
   tp->t_rxtshift++;
 }

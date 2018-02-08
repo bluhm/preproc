@@ -970,263 +970,6 @@ int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
-typedef __builtin_va_list __gnuc_va_list;
-typedef __gnuc_va_list va_list;
-extern int securelevel;
-extern const char *panicstr;
-extern const char *faultstr;
-extern const char version[];
-extern const char copyright[];
-extern const char ostype[];
-extern const char osversion[];
-extern const char osrelease[];
-extern int cold;
-extern int ncpus;
-extern int ncpusfound;
-extern int nblkdev;
-extern int nchrdev;
-extern int selwait;
-extern int maxmem;
-extern int physmem;
-extern dev_t dumpdev;
-extern long dumplo;
-extern dev_t rootdev;
-extern u_char bootduid[8];
-extern u_char rootduid[8];
-extern struct vnode *rootvp;
-extern dev_t swapdev;
-extern struct vnode *swapdev_vp;
-struct proc;
-struct process;
-typedef int sy_call_t(struct proc *, void *, register_t *);
-extern struct sysent {
- short sy_narg;
- short sy_argsize;
- int sy_flags;
- sy_call_t *sy_call;
-} sysent[];
-extern int boothowto;
-extern void (*v_putc)(int);
-int nullop(void *);
-int enodev(void);
-int enosys(void);
-int enoioctl(void);
-int enxio(void);
-int eopnotsupp(void *);
-struct vnodeopv_desc;
-void vfs_opv_init_explicit(struct vnodeopv_desc *);
-void vfs_opv_init_default(struct vnodeopv_desc *);
-void vfs_op_init(void);
-int seltrue(dev_t dev, int which, struct proc *);
-int selfalse(dev_t dev, int which, struct proc *);
-void *hashinit(int, int, int, u_long *);
-void hashfree(void *, int, int);
-int sys_nosys(struct proc *, void *, register_t *);
-void panic(const char *, ...)
-    __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
-void __assert(const char *, const char *, int, const char *)
-    __attribute__((__noreturn__));
-int printf(const char *, ...)
-    __attribute__((__format__(__kprintf__,1,2)));
-void uprintf(const char *, ...)
-    __attribute__((__format__(__kprintf__,1,2)));
-int vprintf(const char *, va_list)
-    __attribute__((__format__(__kprintf__,1,0)));
-int vsnprintf(char *, size_t, const char *, va_list)
-    __attribute__((__format__(__kprintf__,3,0)));
-int snprintf(char *buf, size_t, const char *, ...)
-    __attribute__((__format__(__kprintf__,3,4)));
-struct tty;
-void ttyprintf(struct tty *, const char *, ...)
-    __attribute__((__format__(__kprintf__,2,3)));
-void splassert_fail(int, int, const char *);
-extern int splassert_ctl;
-void assertwaitok(void);
-void tablefull(const char *);
-int kcopy(const void *, void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,3)))
-  __attribute__ ((__bounded__(__buffer__,2,3)));
-void bcopy(const void *, void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,3)))
-  __attribute__ ((__bounded__(__buffer__,2,3)));
-void bzero(void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,2)));
-void explicit_bzero(void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,2)));
-int bcmp(const void *, const void *, size_t);
-void *memcpy(void *, const void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,3)))
-  __attribute__ ((__bounded__(__buffer__,2,3)));
-void *memmove(void *, const void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,3)))
-  __attribute__ ((__bounded__(__buffer__,2,3)));
-void *memset(void *, int, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,3)));
-int copystr(const void *, void *, size_t, size_t *)
-  __attribute__ ((__bounded__(__string__,2,3)));
-int copyinstr(const void *, void *, size_t, size_t *)
-  __attribute__ ((__bounded__(__string__,2,3)));
-int copyoutstr(const void *, void *, size_t, size_t *);
-int copyin(const void *, void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,2,3)));
-int copyout(const void *, void *, size_t);
-int copyin32(const uint32_t *, uint32_t *);
-void arc4random_buf(void *, size_t)
-  __attribute__ ((__bounded__(__buffer__,1,2)));
-u_int32_t arc4random(void);
-u_int32_t arc4random_uniform(u_int32_t);
-struct timeval;
-struct timespec;
-int tvtohz(const struct timeval *);
-int tstohz(const struct timespec *);
-void realitexpire(void *);
-struct clockframe;
-void hardclock(struct clockframe *);
-void softclock(void *);
-void statclock(struct clockframe *);
-void initclocks(void);
-void inittodr(time_t);
-void resettodr(void);
-void cpu_initclocks(void);
-void startprofclock(struct process *);
-void stopprofclock(struct process *);
-void setstatclockrate(int);
-void start_periodic_resettodr(void);
-void stop_periodic_resettodr(void);
-struct sleep_state;
-void sleep_setup(struct sleep_state *, const volatile void *, int,
-     const char *);
-void sleep_setup_timeout(struct sleep_state *, int);
-void sleep_setup_signal(struct sleep_state *, int);
-void sleep_finish(struct sleep_state *, int);
-int sleep_finish_timeout(struct sleep_state *);
-int sleep_finish_signal(struct sleep_state *);
-void sleep_queue_init(void);
-struct cond;
-void cond_init(struct cond *);
-void cond_wait(struct cond *, const char *);
-void cond_signal(struct cond *);
-struct mutex;
-struct rwlock;
-void wakeup_n(const volatile void *, int);
-void wakeup(const volatile void *);
-int tsleep(const volatile void *, int, const char *, int);
-int msleep(const volatile void *, struct mutex *, int, const char*, int);
-int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
-void yield(void);
-void wdog_register(int (*)(void *, int), void *);
-void wdog_shutdown(void *);
-struct hook_desc {
- struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
- void (*hd_fn)(void *);
- void *hd_arg;
-};
-struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
-extern struct hook_desc_head startuphook_list;
-void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
-void hook_disestablish(struct hook_desc_head *, void *);
-void dohooks(struct hook_desc_head *, int);
-struct uio;
-int uiomove(void *, size_t, struct uio *);
-extern struct rwlock netlock;
-__attribute__((returns_twice)) int setjmp(label_t *);
-__attribute__((__noreturn__)) void longjmp(label_t *);
-void consinit(void);
-void cpu_startup(void);
-void cpu_configure(void);
-void diskconf(void);
-int nfs_mountroot(void);
-int dk_mountroot(void);
-extern int (*mountroot)(void);
-static __inline int imax(int, int);
-static __inline int imin(int, int);
-static __inline u_int max(u_int, u_int);
-static __inline u_int min(u_int, u_int);
-static __inline long lmax(long, long);
-static __inline long lmin(long, long);
-static __inline u_long ulmax(u_long, u_long);
-static __inline u_long ulmin(u_long, u_long);
-static __inline int abs(int);
-static __inline int
-imax(int a, int b)
-{
- return (a > b ? a : b);
-}
-static __inline int
-imin(int a, int b)
-{
- return (a < b ? a : b);
-}
-static __inline long
-lmax(long a, long b)
-{
- return (a > b ? a : b);
-}
-static __inline long
-lmin(long a, long b)
-{
- return (a < b ? a : b);
-}
-static __inline u_int
-max(u_int a, u_int b)
-{
- return (a > b ? a : b);
-}
-static __inline u_int
-min(u_int a, u_int b)
-{
- return (a < b ? a : b);
-}
-static __inline u_long
-ulmax(u_long a, u_long b)
-{
- return (a > b ? a : b);
-}
-static __inline u_long
-ulmin(u_long a, u_long b)
-{
- return (a < b ? a : b);
-}
-static __inline int
-abs(int j)
-{
- return(j < 0 ? -j : j);
-}
-void __assert(const char *, const char *, int, const char *)
-     __attribute__ ((__noreturn__));
-int bcmp(const void *, const void *, size_t);
-void bzero(void *, size_t);
-void explicit_bzero(void *, size_t);
-int ffs(int);
-int fls(int);
-int flsl(long);
-void *memchr(const void *, int, size_t);
-int memcmp(const void *, const void *, size_t);
-void *memset(void *, int c, size_t len);
-u_int32_t random(void);
-int scanc(u_int, const u_char *, const u_char [], int);
-int skpc(int, size_t, u_char *);
-size_t strlen(const char *);
-char *strncpy(char *, const char *, size_t)
-  __attribute__ ((__bounded__(__string__,1,3)));
-size_t strnlen(const char *, size_t);
-size_t strlcpy(char *, const char *, size_t)
-  __attribute__ ((__bounded__(__string__,1,3)));
-size_t strlcat(char *, const char *, size_t)
-  __attribute__ ((__bounded__(__string__,1,3)));
-int strcmp(const char *, const char *);
-int strncmp(const char *, const char *, size_t);
-int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
-char *strchr(const char *, int);
-char *strrchr(const char *, int);
-int timingsafe_bcmp(const void *, const void *, size_t);
-void db_enter(void);
-void user_config(void);
-void _kernel_lock_init(void);
-void _kernel_lock(const char *, int);
-void _kernel_unlock(void);
-int _kernel_lock_held(void);
 struct m_tag {
  struct { struct m_tag *sle_next; } m_tag_link;
  u_int16_t m_tag_id;
@@ -1500,6 +1243,263 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
+typedef __builtin_va_list __gnuc_va_list;
+typedef __gnuc_va_list va_list;
+extern int securelevel;
+extern const char *panicstr;
+extern const char *faultstr;
+extern const char version[];
+extern const char copyright[];
+extern const char ostype[];
+extern const char osversion[];
+extern const char osrelease[];
+extern int cold;
+extern int ncpus;
+extern int ncpusfound;
+extern int nblkdev;
+extern int nchrdev;
+extern int selwait;
+extern int maxmem;
+extern int physmem;
+extern dev_t dumpdev;
+extern long dumplo;
+extern dev_t rootdev;
+extern u_char bootduid[8];
+extern u_char rootduid[8];
+extern struct vnode *rootvp;
+extern dev_t swapdev;
+extern struct vnode *swapdev_vp;
+struct proc;
+struct process;
+typedef int sy_call_t(struct proc *, void *, register_t *);
+extern struct sysent {
+ short sy_narg;
+ short sy_argsize;
+ int sy_flags;
+ sy_call_t *sy_call;
+} sysent[];
+extern int boothowto;
+extern void (*v_putc)(int);
+int nullop(void *);
+int enodev(void);
+int enosys(void);
+int enoioctl(void);
+int enxio(void);
+int eopnotsupp(void *);
+struct vnodeopv_desc;
+void vfs_opv_init_explicit(struct vnodeopv_desc *);
+void vfs_opv_init_default(struct vnodeopv_desc *);
+void vfs_op_init(void);
+int seltrue(dev_t dev, int which, struct proc *);
+int selfalse(dev_t dev, int which, struct proc *);
+void *hashinit(int, int, int, u_long *);
+void hashfree(void *, int, int);
+int sys_nosys(struct proc *, void *, register_t *);
+void panic(const char *, ...)
+    __attribute__((__noreturn__,__format__(__kprintf__,1,2)));
+void __assert(const char *, const char *, int, const char *)
+    __attribute__((__noreturn__));
+int printf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+void uprintf(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+int vprintf(const char *, va_list)
+    __attribute__((__format__(__kprintf__,1,0)));
+int vsnprintf(char *, size_t, const char *, va_list)
+    __attribute__((__format__(__kprintf__,3,0)));
+int snprintf(char *buf, size_t, const char *, ...)
+    __attribute__((__format__(__kprintf__,3,4)));
+struct tty;
+void ttyprintf(struct tty *, const char *, ...)
+    __attribute__((__format__(__kprintf__,2,3)));
+void splassert_fail(int, int, const char *);
+extern int splassert_ctl;
+void assertwaitok(void);
+void tablefull(const char *);
+int kcopy(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void bcopy(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void bzero(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+void explicit_bzero(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+int bcmp(const void *, const void *, size_t);
+void *memcpy(void *, const void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void *memmove(void *, const void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)))
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+void *memset(void *, int, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,3)));
+int copystr(const void *, void *, size_t, size_t *)
+  __attribute__ ((__bounded__(__string__,2,3)));
+int copyinstr(const void *, void *, size_t, size_t *)
+  __attribute__ ((__bounded__(__string__,2,3)));
+int copyoutstr(const void *, void *, size_t, size_t *);
+int copyin(const void *, void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,2,3)));
+int copyout(const void *, void *, size_t);
+int copyin32(const uint32_t *, uint32_t *);
+void arc4random_buf(void *, size_t)
+  __attribute__ ((__bounded__(__buffer__,1,2)));
+u_int32_t arc4random(void);
+u_int32_t arc4random_uniform(u_int32_t);
+struct timeval;
+struct timespec;
+int tvtohz(const struct timeval *);
+int tstohz(const struct timespec *);
+void realitexpire(void *);
+struct clockframe;
+void hardclock(struct clockframe *);
+void softclock(void *);
+void statclock(struct clockframe *);
+void initclocks(void);
+void inittodr(time_t);
+void resettodr(void);
+void cpu_initclocks(void);
+void startprofclock(struct process *);
+void stopprofclock(struct process *);
+void setstatclockrate(int);
+void start_periodic_resettodr(void);
+void stop_periodic_resettodr(void);
+struct sleep_state;
+void sleep_setup(struct sleep_state *, const volatile void *, int,
+     const char *);
+void sleep_setup_timeout(struct sleep_state *, int);
+void sleep_setup_signal(struct sleep_state *, int);
+void sleep_finish(struct sleep_state *, int);
+int sleep_finish_timeout(struct sleep_state *);
+int sleep_finish_signal(struct sleep_state *);
+void sleep_queue_init(void);
+struct cond;
+void cond_init(struct cond *);
+void cond_wait(struct cond *, const char *);
+void cond_signal(struct cond *);
+struct mutex;
+struct rwlock;
+void wakeup_n(const volatile void *, int);
+void wakeup(const volatile void *);
+int tsleep(const volatile void *, int, const char *, int);
+int msleep(const volatile void *, struct mutex *, int, const char*, int);
+int rwsleep(const volatile void *, struct rwlock *, int, const char *, int);
+void yield(void);
+void wdog_register(int (*)(void *, int), void *);
+void wdog_shutdown(void *);
+struct hook_desc {
+ struct { struct hook_desc *tqe_next; struct hook_desc **tqe_prev; } hd_list;
+ void (*hd_fn)(void *);
+ void *hd_arg;
+};
+struct hook_desc_head { struct hook_desc *tqh_first; struct hook_desc **tqh_last; };
+extern struct hook_desc_head startuphook_list;
+void *hook_establish(struct hook_desc_head *, int, void (*)(void *), void *);
+void hook_disestablish(struct hook_desc_head *, void *);
+void dohooks(struct hook_desc_head *, int);
+struct uio;
+int uiomove(void *, size_t, struct uio *);
+extern struct rwlock netlock;
+__attribute__((returns_twice)) int setjmp(label_t *);
+__attribute__((__noreturn__)) void longjmp(label_t *);
+void consinit(void);
+void cpu_startup(void);
+void cpu_configure(void);
+void diskconf(void);
+int nfs_mountroot(void);
+int dk_mountroot(void);
+extern int (*mountroot)(void);
+static __inline int imax(int, int);
+static __inline int imin(int, int);
+static __inline u_int max(u_int, u_int);
+static __inline u_int min(u_int, u_int);
+static __inline long lmax(long, long);
+static __inline long lmin(long, long);
+static __inline u_long ulmax(u_long, u_long);
+static __inline u_long ulmin(u_long, u_long);
+static __inline int abs(int);
+static __inline int
+imax(int a, int b)
+{
+ return (a > b ? a : b);
+}
+static __inline int
+imin(int a, int b)
+{
+ return (a < b ? a : b);
+}
+static __inline long
+lmax(long a, long b)
+{
+ return (a > b ? a : b);
+}
+static __inline long
+lmin(long a, long b)
+{
+ return (a < b ? a : b);
+}
+static __inline u_int
+max(u_int a, u_int b)
+{
+ return (a > b ? a : b);
+}
+static __inline u_int
+min(u_int a, u_int b)
+{
+ return (a < b ? a : b);
+}
+static __inline u_long
+ulmax(u_long a, u_long b)
+{
+ return (a > b ? a : b);
+}
+static __inline u_long
+ulmin(u_long a, u_long b)
+{
+ return (a < b ? a : b);
+}
+static __inline int
+abs(int j)
+{
+ return(j < 0 ? -j : j);
+}
+void __assert(const char *, const char *, int, const char *)
+     __attribute__ ((__noreturn__));
+int bcmp(const void *, const void *, size_t);
+void bzero(void *, size_t);
+void explicit_bzero(void *, size_t);
+int ffs(int);
+int fls(int);
+int flsl(long);
+void *memchr(const void *, int, size_t);
+int memcmp(const void *, const void *, size_t);
+void *memset(void *, int c, size_t len);
+u_int32_t random(void);
+int scanc(u_int, const u_char *, const u_char [], int);
+int skpc(int, size_t, u_char *);
+size_t strlen(const char *);
+char *strncpy(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+size_t strnlen(const char *, size_t);
+size_t strlcpy(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+size_t strlcat(char *, const char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,3)));
+int strcmp(const char *, const char *);
+int strncmp(const char *, const char *, size_t);
+int strncasecmp(const char *, const char *, size_t);
+int getsn(char *, int);
+char *strchr(const char *, int);
+char *strrchr(const char *, int);
+int timingsafe_bcmp(const void *, const void *, size_t);
+void db_enter(void);
+void user_config(void);
+void _kernel_lock_init(void);
+void _kernel_lock(const char *, int);
+void _kernel_unlock(void);
+int _kernel_lock_held(void);
 struct circq {
  struct circq *next;
  struct circq *prev;
@@ -1527,6 +1527,47 @@ void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -1744,6 +1785,274 @@ int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
 struct taskq * net_tq(unsigned int);
+struct taskq;
+struct task {
+ struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
+ void (*t_func)(void *);
+ void *t_arg;
+ unsigned int t_flags;
+};
+struct task_list { struct task *tqh_first; struct task **tqh_last; };
+extern struct taskq *const systq;
+extern struct taskq *const systqmp;
+struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
+void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
+void task_set(struct task *, void (*)(void *), void *);
+int task_add(struct taskq *, struct task *);
+int task_del(struct taskq *, struct task *);
+struct ifnet;
+struct ifq_ops;
+struct ifqueue {
+ struct ifnet *ifq_if;
+ union {
+  void *_ifq_softc;
+  struct ifqueue *_ifq_ifqs[1];
+ } _ifq_ptr;
+ struct mutex ifq_mtx;
+ const struct ifq_ops *ifq_ops;
+ void *ifq_q;
+ struct mbuf_list ifq_free;
+ unsigned int ifq_len;
+ unsigned int ifq_oactive;
+ uint64_t ifq_packets;
+ uint64_t ifq_bytes;
+ uint64_t ifq_qdrops;
+ uint64_t ifq_errors;
+ uint64_t ifq_mcasts;
+ struct mutex ifq_task_mtx;
+ struct task_list ifq_task_list;
+ void *ifq_serializer;
+ struct task ifq_start;
+ struct task ifq_restart;
+ unsigned int ifq_maxlen;
+ unsigned int ifq_idx;
+};
+struct ifiqueue {
+ struct ifnet *ifiq_if;
+ struct taskq *ifiq_softnet;
+ union {
+  void *_ifiq_softc;
+  struct ifiqueue *_ifiq_ifiqs[1];
+ } _ifiq_ptr;
+ struct mutex ifiq_mtx;
+ struct mbuf_list ifiq_ml;
+ struct task ifiq_task;
+ uint64_t ifiq_packets;
+ uint64_t ifiq_bytes;
+ uint64_t ifiq_qdrops;
+ uint64_t ifiq_errors;
+ uint64_t ifiq_mcasts;
+ uint64_t ifiq_noproto;
+ unsigned int ifiq_idx;
+};
+struct ifq_ops {
+ unsigned int (*ifqop_idx)(unsigned int,
+        const struct mbuf *);
+ struct mbuf *(*ifqop_enq)(struct ifqueue *, struct mbuf *);
+ struct mbuf *(*ifqop_deq_begin)(struct ifqueue *, void **);
+ void (*ifqop_deq_commit)(struct ifqueue *,
+        struct mbuf *, void *);
+ void (*ifqop_purge)(struct ifqueue *,
+        struct mbuf_list *);
+ void *(*ifqop_alloc)(unsigned int, void *);
+ void (*ifqop_free)(unsigned int, void *);
+};
+void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
+void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
+void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
+int ifq_enqueue(struct ifqueue *, struct mbuf *);
+struct mbuf *ifq_deq_begin(struct ifqueue *);
+void ifq_deq_commit(struct ifqueue *, struct mbuf *);
+void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
+struct mbuf *ifq_dequeue(struct ifqueue *);
+void ifq_mfreem(struct ifqueue *, struct mbuf *);
+void ifq_mfreeml(struct ifqueue *, struct mbuf_list *);
+unsigned int ifq_purge(struct ifqueue *);
+void *ifq_q_enter(struct ifqueue *, const struct ifq_ops *);
+void ifq_q_leave(struct ifqueue *, void *);
+void ifq_serialize(struct ifqueue *, struct task *);
+int ifq_is_serialized(struct ifqueue *);
+void ifq_barrier(struct ifqueue *);
+static inline void
+ifq_set_oactive(struct ifqueue *ifq)
+{
+ ifq->ifq_oactive = 1;
+}
+static inline void
+ifq_clr_oactive(struct ifqueue *ifq)
+{
+ ifq->ifq_oactive = 0;
+}
+static inline unsigned int
+ifq_is_oactive(struct ifqueue *ifq)
+{
+ return (ifq->ifq_oactive);
+}
+static inline void
+ifq_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
+static inline void
+ifq_restart(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_restart);
+}
+static inline unsigned int
+ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
+{
+ return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
+}
+extern const struct ifq_ops * const ifq_priq_ops;
+void ifiq_init(struct ifiqueue *, struct ifnet *, unsigned int);
+void ifiq_destroy(struct ifiqueue *);
+int ifiq_input(struct ifiqueue *, struct mbuf_list *,
+       unsigned int);
+int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
+void ifiq_add_data(struct ifiqueue *, struct if_data *);
+void ifiq_barrier(struct ifiqueue *);
+struct rtentry;
+struct ifnet;
+struct task;
+struct if_clone {
+ struct { struct if_clone *le_next; struct if_clone **le_prev; } ifc_list;
+ const char *ifc_name;
+ size_t ifc_namelen;
+ int (*ifc_create)(struct if_clone *, int);
+ int (*ifc_destroy)(struct ifnet *);
+};
+struct ifnet_head { struct ifnet *tqh_first; struct ifnet **tqh_last; };
+struct ifnet {
+ void *if_softc;
+ struct refcnt if_refcnt;
+ struct { struct ifnet *tqe_next; struct ifnet **tqe_prev; } if_list;
+ struct { struct ifaddr *tqh_first; struct ifaddr **tqh_last; } if_addrlist;
+ struct { struct ifmaddr *tqh_first; struct ifmaddr **tqh_last; } if_maddrlist;
+ struct { struct ifg_list *tqh_first; struct ifg_list **tqh_last; } if_groups;
+ struct hook_desc_head *if_addrhooks;
+ struct hook_desc_head *if_linkstatehooks;
+ struct hook_desc_head *if_detachhooks;
+ void (*if_rtrequest)(struct ifnet *, int, struct rtentry *);
+ char if_xname[16];
+ int if_pcount;
+ caddr_t if_bpf;
+ caddr_t if_bridgeport;
+ caddr_t if_switchport;
+ caddr_t if_mcast;
+ caddr_t if_mcast6;
+ caddr_t if_pf_kif;
+ union {
+  struct srpl carp_s;
+  struct ifnet *carp_d;
+ } if_carp_ptr;
+ unsigned int if_index;
+ short if_timer;
+ unsigned short if_flags;
+ int if_xflags;
+ struct if_data if_data;
+ uint32_t if_hardmtu;
+ char if_description[64];
+ u_short if_rtlabelid;
+ uint8_t if_priority;
+ uint8_t if_llprio;
+ struct timeout if_slowtimo;
+ struct task if_watchdogtask;
+ struct task if_linkstatetask;
+ struct srpl if_inputs;
+ int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
+       struct rtentry *);
+ int (*if_ll_output)(struct ifnet *, struct mbuf *,
+      struct sockaddr *, struct rtentry *);
+ void (*if_start)(struct ifnet *);
+ int (*if_ioctl)(struct ifnet *, u_long, caddr_t);
+ void (*if_watchdog)(struct ifnet *);
+ int (*if_wol)(struct ifnet *, int);
+ struct ifqueue if_snd;
+ struct ifqueue **if_ifqs;
+ void (*if_qstart)(struct ifqueue *);
+ unsigned int if_nifqs;
+ struct ifiqueue if_rcv;
+ struct ifiqueue **if_iqs;
+ unsigned int if_niqs;
+ struct sockaddr_dl *if_sadl;
+ void *if_afdata[36];
+};
+struct ifaddr {
+ struct sockaddr *ifa_addr;
+ struct sockaddr *ifa_dstaddr;
+ struct sockaddr *ifa_netmask;
+ struct ifnet *ifa_ifp;
+ struct { struct ifaddr *tqe_next; struct ifaddr **tqe_prev; } ifa_list;
+ u_int ifa_flags;
+ u_int ifa_refcnt;
+ int ifa_metric;
+};
+struct ifmaddr {
+ struct sockaddr *ifma_addr;
+ unsigned int ifma_ifidx;
+ unsigned int ifma_refcnt;
+ struct { struct ifmaddr *tqe_next; struct ifmaddr **tqe_prev; } ifma_list;
+};
+struct ifg_group {
+ char ifg_group[16];
+ u_int ifg_refcnt;
+ caddr_t ifg_pf_kif;
+ int ifg_carp_demoted;
+ struct { struct ifg_member *tqh_first; struct ifg_member **tqh_last; } ifg_members;
+ struct { struct ifg_group *tqe_next; struct ifg_group **tqe_prev; } ifg_next;
+};
+struct ifg_member {
+ struct { struct ifg_member *tqe_next; struct ifg_member **tqe_prev; } ifgm_next;
+ struct ifnet *ifgm_ifp;
+};
+struct ifg_list {
+ struct ifg_group *ifgl_group;
+ struct { struct ifg_list *tqe_next; struct ifg_list **tqe_prev; } ifgl_next;
+};
+struct niqueue {
+ struct mbuf_queue ni_q;
+ u_int ni_isr;
+};
+void niq_init(struct niqueue *, u_int, u_int);
+int niq_enqueue(struct niqueue *, struct mbuf *);
+int niq_enlist(struct niqueue *, struct mbuf_list *);
+extern struct ifnet_head ifnet;
+void if_start(struct ifnet *);
+int if_enqueue_try(struct ifnet *, struct mbuf *);
+int if_enqueue(struct ifnet *, struct mbuf *);
+void if_input(struct ifnet *, struct mbuf_list *);
+void if_input_process(struct ifnet *, struct mbuf_list *);
+int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
+int if_output_local(struct ifnet *, struct mbuf *, sa_family_t);
+void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
+void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
+struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
+struct ifaddr *ifa_ifwithdstaddr(struct sockaddr *, u_int);
+struct ifaddr *ifaof_ifpforaddr(struct sockaddr *, struct ifnet *);
+void ifafree(struct ifaddr *);
+int if_isconnected(const struct ifnet *, unsigned int);
+void if_clone_attach(struct if_clone *);
+void if_clone_detach(struct if_clone *);
+int if_clone_create(const char *, int);
+int if_clone_destroy(const char *);
+struct if_clone *
+ if_clone_lookup(const char *, int *);
+void ifa_add(struct ifnet *, struct ifaddr *);
+void ifa_del(struct ifnet *, struct ifaddr *);
+void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
+     struct sockaddr *);
+void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
+     void *), void *);
+void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
+     void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
+void if_rxr_init(struct if_rxring *, u_int, u_int);
+u_int if_rxr_get(struct if_rxring *, u_int);
+int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
+int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
+     struct if_rxring *);
 struct rt_kmetrics {
  u_int64_t rmx_pksent;
  int64_t rmx_expire;
@@ -2304,1002 +2613,6 @@ struct ippseudo {
  u_int8_t ippseudo_p;
  u_int16_t ippseudo_len;
 };
-struct ip6_hdr {
- union {
-  struct ip6_hdrctl {
-   u_int32_t ip6_un1_flow;
-   u_int16_t ip6_un1_plen;
-   u_int8_t ip6_un1_nxt;
-   u_int8_t ip6_un1_hlim;
-  } ip6_un1;
-  u_int8_t ip6_un2_vfc;
- } ip6_ctlun;
- struct in6_addr ip6_src;
- struct in6_addr ip6_dst;
-} __attribute__((__packed__));
-struct ip6_hdr_pseudo {
- struct in6_addr ip6ph_src;
- struct in6_addr ip6ph_dst;
- u_int32_t ip6ph_len;
- u_int8_t ip6ph_zero[3];
- u_int8_t ip6ph_nxt;
-} __attribute__((__packed__));
-struct ip6_ext {
- u_int8_t ip6e_nxt;
- u_int8_t ip6e_len;
-} __attribute__((__packed__));
-struct ip6_hbh {
- u_int8_t ip6h_nxt;
- u_int8_t ip6h_len;
-} __attribute__((__packed__));
-struct ip6_dest {
- u_int8_t ip6d_nxt;
- u_int8_t ip6d_len;
-} __attribute__((__packed__));
-struct ip6_opt {
- u_int8_t ip6o_type;
- u_int8_t ip6o_len;
-} __attribute__((__packed__));
-struct ip6_opt_jumbo {
- u_int8_t ip6oj_type;
- u_int8_t ip6oj_len;
- u_int8_t ip6oj_jumbo_len[4];
-} __attribute__((__packed__));
-struct ip6_opt_nsap {
- u_int8_t ip6on_type;
- u_int8_t ip6on_len;
- u_int8_t ip6on_src_nsap_len;
- u_int8_t ip6on_dst_nsap_len;
-} __attribute__((__packed__));
-struct ip6_opt_tunnel {
- u_int8_t ip6ot_type;
- u_int8_t ip6ot_len;
- u_int8_t ip6ot_encap_limit;
-} __attribute__((__packed__));
-struct ip6_opt_router {
- u_int8_t ip6or_type;
- u_int8_t ip6or_len;
- u_int8_t ip6or_value[2];
-} __attribute__((__packed__));
-struct ip6_rthdr {
- u_int8_t ip6r_nxt;
- u_int8_t ip6r_len;
- u_int8_t ip6r_type;
- u_int8_t ip6r_segleft;
-} __attribute__((__packed__));
-struct ip6_rthdr0 {
- u_int8_t ip6r0_nxt;
- u_int8_t ip6r0_len;
- u_int8_t ip6r0_type;
- u_int8_t ip6r0_segleft;
- u_int32_t ip6r0_reserved;
-} __attribute__((__packed__));
-struct ip6_frag {
- u_int8_t ip6f_nxt;
- u_int8_t ip6f_reserved;
- u_int16_t ip6f_offlg;
- u_int32_t ip6f_ident;
-} __attribute__((__packed__));
-struct ip6q {
- struct { struct ip6q *tqe_next; struct ip6q **tqe_prev; } ip6q_queue;
- struct ip6asfrag_list { struct ip6asfrag *lh_first; } ip6q_asfrag;
- struct in6_addr ip6q_src, ip6q_dst;
- int ip6q_unfrglen;
- int ip6q_nfrag;
- u_int32_t ip6q_ident;
- u_int8_t ip6q_nxt;
- u_int8_t ip6q_ttl;
-};
-struct ip6asfrag {
- struct { struct ip6asfrag *le_next; struct ip6asfrag **le_prev; } ip6af_list;
- struct mbuf *ip6af_m;
- int ip6af_offset;
- int ip6af_frglen;
- int ip6af_off;
- u_int32_t ip6af_flow;
- u_int16_t ip6af_mff;
-};
-struct ip6_moptions {
- struct { struct in6_multi_mship *lh_first; } im6o_memberships;
- unsigned short im6o_ifidx;
- u_char im6o_hlim;
- u_char im6o_loop;
-};
-struct ip6po_rhinfo {
- struct ip6_rthdr *ip6po_rhi_rthdr;
- struct route_in6 ip6po_rhi_route;
-};
-struct ip6_pktopts {
- int ip6po_hlim;
- struct in6_pktinfo *ip6po_pktinfo;
- struct ip6_hbh *ip6po_hbh;
- struct ip6_dest *ip6po_dest1;
- struct ip6po_rhinfo ip6po_rhinfo;
- struct ip6_dest *ip6po_dest2;
- int ip6po_tclass;
- int ip6po_minmtu;
- int ip6po_flags;
-};
-struct ip6stat {
- u_int64_t ip6s_total;
- u_int64_t ip6s_tooshort;
- u_int64_t ip6s_toosmall;
- u_int64_t ip6s_fragments;
- u_int64_t ip6s_fragdropped;
- u_int64_t ip6s_fragtimeout;
- u_int64_t ip6s_fragoverflow;
- u_int64_t ip6s_forward;
- u_int64_t ip6s_cantforward;
- u_int64_t ip6s_redirectsent;
- u_int64_t ip6s_delivered;
- u_int64_t ip6s_localout;
- u_int64_t ip6s_odropped;
- u_int64_t ip6s_reassembled;
- u_int64_t ip6s_fragmented;
- u_int64_t ip6s_ofragments;
- u_int64_t ip6s_cantfrag;
- u_int64_t ip6s_badoptions;
- u_int64_t ip6s_noroute;
- u_int64_t ip6s_badvers;
- u_int64_t ip6s_rawout;
- u_int64_t ip6s_badscope;
- u_int64_t ip6s_notmember;
- u_int64_t ip6s_nxthist[256];
- u_int64_t ip6s_m1;
- u_int64_t ip6s_m2m[32];
- u_int64_t ip6s_mext1;
- u_int64_t ip6s_mext2m;
- u_int64_t ip6s_nogif;
- u_int64_t ip6s_toomanyhdr;
- u_int64_t ip6s_sources_none;
- u_int64_t ip6s_sources_sameif[16];
- u_int64_t ip6s_sources_otherif[16];
- u_int64_t ip6s_sources_samescope[16];
- u_int64_t ip6s_sources_otherscope[16];
- u_int64_t ip6s_sources_deprecated[16];
- u_int64_t ip6s_forward_cachehit;
- u_int64_t ip6s_forward_cachemiss;
-};
-enum ip6stat_counters {
- ip6s_total,
- ip6s_tooshort,
- ip6s_toosmall,
- ip6s_fragments,
- ip6s_fragdropped,
- ip6s_fragtimeout,
- ip6s_fragoverflow,
- ip6s_forward,
- ip6s_cantforward,
- ip6s_redirectsent,
- ip6s_delivered,
- ip6s_localout,
- ip6s_odropped,
- ip6s_reassembled,
- ip6s_fragmented,
- ip6s_ofragments,
- ip6s_cantfrag,
- ip6s_badoptions,
- ip6s_noroute,
- ip6s_badvers,
- ip6s_rawout,
- ip6s_badscope,
- ip6s_notmember,
- ip6s_nxthist,
- ip6s_m1 = ip6s_nxthist + 256,
- ip6s_m2m,
- ip6s_mext1 = ip6s_m2m + 32,
- ip6s_mext2m,
- ip6s_nogif,
- ip6s_toomanyhdr,
- ip6s_sources_none,
- ip6s_sources_sameif,
- ip6s_sources_otherif = ip6s_sources_sameif + 16,
- ip6s_sources_samescope = ip6s_sources_otherif + 16,
- ip6s_sources_otherscope = ip6s_sources_samescope + 16,
- ip6s_sources_deprecated = ip6s_sources_otherscope + 16,
- ip6s_forward_cachehit = ip6s_sources_deprecated + 16,
- ip6s_forward_cachemiss,
- ip6s_ncounters,
-};
-extern struct cpumem *ip6counters;
-static inline void
-ip6stat_inc(enum ip6stat_counters c)
-{
- counters_inc(ip6counters, c);
-}
-static inline void
-ip6stat_add(enum ip6stat_counters c, uint64_t v)
-{
- counters_add(ip6counters, c, v);
-}
-extern int ip6_mtudisc_timeout;
-extern struct rttimer_queue *icmp6_mtudisc_timeout_q;
-extern int ip6_defhlim;
-extern int ip6_defmcasthlim;
-extern int ip6_forwarding;
-extern int ip6_mforwarding;
-extern int ip6_multipath;
-extern int ip6_sendredirect;
-extern int ip6_use_deprecated;
-extern int ip6_mcast_pmtu;
-extern int ip6_neighborgcthresh;
-extern int ip6_maxdynroutes;
-extern struct socket *ip6_mrouter[255];
-extern int ip6_sendredirects;
-extern int ip6_maxfragpackets;
-extern int ip6_maxfrags;
-extern int ip6_log_interval;
-extern time_t ip6_log_time;
-extern int ip6_hdrnestlimit;
-extern int ip6_dad_count;
-extern int ip6_dad_pending;
-extern int ip6_auto_flowlabel;
-extern int ip6_auto_linklocal;
-struct in6pcb;
-struct inpcb;
-int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
-void ip6_init(void);
-void ip6intr(void);
-int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
-void ip6_freepcbopts(struct ip6_pktopts *);
-void ip6_freemoptions(struct ip6_moptions *);
-int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
-int ip6_get_prevhdr(struct mbuf *, int);
-int ip6_nexthdr(struct mbuf *, int, int, int *);
-int ip6_lasthdr(struct mbuf *, int, int, int *);
-int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
-int ip6_process_hopopts(struct mbuf *, u_int8_t *, int, u_int32_t *,
-      u_int32_t *);
-void ip6_savecontrol(struct inpcb *, struct mbuf *, struct mbuf **);
-int ip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-void ip6_forward(struct mbuf *, struct rtentry *, int);
-void ip6_mloopback(struct ifnet *, struct mbuf *, struct sockaddr_in6 *);
-int ip6_output(struct mbuf *, struct ip6_pktopts *, struct route_in6 *, int,
-     struct ip6_moptions *, struct inpcb *);
-int ip6_fragment(struct mbuf *, int, u_char, u_long);
-int ip6_ctloutput(int, struct socket *, int, int, struct mbuf *);
-int ip6_raw_ctloutput(int, struct socket *, int, int, struct mbuf *);
-void ip6_initpktopts(struct ip6_pktopts *);
-int ip6_setpktopts(struct mbuf *, struct ip6_pktopts *,
-     struct ip6_pktopts *, int, int);
-void ip6_clearpktopts(struct ip6_pktopts *, int);
-void ip6_randomid_init(void);
-u_int32_t ip6_randomid(void);
-void ip6_send(struct mbuf *);
-int route6_input(struct mbuf **, int *, int, int);
-void frag6_init(void);
-int frag6_input(struct mbuf **, int *, int, int);
-int frag6_deletefraghdr(struct mbuf *, int);
-void frag6_slowtimo(void);
-void rip6_init(void);
-int rip6_input(struct mbuf **, int *, int, int);
-void rip6_ctlinput(int, struct sockaddr *, u_int, void *);
-int rip6_ctloutput(int, struct socket *, int, int, struct mbuf *);
-int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
-     struct mbuf *);
-int rip6_usrreq(struct socket *,
-     int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
-int rip6_attach(struct socket *, int);
-int rip6_detach(struct socket *);
-int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int dest6_input(struct mbuf **, int *, int, int);
-int none_input(struct mbuf **, int *, int);
-int in6_pcbselsrc(struct in6_addr **, struct sockaddr_in6 *,
-     struct inpcb *, struct ip6_pktopts *);
-int in6_selectsrc(struct in6_addr **, struct sockaddr_in6 *,
-     struct ip6_moptions *, unsigned int);
-struct rtentry *in6_selectroute(struct sockaddr_in6 *, struct ip6_pktopts *,
-     struct route_in6 *, unsigned int rtableid);
-u_int32_t ip6_randomflowlabel(void);
-struct tdb;
-struct tdb *
- ip6_output_ipsec_lookup(struct mbuf *, int *, struct inpcb *);
-int ip6_output_ipsec_send(struct tdb *, struct mbuf *, int, int);
-struct icmp6_hdr {
- u_int8_t icmp6_type;
- u_int8_t icmp6_code;
- u_int16_t icmp6_cksum;
- union {
-  u_int32_t icmp6_un_data32[1];
-  u_int16_t icmp6_un_data16[2];
-  u_int8_t icmp6_un_data8[4];
- } icmp6_dataun;
-} __attribute__((__packed__));
-struct mld_hdr {
- struct icmp6_hdr mld_icmp6_hdr;
- struct in6_addr mld_addr;
-} __attribute__((__packed__));
-struct nd_router_solicit {
- struct icmp6_hdr nd_rs_hdr;
-} __attribute__((__packed__));
-struct nd_router_advert {
- struct icmp6_hdr nd_ra_hdr;
- u_int32_t nd_ra_reachable;
- u_int32_t nd_ra_retransmit;
-} __attribute__((__packed__));
-struct nd_neighbor_solicit {
- struct icmp6_hdr nd_ns_hdr;
- struct in6_addr nd_ns_target;
-} __attribute__((__packed__));
-struct nd_neighbor_advert {
- struct icmp6_hdr nd_na_hdr;
- struct in6_addr nd_na_target;
-} __attribute__((__packed__));
-struct nd_redirect {
- struct icmp6_hdr nd_rd_hdr;
- struct in6_addr nd_rd_target;
- struct in6_addr nd_rd_dst;
-} __attribute__((__packed__));
-struct nd_opt_hdr {
- u_int8_t nd_opt_type;
- u_int8_t nd_opt_len;
-} __attribute__((__packed__));
-struct nd_opt_prefix_info {
- u_int8_t nd_opt_pi_type;
- u_int8_t nd_opt_pi_len;
- u_int8_t nd_opt_pi_prefix_len;
- u_int8_t nd_opt_pi_flags_reserved;
- u_int32_t nd_opt_pi_valid_time;
- u_int32_t nd_opt_pi_preferred_time;
- u_int32_t nd_opt_pi_reserved2;
- struct in6_addr nd_opt_pi_prefix;
-} __attribute__((__packed__));
-struct nd_opt_rd_hdr {
- u_int8_t nd_opt_rh_type;
- u_int8_t nd_opt_rh_len;
- u_int16_t nd_opt_rh_reserved1;
- u_int32_t nd_opt_rh_reserved2;
-} __attribute__((__packed__));
-struct nd_opt_mtu {
- u_int8_t nd_opt_mtu_type;
- u_int8_t nd_opt_mtu_len;
- u_int16_t nd_opt_mtu_reserved;
- u_int32_t nd_opt_mtu_mtu;
-} __attribute__((__packed__));
-struct nd_opt_route_info {
- u_int8_t nd_opt_rti_type;
- u_int8_t nd_opt_rti_len;
- u_int8_t nd_opt_rti_prefixlen;
- u_int8_t nd_opt_rti_flags;
- u_int32_t nd_opt_rti_lifetime;
-} __attribute__((__packed__));
-struct nd_opt_rdnss {
- u_int8_t nd_opt_rdnss_type;
- u_int8_t nd_opt_rdnss_len;
- u_int16_t nd_opt_rdnss_reserved;
- u_int32_t nd_opt_rdnss_lifetime;
-} __attribute__((__packed__));
-struct nd_opt_dnssl {
- u_int8_t nd_opt_dnssl_type;
- u_int8_t nd_opt_dnssl_len;
- u_int16_t nd_opt_dnssl_reserved;
- u_int32_t nd_opt_dnssl_lifetime;
-} __attribute__((__packed__));
-struct icmp6_namelookup {
- struct icmp6_hdr icmp6_nl_hdr;
- u_int8_t icmp6_nl_nonce[8];
- int32_t icmp6_nl_ttl;
-} __attribute__((__packed__));
-struct icmp6_nodeinfo {
- struct icmp6_hdr icmp6_ni_hdr;
- u_int8_t icmp6_ni_nonce[8];
-} __attribute__((__packed__));
-struct ni_reply_fqdn {
- u_int32_t ni_fqdn_ttl;
- u_int8_t ni_fqdn_namelen;
- u_int8_t ni_fqdn_name[3];
-} __attribute__((__packed__));
-struct icmp6_router_renum {
- struct icmp6_hdr rr_hdr;
- u_int8_t rr_segnum;
- u_int8_t rr_flags;
- u_int16_t rr_maxdelay;
- u_int32_t rr_reserved;
-} __attribute__((__packed__));
-struct rr_pco_match {
- u_int8_t rpm_code;
- u_int8_t rpm_len;
- u_int8_t rpm_ordinal;
- u_int8_t rpm_matchlen;
- u_int8_t rpm_minlen;
- u_int8_t rpm_maxlen;
- u_int16_t rpm_reserved;
- struct in6_addr rpm_prefix;
-} __attribute__((__packed__));
-struct rr_pco_use {
- u_int8_t rpu_uselen;
- u_int8_t rpu_keeplen;
- u_int8_t rpu_ramask;
- u_int8_t rpu_raflags;
- u_int32_t rpu_vltime;
- u_int32_t rpu_pltime;
- u_int32_t rpu_flags;
- struct in6_addr rpu_prefix;
-} __attribute__((__packed__));
-struct rr_result {
- u_int16_t rrr_flags;
- u_int8_t rrr_ordinal;
- u_int8_t rrr_matchedlen;
- u_int32_t rrr_ifid;
- struct in6_addr rrr_prefix;
-} __attribute__((__packed__));
-struct icmp6_filter {
- u_int32_t icmp6_filt[8];
-};
-struct icmp6stat {
- u_int64_t icp6s_error;
- u_int64_t icp6s_canterror;
- u_int64_t icp6s_toofreq;
- u_int64_t icp6s_outhist[256];
- u_int64_t icp6s_badcode;
- u_int64_t icp6s_tooshort;
- u_int64_t icp6s_checksum;
- u_int64_t icp6s_badlen;
- u_int64_t icp6s_reflect;
- u_int64_t icp6s_inhist[256];
- u_int64_t icp6s_nd_toomanyopt;
- u_int64_t icp6s_odst_unreach_noroute;
- u_int64_t icp6s_odst_unreach_admin;
- u_int64_t icp6s_odst_unreach_beyondscope;
- u_int64_t icp6s_odst_unreach_addr;
- u_int64_t icp6s_odst_unreach_noport;
- u_int64_t icp6s_opacket_too_big;
- u_int64_t icp6s_otime_exceed_transit;
- u_int64_t icp6s_otime_exceed_reassembly;
- u_int64_t icp6s_oparamprob_header;
- u_int64_t icp6s_oparamprob_nextheader;
- u_int64_t icp6s_oparamprob_option;
- u_int64_t icp6s_oredirect;
- u_int64_t icp6s_ounknown;
- u_int64_t icp6s_pmtuchg;
- u_int64_t icp6s_nd_badopt;
- u_int64_t icp6s_badns;
- u_int64_t icp6s_badna;
- u_int64_t icp6s_badrs;
- u_int64_t icp6s_badra;
- u_int64_t icp6s_badredirect;
-};
-enum icmp6stat_counters {
- icp6s_error,
- icp6s_canterror,
- icp6s_toofreq,
- icp6s_outhist,
- icp6s_badcode = icp6s_outhist + 256,
- icp6s_tooshort,
- icp6s_checksum,
- icp6s_badlen,
- icp6s_reflect,
- icp6s_inhist,
- icp6s_nd_toomanyopt = icp6s_inhist + 256,
- icp6s_odst_unreach_noroute,
- icp6s_odst_unreach_admin,
- icp6s_odst_unreach_beyondscope,
- icp6s_odst_unreach_addr,
- icp6s_odst_unreach_noport,
- icp6s_opacket_too_big,
- icp6s_otime_exceed_transit,
- icp6s_otime_exceed_reassembly,
- icp6s_oparamprob_header,
- icp6s_oparamprob_nextheader,
- icp6s_oparamprob_option,
- icp6s_oredirect,
- icp6s_ounknown,
- icp6s_pmtuchg,
- icp6s_nd_badopt,
- icp6s_badns,
- icp6s_badna,
- icp6s_badrs,
- icp6s_badra,
- icp6s_badredirect,
- icp6s_ncounters,
-};
-extern struct cpumem *icmp6counters;
-static inline void
-icmp6stat_inc(enum icmp6stat_counters c)
-{
- counters_inc(icmp6counters, c);
-}
-struct rtentry;
-struct rttimer;
-struct in6_multi;
-void icmp6_init(void);
-void icmp6_paramerror(struct mbuf *, int);
-void icmp6_error(struct mbuf *, int, int, int);
-int icmp6_input(struct mbuf **, int *, int, int);
-void icmp6_fasttimo(void);
-void icmp6_reflect(struct mbuf *, size_t);
-void icmp6_prepare(struct mbuf *);
-void icmp6_redirect_input(struct mbuf *, int);
-void icmp6_redirect_output(struct mbuf *, struct rtentry *);
-int icmp6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-struct ip6ctlparam;
-void icmp6_mtudisc_update(struct ip6ctlparam *, int);
-void icmp6_mtudisc_callback_register(void (*)(struct sockaddr_in6 *, u_int));
-extern int icmp6_redirtimeout;
-struct m_tag;
-struct radix_node {
- struct radix_mask *rn_mklist;
- struct radix_node *rn_p;
- short rn_b;
- char rn_bmask;
- u_char rn_flags;
- union {
-  struct {
-   caddr_t rn_Key;
-   caddr_t rn_Mask;
-   struct radix_node *rn_Dupedkey;
-  } rn_leaf;
-  struct {
-   int rn_Off;
-   struct radix_node *rn_L;
-   struct radix_node *rn_R;
-  } rn_node;
- } rn_u;
-};
-struct radix_mask {
- short rm_b;
- char rm_unused;
- u_char rm_flags;
- struct radix_mask *rm_mklist;
- union {
-  caddr_t rmu_mask;
-  struct radix_node *rmu_leaf;
- } rm_rmu;
- int rm_refs;
-};
-struct radix_node_head {
- struct radix_node *rnh_treetop;
- int rnh_addrsize;
- int rnh_pktsize;
- struct radix_node rnh_nodes[3];
- u_int rnh_rtableid;
-};
-void rn_init(unsigned int);
-int rn_inithead(void **, int);
-int rn_walktree(struct radix_node_head *,
-     int (*)(struct radix_node *, void *, u_int), void *);
-struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
-       struct radix_node [2], u_int8_t);
-struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
-       struct radix_node *);
-struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
-struct radix_node *rn_match(void *, struct radix_node_head *);
-union sockaddr_union {
- struct sockaddr sa;
- struct sockaddr_in sin;
- struct sockaddr_in6 sin6;
-};
-struct sockaddr_encap {
- u_int8_t sen_len;
- u_int8_t sen_family;
- u_int16_t sen_type;
- union {
-  struct {
-   u_int8_t Direction;
-   struct in_addr Src;
-   struct in_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip4;
-  struct {
-   u_int8_t Direction;
-   struct in6_addr Src;
-   struct in6_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip6;
-  struct ipsec_policy *PolicyHead;
- } Sen;
-};
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
-struct ipsec_id {
- u_int16_t type;
- int16_t len;
-};
-struct ipsec_ids {
- struct rb_entry id_node_id;
- struct rb_entry id_node_flow;
- struct ipsec_id *id_local;
- struct ipsec_id *id_remote;
- u_int32_t id_flow;
- int id_refcount;
- struct timeout id_timeout;
-};
-struct ipsec_ids_flows { struct rb_tree rbh_root; };
-struct ipsec_ids_tree { struct rb_tree rbh_root; };
-struct ipsec_acquire {
- union sockaddr_union ipa_addr;
- u_int32_t ipa_seq;
- struct sockaddr_encap ipa_info;
- struct sockaddr_encap ipa_mask;
- struct timeout ipa_timeout;
- struct ipsec_policy *ipa_policy;
- struct inpcb *ipa_pcb;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_ipo_next;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_next;
-};
-struct ipsec_policy {
- struct radix_node ipo_nodes[2];
- struct sockaddr_encap ipo_addr;
- struct sockaddr_encap ipo_mask;
- union sockaddr_union ipo_src;
- union sockaddr_union ipo_dst;
- u_int64_t ipo_last_searched;
- u_int8_t ipo_flags;
- u_int8_t ipo_type;
- u_int8_t ipo_sproto;
- u_int ipo_rdomain;
- int ipo_ref_count;
- struct tdb *ipo_tdb;
- struct ipsec_ids *ipo_ids;
- struct ipo_acquires_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipo_acquires;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_tdb_next;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_list;
-};
-struct tdb {
- struct tdb *tdb_hnext;
- struct tdb *tdb_dnext;
- struct tdb *tdb_snext;
- struct tdb *tdb_inext;
- struct tdb *tdb_onext;
- struct xformsw *tdb_xform;
- struct enc_xform *tdb_encalgxform;
- struct auth_hash *tdb_authalgxform;
- struct comp_algo *tdb_compalgxform;
- u_int32_t tdb_flags;
- struct timeout tdb_timer_tmo;
- struct timeout tdb_first_tmo;
- struct timeout tdb_stimer_tmo;
- struct timeout tdb_sfirst_tmo;
- u_int32_t tdb_seq;
- u_int32_t tdb_exp_allocations;
- u_int32_t tdb_soft_allocations;
- u_int32_t tdb_cur_allocations;
- u_int64_t tdb_exp_bytes;
- u_int64_t tdb_soft_bytes;
- u_int64_t tdb_cur_bytes;
- u_int64_t tdb_exp_timeout;
- u_int64_t tdb_soft_timeout;
- u_int64_t tdb_established;
- u_int64_t tdb_first_use;
- u_int64_t tdb_soft_first_use;
- u_int64_t tdb_exp_first_use;
- u_int64_t tdb_last_used;
- u_int64_t tdb_last_marked;
- u_int64_t tdb_cryptoid;
- u_int32_t tdb_spi;
- u_int16_t tdb_amxkeylen;
- u_int16_t tdb_emxkeylen;
- u_int16_t tdb_ivlen;
- u_int8_t tdb_sproto;
- u_int8_t tdb_wnd;
- u_int8_t tdb_satype;
- u_int8_t tdb_updates;
- union sockaddr_union tdb_dst;
- union sockaddr_union tdb_src;
- u_int8_t *tdb_amxkey;
- u_int8_t *tdb_emxkey;
- u_int64_t tdb_rpl;
- u_int32_t tdb_seen[((((2100+32)) + ((32) - 1)) / (32))];
- u_int8_t tdb_iv[4];
- struct ipsec_ids *tdb_ids;
- int tdb_ids_swapped;
- u_int32_t tdb_mtu;
- u_int64_t tdb_mtutimeout;
- u_int16_t tdb_udpencap_port;
- u_int16_t tdb_tag;
- u_int32_t tdb_tap;
- u_int tdb_rdomain;
- struct sockaddr_encap tdb_filter;
- struct sockaddr_encap tdb_filtermask;
- struct tdb_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } tdb_policy_head;
- struct { struct tdb *tqe_next; struct tdb **tqe_prev; } tdb_sync_entry;
-};
-struct tdb_ident {
- u_int32_t spi;
- union sockaddr_union dst;
- u_int8_t proto;
- u_int rdomain;
-};
-struct tdb_crypto {
- u_int32_t tc_spi;
- union sockaddr_union tc_dst;
- u_int8_t tc_proto;
- int tc_protoff;
- int tc_skip;
- u_int tc_rdomain;
-};
-struct ipsecinit {
- u_int8_t *ii_enckey;
- u_int8_t *ii_authkey;
- u_int16_t ii_enckeylen;
- u_int16_t ii_authkeylen;
- u_int8_t ii_encalg;
- u_int8_t ii_authalg;
- u_int8_t ii_compalg;
-};
-struct xformsw {
- u_short xf_type;
- u_short xf_flags;
- char *xf_name;
- int (*xf_attach)(void);
- int (*xf_init)(struct tdb *, struct xformsw *, struct ipsecinit *);
- int (*xf_zeroize)(struct tdb *);
- int (*xf_input)(struct mbuf *, struct tdb *, int, int);
- int (*xf_output)(struct mbuf *, struct tdb *, struct mbuf **,
-     int, int);
-};
-extern int ipsec_in_use;
-extern u_int64_t ipsec_last_added;
-extern int ipsec_policy_pool_initialized;
-extern int encdebug;
-extern int ipsec_keep_invalid;
-extern int ipsec_require_pfs;
-extern int ipsec_expire_acquire;
-extern int ipsec_soft_allocations;
-extern int ipsec_exp_allocations;
-extern int ipsec_soft_bytes;
-extern int ipsec_exp_bytes;
-extern int ipsec_soft_timeout;
-extern int ipsec_exp_timeout;
-extern int ipsec_soft_first_use;
-extern int ipsec_exp_first_use;
-extern char ipsec_def_enc[];
-extern char ipsec_def_auth[];
-extern char ipsec_def_comp[];
-extern struct enc_xform enc_xform_des;
-extern struct enc_xform enc_xform_3des;
-extern struct enc_xform enc_xform_blf;
-extern struct enc_xform enc_xform_cast5;
-extern struct auth_hash auth_hash_hmac_md5_96;
-extern struct auth_hash auth_hash_hmac_sha1_96;
-extern struct auth_hash auth_hash_hmac_ripemd_160_96;
-extern struct comp_algo comp_algo_deflate;
-extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-struct radix_node_head *spd_table_add(unsigned int);
-struct radix_node_head *spd_table_get(unsigned int);
-int spd_table_walk(unsigned int,
-    int (*walker)(struct ipsec_policy *, void *, unsigned int), void *);
-uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t, int *);
-struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
-struct tdb *gettdbbydst(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrc(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrcdst(u_int, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t);
-void puttdb(struct tdb *);
-void tdb_delete(struct tdb *);
-struct tdb *tdb_alloc(u_int);
-void tdb_free(struct tdb *);
-int tdb_init(struct tdb *, u_int16_t, struct ipsecinit *);
-void tdb_unlink(struct tdb *);
-int tdb_walk(u_int, int (*)(struct tdb *, void *, int), void *);
-int ipe4_attach(void);
-int ipe4_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipe4_zeroize(struct tdb *);
-int ipe4_input(struct mbuf *, struct tdb *, int, int);
-int ah_attach(void);
-int ah_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ah_zeroize(struct tdb *);
-int ah_input(struct mbuf *, struct tdb *, int, int);
-int ah_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ah_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ah4_input(struct mbuf **, int *, int, int);
-void ah4_ctlinput(int, struct sockaddr *, u_int, void *);
-void udpencap_ctlinput(int, struct sockaddr *, u_int, void *);
-int ah6_input(struct mbuf **, int *, int, int);
-int esp_attach(void);
-int esp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int esp_zeroize(struct tdb *);
-int esp_input(struct mbuf *, struct tdb *, int, int);
-int esp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int esp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int esp4_input(struct mbuf **, int *, int, int);
-void esp4_ctlinput(int, struct sockaddr *, u_int, void *);
-int esp6_input(struct mbuf **, int *, int, int);
-int ipcomp_attach(void);
-int ipcomp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipcomp_zeroize(struct tdb *);
-int ipcomp_input(struct mbuf *, struct tdb *, int, int);
-int ipcomp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ipcomp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ipcomp4_input(struct mbuf **, int *, int, int);
-int ipcomp6_input(struct mbuf **, int *, int, int);
-int tcp_signature_tdb_attach(void);
-int tcp_signature_tdb_init(struct tdb *, struct xformsw *,
-     struct ipsecinit *);
-int tcp_signature_tdb_zeroize(struct tdb *);
-int tcp_signature_tdb_input(struct mbuf *, struct tdb *, int, int);
-int tcp_signature_tdb_output(struct mbuf *, struct tdb *, struct mbuf **,
-   int, int);
-int checkreplaywindow(struct tdb *, u_int32_t, u_int32_t *, int);
-int ipsp_process_packet(struct mbuf *, struct tdb *, int, int);
-int ipsp_process_done(struct mbuf *, struct tdb *);
-struct tdb *ipsp_spd_lookup(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, u_int32_t);
-struct tdb *ipsp_spd_inp(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, struct ipsec_policy *);
-int ipsp_is_unspecified(union sockaddr_union);
-int ipsp_aux_match(struct tdb *, struct ipsec_ids *,
-     struct sockaddr_encap *, struct sockaddr_encap *);
-int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
-void ipsp_ids_free(struct ipsec_ids *);
-void ipsec_init(void);
-int ipsec_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ipsec_common_input(struct mbuf *, int, int, int, int, int);
-void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
-int ipsec_delete_policy(struct ipsec_policy *);
-ssize_t ipsec_hdrsz(struct tdb *);
-void ipsec_adjust_mtu(struct mbuf *, u_int32_t);
-struct ipsec_acquire *ipsec_get_acquire(u_int32_t);
-int ipsec_forward_check(struct mbuf *, int, int);
-int ipsec_local_check(struct mbuf *, int, int, int);
-typedef struct _SIPHASH_CTX {
- uint64_t v[4];
- uint8_t buf[8];
- uint32_t bytes;
-} SIPHASH_CTX;
-typedef struct {
- uint64_t k0;
- uint64_t k1;
-} SIPHASH_KEY;
-void SipHash_Init(SIPHASH_CTX *, const SIPHASH_KEY *);
-void SipHash_Update(SIPHASH_CTX *, int, int, const void *, size_t)
-      __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
-uint64_t SipHash_End(SIPHASH_CTX *, int, int);
-void SipHash_Final(void *, SIPHASH_CTX *, int, int)
-      __attribute__ ((__bounded__ (__minbytes__, 1, 8) ));
-uint64_t SipHash(const SIPHASH_KEY *, int, int, const void *, size_t)
-      __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
-struct pf_state_key;
-union inpaddru {
- struct in6_addr iau_addr6;
- struct {
-  uint8_t pad[12];
-  struct in_addr inaddr;
- } iau_a4u;
-};
-struct inpcb {
- struct { struct inpcb *le_next; struct inpcb **le_prev; } inp_hash;
- struct { struct inpcb *le_next; struct inpcb **le_prev; } inp_lhash;
- struct { struct inpcb *tqe_next; struct inpcb **tqe_prev; } inp_queue;
- struct inpcbtable *inp_table;
- union inpaddru inp_faddru;
- union inpaddru inp_laddru;
- u_int16_t inp_fport;
- u_int16_t inp_lport;
- struct socket *inp_socket;
- caddr_t inp_ppcb;
- union {
-  struct route ru_route;
-  struct route_in6 ru_route6;
- } inp_ru;
- int inp_flags;
- union {
-  struct ip hu_ip;
-  struct ip6_hdr hu_ipv6;
- } inp_hu;
- struct mbuf *inp_options;
- struct ip6_pktopts *inp_outputopts6;
- int inp_hops;
- union {
-  struct ip_moptions *mou_mo;
-  struct ip6_moptions *mou_mo6;
- } inp_mou;
- u_char inp_seclevel[4];
- u_char inp_ip_minttl;
- int inp_cksum6;
- struct icmp6_filter *inp_icmp6filt;
- struct pf_state_key *inp_pf_sk;
- u_int inp_rtableid;
- int inp_pipex;
-};
-struct inpcbhead { struct inpcb *lh_first; };
-struct inpcbtable {
- struct inpthead { struct inpcb *tqh_first; struct inpcb **tqh_last; } inpt_queue;
- struct inpcbhead *inpt_hashtbl, *inpt_lhashtbl;
- SIPHASH_KEY inpt_key;
- u_long inpt_hash, inpt_lhash;
- int inpt_count;
-};
-struct baddynamicports {
- u_int32_t tcp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];
- u_int32_t udp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];
-};
-extern struct baddynamicports baddynamicports;
-extern struct baddynamicports rootonlyports;
-void in_losing(struct inpcb *);
-int in_pcballoc(struct socket *, struct inpcbtable *);
-int in_pcbbind(struct inpcb *, struct mbuf *, struct proc *);
-int in_pcbaddrisavail(struct inpcb *, struct sockaddr_in *, int,
-     struct proc *);
-int in_pcbconnect(struct inpcb *, struct mbuf *);
-void in_pcbdetach(struct inpcb *);
-void in_pcbdisconnect(struct inpcb *);
-struct inpcb *
-  in_pcbhashlookup(struct inpcbtable *, struct in_addr,
-          u_int, struct in_addr, u_int, u_int);
-struct inpcb *
-  in_pcblookup_listen(struct inpcbtable *, struct in_addr, u_int,
-     struct mbuf *, u_int);
-struct inpcb *
-  in6_pcbhashlookup(struct inpcbtable *, const struct in6_addr *,
-          u_int, const struct in6_addr *, u_int, u_int);
-struct inpcb *
-  in6_pcblookup_listen(struct inpcbtable *, struct in6_addr *, u_int,
-     struct mbuf *, u_int);
-int in6_pcbaddrisavail(struct inpcb *, struct sockaddr_in6 *, int,
-     struct proc *);
-int in6_pcbconnect(struct inpcb *, struct mbuf *);
-int in6_setsockaddr(struct inpcb *, struct mbuf *);
-int in6_setpeeraddr(struct inpcb *, struct mbuf *);
-void in_pcbinit(struct inpcbtable *, int);
-struct inpcb *
-  in_pcblookup_local(struct inpcbtable *, void *, u_int, int, u_int);
-void in_pcbnotifyall(struct inpcbtable *, struct sockaddr *,
-     u_int, int, void (*)(struct inpcb *, int));
-void in_pcbrehash(struct inpcb *);
-void in_rtchange(struct inpcb *, int);
-void in_setpeeraddr(struct inpcb *, struct mbuf *);
-void in_setsockaddr(struct inpcb *, struct mbuf *);
-int in_baddynamic(u_int16_t, u_int16_t);
-int in_rootonly(u_int16_t, u_int16_t);
-int in_pcbselsrc(struct in_addr **, struct sockaddr_in *, struct inpcb *);
-struct rtentry *
- in_pcbrtentry(struct inpcb *);
-int in6_pcbnotify(struct inpcbtable *, struct sockaddr_in6 *,
- u_int, const struct sockaddr_in6 *, u_int, u_int, int, void *,
- void (*)(struct inpcb *, int));
-int in6_selecthlim(struct inpcb *);
-int in_pcbpickport(u_int16_t *, void *, int, struct inpcb *, struct proc *);
 struct ipovly {
  u_int8_t ih_x1[9];
  u_int8_t ih_pr;
@@ -3464,6 +2777,113 @@ int rip_usrreq(struct socket *,
 int rip_attach(struct socket *, int);
 int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
+typedef int32_t bpf_int32;
+typedef u_int32_t bpf_u_int32;
+struct bpf_program {
+ u_int bf_len;
+ struct bpf_insn *bf_insns;
+};
+struct bpf_stat {
+ u_int bs_recv;
+ u_int bs_drop;
+};
+struct bpf_version {
+ u_short bv_major;
+ u_short bv_minor;
+};
+struct bpf_timeval {
+ u_int32_t tv_sec;
+ u_int32_t tv_usec;
+};
+struct bpf_hdr {
+ struct bpf_timeval bh_tstamp;
+ u_int32_t bh_caplen;
+ u_int32_t bh_datalen;
+ u_int16_t bh_hdrlen;
+};
+struct bpf_insn {
+ u_int16_t code;
+ u_char jt;
+ u_char jf;
+ u_int32_t k;
+};
+struct bpf_dltlist {
+ u_int bfl_len;
+ u_int *bfl_list;
+};
+struct bpf_ops {
+ u_int32_t (*ldw)(const void *, u_int32_t, int *);
+ u_int32_t (*ldh)(const void *, u_int32_t, int *);
+ u_int32_t (*ldb)(const void *, u_int32_t, int *);
+};
+
+u_int bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int)
+     __attribute__ ((__bounded__ (__buffer__, 2, 4) ));
+u_int _bpf_filter(const struct bpf_insn *, const struct bpf_ops *,
+      const void *, u_int);
+
+struct ifnet;
+struct mbuf;
+int bpf_validate(struct bpf_insn *, int);
+int bpf_mtap(caddr_t, const struct mbuf *, u_int);
+int bpf_mtap_hdr(caddr_t, caddr_t, u_int, const struct mbuf *, u_int,
+     void (*)(const void *, void *, size_t));
+int bpf_mtap_af(caddr_t, u_int32_t, const struct mbuf *, u_int);
+int bpf_mtap_ether(caddr_t, const struct mbuf *, u_int);
+int bpf_tap_hdr(caddr_t, const void *, u_int, const void *, u_int, u_int);
+void bpfattach(caddr_t *, struct ifnet *, u_int, u_int);
+void bpfdetach(struct ifnet *);
+void *bpfsattach(caddr_t *, const char *, u_int, u_int);
+void bpfsdetach(void *);
+void bpfilterattach(int);
+u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
+struct radix_node {
+ struct radix_mask *rn_mklist;
+ struct radix_node *rn_p;
+ short rn_b;
+ char rn_bmask;
+ u_char rn_flags;
+ union {
+  struct {
+   caddr_t rn_Key;
+   caddr_t rn_Mask;
+   struct radix_node *rn_Dupedkey;
+  } rn_leaf;
+  struct {
+   int rn_Off;
+   struct radix_node *rn_L;
+   struct radix_node *rn_R;
+  } rn_node;
+ } rn_u;
+};
+struct radix_mask {
+ short rm_b;
+ char rm_unused;
+ u_char rm_flags;
+ struct radix_mask *rm_mklist;
+ union {
+  caddr_t rmu_mask;
+  struct radix_node *rmu_leaf;
+ } rm_rmu;
+ int rm_refs;
+};
+struct radix_node_head {
+ struct radix_node *rnh_treetop;
+ int rnh_addrsize;
+ int rnh_pktsize;
+ struct radix_node rnh_nodes[3];
+ u_int rnh_rtableid;
+};
+void rn_init(unsigned int);
+int rn_inithead(void **, int);
+int rn_walktree(struct radix_node_head *,
+     int (*)(struct radix_node *, void *, u_int), void *);
+struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
+       struct radix_node [2], u_int8_t);
+struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
+       struct radix_node *);
+struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
+struct radix_node *rn_match(void *, struct radix_node_head *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -4551,724 +3971,769 @@ int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
 struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
-struct udphdr {
- u_int16_t uh_sport;
- u_int16_t uh_dport;
- u_int16_t uh_ulen;
- u_int16_t uh_sum;
+struct mobileip_header {
+ uint8_t mip_proto;
+ uint8_t mip_flags;
+ uint16_t mip_hcrc;
+ uint32_t mip_dst;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct mobileip_h_src {
+ uint32_t mip_src;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+void mobileipattach(int);
+int mobileip_input(struct mbuf **, int *, int, int);
+int mobileip_sysctl(int *, u_int, void *, size_t *,
+       void *, size_t);
+struct mobileip_softc {
+ struct ifnet sc_if;
+ struct rb_entry
+    sc_entry;
+ unsigned int sc_rtableid;
+ uint32_t sc_src;
+ uint32_t sc_dst;
 };
-struct ipipstat {
-    u_int64_t ipips_ipackets;
-    u_int64_t ipips_opackets;
-    u_int64_t ipips_hdrops;
-    u_int64_t ipips_qfull;
-    u_int64_t ipips_ibytes;
-    u_int64_t ipips_obytes;
-    u_int64_t ipips_pdrops;
-    u_int64_t ipips_spoof;
-    u_int64_t ipips_family;
-    u_int64_t ipips_unspec;
-};
-enum ipipstat_counters {
- ipips_ipackets,
- ipips_opackets,
- ipips_hdrops,
- ipips_qfull,
- ipips_ibytes,
- ipips_obytes,
- ipips_pdrops,
- ipips_spoof,
- ipips_family,
- ipips_unspec,
- ipips_ncounters
-};
-extern struct cpumem *ipipcounters;
-static inline void
-ipipstat_inc(enum ipipstat_counters c)
+static int mobileip_clone_create(struct if_clone *, int);
+static int mobileip_clone_destroy(struct ifnet *);
+static struct if_clone mobileip_cloner = { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mobileip", .ifc_namelen = sizeof("mobileip") - 1, .ifc_create = mobileip_clone_create, .ifc_destroy = mobileip_clone_destroy, };
+struct mobileip_tree { struct rb_tree rbh_root; };
+static inline int
+  mobileip_cmp(const struct mobileip_softc *,
+      const struct mobileip_softc *);
+extern const struct rb_type *const mobileip_tree_RBT_TYPE; __attribute__((__unused__)) static inline void mobileip_tree_RBT_INIT(struct mobileip_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_INSERT(struct mobileip_tree *head, struct mobileip_softc *elm) { return _rb_insert(mobileip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_REMOVE(struct mobileip_tree *head, struct mobileip_softc *elm) { return _rb_remove(mobileip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_FIND(struct mobileip_tree *head, const struct mobileip_softc *key) { return _rb_find(mobileip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_NFIND(struct mobileip_tree *head, const struct mobileip_softc *key) { return _rb_nfind(mobileip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_ROOT(struct mobileip_tree *head) { return _rb_root(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int mobileip_tree_RBT_EMPTY(struct mobileip_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_MIN(struct mobileip_tree *head) { return _rb_min(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_MAX(struct mobileip_tree *head) { return _rb_max(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_NEXT(struct mobileip_softc *elm) { return _rb_next(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_PREV(struct mobileip_softc *elm) { return _rb_prev(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_LEFT(struct mobileip_softc *elm) { return _rb_left(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_RIGHT(struct mobileip_softc *elm) { return _rb_right(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_PARENT(struct mobileip_softc *elm) { return _rb_parent(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_LEFT(struct mobileip_softc *elm, struct mobileip_softc *left) { return _rb_set_left(mobileip_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_RIGHT(struct mobileip_softc *elm, struct mobileip_softc *right) { return _rb_set_right(mobileip_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_PARENT(struct mobileip_softc *elm, struct mobileip_softc *parent) { return _rb_set_parent(mobileip_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_POISON(struct mobileip_softc *elm, unsigned long poison) { return _rb_poison(mobileip_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int mobileip_tree_RBT_CHECK(struct mobileip_softc *elm, unsigned long poison) { return _rb_check(mobileip_tree_RBT_TYPE, elm, poison); };
+struct mobileip_tree mobileip_softcs = { { ((void *)0) } };
+static int mobileip_ioctl(struct ifnet *, u_long, caddr_t);
+static int mobileip_up(struct mobileip_softc *);
+static int mobileip_down(struct mobileip_softc *);
+static int mobileip_set_tunnel(struct mobileip_softc *,
+      struct if_laddrreq *);
+static int mobileip_get_tunnel(struct mobileip_softc *,
+      struct if_laddrreq *);
+static int mobileip_del_tunnel(struct mobileip_softc *);
+static int mobileip_output(struct ifnet *, struct mbuf *,
+      struct sockaddr *, struct rtentry *);
+static void mobileip_start(struct ifnet *);
+static int mobileip_encap(struct mobileip_softc *, struct mbuf *);
+int mobileip_allow = 0;
+void
+mobileipattach(int n)
 {
- counters_inc(ipipcounters, c);
-}
-static inline void
-ipipstat_add(enum ipipstat_counters c, uint64_t v)
-{
- counters_add(ipipcounters, c, v);
-}
-void ipip_init(void);
-int ipip_input(struct mbuf **, int *, int, int);
-int ipip_input_if(struct mbuf **, int *, int, int, struct ifnet *);
-int ipip_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ipip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-extern int ipip_allow;
-struct ahstat {
- uint64_t ahs_hdrops;
- uint64_t ahs_nopf;
- uint64_t ahs_notdb;
- uint64_t ahs_badkcr;
- uint64_t ahs_badauth;
- uint64_t ahs_noxform;
- uint64_t ahs_qfull;
- uint64_t ahs_wrap;
- uint64_t ahs_replay;
- uint64_t ahs_badauthl;
- uint64_t ahs_input;
- uint64_t ahs_output;
- uint64_t ahs_invalid;
- uint64_t ahs_ibytes;
- uint64_t ahs_obytes;
- uint64_t ahs_toobig;
- uint64_t ahs_pdrops;
- uint64_t ahs_crypto;
- uint64_t ahs_outfail;
-};
-struct ah {
-    u_int8_t ah_nh;
-    u_int8_t ah_hl;
-    u_int16_t ah_rv;
-    u_int32_t ah_spi;
-    u_int32_t ah_rpl;
-};
-enum ahstat_counters {
- ahs_hdrops,
- ahs_nopf,
- ahs_notdb,
- ahs_badkcr,
- ahs_badauth,
- ahs_noxform,
- ahs_qfull,
- ahs_wrap,
- ahs_replay,
- ahs_badauthl,
- ahs_input,
- ahs_output,
- ahs_invalid,
- ahs_ibytes,
- ahs_obytes,
- ahs_toobig,
- ahs_pdrops,
- ahs_crypto,
- ahs_outfail,
- ahs_ncounters
-};
-extern struct cpumem *ahcounters;
-static inline void
-ahstat_inc(enum ahstat_counters c)
-{
- counters_inc(ahcounters, c);
-}
-static inline void
-ahstat_add(enum ahstat_counters c, uint64_t v)
-{
- counters_add(ahcounters, c, v);
-}
-extern int ah_enable;
-struct espstat {
- uint64_t esps_hdrops;
- uint64_t esps_nopf;
- uint64_t esps_notdb;
- uint64_t esps_badkcr;
- uint64_t esps_qfull;
- uint64_t esps_noxform;
- uint64_t esps_badilen;
- uint64_t esps_wrap;
- uint64_t esps_badenc;
- uint64_t esps_badauth;
- uint64_t esps_replay;
- uint64_t esps_input;
- uint64_t esps_output;
- uint64_t esps_invalid;
- uint64_t esps_ibytes;
- uint64_t esps_obytes;
- uint64_t esps_toobig;
- uint64_t esps_pdrops;
- uint64_t esps_crypto;
- uint64_t esps_udpencin;
- uint64_t esps_udpencout;
- uint64_t esps_udpinval;
- uint64_t esps_udpneeded;
- uint64_t esps_outfail;
-};
-enum espstat_counters {
- esps_hdrops,
- esps_nopf,
- esps_notdb,
- esps_badkcr,
- esps_qfull,
- esps_noxform,
- esps_badilen,
- esps_wrap,
- esps_badenc,
- esps_badauth,
- esps_replay,
- esps_input,
- esps_output,
- esps_invalid,
- esps_ibytes,
- esps_obytes,
- esps_toobig,
- esps_pdrops,
- esps_crypto,
- esps_udpencin,
- esps_udpencout,
- esps_udpinval,
- esps_udpneeded,
- esps_outfail,
- esps_ncounters
-};
-extern struct cpumem *espcounters;
-static inline void
-espstat_inc(enum espstat_counters c)
-{
- counters_inc(espcounters, c);
-}
-static inline void
-espstat_add(enum espstat_counters c, uint64_t v)
-{
- counters_add(espcounters, c, v);
-}
-extern int esp_enable;
-extern int udpencap_enable;
-extern int udpencap_port;
-struct ipcompstat {
- uint64_t ipcomps_hdrops;
- uint64_t ipcomps_nopf;
- uint64_t ipcomps_notdb;
- uint64_t ipcomps_badkcr;
- uint64_t ipcomps_qfull;
- uint64_t ipcomps_noxform;
- uint64_t ipcomps_wrap;
- uint64_t ipcomps_input;
- uint64_t ipcomps_output;
- uint64_t ipcomps_invalid;
- uint64_t ipcomps_ibytes;
- uint64_t ipcomps_obytes;
- uint64_t ipcomps_toobig;
- uint64_t ipcomps_pdrops;
- uint64_t ipcomps_crypto;
- uint64_t ipcomps_minlen;
- uint64_t ipcomps_outfail;
-};
-struct ipcomp {
- u_int8_t ipcomp_nh;
- u_int8_t ipcomp_flags;
- u_int16_t ipcomp_cpi;
-};
-enum ipcomp_counters {
- ipcomps_hdrops,
- ipcomps_nopf,
- ipcomps_notdb,
- ipcomps_badkcr,
- ipcomps_qfull,
- ipcomps_noxform,
- ipcomps_wrap,
- ipcomps_input,
- ipcomps_output,
- ipcomps_invalid,
- ipcomps_ibytes,
- ipcomps_obytes,
- ipcomps_toobig,
- ipcomps_pdrops,
- ipcomps_crypto,
- ipcomps_minlen,
- ipcomps_outfail,
- ipcomps_ncounters
-};
-extern struct cpumem *ipcompcounters;
-static inline void
-ipcompstat_inc(enum ipcomp_counters c)
-{
- counters_inc(ipcompcounters, c);
-}
-static inline void
-ipcompstat_add(enum ipcomp_counters c, uint64_t v)
-{
- counters_add(ipcompcounters, c, v);
-}
-extern int ipcomp_enable;
-typedef struct MD5Context {
- u_int32_t state[4];
- u_int64_t count;
- u_int8_t buffer[64];
-} MD5_CTX;
-
-void MD5Init(MD5_CTX *);
-void MD5Update(MD5_CTX *, const void *, size_t)
-  __attribute__((__bounded__(__string__,2,3)));
-void MD5Final(u_int8_t [16], MD5_CTX *)
-  __attribute__((__bounded__(__minbytes__,1,16)));
-void MD5Transform(u_int32_t [4], const u_int8_t [64])
-  __attribute__((__bounded__(__minbytes__,1,4)))
-  __attribute__((__bounded__(__minbytes__,2,64)));
-
-typedef struct {
- u_int32_t state[5];
- u_int64_t count;
- unsigned char buffer[64];
-} SHA1_CTX;
-void SHA1Init(SHA1_CTX * context);
-void SHA1Transform(u_int32_t state[5], const unsigned char buffer[64]);
-void SHA1Update(SHA1_CTX *context, const void *data, unsigned int len);
-void SHA1Final(unsigned char digest[20], SHA1_CTX *context);
-typedef struct RMD160Context {
- u_int32_t state[5];
- u_int64_t count;
- u_char buffer[64];
-} RMD160_CTX;
-
-void RMD160Init(RMD160_CTX *);
-void RMD160Transform(u_int32_t [5], const u_char [64])
-      __attribute__((__bounded__(__minbytes__,1,5)))
-      __attribute__((__bounded__(__minbytes__,2,64)));
-void RMD160Update(RMD160_CTX *, const u_char *, u_int32_t)
-      __attribute__((__bounded__(__string__,2,3)));
-void RMD160Final(u_char [20], RMD160_CTX *)
-      __attribute__((__bounded__(__minbytes__,1,20)));
-
-typedef struct _SHA2_CTX {
- union {
-  u_int32_t st32[8];
-  u_int64_t st64[8];
- } state;
- u_int64_t bitcount[2];
- u_int8_t buffer[128];
-} SHA2_CTX;
-
-void SHA256Init(SHA2_CTX *);
-void SHA256Update(SHA2_CTX *, const void *, size_t)
- __attribute__((__bounded__(__string__,2,3)));
-void SHA256Final(u_int8_t[32], SHA2_CTX *)
- __attribute__((__bounded__(__minbytes__,1,32)));
-void SHA384Init(SHA2_CTX *);
-void SHA384Update(SHA2_CTX *, const void *, size_t)
- __attribute__((__bounded__(__string__,2,3)));
-void SHA384Final(u_int8_t[48], SHA2_CTX *)
- __attribute__((__bounded__(__minbytes__,1,48)));
-void SHA512Init(SHA2_CTX *);
-void SHA512Update(SHA2_CTX *, const void *, size_t)
- __attribute__((__bounded__(__string__,2,3)));
-void SHA512Final(u_int8_t[64], SHA2_CTX *)
- __attribute__((__bounded__(__minbytes__,1,64)));
-
-typedef struct aes_ctx {
- uint32_t sk[60];
- uint32_t sk_exp[120];
- unsigned num_rounds;
-} AES_CTX;
-int AES_Setkey(AES_CTX *, const uint8_t *, int);
-void AES_Encrypt(AES_CTX *, const uint8_t *, uint8_t *);
-void AES_Decrypt(AES_CTX *, const uint8_t *, uint8_t *);
-void AES_Encrypt_ECB(AES_CTX *, const uint8_t *, uint8_t *, size_t);
-void AES_Decrypt_ECB(AES_CTX *, const uint8_t *, uint8_t *, size_t);
-int AES_KeySetup_Encrypt(uint32_t *, const uint8_t *, int);
-int AES_KeySetup_Decrypt(uint32_t *, const uint8_t *, int);
-typedef struct _GHASH_CTX {
- uint8_t H[16];
- uint8_t S[16];
- uint8_t Z[16];
-} GHASH_CTX;
-typedef struct _AES_GMAC_CTX {
- GHASH_CTX ghash;
- AES_CTX K;
- uint8_t J[16];
-} AES_GMAC_CTX;
-
-extern void (*ghash_update)(GHASH_CTX *, uint8_t *, size_t);
-void AES_GMAC_Init(void *);
-void AES_GMAC_Setkey(void *, const uint8_t *, uint16_t);
-void AES_GMAC_Reinit(void *, const uint8_t *, uint16_t);
-int AES_GMAC_Update(void *, const uint8_t *, uint16_t);
-void AES_GMAC_Final(uint8_t [16], void *);
-
-struct auth_hash {
- int type;
- char *name;
- u_int16_t keysize;
- u_int16_t hashsize;
- u_int16_t authsize;
- u_int16_t ctxsize;
- u_int16_t blocksize;
- void (*Init) (void *);
- void (*Setkey) (void *, const u_int8_t *, u_int16_t);
- void (*Reinit) (void *, const u_int8_t *, u_int16_t);
- int (*Update) (void *, const u_int8_t *, u_int16_t);
- void (*Final) (u_int8_t *, void *);
-};
-struct enc_xform {
- int type;
- char *name;
- u_int16_t blocksize;
- u_int16_t ivsize;
- u_int16_t minkey;
- u_int16_t maxkey;
- u_int16_t ctxsize;
- void (*encrypt) (caddr_t, u_int8_t *);
- void (*decrypt) (caddr_t, u_int8_t *);
- int (*setkey) (void *, u_int8_t *, int len);
- void (*reinit) (caddr_t, u_int8_t *);
-};
-struct comp_algo {
- int type;
- char *name;
- size_t minlen;
- u_int32_t (*compress) (u_int8_t *, u_int32_t, u_int8_t **);
- u_int32_t (*decompress) (u_int8_t *, u_int32_t, u_int8_t **);
-};
-union authctx {
- MD5_CTX md5ctx;
- SHA1_CTX sha1ctx;
- RMD160_CTX rmd160ctx;
- SHA2_CTX sha2_ctx;
- AES_GMAC_CTX aes_gmac_ctx;
-};
-extern struct enc_xform enc_xform_3des;
-extern struct enc_xform enc_xform_blf;
-extern struct enc_xform enc_xform_cast5;
-extern struct enc_xform enc_xform_aes;
-extern struct enc_xform enc_xform_aes_ctr;
-extern struct enc_xform enc_xform_aes_gcm;
-extern struct enc_xform enc_xform_aes_gmac;
-extern struct enc_xform enc_xform_aes_xts;
-extern struct enc_xform enc_xform_chacha20_poly1305;
-extern struct enc_xform enc_xform_null;
-extern struct auth_hash auth_hash_hmac_md5_96;
-extern struct auth_hash auth_hash_hmac_sha1_96;
-extern struct auth_hash auth_hash_hmac_ripemd_160_96;
-extern struct auth_hash auth_hash_hmac_sha2_256_128;
-extern struct auth_hash auth_hash_hmac_sha2_384_192;
-extern struct auth_hash auth_hash_hmac_sha2_512_256;
-extern struct auth_hash auth_hash_gmac_aes_128;
-extern struct auth_hash auth_hash_gmac_aes_192;
-extern struct auth_hash auth_hash_gmac_aes_256;
-extern struct auth_hash auth_hash_chacha20_poly1305;
-extern struct comp_algo comp_algo_deflate;
-extern struct comp_algo comp_algo_lzs;
-int udpencap_enable = 1;
-int udpencap_port = 4500;
-int
-ipsp_process_packet(struct mbuf *m, struct tdb *tdb, int af, int tunalready)
-{
- int hlen, off, error;
- struct mbuf *mp;
- struct ip6_ext ip6e;
- int nxt;
- int dstopt = 0;
- int setdf = 0;
- struct ip *ip;
- struct ip6_hdr *ip6;
- if ((tdb->tdb_sproto == 50 && !esp_enable) ||
-     (tdb->tdb_sproto == 51 && !ah_enable) ||
-     (tdb->tdb_sproto == 108 && !ipcomp_enable)) {
-  ;
-  m_freem(m);
-  return 65;
- }
- if (!tdb->tdb_xform) {
-  ;
-  m_freem(m);
-  return 65;
- }
- if (tdb->tdb_flags & 0x00010) {
-  ;
-  m_freem(m);
-  return 6;
- }
- switch (tdb->tdb_dst.sa.sa_family) {
- case 2:
-  break;
- case 24:
-  break;
- default:
-  ;
-  m_freem(m);
-  return 6;
- }
- if (tdb->tdb_first_use == 0) {
-  tdb->tdb_first_use = time_second;
-  if (tdb->tdb_flags & 0x00020)
-   timeout_add_sec(&tdb->tdb_first_tmo,
-       tdb->tdb_exp_first_use);
-  if (tdb->tdb_flags & 0x00400)
-   timeout_add_sec(&tdb->tdb_sfirst_tmo,
-       tdb->tdb_soft_first_use);
- }
- if (tunalready == 0) {
-  if (af == tdb->tdb_dst.sa.sa_family) {
-   if (af == 2)
-    hlen = sizeof(struct ip);
-   if (af == 24)
-    hlen = sizeof(struct ip6_hdr);
-   if (m->m_hdr.mh_len < hlen) {
-    if ((m = m_pullup(m, hlen)) == ((void *)0))
-     return 55;
-   }
-   if (af == 2) {
-    ip = ((struct ip *)((m)->m_hdr.mh_data));
-    setdf = ip->ip_off & ((__uint16_t)(0x4000));
-   }
-   if (af == 24)
-    ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-  }
-  if ((tdb->tdb_dst.sa.sa_family != af) ||
-      (tdb->tdb_flags & 0x01000) ||
-      (tdb->tdb_xform->xf_type == 1) ||
-      ((tdb->tdb_dst.sa.sa_family == 2) &&
-       (tdb->tdb_dst.sin.sin_addr.s_addr != ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) &&
-       (tdb->tdb_dst.sin.sin_addr.s_addr != ip->ip_dst.s_addr)) ||
-      ((tdb->tdb_dst.sa.sa_family == 24) &&
-       (!((*(const u_int32_t *)(const void *)(&(&tdb->tdb_dst.sin6.sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&tdb->tdb_dst.sin6.sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&tdb->tdb_dst.sin6.sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&tdb->tdb_dst.sin6.sin6_addr)->__u6_addr.__u6_addr8[12]) == 0))) &&
-       (!(__builtin_memcmp((&(&tdb->tdb_dst.sin6.sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&ip6->ip6_dst)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0))) ||
-      0) {
-   if (af == 2) {
-    if (m->m_hdr.mh_len < sizeof(struct ip))
-     if ((m = m_pullup(m,
-         sizeof(struct ip))) == ((void *)0))
-      return 55;
-    ip = ((struct ip *)((m)->m_hdr.mh_data));
-    ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
-    ip->ip_sum = 0;
-    ip->ip_sum = in_cksum(m, ip->ip_hl << 2);
-   }
-   if (af == 24) {
-    if (m->m_hdr.mh_len < sizeof(struct ip6_hdr))
-     if ((m = m_pullup(m,
-         sizeof(struct ip6_hdr))) == ((void *)0))
-      return 55;
-    if (m->M_dat.MH.MH_pkthdr.len - sizeof(*ip6) >
-        65535) {
-     m_freem(m);
-     return 6;
-    }
-    ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-    ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len - sizeof(*ip6)));
-   }
-   error = ipip_output(m, tdb, &mp, 0, 0);
-   if ((mp == ((void *)0)) && (!error))
-    error = 14;
-   if (error) {
-    m_freem(mp);
-    return error;
-   }
-   m = mp;
-   mp = ((void *)0);
-   if (tdb->tdb_dst.sa.sa_family == 2 && setdf) {
-    if (m->m_hdr.mh_len < sizeof(struct ip))
-     if ((m = m_pullup(m,
-         sizeof(struct ip))) == ((void *)0))
-      return 55;
-    ip = ((struct ip *)((m)->m_hdr.mh_data));
-    ip->ip_off |= ((__uint16_t)(0x4000));
-   }
-   tdb->tdb_flags |= 0x10000;
-  }
-  if (tdb->tdb_xform->xf_type == 1)
-   return ipsp_process_done(m, tdb);
- } else {
-  if (tdb->tdb_xform->xf_type == 1)
-   return ipsp_process_done(m, tdb);
- }
- switch (tdb->tdb_dst.sa.sa_family) {
- case 2:
-  ip = ((struct ip *)((m)->m_hdr.mh_data));
-  hlen = ip->ip_hl << 2;
-  off = __builtin_offsetof(struct ip, ip_p);
-  break;
- case 24:
-  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-  hlen = sizeof(struct ip6_hdr);
-  off = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_nxt);
-  nxt = ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
-  do {
-   switch (nxt) {
-   case 51:
-   case 50:
-   case 108:
-    goto exitip6loop;
-   case 0:
-   case 60:
-   case 43:
-    if (nxt == 60 && dstopt)
-     goto exitip6loop;
-    if (nxt == 60) {
-     dstopt = 1;
-    } else if (nxt == 43) {
-     dstopt = 2;
-    }
-    m_copydata(m, hlen, sizeof(ip6e),
-        (caddr_t)&ip6e);
-    nxt = ip6e.ip6e_nxt;
-    off = hlen + __builtin_offsetof(struct ip6_ext, ip6e_nxt);
-    hlen += (ip6e.ip6e_len + 1) << 3;
-    break;
-   default:
-    goto exitip6loop;
-   }
-  } while (hlen < m->M_dat.MH.MH_pkthdr.len);
- exitip6loop:;
-  break;
- }
- if (tdb->tdb_sproto == 108) {
-  if ((m->M_dat.MH.MH_pkthdr.len - hlen) < tdb->tdb_compalgxform->minlen) {
-   ipcompstat_inc(ipcomps_minlen);
-   return ipsp_process_done(m, tdb);
-  }
- }
- return (*(tdb->tdb_xform->xf_output))(m, tdb, ((void *)0), hlen, off);
+ if_clone_attach(&mobileip_cloner);
 }
 int
-ipsp_process_done(struct mbuf *m, struct tdb *tdb)
+mobileip_clone_create(struct if_clone *ifc, int unit)
 {
- struct ip *ip;
- struct ip6_hdr *ip6;
- struct tdb_ident *tdbi;
+ struct mobileip_softc *sc;
+ sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
+ if (!sc)
+  return (12);
+ sc->sc_rtableid = 0;
+ sc->sc_src = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_dst = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ snprintf(sc->sc_if.if_xname, sizeof sc->sc_if.if_xname, "%s%d",
+     ifc->ifc_name, unit);
+ sc->sc_if.if_softc = sc;
+ sc->sc_if.if_data.ifi_type = 0x83;
+ sc->sc_if.if_data.ifi_addrlen = 0;
+ sc->sc_if.if_data.ifi_mtu = (1500 - (sizeof(struct mobileip_header) + sizeof(struct mobileip_h_src)));
+ sc->sc_if.if_flags = 0x10|0x8000;
+ sc->sc_if.if_output = mobileip_output;
+ sc->sc_if.if_start = mobileip_start;
+ sc->sc_if.if_ioctl = mobileip_ioctl;
+ sc->sc_if.if_rtrequest = p2p_rtrequest;
+ if_attach(&sc->sc_if);
+ if_alloc_sadl(&sc->sc_if);
+ bpfattach(&sc->sc_if.if_bpf, &sc->sc_if, 12, sizeof(uint32_t));
+ return (0);
+}
+int
+mobileip_clone_destroy(struct ifnet *ifp)
+{
+ struct mobileip_softc *sc = ifp->if_softc;
+ if_detach(ifp);
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  mobileip_down(sc);
+ do { _rw_exit_write(&netlock ); } while (0);
+ free(sc, 2, sizeof(*sc));
+ return (0);
+}
+static inline uint16_t
+mobileip_cksum(const void *buf, size_t len)
+{
+ const uint16_t *p = buf;
+ uint32_t sum = 0;
+ do {
+  sum += ((__uint16_t)(*(__uint16_t *)(p++)));
+ } while (len -= 2);
+ sum = (sum >> 16) + (sum & 0xffff);
+ sum += (sum >> 16);
+ return (~sum);
+}
+static inline int
+mobileip_cmp(const struct mobileip_softc *a, const struct mobileip_softc *b)
+{
+ if (a->sc_src > b->sc_src)
+  return (1);
+ if (a->sc_src < b->sc_src)
+  return (-1);
+ if (a->sc_dst > b->sc_dst)
+  return (1);
+ if (a->sc_dst < b->sc_dst)
+  return (-1);
+ if (a->sc_rtableid > b->sc_rtableid)
+  return (1);
+ if (a->sc_rtableid < b->sc_rtableid)
+  return (-1);
+ return (0);
+}
+static int
+mobileip_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
+    struct rtentry *rt)
+{
  struct m_tag *mtag;
- int roff;
- tdb->tdb_last_used = time_second;
- if ((tdb->tdb_flags & 0x20000) != 0) {
-  struct mbuf *mi;
-  struct udphdr *uh;
-  int iphlen;
-  if (!udpencap_enable || !udpencap_port) {
-   m_freem(m);
-   return 6;
-  }
-  switch (tdb->tdb_dst.sa.sa_family) {
-  case 2:
-   iphlen = sizeof(struct ip);
-   break;
-  case 24:
-   iphlen = sizeof(struct ip6_hdr);
-   break;
-  default:
-   m_freem(m);
-   ;
-   return 6;
-  }
-  mi = m_makespace(m, iphlen, sizeof(struct udphdr), &roff);
-  if (mi == ((void *)0)) {
-   m_freem(m);
-   return 12;
-  }
-  uh = (struct udphdr *)(((caddr_t)((mi)->m_hdr.mh_data)) + roff);
-  uh->uh_sport = uh->uh_dport = ((__uint16_t)(udpencap_port));
-  if (tdb->tdb_udpencap_port)
-   uh->uh_dport = tdb->tdb_udpencap_port;
-  uh->uh_ulen = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len - iphlen));
-  uh->uh_sum = 0;
-  if (tdb->tdb_dst.sa.sa_family == 24)
-   m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0004;
-  espstat_inc(esps_udpencout);
- }
- switch (tdb->tdb_dst.sa.sa_family) {
- case 2:
-  ip = ((struct ip *)((m)->m_hdr.mh_data));
-  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
-  if ((tdb->tdb_flags & 0x20000) != 0)
-   ip->ip_p = 17;
-  break;
- case 24:
-  if (m->M_dat.MH.MH_pkthdr.len < sizeof(*ip6)) {
-   m_freem(m);
-   return 6;
-  }
-  if (m->M_dat.MH.MH_pkthdr.len - sizeof(*ip6) > 65535) {
-   m_freem(m);
-   return 6;
-  }
-  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len - sizeof(*ip6)));
-  if ((tdb->tdb_flags & 0x20000) != 0)
-   ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 17;
-  break;
- default:
+ int error = 0;
+ if (!mobileip_allow) {
   m_freem(m);
-  ;
-  return 6;
+  error = 13;
+  goto end;
  }
- mtag = m_tag_get(0x0002, sizeof(struct tdb_ident),
-     0x0002);
+ if (!((ifp->if_flags) & (0x40))) {
+  m_freem(m);
+  error = 50;
+  goto end;
+ }
+ if (dst->sa_family != 2) {
+  m_freem(m);
+  error = 47;
+  goto end;
+ }
+ for (mtag = m_tag_find(m, 0x0080, ((void *)0)); mtag;
+      mtag = m_tag_find(m, 0x0080, mtag)) {
+  if (__builtin_memcmp((mtag + 1), (&ifp->if_index), (sizeof(ifp->if_index))) == 0) {
+   m_freem(m);
+   error = 5;
+   goto end;
+  }
+ }
+ mtag = m_tag_get(0x0080, sizeof(ifp->if_index), 0x0002);
  if (mtag == ((void *)0)) {
   m_freem(m);
-  ;
-  return 12;
+  error = 55;
+  goto end;
  }
- tdbi = (struct tdb_ident *)(mtag + 1);
- tdbi->dst = tdb->tdb_dst;
- tdbi->proto = tdb->tdb_sproto;
- tdbi->spi = tdb->tdb_spi;
- tdbi->rdomain = tdb->tdb_rdomain;
+ __builtin_memcpy((mtag + 1), (&ifp->if_index), (sizeof(ifp->if_index)));
  m_tag_prepend(m, mtag);
- if (tdb->tdb_onext)
-  return ipsp_process_packet(m, tdb->tdb_onext,
-      tdb->tdb_dst.sa.sa_family, 0);
- pf_tag_packet(m, tdb->tdb_tag, -1);
- pf_pkt_addr_changed(m);
- switch (tdb->tdb_dst.sa.sa_family) {
- case 2:
-  return (ip_output(m, ((void *)0), ((void *)0), 0x2, ((void *)0), ((void *)0), 0));
- case 24:
-  return (ip6_output(m, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0)));
- }
- return 22;
+ error = if_enqueue(ifp, m);
+  end:
+ if (error)
+  ifp->if_data.ifi_oerrors++;
+ return (error);
 }
-ssize_t
-ipsec_hdrsz(struct tdb *tdbp)
+static void
+mobileip_start(struct ifnet *ifp)
 {
- ssize_t adjust;
- switch (tdbp->tdb_sproto) {
- case 4:
-  adjust = 0;
+ struct mobileip_softc *sc = ifp->if_softc;
+ struct mbuf *m;
+ while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if (ifp->if_bpf)
+   bpf_mtap_af(ifp->if_bpf, 2, m, (1<<1));
+  if (mobileip_encap(sc, m) != 0)
+   ifp->if_data.ifi_oerrors++;
+ }
+}
+static int
+mobileip_encap(struct mobileip_softc *sc, struct mbuf *m)
+{
+ struct ip *ip;
+ struct mobileip_header *mh;
+ struct mobileip_h_src *msh;
+ caddr_t hdr;
+ int iphlen, hlen;
+ m = m_pullup(m, sizeof(*ip));
+ if (m == ((void *)0))
+  return (55);
+ ip = ((struct ip *)((m)->m_hdr.mh_data));
+ iphlen = ip->ip_hl << 2;
+ hlen = sizeof(*mh);
+ if (ip->ip_src.s_addr != sc->sc_src)
+  hlen += sizeof(*msh);
+ m = m_prepend(m, hlen, 0x0002);
+ if (m == ((void *)0))
+  return (55);
+ m = m_pullup(m, iphlen + hlen);
+ if (m == ((void *)0))
+  return (55);
+ hdr = ((caddr_t)((m)->m_hdr.mh_data));
+ __builtin_memmove((hdr), (hdr + hlen), (iphlen));
+ ip = (struct ip *)hdr;
+ mh = (struct mobileip_header *)(hdr + iphlen);
+ mh->mip_proto = ip->ip_p;
+ mh->mip_flags = 0;
+ mh->mip_hcrc = 0;
+ mh->mip_dst = ip->ip_dst.s_addr;
+ if (ip->ip_src.s_addr != sc->sc_src) {
+  mh->mip_flags |= 0x80;
+  msh = (struct mobileip_h_src *)(mh + 1);
+  msh->mip_src = ip->ip_src.s_addr;
+  ip->ip_src.s_addr = sc->sc_src;
+ }
+ (*(__uint16_t *)(&mh->mip_hcrc) = ((__uint16_t)(mobileip_cksum(mh, hlen))));
+ ip->ip_p = 55;
+ (*(__uint16_t *)(&ip->ip_len) = ((__uint16_t)(((__uint16_t)(*(__uint16_t *)(&ip->ip_len))) + hlen)));
+ ip->ip_dst.s_addr = sc->sc_dst;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_rtableid;
+ pf_pkt_addr_changed(m);
+ ip_send(m);
+ return (0);
+}
+int
+mobileip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
+{
+ struct mobileip_softc *sc = ifp->if_softc;
+ struct ifreq *ifr = (struct ifreq *)data;
+ int error = 0;
+ switch(cmd) {
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
+  ifp->if_flags |= 0x1;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = mobileip_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = mobileip_down(sc);
+  }
   break;
- case 50:
-  if (tdbp->tdb_encalgxform == ((void *)0))
-   return (-1);
-  adjust = 2 * sizeof(u_int32_t) + tdbp->tdb_ivlen;
-  if (tdbp->tdb_flags & 0x20000)
-   adjust += sizeof(struct udphdr);
-  if (tdbp->tdb_authalgxform != ((void *)0))
-   adjust += tdbp->tdb_authalgxform->authsize;
-  adjust += (((4)>(tdbp->tdb_encalgxform->blocksize))?(4):(tdbp->tdb_encalgxform->blocksize));
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((14))):
   break;
- case 51:
-  if (tdbp->tdb_authalgxform == ((void *)0))
-   return (-1);
-  adjust = 8 + sizeof(u_int32_t);
-  adjust += tdbp->tdb_authalgxform->authsize;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
+  if (ifr->ifr_ifru.ifru_metric < 576) {
+   error = 22;
+   break;
+  }
+  ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((126))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_if.if_data.ifi_mtu;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+  error = mobileip_set_tunnel(sc, (struct if_laddrreq *)data);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
+  error = mobileip_get_tunnel(sc, (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  error = mobileip_del_tunnel(sc);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  if (ifr->ifr_ifru.ifru_metric < 0 ||
+      ifr->ifr_ifru.ifru_metric > 255 ||
+      !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
+   error = 22;
+   break;
+  }
+  sc->sc_rtableid = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_rtableid;
   break;
  default:
-  return (-1);
- }
- if (!(tdbp->tdb_flags & 0x01000) &&
-     !(tdbp->tdb_flags & 0x10000))
-  return (adjust);
- switch (tdbp->tdb_dst.sa.sa_family) {
- case 2:
-  adjust += sizeof(struct ip);
-  break;
- case 24:
-  adjust += sizeof(struct ip6_hdr);
+  error = 25;
   break;
  }
- return (adjust);
+ return (error);
 }
-void
-ipsec_adjust_mtu(struct mbuf *m, u_int32_t mtu)
+static int
+mobileip_up(struct mobileip_softc *sc)
 {
- struct tdb_ident *tdbi;
- struct tdb *tdbp;
- struct m_tag *mtag;
- ssize_t adjust;
+ struct mobileip_softc *osc;
+ if (sc->sc_dst == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
+  return (39);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- for (mtag = m_tag_find(m, 0x0002, ((void *)0)); mtag;
-      mtag = m_tag_find(m, 0x0002, mtag)) {
-  tdbi = (struct tdb_ident *)(mtag + 1);
-  tdbp = gettdb(tdbi->rdomain, tdbi->spi, &tdbi->dst,
-      tdbi->proto);
-  if (tdbp == ((void *)0))
-   break;
-  if ((adjust = ipsec_hdrsz(tdbp)) == -1)
-   break;
-  mtu -= adjust;
-  tdbp->tdb_mtu = mtu;
-  tdbp->tdb_mtutimeout = time_second + ip_mtudisc_timeout;
-  ;
- }
+ osc = mobileip_tree_RBT_INSERT(&mobileip_softcs, sc);
+ if (osc != ((void *)0))
+  return (48);
+ ((sc->sc_if.if_flags) |= (0x40));
+ return (0);
 }
+static int
+mobileip_down(struct mobileip_softc *sc)
+{
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ mobileip_tree_RBT_REMOVE(&mobileip_softcs, sc);
+ ((sc->sc_if.if_flags) &= ~(0x40));
+ ifq_barrier(&sc->sc_if.if_snd);
+ return (0);
+}
+static int
+mobileip_set_tunnel(struct mobileip_softc *sc, struct if_laddrreq *req)
+{
+ struct sockaddr_in *src = (struct sockaddr_in *)&req->addr;
+ struct sockaddr_in *dst = (struct sockaddr_in *)&req->dstaddr;
+ if (((sc->sc_if.if_flags) & (0x40)))
+  return (16);
+ if (src->sin_family != dst->sin_family || src->sin_len != dst->sin_len)
+  return (22);
+ if (dst->sin_family != 2)
+  return (47);
+ if (dst->sin_len != sizeof(*dst))
+  return (22);
+ if (((src->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+     (((u_int32_t)(src->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))) ||
+     ((dst->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+     (((u_int32_t)(dst->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+  return (22);
+ sc->sc_src = src->sin_addr.s_addr;
+ sc->sc_dst = dst->sin_addr.s_addr;
+ return (0);
+}
+static int
+mobileip_get_tunnel(struct mobileip_softc *sc, struct if_laddrreq *req)
+{
+ struct sockaddr_in *src = (struct sockaddr_in *)&req->addr;
+ struct sockaddr_in *dst = (struct sockaddr_in *)&req->dstaddr;
+ if (sc->sc_dst == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
+  return (49);
+ __builtin_memset((src), (0), (sizeof(*src)));
+ src->sin_family = 2;
+ src->sin_len = sizeof(*src);
+ src->sin_addr.s_addr = sc->sc_src;
+ __builtin_memset((dst), (0), (sizeof(*dst)));
+ dst->sin_family = 2;
+ dst->sin_len = sizeof(*dst);
+ dst->sin_addr.s_addr = sc->sc_dst;
+ return (0);
+}
+static int
+mobileip_del_tunnel(struct mobileip_softc *sc)
+{
+ if (((sc->sc_if.if_flags) & (0x40)))
+  return (16);
+ sc->sc_src = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_dst = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ return (0);
+}
+int
+mobileip_input(struct mbuf **mp, int *offp, int type, int af)
+{
+ struct mobileip_softc key;
+ struct mbuf *m = *mp;
+ struct ifnet *ifp;
+ struct mobileip_softc *sc;
+ caddr_t hdr;
+ struct ip *ip;
+ struct mobileip_header *mh;
+ struct mobileip_h_src *msh;
+ int iphlen = 0;
+ int hlen;
+ if (!mobileip_allow)
+  goto drop;
+ ip = ((struct ip *)((m)->m_hdr.mh_data));
+ key.sc_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ key.sc_src = ip->ip_dst.s_addr;
+ key.sc_dst = ip->ip_src.s_addr;
+ sc = mobileip_tree_RBT_FIND(&mobileip_softcs, &key);
+ if (sc == ((void *)0))
+  goto drop;
+ iphlen = ip->ip_hl << 2;
+ hlen = sizeof(*mh);
+ m = m_pullup(m, iphlen + hlen);
+ if (m == ((void *)0))
+  return (257);
+ hdr = ((caddr_t)((m)->m_hdr.mh_data));
+ ip = (struct ip *)hdr;
+ mh = (struct mobileip_header *)(hdr + iphlen);
+ if (mh->mip_flags & ~0x80)
+  goto drop;
+ if (((mh->mip_flags) & (0x80))) {
+  hlen += sizeof(*msh);
+  m = m_pullup(m, iphlen + hlen);
+  if (m == ((void *)0))
+   return (257);
+  hdr = ((caddr_t)((m)->m_hdr.mh_data));
+  ip = (struct ip *)hdr;
+  mh = (struct mobileip_header *)(hdr + iphlen);
+  msh = (struct mobileip_h_src *)(mh + 1);
+  ip->ip_src.s_addr = msh->mip_src;
+ }
+ if (mobileip_cksum(mh, hlen) != 0)
+  goto drop;
+ ip->ip_p = mh->mip_proto;
+ (*(__uint16_t *)(&ip->ip_len) = ((__uint16_t)(((__uint16_t)(*(__uint16_t *)(&ip->ip_len))) - hlen)));
+ ip->ip_dst.s_addr = mh->mip_dst;
+ __builtin_memmove((hdr + hlen), (hdr), (iphlen));
+ m_adj(m, hlen);
+ ifp = &sc->sc_if;
+ ((m->m_hdr.mh_flags) &= ~(0x0200|0x0100));
+ ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x0008));
+ m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
+ pf_pkt_addr_changed(m);
+ ifp->if_data.ifi_ipackets++;
+ ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
+ if (ifp->if_bpf)
+  bpf_mtap_af(ifp->if_bpf, 2, m, 1);
+ ipv4_input(ifp, m);
+ return (257);
+drop:
+ m_freem(m);
+ return (257);
+}
+struct uvmexp {
+ int pagesize;
+ int pagemask;
+ int pageshift;
+ int npages;
+ int free;
+ int active;
+ int inactive;
+ int paging;
+ int wired;
+ int zeropages;
+ int reserve_pagedaemon;
+ int reserve_kernel;
+ int anonpages;
+ int vnodepages;
+ int vtextpages;
+ int freemin;
+ int freetarg;
+ int inactarg;
+ int wiredmax;
+ int anonmin;
+ int vtextmin;
+ int vnodemin;
+ int anonminpct;
+ int vtextminpct;
+ int vnodeminpct;
+ int nswapdev;
+ int swpages;
+ int swpginuse;
+ int swpgonly;
+ int nswget;
+ int nanon;
+ int nanonneeded;
+ int nfreeanon;
+ int faults;
+ int traps;
+ int intrs;
+ int swtch;
+ int softs;
+ int syscalls;
+ int pageins;
+ int obsolete_swapins;
+ int obsolete_swapouts;
+ int pgswapin;
+ int pgswapout;
+ int forks;
+ int forks_ppwait;
+ int forks_sharevm;
+ int pga_zerohit;
+ int pga_zeromiss;
+ int zeroaborts;
+ int fltnoram;
+ int fltnoanon;
+ int fltnoamap;
+ int fltpgwait;
+ int fltpgrele;
+ int fltrelck;
+ int fltrelckok;
+ int fltanget;
+ int fltanretry;
+ int fltamcopy;
+ int fltnamap;
+ int fltnomap;
+ int fltlget;
+ int fltget;
+ int flt_anon;
+ int flt_acow;
+ int flt_obj;
+ int flt_prcopy;
+ int flt_przero;
+ int pdwoke;
+ int pdrevs;
+ int pdswout;
+ int pdfreed;
+ int pdscans;
+ int pdanscan;
+ int pdobscan;
+ int pdreact;
+ int pdbusy;
+ int pdpageouts;
+ int pdpending;
+ int pddeact;
+ int pdreanon;
+ int pdrevnode;
+ int pdrevtext;
+ int fpswtch;
+ int kmapent;
+};
+struct _ps_strings {
+ void *val;
+};
+struct ctlname {
+ char *ctl_name;
+ int ctl_type;
+};
+struct kinfo_proc {
+ u_int64_t p_forw;
+ u_int64_t p_back;
+ u_int64_t p_paddr;
+ u_int64_t p_addr;
+ u_int64_t p_fd;
+ u_int64_t p_stats;
+ u_int64_t p_limit;
+ u_int64_t p_vmspace;
+ u_int64_t p_sigacts;
+ u_int64_t p_sess;
+ u_int64_t p_tsess;
+ u_int64_t p_ru;
+ int32_t p_eflag;
+ int32_t p_exitsig;
+ int32_t p_flag;
+ int32_t p_pid;
+ int32_t p_ppid;
+ int32_t p_sid;
+ int32_t p__pgid;
+ int32_t p_tpgid;
+ u_int32_t p_uid;
+ u_int32_t p_ruid;
+ u_int32_t p_gid;
+ u_int32_t p_rgid;
+ u_int32_t p_groups[16];
+ int16_t p_ngroups;
+ int16_t p_jobc;
+ u_int32_t p_tdev;
+ u_int32_t p_estcpu;
+ u_int32_t p_rtime_sec;
+ u_int32_t p_rtime_usec;
+ int32_t p_cpticks;
+ u_int32_t p_pctcpu;
+ u_int32_t p_swtime;
+ u_int32_t p_slptime;
+ int32_t p_schedflags;
+ u_int64_t p_uticks;
+ u_int64_t p_sticks;
+ u_int64_t p_iticks;
+ u_int64_t p_tracep;
+ int32_t p_traceflag;
+ int32_t p_holdcnt;
+ int32_t p_siglist;
+ u_int32_t p_sigmask;
+ u_int32_t p_sigignore;
+ u_int32_t p_sigcatch;
+ int8_t p_stat;
+ u_int8_t p_priority;
+ u_int8_t p_usrpri;
+ u_int8_t p_nice;
+ u_int16_t p_xstat;
+ u_int16_t p_acflag;
+ char p_comm[24];
+ char p_wmesg[8];
+ u_int64_t p_wchan;
+ char p_login[32];
+ int32_t p_vm_rssize;
+ int32_t p_vm_tsize;
+ int32_t p_vm_dsize;
+ int32_t p_vm_ssize;
+ int64_t p_uvalid;
+ u_int64_t p_ustart_sec;
+ u_int32_t p_ustart_usec;
+ u_int32_t p_uutime_sec;
+ u_int32_t p_uutime_usec;
+ u_int32_t p_ustime_sec;
+ u_int32_t p_ustime_usec;
+ u_int64_t p_uru_maxrss;
+ u_int64_t p_uru_ixrss;
+ u_int64_t p_uru_idrss;
+ u_int64_t p_uru_isrss;
+ u_int64_t p_uru_minflt;
+ u_int64_t p_uru_majflt;
+ u_int64_t p_uru_nswap;
+ u_int64_t p_uru_inblock;
+ u_int64_t p_uru_oublock;
+ u_int64_t p_uru_msgsnd;
+ u_int64_t p_uru_msgrcv;
+ u_int64_t p_uru_nsignals;
+ u_int64_t p_uru_nvcsw;
+ u_int64_t p_uru_nivcsw;
+ u_int32_t p_uctime_sec;
+ u_int32_t p_uctime_usec;
+ int32_t p_psflags;
+ int32_t p_spare;
+ u_int32_t p_svuid;
+ u_int32_t p_svgid;
+ char p_emul[8];
+ u_int64_t p_rlim_rss_cur;
+ u_int64_t p_cpuid;
+ u_int64_t p_vm_map_size;
+ int32_t p_tid;
+ u_int32_t p_rtableid;
+};
+struct kinfo_vmentry {
+ u_long kve_start;
+ u_long kve_end;
+ u_long kve_guard;
+ u_long kve_fspace;
+ u_long kve_fspace_augment;
+ u_int64_t kve_offset;
+ int kve_wired_count;
+ int kve_etype;
+ int kve_protection;
+ int kve_max_protection;
+ int kve_advice;
+ int kve_inheritance;
+ u_int8_t kve_flags;
+};
+struct kinfo_file {
+ uint64_t f_fileaddr;
+ uint32_t f_flag;
+ uint32_t f_iflags;
+ uint32_t f_type;
+ uint32_t f_count;
+ uint32_t f_msgcount;
+ uint32_t f_usecount;
+ uint64_t f_ucred;
+ uint32_t f_uid;
+ uint32_t f_gid;
+ uint64_t f_ops;
+ uint64_t f_offset;
+ uint64_t f_data;
+ uint64_t f_rxfer;
+ uint64_t f_rwfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
+ uint64_t v_un;
+ uint32_t v_type;
+ uint32_t v_tag;
+ uint32_t v_flag;
+ uint32_t va_rdev;
+ uint64_t v_data;
+ uint64_t v_mount;
+ uint64_t va_fileid;
+ uint64_t va_size;
+ uint32_t va_mode;
+ uint32_t va_fsid;
+ char f_mntonname[96];
+ uint32_t so_type;
+ uint32_t so_state;
+ uint64_t so_pcb;
+ uint32_t so_protocol;
+ uint32_t so_family;
+ uint64_t inp_ppcb;
+ uint32_t inp_lport;
+ uint32_t inp_laddru[4];
+ uint32_t inp_fport;
+ uint32_t inp_faddru[4];
+ uint64_t unp_conn;
+ uint64_t pipe_peer;
+ uint32_t pipe_state;
+ uint32_t kq_count;
+ uint32_t kq_state;
+ uint32_t __unused1;
+ uint32_t p_pid;
+ int32_t fd_fd;
+ uint32_t fd_ofileflags;
+ uint32_t p_uid;
+ uint32_t p_gid;
+ uint32_t p_tid;
+ char p_comm[24];
+ uint32_t inp_rtableid;
+ uint64_t so_splice;
+ int64_t so_splicelen;
+ uint64_t so_rcv_cc;
+ uint64_t so_snd_cc;
+ uint64_t unp_refs;
+ uint64_t unp_nextref;
+ uint64_t unp_addr;
+ char unp_path[104];
+ uint32_t inp_proto;
+ uint32_t t_state;
+ uint64_t t_rcv_wnd;
+ uint64_t t_snd_wnd;
+ uint64_t t_snd_cwnd;
+ uint32_t va_nlink;
+};
+typedef int (sysctlfn)(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
+int sysctl_int(void *, size_t *, void *, size_t, int *);
+int sysctl_int_lower(void *, size_t *, void *, size_t, int *);
+int sysctl_rdint(void *, size_t *, void *, int);
+int sysctl_int_arr(int **, int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_quad(void *, size_t *, void *, size_t, int64_t *);
+int sysctl_rdquad(void *, size_t *, void *, int64_t);
+int sysctl_string(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl_tstring(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl__string(void *, size_t *, void *, size_t, char *, size_t, int);
+int sysctl_rdstring(void *, size_t *, void *, const char *);
+int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
+int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
+int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
+int sysctl_doproc(int *, u_int, char *, size_t *);
+struct mbuf_queue;
+int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
+    struct mbuf_queue *);
+struct rtentry;
+struct walkarg;
+int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
+int sysctl_rtable(int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_clockrate(char *, size_t *, void *);
+int sysctl_vnode(char *, size_t *, struct proc *);
+int sysctl_dopool(int *, u_int, char *, size_t *);
+int kern_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+       struct proc *);
+int hw_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int vm_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_posix_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+    struct proc *);
+int net_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int cpu_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int vfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int sysctl_sysvipc(int *, u_int, void *, size_t *);
+int sysctl_wdog(int *, u_int, void *, size_t *, void *, size_t);
+extern int (*cpu_cpuspeed)(int *);
+extern void (*cpu_setperf)(int);
+int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int gre_usrreq(struct socket *, int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
+int
+mobileip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
+    void *newp, size_t newlen)
+{
+ int allow;
+ int error;
+ if (namelen != 1)
+  return (20);
+ switch (name[0]) {
+ case 1:
+  allow = mobileip_allow;
+  error = sysctl_int(oldp, oldlenp, newp, newlen,
+      &allow);
+  if (error != 0)
+   return (error);
+  mobileip_allow = allow;
+  break;
+ default:
+  return (42);
+ }
+ return (0);
+}
+static int mobileip_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct mobileip_softc *l = lptr, *r = rptr; return mobileip_cmp(l, r); } static const struct rb_type mobileip_tree_RBT_INFO = { mobileip_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct mobileip_softc, sc_entry), }; const struct rb_type *const mobileip_tree_RBT_TYPE = &mobileip_tree_RBT_INFO;

@@ -3593,6 +3593,7 @@ gem_tick(void *arg)
  bus_space_handle_t mac = sc->sc_h1;
  int s;
  u_int32_t v;
+ s = _splraise(6);
  v = bus_space_read_4(t, mac, 0x6108) +
      bus_space_read_4(t, mac, 0x610c);
  ifp->if_data.ifi_collisions += v +
@@ -3612,7 +3613,10 @@ gem_tick(void *arg)
  bus_space_write_4(t, mac, 0x6120, 0);
  bus_space_write_4(t, mac, 0x6124, 0);
  bus_space_write_4(t, mac, 0x6128, 0);
- s = _splraise(6);
+ if (((&sc->sc_rx_ring)->rxr_alive) == 0) {
+  gem_fill_rx_ring(sc);
+  bus_space_write_4(t, mac, 0x4100, sc->sc_rx_prod);
+ }
  mii_tick(&sc->sc_mii);
  _splx(s);
  timeout_add_sec(&sc->sc_tick_ch, 1);
@@ -3680,7 +3684,7 @@ gem_stop(struct ifnet *ifp, int softonly)
  }
  intr_barrier(sc->sc_ih);
  ifq_barrier(&ifp->if_snd);
- (((ifp->if_flags & 0x40) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/gem.c", 547, "(ifp->if_flags & IFF_RUNNING) == 0"));
+ (((ifp->if_flags & 0x40) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/gem.c", 556, "(ifp->if_flags & IFF_RUNNING) == 0"));
  for (i = 0; i < (64 * 16); i++) {
   sd = &sc->sc_txd[i];
   if (sd->sd_mbuf != ((void *)0)) {
@@ -4040,7 +4044,7 @@ gem_intr(void *v)
  if (status & 0x000004000) {
   int txstat = bus_space_read_4(t, seb, 0x6010);
   if (txstat & (0x00000002 | 0x00000004)) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/gem.c", 1148);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/ic/gem.c", 1157);
    gem_init(ifp);
    _kernel_unlock();
   }
@@ -4073,11 +4077,16 @@ gem_rx_watchdog(void *arg)
  rx_fifo_wr_ptr = bus_space_read_4(t, h, 0x400c);
  rx_fifo_rd_ptr = bus_space_read_4(t, h, 0x4014);
  state = bus_space_read_4(t, h, 0x6134);
- if ((state & 0x03800000) == 0x03800000 &&
-     ((rx_fifo_wr_ptr == rx_fifo_rd_ptr) ||
-      ((sc->sc_rx_fifo_wr_ptr == rx_fifo_wr_ptr) &&
-       (sc->sc_rx_fifo_rd_ptr == rx_fifo_rd_ptr)))) {
-  gem_init(ifp);
+ if ((state & 0x03800000) == 0x03800000) {
+  if ((rx_fifo_wr_ptr == rx_fifo_rd_ptr) ||
+       ((sc->sc_rx_fifo_wr_ptr == rx_fifo_wr_ptr) &&
+        (sc->sc_rx_fifo_rd_ptr == rx_fifo_rd_ptr))) {
+   gem_init(ifp);
+  } else {
+   sc->sc_rx_fifo_wr_ptr = rx_fifo_wr_ptr;
+   sc->sc_rx_fifo_rd_ptr = rx_fifo_rd_ptr;
+   timeout_add_msec(&sc->sc_rx_watchdog, 400);
+  }
  }
 }
 void

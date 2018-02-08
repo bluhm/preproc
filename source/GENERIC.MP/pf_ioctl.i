@@ -5758,7 +5758,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -8561,12 +8561,16 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_synflwats) & 0x1fff) << 16) | ((('D')) << 8) | ((97))): {
   struct pfioc_synflwats *io = (struct pfioc_synflwats *)addr;
+  (void)(0);
   error = pf_syncookies_setwats(io->hiwat, io->lowat);
+  (void)(0);
   break;
  }
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(u_int8_t) & 0x1fff) << 16) | ((('D')) << 8) | ((98))): {
   u_int8_t *mode = (u_int8_t *)addr;
+  (void)(0);
   error = pf_syncookies_setmode(*mode);
+  (void)(0);
   break;
  }
  default:

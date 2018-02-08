@@ -1500,33 +1500,47 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct circq {
- struct circq *next;
- struct circq *prev;
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
 };
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
+struct rb_tree {
+ struct rb_entry *rbt_root;
 };
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_barrier(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -1744,6 +1758,48 @@ int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
 struct taskq * net_tq(unsigned int);
+struct ifnet;
+typedef int (*ifm_change_cb_t)(struct ifnet *);
+typedef void (*ifm_stat_cb_t)(struct ifnet *, struct ifmediareq *);
+struct ifmedia_entry {
+ struct { struct ifmedia_entry *tqe_next; struct ifmedia_entry **tqe_prev; } ifm_list;
+ uint64_t ifm_media;
+ u_int ifm_data;
+ void *ifm_aux;
+};
+struct ifmedia {
+ uint64_t ifm_mask;
+ uint64_t ifm_media;
+ struct ifmedia_entry *ifm_cur;
+ struct { struct ifmedia_entry *tqh_first; struct ifmedia_entry **tqh_last; } ifm_list;
+ ifm_change_cb_t ifm_change;
+ ifm_stat_cb_t ifm_status;
+};
+void ifmedia_init(struct ifmedia *, uint64_t, ifm_change_cb_t,
+      ifm_stat_cb_t);
+void ifmedia_add(struct ifmedia *, uint64_t, int, void *);
+void ifmedia_list_add(struct ifmedia *, struct ifmedia_entry *,
+     int);
+void ifmedia_set(struct ifmedia *, uint64_t);
+int ifmedia_ioctl(struct ifnet *, struct ifreq *, struct ifmedia *,
+     u_long);
+struct ifmedia_entry *ifmedia_match(struct ifmedia *, uint64_t, uint64_t);
+void ifmedia_delete_instance(struct ifmedia *, uint64_t);
+uint64_t ifmedia_baudrate(uint64_t);
+struct ifmedia_description {
+ uint64_t ifmt_word;
+ const char *ifmt_string;
+};
+struct ifmedia_baudrate {
+ uint64_t ifmb_word;
+ uint64_t ifmb_baudrate;
+};
+struct ifmedia_status_description {
+ uint64_t ifms_type;
+ uint64_t ifms_valid;
+ uint64_t ifms_bit;
+ const char *ifms_string[2];
+};
 struct rt_kmetrics {
  u_int64_t rmx_pksent;
  int64_t rmx_expire;
@@ -2515,6 +2571,33 @@ void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
 struct ifnet;
 struct ifq_ops;
 struct ifqueue {
@@ -2818,6 +2901,461 @@ u_int32_t ether_crc32_le_update(u_int32_t crc, const u_int8_t *, size_t);
 u_int32_t ether_crc32_be_update(u_int32_t crc, const u_int8_t *, size_t);
 u_int32_t ether_crc32_le(const u_int8_t *, size_t);
 u_int32_t ether_crc32_be(const u_int8_t *, size_t);
+struct ip6_hdr {
+ union {
+  struct ip6_hdrctl {
+   u_int32_t ip6_un1_flow;
+   u_int16_t ip6_un1_plen;
+   u_int8_t ip6_un1_nxt;
+   u_int8_t ip6_un1_hlim;
+  } ip6_un1;
+  u_int8_t ip6_un2_vfc;
+ } ip6_ctlun;
+ struct in6_addr ip6_src;
+ struct in6_addr ip6_dst;
+} __attribute__((__packed__));
+struct ip6_hdr_pseudo {
+ struct in6_addr ip6ph_src;
+ struct in6_addr ip6ph_dst;
+ u_int32_t ip6ph_len;
+ u_int8_t ip6ph_zero[3];
+ u_int8_t ip6ph_nxt;
+} __attribute__((__packed__));
+struct ip6_ext {
+ u_int8_t ip6e_nxt;
+ u_int8_t ip6e_len;
+} __attribute__((__packed__));
+struct ip6_hbh {
+ u_int8_t ip6h_nxt;
+ u_int8_t ip6h_len;
+} __attribute__((__packed__));
+struct ip6_dest {
+ u_int8_t ip6d_nxt;
+ u_int8_t ip6d_len;
+} __attribute__((__packed__));
+struct ip6_opt {
+ u_int8_t ip6o_type;
+ u_int8_t ip6o_len;
+} __attribute__((__packed__));
+struct ip6_opt_jumbo {
+ u_int8_t ip6oj_type;
+ u_int8_t ip6oj_len;
+ u_int8_t ip6oj_jumbo_len[4];
+} __attribute__((__packed__));
+struct ip6_opt_nsap {
+ u_int8_t ip6on_type;
+ u_int8_t ip6on_len;
+ u_int8_t ip6on_src_nsap_len;
+ u_int8_t ip6on_dst_nsap_len;
+} __attribute__((__packed__));
+struct ip6_opt_tunnel {
+ u_int8_t ip6ot_type;
+ u_int8_t ip6ot_len;
+ u_int8_t ip6ot_encap_limit;
+} __attribute__((__packed__));
+struct ip6_opt_router {
+ u_int8_t ip6or_type;
+ u_int8_t ip6or_len;
+ u_int8_t ip6or_value[2];
+} __attribute__((__packed__));
+struct ip6_rthdr {
+ u_int8_t ip6r_nxt;
+ u_int8_t ip6r_len;
+ u_int8_t ip6r_type;
+ u_int8_t ip6r_segleft;
+} __attribute__((__packed__));
+struct ip6_rthdr0 {
+ u_int8_t ip6r0_nxt;
+ u_int8_t ip6r0_len;
+ u_int8_t ip6r0_type;
+ u_int8_t ip6r0_segleft;
+ u_int32_t ip6r0_reserved;
+} __attribute__((__packed__));
+struct ip6_frag {
+ u_int8_t ip6f_nxt;
+ u_int8_t ip6f_reserved;
+ u_int16_t ip6f_offlg;
+ u_int32_t ip6f_ident;
+} __attribute__((__packed__));
+struct ip6q {
+ struct { struct ip6q *tqe_next; struct ip6q **tqe_prev; } ip6q_queue;
+ struct ip6asfrag_list { struct ip6asfrag *lh_first; } ip6q_asfrag;
+ struct in6_addr ip6q_src, ip6q_dst;
+ int ip6q_unfrglen;
+ int ip6q_nfrag;
+ u_int32_t ip6q_ident;
+ u_int8_t ip6q_nxt;
+ u_int8_t ip6q_ttl;
+};
+struct ip6asfrag {
+ struct { struct ip6asfrag *le_next; struct ip6asfrag **le_prev; } ip6af_list;
+ struct mbuf *ip6af_m;
+ int ip6af_offset;
+ int ip6af_frglen;
+ int ip6af_off;
+ u_int32_t ip6af_flow;
+ u_int16_t ip6af_mff;
+};
+struct ip6_moptions {
+ struct { struct in6_multi_mship *lh_first; } im6o_memberships;
+ unsigned short im6o_ifidx;
+ u_char im6o_hlim;
+ u_char im6o_loop;
+};
+struct ip6po_rhinfo {
+ struct ip6_rthdr *ip6po_rhi_rthdr;
+ struct route_in6 ip6po_rhi_route;
+};
+struct ip6_pktopts {
+ int ip6po_hlim;
+ struct in6_pktinfo *ip6po_pktinfo;
+ struct ip6_hbh *ip6po_hbh;
+ struct ip6_dest *ip6po_dest1;
+ struct ip6po_rhinfo ip6po_rhinfo;
+ struct ip6_dest *ip6po_dest2;
+ int ip6po_tclass;
+ int ip6po_minmtu;
+ int ip6po_flags;
+};
+struct ip6stat {
+ u_int64_t ip6s_total;
+ u_int64_t ip6s_tooshort;
+ u_int64_t ip6s_toosmall;
+ u_int64_t ip6s_fragments;
+ u_int64_t ip6s_fragdropped;
+ u_int64_t ip6s_fragtimeout;
+ u_int64_t ip6s_fragoverflow;
+ u_int64_t ip6s_forward;
+ u_int64_t ip6s_cantforward;
+ u_int64_t ip6s_redirectsent;
+ u_int64_t ip6s_delivered;
+ u_int64_t ip6s_localout;
+ u_int64_t ip6s_odropped;
+ u_int64_t ip6s_reassembled;
+ u_int64_t ip6s_fragmented;
+ u_int64_t ip6s_ofragments;
+ u_int64_t ip6s_cantfrag;
+ u_int64_t ip6s_badoptions;
+ u_int64_t ip6s_noroute;
+ u_int64_t ip6s_badvers;
+ u_int64_t ip6s_rawout;
+ u_int64_t ip6s_badscope;
+ u_int64_t ip6s_notmember;
+ u_int64_t ip6s_nxthist[256];
+ u_int64_t ip6s_m1;
+ u_int64_t ip6s_m2m[32];
+ u_int64_t ip6s_mext1;
+ u_int64_t ip6s_mext2m;
+ u_int64_t ip6s_nogif;
+ u_int64_t ip6s_toomanyhdr;
+ u_int64_t ip6s_sources_none;
+ u_int64_t ip6s_sources_sameif[16];
+ u_int64_t ip6s_sources_otherif[16];
+ u_int64_t ip6s_sources_samescope[16];
+ u_int64_t ip6s_sources_otherscope[16];
+ u_int64_t ip6s_sources_deprecated[16];
+ u_int64_t ip6s_forward_cachehit;
+ u_int64_t ip6s_forward_cachemiss;
+};
+enum ip6stat_counters {
+ ip6s_total,
+ ip6s_tooshort,
+ ip6s_toosmall,
+ ip6s_fragments,
+ ip6s_fragdropped,
+ ip6s_fragtimeout,
+ ip6s_fragoverflow,
+ ip6s_forward,
+ ip6s_cantforward,
+ ip6s_redirectsent,
+ ip6s_delivered,
+ ip6s_localout,
+ ip6s_odropped,
+ ip6s_reassembled,
+ ip6s_fragmented,
+ ip6s_ofragments,
+ ip6s_cantfrag,
+ ip6s_badoptions,
+ ip6s_noroute,
+ ip6s_badvers,
+ ip6s_rawout,
+ ip6s_badscope,
+ ip6s_notmember,
+ ip6s_nxthist,
+ ip6s_m1 = ip6s_nxthist + 256,
+ ip6s_m2m,
+ ip6s_mext1 = ip6s_m2m + 32,
+ ip6s_mext2m,
+ ip6s_nogif,
+ ip6s_toomanyhdr,
+ ip6s_sources_none,
+ ip6s_sources_sameif,
+ ip6s_sources_otherif = ip6s_sources_sameif + 16,
+ ip6s_sources_samescope = ip6s_sources_otherif + 16,
+ ip6s_sources_otherscope = ip6s_sources_samescope + 16,
+ ip6s_sources_deprecated = ip6s_sources_otherscope + 16,
+ ip6s_forward_cachehit = ip6s_sources_deprecated + 16,
+ ip6s_forward_cachemiss,
+ ip6s_ncounters,
+};
+extern struct cpumem *ip6counters;
+static inline void
+ip6stat_inc(enum ip6stat_counters c)
+{
+ counters_inc(ip6counters, c);
+}
+static inline void
+ip6stat_add(enum ip6stat_counters c, uint64_t v)
+{
+ counters_add(ip6counters, c, v);
+}
+extern int ip6_mtudisc_timeout;
+extern struct rttimer_queue *icmp6_mtudisc_timeout_q;
+extern int ip6_defhlim;
+extern int ip6_defmcasthlim;
+extern int ip6_forwarding;
+extern int ip6_mforwarding;
+extern int ip6_multipath;
+extern int ip6_sendredirect;
+extern int ip6_use_deprecated;
+extern int ip6_mcast_pmtu;
+extern int ip6_neighborgcthresh;
+extern int ip6_maxdynroutes;
+extern struct socket *ip6_mrouter[255];
+extern int ip6_sendredirects;
+extern int ip6_maxfragpackets;
+extern int ip6_maxfrags;
+extern int ip6_log_interval;
+extern time_t ip6_log_time;
+extern int ip6_hdrnestlimit;
+extern int ip6_dad_count;
+extern int ip6_dad_pending;
+extern int ip6_auto_flowlabel;
+extern int ip6_auto_linklocal;
+struct in6pcb;
+struct inpcb;
+int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
+void ip6_init(void);
+void ip6intr(void);
+int ip6_input_if(struct mbuf **, int *, int, int, struct ifnet *);
+void ip6_freepcbopts(struct ip6_pktopts *);
+void ip6_freemoptions(struct ip6_moptions *);
+int ip6_unknown_opt(u_int8_t *, struct mbuf *, int);
+int ip6_get_prevhdr(struct mbuf *, int);
+int ip6_nexthdr(struct mbuf *, int, int, int *);
+int ip6_lasthdr(struct mbuf *, int, int, int *);
+int ip6_mforward(struct ip6_hdr *, struct ifnet *, struct mbuf *);
+int ip6_process_hopopts(struct mbuf *, u_int8_t *, int, u_int32_t *,
+      u_int32_t *);
+void ip6_savecontrol(struct inpcb *, struct mbuf *, struct mbuf **);
+int ip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+void ip6_forward(struct mbuf *, struct rtentry *, int);
+void ip6_mloopback(struct ifnet *, struct mbuf *, struct sockaddr_in6 *);
+int ip6_output(struct mbuf *, struct ip6_pktopts *, struct route_in6 *, int,
+     struct ip6_moptions *, struct inpcb *);
+int ip6_fragment(struct mbuf *, int, u_char, u_long);
+int ip6_ctloutput(int, struct socket *, int, int, struct mbuf *);
+int ip6_raw_ctloutput(int, struct socket *, int, int, struct mbuf *);
+void ip6_initpktopts(struct ip6_pktopts *);
+int ip6_setpktopts(struct mbuf *, struct ip6_pktopts *,
+     struct ip6_pktopts *, int, int);
+void ip6_clearpktopts(struct ip6_pktopts *, int);
+void ip6_randomid_init(void);
+u_int32_t ip6_randomid(void);
+void ip6_send(struct mbuf *);
+int route6_input(struct mbuf **, int *, int, int);
+void frag6_init(void);
+int frag6_input(struct mbuf **, int *, int, int);
+int frag6_deletefraghdr(struct mbuf *, int);
+void frag6_slowtimo(void);
+void rip6_init(void);
+int rip6_input(struct mbuf **, int *, int, int);
+void rip6_ctlinput(int, struct sockaddr *, u_int, void *);
+int rip6_ctloutput(int, struct socket *, int, int, struct mbuf *);
+int rip6_output(struct mbuf *, struct socket *, struct sockaddr *,
+     struct mbuf *);
+int rip6_usrreq(struct socket *,
+     int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
+int rip6_attach(struct socket *, int);
+int rip6_detach(struct socket *);
+int rip6_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int dest6_input(struct mbuf **, int *, int, int);
+int none_input(struct mbuf **, int *, int);
+int in6_pcbselsrc(struct in6_addr **, struct sockaddr_in6 *,
+     struct inpcb *, struct ip6_pktopts *);
+int in6_selectsrc(struct in6_addr **, struct sockaddr_in6 *,
+     struct ip6_moptions *, unsigned int);
+struct rtentry *in6_selectroute(struct sockaddr_in6 *, struct ip6_pktopts *,
+     struct route_in6 *, unsigned int rtableid);
+u_int32_t ip6_randomflowlabel(void);
+struct tdb;
+struct tdb *
+ ip6_output_ipsec_lookup(struct mbuf *, int *, struct inpcb *);
+int ip6_output_ipsec_send(struct tdb *, struct mbuf *, int, int);
+struct pipex_mppe_req {
+ int16_t stateless;
+ int16_t keylenbits;
+ u_char master_key[16];
+};
+struct pipex_statistics {
+ uint32_t ipackets;
+ uint32_t ierrors;
+ uint64_t ibytes;
+ uint32_t opackets;
+ uint32_t oerrors;
+ uint64_t obytes;
+ uint32_t idle_time;
+};
+struct pipex_session_req {
+ int pr_protocol;
+ uint16_t pr_session_id;
+ uint16_t pr_peer_session_id;
+ uint32_t pr_ppp_flags;
+ int8_t pr_ccp_id;
+ int pr_ppp_id;
+ uint16_t pr_peer_mru;
+ uint32_t pr_timeout_sec;
+ struct in_addr pr_ip_srcaddr;
+ struct in_addr pr_ip_address;
+ struct in_addr pr_ip_netmask;
+ struct sockaddr_in6 pr_ip6_address;
+ int pr_ip6_prefixlen;
+ union {
+  struct {
+   uint32_t snd_nxt;
+   uint32_t rcv_nxt;
+   uint32_t snd_una;
+   uint32_t rcv_acked;
+   int winsz;
+   int maxwinsz;
+   int peer_maxwinsz;
+  } pptp;
+  struct {
+   uint32_t option_flags;
+   uint16_t tunnel_id;
+   uint16_t peer_tunnel_id;
+   uint32_t ns_nxt;
+   uint32_t nr_nxt;
+   uint32_t ns_una;
+   uint32_t nr_acked;
+   uint32_t ipsecflowinfo;
+  } l2tp;
+  struct {
+   char over_ifname[16];
+  } pppoe;
+ } pr_proto;
+ struct sockaddr_storage pr_peer_address;
+ struct sockaddr_storage pr_local_address;
+ struct pipex_mppe_req pr_mppe_recv;
+ struct pipex_mppe_req pr_mppe_send;
+};
+struct pipex_session_stat_req {
+ int psr_protocol;
+ uint16_t psr_session_id;
+ struct pipex_statistics psr_stat;
+};
+struct pipex_session_close_req {
+ int psr_protocol;
+ uint16_t psr_session_id;
+ struct pipex_statistics psr_stat;
+};
+struct pipex_session_list_req {
+ uint8_t plr_flags;
+ int plr_ppp_id_count;
+ int plr_ppp_id[128];
+};
+struct pipex_session_config_req {
+ int psr_protocol;
+ uint16_t psr_session_id;
+ int pcr_ip_forward;
+};
+struct pppx_hdr {
+ u_int32_t pppx_proto;
+ u_int32_t pppx_id;
+};
+struct pipex_session_descr_req {
+ int pdr_protocol;
+ uint16_t pdr_session_id;
+ char pdr_descr[64];
+};
+extern int pipex_enable;
+struct pipex_session;
+struct pipex_iface_context {
+ struct ifnet *ifnet_this;
+ u_int pipexmode;
+ struct pipex_session *multicast_session;
+};
+
+void pipex_init (void);
+void pipex_iface_init (struct pipex_iface_context *, struct ifnet *);
+void pipex_iface_fini (struct pipex_iface_context *);
+int pipex_notify_close_session(struct pipex_session *session);
+int pipex_notify_close_session_all(void);
+struct mbuf *pipex_output (struct mbuf *, int, int, struct pipex_iface_context *);
+struct pipex_session *pipex_pppoe_lookup_session (struct mbuf *);
+struct pipex_session *pipex_pppoe_lookup_session (struct mbuf *);
+struct mbuf *pipex_pppoe_input (struct mbuf *, struct pipex_session *);
+struct pipex_session *pipex_pptp_lookup_session (struct mbuf *);
+struct mbuf *pipex_pptp_input (struct mbuf *, struct pipex_session *);
+struct pipex_session *pipex_pptp_userland_lookup_session_ipv4 (struct mbuf *, struct in_addr);
+struct pipex_session *pipex_pptp_userland_lookup_session_ipv6 (struct mbuf *, struct in6_addr);
+struct pipex_session *pipex_l2tp_userland_lookup_session(struct mbuf *, struct sockaddr *);
+struct mbuf *pipex_pptp_userland_output (struct mbuf *, struct pipex_session *);
+struct pipex_session *pipex_l2tp_lookup_session (struct mbuf *, int);
+struct mbuf *pipex_l2tp_input (struct mbuf *, int off, struct pipex_session *, uint32_t);
+struct pipex_session *pipex_l2tp_userland_lookup_session_ipv4 (struct mbuf *, struct in_addr);
+struct pipex_session *pipex_l2tp_userland_lookup_session_ipv6 (struct mbuf *, struct in6_addr);
+struct mbuf *pipex_l2tp_userland_output (struct mbuf *, struct pipex_session *);
+int pipex_ioctl (struct pipex_iface_context *, u_long, caddr_t);
+void pipex_session_init_mppe_recv(struct pipex_session *, int,
+int, u_char *);
+void pipex_session_init_mppe_send(struct pipex_session *, int,
+int, u_char *);
+
+struct shim_hdr {
+ u_int32_t shim_label;
+};
+struct sockaddr_mpls {
+ u_int8_t smpls_len;
+ u_int8_t smpls_family;
+ u_int16_t smpls_pad0;
+ u_int32_t smpls_label;
+ u_int32_t smpls_pad1[2];
+};
+struct rt_mpls {
+ u_int32_t mpls_label;
+ u_int8_t mpls_operation;
+ u_int8_t mpls_exp;
+};
+struct ifmpwreq {
+ uint32_t imr_flags;
+ uint32_t imr_type;
+ struct shim_hdr imr_lshim;
+ struct shim_hdr imr_rshim;
+ struct sockaddr_storage imr_nexthop;
+};
+extern struct domain mplsdomain;
+struct mpe_softc {
+ struct ifnet sc_if;
+ struct ifaddr sc_ifa;
+ int sc_unit;
+ struct sockaddr_mpls sc_smpls;
+ struct { struct mpe_softc *le_next; struct mpe_softc **le_prev; } sc_list;
+};
+void mpe_input(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+void mpe_input6(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+extern int mpls_defttl;
+extern int mpls_mapttl_ip;
+extern int mpls_mapttl_ip6;
+extern int mpls_inkloop;
+struct mbuf *mpls_shim_pop(struct mbuf *);
+struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
+struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
+int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+      struct rtentry *);
+void mpls_input(struct ifnet *, struct mbuf *);
 typedef int32_t bpf_int32;
 typedef u_int32_t bpf_u_int32;
 struct bpf_program {
@@ -2878,47 +3416,6 @@ void *bpfsattach(caddr_t *, const char *, u_int, u_int);
 void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -3586,7 +4083,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -4053,24 +4550,6 @@ int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
 struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
-struct gre_softc {
- struct ifnet sc_if;
- struct { struct gre_softc *le_next; struct gre_softc **le_prev; } sc_list;
- struct timeout sc_ka_hold;
- struct timeout sc_ka_snd;
- struct in_addr g_src;
- struct in_addr g_dst;
- struct route route;
- u_int g_rtableid;
- int gre_unit;
- int gre_flags;
- int sc_ka_timout;
- int sc_ka_holdmax;
- int sc_ka_holdcnt;
- int sc_ka_cnt;
- u_char g_proto;
- u_char sc_ka_state;
-};
 struct gre_h {
  u_int16_t flags;
  u_int16_t ptype;
@@ -4099,278 +4578,726 @@ struct mobip_h {
  struct ip mi;
  struct mobile_h mh;
 } __attribute__((__packed__));
-extern struct gre_softc_head { struct gre_softc *lh_first; } gre_softc_list;
-extern int gre_allow;
-extern int gre_wccp;
-extern int ip_mobile_allow;
-void greattach(int);
-int gre_ioctl(struct ifnet *, u_long, caddr_t);
-int gre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
-     struct rtentry *);
-u_int16_t gre_in_cksum(u_int16_t *, u_int);
-void gre_recv_keepalive(struct gre_softc *);
-int gre_clone_create(struct if_clone *, int);
-int gre_clone_destroy(struct ifnet *);
-struct gre_softc_head gre_softc_list;
+int gre_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int gre_input(struct mbuf **, int *, int, int);
+int gre_input6(struct mbuf **, int *, int, int);
+int gre_usrreq(struct socket *, int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
+struct uvmexp {
+ int pagesize;
+ int pagemask;
+ int pageshift;
+ int npages;
+ int free;
+ int active;
+ int inactive;
+ int paging;
+ int wired;
+ int zeropages;
+ int reserve_pagedaemon;
+ int reserve_kernel;
+ int anonpages;
+ int vnodepages;
+ int vtextpages;
+ int freemin;
+ int freetarg;
+ int inactarg;
+ int wiredmax;
+ int anonmin;
+ int vtextmin;
+ int vnodemin;
+ int anonminpct;
+ int vtextminpct;
+ int vnodeminpct;
+ int nswapdev;
+ int swpages;
+ int swpginuse;
+ int swpgonly;
+ int nswget;
+ int nanon;
+ int nanonneeded;
+ int nfreeanon;
+ int faults;
+ int traps;
+ int intrs;
+ int swtch;
+ int softs;
+ int syscalls;
+ int pageins;
+ int obsolete_swapins;
+ int obsolete_swapouts;
+ int pgswapin;
+ int pgswapout;
+ int forks;
+ int forks_ppwait;
+ int forks_sharevm;
+ int pga_zerohit;
+ int pga_zeromiss;
+ int zeroaborts;
+ int fltnoram;
+ int fltnoanon;
+ int fltnoamap;
+ int fltpgwait;
+ int fltpgrele;
+ int fltrelck;
+ int fltrelckok;
+ int fltanget;
+ int fltanretry;
+ int fltamcopy;
+ int fltnamap;
+ int fltnomap;
+ int fltlget;
+ int fltget;
+ int flt_anon;
+ int flt_acow;
+ int flt_obj;
+ int flt_prcopy;
+ int flt_przero;
+ int pdwoke;
+ int pdrevs;
+ int pdswout;
+ int pdfreed;
+ int pdscans;
+ int pdanscan;
+ int pdobscan;
+ int pdreact;
+ int pdbusy;
+ int pdpageouts;
+ int pdpending;
+ int pddeact;
+ int pdreanon;
+ int pdrevnode;
+ int pdrevtext;
+ int fpswtch;
+ int kmapent;
+};
+struct _ps_strings {
+ void *val;
+};
+struct ctlname {
+ char *ctl_name;
+ int ctl_type;
+};
+struct kinfo_proc {
+ u_int64_t p_forw;
+ u_int64_t p_back;
+ u_int64_t p_paddr;
+ u_int64_t p_addr;
+ u_int64_t p_fd;
+ u_int64_t p_stats;
+ u_int64_t p_limit;
+ u_int64_t p_vmspace;
+ u_int64_t p_sigacts;
+ u_int64_t p_sess;
+ u_int64_t p_tsess;
+ u_int64_t p_ru;
+ int32_t p_eflag;
+ int32_t p_exitsig;
+ int32_t p_flag;
+ int32_t p_pid;
+ int32_t p_ppid;
+ int32_t p_sid;
+ int32_t p__pgid;
+ int32_t p_tpgid;
+ u_int32_t p_uid;
+ u_int32_t p_ruid;
+ u_int32_t p_gid;
+ u_int32_t p_rgid;
+ u_int32_t p_groups[16];
+ int16_t p_ngroups;
+ int16_t p_jobc;
+ u_int32_t p_tdev;
+ u_int32_t p_estcpu;
+ u_int32_t p_rtime_sec;
+ u_int32_t p_rtime_usec;
+ int32_t p_cpticks;
+ u_int32_t p_pctcpu;
+ u_int32_t p_swtime;
+ u_int32_t p_slptime;
+ int32_t p_schedflags;
+ u_int64_t p_uticks;
+ u_int64_t p_sticks;
+ u_int64_t p_iticks;
+ u_int64_t p_tracep;
+ int32_t p_traceflag;
+ int32_t p_holdcnt;
+ int32_t p_siglist;
+ u_int32_t p_sigmask;
+ u_int32_t p_sigignore;
+ u_int32_t p_sigcatch;
+ int8_t p_stat;
+ u_int8_t p_priority;
+ u_int8_t p_usrpri;
+ u_int8_t p_nice;
+ u_int16_t p_xstat;
+ u_int16_t p_acflag;
+ char p_comm[24];
+ char p_wmesg[8];
+ u_int64_t p_wchan;
+ char p_login[32];
+ int32_t p_vm_rssize;
+ int32_t p_vm_tsize;
+ int32_t p_vm_dsize;
+ int32_t p_vm_ssize;
+ int64_t p_uvalid;
+ u_int64_t p_ustart_sec;
+ u_int32_t p_ustart_usec;
+ u_int32_t p_uutime_sec;
+ u_int32_t p_uutime_usec;
+ u_int32_t p_ustime_sec;
+ u_int32_t p_ustime_usec;
+ u_int64_t p_uru_maxrss;
+ u_int64_t p_uru_ixrss;
+ u_int64_t p_uru_idrss;
+ u_int64_t p_uru_isrss;
+ u_int64_t p_uru_minflt;
+ u_int64_t p_uru_majflt;
+ u_int64_t p_uru_nswap;
+ u_int64_t p_uru_inblock;
+ u_int64_t p_uru_oublock;
+ u_int64_t p_uru_msgsnd;
+ u_int64_t p_uru_msgrcv;
+ u_int64_t p_uru_nsignals;
+ u_int64_t p_uru_nvcsw;
+ u_int64_t p_uru_nivcsw;
+ u_int32_t p_uctime_sec;
+ u_int32_t p_uctime_usec;
+ int32_t p_psflags;
+ int32_t p_spare;
+ u_int32_t p_svuid;
+ u_int32_t p_svgid;
+ char p_emul[8];
+ u_int64_t p_rlim_rss_cur;
+ u_int64_t p_cpuid;
+ u_int64_t p_vm_map_size;
+ int32_t p_tid;
+ u_int32_t p_rtableid;
+};
+struct kinfo_vmentry {
+ u_long kve_start;
+ u_long kve_end;
+ u_long kve_guard;
+ u_long kve_fspace;
+ u_long kve_fspace_augment;
+ u_int64_t kve_offset;
+ int kve_wired_count;
+ int kve_etype;
+ int kve_protection;
+ int kve_max_protection;
+ int kve_advice;
+ int kve_inheritance;
+ u_int8_t kve_flags;
+};
+struct kinfo_file {
+ uint64_t f_fileaddr;
+ uint32_t f_flag;
+ uint32_t f_iflags;
+ uint32_t f_type;
+ uint32_t f_count;
+ uint32_t f_msgcount;
+ uint32_t f_usecount;
+ uint64_t f_ucred;
+ uint32_t f_uid;
+ uint32_t f_gid;
+ uint64_t f_ops;
+ uint64_t f_offset;
+ uint64_t f_data;
+ uint64_t f_rxfer;
+ uint64_t f_rwfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
+ uint64_t v_un;
+ uint32_t v_type;
+ uint32_t v_tag;
+ uint32_t v_flag;
+ uint32_t va_rdev;
+ uint64_t v_data;
+ uint64_t v_mount;
+ uint64_t va_fileid;
+ uint64_t va_size;
+ uint32_t va_mode;
+ uint32_t va_fsid;
+ char f_mntonname[96];
+ uint32_t so_type;
+ uint32_t so_state;
+ uint64_t so_pcb;
+ uint32_t so_protocol;
+ uint32_t so_family;
+ uint64_t inp_ppcb;
+ uint32_t inp_lport;
+ uint32_t inp_laddru[4];
+ uint32_t inp_fport;
+ uint32_t inp_faddru[4];
+ uint64_t unp_conn;
+ uint64_t pipe_peer;
+ uint32_t pipe_state;
+ uint32_t kq_count;
+ uint32_t kq_state;
+ uint32_t __unused1;
+ uint32_t p_pid;
+ int32_t fd_fd;
+ uint32_t fd_ofileflags;
+ uint32_t p_uid;
+ uint32_t p_gid;
+ uint32_t p_tid;
+ char p_comm[24];
+ uint32_t inp_rtableid;
+ uint64_t so_splice;
+ int64_t so_splicelen;
+ uint64_t so_rcv_cc;
+ uint64_t so_snd_cc;
+ uint64_t unp_refs;
+ uint64_t unp_nextref;
+ uint64_t unp_addr;
+ char unp_path[104];
+ uint32_t inp_proto;
+ uint32_t t_state;
+ uint64_t t_rcv_wnd;
+ uint64_t t_snd_wnd;
+ uint64_t t_snd_cwnd;
+ uint32_t va_nlink;
+};
+typedef int (sysctlfn)(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
+int sysctl_int(void *, size_t *, void *, size_t, int *);
+int sysctl_int_lower(void *, size_t *, void *, size_t, int *);
+int sysctl_rdint(void *, size_t *, void *, int);
+int sysctl_int_arr(int **, int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_quad(void *, size_t *, void *, size_t, int64_t *);
+int sysctl_rdquad(void *, size_t *, void *, int64_t);
+int sysctl_string(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl_tstring(void *, size_t *, void *, size_t, char *, size_t);
+int sysctl__string(void *, size_t *, void *, size_t, char *, size_t, int);
+int sysctl_rdstring(void *, size_t *, void *, const char *);
+int sysctl_rdstruct(void *, size_t *, void *, const void *, size_t);
+int sysctl_struct(void *, size_t *, void *, size_t, void *, size_t);
+int sysctl_file(int *, u_int, char *, size_t *, struct proc *);
+int sysctl_doproc(int *, u_int, char *, size_t *);
+struct mbuf_queue;
+int sysctl_mq(int *, u_int, void *, size_t *, void *, size_t,
+    struct mbuf_queue *);
+struct rtentry;
+struct walkarg;
+int sysctl_dumpentry(struct rtentry *, void *, unsigned int);
+int sysctl_rtable(int *, u_int, void *, size_t *, void *, size_t);
+int sysctl_clockrate(char *, size_t *, void *);
+int sysctl_vnode(char *, size_t *, struct proc *);
+int sysctl_dopool(int *, u_int, char *, size_t *);
+int kern_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+       struct proc *);
+int hw_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int vm_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+int fs_posix_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+    struct proc *);
+int net_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int cpu_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int vfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+      struct proc *);
+int sysctl_sysvipc(int *, u_int, void *, size_t *);
+int sysctl_wdog(int *, u_int, void *, size_t *, void *, size_t);
+extern int (*cpu_cpuspeed)(int *);
+extern void (*cpu_setperf)(int);
+int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+struct gre_header {
+ uint16_t gre_flags;
+ uint16_t gre_proto;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct gre_h_cksum {
+ uint16_t gre_cksum;
+ uint16_t gre_reserved1;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct gre_h_key {
+ uint32_t gre_key;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct gre_h_seq {
+ uint32_t gre_seq;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct gre_tunnel {
+ struct rb_entry t_entry;
+ uint32_t t_key_mask;
+ uint32_t t_key;
+ u_int t_rtableid;
+ int t_af;
+ uint32_t t_src[4];
+ uint32_t t_dst[4];
+ uint8_t t_ttl;
+};
+struct gre_tree { struct rb_tree rbh_root; };
+static inline int
+  gre_cmp(const struct gre_tunnel *, const struct gre_tunnel *);
+extern const struct rb_type *const gre_tree_RBT_TYPE; __attribute__((__unused__)) static inline void gre_tree_RBT_INIT(struct gre_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_INSERT(struct gre_tree *head, struct gre_tunnel *elm) { return _rb_insert(gre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_REMOVE(struct gre_tree *head, struct gre_tunnel *elm) { return _rb_remove(gre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_FIND(struct gre_tree *head, const struct gre_tunnel *key) { return _rb_find(gre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_NFIND(struct gre_tree *head, const struct gre_tunnel *key) { return _rb_nfind(gre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_ROOT(struct gre_tree *head) { return _rb_root(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int gre_tree_RBT_EMPTY(struct gre_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_MIN(struct gre_tree *head) { return _rb_min(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_MAX(struct gre_tree *head) { return _rb_max(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_NEXT(struct gre_tunnel *elm) { return _rb_next(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_PREV(struct gre_tunnel *elm) { return _rb_prev(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_LEFT(struct gre_tunnel *elm) { return _rb_left(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_RIGHT(struct gre_tunnel *elm) { return _rb_right(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_PARENT(struct gre_tunnel *elm) { return _rb_parent(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_LEFT(struct gre_tunnel *elm, struct gre_tunnel *left) { return _rb_set_left(gre_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_RIGHT(struct gre_tunnel *elm, struct gre_tunnel *right) { return _rb_set_right(gre_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_PARENT(struct gre_tunnel *elm, struct gre_tunnel *parent) { return _rb_set_parent(gre_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void gre_tree_RBT_POISON(struct gre_tunnel *elm, unsigned long poison) { return _rb_poison(gre_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int gre_tree_RBT_CHECK(struct gre_tunnel *elm, unsigned long poison) { return _rb_check(gre_tree_RBT_TYPE, elm, poison); };
+static int gre_set_tunnel(struct gre_tunnel *, struct if_laddrreq *);
+static int gre_get_tunnel(struct gre_tunnel *, struct if_laddrreq *);
+static int gre_del_tunnel(struct gre_tunnel *);
+static int gre_set_vnetid(struct gre_tunnel *, struct ifreq *);
+static int gre_get_vnetid(struct gre_tunnel *, struct ifreq *);
+static int gre_del_vnetid(struct gre_tunnel *);
+static int gre_ip_output(const struct gre_tunnel *, struct mbuf *,
+      uint8_t);
+struct gre_softc {
+ struct gre_tunnel sc_tunnel;
+ struct ifnet sc_if;
+};
+static int gre_clone_create(struct if_clone *, int);
+static int gre_clone_destroy(struct ifnet *);
 struct if_clone gre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "gre", .ifc_namelen = sizeof("gre") - 1, .ifc_create = gre_clone_create, .ifc_destroy = gre_clone_destroy, };
-struct if_clone mobileip_cloner =
-    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mobileip", .ifc_namelen = sizeof("mobileip") - 1, .ifc_create = gre_clone_create, .ifc_destroy = gre_clone_destroy, };
+struct gre_tree gre_softcs = { { ((void *)0) } };
+static int gre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+      struct rtentry *);
+static void gre_start(struct ifnet *);
+static int gre_ioctl(struct ifnet *, u_long, caddr_t);
+static int gre_up(struct gre_softc *);
+static int gre_down(struct gre_softc *);
+static int gre_input_key(struct mbuf **, int *, int, int,
+      struct gre_tunnel *);
+static struct mbuf *
+  gre_encap(struct gre_softc *, struct mbuf *, uint8_t *);
 int gre_allow = 0;
 int gre_wccp = 0;
-int ip_mobile_allow = 0;
-void gre_keepalive(void *);
-void gre_send_keepalive(void *);
-void gre_link_state(struct gre_softc *);
 void
 greattach(int n)
 {
- do { ((&gre_softc_list)->lh_first) = ((void *)0); } while (0);
  if_clone_attach(&gre_cloner);
- if_clone_attach(&mobileip_cloner);
 }
-int
+static int
 gre_clone_create(struct if_clone *ifc, int unit)
 {
  struct gre_softc *sc;
+ struct ifnet *ifp;
  sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  snprintf(sc->sc_if.if_xname, sizeof sc->sc_if.if_xname, "%s%d",
      ifc->ifc_name, unit);
- sc->sc_if.if_softc = sc;
- sc->sc_if.if_data.ifi_type = 0x83;
- sc->sc_if.if_data.ifi_hdrlen = 24;
- sc->sc_if.if_data.ifi_mtu = 1476;
- sc->sc_if.if_flags = 0x10|0x8000;
- sc->sc_if.if_xflags = 0x2;
- sc->sc_if.if_output = gre_output;
- sc->sc_if.if_ioctl = gre_ioctl;
- sc->sc_if.if_rtrequest = p2p_rtrequest;
- sc->g_dst.s_addr = sc->g_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
- sc->sc_ka_state = 0;
- if (strcmp("gre", ifc->ifc_name) == 0) {
-  sc->g_proto = 47;
- } else {
-  sc->g_proto = 55;
- }
- timeout_set(&sc->sc_ka_hold, gre_keepalive, sc);
- timeout_set_proc(&sc->sc_ka_snd, gre_send_keepalive, sc);
- if_attach(&sc->sc_if);
- if_alloc_sadl(&sc->sc_if);
- bpfattach(&sc->sc_if.if_bpf, &sc->sc_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); } while (0);
- do { if (((sc)->sc_list.le_next = (&gre_softc_list)->lh_first) != ((void *)0)) (&gre_softc_list)->lh_first->sc_list.le_prev = &(sc)->sc_list.le_next; (&gre_softc_list)->lh_first = (sc); (sc)->sc_list.le_prev = &(&gre_softc_list)->lh_first; } while (0);
- do { _rw_exit_write(&netlock ); } while (0);
+ ifp = &sc->sc_if;
+ ifp->if_softc = sc;
+ ifp->if_data.ifi_type = 0x83;
+ ifp->if_data.ifi_hdrlen = 24;
+ ifp->if_data.ifi_mtu = 1476;
+ ifp->if_flags = 0x10|0x8000;
+ ifp->if_xflags = 0x2;
+ ifp->if_output = gre_output;
+ ifp->if_start = gre_start;
+ ifp->if_ioctl = gre_ioctl;
+ ifp->if_rtrequest = p2p_rtrequest;
+ if_attach(ifp);
+ if_alloc_sadl(ifp);
+ bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
  return (0);
 }
-int
+static int
 gre_clone_destroy(struct ifnet *ifp)
 {
  struct gre_softc *sc = ifp->if_softc;
- timeout_del(&sc->sc_ka_snd);
- timeout_del(&sc->sc_ka_hold);
  do { _rw_enter_write(&netlock ); } while (0);
- do { if ((sc)->sc_list.le_next != ((void *)0)) (sc)->sc_list.le_next->sc_list.le_prev = (sc)->sc_list.le_prev; *(sc)->sc_list.le_prev = (sc)->sc_list.le_next; ((sc)->sc_list.le_prev) = ((void *)-1); ((sc)->sc_list.le_next) = ((void *)-1); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  gre_down(sc);
  do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
  return (0);
 }
 int
+gre_input(struct mbuf **mp, int *offp, int type, int af)
+{
+ struct mbuf *m = *mp;
+ struct gre_tunnel key;
+ struct ip *ip;
+ ip = ((struct ip *)((m)->m_hdr.mh_data));
+ key.t_af = 2;
+ key.t_src[0] = ip->ip_dst.s_addr;
+ key.t_dst[0] = ip->ip_src.s_addr;
+ if (gre_input_key(mp, offp, type, af, &key) == -1)
+  return (rip_input(mp, offp, type, af));
+ return (257);
+}
+int
+gre_input6(struct mbuf **mp, int *offp, int type, int af)
+{
+ struct mbuf *m = *mp;
+ struct gre_tunnel key;
+ struct ip6_hdr *ip6;
+ ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
+ key.t_af = 24;
+ __builtin_memcpy((key.t_src), (&ip6->ip6_dst), (sizeof(key.t_src)));
+ __builtin_memcpy((key.t_dst), (&ip6->ip6_src), (sizeof(key.t_dst)));
+ if (gre_input_key(mp, offp, type, af, &key) == -1)
+  return (rip6_input(mp, offp, type, af));
+ return (257);
+}
+static int
+gre_input_key(struct mbuf **mp, int *offp, int type, int af,
+    struct gre_tunnel *key)
+{
+ struct mbuf *m = *mp;
+ int iphlen = *offp, hlen;
+ struct gre_softc *sc;
+ struct ifnet *ifp;
+ caddr_t buf;
+ struct gre_header *gh;
+ struct gre_h_key *gkh;
+ void (*input)(struct ifnet *, struct mbuf *);
+ int bpf_af = 0;
+ if (!gre_allow)
+  goto decline;
+ hlen = iphlen + sizeof(*gh);
+ if (m->M_dat.MH.MH_pkthdr.len < hlen)
+  goto decline;
+ m = m_pullup(m, hlen);
+ if (m == ((void *)0))
+  return (257);
+ buf = ((caddr_t)((m)->m_hdr.mh_data));
+ gh = (struct gre_header *)(buf + iphlen);
+ switch (gh->gre_flags & ((__uint16_t)(0x0007))) {
+ case ((__uint16_t)(0x0000)):
+  break;
+ case ((__uint16_t)(0x0001)):
+  if (pipex_enable) {
+   struct pipex_session *session;
+   session = pipex_pptp_lookup_session(m);
+   if (session != ((void *)0) &&
+       pipex_pptp_input(m, session) == ((void *)0))
+    return (257);
+  }
+ default:
+  goto decline;
+ }
+ if ((gh->gre_flags & ((__uint16_t)(~(0x2000|0x0007)))) != ((__uint16_t)(0)))
+  goto decline;
+ if (gh->gre_flags & ((__uint16_t)(0x2000))) {
+  hlen += sizeof(*gkh);
+  if (m->M_dat.MH.MH_pkthdr.len < hlen)
+   goto decline;
+  m = m_pullup(m, hlen);
+  if (m == ((void *)0))
+   return (257);
+  buf = ((caddr_t)((m)->m_hdr.mh_data));
+  gh = (struct gre_header *)(buf + iphlen);
+  gkh = (struct gre_h_key *)(gh + 1);
+  key->t_key_mask = ((__uint32_t)(0xffffffffU));
+  key->t_key = gkh->gre_key;
+ } else
+  key->t_key_mask = ((__uint32_t)(0x00000000U));
+ key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ switch (gh->gre_proto) {
+ case ((__uint16_t)(0x0800)):
+  bpf_af = 2;
+  input = ipv4_input;
+  break;
+ case ((__uint16_t)(0x86DD)):
+  bpf_af = 24;
+  input = ipv6_input;
+  break;
+ case ((__uint16_t)(0x8847)):
+ case ((__uint16_t)(0x8848)):
+  bpf_af = 33;
+  input = mpls_input;
+  break;
+ case ((__uint16_t)(0x6558)):
+ default:
+  goto decline;
+ }
+ sc = (struct gre_softc *)gre_tree_RBT_FIND(&gre_softcs, key);
+ if (sc == ((void *)0))
+  goto decline;
+ ifp = &sc->sc_if;
+ m_adj(m, hlen);
+ m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
+ pf_pkt_addr_changed(m);
+ ifp->if_data.ifi_ipackets++;
+ ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
+ if (ifp->if_bpf)
+  bpf_mtap_af(ifp->if_bpf, bpf_af, m, 1);
+ (*input)(ifp, m);
+ return (257);
+decline:
+ mp = &m;
+ return (-1);
+}
+static int
 gre_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
     struct rtentry *rt)
 {
- int error = 0;
- struct gre_softc *sc = (struct gre_softc *) (ifp->if_softc);
- struct greip *gh = ((void *)0);
- struct ip *inp = ((void *)0);
- u_int8_t ip_tos = 0;
- u_int16_t etype = 0;
- struct mobile_h mob_h;
  struct m_tag *mtag;
- if ((ifp->if_flags & 0x1) == 0 ||
-     sc->g_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || sc->g_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
-  m_freem(m);
-  error = 50;
-  goto end;
+ int error = 0;
+ if (!gre_allow) {
+  error = 13;
+  goto drop;
  }
- if (ifp->if_data.ifi_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid)) {
-  printf("%s: trying to send packet on wrong domain. "
-      "if %d vs. mbuf %d, AF %d\n", ifp->if_xname,
-      ifp->if_data.ifi_rdomain, rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid),
-      dst->sa_family);
+ if (!((ifp->if_flags) & (0x40))) {
+  error = 50;
+  goto drop;
+ }
+ switch (dst->sa_family) {
+ case 2:
+ case 24:
+ case 33:
+  break;
+ default:
+  error = 47;
+  goto drop;
  }
  for (mtag = m_tag_find(m, 0x0080, ((void *)0)); mtag;
       mtag = m_tag_find(m, 0x0080, mtag)) {
-  if (!__builtin_bcmp(((caddr_t)(mtag + 1)), (&ifp), (sizeof(struct ifnet *)))) {
+  if (__builtin_memcmp(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index))) == 0) {
    m_freem(m);
    error = 5;
    goto end;
   }
  }
- mtag = m_tag_get(0x0080, sizeof(struct ifnet *), 0x0002);
+ mtag = m_tag_get(0x0080, sizeof(ifp->if_index), 0x0002);
  if (mtag == ((void *)0)) {
   m_freem(m);
   error = 55;
   goto end;
  }
- __builtin_bcopy((&ifp), ((caddr_t)(mtag + 1)), (sizeof(struct ifnet *)));
+ __builtin_memcpy(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index)));
  m_tag_prepend(m, mtag);
- m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- if (ifp->if_bpf)
-  bpf_mtap_af(ifp->if_bpf, dst->sa_family, m, (1<<1));
- if (sc->g_proto == 55) {
-  if (ip_mobile_allow == 0) {
-   m_freem(m);
-   error = 13;
-   goto end;
-  }
-  if (dst->sa_family == 2) {
-   struct mbuf *m0;
-   int msiz;
-   if (m->m_hdr.mh_len < sizeof(struct ip)) {
-    m = m_pullup(m, sizeof(struct ip));
-    if (m == ((void *)0)) {
-     error = 55;
-     goto end;
-    } else
-     inp = ((struct ip *)((m)->m_hdr.mh_data));
-    if (m->m_hdr.mh_len < inp->ip_hl << 2) {
-     m = m_pullup(m, inp->ip_hl << 2);
-     if (m == ((void *)0)) {
-      error = 55;
-      goto end;
-     }
-    }
-   }
-   inp = ((struct ip *)((m)->m_hdr.mh_data));
-   __builtin_bzero((&mob_h), ((sizeof(struct mobile_h))));
-   mob_h.proto = (inp->ip_p) << 8;
-   mob_h.odst = inp->ip_dst.s_addr;
-   inp->ip_dst.s_addr = sc->g_dst.s_addr;
-   if (inp->ip_src.s_addr == sc->g_src.s_addr) {
-    msiz = (sizeof(struct mobile_h) - sizeof(u_int32_t));
-   } else {
-    mob_h.proto |= 0x0080;
-    mob_h.osrc = inp->ip_src.s_addr;
-    inp->ip_src.s_addr = sc->g_src.s_addr;
-    msiz = (sizeof(struct mobile_h));
-   }
-   mob_h.proto = ((__uint16_t)(mob_h.proto));
-   mob_h.hcrc = gre_in_cksum((u_int16_t *) &mob_h, msiz);
-   if ((m->m_hdr.mh_data - msiz) < m->M_dat.MH.MH_dat.MH_databuf) {
-    m0 = m_gethdr((0x0002), (2));
-    if (m0 == ((void *)0)) {
-     m_freem(m);
-     error = 55;
-     goto end;
-    }
-    do { (m0)->M_dat.MH.MH_pkthdr = (m)->M_dat.MH.MH_pkthdr; (m)->m_hdr.mh_flags &= ~0x0002; { ((&(m)->M_dat.MH.MH_pkthdr.ph_tags)->slh_first) = ((void *)0); }; (m)->M_dat.MH.MH_pkthdr.pf.statekey = ((void *)0); } while ( 0);
-    m0->m_hdr.mh_len = msiz + (inp->ip_hl << 2);
-    m0->m_hdr.mh_data += max_linkhdr;
-    m0->M_dat.MH.MH_pkthdr.len = m->M_dat.MH.MH_pkthdr.len + msiz;
-    m->m_hdr.mh_data += inp->ip_hl << 2;
-    m->m_hdr.mh_len -= inp->ip_hl << 2;
-    __builtin_bcopy(((caddr_t) inp), (((caddr_t)((m0)->m_hdr.mh_data))), (sizeof(struct ip)));
-    m0->m_hdr.mh_next = m;
-    m = m0;
-   } else {
-    m->m_hdr.mh_data -= msiz;
-    m->m_hdr.mh_len += msiz;
-    m->M_dat.MH.MH_pkthdr.len += msiz;
-    __builtin_bcopy((inp), (((caddr_t)((m)->m_hdr.mh_data))), (inp->ip_hl << 2));
-   }
-   inp = ((struct ip *)((m)->m_hdr.mh_data));
-   __builtin_bcopy((&mob_h), ((caddr_t)(inp + 1)), ((unsigned) msiz));
-   inp->ip_len = ((__uint16_t)(((__uint16_t)(inp->ip_len)) + msiz));
-  } else {
-   m_freem(m);
-   error = 22;
-   goto end;
-  }
- } else if (sc->g_proto == 47) {
-  if (gre_allow == 0) {
-   m_freem(m);
-   error = 13;
-   goto end;
-  }
-  switch(dst->sa_family) {
-  case 2:
-   if (m->m_hdr.mh_len < sizeof(struct ip)) {
-    m = m_pullup(m, sizeof(struct ip));
-    if (m == ((void *)0)) {
-     error = 55;
-     goto end;
-    }
-   }
-   inp = ((struct ip *)((m)->m_hdr.mh_data));
-   ip_tos = inp->ip_tos;
-   etype = 0x0800;
-   break;
-  case 24:
-   etype = 0x86DD;
-   break;
-  case 33:
-   if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
-    etype = 0x8848;
-   else
-    etype = 0x8847;
-   break;
-  default:
-   m_freem(m);
-   error = 47;
-   goto end;
-  }
-  (m) = m_prepend((m), (sizeof(struct greip)), (0x0002));
- } else {
-  m_freem(m);
-  error = 22;
-  goto end;
- }
- if (m == ((void *)0)) {
-  error = 55;
-  goto end;
- }
- gh = ((struct greip *)((m)->m_hdr.mh_data));
- if (sc->g_proto == 47) {
-  __builtin_bzero(((void *) &gh->gi_g), (sizeof(struct gre_h)));
-  gh->gi_g.ptype = ((__uint16_t)(etype));
- }
- gh->gi_i.ip_p = sc->g_proto;
- if (sc->g_proto != 55) {
-  gh->gi_i.ip_src = sc->g_src;
-  gh->gi_i.ip_dst = sc->g_dst;
-  ((struct ip *) gh)->ip_hl = (sizeof(struct ip)) >> 2;
-  ((struct ip *) gh)->ip_ttl = ip_defttl;
-  ((struct ip *) gh)->ip_tos = ip_tos;
-  gh->gi_i.ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
- }
- ifp->if_data.ifi_opackets++;
- ifp->if_data.ifi_obytes += m->M_dat.MH.MH_pkthdr.len;
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->g_rtableid;
- pf_pkt_addr_changed(m);
- error = ip_output(m, ((void *)0), &sc->route, 0, ((void *)0), ((void *)0), 0);
-  end:
+ m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
+ error = if_enqueue(ifp, m);
+end:
  if (error)
   ifp->if_data.ifi_oerrors++;
  return (error);
+drop:
+ m_freem(m);
+ return (error);
 }
-int
+void
+gre_start(struct ifnet *ifp)
+{
+ struct gre_softc *sc = ifp->if_softc;
+ struct mbuf *m;
+ uint8_t tos;
+ caddr_t if_bpf;
+ while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf) {
+   int af = m->M_dat.MH.MH_pkthdr.ph_family;
+   bpf_mtap_af(if_bpf, af, m, (1<<1));
+  }
+  m = gre_encap(sc, m, &tos);
+  if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m, tos) != 0)
+   ifp->if_data.ifi_oerrors++;
+ }
+}
+static struct mbuf *
+gre_encap(struct gre_softc *sc, struct mbuf *m, uint8_t *tos)
+{
+ struct gre_header *gh;
+ struct gre_h_key *gkh;
+ uint16_t proto;
+ int hlen;
+ *tos = 0;
+ switch (m->M_dat.MH.MH_pkthdr.ph_family) {
+ case 2: {
+  proto = ((__uint16_t)(0x0800));
+  struct ip *ip = ((struct ip *)((m)->m_hdr.mh_data));
+  *tos = ip->ip_tos;
+  break;
+ }
+ case 24:
+  proto = ((__uint16_t)(0x86DD));
+  break;
+ case 33:
+  if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
+   proto = ((__uint16_t)(0x8848));
+  else
+   proto = ((__uint16_t)(0x8847));
+  break;
+ default:
+  unhandled_af(m->M_dat.MH.MH_pkthdr.ph_family);
+ }
+ hlen = sizeof(*gh);
+ if (sc->sc_tunnel.t_key_mask != ((__uint32_t)(0x00000000U)))
+  hlen += sizeof(*gkh);
+ m = m_prepend(m, hlen, 0x0002);
+ if (m == ((void *)0))
+  return (((void *)0));
+ gh = ((struct gre_header *)((m)->m_hdr.mh_data));
+ gh->gre_flags = 0x0000;
+ gh->gre_proto = proto;
+ if (sc->sc_tunnel.t_key_mask != ((__uint32_t)(0x00000000U))) {
+  gh->gre_flags |= ((__uint16_t)(0x2000));
+  gkh = (struct gre_h_key *)(gh + 1);
+  gkh->gre_key = sc->sc_tunnel.t_key;
+ }
+ return (m);
+}
+static int
+gre_ip_output(const struct gre_tunnel *tunnel, struct mbuf *m, uint8_t tos)
+{
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = tunnel->t_rtableid;
+ pf_pkt_addr_changed(m);
+ switch (tunnel->t_af) {
+ case 2: {
+  struct ip *ip;
+  m = m_prepend(m, sizeof(*ip), 0x0002);
+  if (m == ((void *)0))
+   return (12);
+  ip = ((struct ip *)((m)->m_hdr.mh_data));
+  ip->ip_tos = tos;
+  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
+  ip->ip_ttl = tunnel->t_ttl;
+  ip->ip_p = 47;
+  ip->ip_src.s_addr = tunnel->t_src[0];
+  ip->ip_dst.s_addr = tunnel->t_dst[0];
+  ip_send(m);
+  break;
+ }
+ case 24: {
+  struct ip6_hdr *ip6;
+  int len = m->M_dat.MH.MH_pkthdr.len;
+  m = m_prepend(m, sizeof(*ip6), 0x0002);
+  if (m == ((void *)0))
+   return (12);
+  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_flow = ((m->M_dat.MH.MH_pkthdr.ph_flowid) & (0x8000)) ?
+      ((__uint32_t)(m->M_dat.MH.MH_pkthdr.ph_flowid & 0x7fff)) : 0;
+  ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = tunnel->t_ttl;
+  __builtin_memcpy((&ip6->ip6_src), (tunnel->t_src), (sizeof(ip6->ip6_src)));
+  __builtin_memcpy((&ip6->ip6_dst), (tunnel->t_dst), (sizeof(ip6->ip6_dst)));
+  ip6_send(m);
+  break;
+ }
+ default:
+  panic("%s: unsupported af %d in %p", __func__, tunnel->t_af,
+      tunnel);
+ }
+ return (0);
+}
+static int
 gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
  struct ifreq *ifr = (struct ifreq *)data;
- struct if_laddrreq *lifr = (struct if_laddrreq *)data;
- struct ifkalivereq *ikar = (struct ifkalivereq *)data;
  struct gre_softc *sc = ifp->if_softc;
- struct sockaddr_in si;
  int error = 0;
- struct proc *prc = (__curcpu->ci_self)->ci_curproc;
  switch(cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
   ifp->if_flags |= 0x1;
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((14))):
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = gre_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = gre_down(sc);
+  }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
   if (ifr->ifr_ifru.ifru_metric < 576) {
@@ -4382,208 +5309,301 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((163))):
-  if ((error = suser(prc, 0)) != 0)
-   break;
-  if (ikar->ikar_timeo < 0 || ikar->ikar_timeo > 86400 ||
-      ikar->ikar_cnt < 0 || ikar->ikar_cnt > 256) {
-   error = 22;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
   }
-  sc->sc_ka_timout = ikar->ikar_timeo;
-  sc->sc_ka_cnt = ikar->ikar_cnt;
-  if (sc->sc_ka_timout == 0 || sc->sc_ka_cnt == 0) {
-   sc->sc_ka_timout = 0;
-   sc->sc_ka_cnt = 0;
-   sc->sc_ka_state = 0;
-   gre_link_state(sc);
-   break;
-  }
-  if (!((&sc->sc_ka_snd)->to_flags & 2)) {
-   sc->sc_ka_holdmax = sc->sc_ka_cnt;
-   timeout_add(&sc->sc_ka_snd, 1);
-   timeout_add_sec(&sc->sc_ka_hold, sc->sc_ka_timout *
-       sc->sc_ka_cnt);
-  }
+  error = gre_set_vnetid(&sc->sc_tunnel, ifr);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((164))):
-  ikar->ikar_timeo = sc->sc_ka_timout;
-  ikar->ikar_cnt = sc->sc_ka_cnt;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
+  error = gre_get_vnetid(&sc->sc_tunnel, ifr);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_del_vnetid(&sc->sc_tunnel);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if ((error = suser(prc, 0)) != 0)
-   break;
-  if (lifr->addr.ss_family != 2 ||
-      lifr->dstaddr.ss_family != 2) {
-   error = 47;
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
   }
-  if (lifr->addr.ss_len != sizeof(si) ||
-      lifr->dstaddr.ss_len != sizeof(si)) {
-   error = 22;
-   break;
-  }
-  sc->g_src = ((struct sockaddr_in *)&lifr->addr)->sin_addr;
-  sc->g_dst = ((struct sockaddr_in *)&lifr->dstaddr)->sin_addr;
- recompute:
-  if ((sc->g_src.s_addr != ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) &&
-      (sc->g_dst.s_addr != ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
-   if (sc->route.ro_rt != ((void *)0)) {
-    rtfree(sc->route.ro_rt);
-    sc->route.ro_rt = ((void *)0);
-   }
-   __builtin_bzero((&sc->route), (sizeof(sc->route)));
-   ifp->if_flags |= 0x1;
-  }
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if ((error = suser(prc, 0)) != 0)
-   break;
-  sc->g_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
-  sc->g_dst.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+  error = gre_set_tunnel(&sc->sc_tunnel,
+      (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
-  if (sc->g_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) ||
-      sc->g_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
-   error = 49;
+  error = gre_get_tunnel(&sc->sc_tunnel,
+      (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
   }
-  __builtin_bzero((&si), (sizeof(si)));
-  si.sin_family = 2;
-  si.sin_len = sizeof(struct sockaddr_in);
-  si.sin_addr.s_addr = sc->g_src.s_addr;
-  __builtin_memcpy((&lifr->addr), (&si), (sizeof(si)));
-  si.sin_addr.s_addr = sc->g_dst.s_addr;
-  __builtin_memcpy((&lifr->dstaddr), (&si), (sizeof(si)));
+  error = gre_del_tunnel(&sc->sc_tunnel);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if ((error = suser(prc, 0)) != 0)
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
+  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
    error = 22;
    break;
   }
-  sc->g_rtableid = ifr->ifr_ifru.ifru_metric;
-  goto recompute;
+  sc->sc_tunnel.t_rtableid = ifr->ifr_ifru.ifru_metric;
+  break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
-  ifr->ifr_ifru.ifru_metric = sc->g_rtableid;
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric < 0 || ifr->ifr_ifru.ifru_metric > 0xff) {
+   error = 22;
+   break;
+  }
+  sc->sc_tunnel.t_ttl = (uint8_t)ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = (int)sc->sc_tunnel.t_ttl;
   break;
  default:
   error = 25;
  }
  return (error);
 }
-u_int16_t
-gre_in_cksum(u_int16_t *p, u_int len)
+static int
+gre_up(struct gre_softc *sc)
 {
- u_int32_t sum = 0;
- int nwords = len >> 1;
- while (nwords-- != 0)
-  sum += *p++;
- if (len & 1) {
-  union {
-   u_short w;
-   u_char c[2];
-  } u;
-  u.c[0] = *(u_char *) p;
-  u.c[1] = 0;
-  sum += u.w;
- }
- sum = (sum >> 16) + (sum & 0xffff);
- sum += (sum >> 16);
- return (~sum);
+ int error = 0;
+ if (sc->sc_tunnel.t_af == 0)
+  return (6);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (gre_tree_RBT_INSERT(&gre_softcs, &sc->sc_tunnel) != ((void *)0))
+  return (16);
+ ((sc->sc_if.if_flags) |= (0x40));
+ return (error);
 }
-void
-gre_keepalive(void *arg)
+static int
+gre_down(struct gre_softc *sc)
 {
- struct gre_softc *sc = arg;
- if (!sc->sc_ka_timout)
-  return;
- sc->sc_ka_state = 1;
- gre_link_state(sc);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ gre_tree_RBT_REMOVE(&gre_softcs, &sc->sc_tunnel);
+ ((sc->sc_if.if_flags) &= ~(0x40));
+ return (0);
 }
-void
-gre_send_keepalive(void *arg)
+static int
+gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
 {
- struct gre_softc *sc = arg;
- struct mbuf *m;
- struct ip *ip;
- struct gre_h *gh;
- struct sockaddr dst;
- if (sc->sc_ka_timout)
-  timeout_add_sec(&sc->sc_ka_snd, sc->sc_ka_timout);
- if (sc->g_proto != 47)
-  return;
- if ((sc->sc_if.if_flags & 0x1) == 0 ||
-     sc->g_src.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || sc->g_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
-  return;
- m = m_gethdr((0x0002), (1));
- if (m == ((void *)0)) {
-  sc->sc_if.if_data.ifi_oerrors++;
-  return;
- }
- m->m_hdr.mh_len = m->M_dat.MH.MH_pkthdr.len = sizeof(*ip) + sizeof(*gh);
- (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (m->m_hdr.mh_len)) &~ (sizeof(long) - 1);
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_if.if_data.ifi_rdomain;
- ip = ((struct ip *)((m)->m_hdr.mh_data));
- ip->ip_v = 4;
- ip->ip_hl = sizeof(*ip) >> 2;
- ip->ip_tos = 0x10;
- ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
- ip->ip_id = ((__uint16_t)(ip_randomid()));
- ip->ip_off = ((__uint16_t)(0x4000));
- ip->ip_ttl = ip_defttl;
- ip->ip_p = 47;
- ip->ip_src.s_addr = sc->g_dst.s_addr;
- ip->ip_dst.s_addr = sc->g_src.s_addr;
- ip->ip_sum = 0;
- ip->ip_sum = in_cksum(m, sizeof(*ip));
- gh = (struct gre_h *)(ip + 1);
- __builtin_bzero((gh), (sizeof(*gh)));
- __builtin_bzero((&dst), (sizeof(dst)));
- dst.sa_family = 2;
- do { _rw_enter_write(&netlock ); } while (0);
- gre_output(&sc->sc_if, m, &dst, ((void *)0));
- do { _rw_exit_write(&netlock ); } while (0);
-}
-void
-gre_recv_keepalive(struct gre_softc *sc)
-{
- if (!sc->sc_ka_timout)
-  return;
- switch (sc->sc_ka_state) {
- case 0:
- case 1:
-  sc->sc_ka_state = 2;
-  sc->sc_ka_holdcnt = sc->sc_ka_holdmax;
-  sc->sc_ka_holdmax = (((sc->sc_ka_holdmax * 2)<(16 * sc->sc_ka_cnt))?(sc->sc_ka_holdmax * 2):(16 * sc->sc_ka_cnt));
-  break;
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *src4, *dst4;
+ struct sockaddr_in6 *src6, *dst6;
+ int error;
+ if (src->sa_family != dst->sa_family || src->sa_len != dst->sa_len)
+  return (22);
+ switch (dst->sa_family) {
  case 2:
-  if (--sc->sc_ka_holdcnt < 1) {
-   sc->sc_ka_state = 3;
-   gre_link_state(sc);
-  }
+  if (dst->sa_len != sizeof(*dst4))
+   return (22);
+  src4 = (struct sockaddr_in *)src;
+  if (((src4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(src4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  dst4 = (struct sockaddr_in *)dst;
+  if (((dst4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  tunnel->t_src[0] = src4->sin_addr.s_addr;
+  tunnel->t_dst[0] = dst4->sin_addr.s_addr;
   break;
- case 3:
-  sc->sc_ka_holdmax--;
-  sc->sc_ka_holdmax = (((sc->sc_ka_holdmax)>(sc->sc_ka_cnt))?(sc->sc_ka_holdmax):(sc->sc_ka_cnt));
+ case 24:
+  if (dst->sa_len != sizeof(*dst6))
+   return (22);
+  src6 = (struct sockaddr_in6 *)src;
+  if (((*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&src6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  dst6 = (struct sockaddr_in6 *)dst;
+  if (((*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  error = in6_embedscope((struct in6_addr *)tunnel->t_src,
+      src6, ((void *)0));
+  if (error != 0)
+   return (error);
+  error = in6_embedscope((struct in6_addr *)tunnel->t_dst,
+      dst6, ((void *)0));
+  if (error != 0)
+   return (error);
   break;
+ default:
+  return (47);
  }
- timeout_add_sec(&sc->sc_ka_hold, sc->sc_ka_timout * sc->sc_ka_cnt);
+ tunnel->t_af = dst->sa_family;
+ return (0);
 }
-void
-gre_link_state(struct gre_softc *sc)
+static int
+gre_get_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
 {
- struct ifnet *ifp = &sc->sc_if;
- int link_state = 0;
- if (sc->sc_ka_state == 3)
-  link_state = 4;
- else if (sc->sc_ka_state != 0)
-  link_state = 3;
- if (ifp->if_data.ifi_link_state != link_state) {
-  ifp->if_data.ifi_link_state = link_state;
-  if_link_state_change(ifp);
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *sin;
+ struct sockaddr_in6 *sin6;
+ switch (tunnel->t_af) {
+ case 0:
+  return (49);
+ case 2:
+  sin = (struct sockaddr_in *)src;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr.s_addr = tunnel->t_src[0];
+  sin = (struct sockaddr_in *)dst;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr.s_addr = tunnel->t_dst[0];
+  break;
+ case 24:
+  sin6 = (struct sockaddr_in6 *)src;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, (struct in6_addr *)tunnel->t_src);
+  sin6 = (struct sockaddr_in6 *)dst;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, (struct in6_addr *)tunnel->t_dst);
+  break;
+ default:
+  return (47);
  }
+ return (0);
 }
+static int
+gre_del_tunnel(struct gre_tunnel *tunnel)
+{
+ tunnel->t_af = 0;
+ return (0);
+}
+static int
+gre_set_vnetid(struct gre_tunnel *tunnel, struct ifreq *ifr)
+{
+ uint32_t key;
+ if (ifr->ifr_ifru.ifru_vnetid < 0 || ifr->ifr_ifru.ifru_vnetid > 0xffffffff)
+  return 22;
+ key = ((__uint32_t)(ifr->ifr_ifru.ifru_vnetid));
+ if (tunnel->t_key_mask == ((__uint32_t)(0xffffffffU)) && tunnel->t_key == key)
+  return (0);
+ tunnel->t_key_mask = ((__uint32_t)(0xffffffffU));
+ tunnel->t_key = key;
+ return (0);
+}
+static int
+gre_get_vnetid(struct gre_tunnel *tunnel, struct ifreq *ifr)
+{
+ if (tunnel->t_key_mask == ((__uint32_t)(0x00000000U)))
+  return (49);
+ ifr->ifr_ifru.ifru_vnetid = (int64_t)((__uint32_t)(tunnel->t_key));
+ return (0);
+}
+static int
+gre_del_vnetid(struct gre_tunnel *tunnel)
+{
+ tunnel->t_key_mask = ((__uint32_t)(0x00000000U));
+ return (0);
+}
+int
+gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
+    size_t newlen)
+{
+ int error;
+ if (namelen != 1)
+  return (20);
+ switch (name[0]) {
+ case 1:
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &gre_allow);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
+ case 2:
+  do { _rw_enter_write(&netlock ); } while (0);
+  error = sysctl_int(oldp, oldlenp, newp, newlen, &gre_wccp);
+  do { _rw_exit_write(&netlock ); } while (0);
+  return (error);
+ default:
+  return (42);
+        }
+}
+static inline int
+gre_ip_cmp(int af, const uint32_t *a, const uint32_t *b)
+{
+ switch (af) {
+ case 24:
+  if (a[3] > b[3])
+   return (1);
+  if (a[3] < b[3])
+   return (-1);
+  if (a[2] > b[2])
+   return (1);
+  if (a[2] < b[2])
+   return (-1);
+  if (a[1] > b[1])
+   return (1);
+  if (a[1] < b[1])
+   return (-1);
+ case 2:
+  if (a[0] > b[0])
+   return (1);
+  if (a[0] < b[0])
+   return (-1);
+  break;
+ default:
+  panic("%s: unsupported af %d\n", __func__, af);
+ }
+ return (0);
+}
+static inline int
+gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
+{
+ uint32_t ka, kb;
+ uint32_t mask;
+ int rv;
+ if (a->t_rtableid > b->t_rtableid)
+  return (1);
+ if (a->t_rtableid < b->t_rtableid)
+  return (-1);
+ if (a->t_af > b->t_af)
+  return (1);
+ if (a->t_af < b->t_af)
+  return (-1);
+ rv = gre_ip_cmp(a->t_af, a->t_dst, b->t_dst);
+ if (rv != 0)
+  return (rv);
+ rv = gre_ip_cmp(a->t_af, a->t_src, b->t_src);
+ if (rv != 0)
+  return (rv);
+ ka = a->t_key_mask & ((__uint32_t)(0xffffff00U));
+ kb = b->t_key_mask & ((__uint32_t)(0xffffff00U));
+ if (ka > kb)
+  return (1);
+ if (ka < kb)
+  return (-1);
+ if (ka != ((__uint32_t)(0x00000000U))) {
+  mask = a->t_key_mask & b->t_key_mask;
+  ka = a->t_key & mask;
+  kb = b->t_key & mask;
+  if (ka > kb)
+   return (1);
+  if (ka < kb)
+   return (-1);
+ }
+ return (0);
+}
+static int gre_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct gre_tunnel *l = lptr, *r = rptr; return gre_cmp(l, r); } static const struct rb_type gre_tree_RBT_INFO = { gre_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct gre_tunnel, t_entry), }; const struct rb_type *const gre_tree_RBT_TYPE = &gre_tree_RBT_INFO;

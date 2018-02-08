@@ -6226,7 +6226,7 @@ sr_wu_done_callback(void *xwu)
  struct scsi_xfer *xs = wu->swu_xs;
  struct sr_workunit *wup;
  int s;
- ((xs != ((void *)0) || (wu->swu_flags & ((1<<5)|(1<<0)))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 2260, "xs != NULL || (wu->swu_flags & (SR_WUF_DISCIPLINE|SR_WUF_REBUILD))"));
+ ((xs != ((void *)0) || (wu->swu_flags & ((1<<5)|(1<<0)))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 2255, "xs != NULL || (wu->swu_flags & (SR_WUF_DISCIPLINE|SR_WUF_REBUILD))"));
  s = _splraise(5);
  if (xs != ((void *)0)) {
   if (wu->swu_ios_failed)
@@ -6368,7 +6368,7 @@ sr_scsi_probe(struct scsi_link *link)
 {
  struct sr_softc *sc = link->adapter_softc;
  struct sr_discipline *sd;
- ((link->target < 256 && link->lun == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 2450, "link->target < SR_MAX_LD && link->lun == 0"));
+ ((link->target < 256 && link->lun == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 2445, "link->target < SR_MAX_LD && link->lun == 0"));
  sd = sc->sc_targets[link->target];
  if (sd == ((void *)0))
   return (19);
@@ -7426,7 +7426,7 @@ sr_discipline_free(struct sr_discipline *sd)
   free(omi, 2, 0);
  }
  if (sd->sd_target != 0) {
-  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3884, "sc->sc_targets[sd->sd_target] == sd"));
+  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3876, "sc->sc_targets[sd->sd_target] == sd"));
   sc->sc_targets[sd->sd_target] = ((void *)0);
  }
  for((sdtmp1) = ((&sc->sc_dis_list)->tqh_first); (sdtmp1) != ((void *)0); (sdtmp1) = ((sdtmp1)->sd_link.tqe_next)) {
@@ -7666,7 +7666,7 @@ sr_schedule_wu(struct sr_workunit *wu)
  struct sr_workunit *wup;
  int s;
  ;
- ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4205, "wu->swu_io_count > 0"));
+ ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4197, "wu->swu_io_count > 0"));
  s = _splraise(5);
  if (wu->swu_state == 9)
   goto queued;

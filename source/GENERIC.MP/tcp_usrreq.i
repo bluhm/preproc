@@ -4545,6 +4545,7 @@ struct tcphdr {
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -4636,7 +4637,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -5246,7 +5246,7 @@ tcp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
   soisconnecting(so);
   tcpstat_inc(tcps_connattempt);
   tp->t_state = 2;
-  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add(&(tp)->t_timer[(2)], (tcptv_keep_init) * (hz / 2)); } while (0);
+  do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcptv_keep_init) * 500); } while (0);
   tcp_set_iss_tsm(tp);
   (tp)->snd_una = (tp)->snd_nxt = (tp)->snd_max = (tp)->snd_up = (tp)->iss;
   tp->snd_last = tp->snd_una;
@@ -5558,7 +5558,7 @@ tcp_usrclosed(struct tcpcb *tp)
  if (tp && tp->t_state >= 9) {
   soisdisconnected(tp->t_inpcb->inp_socket);
   if (tp->t_state == 9)
-   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add(&(tp)->t_timer[(3)], (tcp_maxidle) * (hz / 2)); } while (0);
+   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (tcp_maxidle) * 500); } while (0);
  }
  return (tp);
 }

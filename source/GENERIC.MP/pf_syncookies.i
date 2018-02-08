@@ -4464,6 +4464,7 @@ int in6_selecthlim(struct inpcb *);
 int in_pcbpickport(u_int16_t *, void *, int, struct inpcb *, struct proc *);
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -4555,7 +4556,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -5652,7 +5652,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -6211,7 +6211,7 @@ union pf_syncookie {
 static struct {
  struct timeout keytimeout;
  volatile uint oddeven;
- uint8_t key[2][16];
+ SIPHASH_KEY key[2];
  uint32_t hiwat;
  uint32_t lowat;
 } pf_syncookie_status;
@@ -6265,6 +6265,7 @@ pf_synflood_check(struct pf_pdesc *pd)
   pf_syncookie_newkey();
   pf_status.syncookies_active = 1;
   do { if (pf_status.debug >= (4)) { log(4, "pf: "); addlog("synflood detected, enabling syncookies"); addlog("\n"); } } while (0);
+  pf_status.lcounters[7]++;
  }
  return (pf_status.syncookies_active);
 }
@@ -6279,13 +6280,14 @@ pf_syncookie_send(struct pf_pdesc *pd)
      iss, ((__uint32_t)(pd->hdr.tcp.th_seq)) + 1, 0x02|0x10, 0, mss,
      0, 1, 0, pd->rdomain);
  pf_status.syncookies_inflight[pf_syncookie_status.oddeven]++;
+ pf_status.lcounters[8]++;
 }
 uint8_t
 pf_syncookie_validate(struct pf_pdesc *pd)
 {
  uint32_t hash, ack, seq;
  union pf_syncookie cookie;
- ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 210, "pd->proto == IPPROTO_TCP"));
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 212, "pd->proto == IPPROTO_TCP"));
  seq = ((__uint32_t)(pd->hdr.tcp.th_seq)) - 1;
  ack = ((__uint32_t)(pd->hdr.tcp.th_ack)) - 1;
  cookie.cookie = (ack & 0xff) ^ (ack >> 24);
@@ -6293,6 +6295,7 @@ pf_syncookie_validate(struct pf_pdesc *pd)
  if ((ack & ~0xff) != (hash & ~0xff))
   return (0);
  pf_status.syncookies_inflight[cookie.flags.oddeven]--;
+ pf_status.lcounters[9]++;
  return (1);
 }
 void
@@ -6309,8 +6312,8 @@ pf_syncookie_rotate(void *arg)
  if (!pf_status.syncookies_active &&
      pf_status.syncookies_inflight[0] == 0 &&
      pf_status.syncookies_inflight[1] == 0) {
-  __builtin_memset((pf_syncookie_status.key[0]), (0), (16));
-  __builtin_memset((pf_syncookie_status.key[1]), (0), (16));
+  __builtin_memset((&pf_syncookie_status.key[0]), (0), (16));
+  __builtin_memset((&pf_syncookie_status.key[1]), (0), (16));
   return;
  }
  pf_syncookie_newkey();
@@ -6320,7 +6323,7 @@ pf_syncookie_newkey(void)
 {
  pf_syncookie_status.oddeven = (pf_syncookie_status.oddeven + 1) & 0x1;
  pf_status.syncookies_inflight[pf_syncookie_status.oddeven] = 0;
- arc4random_buf(pf_syncookie_status.key[pf_syncookie_status.oddeven],
+ arc4random_buf(&pf_syncookie_status.key[pf_syncookie_status.oddeven],
      16);
  timeout_add_sec(&pf_syncookie_status.keytimeout,
      15);
@@ -6333,8 +6336,8 @@ pf_syncookie_mac(struct pf_pdesc *pd, union pf_syncookie cookie, uint32_t seq)
 {
  SIPHASH_CTX ctx;
  uint32_t siphash[2];
- ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 288, "pd->proto == IPPROTO_TCP"));
- SipHash_Init((&ctx), ((SIPHASH_KEY *)&pf_syncookie_status.key[cookie.flags.oddeven]));
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 293, "pd->proto == IPPROTO_TCP"));
+ SipHash_Init((&ctx), (&pf_syncookie_status.key[cookie.flags.oddeven]));
  switch (pd->af) {
  case 2:
   SipHash_Update((&ctx), 2, 4, (pd->src), (sizeof(pd->src->pfa.v4)));

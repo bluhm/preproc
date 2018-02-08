@@ -3620,6 +3620,7 @@ struct tcphdr {
 };
 typedef void (*tcp_timer_func_t)(void *);
 extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
 extern int tcp_keepidle;
@@ -3711,7 +3712,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-extern int tcp_delack_ticks;
 void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
@@ -4231,29 +4231,7 @@ int ipip_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 int ipip_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
 int ipip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 extern int ipip_allow;
-int gre_input(struct mbuf **, int *, int, int);
-int gre_mobile_input(struct mbuf **, int *, int, int);
-int ipmobile_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int gre_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int gre_usrreq(struct socket *, int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
-struct gre_softc {
- struct ifnet sc_if;
- struct { struct gre_softc *le_next; struct gre_softc **le_prev; } sc_list;
- struct timeout sc_ka_hold;
- struct timeout sc_ka_snd;
- struct in_addr g_src;
- struct in_addr g_dst;
- struct route route;
- u_int g_rtableid;
- int gre_unit;
- int gre_flags;
- int sc_ka_timout;
- int sc_ka_holdmax;
- int sc_ka_holdcnt;
- int sc_ka_cnt;
- u_char g_proto;
- u_char sc_ka_state;
-};
 struct gre_h {
  u_int16_t flags;
  u_int16_t ptype;
@@ -4282,16 +4260,9 @@ struct mobip_h {
  struct ip mi;
  struct mobile_h mh;
 } __attribute__((__packed__));
-extern struct gre_softc_head { struct gre_softc *lh_first; } gre_softc_list;
-extern int gre_allow;
-extern int gre_wccp;
-extern int ip_mobile_allow;
-void greattach(int);
-int gre_ioctl(struct ifnet *, u_long, caddr_t);
-int gre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
-     struct rtentry *);
-u_int16_t gre_in_cksum(u_int16_t *, u_int);
-void gre_recv_keepalive(struct gre_softc *);
+int gre_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+int gre_input(struct mbuf **, int *, int, int);
+int gre_input6(struct mbuf **, int *, int, int);
 struct carp_header {
  u_int carp_version:4,
    carp_type:4;
@@ -4989,7 +4960,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -5606,6 +5577,19 @@ int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
 int ip6_etherip_input(struct mbuf **, int *, int, int);
+struct mobileip_header {
+ uint8_t mip_proto;
+ uint8_t mip_flags;
+ uint16_t mip_hcrc;
+ uint32_t mip_dst;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct mobileip_h_src {
+ uint32_t mip_src;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+void mobileipattach(int);
+int mobileip_input(struct mbuf **, int *, int, int);
+int mobileip_sysctl(int *, u_int, void *, size_t *,
+       void *, size_t);
 u_char ip_protox[256];
 const struct protosw inetsw[] = {
 {
@@ -5771,12 +5755,12 @@ const struct protosw inetsw[] = {
   .pr_domain = &inetdomain,
   .pr_protocol = 55,
   .pr_flags = 0x01|0x02,
-  .pr_input = gre_mobile_input,
+  .pr_input = mobileip_input,
   .pr_ctloutput = rip_ctloutput,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
   .pr_detach = rip_detach,
-  .pr_sysctl = ipmobile_sysctl
+  .pr_sysctl = mobileip_sysctl
 },
 {
   .pr_type = 3,

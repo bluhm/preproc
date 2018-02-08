@@ -4654,7 +4654,7 @@ enum pfi_kif_refs {
 };
 struct pf_status {
  u_int64_t counters[17];
- u_int64_t lcounters[7];
+ u_int64_t lcounters[10];
  u_int64_t fcounters[3];
  u_int64_t scounters[3];
  u_int64_t pcounters[2][2][3];
@@ -6845,6 +6845,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   ifp->if_llprio = ifr->ifr_ifru.ifru_metric;
   do { _rw_exit_write(&netlock ); } while (0);
   break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((163))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
