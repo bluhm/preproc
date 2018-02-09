@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -7461,6 +7465,11 @@ sr_discipline_shutdown(struct sr_discipline *sd, int meta_save, int dying)
   if (tsleep(&sd->sd_sync, 127, "sr_down", 60 * hz) ==
       35)
    break;
+ if (dying == -1) {
+  sd->sd_ready = 1;
+  _splx(s);
+  return;
+ }
  sr_sensors_delete(sd);
  if (sd->sd_target != 0)
   scsi_detach_lun(sc->sc_scsibus, sd->sd_target, 0,
@@ -7666,7 +7675,7 @@ sr_schedule_wu(struct sr_workunit *wu)
  struct sr_workunit *wup;
  int s;
  ;
- ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4197, "wu->swu_io_count > 0"));
+ ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4203, "wu->swu_io_count > 0"));
  s = _splraise(5);
  if (wu->swu_state == 9)
   goto queued;
@@ -7910,6 +7919,14 @@ sr_validate_stripsize(u_int32_t b)
  if (b)
   return(-1);
  return (s);
+}
+void
+sr_quiesce(void)
+{
+ struct sr_softc *sc = softraid0;
+ struct sr_discipline *sd, *nsd;
+ for ((sd) = (*(((struct sr_discipline_list *)((&sc->sc_dis_list)->tqh_last))->tqh_last)); (sd) != ((void *)0) && ((nsd) = (*(((struct sr_discipline_list *)((sd)->sd_link.tqe_prev))->tqh_last)), 1); (sd) = (nsd))
+  sr_discipline_shutdown(sd, 1, -1);
 }
 void
 sr_shutdown(int dying)

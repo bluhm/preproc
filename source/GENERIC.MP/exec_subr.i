@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -3130,26 +3134,39 @@ vmcmd_map_zero(struct proc *p, struct exec_vmcmd *cmd)
 int
 vmcmd_randomize(struct proc *p, struct exec_vmcmd *cmd)
 {
- char *buf;
  int error;
- size_t off = 0, len;
- if (cmd->ev_len == 0)
+ struct arc4random_ctx *ctx;
+ char *buf;
+ size_t count, sublen, off = 0;
+ size_t len = cmd->ev_len;
+ if (len == 0)
   return (0);
- if (cmd->ev_len > 64*1024)
+ if (len > 64*1024)
   return (22);
  buf = malloc((1 << 13), 127, 0x0001);
- len = cmd->ev_len;
- do {
-  size_t sublen = (((len)<((1 << 13)))?(len):((1 << 13)));
-  arc4random_buf(buf, sublen);
-  error = copyout(buf, (void *)cmd->ev_addr + off, sublen);
-  if (error)
-   break;
-  off += sublen;
-  len -= sublen;
-  if (len)
-   yield();
- } while (len);
+ if (len < 512) {
+  arc4random_buf(buf, len);
+  error = copyout(buf, (void *)cmd->ev_addr, len);
+  explicit_bzero(buf, len);
+ } else {
+  ctx = arc4random_ctx_new();
+  count = 0;
+  do {
+   sublen = (((len)<((1 << 13)))?(len):((1 << 13)));
+   arc4random_ctx_buf(ctx, buf, sublen);
+   error = copyout(buf, (void *)cmd->ev_addr + off, sublen);
+   if (error)
+    break;
+   off += sublen;
+   len -= sublen;
+   if (++count == 32) {
+    count = 0;
+    yield();
+   }
+  } while (len);
+  arc4random_ctx_free(ctx);
+  explicit_bzero(buf, (1 << 13));
+ }
  free(buf, 127, (1 << 13));
  return (error);
 }

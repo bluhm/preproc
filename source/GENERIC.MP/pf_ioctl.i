@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -6221,6 +6225,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
@@ -7071,6 +7076,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((87))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((89))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((90))):
+  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_synflwats) & 0x1fff) << 16) | ((('D')) << 8) | ((99))):
    break;
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((60))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((61))):
@@ -7105,6 +7111,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pf_osfp_ioctl) & 0x1fff) << 16) | ((('D')) << 8) | ((80))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_src_nodes) & 0x1fff) << 16) | ((('D')) << 8) | ((84))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_iface) & 0x1fff) << 16) | ((('D')) << 8) | ((87))):
+  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_synflwats) & 0x1fff) << 16) | ((('D')) << 8) | ((99))):
    break;
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((60))):
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_table) & 0x1fff) << 16) | ((('D')) << 8) | ((61))):
@@ -8563,6 +8570,13 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   struct pfioc_synflwats *io = (struct pfioc_synflwats *)addr;
   (void)(0);
   error = pf_syncookies_setwats(io->hiwat, io->lowat);
+  (void)(0);
+  break;
+ }
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct pfioc_synflwats) & 0x1fff) << 16) | ((('D')) << 8) | ((99))): {
+  struct pfioc_synflwats *io = (struct pfioc_synflwats *)addr;
+  (void)(0);
+  error = pf_syncookies_getwats(io);
   (void)(0);
   break;
  }

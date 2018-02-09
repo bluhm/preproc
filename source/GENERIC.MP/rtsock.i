@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -3846,13 +3850,14 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
-struct sockaddr route_dst = { 2, 17, };
 struct sockaddr route_src = { 2, 17, };
 struct walkarg {
  int w_op, w_arg, w_given, w_needed, w_tmemsize;
  caddr_t w_where, w_tmem;
 };
 void route_prinit(void);
+void route_ref(void *, void *);
+void route_unref(void *, void *);
 int route_output(struct mbuf *, struct socket *, struct sockaddr *,
      struct mbuf *);
 int route_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -3880,24 +3885,38 @@ int sysctl_ifnames(struct walkarg *);
 int sysctl_rtable_rtstat(void *, size_t *, void *);
 struct routecb {
  struct rawcb rcb;
- struct { struct routecb *le_next; struct routecb **le_prev; } rcb_list;
+ struct { struct srp se_next; } rcb_list;
+ struct refcnt refcnt;
  struct timeout timeout;
  unsigned int msgfilter;
  unsigned int flags;
  u_int rtableid;
 };
 struct route_cb {
- struct { struct routecb *lh_first; } rcb;
- int ip_count;
- int ip6_count;
- int mpls_count;
- int any_count;
+ struct srpl rcb;
+ struct srpl_rc rcb_rc;
+ struct rwlock rcb_lk;
+ unsigned int any_count;
 };
 struct route_cb route_cb;
 void
 route_prinit(void)
 {
- do { ((&route_cb.rcb)->lh_first) = ((void *)0); } while (0);
+ srpl_rc_init(&route_cb.rcb_rc, route_ref, route_unref, ((void *)0));
+ _rw_init_flags(&route_cb.rcb_lk, "rtsock", 0, ((void *)0));
+ srp_init(&(&route_cb.rcb)->sl_head);
+}
+void
+route_ref(void *null, void *v)
+{
+ struct routecb *rop = v;
+ refcnt_take(&rop->refcnt);
+}
+void
+route_unref(void *null, void *v)
+{
+ struct routecb *rop = v;
+ refcnt_rele_wake(&rop->refcnt);
 }
 int
 route_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
@@ -3932,8 +3951,9 @@ route_attach(struct socket *so, int proto)
  int error;
  rop = malloc(sizeof(struct routecb), 4, 0x0001|0x0008);
  rp = &rop->rcb;
- so->so_pcb = rp;
- timeout_set(&rop->timeout, route_senddesync, rp);
+ so->so_pcb = rop;
+ timeout_set(&rop->timeout, route_senddesync, rop);
+ refcnt_init(&rop->refcnt);
  if ((__curcpu->ci_self)->ci_curproc == ((void *)0))
   error = 13;
  else
@@ -3946,43 +3966,29 @@ route_attach(struct socket *so, int proto)
  rp->rcb_proto.sp_family = so->so_proto->pr_domain->dom_family;
  rp->rcb_proto.sp_protocol = proto;
  rop->rtableid = (__curcpu->ci_self)->ci_curproc->p_p->ps_rtableid;
- switch (rp->rcb_proto.sp_protocol) {
- case 2:
-  route_cb.ip_count++;
-  break;
- case 24:
-  route_cb.ip6_count++;
-  break;
- case 33:
-  route_cb.mpls_count++;
-  break;
- }
  soisconnected(so);
  so->so_options |= 0x0040;
  rp->rcb_faddr = &route_src;
+ _rw_enter(&route_cb.rcb_lk, 0x0001UL );
+ do { void *head; srp_init(&(rop)->rcb_list.se_next); head = srp_get_locked(&(&route_cb.rcb)->sl_head); if (head != ((void *)0)) { (&route_cb.rcb_rc)->srpl_ref(&(&route_cb.rcb_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&route_cb.rcb_rc)->srpl_gc, &(rop)->rcb_list.se_next, head); } (&route_cb.rcb_rc)->srpl_ref(&(&route_cb.rcb_rc)->srpl_gc.srp_gc_cookie, rop); srp_update_locked(&(&route_cb.rcb_rc)->srpl_gc, &(&route_cb.rcb)->sl_head, (rop)); } while (0);
  route_cb.any_count++;
- do { if (((rop)->rcb_list.le_next = (&route_cb.rcb)->lh_first) != ((void *)0)) (&route_cb.rcb)->lh_first->rcb_list.le_prev = &(rop)->rcb_list.le_next; (&route_cb.rcb)->lh_first = (rop); (rop)->rcb_list.le_prev = &(&route_cb.rcb)->lh_first; } while (0);
+ _rw_exit(&route_cb.rcb_lk );
  return (0);
 }
 int
 route_detach(struct socket *so)
 {
  struct routecb *rop;
- int af;
  soassertlocked(so);
  rop = ((struct routecb *)(so)->so_pcb);
  if (rop == ((void *)0))
   return (22);
+ _rw_enter(&route_cb.rcb_lk, 0x0001UL );
  timeout_del(&rop->timeout);
- af = rop->rcb.rcb_proto.sp_protocol;
- if (af == 2)
-  route_cb.ip_count--;
- else if (af == 24)
-  route_cb.ip6_count--;
- else if (af == 33)
-  route_cb.mpls_count--;
  route_cb.any_count--;
- do { if ((rop)->rcb_list.le_next != ((void *)0)) (rop)->rcb_list.le_next->rcb_list.le_prev = (rop)->rcb_list.le_prev; *(rop)->rcb_list.le_prev = (rop)->rcb_list.le_next; ((rop)->rcb_list.le_prev) = ((void *)-1); ((rop)->rcb_list.le_next) = ((void *)-1); } while (0);
+ do { struct srp *ref; struct routecb *c, *n; ref = &(&route_cb.rcb)->sl_head; while ((c = srp_get_locked(ref)) != (rop)) ref = &c->rcb_list.se_next; n = srp_get_locked(&(c)->rcb_list.se_next); if (n != ((void *)0)) (&route_cb.rcb_rc)->srpl_ref(&(&route_cb.rcb_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&route_cb.rcb_rc)->srpl_gc, ref, n); srp_update_locked(&(&route_cb.rcb_rc)->srpl_gc, &c->rcb_list.se_next, ((void *)0)); } while (0);
+ _rw_exit(&route_cb.rcb_lk );
+ refcnt_finalize(&rop->refcnt, "rtsockrefs");
  so->so_pcb = ((void *)0);
  sofree(so);
  free(rop, 4, sizeof(struct routecb));
@@ -4042,20 +4048,18 @@ route_ctloutput(int op, struct socket *so, int level, int optname,
 void
 route_senddesync(void *data)
 {
- struct rawcb *rp;
  struct routecb *rop;
  struct mbuf *desync_mbuf;
- rp = (struct rawcb *)data;
- rop = (struct routecb *)rp;
+ rop = (struct routecb *)data;
  if ((rop->flags & 0x1) == 0)
   return;
  desync_mbuf = rtm_msg1(0x10, ((void *)0));
  if (desync_mbuf != ((void *)0)) {
-  struct socket *so = rp->rcb_socket;
+  struct socket *so = rop->rcb.rcb_socket;
   if (sbappendaddr(so, &so->so_rcv, &route_src,
       desync_mbuf, ((void *)0)) != 0) {
    rop->flags &= ~0x1;
-   sorwakeup(rp->rcb_socket);
+   sorwakeup(rop->rcb.rcb_socket);
    return;
   }
   m_freem(desync_mbuf);
@@ -4065,21 +4069,18 @@ route_senddesync(void *data)
 void
 route_input(struct mbuf *m0, struct socket *so, sa_family_t sa_family)
 {
- struct rawcb *rp;
  struct routecb *rop;
+ struct rawcb *rp;
  struct rt_msghdr *rtm;
  struct mbuf *m = m0;
- int sockets = 0;
  struct socket *last = ((void *)0);
- struct sockaddr *sosrc, *sodst;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 392, "_kernel_lock_held()"));
- sosrc = &route_src;
- sodst = &route_dst;
+ struct srp_ref sr;
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 400, "_kernel_lock_held()"));
  if (m->m_hdr.mh_len < __builtin_offsetof(struct rt_msghdr, rtm_type) + 1) {
   m_freem(m);
   return;
  }
- for((rop) = ((&route_cb.rcb)->lh_first); (rop)!= ((void *)0); (rop) = ((rop)->rcb_list.le_next)) {
+ for ((rop) = srp_enter((&sr), &(&route_cb.rcb)->sl_head); (rop) != ((void *)0); (rop) = srp_follow((&sr), &(rop)->rcb_list.se_next)) {
   rp = &rop->rcb;
   if (!(rp->rcb_socket->so_state & 0x002))
    continue;
@@ -4119,35 +4120,37 @@ route_input(struct mbuf *m0, struct socket *so, sa_family_t sa_family)
    struct mbuf *n;
    if ((n = m_copym(m, 0, 1000000000, 0x0002)) != ((void *)0)) {
     if (sbspace(last, &last->so_rcv) < (2*256) ||
-        sbappendaddr(last, &last->so_rcv, sosrc,
-        n, (struct mbuf *)((void *)0)) == 0) {
+        sbappendaddr(last, &last->so_rcv,
+        &route_src, n, (struct mbuf *)((void *)0)) == 0) {
      ((struct routecb *)(last)->so_pcb)->flags |=
          0x1 |
          0x2;
-     route_senddesync(((struct rawcb *)(last)->so_pcb));
+     route_senddesync(((struct routecb *)(last)->so_pcb));
      m_freem(n);
     } else {
      sorwakeup(last);
-     sockets++;
     }
    }
+   refcnt_rele_wake(&((struct routecb *)(last)->so_pcb)->refcnt);
   }
-  last = rp->rcb_socket;
+  refcnt_take(&rop->refcnt);
+  last = rop->rcb.rcb_socket;
  }
  if (last) {
   if (sbspace(last, &last->so_rcv) < (2 * 256) ||
-      sbappendaddr(last, &last->so_rcv, sosrc,
+      sbappendaddr(last, &last->so_rcv, &route_src,
       m, (struct mbuf *)((void *)0)) == 0) {
    ((struct routecb *)(last)->so_pcb)->flags |=
        0x1 | 0x2;
-   route_senddesync(((struct rawcb *)(last)->so_pcb));
+   route_senddesync(((struct routecb *)(last)->so_pcb));
    m_freem(m);
   } else {
    sorwakeup(last);
-   sockets++;
   }
+  refcnt_rele_wake(&((struct routecb *)(last)->so_pcb)->refcnt);
  } else
   m_freem(m);
+ srp_leave((&sr));
 }
 struct rt_msghdr *
 rtm_report(struct rtentry *rt, u_char type, int seq, int tableid)
@@ -4398,7 +4401,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
    break;
   }
   ifp = if_get(rt->rt_ifidx);
-  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 815, "ifp != NULL"));
+  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 824, "ifp != NULL"));
   if ((((rt->rt_flags) & (0x20000)))) {
    ifp->if_rtrequest(ifp, 0x11, rt);
    rtable_walk(tableid, ((rt)->rt_dest)->sa_family,
@@ -4463,7 +4466,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
     ifa = info->rti_ifa;
     if (rt->rt_ifa != ifa) {
      ifp = if_get(rt->rt_ifidx);
-     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 922, "ifp != NULL"));
+     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 931, "ifp != NULL"));
      ifp->if_rtrequest(ifp, 0x2, rt);
      ifafree(rt->rt_ifa);
      if_put(ifp);
@@ -4520,7 +4523,7 @@ change:
    rtm_setmetrics(rtm->rtm_inits, &rtm->rtm_rmx,
        &rt->rt_rmx);
    ifp = if_get(rt->rt_ifidx);
-   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1011, "ifp != NULL"));
+   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1020, "ifp != NULL"));
    ifp->if_rtrequest(ifp, 0x1, rt);
    if_put(ifp);
    if (info->rti_info[10] != ((void *)0)) {
@@ -5013,7 +5016,7 @@ sysctl_iflist(int af, struct walkarg *w)
   }
   info.rti_info[4] = ((void *)0);
   for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
-   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1686, "ifa->ifa_addr->sa_family != AF_LINK"));
+   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1695, "ifa->ifa_addr->sa_family != AF_LINK"));
    if (af && af != ifa->ifa_addr->sa_family)
     continue;
    info.rti_info[5] = ifa->ifa_addr;

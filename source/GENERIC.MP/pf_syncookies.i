@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -6115,6 +6119,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
@@ -6225,8 +6230,8 @@ pf_syncookies_init(void)
 {
  timeout_set(&pf_syncookie_status.keytimeout,
      pf_syncookie_rotate, ((void *)0));
- pf_syncookie_status.hiwat = 10000/4;
- pf_syncookie_status.lowat = 10000/8;
+ pf_syncookie_status.hiwat = 10000 * 25/100;
+ pf_syncookie_status.lowat = 10000 * 25/2/100;
  pf_syncookies_setmode(0);
 }
 int
@@ -6253,9 +6258,16 @@ pf_syncookies_setwats(u_int32_t hiwat, u_int32_t lowat)
  return (0);
 }
 int
+pf_syncookies_getwats(struct pfioc_synflwats *wats)
+{
+ wats->hiwat = pf_syncookie_status.hiwat;
+ wats->lowat = pf_syncookie_status.lowat;
+ return (0);
+}
+int
 pf_synflood_check(struct pf_pdesc *pd)
 {
- ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 171, "pd->proto == IPPROTO_TCP"));
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 179, "pd->proto == IPPROTO_TCP"));
  if (pd->m && (pd->m->M_dat.MH.MH_pkthdr.pf.tag & 0x02))
   return (0);
  if (pf_status.syncookies_mode != 2)
@@ -6287,7 +6299,7 @@ pf_syncookie_validate(struct pf_pdesc *pd)
 {
  uint32_t hash, ack, seq;
  union pf_syncookie cookie;
- ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 212, "pd->proto == IPPROTO_TCP"));
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 220, "pd->proto == IPPROTO_TCP"));
  seq = ((__uint32_t)(pd->hdr.tcp.th_seq)) - 1;
  ack = ((__uint32_t)(pd->hdr.tcp.th_ack)) - 1;
  cookie.cookie = (ack & 0xff) ^ (ack >> 24);
@@ -6336,7 +6348,7 @@ pf_syncookie_mac(struct pf_pdesc *pd, union pf_syncookie cookie, uint32_t seq)
 {
  SIPHASH_CTX ctx;
  uint32_t siphash[2];
- ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 293, "pd->proto == IPPROTO_TCP"));
+ ((pd->proto == 6) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pf_syncookies.c", 301, "pd->proto == IPPROTO_TCP"));
  SipHash_Init((&ctx), (&pf_syncookie_status.key[cookie.flags.oddeven]));
  switch (pd->af) {
  case 2:

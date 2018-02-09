@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -4837,6 +4841,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
@@ -5012,6 +5017,7 @@ struct ifbreq {
  char ifbr_ifsname[16];
  u_int32_t ifbr_ifsflags;
  u_int32_t ifbr_portno;
+ u_int32_t ifbr_protected;
  u_int8_t ifbr_state;
  u_int8_t ifbr_priority;
  u_int32_t ifbr_path_cost;
@@ -5229,6 +5235,7 @@ struct bridge_iflist {
  struct brl_head bif_brlout;
  struct ifnet *ifp;
  u_int32_t bif_flags;
+ u_int32_t bif_protected;
  void *bif_dhcookie;
 };
 union brsockaddr_union {
@@ -5560,6 +5567,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   req->ifbr_ifsflags = p->bif_flags;
   req->ifbr_portno = p->ifp->if_index & 0xfff;
+  req->ifbr_protected = p->bif_protected;
   if (p->bif_flags & 0x0008) {
    bp = p->bif_stp;
    req->ifbr_state = bstp_getstate(bs, bp);
@@ -5640,6 +5648,19 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   brop->ifbop_desg_bridge = bs->bs_root_pv.pv_dbridge_id;
   brop->ifbop_last_tc_time.tv_sec = bs->bs_last_tc_time.tv_sec;
   brop->ifbop_last_tc_time.tv_usec = bs->bs_last_tc_time.tv_usec;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+  ifs = ifunit(req->ifbr_ifsname);
+  if (ifs == ((void *)0)) {
+   error = 2;
+   break;
+  }
+  p = (struct bridge_iflist *)ifs->if_bridgeport;
+  if (p == ((void *)0) || p->bridge_sc != sc) {
+   error = 3;
+   break;
+  }
+  p->bif_protected = req->ifbr_protected;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbaconf) & 0x1fff) << 16) | ((('i')) << 8) | ((67))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((65))):
@@ -5724,6 +5745,7 @@ bridge_bifconf(struct bridge_softc *sc, struct ifbifconf *bifc)
   strlcpy(breq->ifbr_ifsname, p->ifp->if_xname, 16);
   breq->ifbr_ifsflags = p->bif_flags;
   breq->ifbr_portno = p->ifp->if_index & 0xfff;
+  breq->ifbr_protected = p->bif_protected;
   if (p->bif_flags & 0x0008) {
    bp = p->bif_stp;
    breq->ifbr_state = bstp_getstate(sc->sc_stp, bp);
@@ -5860,7 +5882,7 @@ bridge_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *sa,
     }
    }
    ifl = (struct bridge_iflist *)dst_if->if_bridgeport;
-   ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 790, "ifl != NULL"));
+   ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 805, "ifl != NULL"));
    if (bridge_filterrule(&ifl->bif_brlout, eh, mc) ==
        0x01)
     continue;
@@ -5912,11 +5934,12 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  struct bridge_rtnode *dst_p;
  struct ether_addr *dst, *src;
  struct ether_header eh;
+ u_int32_t protected;
  int len;
  sc->sc_if.if_data.ifi_ipackets++;
  sc->sc_if.if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  ifl = (struct bridge_iflist *)src_if->if_bridgeport;
- ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 865, "ifl != NULL"));
+ ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 881, "ifl != NULL"));
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(eh)) {
   m_freem(m);
   return;
@@ -5985,6 +6008,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
   bridge_broadcast(sc, src_if, &eh, m);
   return;
  }
+ protected = ifl->bif_protected;
  if ((dst_if->if_flags & 0x40) == 0) {
   m_freem(m);
   return;
@@ -5992,6 +6016,10 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  ifl = (struct bridge_iflist *)dst_if->if_bridgeport;
  if ((ifl->bif_flags & 0x0008) &&
      (ifl->bif_stp->bp_state == 5)) {
+  m_freem(m);
+  return;
+ }
+ if (protected != 0 && (protected & ifl->bif_protected)) {
   m_freem(m);
   return;
  }
@@ -6025,7 +6053,7 @@ bridge_ourether(struct bridge_iflist *ifl, uint8_t *ena)
 int
 bridge_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1032, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1057, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);
@@ -6117,6 +6145,9 @@ bridge_broadcast(struct bridge_softc *sc, struct ifnet *ifp,
  struct mbuf *mc;
  struct ifnet *dst_if;
  int len, used = 0;
+ u_int32_t protected;
+ p = (struct bridge_iflist *)ifp->if_bridgeport;
+ protected = p->bif_protected;
  for((p) = ((&sc->sc_iflist)->tqh_first); (p) != ((void *)0); (p) = ((p)->next.tqe_next)) {
   dst_if = p->ifp;
   if ((dst_if->if_flags & 0x40) == 0)
@@ -6129,6 +6160,8 @@ bridge_broadcast(struct bridge_softc *sc, struct ifnet *ifp,
    continue;
   if (p->bif_flags & 0x0004 &&
       bridge_blocknonip(eh, m))
+   continue;
+  if (protected != 0 && (protected & p->bif_protected))
    continue;
   if (bridge_filterrule(&p->bif_brlout, eh, m) == 0x01)
    continue;

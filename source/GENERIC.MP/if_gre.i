@@ -1344,8 +1344,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -1500,6 +1504,33 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
+struct circq {
+ struct circq *next;
+ struct circq *prev;
+};
+struct timeout {
+ struct circq to_list;
+ void (*to_func)(void *);
+ void *to_arg;
+ int to_time;
+ int to_flags;
+};
+struct bintime;
+void timeout_set(struct timeout *, void (*)(void *), void *);
+void timeout_set_proc(struct timeout *, void (*)(void *), void *);
+int timeout_add(struct timeout *, int);
+int timeout_add_tv(struct timeout *, const struct timeval *);
+int timeout_add_ts(struct timeout *, const struct timespec *);
+int timeout_add_bt(struct timeout *, const struct bintime *);
+int timeout_add_sec(struct timeout *, int);
+int timeout_add_msec(struct timeout *, int);
+int timeout_add_usec(struct timeout *, int);
+int timeout_add_nsec(struct timeout *, int);
+int timeout_del(struct timeout *);
+void timeout_barrier(struct timeout *);
+void timeout_startup(void);
+void timeout_adjust_ticks(int);
+int timeout_hardclock_update(void);
 struct rb_type {
  int (*t_compare)(const void *, const void *);
  void (*t_augment)(void *);
@@ -1541,6 +1572,23 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
+typedef struct _SIPHASH_CTX {
+ uint64_t v[4];
+ uint8_t buf[8];
+ uint32_t bytes;
+} SIPHASH_CTX;
+typedef struct {
+ uint64_t k0;
+ uint64_t k1;
+} SIPHASH_KEY;
+void SipHash_Init(SIPHASH_CTX *, const SIPHASH_KEY *);
+void SipHash_Update(SIPHASH_CTX *, int, int, const void *, size_t)
+      __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
+uint64_t SipHash_End(SIPHASH_CTX *, int, int);
+void SipHash_Final(void *, SIPHASH_CTX *, int, int)
+      __attribute__ ((__bounded__ (__minbytes__, 1, 8) ));
+uint64_t SipHash(const SIPHASH_KEY *, int, int, const void *, size_t)
+      __attribute__ ((__bounded__ (__buffer__, 4, 5) ));
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -2571,33 +2619,6 @@ void taskq_barrier(struct taskq *);
 void task_set(struct task *, void (*)(void *), void *);
 int task_add(struct taskq *, struct task *);
 int task_del(struct taskq *, struct task *);
-struct circq {
- struct circq *next;
- struct circq *prev;
-};
-struct timeout {
- struct circq to_list;
- void (*to_func)(void *);
- void *to_arg;
- int to_time;
- int to_flags;
-};
-struct bintime;
-void timeout_set(struct timeout *, void (*)(void *), void *);
-void timeout_set_proc(struct timeout *, void (*)(void *), void *);
-int timeout_add(struct timeout *, int);
-int timeout_add_tv(struct timeout *, const struct timeval *);
-int timeout_add_ts(struct timeout *, const struct timespec *);
-int timeout_add_bt(struct timeout *, const struct bintime *);
-int timeout_add_sec(struct timeout *, int);
-int timeout_add_msec(struct timeout *, int);
-int timeout_add_usec(struct timeout *, int);
-int timeout_add_nsec(struct timeout *, int);
-int timeout_del(struct timeout *);
-void timeout_barrier(struct timeout *);
-void timeout_startup(void);
-void timeout_adjust_ticks(int);
-int timeout_hardclock_update(void);
 struct ifnet;
 struct ifq_ops;
 struct ifqueue {
@@ -4546,6 +4567,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
@@ -4925,10 +4947,10 @@ struct gre_tunnel {
  uint32_t t_key_mask;
  uint32_t t_key;
  u_int t_rtableid;
- int t_af;
  uint32_t t_src[4];
  uint32_t t_dst[4];
- uint8_t t_ttl;
+ int t_ttl;
+ sa_family_t t_af;
 };
 struct gre_tree { struct rb_tree rbh_root; };
 static inline int
@@ -4940,12 +4962,33 @@ static int gre_del_tunnel(struct gre_tunnel *);
 static int gre_set_vnetid(struct gre_tunnel *, struct ifreq *);
 static int gre_get_vnetid(struct gre_tunnel *, struct ifreq *);
 static int gre_del_vnetid(struct gre_tunnel *);
-static int gre_ip_output(const struct gre_tunnel *, struct mbuf *,
-      uint8_t);
+static struct mbuf *
+  gre_ip_encap(const struct gre_tunnel *, struct mbuf *,
+      uint8_t, uint8_t);
+static int
+  gre_ip_output(const struct gre_tunnel *, struct mbuf *,
+      uint8_t, uint8_t);
+static int gre_tunnel_ioctl(struct ifnet *, struct gre_tunnel *,
+      u_long, void *);
 struct gre_softc {
  struct gre_tunnel sc_tunnel;
  struct ifnet sc_if;
+ struct timeout sc_ka_send;
+ struct timeout sc_ka_hold;
+ unsigned int sc_ka_state;
+ unsigned int sc_ka_timeo;
+ unsigned int sc_ka_count;
+ unsigned int sc_ka_holdmax;
+ unsigned int sc_ka_holdcnt;
+ SIPHASH_KEY sc_ka_key;
+ uint32_t sc_ka_bias;
+ int sc_ka_recvtm;
 };
+struct gre_keepalive {
+ uint32_t gk_uptime;
+ uint32_t gk_random;
+ uint8_t gk_digest[8];
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
 static int gre_clone_create(struct if_clone *, int);
 static int gre_clone_destroy(struct ifnet *);
 struct if_clone gre_cloner =
@@ -4957,16 +5000,38 @@ static void gre_start(struct ifnet *);
 static int gre_ioctl(struct ifnet *, u_long, caddr_t);
 static int gre_up(struct gre_softc *);
 static int gre_down(struct gre_softc *);
+static void gre_link_state(struct gre_softc *);
 static int gre_input_key(struct mbuf **, int *, int, int,
       struct gre_tunnel *);
 static struct mbuf *
-  gre_encap(struct gre_softc *, struct mbuf *, uint8_t *);
+  gre_encap(struct gre_tunnel *, struct mbuf *, uint16_t);
+static void gre_keepalive_send(void *);
+static void gre_keepalive_recv(struct ifnet *ifp, struct mbuf *);
+static void gre_keepalive_hold(void *);
+struct egre_softc {
+ struct gre_tunnel sc_tunnel;
+ struct arpcom sc_ac;
+ struct ifmedia sc_media;
+};
+static int egre_clone_create(struct if_clone *, int);
+static int egre_clone_destroy(struct ifnet *);
+static void egre_start(struct ifnet *);
+static int egre_ioctl(struct ifnet *, u_long, caddr_t);
+static int egre_media_change(struct ifnet *);
+static void egre_media_status(struct ifnet *, struct ifmediareq *);
+static int egre_up(struct egre_softc *);
+static int egre_down(struct egre_softc *);
+static int egre_input(const struct gre_tunnel *, struct mbuf *, int);
+struct if_clone egre_cloner =
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "egre", .ifc_namelen = sizeof("egre") - 1, .ifc_create = egre_clone_create, .ifc_destroy = egre_clone_destroy, };
+struct gre_tree egre_softcs = { { ((void *)0) } };
 int gre_allow = 0;
 int gre_wccp = 0;
 void
 greattach(int n)
 {
  if_clone_attach(&gre_cloner);
+ if_clone_attach(&egre_cloner);
 }
 static int
 gre_clone_create(struct if_clone *ifc, int unit)
@@ -4987,6 +5052,10 @@ gre_clone_create(struct if_clone *ifc, int unit)
  ifp->if_start = gre_start;
  ifp->if_ioctl = gre_ioctl;
  ifp->if_rtrequest = p2p_rtrequest;
+ sc->sc_tunnel.t_ttl = ip_defttl;
+ timeout_set(&sc->sc_ka_send, gre_keepalive_send, sc);
+ timeout_set_proc(&sc->sc_ka_hold, gre_keepalive_hold, sc);
+ sc->sc_ka_state = 0;
  if_attach(ifp);
  if_alloc_sadl(ifp);
  bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
@@ -5004,6 +5073,45 @@ gre_clone_destroy(struct ifnet *ifp)
  free(sc, 2, sizeof(*sc));
  return (0);
 }
+static int
+egre_clone_create(struct if_clone *ifc, int unit)
+{
+ struct egre_softc *sc;
+ struct ifnet *ifp;
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
+ ifp = &sc->sc_ac.ac_if;
+ snprintf(ifp->if_xname, sizeof(ifp->if_xname), "%s%d",
+     ifc->ifc_name, unit);
+ ifp->if_softc = sc;
+ ifp->if_data.ifi_mtu = 1500;
+ ifp->if_ioctl = egre_ioctl;
+ ifp->if_start = egre_start;
+ ifp->if_xflags = 0x2;
+ ((&ifp->if_snd)->ifq_maxlen = (256));
+ ifp->if_flags = 0x2 | 0x800 | 0x8000;
+ ether_fakeaddr(ifp);
+ sc->sc_tunnel.t_ttl = ip_defttl;
+ ifmedia_init(&sc->sc_media, 0, egre_media_change, egre_media_status);
+ ifmedia_add(&sc->sc_media, 0x0000000000000100ULL | 0ULL, 0, ((void *)0));
+ ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
+ if_attach(ifp);
+ ether_ifattach(ifp);
+ return (0);
+}
+static int
+egre_clone_destroy(struct ifnet *ifp)
+{
+ struct egre_softc *sc = ifp->if_softc;
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  egre_down(sc);
+ do { _rw_exit_write(&netlock ); } while (0);
+ ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
+ ether_ifdetach(ifp);
+ if_detach(ifp);
+ free(sc, 2, sizeof(*sc));
+ return (0);
+}
 int
 gre_input(struct mbuf **mp, int *offp, int type, int af)
 {
@@ -5012,6 +5120,7 @@ gre_input(struct mbuf **mp, int *offp, int type, int af)
  struct ip *ip;
  ip = ((struct ip *)((m)->m_hdr.mh_data));
  key.t_af = 2;
+ key.t_ttl = ip->ip_ttl;
  key.t_src[0] = ip->ip_dst.s_addr;
  key.t_dst[0] = ip->ip_src.s_addr;
  if (gre_input_key(mp, offp, type, af, &key) == -1)
@@ -5026,6 +5135,7 @@ gre_input6(struct mbuf **mp, int *offp, int type, int af)
  struct ip6_hdr *ip6;
  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  key.t_af = 24;
+ key.t_ttl = ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim;
  __builtin_memcpy((key.t_src), (&ip6->ip6_dst), (sizeof(key.t_src)));
  __builtin_memcpy((key.t_dst), (&ip6->ip6_src), (sizeof(key.t_dst)));
  if (gre_input_key(mp, offp, type, af, &key) == -1)
@@ -5045,6 +5155,8 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
  struct gre_h_key *gkh;
  void (*input)(struct ifnet *, struct mbuf *);
  int bpf_af = 0;
+ int mcast = 0;
+ int ttloff;
  if (!gre_allow)
   goto decline;
  hlen = iphlen + sizeof(*gh);
@@ -5089,18 +5201,28 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
  switch (gh->gre_proto) {
  case ((__uint16_t)(0x0800)):
   bpf_af = 2;
+  ttloff = __builtin_offsetof(struct ip, ip_ttl);
   input = ipv4_input;
   break;
  case ((__uint16_t)(0x86DD)):
   bpf_af = 24;
+  ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
   input = ipv6_input;
   break;
- case ((__uint16_t)(0x8847)):
  case ((__uint16_t)(0x8848)):
+  mcast = 0x0200|0x0100;
+ case ((__uint16_t)(0x8847)):
   bpf_af = 33;
+  ttloff = 3;
   input = mpls_input;
   break;
+ case ((__uint16_t)(0)):
+  bpf_af = 0;
+  input = gre_keepalive_recv;
+  break;
  case ((__uint16_t)(0x6558)):
+  if (egre_input(key, m, hlen) == -1)
+   goto decline;
  default:
   goto decline;
  }
@@ -5109,7 +5231,14 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   goto decline;
  ifp = &sc->sc_if;
  m_adj(m, hlen);
+ if (sc->sc_tunnel.t_ttl == -1) {
+  m = m_pullup(m, ttloff + 1);
+  if (m == ((void *)0))
+   return (257);
+  *(m->m_hdr.mh_data + ttloff) = key->t_ttl;
+ }
  m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ m->m_hdr.mh_flags |= mcast;
  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
  pf_pkt_addr_changed(m);
@@ -5122,6 +5251,96 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
 decline:
  mp = &m;
  return (-1);
+}
+static int
+egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
+{
+ struct egre_softc *sc;
+ struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
+ struct mbuf *n;
+ int off;
+ sc = (struct egre_softc *)gre_tree_RBT_FIND(&egre_softcs, key);
+ if (sc == ((void *)0))
+  return (-1);
+ m_adj(m, hlen);
+ if (m->M_dat.MH.MH_pkthdr.len < sizeof(struct ether_header)) {
+  m_freem(m);
+  return (0);
+ }
+ m = m_pullup(m, sizeof(struct ether_header));
+ if (m == ((void *)0))
+  return (0);
+ n = m_getptr(m, sizeof(struct ether_header), &off);
+ if (n == ((void *)0)) {
+  m_freem(m);
+  return (0);
+ }
+ if (!((((unsigned long)(((caddr_t)((n)->m_hdr.mh_data)) + off)) & (sizeof(uint32_t) - 1)) == 0)) {
+  n = m_dup_pkt(m, 2, 0x0002);
+  m_freem(m);
+  if (n == ((void *)0))
+   return (0);
+  m = n;
+ }
+ m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ pf_pkt_addr_changed(m);
+ ml_enqueue(&ml, m);
+ if_input(&sc->sc_ac.ac_if, &ml);
+ return (0);
+}
+static void
+gre_keepalive_recv(struct ifnet *ifp, struct mbuf *m)
+{
+ struct gre_softc *sc = ifp->if_softc;
+ struct gre_keepalive *gk;
+ SIPHASH_CTX ctx;
+ uint8_t digest[8];
+ int uptime, delta;
+ int tick = ticks;
+ if (sc->sc_ka_state == 0)
+  goto drop;
+ if (m->M_dat.MH.MH_pkthdr.len < sizeof(*gk))
+  goto drop;
+ m = m_pullup(m, sizeof(*gk));
+ if (m == ((void *)0))
+  return;
+ gk = ((struct gre_keepalive *)((m)->m_hdr.mh_data));
+ uptime = ((__uint32_t)(*(__uint32_t *)(&gk->gk_uptime))) - sc->sc_ka_bias;
+ delta = tick - uptime;
+ if (delta < 0)
+  goto drop;
+ if (delta > hz * 10)
+  goto drop;
+ delta = tick - sc->sc_ka_recvtm;
+ if (delta > 0 && delta < (hz / 10))
+  goto drop;
+ SipHash_Init((&ctx), (&sc->sc_ka_key));
+ SipHash_Update((&ctx), 2, 4, (&gk->gk_uptime), (sizeof(gk->gk_uptime)));
+ SipHash_Update((&ctx), 2, 4, (&gk->gk_random), (sizeof(gk->gk_random)));
+ SipHash_Final((digest), (&ctx), 2, 4);
+ if (__builtin_memcmp((digest), (gk->gk_digest), (sizeof(digest))) != 0)
+  goto drop;
+ sc->sc_ka_recvtm = tick;
+ switch (sc->sc_ka_state) {
+ case 1:
+  sc->sc_ka_state = 2;
+  sc->sc_ka_holdcnt = sc->sc_ka_holdmax;
+  sc->sc_ka_holdmax = (((sc->sc_ka_holdmax * 2)<(16 * sc->sc_ka_count))?(sc->sc_ka_holdmax * 2):(16 * sc->sc_ka_count));
+  break;
+ case 2:
+  if (--sc->sc_ka_holdcnt > 0)
+   break;
+  sc->sc_ka_state = 3;
+  gre_link_state(sc);
+  break;
+ case 3:
+  sc->sc_ka_holdmax--;
+  sc->sc_ka_holdmax = (((sc->sc_ka_holdmax)>(sc->sc_ka_count))?(sc->sc_ka_holdmax):(sc->sc_ka_count));
+  break;
+ }
+ timeout_add_sec(&sc->sc_ka_hold, sc->sc_ka_timeo * sc->sc_ka_count);
+drop:
+ m_freem(m);
 }
 static int
 gre_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
@@ -5177,48 +5396,126 @@ gre_start(struct ifnet *ifp)
 {
  struct gre_softc *sc = ifp->if_softc;
  struct mbuf *m;
- uint8_t tos;
+ uint8_t ttl, tos;
+ int tttl;
+ uint16_t proto;
  caddr_t if_bpf;
+ int ttloff;
+ tttl = sc->sc_tunnel.t_ttl;
  while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
   if_bpf = ifp->if_bpf;
   if (if_bpf) {
    int af = m->M_dat.MH.MH_pkthdr.ph_family;
    bpf_mtap_af(if_bpf, af, m, (1<<1));
   }
-  m = gre_encap(sc, m, &tos);
-  if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m, tos) != 0)
+  m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
+  pf_pkt_addr_changed(m);
+  switch (m->M_dat.MH.MH_pkthdr.ph_family) {
+  case 2: {
+   struct ip *ip;
+   m = m_pullup(m, sizeof(*ip));
+   if (m == ((void *)0))
+    continue;
+   ip = ((struct ip *)((m)->m_hdr.mh_data));
+   tos = ip->ip_tos;
+   ttloff = __builtin_offsetof(struct ip, ip_ttl);
+   proto = ((__uint16_t)(0x0800));
+   break;
+  }
+  case 24:
+   tos = 0;
+   ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
+   proto = ((__uint16_t)(0x86DD));
+   break;
+  case 33:
+   ttloff = 3;
+   tos = 0;
+   if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
+    proto = ((__uint16_t)(0x8848));
+   else
+    proto = ((__uint16_t)(0x8847));
+   break;
+  default:
+   unhandled_af(m->M_dat.MH.MH_pkthdr.ph_family);
+  }
+  if (tttl == -1) {
+   m = m_pullup(m, ttloff + 1);
+   if (m == ((void *)0))
+    continue;
+   ttl = *(m->m_hdr.mh_data + ttloff);
+  } else
+   ttl = tttl;
+  m = gre_encap(&sc->sc_tunnel, m, proto);
+  if (m == ((void *)0) ||
+      gre_ip_output(&sc->sc_tunnel, m, ttl, tos) != 0) {
    ifp->if_data.ifi_oerrors++;
+   continue;
+  }
  }
 }
+static void
+egre_start(struct ifnet *ifp)
+{
+ struct egre_softc *sc = ifp->if_softc;
+ struct mbuf *m0, *m;
+ caddr_t if_bpf;
+ if (!gre_allow)
+  ifq_purge(&ifp->if_snd);
+ while ((m0 = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf)
+   bpf_mtap_ether(if_bpf, m0, (1<<1));
+  m = m_gethdr(0x0002, m0->m_hdr.mh_type);
+  if (m == ((void *)0)) {
+   m_freem(m0);
+   continue;
+  }
+  do { (m)->m_hdr.mh_flags = ((m)->m_hdr.mh_flags & (0x0001 | 0x0008)); (m)->m_hdr.mh_flags |= (m0)->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000); do { ((m))->M_dat.MH.MH_pkthdr = ((m0))->M_dat.MH.MH_pkthdr; ((m0))->m_hdr.mh_flags &= ~0x0002; { ((&((m0))->M_dat.MH.MH_pkthdr.ph_tags)->slh_first) = ((void *)0); }; ((m0))->M_dat.MH.MH_pkthdr.pf.statekey = ((void *)0); } while ( 0); if (((m)->m_hdr.mh_flags & 0x0001) == 0) (m)->m_hdr.mh_data = (m)->M_dat.MH.MH_dat.MH_databuf; } while ( 0);
+  m->m_hdr.mh_next = m0;
+  (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (0)) &~ (sizeof(long) - 1);
+  m->m_hdr.mh_len = 0;
+  m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
+  pf_pkt_addr_changed(m);
+  m = gre_encap(&sc->sc_tunnel, m, ((__uint16_t)(0x6558)));
+  if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m,
+      sc->sc_tunnel.t_ttl, 0) != 0) {
+   ifp->if_data.ifi_oerrors++;
+   continue;
+  }
+ }
+}
+static int
+gre_ip_output(const struct gre_tunnel *tunnel, struct mbuf *m,
+     uint8_t ttl, uint8_t tos)
+{
+ m = gre_ip_encap(tunnel, m, ttl, tos);
+ if (m == ((void *)0))
+  return (-1);
+ switch (tunnel->t_af) {
+ case 2:
+  ip_send(m);
+  break;
+ case 24:
+  ip6_send(m);
+  break;
+ default:
+  panic("%s: unsupported af %d in %p", __func__, tunnel->t_af,
+      tunnel);
+ }
+ return (0);
+}
 static struct mbuf *
-gre_encap(struct gre_softc *sc, struct mbuf *m, uint8_t *tos)
+gre_encap(struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto)
 {
  struct gre_header *gh;
  struct gre_h_key *gkh;
- uint16_t proto;
  int hlen;
- *tos = 0;
- switch (m->M_dat.MH.MH_pkthdr.ph_family) {
- case 2: {
-  proto = ((__uint16_t)(0x0800));
-  struct ip *ip = ((struct ip *)((m)->m_hdr.mh_data));
-  *tos = ip->ip_tos;
-  break;
- }
- case 24:
-  proto = ((__uint16_t)(0x86DD));
-  break;
- case 33:
-  if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
-   proto = ((__uint16_t)(0x8848));
-  else
-   proto = ((__uint16_t)(0x8847));
-  break;
- default:
-  unhandled_af(m->M_dat.MH.MH_pkthdr.ph_family);
- }
  hlen = sizeof(*gh);
- if (sc->sc_tunnel.t_key_mask != ((__uint32_t)(0x00000000U)))
+ if (tunnel->t_key_mask != ((__uint32_t)(0x00000000U)))
   hlen += sizeof(*gkh);
  m = m_prepend(m, hlen, 0x0002);
  if (m == ((void *)0))
@@ -5226,15 +5523,16 @@ gre_encap(struct gre_softc *sc, struct mbuf *m, uint8_t *tos)
  gh = ((struct gre_header *)((m)->m_hdr.mh_data));
  gh->gre_flags = 0x0000;
  gh->gre_proto = proto;
- if (sc->sc_tunnel.t_key_mask != ((__uint32_t)(0x00000000U))) {
+ if (tunnel->t_key_mask != ((__uint32_t)(0x00000000U))) {
   gh->gre_flags |= ((__uint16_t)(0x2000));
   gkh = (struct gre_h_key *)(gh + 1);
-  gkh->gre_key = sc->sc_tunnel.t_key;
+  gkh->gre_key = tunnel->t_key;
  }
  return (m);
 }
-static int
-gre_ip_output(const struct gre_tunnel *tunnel, struct mbuf *m, uint8_t tos)
+static struct mbuf *
+gre_ip_encap(const struct gre_tunnel *tunnel, struct mbuf *m,
+    uint8_t ttl, uint8_t tos)
 {
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  m->M_dat.MH.MH_pkthdr.ph_rtableid = tunnel->t_rtableid;
@@ -5244,15 +5542,15 @@ gre_ip_output(const struct gre_tunnel *tunnel, struct mbuf *m, uint8_t tos)
   struct ip *ip;
   m = m_prepend(m, sizeof(*ip), 0x0002);
   if (m == ((void *)0))
-   return (12);
+   return (((void *)0));
   ip = ((struct ip *)((m)->m_hdr.mh_data));
+  ip->ip_off = 0;
   ip->ip_tos = tos;
   ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
-  ip->ip_ttl = tunnel->t_ttl;
+  ip->ip_ttl = ttl;
   ip->ip_p = 47;
   ip->ip_src.s_addr = tunnel->t_src[0];
   ip->ip_dst.s_addr = tunnel->t_dst[0];
-  ip_send(m);
   break;
  }
  case 24: {
@@ -5260,30 +5558,109 @@ gre_ip_output(const struct gre_tunnel *tunnel, struct mbuf *m, uint8_t tos)
   int len = m->M_dat.MH.MH_pkthdr.len;
   m = m_prepend(m, sizeof(*ip6), 0x0002);
   if (m == ((void *)0))
-   return (12);
+   return (((void *)0));
   ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
   ip6->ip6_ctlun.ip6_un1.ip6_un1_flow = ((m->M_dat.MH.MH_pkthdr.ph_flowid) & (0x8000)) ?
       ((__uint32_t)(m->M_dat.MH.MH_pkthdr.ph_flowid & 0x7fff)) : 0;
   ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
   ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
-  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = tunnel->t_ttl;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
   __builtin_memcpy((&ip6->ip6_src), (tunnel->t_src), (sizeof(ip6->ip6_src)));
   __builtin_memcpy((&ip6->ip6_dst), (tunnel->t_dst), (sizeof(ip6->ip6_dst)));
-  ip6_send(m);
   break;
  }
  default:
   panic("%s: unsupported af %d in %p", __func__, tunnel->t_af,
       tunnel);
  }
- return (0);
+ return (m);
+}
+static int
+gre_tunnel_ioctl(struct ifnet *ifp, struct gre_tunnel *tunnel,
+    u_long cmd, void *data)
+{
+ struct ifreq *ifr = (struct ifreq *)data;
+ int error = 0;
+ switch(cmd) {
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
+  if (ifr->ifr_ifru.ifru_metric < 576) {
+   error = 22;
+   break;
+  }
+  ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_set_vnetid(tunnel, ifr);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
+  error = gre_get_vnetid(tunnel, ifr);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_del_vnetid(tunnel);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
+  error = gre_get_tunnel(tunnel, (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_del_tunnel(tunnel);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  if (ifr->ifr_ifru.ifru_metric < 0 ||
+      ifr->ifr_ifru.ifru_metric > 255 ||
+      !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
+   error = 22;
+   break;
+  }
+  tunnel->t_rtableid = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
+  ifr->ifr_ifru.ifru_metric = tunnel->t_rtableid;
+  break;
+ default:
+  error = 25;
+  break;
+ }
+ return (error);
 }
 static int
 gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
- struct ifreq *ifr = (struct ifreq *)data;
  struct gre_softc *sc = ifp->if_softc;
+ struct ifreq *ifr = (struct ifreq *)data;
+ struct ifkalivereq *ikar = (struct ifkalivereq *)data;
  int error = 0;
  switch(cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
@@ -5299,70 +5676,73 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
     error = gre_down(sc);
   }
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
-  if (ifr->ifr_ifru.ifru_metric < 576) {
-   error = 22;
-   break;
-  }
-  ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
   if (((ifp->if_flags) & (0x40))) {
    error = 16;
    break;
   }
-  error = gre_set_vnetid(&sc->sc_tunnel, ifr);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
-  error = gre_get_vnetid(&sc->sc_tunnel, ifr);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((163))):
   if (((ifp->if_flags) & (0x40))) {
    error = 16;
    break;
   }
-  error = gre_del_vnetid(&sc->sc_tunnel);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
+  if (ikar->ikar_timeo < 0 || ikar->ikar_timeo > 86400 ||
+      ikar->ikar_cnt < 0 || ikar->ikar_cnt > 256)
+   return (22);
+  if (ikar->ikar_timeo == 0 || ikar->ikar_cnt == 0) {
+   sc->sc_ka_count = 0;
+   sc->sc_ka_timeo = 0;
+   sc->sc_ka_state = 0;
+  } else {
+   sc->sc_ka_count = ikar->ikar_cnt;
+   sc->sc_ka_timeo = ikar->ikar_timeo;
+   sc->sc_ka_state = 1;
   }
-  error = gre_set_tunnel(&sc->sc_tunnel,
-      (struct if_laddrreq *)data);
   break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
-  error = gre_get_tunnel(&sc->sc_tunnel,
-      (struct if_laddrreq *)data);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
-  error = gre_del_tunnel(&sc->sc_tunnel);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
-  if (ifr->ifr_ifru.ifru_metric < 0 ||
-      ifr->ifr_ifru.ifru_metric > 255 ||
-      !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
-   error = 22;
-   break;
-  }
-  sc->sc_tunnel.t_rtableid = ifr->ifr_ifru.ifru_metric;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
-  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((164))):
+  ikar->ikar_cnt = sc->sc_ka_count;
+  ikar->ikar_timeo = sc->sc_ka_timeo;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
-  if (ifr->ifr_ifru.ifru_metric < 0 || ifr->ifr_ifru.ifru_metric > 0xff) {
+  if (ifr->ifr_ifru.ifru_metric != -1 &&
+      (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff)) {
+   error = 22;
+   break;
+  }
+  sc->sc_tunnel.t_ttl = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_ttl;
+  break;
+ default:
+  error = gre_tunnel_ioctl(ifp, &sc->sc_tunnel, cmd, data);
+  break;
+ }
+ return (error);
+}
+static int
+egre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
+{
+ struct egre_softc *sc = ifp->if_softc;
+ struct ifreq *ifr = (struct ifreq *)data;
+ int error = 0;
+ switch(cmd) {
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
+  ifp->if_flags |= 0x1;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = egre_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = egre_down(sc);
+  }
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff) {
    error = 22;
    break;
   }
@@ -5372,21 +5752,33 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ifr->ifr_ifru.ifru_metric = (int)sc->sc_tunnel.t_ttl;
   break;
  default:
-  error = 25;
+  error = gre_tunnel_ioctl(ifp, &sc->sc_tunnel, cmd, data);
+  if (error == 25)
+   error = ether_ioctl(ifp, &sc->sc_ac, cmd, data);
+  break;
  }
  return (error);
 }
 static int
 gre_up(struct gre_softc *sc)
 {
- int error = 0;
  if (sc->sc_tunnel.t_af == 0)
   return (6);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (sc->sc_ka_state != 0 &&
+     sc->sc_tunnel.t_rtableid != sc->sc_if.if_data.ifi_rdomain)
+  return (65);
  if (gre_tree_RBT_INSERT(&gre_softcs, &sc->sc_tunnel) != ((void *)0))
-  return (16);
+  return (48);
  ((sc->sc_if.if_flags) |= (0x40));
- return (error);
+ if (sc->sc_ka_state != 0) {
+  arc4random_buf(&sc->sc_ka_key, sizeof(sc->sc_ka_key));
+  sc->sc_ka_bias = arc4random();
+  sc->sc_ka_recvtm = ticks - hz;
+  sc->sc_ka_holdmax = sc->sc_ka_count;
+  gre_keepalive_send(sc);
+ }
+ return (0);
 }
 static int
 gre_down(struct gre_softc *sc)
@@ -5394,7 +5786,120 @@ gre_down(struct gre_softc *sc)
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  gre_tree_RBT_REMOVE(&gre_softcs, &sc->sc_tunnel);
  ((sc->sc_if.if_flags) &= ~(0x40));
+ if (sc->sc_ka_state != 0) {
+  if (!timeout_del(&sc->sc_ka_hold))
+   timeout_barrier(&sc->sc_ka_hold);
+  if (!timeout_del(&sc->sc_ka_send))
+   timeout_barrier(&sc->sc_ka_send);
+  sc->sc_ka_state = 1;
+  gre_link_state(sc);
+ }
  return (0);
+}
+static void
+gre_link_state(struct gre_softc *sc)
+{
+ struct ifnet *ifp = &sc->sc_if;
+ int link_state = 0;
+ if (((ifp->if_flags) & (0x40))) {
+  switch (sc->sc_ka_state) {
+  case 0:
+   break;
+  case 3:
+   link_state = 4;
+   break;
+  default:
+   link_state = 3;
+   break;
+  }
+ }
+ if (ifp->if_data.ifi_link_state != link_state) {
+  ifp->if_data.ifi_link_state = link_state;
+  if_link_state_change(ifp);
+ }
+}
+static void
+gre_keepalive_send(void *arg)
+{
+ struct gre_tunnel t;
+ struct gre_softc *sc = arg;
+ struct mbuf *m;
+ struct gre_keepalive *gk;
+ SIPHASH_CTX ctx;
+ int linkhdr, len;
+ uint16_t proto;
+ uint8_t ttl;
+ if (!((sc->sc_if.if_flags) & (0x40)) ||
+     sc->sc_ka_state == 0)
+  return;
+ linkhdr = max_linkhdr + (((sizeof(struct ip))>(sizeof(struct ip6_hdr)))?(sizeof(struct ip)):(sizeof(struct ip6_hdr))) +
+     sizeof(struct gre_header) + sizeof(struct gre_h_key);
+ len = linkhdr + sizeof(*gk);
+ m = m_gethdr((0x0002), (1));
+ if (m == ((void *)0))
+  return;
+ if (len > ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) {
+  m_clget((m), (0x0002), (len));
+  if (!((m->m_hdr.mh_flags) & (0x0001))) {
+   m_freem(m);
+   return;
+  }
+ }
+ m->M_dat.MH.MH_pkthdr.len = m->m_hdr.mh_len = len;
+ m_adj(m, linkhdr);
+ gk = ((struct gre_keepalive *)((m)->m_hdr.mh_data));
+ (*(__uint32_t *)(&gk->gk_uptime) = ((__uint32_t)(sc->sc_ka_bias + ticks)));
+ (*(__uint32_t *)(&gk->gk_random) = ((__uint32_t)(arc4random())));
+ SipHash_Init((&ctx), (&sc->sc_ka_key));
+ SipHash_Update((&ctx), 2, 4, (&gk->gk_uptime), (sizeof(gk->gk_uptime)));
+ SipHash_Update((&ctx), 2, 4, (&gk->gk_random), (sizeof(gk->gk_random)));
+ SipHash_Final((gk->gk_digest), (&ctx), 2, 4);
+ m = gre_encap(&sc->sc_tunnel, m, ((__uint16_t)(0)));
+ if (m == ((void *)0))
+  return;
+ ttl = sc->sc_tunnel.t_ttl == -1 ? ip_defttl : sc->sc_tunnel.t_ttl;
+ t.t_af = sc->sc_tunnel.t_af;
+ __builtin_memcpy((t.t_src), (sc->sc_tunnel.t_dst), (sizeof(t.t_src)));
+ __builtin_memcpy((t.t_dst), (sc->sc_tunnel.t_src), (sizeof(t.t_dst)));
+ m = gre_ip_encap(&t, m, ttl, 0);
+ if (m == ((void *)0))
+  return;
+ switch (sc->sc_tunnel.t_af) {
+ case 2: {
+  struct ip *ip;
+  ip = ((struct ip *)((m)->m_hdr.mh_data));
+  ip->ip_v = 4;
+  ip->ip_hl = sizeof(*ip) >> 2;
+  ip->ip_off &= ((__uint16_t)(0x4000));
+  ip->ip_id = ((__uint16_t)(ip_randomid()));
+  ip->ip_sum = 0;
+  ip->ip_sum = in_cksum(m, sizeof(*ip));
+  proto = ((__uint16_t)(0x0800));
+  break;
+ }
+ case 24:
+  proto = ((__uint16_t)(0x86DD));
+  break;
+ }
+ m = gre_encap(&sc->sc_tunnel, m, proto);
+ if (m == ((void *)0))
+  return;
+ m->M_dat.MH.MH_pkthdr.ph_ifidx = sc->sc_if.if_index;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_if.if_data.ifi_rdomain;
+ gre_ip_output(&sc->sc_tunnel, m, ttl, 0);
+ timeout_add_sec(&sc->sc_ka_send, sc->sc_ka_timeo);
+}
+static void
+gre_keepalive_hold(void *arg)
+{
+ struct gre_softc *sc = arg;
+ if (!((sc->sc_if.if_flags) & (0x40)) ||
+     sc->sc_ka_state == 0)
+  return;
+ do { _rw_enter_write(&netlock ); } while (0);
+ sc->sc_ka_state = 1;
+ gre_link_state(sc);
+ do { _rw_exit_write(&netlock ); } while (0);
 }
 static int
 gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
@@ -5519,6 +6024,36 @@ gre_del_vnetid(struct gre_tunnel *tunnel)
  tunnel->t_key_mask = ((__uint32_t)(0x00000000U));
  return (0);
 }
+static int
+egre_up(struct egre_softc *sc)
+{
+ if (sc->sc_tunnel.t_af == 0)
+  return (6);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (gre_tree_RBT_INSERT(&egre_softcs, &sc->sc_tunnel) != ((void *)0))
+  return (48);
+ ((sc->sc_ac.ac_if.if_flags) |= (0x40));
+ return (0);
+}
+static int
+egre_down(struct egre_softc *sc)
+{
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ gre_tree_RBT_REMOVE(&egre_softcs, &sc->sc_tunnel);
+ ((sc->sc_ac.ac_if.if_flags) &= ~(0x40));
+ return (0);
+}
+static int
+egre_media_change(struct ifnet *ifp)
+{
+ return (25);
+}
+static void
+egre_media_status(struct ifnet *ifp, struct ifmediareq *imr)
+{
+ imr->ifm_active = 0x0000000000000100ULL | 0ULL;
+ imr->ifm_status = 0x0000000000000001ULL | 0x0000000000000002ULL;
+}
 int
 gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
@@ -5539,7 +6074,7 @@ gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   return (error);
  default:
   return (42);
-        }
+ }
 }
 static inline int
 gre_ip_cmp(int af, const uint32_t *a, const uint32_t *b)

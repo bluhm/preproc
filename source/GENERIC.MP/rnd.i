@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -4066,6 +4070,28 @@ arc4random_buf(void *buf, size_t n)
  __mtx_enter(&rndlock );
  _rs_random_buf(buf, n);
  __mtx_leave(&rndlock );
+}
+struct arc4random_ctx *
+arc4random_ctx_new()
+{
+ char keybuf[32 + 8];
+ chacha_ctx *ctx = malloc(sizeof(chacha_ctx), 127, 0x0001);
+ arc4random_buf(keybuf, 32 + 8);
+ chacha_keysetup(ctx, keybuf, 32 * 8);
+ chacha_ivsetup(ctx, keybuf + 32, ((void *)0));
+ explicit_bzero(keybuf, sizeof(keybuf));
+ return (struct arc4random_ctx *)ctx;
+}
+void
+arc4random_ctx_free(struct arc4random_ctx *ctx)
+{
+ explicit_bzero(ctx, sizeof(chacha_ctx));
+ free(ctx, 127, sizeof(chacha_ctx));
+}
+void
+arc4random_ctx_buf(struct arc4random_ctx *ctx, void *buf, size_t n)
+{
+ chacha_encrypt_bytes((chacha_ctx *)ctx, buf, buf, n);
 }
 u_int32_t
 arc4random_uniform(u_int32_t upper_bound)

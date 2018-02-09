@@ -5423,6 +5423,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);

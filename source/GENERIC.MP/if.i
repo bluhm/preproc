@@ -1071,8 +1071,12 @@ int copyin(const void *, void *, size_t)
   __attribute__ ((__bounded__(__buffer__,2,3)));
 int copyout(const void *, void *, size_t);
 int copyin32(const uint32_t *, uint32_t *);
+struct arc4random_ctx;
 void arc4random_buf(void *, size_t)
   __attribute__ ((__bounded__(__buffer__,1,2)));
+struct arc4random_ctx *arc4random_ctx_new(void);
+void arc4random_ctx_free(struct arc4random_ctx *);
+void arc4random_ctx_buf(struct arc4random_ctx *, void *, size_t);
 u_int32_t arc4random(void);
 u_int32_t arc4random_uniform(u_int32_t);
 struct timeval;
@@ -5117,6 +5121,7 @@ void pf_send_tcp(const struct pf_rule *, sa_family_t,
 void pf_syncookies_init(void);
 int pf_syncookies_setmode(u_int8_t);
 int pf_syncookies_setwats(u_int32_t, u_int32_t);
+int pf_syncookies_getwats(struct pfioc_synflwats *);
 int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
@@ -5126,6 +5131,7 @@ struct ifbreq {
  char ifbr_ifsname[16];
  u_int32_t ifbr_ifsflags;
  u_int32_t ifbr_portno;
+ u_int32_t ifbr_protected;
  u_int8_t ifbr_state;
  u_int8_t ifbr_priority;
  u_int32_t ifbr_path_cost;
@@ -5343,6 +5349,7 @@ struct bridge_iflist {
  struct brl_head bif_brlout;
  struct ifnet *ifp;
  u_int32_t bif_flags;
+ u_int32_t bif_protected;
  void *bif_dhcookie;
 };
 union brsockaddr_union {
