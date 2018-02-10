@@ -1909,6 +1909,47 @@ int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -3506,47 +3547,6 @@ void *bpfsattach(caddr_t *, const char *, u_int, u_int);
 void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -4869,15 +4869,30 @@ int ip_etherip_output(struct ifnet *, struct mbuf *);
 int ip_etherip_input(struct mbuf **, int *, int, int);
 int ip6_etherip_output(struct ifnet *, struct mbuf *);
 int ip6_etherip_input(struct mbuf **, int *, int, int);
+union etherip_addr {
+ struct in_addr in4;
+ struct in6_addr in6;
+};
+struct etherip_tunnel {
+ union etherip_addr
+   _t_src;
+ union etherip_addr
+   _t_dst;
+ unsigned int t_rtableid;
+ sa_family_t t_af;
+ struct rb_entry
+   t_entry;;
+};
+struct etherip_tree { struct rb_tree rbh_root; };
+static inline int etherip_cmp(const struct etherip_tunnel *,
+    const struct etherip_tunnel *);
+extern const struct rb_type *const etherip_tree_RBT_TYPE; __attribute__((__unused__)) static inline void etherip_tree_RBT_INIT(struct etherip_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_INSERT(struct etherip_tree *head, struct etherip_tunnel *elm) { return _rb_insert(etherip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_REMOVE(struct etherip_tree *head, struct etherip_tunnel *elm) { return _rb_remove(etherip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_FIND(struct etherip_tree *head, const struct etherip_tunnel *key) { return _rb_find(etherip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_NFIND(struct etherip_tree *head, const struct etherip_tunnel *key) { return _rb_nfind(etherip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_ROOT(struct etherip_tree *head) { return _rb_root(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int etherip_tree_RBT_EMPTY(struct etherip_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_MIN(struct etherip_tree *head) { return _rb_min(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_MAX(struct etherip_tree *head) { return _rb_max(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_NEXT(struct etherip_tunnel *elm) { return _rb_next(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_PREV(struct etherip_tunnel *elm) { return _rb_prev(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_LEFT(struct etherip_tunnel *elm) { return _rb_left(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_RIGHT(struct etherip_tunnel *elm) { return _rb_right(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_PARENT(struct etherip_tunnel *elm) { return _rb_parent(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_LEFT(struct etherip_tunnel *elm, struct etherip_tunnel *left) { return _rb_set_left(etherip_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_RIGHT(struct etherip_tunnel *elm, struct etherip_tunnel *right) { return _rb_set_right(etherip_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_PARENT(struct etherip_tunnel *elm, struct etherip_tunnel *parent) { return _rb_set_parent(etherip_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void etherip_tree_RBT_POISON(struct etherip_tunnel *elm, unsigned long poison) { return _rb_poison(etherip_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int etherip_tree_RBT_CHECK(struct etherip_tunnel *elm, unsigned long poison) { return _rb_check(etherip_tree_RBT_TYPE, elm, poison); };
 struct etherip_softc {
+ struct etherip_tunnel sc_tunnel;
  struct arpcom sc_ac;
  struct ifmedia sc_media;
- unsigned int sc_rdomain;
- struct sockaddr_storage sc_src;
- struct sockaddr_storage sc_dst;
- struct { struct etherip_softc *le_next; struct etherip_softc **le_prev; } sc_entry;
+ uint8_t sc_ttl;
 };
-struct { struct etherip_softc *lh_first; } etherip_softc_list;
 int etherip_allow = 0;
 struct cpumem *etheripcounters;
 void etheripattach(int);
@@ -4887,9 +4902,14 @@ int etherip_ioctl(struct ifnet *, u_long, caddr_t);
 void etherip_start(struct ifnet *);
 int etherip_media_change(struct ifnet *);
 void etherip_media_status(struct ifnet *, struct ifmediareq *);
-int etherip_set_tunnel_addr(struct ifnet *, struct sockaddr_storage *,
-   struct sockaddr_storage *);
+int etherip_set_tunnel(struct etherip_softc *, struct if_laddrreq *);
+int etherip_get_tunnel(struct etherip_softc *, struct if_laddrreq *);
+int etherip_del_tunnel(struct etherip_softc *);
+int etherip_up(struct etherip_softc *);
+int etherip_down(struct etherip_softc *);
+int etherip_input(struct etherip_tunnel *, struct mbuf *, int);
 struct if_clone etherip_cloner = { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "etherip", .ifc_namelen = sizeof("etherip") - 1, .ifc_create = etherip_clone_create, .ifc_destroy = etherip_clone_destroy, };
+struct etherip_tree etherip_tree = { { ((void *)0) } };
 void
 etheripattach(int count)
 {
@@ -4903,34 +4923,38 @@ etherip_clone_create(struct if_clone *ifc, int unit)
  struct etherip_softc *sc;
  sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  ifp = &sc->sc_ac.ac_if;
- snprintf(ifp->if_xname, sizeof ifp->if_xname, "etherip%d", unit);
- ifp->if_flags = 0x2 | 0x800 | 0x8000;
- ether_fakeaddr(ifp);
+ snprintf(ifp->if_xname, sizeof(ifp->if_xname), "%s%d",
+     ifc->ifc_name, unit);
+ sc->sc_ttl = ip_defttl;
  ifp->if_softc = sc;
  ifp->if_ioctl = etherip_ioctl;
  ifp->if_start = etherip_start;
+ ifp->if_flags = 0x2 | 0x800 | 0x8000;
  ifp->if_xflags = 0x2;
  ((&ifp->if_snd)->ifq_maxlen = (256));
  ifp->if_data.ifi_capabilities = 0x00000010;
+ ether_fakeaddr(ifp);
  ifmedia_init(&sc->sc_media, 0, etherip_media_change,
      etherip_media_status);
  ifmedia_add(&sc->sc_media, 0x0000000000000100ULL | 0ULL, 0, ((void *)0));
  ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
  if_attach(ifp);
  ether_ifattach(ifp);
- do { if (((sc)->sc_entry.le_next = (&etherip_softc_list)->lh_first) != ((void *)0)) (&etherip_softc_list)->lh_first->sc_entry.le_prev = &(sc)->sc_entry.le_next; (&etherip_softc_list)->lh_first = (sc); (sc)->sc_entry.le_prev = &(&etherip_softc_list)->lh_first; } while (0);
- return 0;
+ return (0);
 }
 int
 etherip_clone_destroy(struct ifnet *ifp)
 {
  struct etherip_softc *sc = ifp->if_softc;
- do { if ((sc)->sc_entry.le_next != ((void *)0)) (sc)->sc_entry.le_next->sc_entry.le_prev = (sc)->sc_entry.le_prev; *(sc)->sc_entry.le_prev = (sc)->sc_entry.le_next; ((sc)->sc_entry.le_prev) = ((void *)-1); ((sc)->sc_entry.le_next) = ((void *)-1); } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  etherip_down(sc);
+ do { _rw_exit_write(&netlock ); } while (0);
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
- return 0;
+ return (0);
 }
 int
 etherip_media_change(struct ifnet *ifp)
@@ -4949,18 +4973,12 @@ etherip_start(struct ifnet *ifp)
  struct etherip_softc *sc = ifp->if_softc;
  struct mbuf *m;
  int error;
- for (;;) {
-  do { (m) = ifq_dequeue(&ifp->if_snd); } while ( 0);
-  if (m == ((void *)0))
-   break;
-  if (ifp->if_bpf)
-   bpf_mtap(ifp->if_bpf, m, (1<<1));
-  if (sc->sc_src.ss_family == 0 ||
-      sc->sc_dst.ss_family == 0) {
-   m_freem(m);
-   continue;
-  }
-  switch (sc->sc_src.ss_family) {
+ caddr_t if_bpf;
+ while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf)
+   bpf_mtap_ether(if_bpf, m, (1<<1));
+  switch (sc->sc_tunnel.t_af) {
   case 2:
    error = ip_etherip_output(ifp, m);
    break;
@@ -4968,7 +4986,7 @@ etherip_start(struct ifnet *ifp)
    error = ip6_etherip_output(ifp, m);
    break;
   default:
-   unhandled_af(sc->sc_src.ss_family);
+   unhandled_af(sc->sc_tunnel.t_af);
   }
   if (error)
    ifp->if_data.ifi_oerrors++;
@@ -4978,71 +4996,64 @@ int
 etherip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
  struct etherip_softc *sc = ifp->if_softc;
- struct if_laddrreq *lifr = (struct if_laddrreq *)data;
  struct ifreq *ifr = (struct ifreq *)data;
- struct sockaddr_storage *src, *dst;
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  int error = 0;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
   ifp->if_flags |= 0x1;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
-  if (ifp->if_flags & 0x1)
-   ifp->if_flags |= 0x40;
-  else
-   ifp->if_flags &= ~0x40;
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = etherip_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = etherip_down(sc);
+  }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if ((error = suser(p, 0)) != 0)
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
+  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
    error = 22;
    break;
   }
-  sc->sc_rdomain = ifr->ifr_ifru.ifru_metric;
+  sc->sc_tunnel.t_rtableid = ifr->ifr_ifru.ifru_metric;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
-  ifr->ifr_ifru.ifru_metric = sc->sc_rdomain;
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if ((error = suser(p, 0)) != 0)
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
-  src = &lifr->addr;
-  dst = &lifr->dstaddr;
-  if (src->ss_family == 0 || dst->ss_family == 0)
-   return 49;
-  switch (src->ss_family) {
-  case 2:
-   if (src->ss_len != sizeof(struct sockaddr_in) ||
-       dst->ss_len != sizeof(struct sockaddr_in))
-    return 22;
-   break;
-  case 24:
-   if (src->ss_len != sizeof(struct sockaddr_in6) ||
-       dst->ss_len != sizeof(struct sockaddr_in6))
-    return 22;
-   break;
-  default:
-   return 47;
   }
-  error = etherip_set_tunnel_addr(ifp, src, dst);
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if ((error = suser(p, 0)) != 0)
-   break;
-  ifp->if_flags &= ~0x40;
-  __builtin_memset((&sc->sc_src), (0), (sizeof(sc->sc_src)));
-  __builtin_memset((&sc->sc_dst), (0), (sizeof(sc->sc_dst)));
+  error = etherip_set_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
-  if (sc->sc_dst.ss_family == 0)
-   return 49;
-  __builtin_memset((&lifr->addr), (0), (sizeof(lifr->addr)));
-  __builtin_memset((&lifr->dstaddr), (0), (sizeof(lifr->dstaddr)));
-  __builtin_memcpy((&lifr->addr), (&sc->sc_src), (sc->sc_src.ss_len));
-  __builtin_memcpy((&lifr->dstaddr), (&sc->sc_dst), (sc->sc_dst.ss_len));
+  error = etherip_get_tunnel(sc, (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = etherip_del_tunnel(sc);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff) {
+   error = 22;
+   break;
+  }
+  sc->sc_ttl = (uint8_t)ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = (int)sc->sc_ttl;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifmediareq) & 0x1fff) << 16) | ((('i')) << 8) | ((56))):
@@ -5052,64 +5063,130 @@ etherip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = ether_ioctl(ifp, &sc->sc_ac, cmd, data);
   break;
  }
- return error;
+ return (error);
 }
 int
-etherip_set_tunnel_addr(struct ifnet *ifp, struct sockaddr_storage *src,
-    struct sockaddr_storage *dst)
+etherip_set_tunnel(struct etherip_softc *sc, struct if_laddrreq *req)
 {
- struct etherip_softc *sc, *tsc;
- int error = 0;
- sc = ifp->if_softc;
- for((tsc) = ((&etherip_softc_list)->lh_first); (tsc)!= ((void *)0); (tsc) = ((tsc)->sc_entry.le_next)) {
-  if (tsc == sc)
-   continue;
-  if (tsc->sc_src.ss_family != src->ss_family ||
-      tsc->sc_dst.ss_family != dst->ss_family ||
-      tsc->sc_src.ss_len != src->ss_len ||
-      tsc->sc_dst.ss_len != dst->ss_len)
-   continue;
-  if (tsc->sc_rdomain == sc->sc_rdomain &&
-      __builtin_memcmp((&tsc->sc_dst), (dst), (dst->ss_len)) == 0 &&
-      __builtin_memcmp((&tsc->sc_src), (src), (src->ss_len)) == 0) {
-   error = 49;
-   goto out;
-  }
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *src4, *dst4;
+ struct sockaddr_in6 *src6, *dst6;
+ int error;
+ if (src->sa_family != dst->sa_family || src->sa_len != dst->sa_len)
+  return (22);
+ switch (dst->sa_family) {
+ case 2:
+  if (dst->sa_len != sizeof(*dst4))
+   return (22);
+  src4 = (struct sockaddr_in *)src;
+  if (((src4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(src4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  dst4 = (struct sockaddr_in *)dst;
+  if (((dst4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  sc->sc_tunnel._t_src.in4 = src4->sin_addr;
+  sc->sc_tunnel._t_dst.in4 = dst4->sin_addr;
+  break;
+ case 24:
+  if (dst->sa_len != sizeof(*dst6))
+   return (22);
+  src6 = (struct sockaddr_in6 *)src;
+  if (((*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&src6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  dst6 = (struct sockaddr_in6 *)dst;
+  if (((*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  error = in6_embedscope(&sc->sc_tunnel._t_src.in6, src6, ((void *)0));
+  if (error != 0)
+   return (error);
+  error = in6_embedscope(&sc->sc_tunnel._t_dst.in6, dst6, ((void *)0));
+  if (error != 0)
+   return (error);
+  break;
+ default:
+  return (47);
  }
- __builtin_memcpy((&sc->sc_src), (src), (src->ss_len));
- __builtin_memcpy((&sc->sc_dst), (dst), (dst->ss_len));
-out:
- return error;
+ sc->sc_tunnel.t_af = dst->sa_family;
+ return (0);
+}
+int
+etherip_get_tunnel(struct etherip_softc *sc, struct if_laddrreq *req)
+{
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *sin;
+ struct sockaddr_in6 *sin6;
+ switch (sc->sc_tunnel.t_af) {
+ case 0:
+  return (49);
+ case 2:
+  sin = (struct sockaddr_in *)src;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr = sc->sc_tunnel._t_src.in4;
+  sin = (struct sockaddr_in *)dst;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr = sc->sc_tunnel._t_dst.in4;
+  break;
+ case 24:
+  sin6 = (struct sockaddr_in6 *)src;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, &sc->sc_tunnel._t_src.in6);
+  sin6 = (struct sockaddr_in6 *)dst;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, &sc->sc_tunnel._t_dst.in6);
+  break;
+ default:
+  return (47);
+ }
+ return (0);
+}
+int
+etherip_del_tunnel(struct etherip_softc *sc)
+{
+ sc->sc_tunnel.t_af = 0;
+ return (0);
+}
+int
+etherip_up(struct etherip_softc *sc)
+{
+ if (sc->sc_tunnel.t_af == 0)
+  return (6);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (etherip_tree_RBT_INSERT(&etherip_tree, &sc->sc_tunnel) != ((void *)0))
+  return (48);
+ ((sc->sc_ac.ac_if.if_flags) |= (0x40));
+ return (0);
+}
+int
+etherip_down(struct etherip_softc *sc)
+{
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ etherip_tree_RBT_REMOVE(&etherip_tree, &sc->sc_tunnel);
+ ((ifp->if_flags) &= ~(0x40));
+ ifq_barrier(&ifp->if_snd);
+ return (0);
 }
 int
 ip_etherip_output(struct ifnet *ifp, struct mbuf *m)
 {
  struct etherip_softc *sc = (struct etherip_softc *)ifp->if_softc;
- struct sockaddr_in *src, *dst;
  struct etherip_header *eip;
  struct ip *ip;
- src = (struct sockaddr_in *)&sc->sc_src;
- dst = (struct sockaddr_in *)&sc->sc_dst;
- if (src == ((void *)0) || dst == ((void *)0) ||
-     src->sin_family != 2 || dst->sin_family != 2) {
-  m_freem(m);
-  return 47;
- }
- if (dst->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
-  m_freem(m);
-  return 51;
- }
- m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- (m) = m_prepend((m), (sizeof(struct etherip_header)), (0x0002));
- if (m == ((void *)0)) {
-  etheripstat_inc(etherips_adrops);
-  return 55;
- }
- eip = ((struct etherip_header *)((m)->m_hdr.mh_data));
- eip->eip_ver = 0x03;
- eip->eip_res = 0;
- eip->eip_pad = 0;
- (m) = m_prepend((m), (sizeof(struct ip)), (0x0002));
+ (m) = m_prepend((m), (sizeof(*ip) + sizeof(*eip)), (0x0002));
  if (m == ((void *)0)) {
   etheripstat_inc(etherips_adrops);
   return 55;
@@ -5117,15 +5194,20 @@ ip_etherip_output(struct ifnet *ifp, struct mbuf *m)
  ip = ((struct ip *)((m)->m_hdr.mh_data));
  __builtin_memset((ip), (0), (sizeof(struct ip)));
  ip->ip_v = 4;
- ip->ip_hl = sizeof(struct ip) >> 2;
+ ip->ip_hl = sizeof(*ip) >> 2;
  ip->ip_id = ((__uint16_t)(ip_randomid()));
  ip->ip_tos = 0x10;
  ip->ip_p = 97;
  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
- ip->ip_ttl = 64;
- ip->ip_src = src->sin_addr;
- ip->ip_dst = dst->sin_addr;
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_rdomain;
+ ip->ip_ttl = sc->sc_ttl;
+ ip->ip_src = sc->sc_tunnel._t_src.in4;
+ ip->ip_dst = sc->sc_tunnel._t_dst.in4;
+ eip = (struct etherip_header *)(ip + 1);
+ eip->eip_ver = 0x03;
+ eip->eip_res = 0;
+ eip->eip_pad = 0;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_tunnel.t_rtableid;
  pf_pkt_addr_changed(m);
  etheripstat_pkt(etherips_opackets, etherips_obytes, m->M_dat.MH.MH_pkthdr.len -
      (sizeof(struct ip) + sizeof(struct etherip_header)));
@@ -5133,47 +5215,37 @@ ip_etherip_output(struct ifnet *ifp, struct mbuf *m)
  return (0);
 }
 int
-ip_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
+ip_etherip_input(struct mbuf **mp, int *offp, int type, int af)
 {
  struct mbuf *m = *mp;
+ struct etherip_tunnel key;
+ struct ip *ip;
+ ip = ((struct ip *)((m)->m_hdr.mh_data));
+ key.t_af = 2;
+ key._t_src.in4 = ip->ip_dst;
+ key._t_dst.in4 = ip->ip_src;
+ return (etherip_input(&key, m, *offp));
+}
+int
+etherip_input(struct etherip_tunnel *key, struct mbuf *m, int hlen)
+{
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
  struct etherip_softc *sc;
- const struct ip *ip;
+ struct ifnet *ifp;
  struct etherip_header *eip;
- struct sockaddr_in *src, *dst;
- struct ifnet *ifp = ((void *)0);
- ip = ((struct ip *)((m)->m_hdr.mh_data));
- if (ip->ip_p != 97) {
-  m_freem(m);
-  ipstat_inc(ips_noproto);
-  return 257;
- }
  if (!etherip_allow && (m->m_hdr.mh_flags & (0x0800|0x0400)) == 0) {
-  m_freem(m);
   etheripstat_inc(etherips_pdrops);
-  return 257;
+  goto drop;
  }
+ key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- for((sc) = ((&etherip_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_entry.le_next)) {
-  if (sc->sc_src.ss_family != 2 ||
-      sc->sc_dst.ss_family != 2)
-   continue;
-  src = (struct sockaddr_in *)&sc->sc_src;
-  dst = (struct sockaddr_in *)&sc->sc_dst;
-  if (sc->sc_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid) ||
-      src->sin_addr.s_addr != ip->ip_dst.s_addr ||
-      dst->sin_addr.s_addr != ip->ip_src.s_addr)
-   continue;
-  ifp = &sc->sc_ac.ac_if;
-  break;
- }
- if (ifp == ((void *)0)) {
+ sc = (struct etherip_softc *)etherip_tree_RBT_FIND(&etherip_tree, key);
+ if (sc == ((void *)0)) {
   etheripstat_inc(etherips_noifdrops);
-  m_freem(m);
-  return 257;
+  goto drop;
  }
- m_adj(m, *offp);
- m = *mp = m_pullup(m, sizeof(struct etherip_header));
+ m_adj(m, hlen);
+ m = m_pullup(m, sizeof(*eip));
  if (m == ((void *)0)) {
   etheripstat_inc(etherips_adrops);
   return 257;
@@ -5181,53 +5253,40 @@ ip_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
  eip = ((struct etherip_header *)((m)->m_hdr.mh_data));
  if (eip->eip_ver != 0x03 || eip->eip_pad) {
   etheripstat_inc(etherips_adrops);
-  m_freem(m);
-  return 257;
+  goto drop;
  }
- etheripstat_pkt(etherips_ipackets, etherips_ibytes, m->M_dat.MH.MH_pkthdr.len -
-     sizeof(struct etherip_header));
  m_adj(m, sizeof(struct etherip_header));
- m = *mp = m_pullup(m, sizeof(struct ether_header));
+ etheripstat_pkt(etherips_ipackets, etherips_ibytes, m->M_dat.MH.MH_pkthdr.len);
+ m = m_pullup(m, sizeof(struct ether_header));
  if (m == ((void *)0)) {
   etheripstat_inc(etherips_adrops);
   return 257;
  }
+ ifp = &sc->sc_ac.ac_if;
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
  pf_pkt_addr_changed(m);
  ml_enqueue(&ml, m);
  if_input(ifp, &ml);
  return 257;
+drop:
+ m_freem(m);
+ return (257);
 }
 int
 ip6_etherip_output(struct ifnet *ifp, struct mbuf *m)
 {
- struct etherip_softc *sc = (struct etherip_softc *)ifp->if_softc;
- struct sockaddr_in6 *src, *dst;
- struct etherip_header *eip;
+ struct etherip_softc *sc = ifp->if_softc;
  struct ip6_hdr *ip6;
- int error;
- src = (struct sockaddr_in6 *)&sc->sc_src;
- dst = (struct sockaddr_in6 *)&sc->sc_dst;
- if (src == ((void *)0) || dst == ((void *)0) ||
-     src->sin6_family != 24 || dst->sin6_family != 24) {
-  error = 47;
-  goto drop;
+ struct etherip_header *eip;
+ uint16_t len;
+ if (((*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel._t_dst.in6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel._t_dst.in6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel._t_dst.in6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel._t_dst.in6)->__u6_addr.__u6_addr8[12]) == 0))) {
+  m_freem(m);
+  return (51);
  }
- if (((*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0))) {
-  error = 51;
-  goto drop;
- }
- m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- (m) = m_prepend((m), (sizeof(struct etherip_header)), (0x0002));
- if (m == ((void *)0)) {
-  etheripstat_inc(etherips_adrops);
-  return 55;
- }
- eip = ((struct etherip_header *)((m)->m_hdr.mh_data));
- eip->eip_ver = 0x03;
- eip->eip_res = 0;
- eip->eip_pad = 0;
- (m) = m_prepend((m), (sizeof(struct ip6_hdr)), (0x0002));
+ len = m->M_dat.MH.MH_pkthdr.len;
+ (m) = m_prepend((m), (sizeof(*ip6) + sizeof(*eip)), (0x0002));
  if (m == ((void *)0)) {
   etheripstat_inc(etherips_adrops);
   return 55;
@@ -5238,87 +5297,31 @@ ip6_etherip_output(struct ifnet *ifp, struct mbuf *m)
  ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 97;
  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ip6_defhlim;
- ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len - sizeof(struct ip6_hdr)));
- error = in6_embedscope(&ip6->ip6_src, src, ((void *)0));
- if (error != 0)
-  goto drop;
- error = in6_embedscope(&ip6->ip6_dst, dst, ((void *)0));
- if (error != 0)
-  goto drop;
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_rdomain;
+ ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
+ __builtin_memcpy((&ip6->ip6_src), (&sc->sc_tunnel._t_src.in6), (sizeof(ip6->ip6_src)));
+ __builtin_memcpy((&ip6->ip6_dst), (&sc->sc_tunnel._t_dst.in6), (sizeof(ip6->ip6_dst)));
+ eip = (struct etherip_header *)(ip6 + 1);
+ eip->eip_ver = 0x03;
+ eip->eip_res = 0;
+ eip->eip_pad = 0;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_tunnel.t_rtableid;
  pf_pkt_addr_changed(m);
- etheripstat_pkt(etherips_opackets, etherips_obytes, m->M_dat.MH.MH_pkthdr.len -
-     (sizeof(struct ip6_hdr) + sizeof(struct etherip_header)));
+ etheripstat_pkt(etherips_opackets, etherips_obytes, len);
  ip6_send(m);
  return (0);
-drop:
- m_freem(m);
- return (error);
 }
 int
 ip6_etherip_input(struct mbuf **mp, int *offp, int proto, int af)
 {
  struct mbuf *m = *mp;
- struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- struct etherip_softc *sc;
+ struct etherip_tunnel key;
  const struct ip6_hdr *ip6;
- struct etherip_header *eip;
- struct sockaddr_in6 ipsrc, ipdst;
- struct sockaddr_in6 *src6, *dst6;
- struct ifnet *ifp = ((void *)0);
- if (!etherip_allow && (m->m_hdr.mh_flags & (0x0800|0x0400)) == 0) {
-  m_freem(m);
-  etheripstat_inc(etherips_pdrops);
-  return 257;
- }
  ip6 = ((const struct ip6_hdr *)((m)->m_hdr.mh_data));
- in6_recoverscope(&ipsrc, &ip6->ip6_src);
- in6_recoverscope(&ipdst, &ip6->ip6_dst);
- do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- for((sc) = ((&etherip_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->sc_entry.le_next)) {
-  if (sc->sc_src.ss_family != 24 ||
-      sc->sc_dst.ss_family != 24)
-   continue;
-  src6 = (struct sockaddr_in6 *)&sc->sc_src;
-  dst6 = (struct sockaddr_in6 *)&sc->sc_dst;
-  if ((__builtin_memcmp((&(&src6->sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&ipdst.sin6_addr)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
-      src6->sin6_scope_id == ipdst.sin6_scope_id &&
-      (__builtin_memcmp((&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&ipsrc.sin6_addr)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
-      dst6->sin6_scope_id == ipsrc.sin6_scope_id) {
-   ifp = &sc->sc_ac.ac_if;
-   break;
-  }
- }
- if (ifp == ((void *)0)) {
-  etheripstat_inc(etherips_noifdrops);
-  m_freem(m);
-  return 257;
- }
- m_adj(m, *offp);
- m = *mp = m_pullup(m, sizeof(struct etherip_header));
- if (m == ((void *)0)) {
-  etheripstat_inc(etherips_adrops);
-  return 257;
- }
- eip = ((struct etherip_header *)((m)->m_hdr.mh_data));
- if ((eip->eip_ver != 0x03) || eip->eip_pad) {
-  etheripstat_inc(etherips_adrops);
-  m_freem(m);
-  return 257;
- }
- etheripstat_pkt(etherips_ipackets, etherips_ibytes, m->M_dat.MH.MH_pkthdr.len -
-     sizeof(struct etherip_header));
- m_adj(m, sizeof(struct etherip_header));
- m = *mp = m_pullup(m, sizeof(struct ether_header));
- if (m == ((void *)0)) {
-  etheripstat_inc(etherips_adrops);
-  return 257;
- }
- m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- pf_pkt_addr_changed(m);
- ml_enqueue(&ml, m);
- if_input(ifp, &ml);
- return 257;
+ key.t_af = 24;
+ key._t_src.in6 = ip6->ip6_dst;
+ key._t_dst.in6 = ip6->ip6_src;
+ return (etherip_input(&key, m, *offp));
 }
 int
 etherip_sysctl_etheripstat(void *oldp, size_t *oldlenp, void *newp)
@@ -5351,3 +5354,38 @@ etherip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  }
  return 42;
 }
+static inline int
+etherip_ip_cmp(int af, const union etherip_addr *a, const union etherip_addr *b)
+{
+ switch (af) {
+ case 24:
+  return (__builtin_memcmp((&a->in6), (&b->in6), (sizeof(a->in6))));
+ case 2:
+  return (__builtin_memcmp((&a->in4), (&b->in4), (sizeof(a->in4))));
+  break;
+ default:
+  panic("%s: unsupported af %d\n", __func__, af);
+ }
+ return (0);
+}
+static inline int
+etherip_cmp(const struct etherip_tunnel *a, const struct etherip_tunnel *b)
+{
+ int rv;
+ if (a->t_rtableid > b->t_rtableid)
+  return (1);
+ if (a->t_rtableid < b->t_rtableid)
+  return (-1);
+ if (a->t_af > b->t_af)
+  return (1);
+ if (a->t_af < b->t_af)
+  return (-1);
+ rv = etherip_ip_cmp(a->t_af, &a->_t_dst, &b->_t_dst);
+ if (rv != 0)
+  return (rv);
+ rv = etherip_ip_cmp(a->t_af, &a->_t_src, &b->_t_src);
+ if (rv != 0)
+  return (rv);
+ return (0);
+}
+static int etherip_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct etherip_tunnel *l = lptr, *r = rptr; return etherip_cmp(l, r); } static const struct rb_type etherip_tree_RBT_INFO = { etherip_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct etherip_tunnel, t_entry), }; const struct rb_type *const etherip_tree_RBT_TYPE = &etherip_tree_RBT_INFO;

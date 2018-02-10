@@ -4942,13 +4942,23 @@ struct gre_h_key {
 struct gre_h_seq {
  uint32_t gre_seq;
 } __attribute__((__packed__)) __attribute__((__aligned__(4)));
+struct gre_h_wccp {
+ uint8_t wccp_flags;
+ uint8_t service_id;
+ uint8_t alt_bucket;
+ uint8_t pri_bucket;
+} __attribute__((__packed__)) __attribute__((__aligned__(4)));
+union gre_addr {
+ struct in_addr in4;
+ struct in6_addr in6;
+};
 struct gre_tunnel {
  struct rb_entry t_entry;
  uint32_t t_key_mask;
  uint32_t t_key;
  u_int t_rtableid;
- uint32_t t_src[4];
- uint32_t t_dst[4];
+ union gre_addr t_src;
+ union gre_addr t_dst;
  int t_ttl;
  sa_family_t t_af;
 };
@@ -5121,8 +5131,8 @@ gre_input(struct mbuf **mp, int *offp, int type, int af)
  ip = ((struct ip *)((m)->m_hdr.mh_data));
  key.t_af = 2;
  key.t_ttl = ip->ip_ttl;
- key.t_src[0] = ip->ip_dst.s_addr;
- key.t_dst[0] = ip->ip_src.s_addr;
+ key.t_src.in4 = ip->ip_dst;
+ key.t_dst.in4 = ip->ip_src;
  if (gre_input_key(mp, offp, type, af, &key) == -1)
   return (rip_input(mp, offp, type, af));
  return (257);
@@ -5136,8 +5146,8 @@ gre_input6(struct mbuf **mp, int *offp, int type, int af)
  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
  key.t_af = 24;
  key.t_ttl = ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim;
- __builtin_memcpy((key.t_src), (&ip6->ip6_dst), (sizeof(key.t_src)));
- __builtin_memcpy((key.t_dst), (&ip6->ip6_src), (sizeof(key.t_dst)));
+ key.t_src.in6 = ip6->ip6_dst;
+ key.t_dst.in6 = ip6->ip6_src;
  if (gre_input_key(mp, offp, type, af, &key) == -1)
   return (rip6_input(mp, offp, type, af));
  return (257);
@@ -5199,6 +5209,17 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   key->t_key_mask = ((__uint32_t)(0x00000000U));
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
  switch (gh->gre_proto) {
+ case ((__uint16_t)(0x883e)):
+  switch (gre_wccp) {
+  case 1:
+   break;
+  case 2:
+   hlen += sizeof(gre_wccp);
+   break;
+  case 0:
+  default:
+   goto decline;
+  }
  case ((__uint16_t)(0x0800)):
   bpf_af = 2;
   ttloff = __builtin_offsetof(struct ip, ip_ttl);
@@ -5549,8 +5570,8 @@ gre_ip_encap(const struct gre_tunnel *tunnel, struct mbuf *m,
   ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
   ip->ip_ttl = ttl;
   ip->ip_p = 47;
-  ip->ip_src.s_addr = tunnel->t_src[0];
-  ip->ip_dst.s_addr = tunnel->t_dst[0];
+  ip->ip_src = tunnel->t_src.in4;
+  ip->ip_dst = tunnel->t_dst.in4;
   break;
  }
  case 24: {
@@ -5566,8 +5587,8 @@ gre_ip_encap(const struct gre_tunnel *tunnel, struct mbuf *m,
   ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
   ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
-  __builtin_memcpy((&ip6->ip6_src), (tunnel->t_src), (sizeof(ip6->ip6_src)));
-  __builtin_memcpy((&ip6->ip6_dst), (tunnel->t_dst), (sizeof(ip6->ip6_dst)));
+  ip6->ip6_src = tunnel->t_src.in6;
+  ip6->ip6_dst = tunnel->t_dst.in6;
   break;
  }
  default:
@@ -5859,8 +5880,8 @@ gre_keepalive_send(void *arg)
   return;
  ttl = sc->sc_tunnel.t_ttl == -1 ? ip_defttl : sc->sc_tunnel.t_ttl;
  t.t_af = sc->sc_tunnel.t_af;
- __builtin_memcpy((t.t_src), (sc->sc_tunnel.t_dst), (sizeof(t.t_src)));
- __builtin_memcpy((t.t_dst), (sc->sc_tunnel.t_src), (sizeof(t.t_dst)));
+ t.t_src = sc->sc_tunnel.t_dst;
+ t.t_dst = sc->sc_tunnel.t_src;
  m = gre_ip_encap(&t, m, ttl, 0);
  if (m == ((void *)0))
   return;
@@ -5923,8 +5944,8 @@ gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
   if (((dst4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
       (((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
    return (22);
-  tunnel->t_src[0] = src4->sin_addr.s_addr;
-  tunnel->t_dst[0] = dst4->sin_addr.s_addr;
+  tunnel->t_src.in4 = src4->sin_addr;
+  tunnel->t_dst.in4 = dst4->sin_addr;
   break;
  case 24:
   if (dst->sa_len != sizeof(*dst6))
@@ -5937,12 +5958,10 @@ gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
   if (((*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
       ((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
    return (22);
-  error = in6_embedscope((struct in6_addr *)tunnel->t_src,
-      src6, ((void *)0));
+  error = in6_embedscope(&tunnel->t_src.in6, src6, ((void *)0));
   if (error != 0)
    return (error);
-  error = in6_embedscope((struct in6_addr *)tunnel->t_dst,
-      dst6, ((void *)0));
+  error = in6_embedscope(&tunnel->t_dst.in6, dst6, ((void *)0));
   if (error != 0)
    return (error);
   break;
@@ -5967,24 +5986,24 @@ gre_get_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
   __builtin_memset((sin), (0), (sizeof(*sin)));
   sin->sin_family = 2;
   sin->sin_len = sizeof(*sin);
-  sin->sin_addr.s_addr = tunnel->t_src[0];
+  sin->sin_addr = tunnel->t_src.in4;
   sin = (struct sockaddr_in *)dst;
   __builtin_memset((sin), (0), (sizeof(*sin)));
   sin->sin_family = 2;
   sin->sin_len = sizeof(*sin);
-  sin->sin_addr.s_addr = tunnel->t_dst[0];
+  sin->sin_addr = tunnel->t_dst.in4;
   break;
  case 24:
   sin6 = (struct sockaddr_in6 *)src;
   __builtin_memset((sin6), (0), (sizeof(*sin6)));
   sin6->sin6_family = 24;
   sin6->sin6_len = sizeof(*sin6);
-  in6_recoverscope(sin6, (struct in6_addr *)tunnel->t_src);
+  in6_recoverscope(sin6, &tunnel->t_src.in6);
   sin6 = (struct sockaddr_in6 *)dst;
   __builtin_memset((sin6), (0), (sizeof(*sin6)));
   sin6->sin6_family = 24;
   sin6->sin6_len = sizeof(*sin6);
-  in6_recoverscope(sin6, (struct in6_addr *)tunnel->t_dst);
+  in6_recoverscope(sin6, &tunnel->t_dst.in6);
   break;
  default:
   return (47);
@@ -6077,28 +6096,13 @@ gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  }
 }
 static inline int
-gre_ip_cmp(int af, const uint32_t *a, const uint32_t *b)
+gre_ip_cmp(int af, const union gre_addr *a, const union gre_addr *b)
 {
  switch (af) {
  case 24:
-  if (a[3] > b[3])
-   return (1);
-  if (a[3] < b[3])
-   return (-1);
-  if (a[2] > b[2])
-   return (1);
-  if (a[2] < b[2])
-   return (-1);
-  if (a[1] > b[1])
-   return (1);
-  if (a[1] < b[1])
-   return (-1);
+  return (__builtin_memcmp((&a->in6), (&b->in6), (sizeof(a->in6))));
  case 2:
-  if (a[0] > b[0])
-   return (1);
-  if (a[0] < b[0])
-   return (-1);
-  break;
+  return (__builtin_memcmp((&a->in4), (&b->in4), (sizeof(a->in4))));
  default:
   panic("%s: unsupported af %d\n", __func__, af);
  }
@@ -6118,10 +6122,10 @@ gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
   return (1);
  if (a->t_af < b->t_af)
   return (-1);
- rv = gre_ip_cmp(a->t_af, a->t_dst, b->t_dst);
+ rv = gre_ip_cmp(a->t_af, &a->t_dst, &b->t_dst);
  if (rv != 0)
   return (rv);
- rv = gre_ip_cmp(a->t_af, a->t_src, b->t_src);
+ rv = gre_ip_cmp(a->t_af, &a->t_src, &b->t_src);
  if (rv != 0)
   return (rv);
  ka = a->t_key_mask & ((__uint32_t)(0xffffff00U));

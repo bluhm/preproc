@@ -4121,6 +4121,7 @@ arc4_reinit(void *v)
 void
 random_start(void)
 {
+ extern char etext[];
  extern long __guard_local;
  if (__guard_local == 0)
   printf("warning: no entropy supplied by boot loader\n");
@@ -4129,6 +4130,8 @@ random_start(void)
  if (msgbufp->msg_magic == 0x063061)
   add_entropy_words((u_int32_t *)msgbufp->msg_bufc,
       msgbufp->msg_bufs / sizeof(u_int32_t));
+ add_entropy_words((u_int32_t *)etext - 32*1024,
+     8192/sizeof(u_int32_t));
  dequeue_randomness(((void *)0));
  arc4_init(((void *)0));
  timeout_set(&arc4_timeout, arc4_reinit, ((void *)0));
