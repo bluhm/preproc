@@ -1606,6 +1606,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2481,6 +2482,424 @@ void pool_walk(struct pool *, int, int (*)(const char *, ...),
 void dma_alloc_init(void);
 void *dma_alloc(size_t size, int flags);
 void dma_free(void *m, size_t size);
+enum vtype { VNON, VREG, VDIR, VBLK, VCHR, VLNK, VSOCK, VFIFO, VBAD };
+enum vtagtype {
+ VT_NON, VT_UFS, VT_NFS, VT_MFS, VT_MSDOSFS,
+ VT_PORTAL, VT_PROCFS, VT_AFS, VT_ISOFS, VT_ADOSFS,
+ VT_EXT2FS, VT_VFS, VT_NTFS, VT_UDF, VT_FUSEFS, VT_TMPFS,
+};
+struct buflists { struct buf *lh_first; };
+struct buf_rb_bufs { struct rb_tree rbh_root; };
+struct namecache;
+struct namecache_rb_cache { struct rb_tree rbh_root; };
+struct uvm_vnode;
+struct vnode {
+ struct uvm_vnode *v_uvm;
+ struct vops *v_op;
+ enum vtype v_type;
+ enum vtagtype v_tag;
+ u_int v_flag;
+ u_int v_usecount;
+ u_int v_writecount;
+ u_int v_bioflag;
+ u_int v_holdcnt;
+ u_int v_id;
+ u_int v_inflight;
+ struct mount *v_mount;
+ struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
+ struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
+ struct buf_rb_bufs v_bufs_tree;
+ struct buflists v_cleanblkhd;
+ struct buflists v_dirtyblkhd;
+ u_int v_numoutput;
+ struct { struct vnode *le_next; struct vnode **le_prev; } v_synclist;
+ union {
+  struct mount *vu_mountedhere;
+  struct socket *vu_socket;
+  struct specinfo *vu_specinfo;
+  struct fifoinfo *vu_fifoinfo;
+ } v_un;
+ struct namecache_rb_cache v_nc_tree;
+ struct { struct namecache *tqh_first; struct namecache **tqh_last; } v_cache_dst;
+ void *v_data;
+ struct selinfo v_selectinfo;
+};
+struct vattr {
+ enum vtype va_type;
+ mode_t va_mode;
+ nlink_t va_nlink;
+ uid_t va_uid;
+ gid_t va_gid;
+ long va_fsid;
+ u_quad_t va_fileid;
+ u_quad_t va_size;
+ long va_blocksize;
+ struct timespec va_atime;
+ struct timespec va_mtime;
+ struct timespec va_ctime;
+ u_long va_gen;
+ u_long va_flags;
+ dev_t va_rdev;
+ u_quad_t va_bytes;
+ u_quad_t va_filerev;
+ u_int va_vaflags;
+ long va_spare;
+};
+extern const struct rb_type *const buf_rb_bufs_RBT_TYPE; __attribute__((__unused__)) static inline void buf_rb_bufs_RBT_INIT(struct buf_rb_bufs *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_INSERT(struct buf_rb_bufs *head, struct buf *elm) { return _rb_insert(buf_rb_bufs_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_REMOVE(struct buf_rb_bufs *head, struct buf *elm) { return _rb_remove(buf_rb_bufs_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_FIND(struct buf_rb_bufs *head, const struct buf *key) { return _rb_find(buf_rb_bufs_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_NFIND(struct buf_rb_bufs *head, const struct buf *key) { return _rb_nfind(buf_rb_bufs_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_ROOT(struct buf_rb_bufs *head) { return _rb_root(buf_rb_bufs_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int buf_rb_bufs_RBT_EMPTY(struct buf_rb_bufs *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_MIN(struct buf_rb_bufs *head) { return _rb_min(buf_rb_bufs_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_MAX(struct buf_rb_bufs *head) { return _rb_max(buf_rb_bufs_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_NEXT(struct buf *elm) { return _rb_next(buf_rb_bufs_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_PREV(struct buf *elm) { return _rb_prev(buf_rb_bufs_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_LEFT(struct buf *elm) { return _rb_left(buf_rb_bufs_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_RIGHT(struct buf *elm) { return _rb_right(buf_rb_bufs_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct buf * buf_rb_bufs_RBT_PARENT(struct buf *elm) { return _rb_parent(buf_rb_bufs_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void buf_rb_bufs_RBT_SET_LEFT(struct buf *elm, struct buf *left) { return _rb_set_left(buf_rb_bufs_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void buf_rb_bufs_RBT_SET_RIGHT(struct buf *elm, struct buf *right) { return _rb_set_right(buf_rb_bufs_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void buf_rb_bufs_RBT_SET_PARENT(struct buf *elm, struct buf *parent) { return _rb_set_parent(buf_rb_bufs_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void buf_rb_bufs_RBT_POISON(struct buf *elm, unsigned long poison) { return _rb_poison(buf_rb_bufs_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int buf_rb_bufs_RBT_CHECK(struct buf *elm, unsigned long poison) { return _rb_check(buf_rb_bufs_RBT_TYPE, elm, poison); };
+extern enum vtype iftovt_tab[];
+extern int vttoif_tab[];
+struct freelst { struct vnode *tqh_first; struct vnode **tqh_last; };
+extern struct freelst vnode_hold_list;
+extern struct freelst vnode_free_list;
+extern struct vnode *rootvnode;
+extern int initialvnodes;
+extern int maxvnodes;
+extern int syncdelay;
+extern int rushjob;
+extern void vhold(struct vnode *);
+extern void vdrop(struct vnode *);
+struct vops {
+ int (*vop_lock)(void *);
+ int (*vop_unlock)(void *);
+ int (*vop_islocked)(void *);
+ int (*vop_abortop)(void *);
+ int (*vop_access)(void *);
+ int (*vop_advlock)(void *);
+ int (*vop_bmap)(void *);
+ int (*vop_bwrite)(void *);
+ int (*vop_close)(void *);
+ int (*vop_create)(void *);
+ int (*vop_fsync)(void *);
+ int (*vop_getattr)(void *);
+ int (*vop_inactive)(void *);
+ int (*vop_ioctl)(void *);
+ int (*vop_link)(void *);
+ int (*vop_lookup)(void *);
+ int (*vop_mknod)(void *);
+ int (*vop_open)(void *);
+ int (*vop_pathconf)(void *);
+ int (*vop_poll)(void *);
+ int (*vop_print)(void *);
+ int (*vop_read)(void *);
+ int (*vop_readdir)(void *);
+ int (*vop_readlink)(void *);
+ int (*vop_reclaim)(void *);
+ int (*vop_remove)(void *);
+ int (*vop_rename)(void *);
+ int (*vop_revoke)(void *);
+ int (*vop_mkdir)(void *);
+ int (*vop_rmdir)(void *);
+ int (*vop_setattr)(void *);
+ int (*vop_strategy)(void *);
+ int (*vop_symlink)(void *);
+ int (*vop_write)(void *);
+ int (*vop_kqfilter)(void *);
+};
+extern struct vops dead_vops;
+extern struct vops spec_vops;
+struct vop_generic_args {
+ void *a_garbage;
+};
+struct vop_islocked_args {
+ struct vnode *a_vp;
+};
+int VOP_ISLOCKED(struct vnode *);
+struct vop_lookup_args {
+ struct vnode *a_dvp;
+ struct vnode **a_vpp;
+ struct componentname *a_cnp;
+};
+int VOP_LOOKUP(struct vnode *, struct vnode **, struct componentname *);
+struct vop_create_args {
+ struct vnode *a_dvp;
+ struct vnode **a_vpp;
+ struct componentname *a_cnp;
+ struct vattr *a_vap;
+};
+int VOP_CREATE(struct vnode *, struct vnode **, struct componentname *,
+    struct vattr *);
+struct vop_mknod_args {
+ struct vnode *a_dvp;
+ struct vnode **a_vpp;
+ struct componentname *a_cnp;
+ struct vattr *a_vap;
+};
+int VOP_MKNOD(struct vnode *, struct vnode **, struct componentname *,
+    struct vattr *);
+struct vop_open_args {
+ struct vnode *a_vp;
+ int a_mode;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_OPEN(struct vnode *, int, struct ucred *, struct proc *);
+struct vop_close_args {
+ struct vnode *a_vp;
+ int a_fflag;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_CLOSE(struct vnode *, int, struct ucred *, struct proc *);
+struct vop_access_args {
+ struct vnode *a_vp;
+ int a_mode;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_ACCESS(struct vnode *, int, struct ucred *, struct proc *);
+struct vop_getattr_args {
+ struct vnode *a_vp;
+ struct vattr *a_vap;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_GETATTR(struct vnode *, struct vattr *, struct ucred *, struct proc *);
+struct vop_setattr_args {
+ struct vnode *a_vp;
+ struct vattr *a_vap;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_SETATTR(struct vnode *, struct vattr *, struct ucred *, struct proc *);
+struct vop_read_args {
+ struct vnode *a_vp;
+ struct uio *a_uio;
+ int a_ioflag;
+ struct ucred *a_cred;
+};
+int VOP_READ(struct vnode *, struct uio *, int, struct ucred *);
+struct vop_write_args {
+ struct vnode *a_vp;
+ struct uio *a_uio;
+ int a_ioflag;
+ struct ucred *a_cred;
+};
+int VOP_WRITE(struct vnode *, struct uio *, int, struct ucred *);
+struct vop_ioctl_args {
+ struct vnode *a_vp;
+ u_long a_command;
+ void *a_data;
+ int a_fflag;
+ struct ucred *a_cred;
+ struct proc *a_p;
+};
+int VOP_IOCTL(struct vnode *, u_long, void *, int, struct ucred *,
+    struct proc *);
+struct vop_poll_args {
+ struct vnode *a_vp;
+ int a_fflag;
+ int a_events;
+ struct proc *a_p;
+};
+int VOP_POLL(struct vnode *, int, int, struct proc *);
+struct vop_kqfilter_args {
+ struct vnode *a_vp;
+ struct knote *a_kn;
+};
+int VOP_KQFILTER(struct vnode *, struct knote *);
+struct vop_revoke_args {
+ struct vnode *a_vp;
+ int a_flags;
+};
+int VOP_REVOKE(struct vnode *, int);
+struct vop_fsync_args {
+ struct vnode *a_vp;
+ struct ucred *a_cred;
+ int a_waitfor;
+ struct proc *a_p;
+};
+int VOP_FSYNC(struct vnode *, struct ucred *, int, struct proc *);
+struct vop_remove_args {
+ struct vnode *a_dvp;
+ struct vnode *a_vp;
+ struct componentname *a_cnp;
+};
+int VOP_REMOVE(struct vnode *, struct vnode *, struct componentname *);
+struct vop_link_args {
+ struct vnode *a_dvp;
+ struct vnode *a_vp;
+ struct componentname *a_cnp;
+};
+int VOP_LINK(struct vnode *, struct vnode *, struct componentname *);
+struct vop_rename_args {
+ struct vnode *a_fdvp;
+ struct vnode *a_fvp;
+ struct componentname *a_fcnp;
+ struct vnode *a_tdvp;
+ struct vnode *a_tvp;
+ struct componentname *a_tcnp;
+};
+int VOP_RENAME(struct vnode *, struct vnode *, struct componentname *,
+    struct vnode *, struct vnode *, struct componentname *);
+struct vop_mkdir_args {
+ struct vnode *a_dvp;
+ struct vnode **a_vpp;
+ struct componentname *a_cnp;
+ struct vattr *a_vap;
+};
+int VOP_MKDIR(struct vnode *, struct vnode **, struct componentname *,
+    struct vattr *);
+struct vop_rmdir_args {
+ struct vnode *a_dvp;
+ struct vnode *a_vp;
+ struct componentname *a_cnp;
+};
+int VOP_RMDIR(struct vnode *, struct vnode *, struct componentname *);
+struct vop_symlink_args {
+ struct vnode *a_dvp;
+ struct vnode **a_vpp;
+ struct componentname *a_cnp;
+ struct vattr *a_vap;
+ char *a_target;
+};
+int VOP_SYMLINK(struct vnode *, struct vnode **, struct componentname *,
+    struct vattr *, char *);
+struct vop_readdir_args {
+ struct vnode *a_vp;
+ struct uio *a_uio;
+ struct ucred *a_cred;
+ int *a_eofflag;
+};
+int VOP_READDIR(struct vnode *, struct uio *, struct ucred *, int *);
+struct vop_readlink_args {
+ struct vnode *a_vp;
+ struct uio *a_uio;
+ struct ucred *a_cred;
+};
+int VOP_READLINK(struct vnode *, struct uio *, struct ucred *);
+struct vop_abortop_args {
+ struct vnode *a_dvp;
+ struct componentname *a_cnp;
+};
+int VOP_ABORTOP(struct vnode *, struct componentname *);
+struct vop_inactive_args {
+ struct vnode *a_vp;
+ struct proc *a_p;
+};
+int VOP_INACTIVE(struct vnode *, struct proc *);
+struct vop_reclaim_args {
+ struct vnode *a_vp;
+ struct proc *a_p;
+};
+int VOP_RECLAIM(struct vnode *, struct proc *);
+struct vop_lock_args {
+ struct vnode *a_vp;
+ int a_flags;
+ struct proc *a_p;
+};
+int VOP_LOCK(struct vnode *, int, struct proc *);
+struct vop_unlock_args {
+ struct vnode *a_vp;
+ struct proc *a_p;
+};
+int VOP_UNLOCK(struct vnode *, struct proc *);
+struct vop_bmap_args {
+ struct vnode *a_vp;
+ daddr_t a_bn;
+ struct vnode **a_vpp;
+ daddr_t *a_bnp;
+ int *a_runp;
+};
+int VOP_BMAP(struct vnode *, daddr_t, struct vnode **, daddr_t *, int *);
+struct vop_print_args {
+ struct vnode *a_vp;
+};
+int VOP_PRINT(struct vnode *);
+struct vop_pathconf_args {
+ struct vnode *a_vp;
+ int a_name;
+ register_t *a_retval;
+};
+int VOP_PATHCONF(struct vnode *, int, register_t *);
+struct vop_advlock_args {
+ struct vnode *a_vp;
+ void *a_id;
+ int a_op;
+ struct flock *a_fl;
+ int a_flags;
+};
+int VOP_ADVLOCK(struct vnode *, void *, int, struct flock *, int);
+struct vop_strategy_args {
+ struct buf *a_bp;
+};
+int VOP_STRATEGY(struct buf *);
+struct vop_bwrite_args {
+ struct buf *a_bp;
+};
+int VOP_BWRITE(struct buf *);
+struct file;
+struct filedesc;
+struct mount;
+struct nameidata;
+struct proc;
+struct stat;
+struct statfs;
+struct ucred;
+struct uio;
+struct vattr;
+struct vnode;
+int bdevvp(dev_t, struct vnode **);
+int cdevvp(dev_t, struct vnode **);
+struct vnode *checkalias(struct vnode *, dev_t, struct mount *);
+int getnewvnode(enum vtagtype, struct mount *, struct vops *,
+     struct vnode **);
+int vaccess(enum vtype, mode_t, uid_t, gid_t, mode_t, struct ucred *);
+void vattr_null(struct vattr *);
+void vdevgone(int, int, int, enum vtype);
+int vcount(struct vnode *);
+int vfinddev(dev_t, enum vtype, struct vnode **);
+void vflushbuf(struct vnode *, int);
+int vflush(struct mount *, struct vnode *, int);
+int vget(struct vnode *, int, struct proc *);
+void vgone(struct vnode *);
+void vgonel(struct vnode *, struct proc *);
+int vinvalbuf(struct vnode *, int, struct ucred *, struct proc *,
+     int, int);
+void vntblinit(void);
+int vwaitforio(struct vnode *, int, char *, int);
+void vwakeup(struct vnode *);
+void vput(struct vnode *);
+int vrecycle(struct vnode *, struct proc *);
+int vrele(struct vnode *);
+void vref(struct vnode *);
+void vprint(char *, struct vnode *);
+void copy_statfs_info(struct statfs *, const struct mount *);
+int vfs_getcwd_scandir(struct vnode **, struct vnode **, char **, char *,
+    struct proc *);
+int vfs_getcwd_common(struct vnode *, struct vnode *, char **, char *, int,
+    int, struct proc *);
+int vfs_getcwd_getcache(struct vnode **, struct vnode **, char **, char *);
+int vop_generic_abortop(void *);
+int vop_generic_bmap(void *);
+int vop_generic_bwrite(void *);
+int vop_generic_islocked(void *);
+int vop_generic_lock(void *);
+int vop_generic_unlock(void *);
+int vop_generic_revoke(void *);
+int vop_generic_kqfilter(void *);
+int vop_generic_lookup(void *);
+int vn_isunder(struct vnode *, struct vnode *, struct proc *);
+int vn_close(struct vnode *, int, struct ucred *, struct proc *);
+int vn_open(struct nameidata *, int, int);
+int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
+     enum uio_seg, int, struct ucred *, size_t *, struct proc *);
+int vn_stat(struct vnode *, struct stat *, struct proc *);
+int vn_statfile(struct file *, struct stat *, struct proc *);
+int vn_lock(struct vnode *, int, struct proc *);
+int vn_writechk(struct vnode *);
+int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
+int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
+void vn_marktext(struct vnode *);
+void sched_sync(struct proc *);
+void vn_initialize_syncerd(void);
+void vn_syncer_add_to_worklist(struct vnode *, int);
+int vn_isdisk(struct vnode *, int *);
+int softdep_fsync(struct vnode *);
+int getvnode(struct proc *, int, struct file **);
+void uvm_vnp_setsize(struct vnode *, off_t);
+void uvm_vnp_sync(struct mount *);
+void uvm_vnp_terminate(struct vnode *);
+int uvm_vnp_uncache(struct vnode *);
 struct uihashhead { struct uidinfo *lh_first; } *uihashtbl;
 u_long uihash;
 struct tidhashhead *tidhashtbl;
@@ -2699,6 +3118,29 @@ fixjobc(struct process *pr, struct pgrp *pgrp, int entering)
    else if (--hispgrp->pg_jobc == 0)
     orphanpg(hispgrp);
   }
+}
+void
+killjobc(struct process *pr)
+{
+ if (((pr)->ps_pgrp->pg_session->s_leader == (pr))) {
+  struct session *sp = pr->ps_pgrp->pg_session;
+  if (sp->s_ttyvp) {
+   struct vnode *ovp;
+   if (sp->s_ttyp->t_session == sp) {
+    if (sp->s_ttyp->t_pgrp)
+     pgsignal(sp->s_ttyp->t_pgrp, 1, 1);
+    ttywait(sp->s_ttyp);
+    if (sp->s_ttyvp)
+     VOP_REVOKE(sp->s_ttyvp, 0x0001);
+   }
+   ovp = sp->s_ttyvp;
+   sp->s_ttyvp = ((void *)0);
+   if (ovp)
+    vrele(ovp);
+  }
+  sp->s_leader = ((void *)0);
+ }
+ fixjobc(pr, pr->ps_pgrp, 0);
 }
 static void
 orphanpg(struct pgrp *pg)

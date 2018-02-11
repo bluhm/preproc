@@ -2541,6 +2541,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2746,6 +2747,7 @@ void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
 int loioctl(struct ifnet *, u_long, caddr_t);
 void loopattach(int);
+void loop_delayed_create(void *);
 void lortrequest(struct ifnet *, int, struct rtentry *);
 int loinput(struct ifnet *, struct mbuf *, void *);
 int looutput(struct ifnet *,
@@ -2761,9 +2763,18 @@ loopattach(int n)
   panic("unable to create lo0");
  if_clone_attach(&loop_cloner);
 }
+void
+loop_delayed_create(void *arg)
+{
+ struct ifnet *ifp = arg;
+ do { _rw_enter_write(&netlock ); } while (0);
+ if_up(ifp);
+ do { _rw_exit_write(&netlock ); } while (0);
+}
 int
 loop_clone_create(struct if_clone *ifc, int unit)
 {
+ static struct task lot;
  struct ifnet *ifp;
  ifp = malloc(sizeof(*ifp), 2, 0x0001|0x0008);
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "lo%d", unit);
@@ -2780,6 +2791,8 @@ loop_clone_create(struct if_clone *ifc, int unit)
   if_attachhead(ifp);
   if_addgroup(ifp, ifc->ifc_name);
   rtable_l2set(0, 0, ifp->if_index);
+  task_set(&lot, loop_delayed_create, ifp);
+  task_add(systq, &lot);
  } else
   if_attach(ifp);
  if_alloc_sadl(ifp);

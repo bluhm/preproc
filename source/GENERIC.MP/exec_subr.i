@@ -1586,6 +1586,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -1935,6 +1936,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -3137,7 +3139,7 @@ vmcmd_randomize(struct proc *p, struct exec_vmcmd *cmd)
  int error;
  struct arc4random_ctx *ctx;
  char *buf;
- size_t count, sublen, off = 0;
+ size_t sublen, off = 0;
  size_t len = cmd->ev_len;
  if (len == 0)
   return (0);
@@ -3150,7 +3152,6 @@ vmcmd_randomize(struct proc *p, struct exec_vmcmd *cmd)
   explicit_bzero(buf, len);
  } else {
   ctx = arc4random_ctx_new();
-  count = 0;
   do {
    sublen = (((len)<((1 << 13)))?(len):((1 << 13)));
    arc4random_ctx_buf(ctx, buf, sublen);
@@ -3159,10 +3160,7 @@ vmcmd_randomize(struct proc *p, struct exec_vmcmd *cmd)
     break;
    off += sublen;
    len -= sublen;
-   if (++count == 32) {
-    count = 0;
-    yield();
-   }
+   do { if ((__curcpu->ci_self)->ci_schedstate.spc_schedflags & 0x0002) yield(); } while (0);
   } while (len);
   arc4random_ctx_free(ctx);
   explicit_bzero(buf, (1 << 13));

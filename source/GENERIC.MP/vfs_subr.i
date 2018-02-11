@@ -1586,6 +1586,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2169,7 +2170,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2300,6 +2301,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -2702,6 +2704,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -4797,6 +4800,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -5322,7 +5326,7 @@ struct uvm_vnode {
  struct { struct uvm_vnode *le_next; struct uvm_vnode **le_prev; } u_wlist;
  struct { struct uvm_vnode *sqe_next; } u_syncq;
 };
-void sr_shutdown(int);
+void sr_quiesce(void);
 enum vtype iftovt_tab[16] = {
  VNON, VFIFO, VCHR, VNON, VDIR, VNON, VBLK, VNON,
  VREG, VNON, VLNK, VNON, VSOCK, VNON, VNON, VBAD,
@@ -6290,6 +6294,42 @@ vaccess(enum vtype type, mode_t file_mode, uid_t uid, gid_t gid,
   mask |= 0000002;
  return (file_mode & mask) == mask ? 0 : 13;
 }
+struct rwlock vfs_stall_lock = { 0, "vfs_stall" };
+int
+vfs_stall(struct proc *p, int stall)
+{
+ struct mount *mp, *nmp;
+ int allerror = 0, error;
+ if (stall)
+  _rw_enter_write(&vfs_stall_lock );
+ for ((mp) = (*(((struct mntlist *)((&mountlist)->tqh_last))->tqh_last)); (mp) != ((void *)0) && ((nmp) = (*(((struct mntlist *)((mp)->mnt_list.tqe_prev))->tqh_last)), 1); (mp) = (nmp)) {
+  if (stall) {
+   error = vfs_busy(mp, 0x02|0x08);
+   if (error) {
+    printf("%s: busy\n", mp->mnt_stat.f_mntonname);
+    allerror = error;
+    continue;
+   }
+   uvm_vnp_sync(mp);
+   error = (*(mp)->mnt_op->vfs_sync)(mp, 1, stall, p->p_ucred, p);
+   if (error) {
+    printf("%s: failed to sync\n", mp->mnt_stat.f_mntonname);
+    vfs_unbusy(mp);
+    allerror = error;
+    continue;
+   }
+   mp->mnt_flag |= 0x00100000;
+  } else {
+   if (mp->mnt_flag & 0x00100000) {
+    vfs_unbusy(mp);
+    mp->mnt_flag &= ~0x00100000;
+   }
+  }
+ }
+ if (!stall)
+  _rw_exit_write(&vfs_stall_lock );
+ return (allerror);
+}
 int
 vfs_readonly(struct mount *mp, struct proc *p)
 {
@@ -6300,7 +6340,7 @@ vfs_readonly(struct mount *mp, struct proc *p)
   return (error);
  }
  uvm_vnp_sync(mp);
- error = (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p);
+ error = (*(mp)->mnt_op->vfs_sync)(mp, 1, 0, p->p_ucred, p);
  if (error) {
   printf("%s: failed to sync\n", mp->mnt_stat.f_mntonname);
   vfs_unbusy(mp);
@@ -6338,11 +6378,11 @@ vfs_shutdown(struct proc *p)
   sys_sync(p, ((void *)0), ((void *)0));
   vfs_rofs(p);
  }
+ sr_quiesce();
  if (vfs_syncwait(p, 1))
   printf("giving up\n");
  else
   printf("done\n");
- sr_shutdown(1);
 }
 int
 vfs_syncwait(struct proc *p, int verbose)

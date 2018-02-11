@@ -2287,8 +2287,7 @@ sbreserve(struct socket *so, struct sockbuf *sb, u_long cc)
  if (cc == 0 || cc > sb_max)
   return (1);
  sb->sb_hiwat = cc;
- sb->sb_mbmax = max(3 * (64 * 1024),
-     min(cc * 2, sb_max + (sb_max / (1 << 11)) * 256));
+ sb->sb_mbmax = max(3 * (64 * 1024), cc * 8);
  if (sb->sb_lowat > sb->sb_hiwat)
   sb->sb_lowat = sb->sb_hiwat;
  return (0);
@@ -2341,10 +2340,10 @@ sbappend(struct socket *so, struct sockbuf *sb, struct mbuf *m)
 void
 sbappendstream(struct socket *so, struct sockbuf *sb, struct mbuf *m)
 {
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 637, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 636, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  ((void)0);
- ((sb->sb_mb == sb->sb_lastrecord) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 640, "sb->sb_mb == sb->sb_lastrecord"));
+ ((sb->sb_mb == sb->sb_lastrecord) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 639, "sb->sb_mb == sb->sb_lastrecord"));
  ;
  sbcompress(sb, m, sb->sb_mbtail);
  sb->sb_lastrecord = sb->sb_mb;
@@ -2354,7 +2353,7 @@ void
 sbappendrecord(struct socket *so, struct sockbuf *sb, struct mbuf *m0)
 {
  struct mbuf *m;
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 684, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 683, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  if (m0 == ((void *)0))
   return;
@@ -2523,22 +2522,22 @@ sbcompress(struct sockbuf *sb, struct mbuf *m, struct mbuf *n)
 void
 sbflush(struct socket *so, struct sockbuf *sb)
 {
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 909, "sb == &so->so_rcv || sb == &so->so_snd"));
- (((sb->sb_flags & 0x01) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 910, "(sb->sb_flags & SB_LOCK) == 0"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 908, "sb == &so->so_rcv || sb == &so->so_snd"));
+ (((sb->sb_flags & 0x01) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 909, "(sb->sb_flags & SB_LOCK) == 0"));
  while (sb->sb_mbcnt)
   sbdrop(so, sb, (int)sb->sb_cc);
- ((sb->sb_cc == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 915, "sb->sb_cc == 0"));
- ((sb->sb_datacc == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 916, "sb->sb_datacc == 0"));
- ((sb->sb_mb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 917, "sb->sb_mb == NULL"));
- ((sb->sb_mbtail == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 918, "sb->sb_mbtail == NULL"));
- ((sb->sb_lastrecord == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 919, "sb->sb_lastrecord == NULL"));
+ ((sb->sb_cc == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 914, "sb->sb_cc == 0"));
+ ((sb->sb_datacc == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 915, "sb->sb_datacc == 0"));
+ ((sb->sb_mb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 916, "sb->sb_mb == NULL"));
+ ((sb->sb_mbtail == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 917, "sb->sb_mbtail == NULL"));
+ ((sb->sb_lastrecord == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 918, "sb->sb_lastrecord == NULL"));
 }
 void
 sbdrop(struct socket *so, struct sockbuf *sb, int len)
 {
  struct mbuf *m, *mn;
  struct mbuf *next;
- ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 931, "sb == &so->so_rcv || sb == &so->so_snd"));
+ ((sb == &so->so_rcv || sb == &so->so_snd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_socket2.c", 930, "sb == &so->so_rcv || sb == &so->so_snd"));
  soassertlocked(so);
  next = (m = sb->sb_mb) ? m->m_hdr.mh_nextpkt : 0;
  while (len > 0) {

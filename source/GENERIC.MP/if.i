@@ -2085,6 +2085,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2846,6 +2847,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -3465,6 +3467,7 @@ int in6_ifattach(struct ifnet *);
 void in6_ifdetach(struct ifnet *);
 int in6_nigroup(struct ifnet *, const char *, int, struct sockaddr_in6 *);
 int in6_ifattach_linklocal(struct ifnet *, struct in6_addr *);
+void in6_soiiupdate(struct ifnet *);
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -3786,6 +3789,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -6425,8 +6429,9 @@ if_up(struct ifnet *ifp)
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  ifp->if_flags |= 0x1;
  getmicrotime(&ifp->if_data.ifi_lastchange);
- if (ifp->if_index == rtable_loindex(ifp->if_data.ifi_rdomain))
+ if (ifp->if_index == rtable_loindex(ifp->if_data.ifi_rdomain)) {
   in6_ifattach(ifp);
+ }
  if_linkstate(ifp);
 }
 void
@@ -6434,7 +6439,7 @@ if_linkstate_task(void *xifidx)
 {
  unsigned int ifidx = (unsigned long)xifidx;
  struct ifnet *ifp;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1570);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1571);
  do { _rw_enter_write(&netlock ); } while (0);
  ifp = if_get(ifidx);
  if (ifp != ((void *)0))
@@ -6477,7 +6482,7 @@ if_watchdog_task(void *xifidx)
  ifp = if_get(ifidx);
  if (ifp == ((void *)0))
   return;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1631);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1632);
  s = _splraise(6);
  if (ifp->if_watchdog)
   (*ifp->if_watchdog)(ifp);
@@ -6507,7 +6512,7 @@ if_get(unsigned int index)
   map = (struct srp *)(if_map + 1);
   ifp = srp_follow(&sr, &map[index]);
   if (ifp != ((void *)0)) {
-   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1673, "ifp->if_index == index"));
+   ((ifp->if_index == index) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if.c", 1674, "ifp->if_index == index"));
    if_ref(ifp);
   }
  }
@@ -6560,6 +6565,7 @@ if_setrdomain(struct ifnet *ifp, int rdomain)
    return (error);
   }
   loifp->if_data.ifi_rdomain = rdomain;
+  if_up(loifp);
  }
  if (rdomain != rtable_l2(rdomain))
   return (22);
@@ -6696,6 +6702,16 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
     do { _rw_exit_write(&netlock ); } while (0);
     break;
    }
+  }
+  if (((ifr->ifr_ifru.ifru_flags) & (0x40)) &&
+      !((ifp->if_xflags) & (0x40))) {
+   ifp->if_xflags |= 0x40;
+   in6_soiiupdate(ifp);
+  }
+  if (!((ifr->ifr_ifru.ifru_flags) & (0x40)) &&
+      ((ifp->if_xflags) & (0x40))) {
+   ifp->if_xflags &= ~0x40;
+   in6_soiiupdate(ifp);
   }
   if (((ifr->ifr_ifru.ifru_flags) & (0x8)) &&
       !((ifp->if_xflags) & (0x8))) {

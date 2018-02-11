@@ -2288,6 +2288,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2804,6 +2805,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -4130,15 +4132,6 @@ int udp_usrreq(struct socket *,
      int, struct mbuf *, struct mbuf *, struct mbuf *, struct proc *);
 int udp_attach(struct socket *, int);
 int udp_detach(struct socket *);
-struct gif_softc {
- struct ifnet gif_if;
- struct sockaddr *gif_psrc;
- struct sockaddr *gif_pdst;
- u_int gif_rtableid;
- struct { struct gif_softc *le_next; struct gif_softc **le_prev; } gif_list;
-};
-extern struct gif_softc_head { struct gif_softc *lh_first; } gif_softc_list;
-int gif_encap(struct ifnet *, struct mbuf **, sa_family_t);
 int in_gif_input(struct mbuf **, int *, int, int);
 int in6_gif_input(struct mbuf **, int *, int, int);
 struct etheripstat {
@@ -5681,7 +5674,7 @@ const struct protosw inetsw[] = {
   .pr_domain = &inetdomain,
   .pr_protocol = 137,
   .pr_flags = 0x01|0x02,
-  .pr_input = mplsip_input,
+  .pr_input = in_gif_input,
   .pr_usrreq = rip_usrreq,
   .pr_attach = rip_attach,
   .pr_detach = rip_detach,

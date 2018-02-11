@@ -1586,6 +1586,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2472,7 +2473,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2603,6 +2604,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,

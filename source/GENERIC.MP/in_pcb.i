@@ -2036,6 +2036,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -3244,6 +3245,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -3531,6 +3533,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -5746,7 +5749,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -5778,6 +5781,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,

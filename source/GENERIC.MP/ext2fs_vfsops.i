@@ -1692,6 +1692,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -1978,6 +1979,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -2618,7 +2620,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2697,6 +2699,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -3938,7 +3941,7 @@ int ext2fs_mountfs(struct vnode *, struct mount *, struct proc *);
 int ext2fs_unmount(struct mount *, int, struct proc *);
 int ext2fs_flushfiles(struct mount *, int, struct proc *);
 int ext2fs_statfs(struct mount *, struct statfs *, struct proc *);
-int ext2fs_sync(struct mount *, int, struct ucred *, struct proc *);
+int ext2fs_sync(struct mount *, int, int, struct ucred *, struct proc *);
 int ext2fs_vget(struct mount *, ino_t, struct vnode **);
 int ext2fs_fhtovp(struct mount *, struct fid *, struct vnode **);
 int ext2fs_vptofh(struct vnode *, struct fid *);
@@ -4434,6 +4437,8 @@ int ext2fs_sync_vnode(struct vnode *vp, void *);
 struct ext2fs_sync_args {
  int allerror;
  int waitfor;
+ int nlink0;
+ int inflight;
  struct proc *p;
  struct ucred *cred;
 };
@@ -4442,27 +4447,36 @@ ext2fs_sync_vnode(struct vnode *vp, void *args)
 {
  struct ext2fs_sync_args *esa = args;
  struct inode *ip;
- int error;
+ int error, nlink0 = 0;
+ if (vp->v_type == VNON)
+  return (0);
+ if (vp->v_inflight)
+  esa->inflight = (((esa->inflight+1)<(65536))?(esa->inflight+1):(65536));
  ip = ((struct inode *)(vp)->v_data);
- if (vp->v_type == VNON ||
-     ((ip->i_flag & (0x0001 | 0x0002 | 0x0008 | 0x0004)) == 0 &&
-     (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) ||
-     esa->waitfor == 3) {
-  return (0);
+ if (ip->dinode_u.e2fs_din->e2di_nlink == 0)
+  nlink0 = 1;
+ if ((ip->i_flag & (0x0001 | 0x0002 | 0x0008 | 0x0004)) == 0 &&
+     (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) {
+  goto end;
  }
- if (vget(vp, 0x0001UL | 0x0040UL, esa->p))
-  return (0);
+ if (vget(vp, 0x0001UL | 0x0040UL, esa->p)) {
+  nlink0 = 1;
+  goto end;
+ }
  if ((error = VOP_FSYNC(vp, esa->cred, esa->waitfor, esa->p)) != 0)
   esa->allerror = error;
  vput(vp);
+end:
+ esa->nlink0 = (((esa->nlink0 + nlink0)<(65536))?(esa->nlink0 + nlink0):(65536));
  return (0);
 }
 int
-ext2fs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
+ext2fs_sync(struct mount *mp, int waitfor, int stall,
+    struct ucred *cred, struct proc *p)
 {
  struct ufsmount *ump = ((struct ufsmount *)((mp)->mnt_data));
  struct m_ext2fs *fs;
- int error, allerror = 0;
+ int error, allerror = 0, state, fmod;
  struct ext2fs_sync_args esa;
  fs = ump->ufsmount_u.e2fs;
  if (fs->e2fs_ronly != 0) {
@@ -4473,6 +4487,8 @@ ext2fs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
  esa.cred = cred;
  esa.allerror = 0;
  esa.waitfor = waitfor;
+ esa.nlink0 = 0;
+ esa.inflight = 0;
  vfs_mount_foreach_vnode(mp, ext2fs_sync_vnode, &esa);
  if (esa.allerror != 0)
   allerror = esa.allerror;
@@ -4482,12 +4498,27 @@ ext2fs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
    allerror = error;
   VOP_UNLOCK(ump->um_devvp, p);
  }
+ state = fs->e2fs.e2fs_state;
+ fmod = fs->e2fs_fmod;
+ if (stall && fs->e2fs_ronly == 0) {
+  fs->e2fs_fmod = 1;
+  if (allerror == 0 && esa.nlink0 == 0 && esa.inflight == 0) {
+   if ((fs->e2fs.e2fs_state & 0x02) == 0)
+    fs->e2fs.e2fs_state = 0x01;
+  } else {
+   fs->e2fs.e2fs_state = 0;
+   printf("%s force dirty (dangling %d inflight %d)\n",
+       mp->mnt_stat.f_mntonname, esa.nlink0, esa.inflight);
+  }
+ }
  if (fs->e2fs_fmod != 0) {
   fs->e2fs_fmod = 0;
   fs->e2fs.e2fs_wtime = time_second;
   if ((error = ext2fs_cgupdate(ump, waitfor)))
    allerror = error;
  }
+ fs->e2fs.e2fs_state = state;
+ fs->e2fs_fmod = fmod;
  return (allerror);
 }
 int

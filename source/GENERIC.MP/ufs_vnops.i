@@ -1971,6 +1971,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2230,7 +2231,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2361,6 +2362,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -2395,6 +2397,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -3541,7 +3544,7 @@ int ext2fs_mountfs(struct vnode *, struct mount *, struct proc *);
 int ext2fs_unmount(struct mount *, int, struct proc *);
 int ext2fs_flushfiles(struct mount *, int, struct proc *);
 int ext2fs_statfs(struct mount *, struct statfs *, struct proc *);
-int ext2fs_sync(struct mount *, int, struct ucred *, struct proc *);
+int ext2fs_sync(struct mount *, int, int, struct ucred *, struct proc *);
 int ext2fs_vget(struct mount *, ino_t, struct vnode **);
 int ext2fs_fhtovp(struct mount *, struct fid *, struct vnode **);
 int ext2fs_vptofh(struct vnode *, struct fid *);

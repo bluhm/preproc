@@ -1271,6 +1271,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -1949,18 +1950,23 @@ int
 VOP_LOOKUP(struct vnode *dvp, struct vnode **vpp,
     struct componentname *cnp)
 {
+ int r;
  struct vop_lookup_args a;
  a.a_dvp = dvp;
  a.a_vpp = vpp;
  a.a_cnp = cnp;
  if (dvp->v_op->vop_lookup == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_lookup)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_lookup)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_CREATE(struct vnode *dvp, struct vnode **vpp,
     struct componentname *cnp, struct vattr *vap)
 {
+ int r;
  struct vop_create_args a;
  a.a_dvp = dvp;
  a.a_vpp = vpp;
@@ -1969,12 +1975,16 @@ VOP_CREATE(struct vnode *dvp, struct vnode **vpp,
  ;
  if (dvp->v_op->vop_create == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_create)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_create)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_MKNOD(struct vnode *dvp, struct vnode **vpp,
     struct componentname *cnp, struct vattr *vap)
 {
+ int r;
  struct vop_mknod_args a;
  a.a_dvp = dvp;
  a.a_vpp = vpp;
@@ -1983,11 +1993,15 @@ VOP_MKNOD(struct vnode *dvp, struct vnode **vpp,
  ;
  if (dvp->v_op->vop_mknod == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_mknod)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_mknod)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_OPEN(struct vnode *vp, int mode, struct ucred *cred, struct proc *p)
 {
+ int r;
  struct vop_open_args a;
  a.a_vp = vp;
  a.a_mode = mode;
@@ -1995,11 +2009,15 @@ VOP_OPEN(struct vnode *vp, int mode, struct ucred *cred, struct proc *p)
  a.a_p = p;
  if (vp->v_op->vop_open == ((void *)0))
   return (45);
- return ((vp->v_op->vop_open)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_open)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_CLOSE(struct vnode *vp, int fflag, struct ucred *cred, struct proc *p)
 {
+ int r;
  struct vop_close_args a;
  a.a_vp = vp;
  a.a_fflag = fflag;
@@ -2008,7 +2026,10 @@ VOP_CLOSE(struct vnode *vp, int fflag, struct ucred *cred, struct proc *p)
  ;
  if (vp->v_op->vop_close == ((void *)0))
   return (45);
- return ((vp->v_op->vop_close)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_close)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_ACCESS(struct vnode *vp, int mode, struct ucred *cred, struct proc *p)
@@ -2040,6 +2061,7 @@ int
 VOP_SETATTR(struct vnode *vp, struct vattr *vap, struct ucred *cred,
     struct proc *p)
 {
+ int r;
  struct vop_setattr_args a;
  a.a_vp = vp;
  a.a_vap = vap;
@@ -2048,7 +2070,10 @@ VOP_SETATTR(struct vnode *vp, struct vattr *vap, struct ucred *cred,
  ;
  if (vp->v_op->vop_setattr == ((void *)0))
   return (45);
- return ((vp->v_op->vop_setattr)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_setattr)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_READ(struct vnode *vp, struct uio *uio, int ioflag, struct ucred *cred)
@@ -2067,6 +2092,7 @@ int
 VOP_WRITE(struct vnode *vp, struct uio *uio, int ioflag,
     struct ucred *cred)
 {
+ int r;
  struct vop_write_args a;
  a.a_vp = vp;
  a.a_uio = uio;
@@ -2075,12 +2101,16 @@ VOP_WRITE(struct vnode *vp, struct uio *uio, int ioflag,
  ;
  if (vp->v_op->vop_write == ((void *)0))
   return (45);
- return ((vp->v_op->vop_write)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_write)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_IOCTL(struct vnode *vp, u_long command, void *data, int fflag,
     struct ucred *cred, struct proc *p)
 {
+ int r;
  struct vop_ioctl_args a;
  a.a_vp = vp;
  a.a_command = command;
@@ -2090,7 +2120,10 @@ VOP_IOCTL(struct vnode *vp, u_long command, void *data, int fflag,
  a.a_p = p;
  if (vp->v_op->vop_ioctl == ((void *)0))
   return (45);
- return ((vp->v_op->vop_ioctl)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_ioctl)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_POLL(struct vnode *vp, int fflag, int events, struct proc *p)
@@ -2128,6 +2161,7 @@ int
 VOP_FSYNC(struct vnode *vp, struct ucred *cred, int waitfor,
     struct proc *p)
 {
+ int r;
  struct vop_fsync_args a;
  a.a_vp = vp;
  a.a_cred = cred;
@@ -2136,11 +2170,15 @@ VOP_FSYNC(struct vnode *vp, struct ucred *cred, int waitfor,
  ;
  if (vp->v_op->vop_fsync == ((void *)0))
   return (45);
- return ((vp->v_op->vop_fsync)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_fsync)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_REMOVE(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
 {
+ int r;
  struct vop_remove_args a;
  a.a_dvp = dvp;
         a.a_vp = vp;
@@ -2149,11 +2187,15 @@ VOP_REMOVE(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
  ;
  if (dvp->v_op->vop_remove == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_remove)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_remove)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_LINK(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
 {
+ int r;
  struct vop_link_args a;
  a.a_dvp = dvp;
  a.a_vp = vp;
@@ -2161,13 +2203,19 @@ VOP_LINK(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
  ;
  if (dvp->v_op->vop_link == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_link)(&a));
+ dvp->v_inflight++;
+ vp->v_inflight++;
+ r = (dvp->v_op->vop_link)(&a);
+ dvp->v_inflight--;
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_RENAME(struct vnode *fdvp, struct vnode *fvp,
     struct componentname *fcnp, struct vnode *tdvp, struct vnode *tvp,
     struct componentname *tcnp)
 {
+ int r;
  struct vop_rename_args a;
  a.a_fdvp = fdvp;
  a.a_fvp = fvp;
@@ -2178,12 +2226,18 @@ VOP_RENAME(struct vnode *fdvp, struct vnode *fvp,
  ;
  if (fdvp->v_op->vop_rename == ((void *)0))
   return (45);
- return ((fdvp->v_op->vop_rename)(&a));
+ fdvp->v_inflight++;
+ tdvp->v_inflight++;
+ r = (fdvp->v_op->vop_rename)(&a);
+ fdvp->v_inflight--;
+ tdvp->v_inflight--;
+ return r;
 }
 int
 VOP_MKDIR(struct vnode *dvp, struct vnode **vpp,
     struct componentname *cnp, struct vattr *vap)
 {
+ int r;
  struct vop_mkdir_args a;
  a.a_dvp = dvp;
  a.a_vpp = vpp;
@@ -2192,11 +2246,15 @@ VOP_MKDIR(struct vnode *dvp, struct vnode **vpp,
  ;
  if (dvp->v_op->vop_mkdir == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_mkdir)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_mkdir)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_RMDIR(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
 {
+ int r;
  struct vop_rmdir_args a;
  a.a_dvp = dvp;
  a.a_vp = vp;
@@ -2205,12 +2263,18 @@ VOP_RMDIR(struct vnode *dvp, struct vnode *vp, struct componentname *cnp)
  ;
  if (dvp->v_op->vop_rmdir == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_rmdir)(&a));
+ dvp->v_inflight++;
+ vp->v_inflight++;
+ r = (dvp->v_op->vop_rmdir)(&a);
+ dvp->v_inflight--;
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_SYMLINK(struct vnode *dvp, struct vnode **vpp,
     struct componentname *cnp, struct vattr *vap, char *target)
 {
+ int r;
  struct vop_symlink_args a;
  a.a_dvp = dvp;
  a.a_vpp = vpp;
@@ -2220,12 +2284,16 @@ VOP_SYMLINK(struct vnode *dvp, struct vnode **vpp,
  ;
  if (dvp->v_op->vop_symlink == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_symlink)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_symlink)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_READDIR(struct vnode *vp, struct uio *uio, struct ucred *cred,
     int *eofflag)
 {
+ int r;
  struct vop_readdir_args a;
  a.a_vp = vp;
  a.a_uio = uio;
@@ -2234,11 +2302,15 @@ VOP_READDIR(struct vnode *vp, struct uio *uio, struct ucred *cred,
  ;
  if (vp->v_op->vop_readdir == ((void *)0))
   return (45);
- return ((vp->v_op->vop_readdir)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_readdir)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_READLINK(struct vnode *vp, struct uio *uio, struct ucred *cred)
 {
+ int r;
  struct vop_readlink_args a;
  a.a_vp = vp;
  a.a_uio = uio;
@@ -2246,17 +2318,24 @@ VOP_READLINK(struct vnode *vp, struct uio *uio, struct ucred *cred)
  ;
  if (vp->v_op->vop_readlink == ((void *)0))
   return (45);
- return ((vp->v_op->vop_readlink)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_readlink)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_ABORTOP(struct vnode *dvp, struct componentname *cnp)
 {
+ int r;
  struct vop_abortop_args a;
  a.a_dvp = dvp;
  a.a_cnp = cnp;
  if (dvp->v_op->vop_abortop == ((void *)0))
   return (45);
- return ((dvp->v_op->vop_abortop)(&a));
+ dvp->v_inflight++;
+ r = (dvp->v_op->vop_abortop)(&a);
+ dvp->v_inflight--;
+ return r;
 }
 int
 VOP_INACTIVE(struct vnode *vp, struct proc *p)
@@ -2272,12 +2351,16 @@ VOP_INACTIVE(struct vnode *vp, struct proc *p)
 int
 VOP_RECLAIM(struct vnode *vp, struct proc *p)
 {
+ int r;
  struct vop_reclaim_args a;
  a.a_vp = vp;
  a.a_p = p;
  if (vp->v_op->vop_reclaim == ((void *)0))
   return (45);
- return ((vp->v_op->vop_reclaim)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_reclaim)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_LOCK(struct vnode *vp, int flags, struct proc *p)
@@ -2293,12 +2376,16 @@ VOP_LOCK(struct vnode *vp, int flags, struct proc *p)
 int
 VOP_UNLOCK(struct vnode *vp, struct proc *p)
 {
+ int r;
  struct vop_unlock_args a;
  a.a_vp = vp;
  a.a_p = p;
  if (vp->v_op->vop_unlock == ((void *)0))
   return (45);
- return ((vp->v_op->vop_unlock)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_unlock)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_BMAP(struct vnode *vp, daddr_t bn, struct vnode **vpp,
@@ -2352,6 +2439,7 @@ VOP_PATHCONF(struct vnode *vp, int name, register_t *retval)
 int
 VOP_ADVLOCK(struct vnode *vp, void *id, int op, struct flock *fl, int flags)
 {
+ int r;
  struct vop_advlock_args a;
  a.a_vp = vp;
  a.a_id = id;
@@ -2360,7 +2448,10 @@ VOP_ADVLOCK(struct vnode *vp, void *id, int op, struct flock *fl, int flags)
  a.a_flags = flags;
  if (vp->v_op->vop_advlock == ((void *)0))
   return (45);
- return ((vp->v_op->vop_advlock)(&a));
+ vp->v_inflight++;
+ r = (vp->v_op->vop_advlock)(&a);
+ vp->v_inflight--;
+ return r;
 }
 int
 VOP_STRATEGY(struct buf *bp)

@@ -2171,6 +2171,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -2759,7 +2760,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2890,6 +2891,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -3197,6 +3199,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -5109,7 +5112,7 @@ dounmount_leaf(struct mount *mp, int flags, struct proc *p)
   mp->mnt_syncer = ((void *)0);
  }
  if (((mp->mnt_flag & 0x00000001) ||
-     (error = (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p)) == 0) ||
+     (error = (*(mp)->mnt_op->vfs_sync)(mp, 1, 0, p->p_ucred, p)) == 0) ||
      (flags & 0x00080000))
   error = (*(mp)->mnt_op->vfs_unmount)(mp, flags, p);
  if (error && !(flags & 0x08000000)) {
@@ -5142,7 +5145,7 @@ sys_sync(struct proc *p, void *v, register_t *retval)
    asyncflag = mp->mnt_flag & 0x00000040;
    mp->mnt_flag &= ~0x00000040;
    uvm_vnp_sync(mp);
-   (*(mp)->mnt_op->vfs_sync)(mp, 2, p->p_ucred, p);
+   (*(mp)->mnt_op->vfs_sync)(mp, 2, 0, p->p_ucred, p);
    if (asyncflag)
     mp->mnt_flag |= 0x00000040;
   }
@@ -5933,7 +5936,7 @@ sys_lseek(struct proc *p, void *v, register_t *retval)
  vp = fp->f_data;
  if (vp->v_type == VFIFO)
   return (29);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (vp->v_type == VCHR)
   special = 1;
  else
@@ -6873,7 +6876,7 @@ getvnode(struct proc *p, int fd, struct file **fpp)
  vp = fp->f_data;
  if (vp->v_type == VBAD)
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  *fpp = fp;
  return (0);
 }
@@ -6899,7 +6902,7 @@ sys_pread(struct proc *p, void *v, register_t *retval)
  offset = ((uap)->offset.be.datum);
  if (offset < 0 && vp->v_type != VCHR)
   return (22);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, &iov, 1, 0, &offset, retval));
 }
 int
@@ -6921,7 +6924,7 @@ sys_preadv(struct proc *p, void *v, register_t *retval)
  offset = ((uap)->offset.be.datum);
  if (offset < 0 && vp->v_type != VCHR)
   return (22);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &offset, retval));
 }
@@ -6947,7 +6950,7 @@ sys_pwrite(struct proc *p, void *v, register_t *retval)
  offset = ((uap)->offset.be.datum);
  if (offset < 0 && vp->v_type != VCHR)
   return (22);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, &iov, 1, 0, &offset, retval));
 }
 int
@@ -6969,7 +6972,7 @@ sys_pwritev(struct proc *p, void *v, register_t *retval)
  offset = ((uap)->offset.be.datum);
  if (offset < 0 && vp->v_type != VCHR)
   return (22);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum),
      1, &offset, retval));
 }

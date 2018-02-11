@@ -1586,6 +1586,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2317,6 +2318,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -3628,7 +3630,7 @@ unp_gc(void *arg __attribute__((__unused__)))
    fp = defer->ud_fp[i].fp;
    if (fp == ((void *)0))
     continue;
-   do { (fp)->f_count++; } while (0);
+   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
    if ((unp = fptounp(fp)) != ((void *)0))
     unp->unp_msgcount--;
    unp_rights--;

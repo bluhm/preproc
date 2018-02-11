@@ -3127,6 +3127,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -3414,6 +3415,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -4485,6 +4487,11 @@ int in6_addr2scopeid(unsigned int, struct in6_addr *);
 int in6_matchlen(struct in6_addr *, struct in6_addr *);
 void in6_prefixlen2mask(struct in6_addr *, int);
 void in6_purgeprefix(struct ifnet *);
+int in6_ifattach(struct ifnet *);
+void in6_ifdetach(struct ifnet *);
+int in6_nigroup(struct ifnet *, const char *, int, struct sockaddr_in6 *);
+int in6_ifattach_linklocal(struct ifnet *, struct in6_addr *);
+void in6_soiiupdate(struct ifnet *);
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -5860,12 +5867,14 @@ int carp_lsdrop(struct mbuf *, sa_family_t, u_int32_t *,
        u_int32_t *, int);
 struct niqueue ip6intrq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((2048)), 0 }, (24) };
 struct cpumem *ip6counters;
+uint8_t ip6_soiikey[16];
 int ip6_ours(struct mbuf **, int *, int, int);
 int ip6_local(struct mbuf **, int *, int, int);
 int ip6_check_rh0hdr(struct mbuf *, int *);
 int ip6_hbhchcheck(struct mbuf *, int *, int *, int *);
 int ip6_hopopts_input(u_int32_t *, u_int32_t *, struct mbuf **, int *);
 struct mbuf *ip6_pullexthdr(struct mbuf *, size_t, int);
+int ip6_sysctl_soiikey(void *, size_t *, void *, size_t);
 static struct mbuf_queue ip6send_mq;
 static void ip6_send_dispatch(void *);
 static struct task ip6send_task =
@@ -5911,7 +5920,7 @@ ip6intr(void)
    panic("ip6intr no HDR");
   off = 0;
   nxt = ip6_local(&m, &off, 41, 0);
-  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 197, "nxt == IPPROTO_DONE"));
+  ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 201, "nxt == IPPROTO_DONE"));
  }
 }
 void
@@ -5920,7 +5929,7 @@ ipv6_input(struct ifnet *ifp, struct mbuf *m)
  int off, nxt;
  off = 0;
  nxt = ip6_input_if(&m, &off, 41, 0, ifp);
- ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 208, "nxt == IPPROTO_DONE"));
+ ((nxt == 257) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 212, "nxt == IPPROTO_DONE"));
 }
 int
 ip6_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
@@ -5933,7 +5942,7 @@ ip6_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
  u_int16_t src_scope, dst_scope;
  struct in6_addr odst;
  int srcrt = 0;
- ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 225, "*offp == 0"));
+ ((*offp == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 229, "*offp == 0"));
  ip6stat_inc(ip6s_total);
  if (m->m_hdr.mh_len < sizeof(struct ip6_hdr)) {
   if ((m = *mp = m_pullup(m, sizeof(struct ip6_hdr))) == ((void *)0)) {
@@ -6037,7 +6046,7 @@ ip6_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
    if (ip6_hbhchcheck(m, offp, &nxt, &ours))
     goto out;
    ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 423);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 427);
    error = ip6_mforward(ip6, ifp, m);
    _kernel_unlock();
    if (error) {
@@ -6046,7 +6055,7 @@ ip6_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
    }
    if (ours) {
     if (af == 0) {
-     _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 433);
+     _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 437);
      nxt = ip_deliver(mp, offp, nxt,
          24);
      _kernel_unlock();
@@ -6097,7 +6106,7 @@ ip6_input_if(struct mbuf **mp, int *offp, int nxt, int af, struct ifnet *ifp)
   goto out;
  if (ours) {
   if (af == 0) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 513);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/ip6_input.c", 517);
    nxt = ip_deliver(mp, offp, nxt, 24);
    _kernel_unlock();
   }
@@ -6674,7 +6683,7 @@ const u_char inet6ctlerrmap[21] = {
  0, 0, 0, 0,
  42
 };
-int *ipv6ctl_vars[54] = { ((void *)0), &ip6_forwarding, &ip6_sendredirects, &ip6_defhlim, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_maxfragpackets, ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_log_interval, &ip6_hdrnestlimit, &ip6_dad_count, &ip6_auto_flowlabel, &ip6_defmcasthlim, ((void *)0), ((void *)0), &ip6_use_deprecated, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_maxfrags, &ip6_mforwarding, &ip6_multipath, &ip6_mcast_pmtu, &ip6_neighborgcthresh, ((void *)0), ((void *)0), &ip6_maxdynroutes, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), };
+int *ipv6ctl_vars[55] = { ((void *)0), &ip6_forwarding, &ip6_sendredirects, &ip6_defhlim, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_maxfragpackets, ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_log_interval, &ip6_hdrnestlimit, &ip6_dad_count, &ip6_auto_flowlabel, &ip6_defmcasthlim, ((void *)0), ((void *)0), &ip6_use_deprecated, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), &ip6_maxfrags, &ip6_mforwarding, &ip6_multipath, &ip6_mcast_pmtu, &ip6_neighborgcthresh, ((void *)0), ((void *)0), &ip6_maxdynroutes, ((void *)0), ((void *)0), ((void *)0), ((void *)0), ((void *)0), };
 int
 ip6_sysctl_ip6stat(void *oldp, size_t *oldlenp, void *newp)
 {
@@ -6687,6 +6696,29 @@ ip6_sysctl_ip6stat(void *oldp, size_t *oldlenp, void *newp)
      ip6stat, sizeof(*ip6stat));
  free(ip6stat, 127, sizeof(*ip6stat));
  return (ret);
+}
+int
+ip6_sysctl_soiikey(void *oldp, size_t *oldlenp, void *newp, size_t newlen)
+{
+ struct ifnet *ifp;
+ uint8_t oldkey[16];
+ int error;
+ error = suser((__curcpu->ci_self)->ci_curproc, 0);
+ if (error != 0)
+  return (error);
+ __builtin_memcpy((oldkey), (ip6_soiikey), (sizeof(oldkey)));
+ error = sysctl_struct(oldp, oldlenp, newp, newlen, ip6_soiikey,
+     sizeof(ip6_soiikey));
+ if (!error && __builtin_memcmp((ip6_soiikey), (oldkey), (sizeof(oldkey))) != 0) {
+  for((ifp) = ((&ifnet)->tqh_first); (ifp) != ((void *)0); (ifp) = ((ifp)->if_list.tqe_next)) {
+   if (ifp->if_flags & 0x8)
+    continue;
+   do { _rw_enter_write(&netlock ); } while (0);
+   in6_soiiupdate(ifp);
+   do { _rw_exit_write(&netlock ); } while (0);
+  }
+ }
+ return (error);
 }
 int
 ip6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
@@ -6737,8 +6769,10 @@ ip6_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   return (error);
  case 51:
   return (sysctl_mq((name + 1), (namelen - 1), (oldp), (oldlenp), (newp), (newlen), &(&ip6intrq)->ni_q));
+ case 54:
+  return (ip6_sysctl_soiikey(oldp, oldlenp, newp, newlen));
  default:
-  if (name[0] < 54) {
+  if (name[0] < 55) {
    do { _rw_enter_write(&netlock ); } while (0);
    error = sysctl_int_arr(ipv6ctl_vars, name, namelen,
        oldp, oldlenp, newp, newlen);

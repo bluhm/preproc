@@ -2512,6 +2512,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2868,372 +2869,8 @@ int ipip_input_if(struct mbuf **, int *, int, int, struct ifnet *);
 int ipip_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
 int ipip_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 extern int ipip_allow;
-struct m_tag;
-struct radix_node {
- struct radix_mask *rn_mklist;
- struct radix_node *rn_p;
- short rn_b;
- char rn_bmask;
- u_char rn_flags;
- union {
-  struct {
-   caddr_t rn_Key;
-   caddr_t rn_Mask;
-   struct radix_node *rn_Dupedkey;
-  } rn_leaf;
-  struct {
-   int rn_Off;
-   struct radix_node *rn_L;
-   struct radix_node *rn_R;
-  } rn_node;
- } rn_u;
-};
-struct radix_mask {
- short rm_b;
- char rm_unused;
- u_char rm_flags;
- struct radix_mask *rm_mklist;
- union {
-  caddr_t rmu_mask;
-  struct radix_node *rmu_leaf;
- } rm_rmu;
- int rm_refs;
-};
-struct radix_node_head {
- struct radix_node *rnh_treetop;
- int rnh_addrsize;
- int rnh_pktsize;
- struct radix_node rnh_nodes[3];
- u_int rnh_rtableid;
-};
-void rn_init(unsigned int);
-int rn_inithead(void **, int);
-int rn_walktree(struct radix_node_head *,
-     int (*)(struct radix_node *, void *, u_int), void *);
-struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
-       struct radix_node [2], u_int8_t);
-struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
-       struct radix_node *);
-struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
-struct radix_node *rn_match(void *, struct radix_node_head *);
-union sockaddr_union {
- struct sockaddr sa;
- struct sockaddr_in sin;
- struct sockaddr_in6 sin6;
-};
-struct sockaddr_encap {
- u_int8_t sen_len;
- u_int8_t sen_family;
- u_int16_t sen_type;
- union {
-  struct {
-   u_int8_t Direction;
-   struct in_addr Src;
-   struct in_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip4;
-  struct {
-   u_int8_t Direction;
-   struct in6_addr Src;
-   struct in6_addr Dst;
-   u_int8_t Proto;
-   u_int16_t Sport;
-   u_int16_t Dport;
-  } Sip6;
-  struct ipsec_policy *PolicyHead;
- } Sen;
-};
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
-struct ipsec_id {
- u_int16_t type;
- int16_t len;
-};
-struct ipsec_ids {
- struct rb_entry id_node_id;
- struct rb_entry id_node_flow;
- struct ipsec_id *id_local;
- struct ipsec_id *id_remote;
- u_int32_t id_flow;
- int id_refcount;
- struct timeout id_timeout;
-};
-struct ipsec_ids_flows { struct rb_tree rbh_root; };
-struct ipsec_ids_tree { struct rb_tree rbh_root; };
-struct ipsec_acquire {
- union sockaddr_union ipa_addr;
- u_int32_t ipa_seq;
- struct sockaddr_encap ipa_info;
- struct sockaddr_encap ipa_mask;
- struct timeout ipa_timeout;
- struct ipsec_policy *ipa_policy;
- struct inpcb *ipa_pcb;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_ipo_next;
- struct { struct ipsec_acquire *tqe_next; struct ipsec_acquire **tqe_prev; } ipa_next;
-};
-struct ipsec_policy {
- struct radix_node ipo_nodes[2];
- struct sockaddr_encap ipo_addr;
- struct sockaddr_encap ipo_mask;
- union sockaddr_union ipo_src;
- union sockaddr_union ipo_dst;
- u_int64_t ipo_last_searched;
- u_int8_t ipo_flags;
- u_int8_t ipo_type;
- u_int8_t ipo_sproto;
- u_int ipo_rdomain;
- int ipo_ref_count;
- struct tdb *ipo_tdb;
- struct ipsec_ids *ipo_ids;
- struct ipo_acquires_head { struct ipsec_acquire *tqh_first; struct ipsec_acquire **tqh_last; } ipo_acquires;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_tdb_next;
- struct { struct ipsec_policy *tqe_next; struct ipsec_policy **tqe_prev; } ipo_list;
-};
-struct tdb {
- struct tdb *tdb_hnext;
- struct tdb *tdb_dnext;
- struct tdb *tdb_snext;
- struct tdb *tdb_inext;
- struct tdb *tdb_onext;
- struct xformsw *tdb_xform;
- struct enc_xform *tdb_encalgxform;
- struct auth_hash *tdb_authalgxform;
- struct comp_algo *tdb_compalgxform;
- u_int32_t tdb_flags;
- struct timeout tdb_timer_tmo;
- struct timeout tdb_first_tmo;
- struct timeout tdb_stimer_tmo;
- struct timeout tdb_sfirst_tmo;
- u_int32_t tdb_seq;
- u_int32_t tdb_exp_allocations;
- u_int32_t tdb_soft_allocations;
- u_int32_t tdb_cur_allocations;
- u_int64_t tdb_exp_bytes;
- u_int64_t tdb_soft_bytes;
- u_int64_t tdb_cur_bytes;
- u_int64_t tdb_exp_timeout;
- u_int64_t tdb_soft_timeout;
- u_int64_t tdb_established;
- u_int64_t tdb_first_use;
- u_int64_t tdb_soft_first_use;
- u_int64_t tdb_exp_first_use;
- u_int64_t tdb_last_used;
- u_int64_t tdb_last_marked;
- u_int64_t tdb_cryptoid;
- u_int32_t tdb_spi;
- u_int16_t tdb_amxkeylen;
- u_int16_t tdb_emxkeylen;
- u_int16_t tdb_ivlen;
- u_int8_t tdb_sproto;
- u_int8_t tdb_wnd;
- u_int8_t tdb_satype;
- u_int8_t tdb_updates;
- union sockaddr_union tdb_dst;
- union sockaddr_union tdb_src;
- u_int8_t *tdb_amxkey;
- u_int8_t *tdb_emxkey;
- u_int64_t tdb_rpl;
- u_int32_t tdb_seen[((((2100+32)) + ((32) - 1)) / (32))];
- u_int8_t tdb_iv[4];
- struct ipsec_ids *tdb_ids;
- int tdb_ids_swapped;
- u_int32_t tdb_mtu;
- u_int64_t tdb_mtutimeout;
- u_int16_t tdb_udpencap_port;
- u_int16_t tdb_tag;
- u_int32_t tdb_tap;
- u_int tdb_rdomain;
- struct sockaddr_encap tdb_filter;
- struct sockaddr_encap tdb_filtermask;
- struct tdb_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } tdb_policy_head;
- struct { struct tdb *tqe_next; struct tdb **tqe_prev; } tdb_sync_entry;
-};
-struct tdb_ident {
- u_int32_t spi;
- union sockaddr_union dst;
- u_int8_t proto;
- u_int rdomain;
-};
-struct tdb_crypto {
- u_int32_t tc_spi;
- union sockaddr_union tc_dst;
- u_int8_t tc_proto;
- int tc_protoff;
- int tc_skip;
- u_int tc_rdomain;
-};
-struct ipsecinit {
- u_int8_t *ii_enckey;
- u_int8_t *ii_authkey;
- u_int16_t ii_enckeylen;
- u_int16_t ii_authkeylen;
- u_int8_t ii_encalg;
- u_int8_t ii_authalg;
- u_int8_t ii_compalg;
-};
-struct xformsw {
- u_short xf_type;
- u_short xf_flags;
- char *xf_name;
- int (*xf_attach)(void);
- int (*xf_init)(struct tdb *, struct xformsw *, struct ipsecinit *);
- int (*xf_zeroize)(struct tdb *);
- int (*xf_input)(struct mbuf *, struct tdb *, int, int);
- int (*xf_output)(struct mbuf *, struct tdb *, struct mbuf **,
-     int, int);
-};
-extern int ipsec_in_use;
-extern u_int64_t ipsec_last_added;
-extern int ipsec_policy_pool_initialized;
-extern int encdebug;
-extern int ipsec_keep_invalid;
-extern int ipsec_require_pfs;
-extern int ipsec_expire_acquire;
-extern int ipsec_soft_allocations;
-extern int ipsec_exp_allocations;
-extern int ipsec_soft_bytes;
-extern int ipsec_exp_bytes;
-extern int ipsec_soft_timeout;
-extern int ipsec_exp_timeout;
-extern int ipsec_soft_first_use;
-extern int ipsec_exp_first_use;
-extern char ipsec_def_enc[];
-extern char ipsec_def_auth[];
-extern char ipsec_def_comp[];
-extern struct enc_xform enc_xform_des;
-extern struct enc_xform enc_xform_3des;
-extern struct enc_xform enc_xform_blf;
-extern struct enc_xform enc_xform_cast5;
-extern struct auth_hash auth_hash_hmac_md5_96;
-extern struct auth_hash auth_hash_hmac_sha1_96;
-extern struct auth_hash auth_hash_hmac_ripemd_160_96;
-extern struct comp_algo comp_algo_deflate;
-extern struct ipsec_policy_head { struct ipsec_policy *tqh_first; struct ipsec_policy **tqh_last; } ipsec_policy_head;
-struct radix_node_head *spd_table_add(unsigned int);
-struct radix_node_head *spd_table_get(unsigned int);
-int spd_table_walk(unsigned int,
-    int (*walker)(struct ipsec_policy *, void *, unsigned int), void *);
-uint32_t reserve_spi(u_int, u_int32_t, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t, int *);
-struct tdb *gettdb(u_int, u_int32_t, union sockaddr_union *, u_int8_t);
-struct tdb *gettdbbydst(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrc(u_int, union sockaddr_union *, u_int8_t,
-  struct ipsec_ids *,
-  struct sockaddr_encap *, struct sockaddr_encap *);
-struct tdb *gettdbbysrcdst(u_int, u_int32_t, union sockaddr_union *,
-  union sockaddr_union *, u_int8_t);
-void puttdb(struct tdb *);
-void tdb_delete(struct tdb *);
-struct tdb *tdb_alloc(u_int);
-void tdb_free(struct tdb *);
-int tdb_init(struct tdb *, u_int16_t, struct ipsecinit *);
-void tdb_unlink(struct tdb *);
-int tdb_walk(u_int, int (*)(struct tdb *, void *, int), void *);
-int ipe4_attach(void);
-int ipe4_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipe4_zeroize(struct tdb *);
-int ipe4_input(struct mbuf *, struct tdb *, int, int);
-int ah_attach(void);
-int ah_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ah_zeroize(struct tdb *);
-int ah_input(struct mbuf *, struct tdb *, int, int);
-int ah_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ah_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ah4_input(struct mbuf **, int *, int, int);
-void ah4_ctlinput(int, struct sockaddr *, u_int, void *);
-void udpencap_ctlinput(int, struct sockaddr *, u_int, void *);
-int ah6_input(struct mbuf **, int *, int, int);
-int esp_attach(void);
-int esp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int esp_zeroize(struct tdb *);
-int esp_input(struct mbuf *, struct tdb *, int, int);
-int esp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int esp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int esp4_input(struct mbuf **, int *, int, int);
-void esp4_ctlinput(int, struct sockaddr *, u_int, void *);
-int esp6_input(struct mbuf **, int *, int, int);
-int ipcomp_attach(void);
-int ipcomp_init(struct tdb *, struct xformsw *, struct ipsecinit *);
-int ipcomp_zeroize(struct tdb *);
-int ipcomp_input(struct mbuf *, struct tdb *, int, int);
-int ipcomp_output(struct mbuf *, struct tdb *, struct mbuf **, int, int);
-int ipcomp_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ipcomp4_input(struct mbuf **, int *, int, int);
-int ipcomp6_input(struct mbuf **, int *, int, int);
-int tcp_signature_tdb_attach(void);
-int tcp_signature_tdb_init(struct tdb *, struct xformsw *,
-     struct ipsecinit *);
-int tcp_signature_tdb_zeroize(struct tdb *);
-int tcp_signature_tdb_input(struct mbuf *, struct tdb *, int, int);
-int tcp_signature_tdb_output(struct mbuf *, struct tdb *, struct mbuf **,
-   int, int);
-int checkreplaywindow(struct tdb *, u_int32_t, u_int32_t *, int);
-int ipsp_process_packet(struct mbuf *, struct tdb *, int, int);
-int ipsp_process_done(struct mbuf *, struct tdb *);
-struct tdb *ipsp_spd_lookup(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, u_int32_t);
-struct tdb *ipsp_spd_inp(struct mbuf *, int, int, int *, int,
-     struct tdb *, struct inpcb *, struct ipsec_policy *);
-int ipsp_is_unspecified(union sockaddr_union);
-int ipsp_aux_match(struct tdb *, struct ipsec_ids *,
-     struct sockaddr_encap *, struct sockaddr_encap *);
-int ipsp_ids_match(struct ipsec_ids *, struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_insert(struct ipsec_ids *);
-struct ipsec_ids *ipsp_ids_lookup(u_int32_t);
-void ipsp_ids_free(struct ipsec_ids *);
-void ipsec_init(void);
-int ipsec_sysctl(int *, u_int, void *, size_t *, void *, size_t);
-int ipsec_common_input(struct mbuf *, int, int, int, int, int);
-void ipsec_common_input_cb(struct mbuf *, struct tdb *, int, int);
-int ipsec_delete_policy(struct ipsec_policy *);
-ssize_t ipsec_hdrsz(struct tdb *);
-void ipsec_adjust_mtu(struct mbuf *, u_int32_t);
-struct ipsec_acquire *ipsec_get_acquire(u_int32_t);
-int ipsec_forward_check(struct mbuf *, int, int);
-int ipsec_local_check(struct mbuf *, int, int, int);
+extern void ip_ecn_ingress(int, u_int8_t *, u_int8_t *);
+extern int ip_ecn_egress(int, u_int8_t *, u_int8_t *);
 struct in6_addrlifetime {
  time_t ia6t_expire;
  time_t ia6t_preferred;
@@ -3607,6 +3244,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -3667,15 +3305,6 @@ struct tdb;
 struct tdb *
  ip6_output_ipsec_lookup(struct mbuf *, int *, struct inpcb *);
 int ip6_output_ipsec_send(struct tdb *, struct mbuf *, int, int);
-struct gif_softc {
- struct ifnet gif_if;
- struct sockaddr *gif_psrc;
- struct sockaddr *gif_pdst;
- u_int gif_rtableid;
- struct { struct gif_softc *le_next; struct gif_softc **le_prev; } gif_list;
-};
-extern struct gif_softc_head { struct gif_softc *lh_first; } gif_softc_list;
-int gif_encap(struct ifnet *, struct mbuf **, sa_family_t);
 int in_gif_input(struct mbuf **, int *, int, int);
 int in6_gif_input(struct mbuf **, int *, int, int);
 typedef int32_t bpf_int32;
@@ -3738,6 +3367,138 @@ void *bpfsattach(caddr_t *, const char *, u_int, u_int);
 void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
+struct shim_hdr {
+ u_int32_t shim_label;
+};
+struct sockaddr_mpls {
+ u_int8_t smpls_len;
+ u_int8_t smpls_family;
+ u_int16_t smpls_pad0;
+ u_int32_t smpls_label;
+ u_int32_t smpls_pad1[2];
+};
+struct rt_mpls {
+ u_int32_t mpls_label;
+ u_int8_t mpls_operation;
+ u_int8_t mpls_exp;
+};
+struct ifmpwreq {
+ uint32_t imr_flags;
+ uint32_t imr_type;
+ struct shim_hdr imr_lshim;
+ struct shim_hdr imr_rshim;
+ struct sockaddr_storage imr_nexthop;
+};
+extern struct domain mplsdomain;
+struct mpe_softc {
+ struct ifnet sc_if;
+ struct ifaddr sc_ifa;
+ int sc_unit;
+ struct sockaddr_mpls sc_smpls;
+ struct { struct mpe_softc *le_next; struct mpe_softc **le_prev; } sc_list;
+};
+void mpe_input(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+void mpe_input6(struct mbuf *, struct ifnet *, struct sockaddr_mpls *,
+     u_int8_t);
+extern int mpls_defttl;
+extern int mpls_mapttl_ip;
+extern int mpls_mapttl_ip6;
+extern int mpls_inkloop;
+struct mbuf *mpls_shim_pop(struct mbuf *);
+struct mbuf *mpls_shim_swap(struct mbuf *, struct rt_mpls *);
+struct mbuf *mpls_shim_push(struct mbuf *, struct rt_mpls *);
+int mpls_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+      struct rtentry *);
+void mpls_input(struct ifnet *, struct mbuf *);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
+struct radix_node {
+ struct radix_mask *rn_mklist;
+ struct radix_node *rn_p;
+ short rn_b;
+ char rn_bmask;
+ u_char rn_flags;
+ union {
+  struct {
+   caddr_t rn_Key;
+   caddr_t rn_Mask;
+   struct radix_node *rn_Dupedkey;
+  } rn_leaf;
+  struct {
+   int rn_Off;
+   struct radix_node *rn_L;
+   struct radix_node *rn_R;
+  } rn_node;
+ } rn_u;
+};
+struct radix_mask {
+ short rm_b;
+ char rm_unused;
+ u_char rm_flags;
+ struct radix_mask *rm_mklist;
+ union {
+  caddr_t rmu_mask;
+  struct radix_node *rmu_leaf;
+ } rm_rmu;
+ int rm_refs;
+};
+struct radix_node_head {
+ struct radix_node *rnh_treetop;
+ int rnh_addrsize;
+ int rnh_pktsize;
+ struct radix_node rnh_nodes[3];
+ u_int rnh_rtableid;
+};
+void rn_init(unsigned int);
+int rn_inithead(void **, int);
+int rn_walktree(struct radix_node_head *,
+     int (*)(struct radix_node *, void *, u_int), void *);
+struct radix_node *rn_addroute(void *, void *, struct radix_node_head *,
+       struct radix_node [2], u_int8_t);
+struct radix_node *rn_delete(void *, void *, struct radix_node_head *,
+       struct radix_node *);
+struct radix_node *rn_lookup(void *, void *, struct radix_node_head *);
+struct radix_node *rn_match(void *, struct radix_node_head *);
 struct ip;
 struct ip6_hdr;
 struct mbuf_list;
@@ -4826,494 +4587,594 @@ int pf_synflood_check(struct pf_pdesc *);
 void pf_syncookie_send(struct pf_pdesc *);
 u_int8_t pf_syncookie_validate(struct pf_pdesc *);
 struct mbuf * pf_syncookie_recreate_syn(struct pf_pdesc *);
+union gif_addr {
+ struct in6_addr in6;
+ struct in_addr in4;
+};
+struct gif_tunnel {
+ struct rb_entry t_entry;
+ union gif_addr t_src;
+ union gif_addr t_dst;
+ u_int t_rtableid;
+ sa_family_t t_af;
+};
+struct gif_tree { struct rb_tree rbh_root; };
+static inline int gif_cmp(const struct gif_tunnel *,
+       const struct gif_tunnel *);
+extern const struct rb_type *const gif_tree_RBT_TYPE; __attribute__((__unused__)) static inline void gif_tree_RBT_INIT(struct gif_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_INSERT(struct gif_tree *head, struct gif_tunnel *elm) { return _rb_insert(gif_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_REMOVE(struct gif_tree *head, struct gif_tunnel *elm) { return _rb_remove(gif_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_FIND(struct gif_tree *head, const struct gif_tunnel *key) { return _rb_find(gif_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_NFIND(struct gif_tree *head, const struct gif_tunnel *key) { return _rb_nfind(gif_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_ROOT(struct gif_tree *head) { return _rb_root(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int gif_tree_RBT_EMPTY(struct gif_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_MIN(struct gif_tree *head) { return _rb_min(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_MAX(struct gif_tree *head) { return _rb_max(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_NEXT(struct gif_tunnel *elm) { return _rb_next(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_PREV(struct gif_tunnel *elm) { return _rb_prev(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_LEFT(struct gif_tunnel *elm) { return _rb_left(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_RIGHT(struct gif_tunnel *elm) { return _rb_right(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_PARENT(struct gif_tunnel *elm) { return _rb_parent(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_LEFT(struct gif_tunnel *elm, struct gif_tunnel *left) { return _rb_set_left(gif_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_RIGHT(struct gif_tunnel *elm, struct gif_tunnel *right) { return _rb_set_right(gif_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_PARENT(struct gif_tunnel *elm, struct gif_tunnel *parent) { return _rb_set_parent(gif_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void gif_tree_RBT_POISON(struct gif_tunnel *elm, unsigned long poison) { return _rb_poison(gif_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int gif_tree_RBT_CHECK(struct gif_tunnel *elm, unsigned long poison) { return _rb_check(gif_tree_RBT_TYPE, elm, poison); };
+struct gif_softc {
+ struct gif_tunnel sc_tunnel;
+ struct ifnet sc_if;
+ int sc_ttl;
+};
+struct gif_tree gif_tree = { { ((void *)0) } };
 void gifattach(int);
 int gif_clone_create(struct if_clone *, int);
 int gif_clone_destroy(struct ifnet *);
-int gif_checkloop(struct ifnet *, struct mbuf *);
 void gif_start(struct ifnet *);
 int gif_ioctl(struct ifnet *, u_long, caddr_t);
 int gif_output(struct ifnet *, struct mbuf *, struct sockaddr *,
      struct rtentry *);
+int gif_send(struct gif_softc *, struct mbuf *, uint8_t, uint8_t, uint8_t);
+int gif_up(struct gif_softc *);
+int gif_down(struct gif_softc *);
+int gif_set_tunnel(struct gif_softc *, struct if_laddrreq *);
+int gif_get_tunnel(struct gif_softc *, struct if_laddrreq *);
+int gif_del_tunnel(struct gif_softc *);
 int in_gif_output(struct ifnet *, int, struct mbuf **);
 int in6_gif_output(struct ifnet *, int, struct mbuf **);
-struct gif_softc_head gif_softc_list;
+int gif_input(struct gif_tunnel *, struct mbuf **, int *, int, int,
+     uint8_t, uint8_t);
 struct if_clone gif_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "gif", .ifc_namelen = sizeof("gif") - 1, .ifc_create = gif_clone_create, .ifc_destroy = gif_clone_destroy, };
 void
 gifattach(int count)
 {
- do { ((&gif_softc_list)->lh_first) = ((void *)0); } while (0);
  if_clone_attach(&gif_cloner);
 }
 int
 gif_clone_create(struct if_clone *ifc, int unit)
 {
  struct gif_softc *sc;
+ struct ifnet *ifp;
  sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
- snprintf(sc->gif_if.if_xname, sizeof sc->gif_if.if_xname,
-      "%s%d", ifc->ifc_name, unit);
- sc->gif_if.if_data.ifi_mtu = (1280);
- sc->gif_if.if_flags = 0x10 | 0x8000;
- sc->gif_if.if_xflags = 0x2;
- sc->gif_if.if_ioctl = gif_ioctl;
- sc->gif_if.if_start = gif_start;
- sc->gif_if.if_output = gif_output;
- sc->gif_if.if_rtrequest = p2p_rtrequest;
- sc->gif_if.if_data.ifi_type = 0xf0;
- ((&sc->gif_if.if_snd)->ifq_maxlen = (256));
- sc->gif_if.if_softc = sc;
- if_attach(&sc->gif_if);
- if_alloc_sadl(&sc->gif_if);
- bpfattach(&sc->gif_if.if_bpf, &sc->gif_if, 12, sizeof(u_int32_t));
- do { _rw_enter_write(&netlock ); } while (0);
- do { if (((sc)->gif_list.le_next = (&gif_softc_list)->lh_first) != ((void *)0)) (&gif_softc_list)->lh_first->gif_list.le_prev = &(sc)->gif_list.le_next; (&gif_softc_list)->lh_first = (sc); (sc)->gif_list.le_prev = &(&gif_softc_list)->lh_first; } while (0);
- do { _rw_exit_write(&netlock ); } while (0);
+ ifp = &sc->sc_if;
+ sc->sc_ttl = ip_defttl;
+ snprintf(ifp->if_xname, sizeof(ifp->if_xname),
+     "%s%d", ifc->ifc_name, unit);
+ ifp->if_data.ifi_mtu = (1280);
+ ifp->if_flags = 0x10 | 0x8000;
+ ifp->if_xflags = 0x2;
+ ifp->if_ioctl = gif_ioctl;
+ ifp->if_start = gif_start;
+ ifp->if_output = gif_output;
+ ifp->if_rtrequest = p2p_rtrequest;
+ ifp->if_data.ifi_type = 0xf0;
+ ((&ifp->if_snd)->ifq_maxlen = (256));
+ ifp->if_softc = sc;
+ if_attach(ifp);
+ if_alloc_sadl(ifp);
+ bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
  return (0);
 }
 int
 gif_clone_destroy(struct ifnet *ifp)
 {
  struct gif_softc *sc = ifp->if_softc;
- do { _rw_enter_write(&netlock ); } while (0);
- do { if ((sc)->gif_list.le_next != ((void *)0)) (sc)->gif_list.le_next->gif_list.le_prev = (sc)->gif_list.le_prev; *(sc)->gif_list.le_prev = (sc)->gif_list.le_next; ((sc)->gif_list.le_prev) = ((void *)-1); ((sc)->gif_list.le_next) = ((void *)-1); } while (0);
- do { _rw_exit_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40))) {
+  do { _rw_enter_write(&netlock ); } while (0);
+  gif_down(sc);
+  do { _rw_exit_write(&netlock ); } while (0);
+ }
  if_detach(ifp);
- if (sc->gif_psrc)
-  free((caddr_t)sc->gif_psrc, 9, 0);
- sc->gif_psrc = ((void *)0);
- if (sc->gif_pdst)
-  free((caddr_t)sc->gif_pdst, 9, 0);
- sc->gif_pdst = ((void *)0);
  free(sc, 2, sizeof(*sc));
  return (0);
 }
 void
 gif_start(struct ifnet *ifp)
 {
- struct gif_softc *sc = (struct gif_softc*)ifp;
+ struct gif_softc *sc = ifp->if_softc;
  struct mbuf *m;
- for (;;) {
-  do { (m) = ifq_dequeue(&ifp->if_snd); } while ( 0);
-  if (m == ((void *)0))
-   break;
-  if (!(ifp->if_flags & 0x1) ||
-      sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0) ||
-      sc->gif_psrc->sa_family != sc->gif_pdst->sa_family) {
-   m_freem(m);
-   continue;
-  }
-  if (ifp->if_bpf) {
-   bpf_mtap_af(ifp->if_bpf, m->M_dat.MH.MH_pkthdr.ph_family, m,
+ caddr_t if_bpf;
+ uint8_t proto, ttl, tos;
+ int ttloff, tttl;
+ tttl = sc->sc_ttl;
+ while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf) {
+   bpf_mtap_af(if_bpf, m->M_dat.MH.MH_pkthdr.ph_family, m,
        (1<<1));
   }
-  if (gif_encap(ifp, &m, m->M_dat.MH.MH_pkthdr.ph_family) != 0)
-   continue;
-  switch (sc->gif_psrc->sa_family) {
-  case 2:
-   ip_send(m);
-   break;
-  case 24:
-   ip6_send(m);
-   break;
-  default:
-   m_freem(m);
+  switch (m->M_dat.MH.MH_pkthdr.ph_family) {
+  case 2: {
+   struct ip *ip;
+   m = m_pullup(m, sizeof(*ip));
+   if (m == ((void *)0))
+    continue;
+   ip = ((struct ip *)((m)->m_hdr.mh_data));
+   tos = ip->ip_tos;
+   ttloff = __builtin_offsetof(struct ip, ip_ttl);
+   proto = 4;
    break;
   }
+  case 24: {
+   struct ip6_hdr *ip6;
+   m = m_pullup(m, sizeof(*ip6));
+   if (m == ((void *)0))
+    continue;
+   ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
+   tos = ((__uint32_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_flow >> 20));
+   ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
+   proto = 41;
+   break;
+  }
+  case 33:
+   ttloff = 3;
+   tos = 0;
+   proto = 137;
+   break;
+  default:
+   unhandled_af(m->M_dat.MH.MH_pkthdr.ph_family);
+  }
+  if (tttl == -1) {
+   m = m_pullup(m, ttloff + 1);
+   if (m == ((void *)0))
+    continue;
+   ttl = *(m->m_hdr.mh_data + ttloff);
+  } else
+   ttl = tttl;
+  gif_send(sc, m, proto, ttl, tos);
  }
 }
 int
-gif_encap(struct ifnet *ifp, struct mbuf **mp, sa_family_t af)
+gif_send(struct gif_softc *sc, struct mbuf *m,
+    uint8_t proto, uint8_t ttl, uint8_t otos)
 {
- struct gif_softc *sc = (struct gif_softc*)ifp;
- int error = 0;
- (*mp)->m_hdr.mh_flags &= ~(0x0100|0x0200);
- switch (sc->gif_psrc->sa_family) {
- case 2:
-  error = in_gif_output(ifp, af, mp);
-  break;
- case 24:
-  error = in6_gif_output(ifp, af, mp);
-  break;
- default:
-  m_freemp(mp);
-  error = 47;
+ uint8_t itos = 0;
+ m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_tunnel.t_rtableid;
+ pf_pkt_addr_changed(m);
+ ip_ecn_ingress(1, &otos, &itos);
+ switch (sc->sc_tunnel.t_af) {
+ case 2: {
+  struct ip *ip;
+  if (((sc->sc_tunnel.t_dst.in4).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))))
+   goto drop;
+  m = m_prepend(m, sizeof(*ip), 0x0002);
+  if (m == ((void *)0))
+   return (-1);
+  ip = ((struct ip *)((m)->m_hdr.mh_data));
+  ip->ip_off = 0;
+  ip->ip_tos = otos;
+  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
+  ip->ip_ttl = ttl;
+  ip->ip_p = proto;
+  ip->ip_src = sc->sc_tunnel.t_src.in4;
+  ip->ip_dst = sc->sc_tunnel.t_dst.in4;
+  ip_send(m);
   break;
  }
- if (error)
-  return (error);
- error = gif_checkloop(ifp, *mp);
- return (error);
+ case 24: {
+  struct ip6_hdr *ip6;
+  int len = m->M_dat.MH.MH_pkthdr.len;
+  uint32_t flow;
+  if (((*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel.t_dst.in6)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel.t_dst.in6)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel.t_dst.in6)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&sc->sc_tunnel.t_dst.in6)->__u6_addr.__u6_addr8[12]) == 0)))
+   goto drop;
+  m = m_prepend(m, sizeof(*ip6), 0x0002);
+  if (m == ((void *)0))
+   return (-1);
+  flow = otos << 20;
+  if (((m->M_dat.MH.MH_pkthdr.ph_flowid) & (0x8000)))
+   flow |= m->M_dat.MH.MH_pkthdr.ph_flowid & 0x7fff;
+  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_flow = ((__uint32_t)(flow));
+  ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
+  ip6->ip6_src = sc->sc_tunnel.t_src.in6;
+  ip6->ip6_dst = sc->sc_tunnel.t_dst.in6;
+  ip6_send(m);
+  break;
+ }
+ default:
+  unhandled_af(sc->sc_tunnel.t_af);
+ }
+ return (0);
+drop:
+ m_freem(m);
+ return (0);
 }
 int
 gif_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
     struct rtentry *rt)
 {
- struct gif_softc *sc = (struct gif_softc*)ifp;
+ struct m_tag *mtag;
  int error = 0;
- if (!(ifp->if_flags & 0x1) ||
-     sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0) ||
-     sc->gif_psrc->sa_family != sc->gif_pdst->sa_family) {
-  m_freem(m);
+ if (!((ifp->if_flags) & (0x40))) {
   error = 50;
-  goto end;
+  goto drop;
+ }
+ switch (dst->sa_family) {
+ case 2:
+ case 24:
+ case 33:
+  break;
+ default:
+  error = 47;
+  goto drop;
+ }
+ for (mtag = m_tag_find(m, 0x0080, ((void *)0)); mtag;
+      mtag = m_tag_find(m, 0x0080, mtag)) {
+  if (__builtin_memcmp(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index))) == 0) {
+   error = 5;
+   goto drop;
+  }
+ }
+ mtag = m_tag_get(0x0080, sizeof(ifp->if_index), 0x0002);
+ if (mtag == ((void *)0)) {
+  error = 55;
+  goto drop;
  }
  m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
  error = if_enqueue(ifp, m);
-end:
  if (error)
   ifp->if_data.ifi_oerrors++;
  return (error);
+drop:
+ m_freem(m);
+ return (error);
+}
+int
+gif_up(struct gif_softc *sc)
+{
+ if (sc->sc_tunnel.t_af == 0)
+  return (39);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (gif_tree_RBT_INSERT(&gif_tree, &sc->sc_tunnel) != ((void *)0))
+  return (48);
+ ((sc->sc_if.if_flags) |= (0x40));
+ return (0);
+}
+int
+gif_down(struct gif_softc *sc)
+{
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ gif_tree_RBT_REMOVE(&gif_tree, &sc->sc_tunnel);
+ ((sc->sc_if.if_flags) &= ~(0x40));
+ return (0);
 }
 int
 gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
- struct gif_softc *sc = (struct gif_softc*)ifp;
+ struct gif_softc *sc = ifp->if_softc;
  struct ifreq *ifr = (struct ifreq *)data;
- int error = 0, size;
- struct sockaddr *dst, *src;
- struct sockaddr *sa;
- struct gif_softc *sc2;
+ int error = 0;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((14))):
+  ((ifp->if_flags) |= (0x1));
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = gif_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = gif_down(sc);
+  }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  src = sstosa(&(((struct if_laddrreq *)data)->addr));
-  dst = sstosa(&(((struct if_laddrreq *)data)->dstaddr));
-  if (src->sa_family != dst->sa_family)
-   return (22);
-  switch (src->sa_family) {
-  case 2:
-   if (src->sa_len != sizeof(struct sockaddr_in))
-    return (22);
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
    break;
-  case 24:
-   if (src->sa_len != sizeof(struct sockaddr_in6))
-    return (22);
-   break;
-  default:
-   return (47);
   }
-  switch (dst->sa_family) {
-  case 2:
-   if (dst->sa_len != sizeof(struct sockaddr_in))
-    return (22);
-   break;
-  case 24:
-   if (dst->sa_len != sizeof(struct sockaddr_in6))
-    return (22);
-   break;
-  default:
-   return (47);
-  }
-  for((sc2) = ((&gif_softc_list)->lh_first); (sc2)!= ((void *)0); (sc2) = ((sc2)->gif_list.le_next)) {
-   if (sc2 == sc)
-    continue;
-   if (!sc2->gif_pdst || !sc2->gif_psrc)
-    continue;
-   if (sc2->gif_pdst->sa_family != dst->sa_family ||
-       sc2->gif_pdst->sa_len != dst->sa_len ||
-       sc2->gif_psrc->sa_family != src->sa_family ||
-       sc2->gif_psrc->sa_len != src->sa_len)
-    continue;
-   if (__builtin_bcmp((sc2->gif_pdst), (dst), (dst->sa_len)) == 0 &&
-       __builtin_bcmp((sc2->gif_psrc), (src), (src->sa_len)) == 0) {
-    error = 49;
-    goto bad;
-   }
-   if (dst->sa_family == 2 &&
-       (satosin(dst)->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) && (satosin(sc2->gif_pdst)->sin_addr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))) {
-    error = 49;
-    goto bad;
-   }
-   if (dst->sa_family == 24 &&
-       (((*(const u_int32_t *)(const void *)(&(&satosin6(dst)->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(dst)->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(dst)->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(dst)->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0))) && (((*(const u_int32_t *)(const void *)(&(&satosin6(sc2->gif_pdst)->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(sc2->gif_pdst)->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(sc2->gif_pdst)->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&satosin6(sc2->gif_pdst)->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)))) {
-    error = 49;
-    goto bad;
-   }
-  }
-  if (sc->gif_psrc)
-   free((caddr_t)sc->gif_psrc, 9, 0);
-  sa = malloc(src->sa_len, 9, 0x0001);
-  __builtin_bcopy(((caddr_t)src), ((caddr_t)sa), (src->sa_len));
-  sc->gif_psrc = sa;
-  if (sc->gif_pdst)
-   free((caddr_t)sc->gif_pdst, 9, 0);
-  sa = malloc(dst->sa_len, 9, 0x0001);
-  __builtin_bcopy(((caddr_t)dst), ((caddr_t)sa), (dst->sa_len));
-  sc->gif_pdst = sa;
-  ifp->if_flags |= 0x40;
-  if_up(ifp);
-  error = 0;
-  break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if (sc->gif_psrc) {
-   free((caddr_t)sc->gif_psrc, 9, 0);
-   sc->gif_psrc = ((void *)0);
-  }
-  if (sc->gif_pdst) {
-   free((caddr_t)sc->gif_pdst, 9, 0);
-   sc->gif_pdst = ((void *)0);
-  }
+  error = gif_set_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
-  if (sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0)) {
-   error = 49;
-   goto bad;
-  }
-  src = sc->gif_psrc;
-  dst = sstosa(&(((struct if_laddrreq *)data)->addr));
-  size = sizeof(((struct if_laddrreq *)data)->addr);
-  if (src->sa_len > size)
-   return (22);
-  __builtin_bcopy(((caddr_t)src), ((caddr_t)dst), (src->sa_len));
-  src = sc->gif_pdst;
-  dst = sstosa(&(((struct if_laddrreq *)data)->dstaddr));
-  size = sizeof(((struct if_laddrreq *)data)->dstaddr);
-  if (src->sa_len > size)
-   return (22);
-  __builtin_bcopy(((caddr_t)src), ((caddr_t)dst), (src->sa_len));
+  error = gif_get_tunnel(sc, (struct if_laddrreq *)data);
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gif_del_tunnel(sc);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
-  if (ifr->ifr_ifru.ifru_metric < (1280) || ifr->ifr_ifru.ifru_metric > (8192))
+  if (ifr->ifr_ifru.ifru_metric < (1280) || ifr->ifr_ifru.ifru_metric > (8192)) {
    error = 22;
-  else
-   ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
+   break;
+  }
+  ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
    error = 22;
    break;
   }
-  sc->gif_rtableid = ifr->ifr_ifru.ifru_metric;
+  sc->sc_tunnel.t_rtableid = ifr->ifr_ifru.ifru_metric;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
-  ifr->ifr_ifru.ifru_metric = sc->gif_rtableid;
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric != -1 &&
+      (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff)) {
+   error = 22;
+   break;
+  }
+  sc->sc_ttl = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_ttl;
   break;
  default:
   error = 25;
   break;
  }
- bad:
  return (error);
 }
 int
-gif_checkloop(struct ifnet *ifp, struct mbuf *m)
+gif_get_tunnel(struct gif_softc *sc, struct if_laddrreq *req)
 {
- struct m_tag *mtag;
- for (mtag = m_tag_find(m, 0x0040, ((void *)0)); mtag;
-     mtag = m_tag_find(m, 0x0040, mtag)) {
-  if (*(struct ifnet **)(mtag + 1) == ifp) {
-   log(5, "gif_output: "
-       "recursively called too many times\n");
-   m_freem(m);
-   return 51;
-  }
- }
- mtag = m_tag_get(0x0040, sizeof(struct ifnet *), 0x0002);
- if (mtag == ((void *)0)) {
-  m_freem(m);
-  return 12;
- }
- *(struct ifnet **)(mtag + 1) = ifp;
- m_tag_prepend(m, mtag);
- return 0;
-}
-int
-in_gif_output(struct ifnet *ifp, int family, struct mbuf **m0)
-{
- struct gif_softc *sc = (struct gif_softc*)ifp;
- struct sockaddr_in *sin_src = satosin(sc->gif_psrc);
- struct sockaddr_in *sin_dst = satosin(sc->gif_pdst);
- struct tdb tdb;
- struct xformsw xfs;
- int error;
- struct mbuf *m = *m0;
- if (sin_src == ((void *)0) || sin_dst == ((void *)0) ||
-     sin_src->sin_family != 2 ||
-     sin_dst->sin_family != 2) {
-  m_freem(m);
-  return 47;
- }
- if (ifp->if_data.ifi_rdomain != rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid)) {
-  printf("%s: trying to send packet on wrong domain. "
-      "if %d vs. mbuf %d, AF %d\n", ifp->if_xname,
-      ifp->if_data.ifi_rdomain, rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid),
-      family);
- }
- __builtin_bzero((&tdb), (sizeof(tdb)));
- __builtin_bzero((&xfs), (sizeof(xfs)));
- tdb.tdb_src.sin.sin_family = 2;
- tdb.tdb_src.sin.sin_len = sizeof(struct sockaddr_in);
- tdb.tdb_src.sin.sin_addr = sin_src->sin_addr;
- tdb.tdb_dst.sin.sin_family = 2;
- tdb.tdb_dst.sin.sin_len = sizeof(struct sockaddr_in);
- tdb.tdb_dst.sin.sin_addr = sin_dst->sin_addr;
- tdb.tdb_xform = &xfs;
- xfs.xf_type = -1;
- switch (family) {
+ struct gif_tunnel *tunnel = &sc->sc_tunnel;
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *sin;
+ struct sockaddr_in6 *sin6;
+ switch (tunnel->t_af) {
+ case 0:
+  return (49);
  case 2:
+  sin = (struct sockaddr_in *)src;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr = tunnel->t_src.in4;
+  sin = (struct sockaddr_in *)dst;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr = tunnel->t_dst.in4;
   break;
  case 24:
-  break;
- case 33:
+  sin6 = (struct sockaddr_in6 *)src;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, &tunnel->t_src.in6);
+  sin6 = (struct sockaddr_in6 *)dst;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, &tunnel->t_dst.in6);
   break;
  default:
-  m_freem(m);
-  return 47;
+  return (47);
  }
- *m0 = ((void *)0);
- if (family == 33)
-  error = mplsip_output(m, &tdb, m0, 137);
- else
- error = ipip_output(m, &tdb, m0, 0, 0);
- if (error)
-  return error;
- else if (*m0 == ((void *)0))
-  return 14;
- m = *m0;
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->gif_rtableid;
- pf_pkt_addr_changed(m);
- return 0;
+ return (0);
+}
+int
+gif_set_tunnel(struct gif_softc *sc, struct if_laddrreq *req)
+{
+ struct gif_tunnel *tunnel = &sc->sc_tunnel;
+ struct sockaddr *src = (struct sockaddr *)&req->addr;
+ struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *src4, *dst4;
+ struct sockaddr_in6 *src6, *dst6;
+ int error;
+ if (src->sa_family != dst->sa_family || src->sa_len != dst->sa_len)
+  return (22);
+ switch (dst->sa_family) {
+ case 2:
+  if (dst->sa_len != sizeof(*dst4))
+   return (22);
+  src4 = (struct sockaddr_in *)src;
+  if (((src4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(src4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  dst4 = (struct sockaddr_in *)dst;
+  if ((((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  tunnel->t_src.in4 = src4->sin_addr;
+  tunnel->t_dst.in4 = dst4->sin_addr;
+  break;
+ case 24:
+  if (dst->sa_len != sizeof(*dst6))
+   return (22);
+  src6 = (struct sockaddr_in6 *)src;
+  if (((*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&src6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&src6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  dst6 = (struct sockaddr_in6 *)dst;
+  if (((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  error = in6_embedscope(&tunnel->t_src.in6, src6, ((void *)0));
+  if (error != 0)
+   return (error);
+  error = in6_embedscope(&tunnel->t_dst.in6, dst6, ((void *)0));
+  if (error != 0)
+   return (error);
+  break;
+ default:
+  return (47);
+ }
+ tunnel->t_af = dst->sa_family;
+ return (0);
+}
+int
+gif_del_tunnel(struct gif_softc *sc)
+{
+ sc->sc_tunnel.t_af = 0;
+ return (0);
 }
 int
 in_gif_input(struct mbuf **mp, int *offp, int proto, int af)
 {
  struct mbuf *m = *mp;
- struct gif_softc *sc;
- struct ifnet *gifp = ((void *)0);
+ struct gif_tunnel key;
  struct ip *ip;
- if (m->m_hdr.mh_flags & 0x1000) {
-  m->m_hdr.mh_flags &= ~0x1000;
-  goto inject;
- }
+ int rv;
  ip = ((struct ip *)((m)->m_hdr.mh_data));
- do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- for((sc) = ((&gif_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->gif_list.le_next)) {
-  if (sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0) ||
-      sc->gif_psrc->sa_family != 2 ||
-      sc->gif_pdst->sa_family != 2 ||
-      rtable_l2(sc->gif_rtableid) !=
-      rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid)) {
-   continue;
-  }
-  if ((sc->gif_if.if_flags & 0x1) == 0)
-   continue;
-  if (((satosin(sc->gif_psrc)->sin_addr).s_addr == (ip->ip_dst).s_addr) &&
-      ((satosin(sc->gif_pdst)->sin_addr).s_addr == (ip->ip_src).s_addr)) {
-   gifp = &sc->gif_if;
-   break;
-  }
- }
- if (gifp) {
-  m->M_dat.MH.MH_pkthdr.ph_ifidx = gifp->if_index;
-  m->M_dat.MH.MH_pkthdr.ph_rtableid = gifp->if_data.ifi_rdomain;
-  gifp->if_data.ifi_ipackets++;
-  gifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
-  return ipip_input_if(mp, offp, proto, af, gifp);
- }
-inject:
- return ipip_input(mp, offp, proto, af);
-}
-int
-in6_gif_output(struct ifnet *ifp, int family, struct mbuf **m0)
-{
- struct gif_softc *sc = (struct gif_softc*)ifp;
- struct sockaddr_in6 *sin6_src = satosin6(sc->gif_psrc);
- struct sockaddr_in6 *sin6_dst = satosin6(sc->gif_pdst);
- struct tdb tdb;
- struct xformsw xfs;
- int error;
- struct mbuf *m = *m0;
- if (sin6_src == ((void *)0) || sin6_dst == ((void *)0) ||
-     sin6_src->sin6_family != 24 ||
-     sin6_dst->sin6_family != 24) {
-  m_freem(m);
-  return 47;
- }
- __builtin_bzero((&tdb), (sizeof(tdb)));
- __builtin_bzero((&xfs), (sizeof(xfs)));
- tdb.tdb_src.sin6.sin6_family = 24;
- tdb.tdb_src.sin6.sin6_len = sizeof(struct sockaddr_in6);
- tdb.tdb_src.sin6.sin6_addr = sin6_src->sin6_addr;
- tdb.tdb_src.sin6.sin6_scope_id = sin6_src->sin6_scope_id;
- tdb.tdb_dst.sin6.sin6_family = 24;
- tdb.tdb_dst.sin6.sin6_len = sizeof(struct sockaddr_in6);
- tdb.tdb_dst.sin6.sin6_addr = sin6_dst->sin6_addr;
- tdb.tdb_src.sin6.sin6_scope_id = sin6_dst->sin6_scope_id;
- tdb.tdb_xform = &xfs;
- xfs.xf_type = -1;
- switch (family) {
- case 2:
-  break;
- case 24:
-  break;
- case 33:
-  break;
- default:
-  m_freem(m);
-  return 47;
- }
- *m0 = ((void *)0);
- if (family == 33)
-  error = mplsip_output(m, &tdb, m0, 137);
- else
- error = ipip_output(m, &tdb, m0, 0, 0);
- if (error)
-         return error;
- else if (*m0 == ((void *)0))
-         return 14;
- m = *m0;
- pf_pkt_addr_changed(m);
- return 0;
+ key.t_af = 2;
+ key.t_src.in4 = ip->ip_dst;
+ key.t_dst.in4 = ip->ip_dst;
+ rv = gif_input(&key, mp, offp, proto, af, ip->ip_ttl, ip->ip_tos);
+ if (rv == -1)
+  rv = ipip_input(mp, offp, proto, af);
+ return (rv);
 }
 int
 in6_gif_input(struct mbuf **mp, int *offp, int proto, int af)
 {
  struct mbuf *m = *mp;
- struct gif_softc *sc;
- struct ifnet *gifp = ((void *)0);
+ struct gif_tunnel key;
  struct ip6_hdr *ip6;
- struct sockaddr_in6 src, dst;
- struct sockaddr_in6 *psrc, *pdst;
- if (m->m_hdr.mh_flags & (0x0800 | 0x0400))
-         goto inject;
+ uint32_t flow;
+ int rv;
  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
- in6_recoverscope(&src, &ip6->ip6_src);
- in6_recoverscope(&dst, &ip6->ip6_dst);
- do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- for((sc) = ((&gif_softc_list)->lh_first); (sc)!= ((void *)0); (sc) = ((sc)->gif_list.le_next)) {
-  if (sc->gif_psrc == ((void *)0) || sc->gif_pdst == ((void *)0) ||
-      sc->gif_psrc->sa_family != 24 ||
-      sc->gif_pdst->sa_family != 24) {
-   continue;
-  }
-  if ((sc->gif_if.if_flags & 0x1) == 0)
-   continue;
-  psrc = satosin6(sc->gif_psrc);
-  pdst = satosin6(sc->gif_pdst);
-  if ((__builtin_memcmp((&(&psrc->sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&dst.sin6_addr)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
-      psrc->sin6_scope_id == dst.sin6_scope_id &&
-      (__builtin_memcmp((&(&pdst->sin6_addr)->__u6_addr.__u6_addr8[0]), (&(&src.sin6_addr)->__u6_addr.__u6_addr8[0]), (sizeof(struct in6_addr))) == 0) &&
-      pdst->sin6_scope_id == src.sin6_scope_id) {
-   gifp = &sc->gif_if;
-   break;
-  }
- }
- if (gifp) {
-         m->M_dat.MH.MH_pkthdr.ph_ifidx = gifp->if_index;
-  gifp->if_data.ifi_ipackets++;
-  gifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
-  return ipip_input_if(mp, offp, proto, af, gifp);
- }
-inject:
- return ipip_input(mp, offp, proto, af);
+ key.t_af = 24;
+ key.t_src.in6 = ip6->ip6_dst;
+ key.t_dst.in6 = ip6->ip6_src;
+ flow = ((__uint32_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_flow));
+ rv = gif_input(&key, mp, offp, proto, af, ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim,
+     flow >> 20);
+ if (rv == -1)
+  rv = ipip_input(mp, offp, proto, af);
+ return (rv);
 }
+int
+gif_input(struct gif_tunnel *key, struct mbuf **mp, int *offp, int proto,
+    int af, uint8_t ttl, uint8_t otos)
+{
+ struct mbuf *m = *mp;
+ struct gif_softc *sc;
+ struct ifnet *ifp;
+ void (*input)(struct ifnet *, struct mbuf *);
+ int ttloff;
+ uint8_t itos;
+ if (m->m_hdr.mh_flags & 0x1000) {
+  m->m_hdr.mh_flags &= ~0x1000;
+  return (-1);
+ }
+ if (m->m_hdr.mh_flags & (0x0800 | 0x0400))
+  return (-1);
+ key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ sc = (struct gif_softc *)gif_tree_RBT_FIND(&gif_tree, key);
+ if (sc == ((void *)0)) {
+  __builtin_memset((&key->t_dst), (0), (sizeof(key->t_dst)));
+  sc = (struct gif_softc *)gif_tree_RBT_FIND(&gif_tree, key);
+  if (sc == ((void *)0))
+   return (-1);
+ }
+ switch (proto) {
+ case 4: {
+  struct ip *ip;
+  m = m_pullup(m, sizeof(*ip));
+  if (m == ((void *)0))
+   return (257);
+  ip = ((struct ip *)((m)->m_hdr.mh_data));
+  itos = ip->ip_tos;
+  if (ip_ecn_egress(1, &otos, &itos) == 0)
+   goto drop;
+  ip->ip_tos = itos;
+  m->M_dat.MH.MH_pkthdr.ph_family = 2;
+  input = ipv4_input;
+  ttloff = __builtin_offsetof(struct ip, ip_ttl);
+  break;
+ }
+ case 41: {
+  struct ip6_hdr *ip6;
+  m = m_pullup(m, sizeof(*ip6));
+  if (m == ((void *)0))
+   return (257);
+  ip6 = ((struct ip6_hdr *)((m)->m_hdr.mh_data));
+  itos = ((__uint32_t)(ip6->ip6_ctlun.ip6_un1.ip6_un1_flow)) >> 20;
+  if (!ip_ecn_egress(1, &otos, &itos))
+   goto drop;
+  ((ip6->ip6_ctlun.ip6_un1.ip6_un1_flow) &= ~(((__uint32_t)(0xff << 20))));
+  ((ip6->ip6_ctlun.ip6_un1.ip6_un1_flow) |= (((__uint32_t)(itos << 20))));
+  m->M_dat.MH.MH_pkthdr.ph_family = 24;
+  input = ipv6_input;
+  ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
+  break;
+ }
+ case 137:
+  m->M_dat.MH.MH_pkthdr.ph_family = 33;
+  input = mpls_input;
+  ttloff = 3;
+  break;
+ default:
+  return (-1);
+ }
+ m_adj(m, *offp);
+ if (sc->sc_ttl == -1) {
+  m = m_pullup(m, ttloff + 1);
+  if (m == ((void *)0))
+   return (257);
+  *(m->m_hdr.mh_data + ttloff) = ttl;
+ }
+ ifp = &sc->sc_if;
+ m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
+ pf_pkt_addr_changed(m);
+ ifp->if_data.ifi_ipackets++;
+ ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
+ {
+  caddr_t if_bpf = ifp->if_bpf;
+  if (if_bpf) {
+   bpf_mtap_af(ifp->if_bpf, m->M_dat.MH.MH_pkthdr.ph_family,
+       m, 1);
+  }
+ }
+ (*input)(ifp, m);
+ return (257);
+ drop:
+ m_freem(m);
+ return (257);
+}
+static inline int
+gif_ip_cmp(int af, const union gif_addr *a, const union gif_addr *b)
+{
+ switch (af) {
+ case 24:
+  return (__builtin_memcmp((&a->in6), (&b->in6), (sizeof(a->in6))));
+ case 2:
+  return (__builtin_memcmp((&a->in4), (&b->in4), (sizeof(a->in4))));
+ default:
+  panic("%s: unsupported af %d\n", __func__, af);
+ }
+ return (0);
+}
+static inline int
+gif_cmp(const struct gif_tunnel *a, const struct gif_tunnel *b)
+{
+ int rv;
+ if (a->t_rtableid > b->t_rtableid)
+  return (1);
+ if (a->t_rtableid < b->t_rtableid)
+  return (-1);
+ if (a->t_af > b->t_af)
+  return (1);
+ if (a->t_af < b->t_af)
+  return (-1);
+ rv = gif_ip_cmp(a->t_af, &a->t_dst, &b->t_dst);
+ if (rv != 0)
+  return (rv);
+ rv = gif_ip_cmp(a->t_af, &a->t_src, &b->t_src);
+ if (rv != 0)
+  return (rv);
+ return (0);
+}
+static int gif_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct gif_tunnel *l = lptr, *r = rptr; return gif_cmp(l, r); } static const struct rb_type gif_tree_RBT_INFO = { gif_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct gif_tunnel, t_entry), }; const struct rb_type *const gif_tree_RBT_TYPE = &gif_tree_RBT_INFO;

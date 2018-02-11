@@ -1692,6 +1692,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -1978,6 +1979,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -2618,7 +2620,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2697,6 +2699,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4222,7 +4225,7 @@ int ffs_oldfscompat(struct fs *);
 int ffs_unmount(struct mount *, int, struct proc *);
 int ffs_flushfiles(struct mount *, int, struct proc *);
 int ffs_statfs(struct mount *, struct statfs *, struct proc *);
-int ffs_sync(struct mount *, int, struct ucred *, struct proc *);
+int ffs_sync(struct mount *, int, int, struct ucred *, struct proc *);
 int ffs_vget(struct mount *, ino_t, struct vnode **);
 int ffs_fhtovp(struct mount *, struct fid *, struct vnode **);
 int ffs_vptofh(struct vnode *, struct fid *);
@@ -4875,7 +4878,7 @@ ffs_mount(struct mount *mp, const char *path, void *data,
   error = 0;
   ronly = fs->fs_ronly;
   if (ronly == 0 && (mp->mnt_flag & 0x00000001)) {
-   (*(mp)->mnt_op->vfs_sync)(mp, 1, p->p_ucred, p);
+   (*(mp)->mnt_op->vfs_sync)(mp, 1, 0, p->p_ucred, p);
    flags = 0x0004;
    if (args == ((void *)0))
     flags |= 0x0010;
@@ -5451,39 +5454,50 @@ struct ffs_sync_args {
  int allerror;
  struct proc *p;
  int waitfor;
+ int nlink0;
+ int inflight;
  struct ucred *cred;
 };
 int
-ffs_sync_vnode(struct vnode *vp, void *arg) {
+ffs_sync_vnode(struct vnode *vp, void *arg)
+{
  struct ffs_sync_args *fsa = arg;
  struct inode *ip;
- int error;
+ int error, nlink0 = 0;
  if (vp->v_type == VNON)
   return (0);
  ip = ((struct inode *)(vp)->v_data);
+ if (vp->v_inflight && !(vp->v_type == VCHR || vp->v_type == VBLK))
+  fsa->inflight = (((fsa->inflight+1)<(65536))?(fsa->inflight+1):(65536));
  if (fsa->waitfor == 1 && (ip->i_flag & 0x0080)) {
   ip->i_flag |= 0x0008;
   ((ip)->i_vtbl->iv_update)((ip), (1));
  }
+ if (ip->i_effnlink == 0)
+  nlink0 = 1;
  if ((ip->i_flag &
-  (0x0001 | 0x0002 | 0x0008 | 0x0004)) == 0 &&
-  (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) {
-  return (0);
+     (0x0001 | 0x0002 | 0x0008 | 0x0004)) == 0 &&
+     (((&vp->v_dirtyblkhd)->lh_first) == ((void *)0))) {
+  goto end;
  }
- if (vget(vp, 0x0001UL | 0x0040UL, fsa->p))
-  return (0);
+ if (vget(vp, 0x0001UL | 0x0040UL, fsa->p)) {
+  nlink0 = 1;
+  goto end;
+ }
  if ((error = VOP_FSYNC(vp, fsa->cred, fsa->waitfor, fsa->p)))
   fsa->allerror = error;
  VOP_UNLOCK(vp, fsa->p);
  vrele(vp);
+end:
+ fsa->nlink0 = (((fsa->nlink0 + nlink0)<(65536))?(fsa->nlink0 + nlink0):(65536));
  return (0);
 }
 int
-ffs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
+ffs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred, struct proc *p)
 {
  struct ufsmount *ump = ((struct ufsmount *)((mp)->mnt_data));
  struct fs *fs;
- int error, allerror = 0, count;
+ int error, allerror = 0, count, clean, fmod;
  struct ffs_sync_args fsa;
  fs = ump->ufsmount_u.fs;
  if (fs->fs_fmod != 0 && fs->fs_ronly != 0) {
@@ -5495,6 +5509,8 @@ ffs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
  fsa.p = p;
  fsa.cred = cred;
  fsa.waitfor = waitfor;
+ fsa.nlink0 = 0;
+ fsa.inflight = 0;
  if (waitfor != 3) {
   vfs_mount_foreach_vnode(mp, ffs_sync_vnode, &fsa);
   allerror = fsa.allerror;
@@ -5512,8 +5528,22 @@ ffs_sync(struct mount *mp, int waitfor, struct ucred *cred, struct proc *p)
   VOP_UNLOCK(ump->um_devvp, p);
  }
  qsync(mp);
+ clean = fs->fs_clean;
+ fmod = fs->fs_fmod;
+ if (stall && fs->fs_ronly == 0) {
+  fs->fs_fmod = 1;
+  if (allerror == 0 && fsa.nlink0 == 0 && fsa.inflight == 0) {
+   fs->fs_clean = (fs->fs_flags & 0x01) ? 0 : 1;
+  } else {
+   fs->fs_clean = 0;
+   printf("%s force dirty (dangling %d inflight %d)\n",
+       mp->mnt_stat.f_mntonname, fsa.nlink0, fsa.inflight);
+  }
+ }
  if (fs->fs_fmod != 0 && (error = ffs_sbupdate(ump, waitfor)) != 0)
   allerror = error;
+ fs->fs_clean = clean;
+ fs->fs_fmod = fmod;
  return (allerror);
 }
 int

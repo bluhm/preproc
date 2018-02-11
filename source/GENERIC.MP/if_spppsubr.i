@@ -2558,6 +2558,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2664,6 +2665,7 @@ int in6_ifattach(struct ifnet *);
 void in6_ifdetach(struct ifnet *);
 int in6_nigroup(struct ifnet *, const char *, int, struct sockaddr_in6 *);
 int in6_ifattach_linklocal(struct ifnet *, struct in6_addr *);
+void in6_soiiupdate(struct ifnet *);
 enum ppp_phase {
  PHASE_DEAD, PHASE_ESTABLISH, PHASE_TERMINATE,
  PHASE_AUTHENTICATE, PHASE_NETWORK

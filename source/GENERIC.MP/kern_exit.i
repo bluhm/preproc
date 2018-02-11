@@ -1596,6 +1596,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2399,6 +2400,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -3492,7 +3494,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -3623,6 +3625,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -5247,7 +5250,6 @@ exit1(struct proc *p, int rv, int flags)
 {
  struct process *pr, *qr, *nqr;
  struct rusage *rup;
- struct vnode *ovp;
  atomic_setbits_int(&p->p_flag, 0x00002000);
  pr = p->p_p;
  if (!(((&(p)->p_p->ps_threads)->tqh_first) != (p) || (((p))->p_thr_link.tqe_next) != ((void *)0))) {
@@ -5293,26 +5295,7 @@ exit1(struct proc *p, int rv, int flags)
   fdfree(p);
   timeout_del(&pr->ps_realit_to);
   semexit(pr);
-  if (((pr)->ps_pgrp->pg_session->s_leader == (pr))) {
-   struct session *sp = pr->ps_pgrp->pg_session;
-   if (sp->s_ttyvp) {
-    if (sp->s_ttyp->t_session == sp) {
-     if (sp->s_ttyp->t_pgrp)
-      pgsignal(sp->s_ttyp->t_pgrp,
-          1, 1);
-     ttywait(sp->s_ttyp);
-     if (sp->s_ttyvp)
-      VOP_REVOKE(sp->s_ttyvp,
-          0x0001);
-    }
-    ovp = sp->s_ttyvp;
-    sp->s_ttyvp = ((void *)0);
-    if (ovp)
-     vrele(ovp);
-   }
-   sp->s_leader = ((void *)0);
-  }
-  fixjobc(pr, pr->ps_pgrp, 0);
+  killjobc(pr);
   acct_process(p);
   if (pr->ps_tracevp)
    ktrcleartrace(pr);
@@ -5365,7 +5348,7 @@ exit1(struct proc *p, int rv, int flags)
  if (p->p_flag & 0x04000000) {
   if (--pr->ps_refcnt == 1)
    wakeup(&pr->ps_threads);
-  ((pr->ps_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 349, "pr->ps_refcnt > 0"));
+  ((pr->ps_refcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 311, "pr->ps_refcnt > 0"));
  }
  uvmexp.swtch++;
  cpu_exit(p);
@@ -5394,7 +5377,7 @@ reaper(void)
 {
  struct proc *p;
  _kernel_unlock();
- do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 422, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 384, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  for (;;) {
   __mtx_enter(&deadproc_mutex );
   while ((p = ((&deadproc)->lh_first)) == ((void *)0))
@@ -5402,7 +5385,7 @@ reaper(void)
   do { if ((p)->p_hash.le_next != ((void *)0)) (p)->p_hash.le_next->p_hash.le_prev = (p)->p_hash.le_prev; *(p)->p_hash.le_prev = (p)->p_hash.le_next; ((p)->p_hash.le_prev) = ((void *)-1); ((p)->p_hash.le_next) = ((void *)-1); } while (0);
   __mtx_leave(&deadproc_mutex );
   (void)0;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 435);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 397);
   uvm_uarea_free(p);
   p->p_vmspace = ((void *)0);
   if (p->p_flag & 0x04000000) {
@@ -5560,11 +5543,11 @@ process_zap(struct process *pr)
  pr->ps_textvp = ((void *)0);
  if (otvp)
   vrele(otvp);
- ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 655, "pr->ps_refcnt == 1"));
+ ((pr->ps_refcnt == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 617, "pr->ps_refcnt == 1"));
  if (pr->ps_ptstat != ((void *)0))
   free(pr->ps_ptstat, 42, sizeof(*pr->ps_ptstat));
  pool_put(&rusage_pool, pr->ps_ru);
- (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 659, "TAILQ_EMPTY(&pr->ps_threads)"));
+ (((((&pr->ps_threads)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_exit.c", 621, "TAILQ_EMPTY(&pr->ps_threads)"));
  limfree(pr->ps_limit);
  crfree(pr->ps_ucred);
  pool_put(&process_pool, pr);

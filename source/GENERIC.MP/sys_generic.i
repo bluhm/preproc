@@ -1686,6 +1686,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2330,7 +2331,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2460,6 +2461,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4208,7 +4210,7 @@ sys_read(struct proc *p, void *v, register_t *retval)
   return (9);
  iov.iov_base = ((uap)->buf.be.datum);
  iov.iov_len = ((uap)->nbyte.be.datum);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, &iov, 1, 0, &fp->f_offset, retval));
 }
 int
@@ -4220,7 +4222,7 @@ sys_readv(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &fp->f_offset, retval));
 }
@@ -4309,7 +4311,7 @@ sys_write(struct proc *p, void *v, register_t *retval)
   return (9);
  iov.iov_base = (void *)((uap)->buf.be.datum);
  iov.iov_len = ((uap)->nbyte.be.datum);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, &iov, 1, 0, &fp->f_offset, retval));
 }
 int
@@ -4321,7 +4323,7 @@ sys_writev(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &fp->f_offset, retval));
 }
@@ -4439,7 +4441,7 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
  size = (((com) >> 16) & 0x1fff);
  if (size > (1 << 13))
   return (25);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  memp = ((void *)0);
  if (size > sizeof (stkbuf)) {
   memp = malloc(size, 14, 0x0001);
@@ -4678,7 +4680,7 @@ selscan(struct proc *p, fd_set *ibits, fd_set *obits, int nfd, int ni,
     bits &= ~(1 << j);
     if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
      return (9);
-    do { (fp)->f_count++; } while (0);
+    do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
     if ((*fp->f_ops->fo_poll)(fp, flag[msk], p)) {
      __fd_set((fd), (pobits));
      n++;
@@ -4758,7 +4760,7 @@ pollscan(struct proc *p, struct pollfd *pl, u_int nfd, register_t *retval)
    n++;
    continue;
   }
-  do { (fp)->f_count++; } while (0);
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   pl->revents = (*fp->f_ops->fo_poll)(fp, pl->events, p);
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   if (pl->revents != 0)

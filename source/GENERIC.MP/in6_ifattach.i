@@ -2577,6 +2577,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2973,6 +2974,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -3037,6 +3039,7 @@ int in6_ifattach(struct ifnet *);
 void in6_ifdetach(struct ifnet *);
 int in6_nigroup(struct ifnet *, const char *, int, struct sockaddr_in6 *);
 int in6_ifattach_linklocal(struct ifnet *, struct in6_addr *);
+void in6_soiiupdate(struct ifnet *);
 struct nd_ifinfo {
  u_int32_t basereachable;
  u_int32_t reachable;
@@ -3226,8 +3229,21 @@ int mrt6_sysctl_mif(void *, size_t *);
 int mrt6_sysctl_mfc(void *, size_t *);
 void in6_get_rand_ifid(struct ifnet *, struct in6_addr *);
 int in6_get_hw_ifid(struct ifnet *, struct in6_addr *);
+int in6_get_soii_ifid(struct ifnet *, struct in6_addr *);
 void in6_get_ifid(struct ifnet *, struct in6_addr *);
 int in6_ifattach_loopback(struct ifnet *);
+void
+in6_soiiupdate(struct ifnet *ifp)
+{
+ struct ifaddr *ifa;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ ifa = &in6ifa_ifpforlinklocal(ifp, 0)->ia_ifa;
+ if (ifa) {
+  in6_purgeaddr(ifa);
+  dohooks(ifp->if_addrhooks, 0);
+  in6_ifattach(ifp);
+ }
+}
 void
 in6_get_rand_ifid(struct ifnet *ifp, struct in6_addr *in6)
 {
@@ -3297,10 +3313,40 @@ in6_get_hw_ifid(struct ifnet *ifp, struct in6_addr *in6)
  }
  return 0;
 }
+int
+in6_get_soii_ifid(struct ifnet *ifp, struct in6_addr *in6)
+{
+ SHA2_CTX ctx;
+ u_int8_t digest[64];
+ struct in6_addr prefix;
+ struct sockaddr_dl *sdl;
+ int dad_counter = 0;
+ char *addr;
+ if (ifp->if_xflags & 0x40)
+  return -1;
+ sdl = ifp->if_sadl;
+ if (sdl == ((void *)0) || sdl->sdl_alen == 0)
+  return -1;
+ __builtin_memset((&prefix), (0), (sizeof(prefix)));
+ prefix.__u6_addr.__u6_addr16[0] = ((__uint16_t)(0xfe80));
+ addr = ((caddr_t)((sdl)->sdl_data + (sdl)->sdl_nlen));
+ SHA512Init(&ctx);
+ SHA512Update(&ctx, &prefix, sizeof(prefix));
+ SHA512Update(&ctx, addr, sdl->sdl_alen);
+ SHA512Update(&ctx, &dad_counter, sizeof(dad_counter));
+ SHA512Update(&ctx, ip6_soiikey, sizeof(ip6_soiikey));
+ SHA512Final(digest, &ctx);
+ __builtin_bcopy((digest), (&in6->__u6_addr.__u6_addr8[8]), (8));
+ return 0;
+}
 void
 in6_get_ifid(struct ifnet *ifp0, struct in6_addr *in6)
 {
  struct ifnet *ifp;
+ if (in6_get_soii_ifid(ifp0, in6) == 0) {
+  do { if (nd6_debug) log (7, "%s: got Semantically Opaque Interface " "Identifier\n", ifp0->if_xname); } while (0);
+  goto success;
+ }
  if (in6_get_hw_ifid(ifp0, in6) == 0) {
   do { if (nd6_debug) log (7, "%s: got interface identifier from itself\n", ifp0->if_xname); } while (0);
   goto success;
@@ -3378,7 +3424,7 @@ int
 in6_ifattach_loopback(struct ifnet *ifp)
 {
  struct in6_aliasreq ifra;
- ((ifp->if_flags & 0x8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_ifattach.c", 326, "ifp->if_flags & IFF_LOOPBACK"));
+ ((ifp->if_flags & 0x8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/in6_ifattach.c", 391, "ifp->if_flags & IFF_LOOPBACK"));
  __builtin_bzero((&ifra), (sizeof(ifra)));
  strncpy(ifra.ifra_name, ifp->if_xname, sizeof(ifra.ifra_name));
  ifra.ifra_prefixmask.sin6_len = sizeof(struct sockaddr_in6);

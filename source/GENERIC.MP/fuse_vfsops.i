@@ -1549,7 +1549,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -1680,6 +1680,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -2237,6 +2238,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2892,6 +2894,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -3706,7 +3709,7 @@ int fusefs_unmount(struct mount *, int, struct proc *);
 int fusefs_root(struct mount *, struct vnode **);
 int fusefs_quotactl(struct mount *, int, uid_t, caddr_t, struct proc *);
 int fusefs_statfs(struct mount *, struct statfs *, struct proc *);
-int fusefs_sync(struct mount *, int, struct ucred *, struct proc *);
+int fusefs_sync(struct mount *, int, int, struct ucred *, struct proc *);
 int fusefs_vget(struct mount *, ino_t, struct vnode **);
 int fusefs_fhtovp(struct mount *, struct fid *, struct vnode **);
 int fusefs_vptofh(struct vnode *, struct fid *);
@@ -3745,7 +3748,7 @@ fusefs_mount(struct mount *mp, const char *path, void *data,
   return (45);
  if ((fp = fd_getfile(p->p_fd, args->fd)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 1) {
   error = 22;
   goto bad;
@@ -3866,7 +3869,7 @@ fusefs_statfs(struct mount *mp, struct statfs *sbp, struct proc *p)
  return (0);
 }
 int
-fusefs_sync(struct mount *mp, int waitfor, struct ucred *cred,
+fusefs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred,
     struct proc *p)
 {
  return (0);

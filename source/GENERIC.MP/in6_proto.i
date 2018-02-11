@@ -2308,6 +2308,7 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
+int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -2759,6 +2760,7 @@ extern int ip6_dad_count;
 extern int ip6_dad_pending;
 extern int ip6_auto_flowlabel;
 extern int ip6_auto_linklocal;
+extern uint8_t ip6_soiikey[16];
 struct in6pcb;
 struct inpcb;
 int icmp6_ctloutput(int, struct socket *, int, int, struct mbuf *);
@@ -4473,63 +4475,6 @@ struct ip6ctlparam {
 };
 extern u_char ip6_protox[];
 extern const struct protosw inet6sw[];
-struct etheripstat {
- u_int64_t etherips_hdrops;
- u_int64_t etherips_qfull;
- u_int64_t etherips_noifdrops;
- u_int64_t etherips_pdrops;
- u_int64_t etherips_adrops;
- u_int64_t etherips_ipackets;
- u_int64_t etherips_opackets;
- u_int64_t etherips_ibytes;
- u_int64_t etherips_obytes;
-};
-struct etherip_header {
- u_int eip_ver:4;
- u_int eip_res:4;
- u_int8_t eip_pad;
-} __attribute__((__packed__));
-enum etheripstat_counters {
- etherips_hdrops,
- etherips_qfull,
- etherips_noifdrops,
- etherips_pdrops,
- etherips_adrops,
- etherips_ipackets,
- etherips_opackets,
- etherips_ibytes,
- etherips_obytes,
- etherips_ncounters
-};
-extern struct cpumem *etheripcounters;
-static inline void
-etheripstat_inc(enum etheripstat_counters c)
-{
- counters_inc(etheripcounters, c);
-}
-static inline void
-etheripstat_add(enum etheripstat_counters c, uint64_t v)
-{
- counters_add(etheripcounters, c, v);
-}
-static inline void
-etheripstat_pkt(enum etheripstat_counters pcounter,
-    enum etheripstat_counters bcounter, uint64_t v)
-{
- counters_pkt(etheripcounters, pcounter, bcounter, v);
-}
-struct tdb;
-int mplsip_output(struct mbuf *, struct tdb *, struct mbuf **, int);
-int mplsip_input(struct mbuf **, int *, int, int);
-struct gif_softc {
- struct ifnet gif_if;
- struct sockaddr *gif_psrc;
- struct sockaddr *gif_pdst;
- u_int gif_rtableid;
- struct { struct gif_softc *le_next; struct gif_softc **le_prev; } gif_list;
-};
-extern struct gif_softc_head { struct gif_softc *lh_first; } gif_softc_list;
-int gif_encap(struct ifnet *, struct mbuf **, sa_family_t);
 int in_gif_input(struct mbuf **, int *, int, int);
 int in6_gif_input(struct mbuf **, int *, int, int);
 struct carp_header {
@@ -4809,6 +4754,17 @@ const struct protosw inet6sw[] = {
   .pr_type = 3,
   .pr_domain = &inet6domain,
   .pr_protocol = 41,
+  .pr_flags = 0x01|0x02,
+  .pr_input = in6_gif_input,
+  .pr_ctloutput = rip6_ctloutput,
+  .pr_usrreq = rip6_usrreq,
+  .pr_attach = rip6_attach,
+  .pr_detach = rip6_detach,
+},
+{
+  .pr_type = 3,
+  .pr_domain = &inet6domain,
+  .pr_protocol = 137,
   .pr_flags = 0x01|0x02,
   .pr_input = in6_gif_input,
   .pr_ctloutput = rip6_ctloutput,

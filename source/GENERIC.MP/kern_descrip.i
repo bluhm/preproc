@@ -1595,6 +1595,7 @@ struct vnode {
  u_int v_bioflag;
  u_int v_holdcnt;
  u_int v_id;
+ u_int v_inflight;
  struct mount *v_mount;
  struct { struct vnode *tqe_next; struct vnode **tqe_prev; } v_freelist;
  struct { struct vnode *le_next; struct vnode **le_prev; } v_mntvnodes;
@@ -2285,6 +2286,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2926,7 +2928,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -3005,6 +3007,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4467,7 +4470,7 @@ sys_dup(struct proc *p, void *v, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, old)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = fdalloc(p, 0, &new)) != 0) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
@@ -4516,7 +4519,7 @@ restart:
   *retval = new;
   return (0);
  }
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if (new >= fdp->fd_nfiles) {
   if ((error = fdalloc(p, new, &i)) != 0) {
@@ -4556,7 +4559,7 @@ sys_fcntl(struct proc *p, void *v, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  switch (((uap)->cmd.be.datum)) {
  case 0:
  case 10:
@@ -4767,7 +4770,7 @@ finishdup(struct proc *p, struct file *fp, int old, int new,
  }
  oldfp = fdp->fd_ofiles[new];
  if (oldfp != ((void *)0))
-  do { (oldfp)->f_count++; } while (0);
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (oldfp)->f_count++; } while (0);
  fdp->fd_ofiles[new] = fp;
  fdp->fd_ofileflags[new] = fdp->fd_ofileflags[old] & ~(0x01|0x02);
  fp->f_count++;
@@ -4800,7 +4803,7 @@ fdrelease(struct proc *p, int fd)
  fp = *fpp;
  if (fp == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  *fpp = ((void *)0);
  fd_unused(fdp, fd);
  if (fd < fdp->fd_knlistsize)
@@ -4831,7 +4834,7 @@ sys_fstat(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  error = (*fp->f_ops->fo_stat)(fp, &ub, p);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  if (error == 0) {
@@ -4855,7 +4858,7 @@ sys_fpathconf(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  switch (fp->f_type) {
  case 3:
  case 2:
@@ -5003,7 +5006,7 @@ restart:
  (fp->f_cred)->cr_ref++;
  *resultfp = fp;
  *resultfd = i;
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (0);
 }
 struct filedesc *
@@ -5105,7 +5108,7 @@ fdfree(struct proc *p)
  for (i = fdp->fd_lastfile; i >= 0; i--, fpp++) {
   fp = *fpp;
   if (fp != ((void *)0)) {
-   do { (fp)->f_count++; } while (0);
+   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
    *fpp = ((void *)0);
    (void) closef(fp, p);
   }
@@ -5180,7 +5183,7 @@ sys_flock(struct proc *p, void *v, register_t *retval)
   return (9);
  if (fp->f_type != 1)
   return (45);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  lf.l_whence = 0;
  lf.l_start = 0;

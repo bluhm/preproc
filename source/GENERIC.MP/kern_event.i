@@ -1606,6 +1606,7 @@ int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
 void fixjobc(struct process *, struct pgrp *, int);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
+void killjobc(struct process *);
 void preempt(void);
 void pgdelete(struct pgrp *);
 void procinit(void);
@@ -2549,7 +2550,7 @@ struct vfsops {
         caddr_t arg, struct proc *p);
  int (*vfs_statfs)(struct mount *mp, struct statfs *sbp,
         struct proc *p);
- int (*vfs_sync)(struct mount *mp, int waitfor,
+ int (*vfs_sync)(struct mount *mp, int waitfor, int stall,
         struct ucred *cred, struct proc *p);
  int (*vfs_vget)(struct mount *mp, ino_t ino,
         struct vnode **vpp);
@@ -2628,6 +2629,7 @@ int vfs_mountedon(struct vnode *);
 int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
+int vfs_stall(struct proc *, int);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4026,7 +4028,7 @@ sys_kevent(struct proc *p, void *v, register_t *retval)
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0) ||
      (fp->f_type != 4))
   return (9);
- do { (fp)->f_count++; } while (0);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (((uap)->timeout.be.datum) != ((void *)0)) {
   error = copyin(((uap)->timeout.be.datum), &ts, sizeof(ts));
   if (error)
@@ -4104,7 +4106,7 @@ kqueue_register(struct kqueue *kq, struct kevent *kev, struct proc *p)
    return (9);
   if ((fp = fd_getfile(fdp, kev->ident)) == ((void *)0))
    return (9);
-  do { (fp)->f_count++; } while (0);
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   if (kev->ident < fdp->fd_knlistsize) {
    for((kn) = ((&fdp->fd_knlist[kev->ident])->slh_first); (kn) != ((void *)0); (kn) = ((kn)->kn_link.sle_next)) {
     if (kq == kn->kn_kq &&
