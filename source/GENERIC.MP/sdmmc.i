@@ -3088,6 +3088,7 @@ struct sdmmc_function {
  int number;
  struct device *child;
  struct sdmmc_cis cis;
+ unsigned int cur_blklen;
  struct sdmmc_csd csd;
  struct sdmmc_cid cid;
  sdmmc_response raw_cid;
@@ -3146,13 +3147,16 @@ u_int8_t sdmmc_io_read_1(struct sdmmc_function *, int);
 u_int16_t sdmmc_io_read_2(struct sdmmc_function *, int);
 u_int32_t sdmmc_io_read_4(struct sdmmc_function *, int);
 int sdmmc_io_read_multi_1(struct sdmmc_function *, int, u_char *, int);
+int sdmmc_io_read_region_1(struct sdmmc_function *, int, u_char *, int);
 void sdmmc_io_write_1(struct sdmmc_function *, int, u_int8_t);
 void sdmmc_io_write_2(struct sdmmc_function *, int, u_int16_t);
 void sdmmc_io_write_4(struct sdmmc_function *, int, u_int32_t);
 int sdmmc_io_write_multi_1(struct sdmmc_function *, int, u_char *, int);
+int sdmmc_io_write_region_1(struct sdmmc_function *, int, u_char *, int);
 int sdmmc_io_function_ready(struct sdmmc_function *);
 int sdmmc_io_function_enable(struct sdmmc_function *);
 void sdmmc_io_function_disable(struct sdmmc_function *);
+void sdmmc_io_set_blocklen(struct sdmmc_function *, unsigned int);
 int sdmmc_read_cis(struct sdmmc_function *, struct sdmmc_cis *);
 void sdmmc_print_cis(struct sdmmc_function *);
 void sdmmc_check_cis_quirks(struct sdmmc_function *);
@@ -3487,6 +3491,7 @@ sdmmc_function_alloc(struct sdmmc_softc *sc)
  sf->cis.manufacturer = 0xffff;
  sf->cis.product = 0xffff;
  sf->cis.function = 0xff;
+ sf->cur_blklen = ((sc->sct)->host_maxblklen((sc->sch)));
  return sf;
 }
 void

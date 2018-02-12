@@ -2755,6 +2755,7 @@ struct sdmmc_function {
  int number;
  struct device *child;
  struct sdmmc_cis cis;
+ unsigned int cur_blklen;
  struct sdmmc_csd csd;
  struct sdmmc_cid cid;
  sdmmc_response raw_cid;
@@ -2813,13 +2814,16 @@ u_int8_t sdmmc_io_read_1(struct sdmmc_function *, int);
 u_int16_t sdmmc_io_read_2(struct sdmmc_function *, int);
 u_int32_t sdmmc_io_read_4(struct sdmmc_function *, int);
 int sdmmc_io_read_multi_1(struct sdmmc_function *, int, u_char *, int);
+int sdmmc_io_read_region_1(struct sdmmc_function *, int, u_char *, int);
 void sdmmc_io_write_1(struct sdmmc_function *, int, u_int8_t);
 void sdmmc_io_write_2(struct sdmmc_function *, int, u_int16_t);
 void sdmmc_io_write_4(struct sdmmc_function *, int, u_int32_t);
 int sdmmc_io_write_multi_1(struct sdmmc_function *, int, u_char *, int);
+int sdmmc_io_write_region_1(struct sdmmc_function *, int, u_char *, int);
 int sdmmc_io_function_ready(struct sdmmc_function *);
 int sdmmc_io_function_enable(struct sdmmc_function *);
 void sdmmc_io_function_disable(struct sdmmc_function *);
+void sdmmc_io_set_blocklen(struct sdmmc_function *, unsigned int);
 int sdmmc_read_cis(struct sdmmc_function *, struct sdmmc_cis *);
 void sdmmc_print_cis(struct sdmmc_function *);
 void sdmmc_check_cis_quirks(struct sdmmc_function *);
@@ -2853,6 +2857,7 @@ int sdmmc_io_xchg(struct sdmmc_softc *, struct sdmmc_function *,
      int, u_char *);
 void sdmmc_io_reset(struct sdmmc_softc *);
 int sdmmc_io_send_op_cond(struct sdmmc_softc *, u_int32_t, u_int32_t *);
+void sdmmc_io_set_blocklen(struct sdmmc_function *, unsigned int);
 int sdmmc_verbose = 0;
 int
 sdmmc_io_enable(struct sdmmc_softc *sc)
@@ -3047,7 +3052,7 @@ sdmmc_io_detach(struct sdmmc_softc *sc)
    sf->child = ((void *)0);
   }
  }
- (((((&sc->sc_intrq)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sdmmc/sdmmc_io.c", 346, "TAILQ_EMPTY(&sc->sc_intrq)"));
+ (((((&sc->sc_intrq)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/sdmmc/sdmmc_io.c", 347, "TAILQ_EMPTY(&sc->sc_intrq)"));
 }
 int
 sdmmc_io_rw_direct(struct sdmmc_softc *sc, struct sdmmc_function *sf,
@@ -3093,7 +3098,7 @@ sdmmc_io_rw_extended(struct sdmmc_softc *sc, struct sdmmc_function *sf,
  cmd.c_flags = 0x0000 | (0x1000|0x0400|0x0800);
  cmd.c_data = datap;
  cmd.c_datalen = datalen;
- cmd.c_blklen = (((datalen)<(((sc->sct)->host_maxblklen((sc->sch)))))?(datalen):(((sc->sct)->host_maxblklen((sc->sch)))));
+ cmd.c_blklen = (((datalen)<(sf->cur_blklen))?(datalen):(sf->cur_blklen));
  if (!((arg) & ((1<<31))))
   cmd.c_flags |= 0x0040;
  error = sdmmc_mmc_command(sc, &cmd);
@@ -3180,6 +3185,44 @@ sdmmc_io_write_multi_1(struct sdmmc_function *sf, int reg64, u_char *data,
  }
  return sdmmc_io_rw_extended(sf->sc, sf, reg64, data, datalen,
      (1<<31));
+}
+int
+sdmmc_io_read_region_1(struct sdmmc_function *sf, int reg64, u_char *data,
+    int datalen)
+{
+ int error;
+ rw_assert_wrlock(&sf->sc->sc_lock);
+ while (datalen > 64) {
+  error = sdmmc_io_rw_extended(sf->sc, sf, reg64, data,
+      64, (0<<31) |
+      (1<<26));
+  if (error)
+   return error;
+  reg64 += 64;
+  data += 64;
+  datalen -= 64;
+ }
+ return sdmmc_io_rw_extended(sf->sc, sf, reg64, data, datalen,
+     (0<<31) | (1<<26));
+}
+int
+sdmmc_io_write_region_1(struct sdmmc_function *sf, int reg64, u_char *data,
+    int datalen)
+{
+ int error;
+ rw_assert_wrlock(&sf->sc->sc_lock);
+ while (datalen > 64) {
+  error = sdmmc_io_rw_extended(sf->sc, sf, reg64, data,
+      64, (1<<31) |
+      (1<<26));
+  if (error)
+   return error;
+  reg64 += 64;
+  data += 64;
+  datalen -= 64;
+ }
+ return sdmmc_io_rw_extended(sf->sc, sf, reg64, data, datalen,
+     (1<<31) | (1<<26));
 }
 int
 sdmmc_io_xchg(struct sdmmc_softc *sc, struct sdmmc_function *sf,
@@ -3310,4 +3353,21 @@ sdmmc_intr_task(void *arg)
  }
  ((sc->sct)->card_intr_ack((sc->sch)));
  _splx(s);
+}
+void
+sdmmc_io_set_blocklen(struct sdmmc_function *sf, unsigned int blklen)
+{
+ struct sdmmc_softc *sc = sf->sc;
+ struct sdmmc_function *sf0 = sc->sc_fn0;
+ rw_assert_wrlock(&sc->sc_lock);
+ if (blklen > ((sc->sct)->host_maxblklen((sc->sch))))
+  return;
+ if (blklen == 0) {
+  blklen = min(512, ((sc->sct)->host_maxblklen((sc->sch))));
+ }
+ sdmmc_io_write_1(sf0, ((sf->number) * 0x100) +
+     0x10, blklen & 0xff);
+ sdmmc_io_write_1(sf0, ((sf->number) * 0x100) +
+     0x10 + 1, (blklen >> 8) & 0xff);
+ sf->cur_blklen = blklen;
 }

@@ -6543,7 +6543,10 @@ reroute:
  }
  in6_proto_cksum_out(m, ifp);
  tlen = m->M_dat.MH.MH_pkthdr.len;
- if (opt && (opt->ip6po_flags & 0x04))
+ if (((m->M_dat.MH.MH_pkthdr.csum_flags) & (0x1000))) {
+  ((m->M_dat.MH.MH_pkthdr.csum_flags) &= ~(0x1000));
+  dontfrag = 1;
+ } else if (opt && ((opt->ip6po_flags) & (0x04)))
   dontfrag = 1;
  else
   dontfrag = 0;

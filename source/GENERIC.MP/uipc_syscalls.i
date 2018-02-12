@@ -4225,7 +4225,7 @@ sys_socket(struct proc *p, void *v, register_t *retval)
  struct file *fp;
  int type = ((uap)->type.be.datum);
  int domain = ((uap)->domain.be.datum);
- int fd, cloexec, nonblock, fflag, error;
+ int fd, error;
  unsigned int ss = 0;
  if ((type & 0x1000) && !(domain == 2 || domain == 24))
   return (22);
@@ -4234,22 +4234,22 @@ sys_socket(struct proc *p, void *v, register_t *retval)
  error = pledge_socket(p, domain, ss);
  if (error)
   return (error);
- type &= ~(0x8000 | 0x4000 | 0x1000);
- cloexec = (((uap)->type.be.datum) & 0x8000) ? 0x01 : 0;
- nonblock = ((uap)->type.be.datum) & 0x4000;
- fflag = 0x0001 | 0x0002 | (nonblock ? 0x0004 : 0);
- error = socreate(((uap)->domain.be.datum), &so, type, ((uap)->protocol.be.datum));
+ do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+ error = falloc(p, (type & 0x8000) ? 0x01 : 0, &fp, &fd);
+ _rw_exit_write(&(fdp)->fd_lock );
  if (error != 0)
   goto out;
- do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
- error = falloc(p, cloexec, &fp, &fd);
- _rw_exit_write(&(fdp)->fd_lock );
+ fp->f_flag = 0x0001 | 0x0002 | (type & 0x4000 ? 0x0004 : 0);
+ fp->f_type = 2;
+ fp->f_ops = &socketops;
+ error = socreate(((uap)->domain.be.datum), &so,
+     type & ~(0x8000 | 0x4000 | 0x1000), ((uap)->protocol.be.datum));
  if (error) {
-  soclose(so);
+  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
+  fdremove(fdp, fd);
+  closef(fp, p);
+  _rw_exit_write(&(fdp)->fd_lock );
  } else {
-  fp->f_flag = fflag;
-  fp->f_type = 2;
-  fp->f_ops = &socketops;
   if (type & 0x4000)
    so->so_state |= 0x100;
   so->so_state |= ss;

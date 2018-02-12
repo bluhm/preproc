@@ -5745,7 +5745,7 @@ m_print(void *v,
   (*pr)("m_pkthdr.ph_flowid: %u\tm_pkthdr.ph_loopcnt: %u\n",
       m->M_dat.MH.MH_pkthdr.ph_flowid, m->M_dat.MH.MH_pkthdr.ph_loopcnt);
   (*pr)("m_pkthdr.csum_flags: %b\n",
-      m->M_dat.MH.MH_pkthdr.csum_flags, ("\20\1IPV4_CSUM_OUT\2TCP_CSUM_OUT\3UDP_CSUM_OUT\4IPV4_CSUM_IN_OK" "\5IPV4_CSUM_IN_BAD\6TCP_CSUM_IN_OK\7TCP_CSUM_IN_BAD\10UDP_CSUM_IN_OK" "\11UDP_CSUM_IN_BAD\12ICMP_CSUM_OUT\13ICMP_CSUM_IN_OK\14ICMP_CSUM_IN_BAD"));
+      m->M_dat.MH.MH_pkthdr.csum_flags, ("\20\1IPV4_CSUM_OUT\2TCP_CSUM_OUT\3UDP_CSUM_OUT\4IPV4_CSUM_IN_OK" "\5IPV4_CSUM_IN_BAD\6TCP_CSUM_IN_OK\7TCP_CSUM_IN_BAD\10UDP_CSUM_IN_OK" "\11UDP_CSUM_IN_BAD\12ICMP_CSUM_OUT\13ICMP_CSUM_IN_OK\14ICMP_CSUM_IN_BAD" "\15IPV6_NODF_OUT"));
   (*pr)("m_pkthdr.ether_vtag: %u\tm_ptkhdr.ph_rtableid: %u\n",
       m->M_dat.MH.MH_pkthdr.ether_vtag, m->M_dat.MH.MH_pkthdr.ph_rtableid);
   (*pr)("m_pkthdr.pf.statekey: %p\tm_pkthdr.pf.inp %p\n",

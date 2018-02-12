@@ -5441,6 +5441,8 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
    break;
   ifs = ifunit(req->ifbr_ifsname);
+  if (ifs == ((void *)0) && if_clone_create(req->ifbr_ifsname, 0) == 0)
+   ifs = ifunit(req->ifbr_ifsname);
   if (ifs == ((void *)0)) {
    error = 2;
    break;
@@ -5884,7 +5886,7 @@ bridge_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *sa,
     }
    }
    ifl = (struct bridge_iflist *)dst_if->if_bridgeport;
-   ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 805, "ifl != NULL"));
+   ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 811, "ifl != NULL"));
    if (bridge_filterrule(&ifl->bif_brlout, eh, mc) ==
        0x01)
     continue;
@@ -5941,7 +5943,7 @@ bridgeintr_frame(struct bridge_softc *sc, struct ifnet *src_if, struct mbuf *m)
  sc->sc_if.if_data.ifi_ipackets++;
  sc->sc_if.if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  ifl = (struct bridge_iflist *)src_if->if_bridgeport;
- ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 881, "ifl != NULL"));
+ ((ifl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 887, "ifl != NULL"));
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(eh)) {
   m_freem(m);
   return;
@@ -6055,7 +6057,7 @@ bridge_ourether(struct bridge_iflist *ifl, uint8_t *ena)
 int
 bridge_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
 {
- ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1057, "m->m_flags & M_PKTHDR"));
+ ((m->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_bridge.c", 1063, "m->m_flags & M_PKTHDR"));
  if (m->m_hdr.mh_flags & 0x0010) {
   m->m_hdr.mh_flags &= ~0x0010;
   return (0);

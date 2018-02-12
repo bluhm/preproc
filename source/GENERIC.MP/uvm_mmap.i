@@ -5099,7 +5099,7 @@ sys_mmap(struct proc *p, void *v, register_t *retval)
  if ((prot & (0x02 | 0x04)) == (0x02 | 0x04) &&
      (error = uvm_wxcheck(p, "mmap")))
   return (error);
- if ((flags & 0x3ff7) != flags)
+ if ((flags & 0x7ff7) != flags)
   return (22);
  if ((flags & (0x0001|0x0002)) == (0x0001|0x0002))
   return (22);
