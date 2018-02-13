@@ -1531,47 +1531,6 @@ void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 typedef struct _SIPHASH_CTX {
  uint64_t v[4];
  uint8_t buf[8];
@@ -3439,6 +3398,47 @@ void *bpfsattach(caddr_t *, const char *, u_int, u_int);
 void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -4955,7 +4955,7 @@ union gre_addr {
  struct in6_addr in6;
 };
 struct gre_tunnel {
- struct rb_entry t_entry;
+ struct { struct gre_tunnel *tqe_next; struct gre_tunnel **tqe_prev; } t_entry;
  uint32_t t_key_mask;
  uint32_t t_key;
  u_int t_rtableid;
@@ -4964,10 +4964,9 @@ struct gre_tunnel {
  int t_ttl;
  sa_family_t t_af;
 };
-struct gre_tree { struct rb_tree rbh_root; };
+struct gre_list { struct gre_tunnel *tqh_first; struct gre_tunnel **tqh_last; };
 static inline int
   gre_cmp(const struct gre_tunnel *, const struct gre_tunnel *);
-extern const struct rb_type *const gre_tree_RBT_TYPE; __attribute__((__unused__)) static inline void gre_tree_RBT_INIT(struct gre_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_INSERT(struct gre_tree *head, struct gre_tunnel *elm) { return _rb_insert(gre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_REMOVE(struct gre_tree *head, struct gre_tunnel *elm) { return _rb_remove(gre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_FIND(struct gre_tree *head, const struct gre_tunnel *key) { return _rb_find(gre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_NFIND(struct gre_tree *head, const struct gre_tunnel *key) { return _rb_nfind(gre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_ROOT(struct gre_tree *head) { return _rb_root(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int gre_tree_RBT_EMPTY(struct gre_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_MIN(struct gre_tree *head) { return _rb_min(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_MAX(struct gre_tree *head) { return _rb_max(gre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_NEXT(struct gre_tunnel *elm) { return _rb_next(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_PREV(struct gre_tunnel *elm) { return _rb_prev(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_LEFT(struct gre_tunnel *elm) { return _rb_left(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_RIGHT(struct gre_tunnel *elm) { return _rb_right(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gre_tunnel * gre_tree_RBT_PARENT(struct gre_tunnel *elm) { return _rb_parent(gre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_LEFT(struct gre_tunnel *elm, struct gre_tunnel *left) { return _rb_set_left(gre_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_RIGHT(struct gre_tunnel *elm, struct gre_tunnel *right) { return _rb_set_right(gre_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void gre_tree_RBT_SET_PARENT(struct gre_tunnel *elm, struct gre_tunnel *parent) { return _rb_set_parent(gre_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void gre_tree_RBT_POISON(struct gre_tunnel *elm, unsigned long poison) { return _rb_poison(gre_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int gre_tree_RBT_CHECK(struct gre_tunnel *elm, unsigned long poison) { return _rb_check(gre_tree_RBT_TYPE, elm, poison); };
 static int gre_set_tunnel(struct gre_tunnel *, struct if_laddrreq *);
 static int gre_get_tunnel(struct gre_tunnel *, struct if_laddrreq *);
 static int gre_del_tunnel(struct gre_tunnel *);
@@ -5005,7 +5004,7 @@ static int gre_clone_create(struct if_clone *, int);
 static int gre_clone_destroy(struct ifnet *);
 struct if_clone gre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "gre", .ifc_namelen = sizeof("gre") - 1, .ifc_create = gre_clone_create, .ifc_destroy = gre_clone_destroy, };
-struct gre_tree gre_softcs = { { ((void *)0) } };
+struct gre_list gre_list = { ((void *)0), &(gre_list).tqh_first };
 static int gre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
 static void gre_start(struct ifnet *);
@@ -5015,6 +5014,8 @@ static int gre_down(struct gre_softc *);
 static void gre_link_state(struct gre_softc *);
 static int gre_input_key(struct mbuf **, int *, int, int,
       struct gre_tunnel *);
+static struct gre_softc *
+  gre_find(const struct gre_tunnel *);
 static struct mbuf *
   gre_encap(struct gre_tunnel *, struct mbuf *, uint16_t);
 static void gre_keepalive_send(void *);
@@ -5034,9 +5035,11 @@ static void egre_media_status(struct ifnet *, struct ifmediareq *);
 static int egre_up(struct egre_softc *);
 static int egre_down(struct egre_softc *);
 static int egre_input(const struct gre_tunnel *, struct mbuf *, int);
+static struct egre_softc *
+  egre_find(const struct gre_tunnel *);
 struct if_clone egre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "egre", .ifc_namelen = sizeof("egre") - 1, .ifc_create = egre_clone_create, .ifc_destroy = egre_clone_destroy, };
-struct gre_tree egre_softcs = { { ((void *)0) } };
+struct gre_list egre_list = { ((void *)0), &(gre_list).tqh_first };
 int gre_allow = 0;
 int gre_wccp = 0;
 void
@@ -5071,6 +5074,9 @@ gre_clone_create(struct if_clone *ifc, int unit)
  if_attach(ifp);
  if_alloc_sadl(ifp);
  bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
+ do { _rw_enter_write(&netlock ); } while (0);
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&gre_list)->tqh_last; *(&gre_list)->tqh_last = (&sc->sc_tunnel); (&gre_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 static int
@@ -5080,6 +5086,7 @@ gre_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   gre_down(sc);
+ do { if (((&sc->sc_tunnel)->t_entry.tqe_next) != ((void *)0)) (&sc->sc_tunnel)->t_entry.tqe_next->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_prev; else (&gre_list)->tqh_last = (&sc->sc_tunnel)->t_entry.tqe_prev; *(&sc->sc_tunnel)->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_next; ((&sc->sc_tunnel)->t_entry.tqe_prev) = ((void *)-1); ((&sc->sc_tunnel)->t_entry.tqe_next) = ((void *)-1); } while (0);
  do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
@@ -5108,6 +5115,9 @@ egre_clone_create(struct if_clone *ifc, int unit)
  ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
  if_attach(ifp);
  ether_ifattach(ifp);
+ do { _rw_enter_write(&netlock ); } while (0);
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&egre_list)->tqh_last; *(&egre_list)->tqh_last = (&sc->sc_tunnel); (&egre_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 static int
@@ -5117,6 +5127,7 @@ egre_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   egre_down(sc);
+ do { if (((&sc->sc_tunnel)->t_entry.tqe_next) != ((void *)0)) (&sc->sc_tunnel)->t_entry.tqe_next->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_prev; else (&egre_list)->tqh_last = (&sc->sc_tunnel)->t_entry.tqe_prev; *(&sc->sc_tunnel)->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_next; ((&sc->sc_tunnel)->t_entry.tqe_prev) = ((void *)-1); ((&sc->sc_tunnel)->t_entry.tqe_next) = ((void *)-1); } while (0);
  do { _rw_exit_write(&netlock ); } while (0);
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
@@ -5153,6 +5164,21 @@ gre_input6(struct mbuf **mp, int *offp, int type, int af)
  if (gre_input_key(mp, offp, type, af, &key) == -1)
   return (rip6_input(mp, offp, type, af));
  return (257);
+}
+static struct gre_softc *
+gre_find(const struct gre_tunnel *key)
+{
+ struct gre_tunnel *t;
+ struct gre_softc *sc;
+ for((t) = ((&gre_list)->tqh_first); (t) != ((void *)0); (t) = ((t)->t_entry.tqe_next)) {
+  if (gre_cmp(key, t) != 0)
+   continue;
+  sc = (struct gre_softc *)t;
+  if (!((sc->sc_if.if_flags) & (0x40)))
+   continue;
+  return (sc);
+ }
+ return (((void *)0));
 }
 static int
 gre_input_key(struct mbuf **mp, int *offp, int type, int af,
@@ -5249,7 +5275,7 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
  default:
   goto decline;
  }
- sc = (struct gre_softc *)gre_tree_RBT_FIND(&gre_softcs, key);
+ sc = gre_find(key);
  if (sc == ((void *)0))
   goto decline;
  ifp = &sc->sc_if;
@@ -5275,6 +5301,21 @@ decline:
  mp = &m;
  return (-1);
 }
+static struct egre_softc *
+egre_find(const struct gre_tunnel *key)
+{
+ struct gre_tunnel *t;
+ struct egre_softc *sc;
+ for((t) = ((&egre_list)->tqh_first); (t) != ((void *)0); (t) = ((t)->t_entry.tqe_next)) {
+  if (gre_cmp(key, t) != 0)
+   continue;
+  sc = (struct egre_softc *)t;
+  if (!((sc->sc_ac.ac_if.if_flags) & (0x40)))
+   continue;
+  return (sc);
+ }
+ return (((void *)0));
+}
 static int
 egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
 {
@@ -5282,7 +5323,7 @@ egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
  struct mbuf *n;
  int off;
- sc = (struct egre_softc *)gre_tree_RBT_FIND(&egre_softcs, key);
+ sc = egre_find(key);
  if (sc == ((void *)0))
   return (-1);
  m_adj(m, hlen);
@@ -5320,7 +5361,8 @@ gre_keepalive_recv(struct ifnet *ifp, struct mbuf *m)
  uint8_t digest[8];
  int uptime, delta;
  int tick = ticks;
- if (sc->sc_ka_state == 0)
+ if (sc->sc_ka_state == 0 ||
+     sc->sc_tunnel.t_rtableid != sc->sc_if.if_data.ifi_rdomain)
   goto drop;
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(*gk))
   goto drop;
@@ -5616,51 +5658,25 @@ gre_tunnel_ioctl(struct ifnet *ifp, struct gre_tunnel *tunnel,
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
- case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gre_set_vnetid(tunnel, ifr);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
   error = gre_get_vnetid(tunnel, ifr);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gre_del_vnetid(tunnel);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
   error = gre_get_tunnel(tunnel, (struct if_laddrreq *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gre_del_tunnel(tunnel);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
@@ -5700,16 +5716,8 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((163))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   if (ikar->ikar_timeo < 0 || ikar->ikar_timeo > 86400 ||
       ikar->ikar_cnt < 0 || ikar->ikar_cnt > 256)
    return (22);
@@ -5788,11 +5796,6 @@ gre_up(struct gre_softc *sc)
  if (sc->sc_tunnel.t_af == 0)
   return (6);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- if (sc->sc_ka_state != 0 &&
-     sc->sc_tunnel.t_rtableid != sc->sc_if.if_data.ifi_rdomain)
-  return (65);
- if (gre_tree_RBT_INSERT(&gre_softcs, &sc->sc_tunnel) != ((void *)0))
-  return (48);
  ((sc->sc_if.if_flags) |= (0x40));
  if (sc->sc_ka_state != 0) {
   arc4random_buf(&sc->sc_ka_key, sizeof(sc->sc_ka_key));
@@ -5807,7 +5810,6 @@ static int
 gre_down(struct gre_softc *sc)
 {
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- gre_tree_RBT_REMOVE(&gre_softcs, &sc->sc_tunnel);
  ((sc->sc_if.if_flags) &= ~(0x40));
  if (sc->sc_ka_state != 0) {
   if (!timeout_del(&sc->sc_ka_hold))
@@ -5853,7 +5855,8 @@ gre_keepalive_send(void *arg)
  uint16_t proto;
  uint8_t ttl;
  if (!((sc->sc_if.if_flags) & (0x40)) ||
-     sc->sc_ka_state == 0)
+     sc->sc_ka_state == 0 ||
+     sc->sc_tunnel.t_rtableid != sc->sc_if.if_data.ifi_rdomain)
   return;
  linkhdr = max_linkhdr + (((sizeof(struct ip))>(sizeof(struct ip6_hdr)))?(sizeof(struct ip)):(sizeof(struct ip6_hdr))) +
      sizeof(struct gre_header) + sizeof(struct gre_h_key);
@@ -6048,11 +6051,7 @@ gre_del_vnetid(struct gre_tunnel *tunnel)
 static int
 egre_up(struct egre_softc *sc)
 {
- if (sc->sc_tunnel.t_af == 0)
-  return (6);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- if (gre_tree_RBT_INSERT(&egre_softcs, &sc->sc_tunnel) != ((void *)0))
-  return (48);
  ((sc->sc_ac.ac_if.if_flags) |= (0x40));
  return (0);
 }
@@ -6060,7 +6059,6 @@ static int
 egre_down(struct egre_softc *sc)
 {
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- gre_tree_RBT_REMOVE(&egre_softcs, &sc->sc_tunnel);
  ((sc->sc_ac.ac_if.if_flags) &= ~(0x40));
  return (0);
 }
@@ -6147,4 +6145,3 @@ gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
  }
  return (0);
 }
-static int gre_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct gre_tunnel *l = lptr, *r = rptr; return gre_cmp(l, r); } static const struct rb_type gre_tree_RBT_INFO = { gre_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct gre_tunnel, t_entry), }; const struct rb_type *const gre_tree_RBT_TYPE = &gre_tree_RBT_INFO;

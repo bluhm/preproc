@@ -4592,22 +4592,21 @@ union gif_addr {
  struct in_addr in4;
 };
 struct gif_tunnel {
- struct rb_entry t_entry;
+ struct { struct gif_tunnel *tqe_next; struct gif_tunnel **tqe_prev; } t_entry;
  union gif_addr t_src;
  union gif_addr t_dst;
  u_int t_rtableid;
  sa_family_t t_af;
 };
-struct gif_tree { struct rb_tree rbh_root; };
+struct gif_list { struct gif_tunnel *tqh_first; struct gif_tunnel **tqh_last; };
 static inline int gif_cmp(const struct gif_tunnel *,
        const struct gif_tunnel *);
-extern const struct rb_type *const gif_tree_RBT_TYPE; __attribute__((__unused__)) static inline void gif_tree_RBT_INIT(struct gif_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_INSERT(struct gif_tree *head, struct gif_tunnel *elm) { return _rb_insert(gif_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_REMOVE(struct gif_tree *head, struct gif_tunnel *elm) { return _rb_remove(gif_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_FIND(struct gif_tree *head, const struct gif_tunnel *key) { return _rb_find(gif_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_NFIND(struct gif_tree *head, const struct gif_tunnel *key) { return _rb_nfind(gif_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_ROOT(struct gif_tree *head) { return _rb_root(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int gif_tree_RBT_EMPTY(struct gif_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_MIN(struct gif_tree *head) { return _rb_min(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_MAX(struct gif_tree *head) { return _rb_max(gif_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_NEXT(struct gif_tunnel *elm) { return _rb_next(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_PREV(struct gif_tunnel *elm) { return _rb_prev(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_LEFT(struct gif_tunnel *elm) { return _rb_left(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_RIGHT(struct gif_tunnel *elm) { return _rb_right(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct gif_tunnel * gif_tree_RBT_PARENT(struct gif_tunnel *elm) { return _rb_parent(gif_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_LEFT(struct gif_tunnel *elm, struct gif_tunnel *left) { return _rb_set_left(gif_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_RIGHT(struct gif_tunnel *elm, struct gif_tunnel *right) { return _rb_set_right(gif_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void gif_tree_RBT_SET_PARENT(struct gif_tunnel *elm, struct gif_tunnel *parent) { return _rb_set_parent(gif_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void gif_tree_RBT_POISON(struct gif_tunnel *elm, unsigned long poison) { return _rb_poison(gif_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int gif_tree_RBT_CHECK(struct gif_tunnel *elm, unsigned long poison) { return _rb_check(gif_tree_RBT_TYPE, elm, poison); };
 struct gif_softc {
  struct gif_tunnel sc_tunnel;
  struct ifnet sc_if;
  int sc_ttl;
 };
-struct gif_tree gif_tree = { { ((void *)0) } };
+struct gif_list gif_list = { ((void *)0), &(gif_list).tqh_first };
 void gifattach(int);
 int gif_clone_create(struct if_clone *, int);
 int gif_clone_destroy(struct ifnet *);
@@ -4655,17 +4654,20 @@ gif_clone_create(struct if_clone *ifc, int unit)
  if_attach(ifp);
  if_alloc_sadl(ifp);
  bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
+ do { _rw_enter_write(&netlock ); } while (0);
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&gif_list)->tqh_last; *(&gif_list)->tqh_last = (&sc->sc_tunnel); (&gif_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
 gif_clone_destroy(struct ifnet *ifp)
 {
  struct gif_softc *sc = ifp->if_softc;
- if (((ifp->if_flags) & (0x40))) {
-  do { _rw_enter_write(&netlock ); } while (0);
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
   gif_down(sc);
-  do { _rw_exit_write(&netlock ); } while (0);
- }
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&gif_list)->tqh_last; *(&gif_list)->tqh_last = (&sc->sc_tunnel); (&gif_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
  return (0);
@@ -4778,7 +4780,8 @@ gif_send(struct gif_softc *sc, struct mbuf *m,
   break;
  }
  default:
-  unhandled_af(sc->sc_tunnel.t_af);
+  m_freem(m);
+  break;
  }
  return (0);
 drop:
@@ -4828,11 +4831,7 @@ drop:
 int
 gif_up(struct gif_softc *sc)
 {
- if (sc->sc_tunnel.t_af == 0)
-  return (39);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- if (gif_tree_RBT_INSERT(&gif_tree, &sc->sc_tunnel) != ((void *)0))
-  return (48);
  ((sc->sc_if.if_flags) |= (0x40));
  return (0);
 }
@@ -4840,7 +4839,6 @@ int
 gif_down(struct gif_softc *sc)
 {
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- gif_tree_RBT_REMOVE(&gif_tree, &sc->sc_tunnel);
  ((sc->sc_if.if_flags) &= ~(0x40));
  return (0);
 }
@@ -4868,20 +4866,12 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gif_set_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
   error = gif_get_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = gif_del_tunnel(sc);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
@@ -4892,10 +4882,6 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
@@ -5053,6 +5039,21 @@ in6_gif_input(struct mbuf **mp, int *offp, int proto, int af)
   rv = ipip_input(mp, offp, proto, af);
  return (rv);
 }
+struct gif_softc *
+gif_find(const struct gif_tunnel *key)
+{
+ struct gif_tunnel *t;
+ struct gif_softc *sc;
+ for((t) = ((&gif_list)->tqh_first); (t) != ((void *)0); (t) = ((t)->t_entry.tqe_next)) {
+  if (gif_cmp(key, t) != 0)
+   continue;
+  sc = (struct gif_softc *)t;
+  if (!((sc->sc_if.if_flags) & (0x40)))
+   continue;
+  return (sc);
+ }
+ return (((void *)0));
+}
 int
 gif_input(struct gif_tunnel *key, struct mbuf **mp, int *offp, int proto,
     int af, uint8_t ttl, uint8_t otos)
@@ -5070,10 +5071,10 @@ gif_input(struct gif_tunnel *key, struct mbuf **mp, int *offp, int proto,
  if (m->m_hdr.mh_flags & (0x0800 | 0x0400))
   return (-1);
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
- sc = (struct gif_softc *)gif_tree_RBT_FIND(&gif_tree, key);
+ sc = gif_find(key);
  if (sc == ((void *)0)) {
   __builtin_memset((&key->t_dst), (0), (sizeof(key->t_dst)));
-  sc = (struct gif_softc *)gif_tree_RBT_FIND(&gif_tree, key);
+  sc = gif_find(key);
   if (sc == ((void *)0))
    return (-1);
  }
@@ -5177,4 +5178,3 @@ gif_cmp(const struct gif_tunnel *a, const struct gif_tunnel *b)
   return (rv);
  return (0);
 }
-static int gif_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct gif_tunnel *l = lptr, *r = rptr; return gif_cmp(l, r); } static const struct rb_type gif_tree_RBT_INFO = { gif_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct gif_tunnel, t_entry), }; const struct rb_type *const gif_tree_RBT_TYPE = &gif_tree_RBT_INFO;

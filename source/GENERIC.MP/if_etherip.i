@@ -4882,13 +4882,12 @@ struct etherip_tunnel {
    _t_dst;
  unsigned int t_rtableid;
  sa_family_t t_af;
- struct rb_entry
-   t_entry;;
+ struct { struct etherip_tunnel *tqe_next; struct etherip_tunnel **tqe_prev; }
+   t_entry;
 };
-struct etherip_tree { struct rb_tree rbh_root; };
+struct etherip_list { struct etherip_tunnel *tqh_first; struct etherip_tunnel **tqh_last; };
 static inline int etherip_cmp(const struct etherip_tunnel *,
     const struct etherip_tunnel *);
-extern const struct rb_type *const etherip_tree_RBT_TYPE; __attribute__((__unused__)) static inline void etherip_tree_RBT_INIT(struct etherip_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_INSERT(struct etherip_tree *head, struct etherip_tunnel *elm) { return _rb_insert(etherip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_REMOVE(struct etherip_tree *head, struct etherip_tunnel *elm) { return _rb_remove(etherip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_FIND(struct etherip_tree *head, const struct etherip_tunnel *key) { return _rb_find(etherip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_NFIND(struct etherip_tree *head, const struct etherip_tunnel *key) { return _rb_nfind(etherip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_ROOT(struct etherip_tree *head) { return _rb_root(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int etherip_tree_RBT_EMPTY(struct etherip_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_MIN(struct etherip_tree *head) { return _rb_min(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_MAX(struct etherip_tree *head) { return _rb_max(etherip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_NEXT(struct etherip_tunnel *elm) { return _rb_next(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_PREV(struct etherip_tunnel *elm) { return _rb_prev(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_LEFT(struct etherip_tunnel *elm) { return _rb_left(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_RIGHT(struct etherip_tunnel *elm) { return _rb_right(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct etherip_tunnel * etherip_tree_RBT_PARENT(struct etherip_tunnel *elm) { return _rb_parent(etherip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_LEFT(struct etherip_tunnel *elm, struct etherip_tunnel *left) { return _rb_set_left(etherip_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_RIGHT(struct etherip_tunnel *elm, struct etherip_tunnel *right) { return _rb_set_right(etherip_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void etherip_tree_RBT_SET_PARENT(struct etherip_tunnel *elm, struct etherip_tunnel *parent) { return _rb_set_parent(etherip_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void etherip_tree_RBT_POISON(struct etherip_tunnel *elm, unsigned long poison) { return _rb_poison(etherip_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int etherip_tree_RBT_CHECK(struct etherip_tunnel *elm, unsigned long poison) { return _rb_check(etherip_tree_RBT_TYPE, elm, poison); };
 struct etherip_softc {
  struct etherip_tunnel sc_tunnel;
  struct arpcom sc_ac;
@@ -4909,9 +4908,10 @@ int etherip_get_tunnel(struct etherip_softc *, struct if_laddrreq *);
 int etherip_del_tunnel(struct etherip_softc *);
 int etherip_up(struct etherip_softc *);
 int etherip_down(struct etherip_softc *);
+struct etherip_softc *etherip_find(const struct etherip_tunnel *);
 int etherip_input(struct etherip_tunnel *, struct mbuf *, int);
 struct if_clone etherip_cloner = { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "etherip", .ifc_namelen = sizeof("etherip") - 1, .ifc_create = etherip_clone_create, .ifc_destroy = etherip_clone_destroy, };
-struct etherip_tree etherip_tree = { { ((void *)0) } };
+struct etherip_list etherip_list = { ((void *)0), &(etherip_list).tqh_first };
 void
 etheripattach(int count)
 {
@@ -4942,6 +4942,9 @@ etherip_clone_create(struct if_clone *ifc, int unit)
  ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
  if_attach(ifp);
  ether_ifattach(ifp);
+ do { _rw_enter_write(&netlock ); } while (0);
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&etherip_list)->tqh_last; *(&etherip_list)->tqh_last = (&sc->sc_tunnel); (&etherip_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -4951,6 +4954,7 @@ etherip_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   etherip_down(sc);
+ do { if (((&sc->sc_tunnel)->t_entry.tqe_next) != ((void *)0)) (&sc->sc_tunnel)->t_entry.tqe_next->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_prev; else (&etherip_list)->tqh_last = (&sc->sc_tunnel)->t_entry.tqe_prev; *(&sc->sc_tunnel)->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_next; ((&sc->sc_tunnel)->t_entry.tqe_prev) = ((void *)-1); ((&sc->sc_tunnel)->t_entry.tqe_next) = ((void *)-1); } while (0);
  do { _rw_exit_write(&netlock ); } while (0);
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
@@ -4988,7 +4992,8 @@ etherip_start(struct ifnet *ifp)
    error = ip6_etherip_output(ifp, m);
    break;
   default:
-   unhandled_af(sc->sc_tunnel.t_af);
+   m_freem(m);
+   continue;
   }
   if (error)
    ifp->if_data.ifi_oerrors++;
@@ -5015,10 +5020,6 @@ etherip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
@@ -5031,20 +5032,12 @@ etherip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = etherip_set_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
   error = etherip_get_tunnel(sc, (struct if_laddrreq *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   error = etherip_del_tunnel(sc);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
@@ -5164,12 +5157,9 @@ etherip_del_tunnel(struct etherip_softc *sc)
 int
 etherip_up(struct etherip_softc *sc)
 {
- if (sc->sc_tunnel.t_af == 0)
-  return (6);
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- if (etherip_tree_RBT_INSERT(&etherip_tree, &sc->sc_tunnel) != ((void *)0))
-  return (48);
- ((sc->sc_ac.ac_if.if_flags) |= (0x40));
+ ((ifp->if_flags) |= (0x40));
  return (0);
 }
 int
@@ -5177,9 +5167,7 @@ etherip_down(struct etherip_softc *sc)
 {
  struct ifnet *ifp = &sc->sc_ac.ac_if;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- etherip_tree_RBT_REMOVE(&etherip_tree, &sc->sc_tunnel);
  ((ifp->if_flags) &= ~(0x40));
- ifq_barrier(&ifp->if_snd);
  return (0);
 }
 int
@@ -5228,6 +5216,21 @@ ip_etherip_input(struct mbuf **mp, int *offp, int type, int af)
  key._t_dst.in4 = ip->ip_src;
  return (etherip_input(&key, m, *offp));
 }
+struct etherip_softc *
+etherip_find(const struct etherip_tunnel *key)
+{
+ struct etherip_tunnel *t;
+ struct etherip_softc *sc;
+ for((t) = ((&etherip_list)->tqh_first); (t) != ((void *)0); (t) = ((t)->t_entry.tqe_next)) {
+  if (etherip_cmp(key, t) != 0)
+   continue;
+  sc = (struct etherip_softc *)t;
+  if (!((sc->sc_ac.ac_if.if_flags) & (0x40)))
+   continue;
+  return (sc);
+ }
+ return (((void *)0));
+}
 int
 etherip_input(struct etherip_tunnel *key, struct mbuf *m, int hlen)
 {
@@ -5241,7 +5244,7 @@ etherip_input(struct etherip_tunnel *key, struct mbuf *m, int hlen)
  }
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- sc = (struct etherip_softc *)etherip_tree_RBT_FIND(&etherip_tree, key);
+ sc = etherip_find(key);
  if (sc == ((void *)0)) {
   etheripstat_inc(etherips_noifdrops);
   goto drop;
@@ -5390,4 +5393,3 @@ etherip_cmp(const struct etherip_tunnel *a, const struct etherip_tunnel *b)
   return (rv);
  return (0);
 }
-static int etherip_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct etherip_tunnel *l = lptr, *r = rptr; return etherip_cmp(l, r); } static const struct rb_type etherip_tree_RBT_INFO = { etherip_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct etherip_tunnel, t_entry), }; const struct rb_type *const etherip_tree_RBT_TYPE = &etherip_tree_RBT_INFO;

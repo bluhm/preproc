@@ -1531,47 +1531,6 @@ void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
-{
- rbt->rbt_root = ((void *)0);
-}
-static inline int
-_rb_empty(struct rb_tree *rbt)
-{
- return (rbt->rbt_root == ((void *)0));
-}
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
 struct if_nameindex {
  unsigned int if_index;
  char *if_name;
@@ -2842,6 +2801,47 @@ void *bpfsattach(caddr_t *, const char *, u_int, u_int);
 void bpfsdetach(void *);
 void bpfilterattach(int);
 u_int bpf_mfilter(const struct bpf_insn *, const struct mbuf *, u_int);
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
+};
+struct rb_tree {
+ struct rb_entry *rbt_root;
+};
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
+};
+static inline void
+_rb_init(struct rb_tree *rbt)
+{
+ rbt->rbt_root = ((void *)0);
+}
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 struct radix_node {
  struct radix_mask *rn_mklist;
  struct radix_node *rn_p;
@@ -3990,23 +3990,25 @@ void mobileipattach(int);
 int mobileip_input(struct mbuf **, int *, int, int);
 int mobileip_sysctl(int *, u_int, void *, size_t *,
        void *, size_t);
+struct mobileip_tunnel {
+ unsigned int t_rtableid;
+ struct in_addr t_src;
+ struct in_addr t_dst;
+ struct { struct mobileip_tunnel *tqe_next; struct mobileip_tunnel **tqe_prev; }
+    t_entry;
+};
+struct mobileip_list { struct mobileip_tunnel *tqh_first; struct mobileip_tunnel **tqh_last; };
 struct mobileip_softc {
+ struct mobileip_tunnel sc_tunnel;
  struct ifnet sc_if;
- struct rb_entry
-    sc_entry;
- unsigned int sc_rtableid;
- struct in_addr sc_src;
- struct in_addr sc_dst;
 };
 static int mobileip_clone_create(struct if_clone *, int);
 static int mobileip_clone_destroy(struct ifnet *);
 static struct if_clone mobileip_cloner = { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mobileip", .ifc_namelen = sizeof("mobileip") - 1, .ifc_create = mobileip_clone_create, .ifc_destroy = mobileip_clone_destroy, };
-struct mobileip_tree { struct rb_tree rbh_root; };
 static inline int
-  mobileip_cmp(const struct mobileip_softc *,
-      const struct mobileip_softc *);
-extern const struct rb_type *const mobileip_tree_RBT_TYPE; __attribute__((__unused__)) static inline void mobileip_tree_RBT_INIT(struct mobileip_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_INSERT(struct mobileip_tree *head, struct mobileip_softc *elm) { return _rb_insert(mobileip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_REMOVE(struct mobileip_tree *head, struct mobileip_softc *elm) { return _rb_remove(mobileip_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_FIND(struct mobileip_tree *head, const struct mobileip_softc *key) { return _rb_find(mobileip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_NFIND(struct mobileip_tree *head, const struct mobileip_softc *key) { return _rb_nfind(mobileip_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_ROOT(struct mobileip_tree *head) { return _rb_root(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int mobileip_tree_RBT_EMPTY(struct mobileip_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_MIN(struct mobileip_tree *head) { return _rb_min(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_MAX(struct mobileip_tree *head) { return _rb_max(mobileip_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_NEXT(struct mobileip_softc *elm) { return _rb_next(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_PREV(struct mobileip_softc *elm) { return _rb_prev(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_LEFT(struct mobileip_softc *elm) { return _rb_left(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_RIGHT(struct mobileip_softc *elm) { return _rb_right(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mobileip_softc * mobileip_tree_RBT_PARENT(struct mobileip_softc *elm) { return _rb_parent(mobileip_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_LEFT(struct mobileip_softc *elm, struct mobileip_softc *left) { return _rb_set_left(mobileip_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_RIGHT(struct mobileip_softc *elm, struct mobileip_softc *right) { return _rb_set_right(mobileip_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_SET_PARENT(struct mobileip_softc *elm, struct mobileip_softc *parent) { return _rb_set_parent(mobileip_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void mobileip_tree_RBT_POISON(struct mobileip_softc *elm, unsigned long poison) { return _rb_poison(mobileip_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int mobileip_tree_RBT_CHECK(struct mobileip_softc *elm, unsigned long poison) { return _rb_check(mobileip_tree_RBT_TYPE, elm, poison); };
-struct mobileip_tree mobileip_softcs = { { ((void *)0) } };
+  mobileip_cmp(const struct mobileip_tunnel *,
+      const struct mobileip_tunnel *);
+struct mobileip_list mobileip_list = { ((void *)0), &(mobileip_list).tqh_first };
 static int mobileip_ioctl(struct ifnet *, u_long, caddr_t);
 static int mobileip_up(struct mobileip_softc *);
 static int mobileip_down(struct mobileip_softc *);
@@ -4019,6 +4021,8 @@ static int mobileip_output(struct ifnet *, struct mbuf *,
       struct sockaddr *, struct rtentry *);
 static void mobileip_start(struct ifnet *);
 static int mobileip_encap(struct mobileip_softc *, struct mbuf *);
+static struct mobileip_softc *
+  mobileip_find(const struct mobileip_tunnel *);
 int mobileip_allow = 0;
 void
 mobileipattach(int n)
@@ -4032,9 +4036,9 @@ mobileip_clone_create(struct if_clone *ifc, int unit)
  sc = malloc(sizeof(*sc), 2, 0x0002|0x0008);
  if (!sc)
   return (12);
- sc->sc_rtableid = 0;
- sc->sc_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
- sc->sc_dst.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_tunnel.t_rtableid = 0;
+ sc->sc_tunnel.t_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_tunnel.t_dst.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
  snprintf(sc->sc_if.if_xname, sizeof sc->sc_if.if_xname, "%s%d",
      ifc->ifc_name, unit);
  sc->sc_if.if_softc = sc;
@@ -4049,6 +4053,9 @@ mobileip_clone_create(struct if_clone *ifc, int unit)
  if_attach(&sc->sc_if);
  if_alloc_sadl(&sc->sc_if);
  bpfattach(&sc->sc_if.if_bpf, &sc->sc_if, 12, sizeof(uint32_t));
+ do { _rw_enter_write(&netlock ); } while (0);
+ do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&mobileip_list)->tqh_last; *(&mobileip_list)->tqh_last = (&sc->sc_tunnel); (&mobileip_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
  return (0);
 }
 int
@@ -4059,6 +4066,7 @@ mobileip_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   mobileip_down(sc);
+ do { if (((&sc->sc_tunnel)->t_entry.tqe_next) != ((void *)0)) (&sc->sc_tunnel)->t_entry.tqe_next->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_prev; else (&mobileip_list)->tqh_last = (&sc->sc_tunnel)->t_entry.tqe_prev; *(&sc->sc_tunnel)->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_next; ((&sc->sc_tunnel)->t_entry.tqe_prev) = ((void *)-1); ((&sc->sc_tunnel)->t_entry.tqe_next) = ((void *)-1); } while (0);
  do { _rw_exit_write(&netlock ); } while (0);
  free(sc, 2, sizeof(*sc));
  return (0);
@@ -4076,19 +4084,19 @@ mobileip_cksum(const void *buf, size_t len)
  return (~sum);
 }
 static inline int
-mobileip_cmp(const struct mobileip_softc *a, const struct mobileip_softc *b)
+mobileip_cmp(const struct mobileip_tunnel *a, const struct mobileip_tunnel *b)
 {
- if (a->sc_src.s_addr > b->sc_src.s_addr)
+ if (a->t_src.s_addr > b->t_src.s_addr)
   return (1);
- if (a->sc_src.s_addr < b->sc_src.s_addr)
+ if (a->t_src.s_addr < b->t_src.s_addr)
   return (-1);
- if (a->sc_dst.s_addr > b->sc_dst.s_addr)
+ if (a->t_dst.s_addr > b->t_dst.s_addr)
   return (1);
- if (a->sc_dst.s_addr < b->sc_dst.s_addr)
+ if (a->t_dst.s_addr < b->t_dst.s_addr)
   return (-1);
- if (a->sc_rtableid > b->sc_rtableid)
+ if (a->t_rtableid > b->t_rtableid)
   return (1);
- if (a->sc_rtableid < b->sc_rtableid)
+ if (a->t_rtableid < b->t_rtableid)
   return (-1);
  return (0);
 }
@@ -4151,6 +4159,7 @@ static int
 mobileip_encap(struct mobileip_softc *sc, struct mbuf *m)
 {
  struct ip *ip;
+ struct mobileip_tunnel *tunnel = &sc->sc_tunnel;
  struct mobileip_header *mh;
  struct mobileip_h_src *msh;
  caddr_t hdr;
@@ -4161,7 +4170,7 @@ mobileip_encap(struct mobileip_softc *sc, struct mbuf *m)
  ip = ((struct ip *)((m)->m_hdr.mh_data));
  iphlen = ip->ip_hl << 2;
  hlen = sizeof(*mh);
- if (ip->ip_src.s_addr != sc->sc_src.s_addr)
+ if (ip->ip_src.s_addr != tunnel->t_src.s_addr)
   hlen += sizeof(*msh);
  m = m_prepend(m, hlen, 0x0002);
  if (m == ((void *)0))
@@ -4177,18 +4186,18 @@ mobileip_encap(struct mobileip_softc *sc, struct mbuf *m)
  mh->mip_flags = 0;
  mh->mip_hcrc = 0;
  mh->mip_dst = ip->ip_dst.s_addr;
- if (ip->ip_src.s_addr != sc->sc_src.s_addr) {
+ if (ip->ip_src.s_addr != tunnel->t_src.s_addr) {
   mh->mip_flags |= 0x80;
   msh = (struct mobileip_h_src *)(mh + 1);
   msh->mip_src = ip->ip_src.s_addr;
-  ip->ip_src.s_addr = sc->sc_src.s_addr;
+  ip->ip_src.s_addr = tunnel->t_src.s_addr;
  }
  (*(__uint16_t *)(&mh->mip_hcrc) = ((__uint16_t)(mobileip_cksum(mh, hlen))));
  ip->ip_p = 55;
  (*(__uint16_t *)(&ip->ip_len) = ((__uint16_t)(((__uint16_t)(*(__uint16_t *)(&ip->ip_len))) + hlen)));
- ip->ip_dst = sc->sc_dst;
+ ip->ip_dst = tunnel->t_dst;
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
- m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_rtableid;
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = tunnel->t_rtableid;
  pf_pkt_addr_changed(m);
  ip_send(m);
  return (0);
@@ -4241,20 +4250,16 @@ mobileip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ifr->ifr_ifru.ifru_metric = -1;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
-  if (((ifp->if_flags) & (0x40))) {
-   error = 16;
-   break;
-  }
   if (ifr->ifr_ifru.ifru_metric < 0 ||
       ifr->ifr_ifru.ifru_metric > 255 ||
       !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
    error = 22;
    break;
   }
-  sc->sc_rtableid = ifr->ifr_ifru.ifru_metric;
+  sc->sc_tunnel.t_rtableid = ifr->ifr_ifru.ifru_metric;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
-  ifr->ifr_ifru.ifru_metric = sc->sc_rtableid;
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_rtableid;
   break;
  default:
   error = 25;
@@ -4265,13 +4270,7 @@ mobileip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 static int
 mobileip_up(struct mobileip_softc *sc)
 {
- struct mobileip_softc *osc;
- if (sc->sc_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
-  return (39);
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- osc = mobileip_tree_RBT_INSERT(&mobileip_softcs, sc);
- if (osc != ((void *)0))
-  return (48);
  ((sc->sc_if.if_flags) |= (0x40));
  return (0);
 }
@@ -4279,7 +4278,6 @@ static int
 mobileip_down(struct mobileip_softc *sc)
 {
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
- mobileip_tree_RBT_REMOVE(&mobileip_softcs, sc);
  ((sc->sc_if.if_flags) &= ~(0x40));
  ifq_barrier(&sc->sc_if.if_snd);
  return (0);
@@ -4289,8 +4287,6 @@ mobileip_set_tunnel(struct mobileip_softc *sc, struct if_laddrreq *req)
 {
  struct sockaddr_in *src = (struct sockaddr_in *)&req->addr;
  struct sockaddr_in *dst = (struct sockaddr_in *)&req->dstaddr;
- if (((sc->sc_if.if_flags) & (0x40)))
-  return (16);
  if (src->sin_family != dst->sin_family || src->sin_len != dst->sin_len)
   return (22);
  if (dst->sin_family != 2)
@@ -4302,8 +4298,8 @@ mobileip_set_tunnel(struct mobileip_softc *sc, struct if_laddrreq *req)
      ((dst->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
      (((u_int32_t)(dst->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
   return (22);
- sc->sc_src = src->sin_addr;
- sc->sc_dst = dst->sin_addr;
+ sc->sc_tunnel.t_src = src->sin_addr;
+ sc->sc_tunnel.t_dst = dst->sin_addr;
  return (0);
 }
 static int
@@ -4311,31 +4307,44 @@ mobileip_get_tunnel(struct mobileip_softc *sc, struct if_laddrreq *req)
 {
  struct sockaddr_in *src = (struct sockaddr_in *)&req->addr;
  struct sockaddr_in *dst = (struct sockaddr_in *)&req->dstaddr;
- if (sc->sc_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
+ if (sc->sc_tunnel.t_dst.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))))
   return (49);
  __builtin_memset((src), (0), (sizeof(*src)));
  src->sin_family = 2;
  src->sin_len = sizeof(*src);
- src->sin_addr = sc->sc_src;
+ src->sin_addr = sc->sc_tunnel.t_src;
  __builtin_memset((dst), (0), (sizeof(*dst)));
  dst->sin_family = 2;
  dst->sin_len = sizeof(*dst);
- dst->sin_addr = sc->sc_dst;
+ dst->sin_addr = sc->sc_tunnel.t_dst;
  return (0);
 }
 static int
 mobileip_del_tunnel(struct mobileip_softc *sc)
 {
- if (((sc->sc_if.if_flags) & (0x40)))
-  return (16);
- sc->sc_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
- sc->sc_dst.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_tunnel.t_src.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+ sc->sc_tunnel.t_dst.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
  return (0);
+}
+static struct mobileip_softc *
+mobileip_find(const struct mobileip_tunnel *key)
+{
+ struct mobileip_tunnel *t;
+ struct mobileip_softc *sc;
+ for((t) = ((&mobileip_list)->tqh_first); (t) != ((void *)0); (t) = ((t)->t_entry.tqe_next)) {
+  if (mobileip_cmp(key, t) != 0)
+   continue;
+  sc = (struct mobileip_softc *)t;
+  if (!((sc->sc_if.if_flags) & (0x40)))
+   continue;
+  return (sc);
+ }
+ return (((void *)0));
 }
 int
 mobileip_input(struct mbuf **mp, int *offp, int type, int af)
 {
- struct mobileip_softc key;
+ struct mobileip_tunnel key;
  struct mbuf *m = *mp;
  struct ifnet *ifp;
  struct mobileip_softc *sc;
@@ -4348,10 +4357,10 @@ mobileip_input(struct mbuf **mp, int *offp, int type, int af)
  if (!mobileip_allow)
   goto drop;
  ip = ((struct ip *)((m)->m_hdr.mh_data));
- key.sc_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
- key.sc_src = ip->ip_dst;
- key.sc_dst = ip->ip_src;
- sc = mobileip_tree_RBT_FIND(&mobileip_softcs, &key);
+ key.t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ key.t_src = ip->ip_dst;
+ key.t_dst = ip->ip_src;
+ sc = mobileip_find(&key);
  if (sc == ((void *)0))
   goto drop;
  iphlen = ip->ip_hl << 2;
@@ -4745,4 +4754,3 @@ mobileip_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  }
  return (0);
 }
-static int mobileip_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct mobileip_softc *l = lptr, *r = rptr; return mobileip_cmp(l, r); } static const struct rb_type mobileip_tree_RBT_INFO = { mobileip_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct mobileip_softc, sc_entry), }; const struct rb_type *const mobileip_tree_RBT_TYPE = &mobileip_tree_RBT_INFO;
