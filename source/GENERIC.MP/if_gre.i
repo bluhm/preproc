@@ -5236,6 +5236,13 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
  } else
   key->t_key_mask = ((__uint32_t)(0x00000000U));
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
+ if (gh->gre_proto == ((__uint16_t)(0x6558))) {
+  if (egre_input(key, m, hlen) == -1)
+   goto decline;
+ }
+ sc = gre_find(key);
+ if (sc == ((void *)0))
+  goto decline;
  switch (gh->gre_proto) {
  case ((__uint16_t)(0x883e)):
   switch (gre_wccp) {
@@ -5269,15 +5276,9 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   bpf_af = 0;
   input = gre_keepalive_recv;
   break;
- case ((__uint16_t)(0x6558)):
-  if (egre_input(key, m, hlen) == -1)
-   goto decline;
  default:
   goto decline;
  }
- sc = gre_find(key);
- if (sc == ((void *)0))
-  goto decline;
  ifp = &sc->sc_if;
  m_adj(m, hlen);
  if (sc->sc_tunnel.t_ttl == -1) {
