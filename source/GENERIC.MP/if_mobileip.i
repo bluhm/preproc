@@ -4207,9 +4207,14 @@ mobileip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
 {
  struct mobileip_softc *sc = ifp->if_softc;
  struct ifreq *ifr = (struct ifreq *)data;
+ struct ifaddr *ifa = (struct ifaddr *)data;
  int error = 0;
  switch(cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
+  if (ifa->ifa_addr->sa_family != 2) {
+   error = 47;
+   break;
+  }
   ifp->if_flags |= 0x1;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
   if (((ifp->if_flags) & (0x1))) {
