@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3195,7 +3195,7 @@ trunk_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct trunk_reqall) & 0x1fff) << 16) | ((('i')) << 8) | ((144))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0) {
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0) {
    error = 1;
    break;
   }
@@ -3241,7 +3241,7 @@ trunk_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   trunk_port2req(tp, rp);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct trunk_reqport) & 0x1fff) << 16) | ((('i')) << 8) | ((141))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0) {
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0) {
    error = 1;
    break;
   }
@@ -3253,7 +3253,7 @@ trunk_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = trunk_port_create(tr, tpif);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct trunk_reqport) & 0x1fff) << 16) | ((('i')) << 8) | ((142))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0) {
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0) {
    error = 1;
    break;
   }

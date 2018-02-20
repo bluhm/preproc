@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3187,7 +3187,7 @@ pppoe_ioctl(struct ifnet *ifp, unsigned long cmd, caddr_t data)
  {
   struct pppoediscparms *parms = (struct pppoediscparms *)data;
   int len;
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   if (parms->eth_ifname[0] != '\0') {
    struct ifnet *eth_if;

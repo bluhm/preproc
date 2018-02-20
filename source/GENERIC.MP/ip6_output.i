@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6999,7 +6999,7 @@ ip6_ctloutput(int op, struct socket *so, int level, int optname,
    switch (optname) {
    case 53:
            if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -7007,7 +7007,7 @@ ip6_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 54:
            if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -7015,7 +7015,7 @@ ip6_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 55:
            if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -7023,7 +7023,7 @@ ip6_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 60:
            if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -7041,7 +7041,7 @@ ip6_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    if (p->p_p->ps_rtableid != rtid &&
        p->p_p->ps_rtableid != 0 &&
-       (error = suser(p, 0)) != 0)
+       (error = suser(p)) != 0)
     break;
    if (!rtable_exists(rtid)) {
     error = 22;
@@ -7523,7 +7523,7 @@ ip6_setmoptions(int optname, struct ip6_moptions **im6op, struct mbuf *m,
   }
   mreq = ((struct ipv6_mreq *)((m)->m_hdr.mh_data));
   if (((*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[12]) == 0))) {
-   if (suser(p, 0))
+   if (suser(p))
    {
     error = 13;
     break;
@@ -7584,7 +7584,7 @@ ip6_setmoptions(int optname, struct ip6_moptions **im6op, struct mbuf *m,
   }
   mreq = ((struct ipv6_mreq *)((m)->m_hdr.mh_data));
   if (((*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&mreq->ipv6mr_multiaddr)->__u6_addr.__u6_addr8[12]) == 0))) {
-   if (suser(p, 0))
+   if (suser(p))
    {
     error = 13;
     break;

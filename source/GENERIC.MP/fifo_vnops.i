@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -2501,9 +2501,7 @@ fifo_open(void *v)
    return (error);
   }
   fip->fi_writesock = wso;
-  s = solock(wso);
   if ((error = soconnect2(wso, rso)) != 0) {
-   sounlock(s);
    (void)soclose(wso);
    (void)soclose(rso);
    free(fip, 25, sizeof *fip);
@@ -2511,6 +2509,7 @@ fifo_open(void *v)
    return (error);
   }
   fip->fi_readers = fip->fi_writers = 0;
+  s = solock(wso);
   wso->so_state |= 0x010;
   wso->so_snd.sb_lowat = 512;
  } else {

@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -1748,7 +1748,7 @@ nmeaopen(dev_t dev, struct tty *tp, struct proc *p)
  int error;
  if (tp->t_line == 7)
   return (19);
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  np = malloc(sizeof(struct nmea), 2, 0x0001 | 0x0008);
  snprintf(np->timedev.xname, sizeof(np->timedev.xname), "nmea%d",

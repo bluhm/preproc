@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5934,7 +5934,7 @@ wihap_ioctl(struct wi_softc *sc, u_long command, caddr_t data)
   return 19;
  switch (command) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((202))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &reqsta, sizeof(reqsta))))
    break;
@@ -5972,7 +5972,7 @@ wihap_ioctl(struct wi_softc *sc, u_long command, caddr_t data)
   _splx(s);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((201))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &reqsta, sizeof(reqsta))))
    break;
@@ -5994,7 +5994,7 @@ wihap_ioctl(struct wi_softc *sc, u_long command, caddr_t data)
   _splx(s);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((205))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &flag, sizeof(int))))
    break;

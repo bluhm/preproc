@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6456,7 +6456,7 @@ pfkeyv2_dump_policy(struct ipsec_policy *ipo, void **headers, void **buffer,
  }
  export_flow(&p, ipo->ipo_type, &ipo->ipo_addr, &ipo->ipo_mask,
      headers);
- perm = suser((__curcpu->ci_self)->ci_curproc, 0);
+ perm = suser((__curcpu->ci_self)->ci_curproc);
  if (perm == 0 && ipo->ipo_ids)
   export_identities(&p, ipo->ipo_ids, 0, headers);
  rval = 0;
@@ -6544,7 +6544,7 @@ pfkeyv2_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  rdomain = rtable_l2((__curcpu->ci_self)->ci_curproc->p_p->ps_rtableid);
  switch(w.w_op) {
  case 1:
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    return (error);
   do { _rw_enter_write(&netlock ); } while (0);
   error = tdb_walk(rdomain, pfkeyv2_sysctl_walker, &w);

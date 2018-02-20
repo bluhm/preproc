@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3338,7 +3338,7 @@ pppioctl(struct ppp_softc *sc, u_long cmd, caddr_t data, int flag,
   *(u_int *)data = sc->sc_flags;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((89))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   flags = *(int *)data & 0x0fff00ff;
   if (sc->sc_flags & 0x00000040 && !(flags & 0x00000040))
@@ -3348,7 +3348,7 @@ pppioctl(struct ppp_softc *sc, u_long cmd, caddr_t data, int flag,
   _splx(s);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((82))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   mru = *(int *)data;
   if (mru >= 1500 && mru <= 65000)
@@ -3358,18 +3358,18 @@ pppioctl(struct ppp_softc *sc, u_long cmd, caddr_t data, int flag,
   *(int *)data = sc->sc_mru;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((81))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   if (sc->sc_comp)
    sl_compress_setup(sc->sc_comp, *(int *)data);
   break;
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('t')) << 8) | ((78))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   sc->sc_xfer = p->p_p->ps_pid;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ppp_option_data) & 0x1fff) << 16) | ((('t')) << 8) | ((77))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   odp = (struct ppp_option_data *) data;
   nb = odp->length;
@@ -3441,7 +3441,7 @@ pppioctl(struct ppp_softc *sc, u_long cmd, caddr_t data, int flag,
   if (cmd == (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct npioctl) & 0x1fff) << 16) | ((('t')) << 8) | ((76)))) {
    npi->mode = sc->sc_npmode[npx];
   } else {
-   if ((error = suser(p, 0)) != 0)
+   if ((error = suser(p)) != 0)
     return (error);
    if (npi->mode != sc->sc_npmode[npx]) {
     sc->sc_npmode[npx] = npi->mode;

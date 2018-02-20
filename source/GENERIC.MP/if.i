@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6608,21 +6608,21 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  unsigned short oif_flags;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((122))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   do { _rw_enter_write(&netlock ); } while (0);
   error = if_clone_create(ifr->ifr_name, 0);
   do { _rw_exit_write(&netlock ); } while (0);
   return (error);
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((121))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   do { _rw_enter_write(&netlock ); } while (0);
   error = if_clone_destroy(ifr->ifr_name);
   do { _rw_exit_write(&netlock ); } while (0);
   return (error);
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((140))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   do { _rw_enter_write(&netlock ); } while (0);
   error = if_setgroupattribs(data);
@@ -6654,7 +6654,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((171))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_afreq) & 0x1fff) << 16) | ((('i')) << 8) | ((172))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   switch (ifar->ifar_af) {
@@ -6674,7 +6674,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   ifp->if_flags = (ifp->if_flags & (0x2|0x10|0x40|0x400| 0x800|0x8000|0x200)) |
@@ -6693,7 +6693,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((157))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   if (((ifr->ifr_ifru.ifru_flags) & (0x20))) {
@@ -6754,14 +6754,14 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((24))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   ifp->if_data.ifi_metric = ifr->ifr_ifru.ifru_metric;
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((127))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   error = (*ifp->if_ioctl)(ifp, cmd, data);
@@ -6770,7 +6770,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
    rtm_ifchg(ifp);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((128))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   error = copyinstr(ifr->ifr_ifru.ifru_data, ifdescrbuf,
       64, &bytesdone);
@@ -6780,7 +6780,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((130))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   error = copyinstr(ifr->ifr_ifru.ifru_data, ifrtlabelbuf,
       32, &bytesdone);
@@ -6790,7 +6790,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((155))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   if (ifr->ifr_ifru.ifru_metric < 0 || ifr->ifr_ifru.ifru_metric > 15) {
    error = 22;
@@ -6799,14 +6799,14 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   ifp->if_priority = ifr->ifr_ifru.ifru_metric;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   error = if_setrdomain(ifp, ifr->ifr_ifru.ifru_metric);
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((135))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   error = if_addgroup(ifp, ifgr->ifgr_ifgru.ifgru_group);
@@ -6818,7 +6818,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifgroupreq) & 0x1fff) << 16) | ((('i')) << 8) | ((137))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   do { _rw_enter_write(&netlock ); } while (0);
   error = (*ifp->if_ioctl)(ifp, cmd, data);
@@ -6829,7 +6829,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((31))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   if ((ifp->if_sadl == ((void *)0)) ||
       (ifr->ifr_ifru.ifru_addr.sa_len != 6) ||
@@ -6858,7 +6858,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   do { _rw_exit_write(&netlock ); } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((181))):
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    break;
   if (ifr->ifr_ifru.ifru_metric > 0xff) {
    error = 22;
@@ -6873,6 +6873,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((49))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
@@ -6880,7 +6881,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((176))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((178))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((180))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
  default:
   do { _rw_enter_write(&netlock ); } while (0);

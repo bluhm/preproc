@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4087,7 +4087,7 @@ donice(struct proc *curp, struct process *chgpr, int n)
  if (n < (-20))
   n = (-20);
  n += 20;
- if (n < chgpr->ps_nice && suser(curp, 0))
+ if (n < chgpr->ps_nice && suser(curp))
   return (13);
  chgpr->ps_nice = n;
  do { s = _splraise(14); ___mp_lock((&sched_lock) ); } while ( 0);
@@ -4120,7 +4120,7 @@ dosetrlimit(struct proc *p, u_int which, struct rlimit *limp)
   return (22);
  alimp = &p->p_p->ps_limit->pl_rlimit[which];
  if (limp->rlim_max > alimp->rlim_max)
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
  if (p->p_p->ps_limit->p_refcnt > 1) {
   struct plimit *l = p->p_p->ps_limit;

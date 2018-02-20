@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6029,7 +6029,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    wreq->wi_len = (sizeof(sc->wi_stats) / 2) + 1;
    break;
   case 0xFCB0:
-   if (suser(p, 0))
+   if (suser(p))
     __builtin_bzero((wreq), (sizeof(struct wi_ltv_keys)));
    else
     __builtin_bcopy((&sc->wi_keys), (wreq), (sizeof(struct wi_ltv_keys)));
@@ -6062,7 +6062,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   error = copyout(wreq, ifr->ifr_ifru.ifru_data, sizeof(*wreq));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((206))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   wreq = malloc(sizeof *wreq, 2, 0x0001 | 0x0008);
   error = copyin(ifr->ifr_ifru.ifru_data, wreq, sizeof(*wreq));
@@ -6140,7 +6140,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    error = copyout(wreq, ifr->ifr_ifru.ifru_data, sizeof(*wreq));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((137))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   wreq = malloc(sizeof *wreq, 2, 0x0001 | 0x0008);
   error = copyin(ifr->ifr_ifru.ifru_data, wreq, sizeof(*wreq));
@@ -6170,7 +6170,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   }
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((230))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   nwidp = malloc(sizeof *nwidp, 2, 0x0001);
   error = copyin(ifr->ifr_ifru.ifru_data, nwidp, sizeof(*nwidp));
@@ -6189,7 +6189,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
    sc->sc_funcs->f_init(sc);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_nwkey) & 0x1fff) << 16) | ((('i')) << 8) | ((232))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = wi_set_nwkey(sc, (struct ieee80211_nwkey *)data);
   break;
@@ -6197,7 +6197,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   error = wi_get_nwkey(sc, (struct ieee80211_nwkey *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_power) & 0x1fff) << 16) | ((('i')) << 8) | ((234))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = wi_set_pm(sc, (struct ieee80211_power *)data);
   break;
@@ -6205,7 +6205,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   error = wi_get_pm(sc, (struct ieee80211_power *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_txpower) & 0x1fff) << 16) | ((('i')) << 8) | ((243))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = wi_set_txpower(sc, (struct ieee80211_txpower *)data);
   break;
@@ -6213,7 +6213,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   error = wi_get_txpower(sc, (struct ieee80211_txpower *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211chanreq) & 0x1fff) << 16) | ((('i')) << 8) | ((238))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (((struct ieee80211chanreq *)data)->i_channel > 14) {
    error = 22;
@@ -6250,7 +6250,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   __builtin_memcpy((bssid->i_bssid), (wreq->wi_val), (6));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((210))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (sc->wi_ptype == 0x6)
    break;
@@ -6285,7 +6285,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_nodereq_all) & 0x1fff) << 16) | ((('i')) << 8) | ((214))):
      {
   struct ieee80211_nodereq *nr = ((void *)0);
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   na = (struct ieee80211_nodereq_all *)data;
   if (sc->wi_ptype == 0x6) {
@@ -6374,7 +6374,7 @@ wi_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((217))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (sc->wi_ptype != 0x6) {
    error = 22;
@@ -7069,7 +7069,7 @@ wi_get_nwkey(struct wi_softc *sc, struct ieee80211_nwkey *nwkey)
   return 19;
  nwkey->i_wepon = sc->wi_use_wep;
  nwkey->i_defkid = sc->wi_tx_key + 1;
- error = suser((__curcpu->ci_self)->ci_curproc, 0);
+ error = suser((__curcpu->ci_self)->ci_curproc);
  for (i = 0; i < 4; i++) {
   if (nwkey->i_key[i].i_keydat == ((void *)0))
    continue;

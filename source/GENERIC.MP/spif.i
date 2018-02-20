@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3518,7 +3518,7 @@ sttyopen(dev, flags, mode, p)
   else
    ((tp->t_state) &= ~(0x00008));
  }
- else if (((tp->t_state) & (0x00400)) && suser(p, 0) != 0) {
+ else if (((tp->t_state) & (0x00400)) && suser(p) != 0) {
   return (16);
  } else {
   s = _splraise(6);
@@ -3617,7 +3617,7 @@ sttyioctl(dev, cmd, data, flags, p)
   *((int *)data) = sp->sp_openflags;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((92))):
-  if (suser(p, 0))
+  if (suser(p))
    error = 1;
   else
    sp->sp_openflags = *((int *)data) &

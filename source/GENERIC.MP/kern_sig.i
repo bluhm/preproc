@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5769,7 +5769,7 @@ coredump(struct proc *p)
  if (pr->ps_emul->e_coredump == ((void *)0))
   return (22);
  pr->ps_flags |= 0x00000800;
- if (((pr->ps_flags & 0x00000010) && (error = suser(p, 0))) ||
+ if (((pr->ps_flags & 0x00000010) && (error = suser(p))) ||
     ((pr->ps_flags & 0x00000010) && nosuidcoredump)) {
   if (nosuidcoredump == 3 || nosuidcoredump == 2)
    incrash = 1;

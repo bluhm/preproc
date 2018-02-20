@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6073,7 +6073,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((245))):
   ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_carp.c", 2061, "_kernel_lock_held()"));
   vhe = srp_get_locked(&(&sc->carp_vhosts)->sl_head);
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    break;
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &carpr, sizeof carpr)))
    break;
@@ -6154,7 +6154,7 @@ carp_ioctl(struct ifnet *ifp, u_long cmd, caddr_t addr)
   }
   carpr.carpr_advbase = sc->sc_advbase;
   carpr.carpr_balancing = sc->sc_balancing;
-  if (suser(p, 0) == 0)
+  if (suser(p) == 0)
    __builtin_bcopy((sc->sc_key), (carpr.carpr_key), (sizeof(carpr.carpr_key)));
   carpr.carpr_peer.s_addr = sc->sc_peer.s_addr;
   error = copyout(&carpr, ifr->ifr_ifru.ifru_data, sizeof(carpr));

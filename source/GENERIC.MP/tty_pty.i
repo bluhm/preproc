@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3659,7 +3659,7 @@ ptsopen(dev_t dev, int flag, int devtype, struct proc *p)
   tp->t_termios.c_cflag = (0x00000800 | 0x00000300 | 0x00004000);
   tp->t_termios.c_ispeed = tp->t_termios.c_ospeed = 115200;
   ttsetwater(tp);
- } else if (tp->t_state & 0x00400 && suser(p, 0) != 0)
+ } else if (tp->t_state & 0x00400 && suser(p) != 0)
   return (16);
  if (tp->t_oproc)
   tp->t_state |= 0x00008;

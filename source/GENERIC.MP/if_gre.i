@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4961,6 +4961,7 @@ struct gre_tunnel {
  union gre_addr t_src;
  union gre_addr t_dst;
  int t_ttl;
+ uint16_t t_df;
  sa_family_t t_af;
 };
 static inline int
@@ -5066,6 +5067,7 @@ gre_clone_create(struct if_clone *ifc, int unit)
  ifp->if_ioctl = gre_ioctl;
  ifp->if_rtrequest = p2p_rtrequest;
  sc->sc_tunnel.t_ttl = ip_defttl;
+ sc->sc_tunnel.t_df = ((__uint16_t)(0));
  timeout_set(&sc->sc_ka_send, gre_keepalive_send, sc);
  timeout_set_proc(&sc->sc_ka_hold, gre_keepalive_hold, sc);
  sc->sc_ka_state = 0;
@@ -5108,6 +5110,7 @@ egre_clone_create(struct if_clone *ifc, int unit)
  ifp->if_flags = 0x2 | 0x800 | 0x8000;
  ether_fakeaddr(ifp);
  sc->sc_tunnel.t_ttl = ip_defttl;
+ sc->sc_tunnel.t_df = ((__uint16_t)(0));
  ifmedia_init(&sc->sc_media, 0, egre_media_change, egre_media_status);
  ifmedia_add(&sc->sc_media, 0x0000000000000100ULL | 0ULL, 0, ((void *)0));
  ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
@@ -5550,7 +5553,7 @@ gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
   if (m == ((void *)0))
    return (((void *)0));
   ip = ((struct ip *)((m)->m_hdr.mh_data));
-  ip->ip_off = 0;
+  ip->ip_off = tunnel->t_df;
   ip->ip_tos = tos;
   ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
   ip->ip_ttl = ttl;
@@ -5574,6 +5577,8 @@ gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
   ip6->ip6_src = tunnel->t_src.in6;
   ip6->ip6_dst = tunnel->t_dst.in6;
+  if (tunnel->t_df)
+   ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x1000));
   break;
  }
  default:
@@ -5647,6 +5652,12 @@ gre_tunnel_ioctl(struct ifnet *ifp, struct gre_tunnel *tunnel,
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
   ifr->ifr_ifru.ifru_metric = tunnel->t_rtableid;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
+  tunnel->t_df = ifr->ifr_ifru.ifru_metric ? ((__uint16_t)(0x4000)) : ((__uint16_t)(0));
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((194))):
+  ifr->ifr_ifru.ifru_metric = tunnel->t_df ? 1 : 0;
   break;
  default:
   error = 25;
@@ -5849,6 +5860,7 @@ gre_keepalive_send(void *arg)
  SipHash_Final((gk->gk_digest), (&ctx), 2, 4);
  ttl = sc->sc_tunnel.t_ttl == -1 ? ip_defttl : sc->sc_tunnel.t_ttl;
  t.t_af = sc->sc_tunnel.t_af;
+ t.t_df = sc->sc_tunnel.t_df;
  t.t_src = sc->sc_tunnel.t_dst;
  t.t_dst = sc->sc_tunnel.t_src;
  t.t_key = sc->sc_tunnel.t_key;

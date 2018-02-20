@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4837,7 +4837,7 @@ sys_mount(struct proc *p, void *v, register_t *retval)
  struct vfsconf *vfsp;
  int flags = ((uap)->flags.be.datum);
  void *args = ((void *)0);
- if ((error = suser(p, 0)))
+ if ((error = suser(p)))
   return (error);
  error = copyinstr(((uap)->path.be.datum), fspath, 90, ((void *)0));
  if (error)
@@ -5035,7 +5035,7 @@ sys_unmount(struct proc *p, void *v, register_t *retval)
  struct mount *mp;
  int error;
  struct nameidata nd;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  ndinitat(&nd, 0, 0x0040 | 0x0004, UIO_USERSPACE, -100, ((uap)->path.be.datum), p);
  if ((error = namei(&nd)) != 0)
@@ -5175,7 +5175,7 @@ copyout_statfs(struct statfs *sp, void *uaddr, struct proc *p)
  size_t co_sz2 = sizeof(struct statfs) - co_off2;
  char *s, *d;
  int error;
- if (suser(p, 0)) {
+ if (suser(p)) {
   fsid_t fsid;
   s = (char *)sp;
   d = (char *)uaddr;
@@ -5335,7 +5335,7 @@ sys_chroot(struct proc *p, void *v, register_t *retval)
  struct vnode *old_cdir, *old_rdir;
  int error;
  struct nameidata nd;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  ndinitat(&nd, 0, 0x0040 | 0x0004, UIO_USERSPACE, -100, ((uap)->path.be.datum), p);
  if ((error = change_dir(&nd, p)) != 0)
@@ -5498,7 +5498,7 @@ sys_getfh(struct proc *p, void *v, register_t *retval)
  fhandle_t fh;
  int error;
  struct nameidata nd;
- error = suser(p, 0);
+ error = suser(p);
  if (error)
   return (error);
  ndinitat(&nd, 0, 0x0040 | 0x0004, UIO_USERSPACE, -100, ((uap)->fname.be.datum), p);
@@ -5529,7 +5529,7 @@ sys_fhopen(struct proc *p, void *v, register_t *retval)
  struct flock lf;
  struct vattr va;
  fhandle_t fh;
- if ((error = suser(p, 0)))
+ if ((error = suser(p)))
   return (error);
  flags = (((((uap)->flags.be.datum)) & ~0x0003) | (((((uap)->flags.be.datum)) + 1) & 0x0003));
  if ((flags & (0x0001 | 0x0002)) == 0)
@@ -5631,7 +5631,7 @@ sys_fhstat(struct proc *p, void *v, register_t *retval)
  fhandle_t fh;
  struct mount *mp;
  struct vnode *vp;
- if ((error = suser(p, 0)))
+ if ((error = suser(p)))
   return (error);
  if ((error = copyin(((uap)->fhp.be.datum), &fh, sizeof(fhandle_t))) != 0)
   return (error);
@@ -5655,7 +5655,7 @@ sys_fhstatfs(struct proc *p, void *v, register_t *retval)
  struct mount *mp;
  struct vnode *vp;
  int error;
- if ((error = suser(p, 0)))
+ if ((error = suser(p)))
   return (error);
  if ((error = copyin(((uap)->fhp.be.datum), &fh, sizeof(fhandle_t))) != 0)
   return (error);
@@ -5701,7 +5701,7 @@ domknodat(struct proc *p, int fd, const char *path, mode_t mode, dev_t dev)
  vp = nd.ni_vp;
  if (!((mode & 0170000) == 0010000) || dev != 0) {
   if ((nd.ni_dvp->v_mount->mnt_flag & 0x00000020) == 0 &&
-      (error = suser(p, 0)) != 0)
+      (error = suser(p)) != 0)
    goto out;
   if (p->p_fd->fd_rdir) {
    error = 22;
@@ -6071,7 +6071,7 @@ dofstatat(struct proc *p, int fd, const char *path, struct stat *buf, int flag)
   } else
    return (2);
  }
- if (suser(p, 0))
+ if (suser(p))
   sb.st_gen = 0;
  error = copyout(&sb, buf, sizeof(sb));
  if (error == 0 && ((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
@@ -6198,7 +6198,7 @@ dovchflags(struct proc *p, struct vnode *vp, u_int flags)
  else if (flags == (-1))
   error = 22;
  else {
-  if (suser(p, 0)) {
+  if (suser(p)) {
    if ((error = VOP_GETATTR(vp, &vattr, p->p_ucred, p))
        != 0)
     goto out;
@@ -6325,7 +6325,7 @@ dofchownat(struct proc *p, int fd, const char *path, uid_t uid, gid_t gid,
    goto out;
   if ((uid != -1 || gid != -1) &&
       (vp->v_mount->mnt_flag & 0x00000020) == 0 &&
-      (suser(p, 0) || suid_clear)) {
+      (suser(p) || suid_clear)) {
    error = VOP_GETATTR(vp, &vattr, p->p_ucred, p);
    if (error)
     goto out;
@@ -6368,7 +6368,7 @@ sys_lchown(struct proc *p, void *v, register_t *retval)
    goto out;
   if ((uid != -1 || gid != -1) &&
       (vp->v_mount->mnt_flag & 0x00000020) == 0 &&
-      (suser(p, 0) || suid_clear)) {
+      (suser(p) || suid_clear)) {
    error = VOP_GETATTR(vp, &vattr, p->p_ucred, p);
    if (error)
     goto out;
@@ -6409,7 +6409,7 @@ sys_fchown(struct proc *p, void *v, register_t *retval)
    goto out;
   if ((uid != -1 || gid != -1) &&
       (vp->v_mount->mnt_flag & 0x00000020) == 0 &&
-      (suser(p, 0) || suid_clear)) {
+      (suser(p) || suid_clear)) {
    error = VOP_GETATTR(vp, &vattr, p->p_ucred, p);
    if (error)
     goto out;
@@ -6856,7 +6856,7 @@ sys_revoke(struct proc *p, void *v, register_t *retval)
  if ((error = VOP_GETATTR(vp, &vattr, p->p_ucred, p)) != 0)
   goto out;
  if (p->p_ucred->cr_uid != vattr.va_uid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   goto out;
  if (vp->v_usecount > 1 || (vp->v_flag & (0x0800)))
   VOP_REVOKE(vp, 0x0001);

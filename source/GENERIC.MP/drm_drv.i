@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5855,7 +5855,7 @@ static inline int
 capable(int cap)
 {
  ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
- return suser((__curcpu->ci_self)->ci_curproc, 0);
+ return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
 void *kmap(struct vm_page *);
@@ -9281,7 +9281,7 @@ drmopen(dev_t kdev, int flags, int fmt, struct proc *p)
  INIT_LIST_HEAD(&file_priv->event_list);
  file_priv->event_space = 4096;
  do { } while( 0);
- file_priv->authenticated = (suser(p, 0) == 0);
+ file_priv->authenticated = (suser(p) == 0);
  if (dev->driver->driver_features & 0x1000)
   drm_gem_open(dev, file_priv);
  if (dev->driver->open) {
@@ -9291,7 +9291,7 @@ drmopen(dev_t kdev, int flags, int fmt, struct proc *p)
   }
  }
  _rw_enter_write(&dev->struct_mutex );
- if (((&dev->files)->sph_root == ((void *)0)) && !(suser(p, 0) == 0)) {
+ if (((&dev->files)->sph_root == ((void *)0)) && !(suser(p) == 0)) {
   _rw_exit_write(&dev->struct_mutex );
   ret = 1;
   goto free_priv;
@@ -9416,7 +9416,7 @@ drm_do_ioctl(struct drm_device *dev, int minor, u_long cmd, caddr_t data)
   do { } while( 0);
   return (-22);
  }
- if (((ioctl->flags & 0x4) && !(suser((__curcpu->ci_self)->ci_curproc, 0) == 0)) ||
+ if (((ioctl->flags & 0x4) && !(suser((__curcpu->ci_self)->ci_curproc) == 0)) ||
      ((ioctl->flags & 0x1) && !file_priv->authenticated) ||
      ((ioctl->flags & 0x2) && !file_priv->is_master))
   return (-13);

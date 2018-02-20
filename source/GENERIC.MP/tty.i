@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4377,7 +4377,7 @@ ttioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
   _splx(s);
   break;
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((119))):
-  if (!((pr)->ps_pgrp->pg_session == (tp)->t_session && (pr)->ps_flags & 0x00000001) && suser(p, 0))
+  if (!((pr)->ps_pgrp->pg_session == (tp)->t_session && (pr)->ps_flags & 0x00000001) && suser(p))
    return (25);
   *(int *)data = tp->t_pgrp ? tp->t_pgrp->pg_id : (99999 +1);
   break;

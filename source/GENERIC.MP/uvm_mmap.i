@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5374,7 +5374,7 @@ sys_mlock(struct proc *p, void *v, register_t *retval)
   return (22);
  if (((size) >> 13) + uvmexp.wired > uvmexp.wiredmax)
   return (35);
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  error = uvm_map_pageable(&p->p_vmspace->vm_map, addr, addr+size, 0,
      0);
@@ -5392,7 +5392,7 @@ sys_munlock(struct proc *p, void *v, register_t *retval)
  do { pageoff = (addr & ((1 << 13) - 1)); if (pageoff != 0) { if (size > 0xffffffffffffffffUL - pageoff) return (22); addr -= pageoff; size += pageoff; } if (size != 0) { size = (vsize_t)(((size) + ((1 << 13) - 1)) & ~((1 << 13) - 1)); if (size == 0) return (22); } } while (0);
  if (addr > 0xffffffffffffffffUL - size)
   return (22);
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  error = uvm_map_pageable(&p->p_vmspace->vm_map, addr, addr+size, 1,
      0);
@@ -5407,7 +5407,7 @@ sys_mlockall(struct proc *p, void *v, register_t *retval)
  if (flags == 0 ||
      (flags & ~(0x01|0x02)) != 0)
   return (22);
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  error = uvm_map_pageable_all(&p->p_vmspace->vm_map, flags,
      p->p_p->ps_limit->pl_rlimit[6].rlim_cur);

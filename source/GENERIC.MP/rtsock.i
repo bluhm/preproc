@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4279,7 +4279,7 @@ route_output(struct mbuf *m, struct socket *so, struct sockaddr *dstaddr,
   error = 45;
   goto fail;
  }
- if (rtm->rtm_type != 0x4 && suser((__curcpu->ci_self)->ci_curproc, 0) != 0) {
+ if (rtm->rtm_type != 0x4 && suser((__curcpu->ci_self)->ci_curproc) != 0) {
   error = 13;
   goto fail;
  }

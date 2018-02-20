@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5438,7 +5438,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((60))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   ifs = ifunit(req->ifbr_ifsname);
   if (ifs == ((void *)0) && if_clone_create(req->ifbr_ifsname, 0) == 0)
@@ -5492,7 +5492,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   do { (p)->next.tqe_next = ((void *)0); (p)->next.tqe_prev = (&sc->sc_iflist)->tqh_last; *(&sc->sc_iflist)->tqh_last = (p); (&sc->sc_iflist)->tqh_last = &(p)->next.tqe_next; } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((61))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   ifs = ifunit(req->ifbr_ifsname);
   if (ifs == ((void *)0)) {
@@ -5510,7 +5510,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = bridge_bifconf(sc, (struct ifbifconf *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((65))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   ifs = ifunit(req->ifbr_ifsname);
   if (ifs == ((void *)0)) {
@@ -5544,7 +5544,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   do { (p)->next.tqe_next = ((void *)0); (p)->next.tqe_prev = (&sc->sc_spanlist)->tqh_last; *(&sc->sc_spanlist)->tqh_last = (p); (&sc->sc_spanlist)->tqh_last = &(p)->next.tqe_next; } while (0);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((66))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   for((p) = ((&sc->sc_spanlist)->tqh_first); (p) != ((void *)0); (p) = ((p)->next.tqe_next)) {
    if (strncmp(p->ifp->if_xname, req->ifbr_ifsname,
@@ -5597,7 +5597,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((63))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   ifs = ifunit(req->ifbr_ifsname);
   if (ifs == ((void *)0)) {
@@ -5690,7 +5690,7 @@ bridge_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((90))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((84))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((85))):
-  error = suser((__curcpu->ci_self)->ci_curproc, 0);
+  error = suser((__curcpu->ci_self)->ci_curproc);
   break;
  default:
   error = 25;

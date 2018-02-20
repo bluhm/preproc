@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6703,7 +6703,7 @@ ip6_sysctl_soiikey(void *oldp, size_t *oldlenp, void *newp, size_t newlen)
  struct ifnet *ifp;
  uint8_t oldkey[16];
  int error;
- error = suser((__curcpu->ci_self)->ci_curproc, 0);
+ error = suser((__curcpu->ci_self)->ci_curproc);
  if (error != 0)
   return (error);
  __builtin_memcpy((oldkey), (ip6_soiikey), (sizeof(oldkey)));

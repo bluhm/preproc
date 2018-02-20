@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -1312,6 +1312,15 @@ void witness_norelease(struct lock_object *);
 void witness_releaseok(struct lock_object *);
 const char *witness_file(struct lock_object *);
 void witness_thread_exit(struct proc *);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 void db_force_whitespace(void);
 void db_putchar(int);
 int db_print_position(void);
@@ -1331,7 +1340,7 @@ _kernel_lock_init(void)
 void
 _kernel_lock(const char *file, int line)
 {
- do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 63, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
+ do { ((__mp_lock_held(&sched_lock, (__curcpu->ci_self)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_lock.c", 65, "__mp_lock_held(&sched_lock, curcpu()) == 0")); } while (0);
  ___mp_lock((&kernel_lock) );
 }
 void
@@ -1418,4 +1427,51 @@ __mp_lock_held(struct __mp_lock *mpl, struct cpu_info *ci)
 {
  struct __mp_lock_cpu *cpu = &mpl->mpl_cpus[((ci)->ci_cpuid)];
  return (cpu->mplc_ticket == mpl->mpl_ticket && cpu->mplc_depth > 0);
+}
+void
+__mtx_init(struct mutex *mtx, int wantipl)
+{
+ mtx->mtx_owner = ((void *)0);
+ mtx->mtx_wantipl = wantipl;
+ mtx->mtx_oldipl = 0;
+}
+void
+__mtx_enter(struct mutex *mtx)
+{
+ while (__mtx_enter_try(mtx) == 0) {
+  do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
+ }
+}
+int
+__mtx_enter_try(struct mutex *mtx)
+{
+ struct cpu_info *owner, *ci = (__curcpu->ci_self);
+ int s;
+ if (mtx->mtx_wantipl != 0)
+  s = splraise(mtx->mtx_wantipl);
+ owner = _atomic_cas_ptr((&mtx->mtx_owner), (((void *)0)), (ci));
+ if (__builtin_expect(((owner == ci) != 0), 0))
+  panic("mtx %p: locking against myself", mtx);
+ if (owner == ((void *)0)) {
+  __asm volatile("membar " "#StoreLoad|#StoreStore" ::: "memory");
+  if (mtx->mtx_wantipl != 0)
+   mtx->mtx_oldipl = s;
+  ci->ci_mutex_level++;
+  return (1);
+ }
+ if (mtx->mtx_wantipl != 0)
+  _splx(s);
+ return (0);
+}
+void
+__mtx_leave(struct mutex *mtx)
+{
+ int s;
+ do { if ((mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (mtx), __func__); } while (0);
+ (__curcpu->ci_self)->ci_mutex_level--;
+ s = mtx->mtx_oldipl;
+ __asm volatile("membar " "#LoadStore|#StoreStore" ::: "memory");
+ mtx->mtx_owner = ((void *)0);
+ if (mtx->mtx_wantipl != 0)
+  _splx(s);
 }

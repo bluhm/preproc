@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3552,19 +3552,19 @@ sys_setresuid(struct proc *p, void *v, register_t *retval)
      ruid != uc->cr_ruid &&
      ruid != uc->cr_uid &&
      ruid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (euid != (uid_t)-1 &&
      euid != uc->cr_ruid &&
      euid != uc->cr_uid &&
      euid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (suid != (uid_t)-1 &&
      suid != uc->cr_ruid &&
      suid != uc->cr_uid &&
      suid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3622,19 +3622,19 @@ sys_setresgid(struct proc *p, void *v, register_t *retval)
      rgid != uc->cr_rgid &&
      rgid != uc->cr_gid &&
      rgid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (egid != (gid_t)-1 &&
      egid != uc->cr_rgid &&
      egid != uc->cr_gid &&
      egid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (sgid != (gid_t)-1 &&
      sgid != uc->cr_rgid &&
      sgid != uc->cr_gid &&
      sgid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3670,13 +3670,13 @@ sys_setregid(struct proc *p, void *v, register_t *retval)
      rgid != uc->cr_rgid &&
      rgid != uc->cr_gid &&
      rgid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (egid != (gid_t)-1 &&
      egid != uc->cr_rgid &&
      egid != uc->cr_gid &&
      egid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3713,13 +3713,13 @@ sys_setreuid(struct proc *p, void *v, register_t *retval)
      ruid != uc->cr_ruid &&
      ruid != uc->cr_uid &&
      ruid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (euid != (uid_t)-1 &&
      euid != uc->cr_ruid &&
      euid != uc->cr_uid &&
      euid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3757,12 +3757,12 @@ sys_setuid(struct proc *p, void *v, register_t *retval)
  if (uid != uc->cr_ruid &&
      uid != uc->cr_svuid &&
      uid != uc->cr_uid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
  crset(newcred, pruc);
- if (uid == pruc->cr_uid || suser(p, 0) == 0) {
+ if (uid == pruc->cr_uid || suser(p) == 0) {
   did_real = 1;
   newcred->cr_ruid = uid;
   newcred->cr_svuid = uid;
@@ -3790,7 +3790,7 @@ sys_seteuid(struct proc *p, void *v, register_t *retval)
  if (pr->ps_ucred->cr_uid == euid)
   return (0);
  if (euid != uc->cr_ruid && euid != uc->cr_svuid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3818,12 +3818,12 @@ sys_setgid(struct proc *p, void *v, register_t *retval)
  if (gid != uc->cr_rgid &&
      gid != uc->cr_svgid &&
      gid != uc->cr_gid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
  crset(newcred, pruc);
- if (gid == pruc->cr_gid || suser(p, 0) == 0) {
+ if (gid == pruc->cr_gid || suser(p) == 0) {
   newcred->cr_rgid = gid;
   newcred->cr_svgid = gid;
  }
@@ -3845,7 +3845,7 @@ sys_setegid(struct proc *p, void *v, register_t *retval)
  if (pr->ps_ucred->cr_gid == egid)
   return (0);
  if (egid != uc->cr_rgid && egid != uc->cr_svgid &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  newcred = crget();
  pruc = pr->ps_ucred;
@@ -3865,7 +3865,7 @@ sys_setgroups(struct proc *p, void *v, register_t *retval)
  gid_t groups[16];
  u_int ngrp;
  int error;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  ngrp = ((uap)->gidsetsize.be.datum);
  if (ngrp > 16)
@@ -3897,14 +3897,11 @@ groupmember(gid_t gid, struct ucred *cred)
  return (0);
 }
 int
-suser(struct proc *p, u_int flags)
+suser(struct proc *p)
 {
  struct ucred *cred = p->p_ucred;
- if (cred->cr_uid == 0) {
-  if (!(flags & 0x1))
-   p->p_p->ps_acflag |= 0x02;
+ if (cred->cr_uid == 0)
   return (0);
- }
  return (1);
 }
 int
@@ -3983,7 +3980,7 @@ sys_setlogin(struct proc *p, void *v, register_t *retval)
  struct session *s = p->p_p->ps_pgrp->pg_session;
  char buf[sizeof(s->s_login)];
  int error;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  error = copyinstr(((uap)->namebuf.be.datum), buf, sizeof(buf), ((void *)0));
  if (error == 0)
@@ -4019,7 +4016,7 @@ void
 dorefreshcreds(struct process *pr, struct proc *p)
 {
  struct ucred *uc = p->p_ucred;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1104);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1101);
  if (uc != pr->ps_ucred) {
   p->p_ucred = pr->ps_ucred;
   (p->p_ucred)->cr_ref++;

@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3882,7 +3882,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = ifmedia_ioctl(ifp, ifr, &ic->ic_media, cmd);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((230))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &nwid, sizeof(nwid))) != 0)
    break;
@@ -3913,7 +3913,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = copyout(&nwid, ifr->ifr_ifru.ifru_data, sizeof(nwid));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_nwkey) & 0x1fff) << 16) | ((('i')) << 8) | ((232))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = ieee80211_ioctl_setnwkeys(ic, (void *)data);
   break;
@@ -3921,7 +3921,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = ieee80211_ioctl_getnwkeys(ic, (void *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_wpaparams) & 0x1fff) << 16) | ((('i')) << 8) | ((247))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = ieee80211_ioctl_setwpaparms(ic, (void *)data);
   break;
@@ -3929,7 +3929,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   error = ieee80211_ioctl_getwpaparms(ic, (void *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_wpapsk) & 0x1fff) << 16) | ((('i')) << 8) | ((245))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   psk = (struct ieee80211_wpapsk *)data;
   if (psk->i_enabled) {
@@ -3953,14 +3953,14 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    psk->i_enabled = 0;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_keyavail) & 0x1fff) << 16) | ((('i')) << 8) | ((251))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   ka = (struct ieee80211_keyavail *)data;
   (void)ieee80211_pmksa_add(ic, IEEE80211_AKM_8021X,
       ka->i_macaddr, ka->i_key, ka->i_lifetime);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_keyrun) & 0x1fff) << 16) | ((('i')) << 8) | ((252))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   kr = (struct ieee80211_keyrun *)data;
   error = ieee80211_keyrun(ic, kr->i_macaddr);
@@ -3968,7 +3968,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    ieee80211_disable_wep(ic);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_power) & 0x1fff) << 16) | ((('i')) << 8) | ((234))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   power = (struct ieee80211_power *)data;
   ic->ic_lintval = power->i_maxsleep;
@@ -3992,7 +3992,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   power->i_maxsleep = ic->ic_lintval;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_bssid) & 0x1fff) << 16) | ((('i')) << 8) | ((240))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   bssid = (struct ieee80211_bssid *)data;
   if ((__builtin_memcmp((bssid->i_bssid), (empty_macaddr), (6)) == 0))
@@ -4034,7 +4034,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211chanreq) & 0x1fff) << 16) | ((('i')) << 8) | ((238))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   chanreq = (struct ieee80211chanreq *)data;
   if (chanreq->i_channel == 0xffff)
@@ -4090,7 +4090,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
       sizeof(ic->ic_stats));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_txpower) & 0x1fff) << 16) | ((('i')) << 8) | ((243))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   txpower = (struct ieee80211_txpower *)data;
   if ((ic->ic_caps & 0x00000040) == 0) {
@@ -4121,7 +4121,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((210))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (ic->ic_opmode == IEEE80211_M_HOSTAP)
    break;
@@ -4159,7 +4159,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ieee80211_node2req(ic, ni, nr);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_nodereq) & 0x1fff) << 16) | ((('i')) << 8) | ((212))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (ic->ic_opmode == IEEE80211_M_HOSTAP) {
    error = 22;
@@ -4177,7 +4177,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    ieee80211_req2node(ic, nr, ni);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ieee80211_nodereq) & 0x1fff) << 16) | ((('i')) << 8) | ((213))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   nr = (struct ieee80211_nodereq *)data;
   ni = ieee80211_find_node(ic, nr->nr_macaddr);
@@ -4218,7 +4218,7 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   ifr->ifr_ifru.ifru_flags = flags >> 28;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((217))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   flags = (u_int32_t)ifr->ifr_ifru.ifru_flags << 28;
   if (

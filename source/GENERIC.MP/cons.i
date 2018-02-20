@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -2339,7 +2339,7 @@ cnioctl(dev_t dev, u_long cmd, caddr_t data, int flag,
 {
  int error;
  if (cmd == ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((98))) && constty != ((void *)0)) {
-  error = suser(p, 0x1);
+  error = suser(p);
   if (error)
    return (error);
   constty = ((void *)0);

@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4310,7 +4310,7 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  struct bpf_d *d;
  int error = 0;
  d = bpfilter_lookup(((int32_t)((dev) & 0xff) | (((dev) & 0xffff0000) >> 8)));
- if (d->bd_locked && suser(p, 0) != 0) {
+ if (d->bd_locked && suser(p) != 0) {
   switch (cmd) {
   case ((unsigned long)0x40000000 | ((sizeof(u_int) & 0x1fff) << 16) | ((('B')) << 8) | ((102))):
   case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('B')) << 8) | ((104))):

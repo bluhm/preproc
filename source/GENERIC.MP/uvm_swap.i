@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5881,7 +5881,7 @@ sys_swapctl(struct proc *p, void *v, register_t *retval)
   error = 0;
   goto out;
  }
- if ((error = suser(p, 0)) || (error = pledge_swapctl(p)))
+ if ((error = suser(p)) || (error = pledge_swapctl(p)))
   goto out;
  error = copyinstr(((uap)->arg.be.datum), userpath, sizeof(userpath), &len);
  if (error)

@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5029,7 +5029,7 @@ doktrace(struct vnode *vp, int ops, int facs, pid_t pid, struct proc *p)
   goto done;
  }
  if (ops == 0) {
-  if (suser(p, 0) == 0)
+  if (suser(p) == 0)
    facs |= 0x80000000;
   ktrstart(p, vp, cred);
  }

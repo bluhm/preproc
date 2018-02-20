@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -2956,7 +2956,7 @@ vlan_set_compat(struct ifnet *ifp, struct ifreq *ifr)
  struct ifreq req;
  struct if_parent parent;
  int error;
- error = suser((__curcpu->ci_self)->ci_curproc, 0);
+ error = suser((__curcpu->ci_self)->ci_curproc);
  if (error != 0)
   return (error);
  error = copyin(ifr->ifr_ifru.ifru_data, &vlr, sizeof(vlr));

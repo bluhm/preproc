@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3985,6 +3985,8 @@ usb_tap(struct usbd_bus *bus, struct usbd_xfer *xfer, uint8_t dir)
   uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(*uph)) ? (__uint16_t)(((__uint16_t)(sizeof(*uph)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*uph)) & 0xff00U) >> 8) : __swap16md(sizeof(*uph)));
   uph->uph_xfertype = 1;
   break;
+ default:
+  return;
  }
  uph->uph_id = 0;
  uph->uph_status = (__uint32_t)(__builtin_constant_p(xfer->status) ? (__uint32_t)(((__uint32_t)(xfer->status) & 0xff) << 24 | ((__uint32_t)(xfer->status) & 0xff00) << 8 | ((__uint32_t)(xfer->status) & 0xff0000) >> 8 | ((__uint32_t)(xfer->status) & 0xff000000) >> 24) : __swap32md(xfer->status));

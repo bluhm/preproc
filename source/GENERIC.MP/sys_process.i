@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4072,41 +4072,59 @@ ptrace_ctrl(struct proc *p, int req, pid_t pid, caddr_t addr, int data)
  case 8:
  case 9:
  case 10:
-  if ((tr = prfind(pid)) == ((void *)0))
-   return (3);
+  if ((tr = prfind(pid)) == ((void *)0)) {
+   error = 3;
+   goto fail;
+  }
   t = ((&tr->ps_threads)->tqh_first);
   break;
  case 7:
-  if ((tr = process_tprfind(pid, &t)) == ((void *)0))
-   return 3;
+  if ((tr = process_tprfind(pid, &t)) == ((void *)0)) {
+   error = 3;
+   goto fail;
+  }
   break;
  }
  if (req != 9) {
-  if (req != 8 && (data < 0 || data >= 33))
-   return 22;
+  if (req != 8 && (data < 0 || data >= 33)) {
+   error = 22;
+   goto fail;
+  }
   if ((error = process_checktracestate(p->p_p, tr, t)))
-   return error;
+   goto fail;
   ;
  } else {
-  if (tr == p->p_p)
-   return (22);
-  if (((tr->ps_flags) & (0x00010000)))
-   return (1);
-  if (((tr->ps_flags) & (0x00000200)))
-   return (16);
-  if (((tr->ps_flags) & (0x00000004)))
-   return (35);
+  if (tr == p->p_p) {
+   error = 22;
+   goto fail;
+  }
+  if (((tr->ps_flags) & (0x00010000))) {
+   error = 1;
+   goto fail;
+  }
+  if (((tr->ps_flags) & (0x00000200))) {
+   error = 16;
+   goto fail;
+  }
+  if (((tr->ps_flags) & (0x00000004))) {
+   error = 35;
+   goto fail;
+  }
   if ((tr->ps_ucred->cr_ruid != p->p_ucred->cr_ruid ||
       ((tr->ps_flags) & (0x00000020 | 0x00000010))) &&
-      (error = suser(p, 0)) != 0)
-   return (error);
+      (error = suser(p)) != 0)
+   goto fail;
   if (global_ptrace == 0 && !inferior(tr, p->p_p) &&
-      (error = suser(p, 0)) != 0)
-   return (error);
-  if ((tr->ps_pid == 1) && (securelevel > -1))
-   return (1);
-  if (tr->ps_pid != 1 && inferior(p->p_p, tr))
-   return (22);
+      (error = suser(p)) != 0)
+   goto fail;
+  if ((tr->ps_pid == 1) && (securelevel > -1)) {
+   error = 1;
+   goto fail;
+  }
+  if (tr->ps_pid != 1 && inferior(p->p_p, tr)) {
+   error = 22;
+   goto fail;
+  }
  }
  switch (req) {
  case 7:
@@ -4114,7 +4132,7 @@ ptrace_ctrl(struct proc *p, int req, pid_t pid, caddr_t addr, int data)
    t = tr->ps_single;
   if ((int *)addr != (int *)1)
    if ((error = process_set_pc(t, addr)) != 0)
-    return error;
+    goto fail;
   goto sendsig;
  case 10:
   if (pid < 100000 && tr->ps_single)
@@ -4154,9 +4172,10 @@ ptrace_ctrl(struct proc *p, int req, pid_t pid, caddr_t addr, int data)
   data = 17;
   goto sendsig;
  default:
-  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 514, __func__, req));
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 532, __func__, req));
   break;
  }
+fail:
  return error;
 }
 int
@@ -4165,7 +4184,7 @@ ptrace_kstate(struct proc *p, int req, pid_t pid, void *addr)
  struct process *tr;
  struct ptrace_event *pe = addr;
  int error;
- (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 531, "(p->p_flag & P_SYSTEM) == 0"));
+ (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 550, "(p->p_flag & P_SYSTEM) == 0"));
  if ((tr = prfind(pid)) == ((void *)0))
   return 3;
  if ((error = process_checktracestate(p->p_p, tr, ((void *)0))))
@@ -4207,7 +4226,7 @@ ptrace_kstate(struct proc *p, int req, pid_t pid, void *addr)
   __builtin_memcpy((addr), (tr->ps_ptstat), (sizeof *tr->ps_ptstat));
   break;
  default:
-  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 580, __func__, req));
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 599, __func__, req));
   break;
  }
  return 0;
@@ -4222,7 +4241,7 @@ ptrace_ustate(struct proc *p, int req, pid_t pid, void *addr, int data,
  struct iovec iov;
  int error, write;
  int temp = 0;
- (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 601, "(p->p_flag & P_SYSTEM) == 0"));
+ (((p->p_flag & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 620, "(p->p_flag & P_SYSTEM) == 0"));
  if ((tr = process_tprfind(pid, &t)) == ((void *)0))
   return 3;
  if ((error = process_checktracestate(p->p_p, tr, t)))
@@ -4312,7 +4331,7 @@ ptrace_ustate(struct proc *p, int req, pid_t pid, void *addr, int data,
   *(register_t *)addr = process_get_wcookie(t);
   return 0;
  default:
-  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 718, __func__, req));
+  ((0) ? (void)0 : panic("kernel %sassertion \"%s\" failed: file \"%s\", line %d" " " "%s: unhandled request %d", "diagnostic ", "0", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/sys_process.c", 737, __func__, req));
   break;
  }
  return 0;
@@ -4355,7 +4374,7 @@ process_checkioperm(struct proc *p, struct process *tr)
  int error;
  if ((tr->ps_ucred->cr_ruid != p->p_ucred->cr_ruid ||
      ((tr->ps_flags) & (0x00000020 | 0x00000010))) &&
-     (error = suser(p, 0)) != 0)
+     (error = suser(p)) != 0)
   return (error);
  if ((tr->ps_pid == 1) && (securelevel > -1))
   return (1);

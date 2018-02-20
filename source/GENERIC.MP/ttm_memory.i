@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5013,7 +5013,7 @@ static inline int
 capable(int cap)
 {
  ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
- return suser((__curcpu->ci_self)->ci_curproc, 0);
+ return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
 void *kmap(struct vm_page *);
@@ -8404,7 +8404,7 @@ static _Bool ttm_zones_above_swap_target(struct ttm_mem_global *glob,
   zone = glob->zones[i];
   if (from_wq)
    target = zone->swap_limit;
-  else if ((suser((__curcpu->ci_self)->ci_curproc, 0) == 0))
+  else if ((suser((__curcpu->ci_self)->ci_curproc) == 0))
    target = zone->emer_mem;
   else
    target = zone->max_mem;
@@ -8593,7 +8593,7 @@ static int ttm_mem_global_reserve(struct ttm_mem_global *glob,
   zone = glob->zones[i];
   if (single_zone && zone != single_zone)
    continue;
-  limit = ((suser((__curcpu->ci_self)->ci_curproc, 0) == 0)) ?
+  limit = ((suser((__curcpu->ci_self)->ci_curproc) == 0)) ?
    zone->emer_mem : zone->max_mem;
   if (zone->used_mem > limit)
    goto out_unlock;

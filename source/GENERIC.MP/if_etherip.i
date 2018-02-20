@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4892,6 +4892,7 @@ struct etherip_softc {
  struct etherip_tunnel sc_tunnel;
  struct arpcom sc_ac;
  struct ifmedia sc_media;
+ uint16_t sc_df;
  uint8_t sc_ttl;
 };
 int etherip_allow = 0;
@@ -4928,6 +4929,7 @@ etherip_clone_create(struct if_clone *ifc, int unit)
  snprintf(ifp->if_xname, sizeof(ifp->if_xname), "%s%d",
      ifc->ifc_name, unit);
  sc->sc_ttl = ip_defttl;
+ sc->sc_df = ((__uint16_t)(0));
  ifp->if_softc = sc;
  ifp->if_ioctl = etherip_ioctl;
  ifp->if_start = etherip_start;
@@ -5049,6 +5051,12 @@ etherip_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
   ifr->ifr_ifru.ifru_metric = (int)sc->sc_ttl;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
+  sc->sc_df = ifr->ifr_ifru.ifru_metric ? ((__uint16_t)(0x4000)) : ((__uint16_t)(0));
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((194))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_df ? 1 : 0;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifmediareq) & 0x1fff) << 16) | ((('i')) << 8) | ((56))):
@@ -5185,11 +5193,12 @@ ip_etherip_output(struct ifnet *ifp, struct mbuf *m)
  __builtin_memset((ip), (0), (sizeof(struct ip)));
  ip->ip_v = 4;
  ip->ip_hl = sizeof(*ip) >> 2;
- ip->ip_id = ((__uint16_t)(ip_randomid()));
  ip->ip_tos = 0x10;
- ip->ip_p = 97;
  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
+ ip->ip_id = ((__uint16_t)(ip_randomid()));
+ ip->ip_off = sc->sc_df;
  ip->ip_ttl = sc->sc_ttl;
+ ip->ip_p = 97;
  ip->ip_src = sc->sc_tunnel._t_src.in4;
  ip->ip_dst = sc->sc_tunnel._t_dst.in4;
  eip = (struct etherip_header *)(ip + 1);
@@ -5309,6 +5318,8 @@ ip6_etherip_output(struct ifnet *ifp, struct mbuf *m)
  eip->eip_ver = 0x03;
  eip->eip_res = 0;
  eip->eip_pad = 0;
+ if (sc->sc_df)
+  ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x1000));
  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
  m->M_dat.MH.MH_pkthdr.ph_rtableid = sc->sc_tunnel.t_rtableid;
  pf_pkt_addr_changed(m);

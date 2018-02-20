@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3929,7 +3929,7 @@ ufs_quotactl(struct mount *mp, int cmds, uid_t uid, caddr_t arg,
   if (uid == p->p_ucred->cr_ruid)
    break;
  default:
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
  }
  type = cmds & 0x00ff;

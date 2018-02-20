@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6332,7 +6332,7 @@ swofp_ioctl(struct ifnet *ifp, unsigned long cmd, caddr_t data)
   __builtin_memcpy((&bparam->ifbrp_ifbrpu.ifbrpu_datapath), (&swofs->swofs_datapath_id), (sizeof(uint64_t)));
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((92))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   __builtin_memcpy((&swofs->swofs_datapath_id), (&bparam->ifbrp_ifbrpu.ifbrpu_datapath), (sizeof(uint64_t)));
   break;
@@ -6343,7 +6343,7 @@ swofp_ioctl(struct ifnet *ifp, unsigned long cmd, caddr_t data)
   bparam->ifbrp_ifbrpu.ifbrpu_maxgroup = swofs->swofs_group_max_table;
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((95))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   if (breq->ifbr_portno >= 0xffffff00)
    return (22);

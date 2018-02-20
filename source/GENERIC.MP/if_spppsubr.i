@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5967,7 +5967,7 @@ sppp_get_params(struct sppp *sp, struct ifreq *ifr)
   __builtin_bzero((spa), (sizeof(*spa)));
   spa->proto = auth->proto;
   spa->flags = auth->flags;
-  if (auth->name != ((void *)0) && suser((__curcpu->ci_self)->ci_curproc, 0) == 0)
+  if (auth->name != ((void *)0) && suser((__curcpu->ci_self)->ci_curproc) == 0)
    strlcpy(spa->name, auth->name, sizeof(spa->name));
   if (copyout(spa, (caddr_t)ifr->ifr_ifru.ifru_data, sizeof(*spa)) != 0) {
    free(spa, 2, 0);

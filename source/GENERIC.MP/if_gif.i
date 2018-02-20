@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4604,6 +4604,7 @@ static inline int gif_cmp(const struct gif_tunnel *,
 struct gif_softc {
  struct gif_tunnel sc_tunnel;
  struct ifnet sc_if;
+ uint16_t sc_df;
  int sc_ttl;
 };
 struct gif_list gif_list = { ((void *)0), &(gif_list).tqh_first };
@@ -4638,6 +4639,7 @@ gif_clone_create(struct if_clone *ifc, int unit)
  struct ifnet *ifp;
  sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
  ifp = &sc->sc_if;
+ sc->sc_df = ((__uint16_t)(0));
  sc->sc_ttl = ip_defttl;
  snprintf(ifp->if_xname, sizeof(ifp->if_xname),
      "%s%d", ifc->ifc_name, unit);
@@ -4746,7 +4748,7 @@ gif_send(struct gif_softc *sc, struct mbuf *m,
   if (m == ((void *)0))
    return (-1);
   ip = ((struct ip *)((m)->m_hdr.mh_data));
-  ip->ip_off = 0;
+  ip->ip_off = sc->sc_df;
   ip->ip_tos = otos;
   ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
   ip->ip_ttl = ttl;
@@ -4776,6 +4778,8 @@ gif_send(struct gif_softc *sc, struct mbuf *m,
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
   ip6->ip6_src = sc->sc_tunnel.t_src.in6;
   ip6->ip6_dst = sc->sc_tunnel.t_dst.in6;
+  if (sc->sc_df)
+   ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x1000));
   ip6_send(m);
   break;
  }
@@ -4903,6 +4907,12 @@ gif_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
   ifr->ifr_ifru.ifru_metric = sc->sc_ttl;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
+  sc->sc_df = ifr->ifr_ifru.ifru_metric ? ((__uint16_t)(0x4000)) : ((__uint16_t)(0));
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((194))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_df ? 1 : 0;
   break;
  default:
   error = 25;

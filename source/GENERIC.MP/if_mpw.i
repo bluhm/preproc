@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -2866,7 +2866,7 @@ mpw_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    ifp->if_flags &= ~0x40;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((173))):
-  error = suser((__curcpu->ci_self)->ci_curproc, 0);
+  error = suser((__curcpu->ci_self)->ci_curproc);
   if (error != 0)
    break;
   error = copyin(ifr->ifr_ifru.ifru_data, &imr, sizeof(imr));

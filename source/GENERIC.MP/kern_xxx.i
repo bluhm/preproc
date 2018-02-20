@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3014,7 +3014,7 @@ sys_reboot(struct proc *p, void *v, register_t *retval)
 {
  struct sys_reboot_args *uap = v;
  int error;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  sched_stop_secondary_cpus();
  (((((__curcpu->ci_self))->ci_cpuid == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 56, "CPU_IS_PRIMARY(curcpu())"));

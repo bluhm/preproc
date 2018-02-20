@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3915,7 +3915,7 @@ pppopen(dev_t dev, struct tty *tp, struct proc *p)
 {
     struct ppp_softc *sc;
     int error, s;
-    if ((error = suser(p, 0)) != 0)
+    if ((error = suser(p)) != 0)
  return (error);
     _rw_enter_write(&ppp_pkt_init );
     if (ppp_pkts.pr_size == 0) {
@@ -4089,7 +4089,7 @@ ppptioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
     error = 0;
     switch (cmd) {
     case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((87))):
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
      break;
  sc->sc_asyncmap[0] = *(u_int *)data;
  break;
@@ -4097,7 +4097,7 @@ ppptioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
  *(u_int *)data = sc->sc_asyncmap[0];
  break;
     case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((84))):
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
      break;
  sc->sc_rasyncmap = *(u_int *)data;
  break;
@@ -4105,7 +4105,7 @@ ppptioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
  *(u_int *)data = sc->sc_rasyncmap;
  break;
     case ((unsigned long)0x80000000 | ((sizeof(ext_accm) & 0x1fff) << 16) | ((('t')) << 8) | ((79))):
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
      break;
  s = _splraise(6);
  __builtin_bcopy((data), (sc->sc_asyncmap), (sizeof(sc->sc_asyncmap)));

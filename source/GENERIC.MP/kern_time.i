@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3987,7 +3987,7 @@ sys_clock_settime(struct proc *p, void *v, register_t *retval)
  struct timespec ats;
  clockid_t clock_id;
  int error;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  if ((error = copyin(((uap)->tp.be.datum), &ats, sizeof(ats))) != 0)
   return (error);
@@ -4126,7 +4126,7 @@ sys_settimeofday(struct proc *p, void *v, register_t *retval)
  int error;
  tv = ((uap)->tv.be.datum);
  tzp = ((uap)->tzp.be.datum);
- if ((error = suser(p, 0)))
+ if ((error = suser(p)))
   return (error);
  if (tv && (error = copyin(tv, &atv, sizeof(atv))))
   return (error);
@@ -4157,7 +4157,7 @@ sys_adjfreq(struct proc *p, void *v, register_t *retval)
    return (error);
  }
  if (freq) {
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    return (error);
   if ((error = copyin(freq, &f, sizeof(f))))
    return (error);
@@ -4189,7 +4189,7 @@ sys_adjtime(struct proc *p, void *v, register_t *retval)
    return (error);
  }
  if (delta) {
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    return (error);
   if ((error = copyin(delta, &atv, sizeof(struct timeval))))
    return (error);

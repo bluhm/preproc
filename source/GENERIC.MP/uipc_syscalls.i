@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4521,7 +4521,7 @@ sys_socketpair(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  struct file *fp1, *fp2;
  struct socket *so1, *so2;
- int s, type, cloexec, nonblock, fflag, error, sv[2];
+ int type, cloexec, nonblock, fflag, error, sv[2];
  type = ((uap)->type.be.datum) & ~(0x8000 | 0x4000);
  cloexec = (((uap)->type.be.datum) & 0x8000) ? 0x01 : 0;
  nonblock = ((uap)->type.be.datum) & 0x4000;
@@ -4532,15 +4532,11 @@ sys_socketpair(struct proc *p, void *v, register_t *retval)
  error = socreate(((uap)->domain.be.datum), &so2, type, ((uap)->protocol.be.datum));
  if (error)
   goto free1;
- s = solock(so1);
  error = soconnect2(so1, so2);
- sounlock(s);
  if (error != 0)
   goto free2;
  if ((((uap)->type.be.datum) & 0x000F) == 2) {
-  s = solock(so2);
   error = soconnect2(so2, so1);
-  sounlock(s);
   if (error != 0)
    goto free2;
  }
@@ -5117,7 +5113,7 @@ sys_setrtable(struct proc *p, void *v, register_t *retval)
  rtableid = ((uap)->rtableid.be.datum);
  if (p->p_p->ps_rtableid == (u_int)rtableid)
   return (0);
- if (p->p_p->ps_rtableid != 0 && (error = suser(p, 0)) != 0)
+ if (p->p_p->ps_rtableid != 0 && (error = suser(p)) != 0)
   return (error);
  if (rtableid < 0 || !rtable_exists((u_int)rtableid))
   return (22);

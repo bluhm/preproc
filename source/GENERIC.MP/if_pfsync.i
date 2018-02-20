@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6870,7 +6870,7 @@ pfsyncioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   pfsyncr.pfsyncr_defer = sc->sc_defer;
   return (copyout(&pfsyncr, ifr->ifr_ifru.ifru_data, sizeof(pfsyncr)));
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((247))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   if ((error = copyin(ifr->ifr_ifru.ifru_data, &pfsyncr, sizeof(pfsyncr))))
    return (error);

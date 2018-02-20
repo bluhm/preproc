@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4039,7 +4039,7 @@ sys_acct(struct proc *p, void *v, register_t *retval)
  struct sys_acct_args *uap = v;
  struct nameidata nd;
  int error;
- if ((error = suser(p, 0)) != 0)
+ if ((error = suser(p)) != 0)
   return (error);
  if (((uap)->path.be.datum) != ((void *)0)) {
   ndinitat(&nd, 0, 0x0000, UIO_USERSPACE, -100, ((uap)->path.be.datum), p);

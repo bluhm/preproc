@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3762,7 +3762,7 @@ getbell:
   do { (ubdp)->pitch = ((kbdp)->which & 0x1) ? (kbdp)->pitch : (kbdp)->pitch; (ubdp)->period = ((kbdp)->which & 0x2) ? (kbdp)->period : (kbdp)->period; (ubdp)->volume = ((kbdp)->which & 0x4) ? (kbdp)->volume : (kbdp)->volume; (ubdp)->which = 0x7; } while (0);
   return (0);
  case ((unsigned long)0x80000000 | ((sizeof(struct wskbd_bell_data) & 0x1fff) << 16) | ((('W')) << 8) | ((5))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   kbdp = &wskbd_default_bell_data;
   goto setbell;
@@ -3782,7 +3782,7 @@ getkeyrepeat:
   do { (ukdp)->del1 = ((kkdp)->which & 0x1) ? (kkdp)->del1 : (kkdp)->del1; (ukdp)->delN = ((kkdp)->which & 0x2) ? (kkdp)->delN : (kkdp)->delN; (ukdp)->which = 0x3; } while (0);
   return (0);
  case ((unsigned long)0x80000000 | ((sizeof(struct wskbd_keyrepeat_data) & 0x1fff) << 16) | ((('W')) << 8) | ((9))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   kkdp = &wskbd_default_keyrepeat_data;
   goto setkeyrepeat;

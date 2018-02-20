@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4562,7 +4562,7 @@ logioctl(dev_t dev, u_long com, caddr_t data, int flag, struct proc *p)
   *(int *)data = logsoftc.sc_pgid;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('l')) << 8) | ((127))):
-  if ((error = suser(p, 0)) != 0)
+  if ((error = suser(p)) != 0)
    return (error);
   fp = syslogf;
   if ((error = getsock(p, *(int *)data, &syslogf)) != 0)

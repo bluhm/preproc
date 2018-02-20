@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -8425,7 +8425,7 @@ sys_sysctl(struct proc *p, void *v, register_t *retval)
  sysctlfn *fn;
  int name[12];
  if (((uap)->new.be.datum) != ((void *)0) &&
-     (error = suser(p, 0)))
+     (error = suser(p)))
   return (error);
  if (((uap)->namelen.be.datum) > 12 || ((uap)->namelen.be.datum) < 2)
   return (22);
@@ -8698,7 +8698,7 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
   return (sysctl_rdint(oldp, oldlenp, newp, mp->msg_bufs));
  }
  case 83:
-  if ((error = suser(p, 0)))
+  if ((error = suser(p)))
    return (error);
  case 48: {
   struct msgbuf *mp;
@@ -9137,7 +9137,7 @@ fill_file(struct kinfo_file *kf, struct file *fp, struct filedesc *fdp,
   if (show_pointers)
    kf->f_data = ((u_int64_t)(u_long)(fp->f_data));
   kf->f_usecount = 0;
-  if (suser(p, 0) == 0 || p->p_ucred->cr_uid == fp->f_cred->cr_uid) {
+  if (suser(p) == 0 || p->p_ucred->cr_uid == fp->f_cred->cr_uid) {
    kf->f_offset = fp->f_offset;
    kf->f_rxfer = fp->f_rxfer;
    kf->f_rwfer = fp->f_wxfer;
@@ -9316,7 +9316,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
  outsize = (((sizeof(*kf))<(elem_size))?(sizeof(*kf)):(elem_size));
  if (elem_size < 1)
   return (22);
- show_pointers = suser((__curcpu->ci_self)->ci_curproc, 0) == 0;
+ show_pointers = suser((__curcpu->ci_self)->ci_curproc) == 0;
  kf = malloc(sizeof(*kf), 127, 0x0001);
  switch (op) {
  case 1:
@@ -9457,7 +9457,7 @@ sysctl_doproc(int *name, u_int namelen, char *where, size_t *sizep)
  elem_count = name[3];
  dothreads = op & 0x40000000;
  op &= ~0x40000000;
- show_pointers = suser((__curcpu->ci_self)->ci_curproc, 0) == 0;
+ show_pointers = suser((__curcpu->ci_self)->ci_curproc) == 0;
  if (where != ((void *)0))
   kproc = malloc(sizeof(*kproc), 127, 0x0001);
  pr = ((&allprocess)->lh_first);
@@ -9652,7 +9652,7 @@ sysctl_proc_args(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   return (16);
  if ((op == 4 || op == 3) &&
      (vpr->ps_ucred->cr_uid != cp->p_ucred->cr_uid &&
-     (error = suser(cp, 0)) != 0))
+     (error = suser(cp)) != 0))
   return (error);
  ps_strings = vpr->ps_strings;
  vm = vpr->ps_vmspace;
@@ -9780,7 +9780,7 @@ sysctl_proc_cwd(int *name, u_int namelen, void *oldp, size_t *oldlenp,
  if (findpr->ps_flags & (0x00010000 | 0x00000008))
   return (22);
  if (findpr->ps_ucred->cr_uid != cp->p_ucred->cr_uid &&
-     (error = suser(cp, 0)) != 0)
+     (error = suser(cp)) != 0)
   return (error);
  len = *oldlenp;
  if (len > 1024 * 4)
@@ -9820,7 +9820,7 @@ sysctl_proc_nobroadcastkill(int *name, u_int namelen, void *newp, size_t newlen,
   return (3);
  if (findpr->ps_flags & (0x00010000 | 0x00000008))
   return (22);
- if (newp != 0 && (error = suser(cp, 0)) != 0)
+ if (newp != 0 && (error = suser(cp)) != 0)
   return (error);
  flag = findpr->ps_flags & 0x00080000 ? 1 : 0;
  error = sysctl_int(oldp, oldlenp, newp, newlen, &flag);
@@ -9864,10 +9864,10 @@ sysctl_proc_vmmap(int *name, u_int namelen, void *oldp, size_t *oldlenp,
    return (3);
   if (findpr->ps_flags & (0x00010000 | 0x00000008))
    return (22);
-  if ((error = suser(cp, 0)) != 0)
+  if ((error = suser(cp)) != 0)
    return (error);
  } else {
-  if ((error = suser(cp, 0)) != 0)
+  if ((error = suser(cp)) != 0)
    return (error);
   findpr = ((void *)0);
  }

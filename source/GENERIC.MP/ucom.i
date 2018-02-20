@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -3135,7 +3135,7 @@ ucom_do_open(dev_t dev, int flag, int mode, struct proc *p)
    ((tp->t_state) |= (0x00008));
   else
    ((tp->t_state) &= ~(0x00008));
- } else if (((tp->t_state) & (0x00400)) && suser(p, 0) != 0)
+ } else if (((tp->t_state) & (0x00400)) && suser(p) != 0)
   return (16);
  else
   s = _splraise(6);
@@ -3322,7 +3322,7 @@ ucom_do_ioctl(struct ucom_softc *sc, u_long cmd, caddr_t data,
   *(int *)data = sc->sc_swflags;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((92))):
-  error = suser(p, 0);
+  error = suser(p);
   if (error)
    break;
   sc->sc_swflags = *(int *)data;

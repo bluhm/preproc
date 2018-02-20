@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5219,7 +5219,7 @@ sys_nfssvc(struct proc *p, void *v, register_t *retval)
  struct nfsd_args nfsdarg;
  struct nfsd_srvargs nfsd_srvargs, *nsd = &nfsd_srvargs;
  struct nfsd *nfsd;
- error = suser(p, 0);
+ error = suser(p);
  if (error)
   return (error);
  while (nfssvc_sockhead_flag & 0x01) {

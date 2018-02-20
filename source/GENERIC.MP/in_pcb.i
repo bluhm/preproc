@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6309,7 +6309,7 @@ in_pcbbind(struct inpcb *inp, struct mbuf *nam, struct proc *p)
    return (error);
  } else {
   if (in_rootonly(((__uint16_t)(lport)), so->so_proto->pr_protocol) &&
-      suser(p, 0) != 0)
+      suser(p) != 0)
    return (13);
  }
  if (nam) {
@@ -6379,7 +6379,7 @@ in_pcbpickport(u_int16_t *lport, void *laddr, int wild, struct inpcb *inp,
   first = ipport_hifirstauto;
   last = ipport_hilastauto;
  } else if (inp->inp_flags & 0x020) {
-  if (suser(p, 0))
+  if (suser(p))
    return (13);
   first = 1024 -1;
   last = 600;

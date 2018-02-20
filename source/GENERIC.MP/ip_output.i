@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -6621,7 +6621,7 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
    switch (optname) {
    case 20:
     if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -6629,7 +6629,7 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 21:
     if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -6637,7 +6637,7 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 22:
     if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -6645,7 +6645,7 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    case 29:
     if (optval < 0x01 &&
-        suser(p, 0)) {
+        suser(p)) {
      error = 13;
      break;
     }
@@ -6667,7 +6667,7 @@ ip_ctloutput(int op, struct socket *so, int level, int optname,
     break;
    if (p->p_p->ps_rtableid != rtid &&
        p->p_p->ps_rtableid != 0 &&
-       (error = suser(p, 0)) != 0)
+       (error = suser(p)) != 0)
     break;
    if (!rtable_exists(rtid)) {
     error = 22;

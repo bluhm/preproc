@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -5685,12 +5685,12 @@ switch_ioctl(struct ifnet *ifp, unsigned long cmd, caddr_t data)
  int error = 0;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((60))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = switch_port_add(sc, (struct ifbreq *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((61))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = switch_port_del(sc, (struct ifbreq *)data);
   break;
@@ -5698,7 +5698,7 @@ switch_ioctl(struct ifnet *ifp, unsigned long cmd, caddr_t data)
   error = switch_port_list(sc, (struct ifbifconf *)data);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc, 0)) != 0)
+  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
    break;
   error = switch_port_add(sc, (struct ifbreq *)data);
   if (error && error != 17)

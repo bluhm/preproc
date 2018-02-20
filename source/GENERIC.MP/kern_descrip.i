@@ -395,7 +395,7 @@ struct ucred *crcopy(struct ucred *cr);
 struct ucred *crdup(struct ucred *cr);
 void crfree(struct ucred *cr);
 struct ucred *crget(void);
-int suser(struct proc *p, u_int flags);
+int suser(struct proc *p);
 int suser_ucred(struct ucred *cred);
 struct iovec {
  void *iov_base;
@@ -4838,7 +4838,7 @@ sys_fstat(struct proc *p, void *v, register_t *retval)
  error = (*fp->f_ops->fo_stat)(fp, &ub, p);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  if (error == 0) {
-  if (suser(p, 0))
+  if (suser(p))
    ub.st_gen = 0;
   error = copyout((caddr_t)&ub, (caddr_t)((uap)->sb.be.datum),
       sizeof (ub));
