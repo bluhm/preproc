@@ -2081,13 +2081,12 @@ struct pgrp *pgfind(pid_t);
 void proc_printit(struct proc *p, const char *modif,
     int (*pr)(const char *, ...));
 int chgproccnt(uid_t uid, int diff);
-int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
-void fixjobc(struct process *, struct pgrp *, int);
+void enternewpgrp(struct process *, struct pgrp *, struct session *);
+void enterthispgrp(struct process *, struct pgrp *);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
 void killjobc(struct process *);
 void preempt(void);
-void pgdelete(struct pgrp *);
 void procinit(void);
 void resetpriority(struct proc *);
 void setrunnable(struct proc *);
@@ -6878,6 +6877,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((50))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((55))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((195))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((176))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((178))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((180))):

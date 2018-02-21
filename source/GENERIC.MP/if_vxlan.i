@@ -5429,6 +5429,7 @@ struct vxlan_softc {
  in_port_t sc_dstport;
  u_int sc_rdomain;
  int64_t sc_vnetid;
+ uint16_t sc_df;
  u_int8_t sc_ttl;
  struct task sc_sendtask;
  struct { struct vxlan_softc *le_next; struct vxlan_softc **le_prev; } sc_entry;
@@ -5477,6 +5478,7 @@ vxlan_clone_create(struct if_clone *ifc, int unit)
  sc->sc_imo.imo_max_memberships = 15;
  sc->sc_dstport = ((__uint16_t)(4789));
  sc->sc_vnetid = 0x01ffffff;
+ sc->sc_df = ((__uint16_t)(0));
  task_set(&sc->sc_sendtask, vxlan_send_dispatch, sc);
  ifp = &sc->sc_ac.ac_if;
  snprintf(ifp->if_xname, sizeof ifp->if_xname, "vxlan%d", unit);
@@ -5747,6 +5749,12 @@ vxlanioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
   ifr->ifr_ifru.ifru_metric = (int)sc->sc_ttl;
   break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
+  sc->sc_df = ifr->ifr_ifru.ifru_metric ? ((__uint16_t)(0x4000)) : ((__uint16_t)(0));
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((194))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_df ? 1 : 0;
+  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
   if (sc->sc_vnetid == ifr->ifr_ifru.ifru_vnetid)
    break;
@@ -5927,7 +5935,7 @@ vxlan_encap4(struct ifnet *ifp, struct mbuf *m,
  ip->ip_v = 4;
  ip->ip_hl = sizeof(struct ip) >> 2;
  ip->ip_id = ((__uint16_t)(ip_randomid()));
- ip->ip_off = 0;
+ ip->ip_off = sc->sc_df;
  ip->ip_p = 17;
  ip->ip_tos = 0x10;
  ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
@@ -5970,6 +5978,8 @@ vxlan_encap6(struct ifnet *ifp, struct mbuf *m,
    goto drop;
   ip6->ip6_src = *in6a;
  }
+ if (sc->sc_df)
+  ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x1000));
  m->M_dat.MH.MH_pkthdr.csum_flags |= 0x0004;
  return (m);
 drop:

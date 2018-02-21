@@ -1598,13 +1598,12 @@ struct pgrp *pgfind(pid_t);
 void proc_printit(struct proc *p, const char *modif,
     int (*pr)(const char *, ...));
 int chgproccnt(uid_t uid, int diff);
-int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
-void fixjobc(struct process *, struct pgrp *, int);
+void enternewpgrp(struct process *, struct pgrp *, struct session *);
+void enterthispgrp(struct process *, struct pgrp *);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
 void killjobc(struct process *);
 void preempt(void);
-void pgdelete(struct pgrp *);
 void procinit(void);
 void resetpriority(struct proc *);
 void setrunnable(struct proc *);
@@ -3456,14 +3455,13 @@ sys_setsid(struct proc *p, void *v, register_t *retval)
  struct process *pr = p->p_p;
  pid_t pid = pr->ps_pid;
  newsess = pool_get(&session_pool, 0x0001);
- timeout_set(&newsess->s_verauthto, zapverauth, newsess);
  newpgrp = pool_get(&pgrp_pool, 0x0001);
- if (pr->ps_pgrp->pg_id == pid || pgfind(pid)) {
+ if (pr->ps_pgrp->pg_id == pid || pgfind(pid) != ((void *)0)) {
   pool_put(&pgrp_pool, newpgrp);
   pool_put(&session_pool, newsess);
   return (1);
  } else {
-  (void) enterpgrp(pr, pid, newpgrp, newsess);
+  enternewpgrp(pr, newpgrp, newsess);
   *retval = pid;
   return (0);
  }
@@ -3503,15 +3501,24 @@ sys_setpgid(struct proc *curp, void *v, register_t *retval)
  }
  if (pgid == 0)
   pgid = targpr->ps_pid;
- else if (pgid != targpr->ps_pid)
-  if ((pgrp = pgfind(pgid)) == 0 ||
-      pgrp->pg_session != curpr->ps_pgrp->pg_session) {
+ error = 0;
+ if ((pgrp = pgfind(pgid)) == ((void *)0)) {
+  if (pgid != targpr->ps_pid)
    error = 1;
-   goto out;
+  else {
+   enternewpgrp(targpr, newpgrp, ((void *)0));
+   newpgrp = ((void *)0);
   }
- return (enterpgrp(targpr, pgid, newpgrp, ((void *)0)));
-out:
- pool_put(&pgrp_pool, newpgrp);
+ } else if (pgrp != targpr->ps_pgrp) {
+  if (pgid != targpr->ps_pid &&
+      pgrp->pg_session != curpr->ps_pgrp->pg_session)
+   error = 1;
+  else
+   enterthispgrp(targpr, pgrp);
+ }
+ out:
+ if (newpgrp != ((void *)0))
+  pool_put(&pgrp_pool, newpgrp);
  return (error);
 }
 int
@@ -4016,7 +4023,7 @@ void
 dorefreshcreds(struct process *pr, struct proc *p)
 {
  struct ucred *uc = p->p_ucred;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1101);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_prot.c", 1111);
  if (uc != pr->ps_ucred) {
   p->p_ucred = pr->ps_ucred;
   (p->p_ucred)->cr_ref++;

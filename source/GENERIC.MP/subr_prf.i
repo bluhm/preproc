@@ -1722,13 +1722,12 @@ struct pgrp *pgfind(pid_t);
 void proc_printit(struct proc *p, const char *modif,
     int (*pr)(const char *, ...));
 int chgproccnt(uid_t uid, int diff);
-int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
-void fixjobc(struct process *, struct pgrp *, int);
+void enternewpgrp(struct process *, struct pgrp *, struct session *);
+void enterthispgrp(struct process *, struct pgrp *);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
 void killjobc(struct process *);
 void preempt(void);
-void pgdelete(struct pgrp *);
 void procinit(void);
 void resetpriority(struct proc *);
 void setrunnable(struct proc *);

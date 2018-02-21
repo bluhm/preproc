@@ -4972,6 +4972,8 @@ static int gre_del_tunnel(struct gre_tunnel *);
 static int gre_set_vnetid(struct gre_tunnel *, struct ifreq *);
 static int gre_get_vnetid(struct gre_tunnel *, struct ifreq *);
 static int gre_del_vnetid(struct gre_tunnel *);
+static int gre_set_vnetflowid(struct gre_tunnel *, struct ifreq *);
+static int gre_get_vnetflowid(struct gre_tunnel *, struct ifreq *);
 static struct mbuf *
   gre_encap(const struct gre_tunnel *, struct mbuf *, uint16_t,
       uint8_t, uint8_t);
@@ -5287,6 +5289,10 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
  pf_pkt_addr_changed(m);
+ if (sc->sc_tunnel.t_key_mask == ((__uint32_t)(0xffffff00U))) {
+  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
+      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
+ }
  ifp->if_data.ifi_ipackets++;
  ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  if (ifp->if_bpf)
@@ -5329,6 +5335,10 @@ egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
  }
  m->m_hdr.mh_flags &= ~(0x0200|0x0100);
  pf_pkt_addr_changed(m);
+ if (sc->sc_tunnel.t_key_mask == ((__uint32_t)(0xffffff00U))) {
+  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
+      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
+ }
  ml_enqueue(&ml, m);
  if_input(&sc->sc_ac.ac_if, &ml);
  return (0);
@@ -5545,6 +5555,10 @@ gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
   gh->gre_flags |= ((__uint16_t)(0x2000));
   gkh = (struct gre_h_key *)(gh + 1);
   gkh->gre_key = tunnel->t_key;
+  if (tunnel->t_key_mask == ((__uint32_t)(0xffffff00U)) &&
+      ((m->M_dat.MH.MH_pkthdr.ph_flowid) & (0x8000))) {
+   gkh->gre_key |= ((__uint32_t)(~((__uint32_t)(0xffffff00U)) & (m->M_dat.MH.MH_pkthdr.ph_flowid & 0x7fff)));
+  }
  }
  switch (tunnel->t_af) {
  case 2: {
@@ -5631,6 +5645,12 @@ gre_tunnel_ioctl(struct ifnet *ifp, struct gre_tunnel *tunnel,
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
   error = gre_del_vnetid(tunnel);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((195))):
+  error = gre_set_vnetflowid(tunnel, ifr);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((196))):
+  error = gre_get_vnetflowid(tunnel, ifr);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
   error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data);
@@ -5755,6 +5775,7 @@ egre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((195))):
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
@@ -5865,7 +5886,7 @@ gre_keepalive_send(void *arg)
  t.t_dst = sc->sc_tunnel.t_src;
  t.t_key = sc->sc_tunnel.t_key;
  t.t_key_mask = sc->sc_tunnel.t_key_mask;
- m = gre_encap(&t, m, ((__uint16_t)(0)), ttl, 0);
+ m = gre_encap(&t, m, ((__uint16_t)(0)), ttl, 0xc0);
  if (m == ((void *)0))
   return;
  switch (sc->sc_tunnel.t_af) {
@@ -5884,7 +5905,8 @@ gre_keepalive_send(void *arg)
   proto = ((__uint16_t)(0x86DD));
   break;
  }
- m = gre_encap(&sc->sc_tunnel, m, proto, ttl, 0);
+ m = gre_encap(&sc->sc_tunnel, m, proto, ttl,
+     0xc0);
  if (m == ((void *)0))
   return;
  gre_ip_output(&sc->sc_tunnel, m);
@@ -6000,27 +6022,73 @@ static int
 gre_set_vnetid(struct gre_tunnel *tunnel, struct ifreq *ifr)
 {
  uint32_t key;
- if (ifr->ifr_ifru.ifru_vnetid < 0 || ifr->ifr_ifru.ifru_vnetid > 0xffffffff)
-  return 22;
- key = ((__uint32_t)(ifr->ifr_ifru.ifru_vnetid));
- if (tunnel->t_key_mask == ((__uint32_t)(0xffffffffU)) && tunnel->t_key == key)
-  return (0);
- tunnel->t_key_mask = ((__uint32_t)(0xffffffffU));
+ uint32_t min = 0x00000000U;
+ uint32_t max = 0xffffffffU;
+ unsigned int shift = 0;
+ uint32_t mask = ((__uint32_t)(0xffffffffU));
+ if (tunnel->t_key_mask == ((__uint32_t)(0xffffff00U))) {
+  min = 0x00000000U;
+  max = 0x00ffffffU;
+  shift = 8;
+  mask = ((__uint32_t)(0xffffff00U));
+ }
+ if (ifr->ifr_ifru.ifru_vnetid < min || ifr->ifr_ifru.ifru_vnetid > max)
+  return (22);
+ key = ((__uint32_t)(ifr->ifr_ifru.ifru_vnetid << shift));
+ tunnel->t_key_mask = mask;
  tunnel->t_key = key;
  return (0);
 }
 static int
 gre_get_vnetid(struct gre_tunnel *tunnel, struct ifreq *ifr)
 {
- if (tunnel->t_key_mask == ((__uint32_t)(0x00000000U)))
+ int shift;
+ switch (tunnel->t_key_mask) {
+ case ((__uint32_t)(0x00000000U)):
   return (49);
- ifr->ifr_ifru.ifru_vnetid = (int64_t)((__uint32_t)(tunnel->t_key));
+ case ((__uint32_t)(0xffffff00U)):
+  shift = 8;
+  break;
+ case ((__uint32_t)(0xffffffffU)):
+  shift = 0;
+  break;
+ }
+ ifr->ifr_ifru.ifru_vnetid = ((__uint32_t)(tunnel->t_key)) >> shift;
  return (0);
 }
 static int
 gre_del_vnetid(struct gre_tunnel *tunnel)
 {
  tunnel->t_key_mask = ((__uint32_t)(0x00000000U));
+ return (0);
+}
+static int
+gre_set_vnetflowid(struct gre_tunnel *tunnel, struct ifreq *ifr)
+{
+ uint32_t mask, key;
+ if (tunnel->t_key_mask == ((__uint32_t)(0x00000000U)))
+  return (49);
+ mask = ifr->ifr_ifru.ifru_vnetid ? ((__uint32_t)(0xffffff00U)) : ((__uint32_t)(0xffffffffU));
+ if (tunnel->t_key_mask == mask) {
+  return (0);
+ }
+ key = ((__uint32_t)(tunnel->t_key));
+ if (mask == ((__uint32_t)(0xffffff00U))) {
+  if (key > 0x00ffffffU)
+   return (34);
+  key = ((__uint32_t)(key << 8));
+ } else
+  key = ((__uint32_t)(key >> 8));
+ tunnel->t_key_mask = mask;
+ tunnel->t_key = key;
+ return (0);
+}
+static int
+gre_get_vnetflowid(struct gre_tunnel *tunnel, struct ifreq *ifr)
+{
+ if (tunnel->t_key_mask == ((__uint32_t)(0x00000000U)))
+  return (49);
+ ifr->ifr_ifru.ifru_vnetid = tunnel->t_key_mask == ((__uint32_t)(0xffffff00U));
  return (0);
 }
 static int

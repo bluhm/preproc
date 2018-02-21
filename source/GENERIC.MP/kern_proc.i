@@ -1602,13 +1602,12 @@ struct pgrp *pgfind(pid_t);
 void proc_printit(struct proc *p, const char *modif,
     int (*pr)(const char *, ...));
 int chgproccnt(uid_t uid, int diff);
-int enterpgrp(struct process *, pid_t, struct pgrp *, struct session *);
-void fixjobc(struct process *, struct pgrp *, int);
+void enternewpgrp(struct process *, struct pgrp *, struct session *);
+void enterthispgrp(struct process *, struct pgrp *);
 int inferior(struct process *, struct process *);
 void leavepgrp(struct process *);
 void killjobc(struct process *);
 void preempt(void);
-void pgdelete(struct pgrp *);
 void procinit(void);
 void resetpriority(struct proc *);
 void setrunnable(struct proc *);
@@ -2917,6 +2916,8 @@ struct pool rusage_pool;
 struct pool ucred_pool;
 struct pool pgrp_pool;
 struct pool session_pool;
+void pgdelete(struct pgrp *);
+void fixjobc(struct process *, struct pgrp *, int);
 static void orphanpg(struct pgrp *);
 void
 procinit(void)
@@ -3020,55 +3021,43 @@ zombiefind(pid_t pid)
    return (pr);
  return (((void *)0));
 }
-int
-enterpgrp(struct process *pr, pid_t pgid, struct pgrp *newpgrp,
-    struct session *newsess)
+void
+enternewpgrp(struct process *pr, struct pgrp *pgrp, struct session *newsess)
 {
- struct pgrp *pgrp = pgfind(pgid);
- if (pgrp != ((void *)0) && newsess)
-  panic("enterpgrp: setsid into non-empty pgrp");
  if (((pr)->ps_pgrp->pg_session->s_leader == (pr)))
-  panic("enterpgrp: session leader attempted setpgrp");
- if (pgrp == ((void *)0)) {
-  if (pr->ps_pid != pgid)
-   panic("enterpgrp: new pgrp and pid != pgid");
-  pgrp = newpgrp;
-  if (newsess) {
-   newsess->s_leader = pr;
-   newsess->s_count = 1;
-   newsess->s_ttyvp = ((void *)0);
-   newsess->s_ttyp = ((void *)0);
-   __builtin_memcpy((newsess->s_login), (pr->ps_pgrp->pg_session->s_login), (sizeof(newsess->s_login)));
-   atomic_clearbits_int(&pr->ps_flags, 0x00000001);
-   pgrp->pg_session = newsess;
-   if (pr != (__curcpu->ci_self)->ci_curproc->p_p)
-    panic("enterpgrp: mksession but not curproc");
-  } else {
-   pgrp->pg_session = pr->ps_pgrp->pg_session;
-   pgrp->pg_session->s_count++;
-  }
-  pgrp->pg_id = pgid;
-  do { ((&pgrp->pg_members)->lh_first) = ((void *)0); } while (0);
-  do { if (((pgrp)->pg_hash.le_next = ((&pgrphashtbl[(pgid) & pgrphash]))->lh_first) != ((void *)0)) ((&pgrphashtbl[(pgid) & pgrphash]))->lh_first->pg_hash.le_prev = &(pgrp)->pg_hash.le_next; ((&pgrphashtbl[(pgid) & pgrphash]))->lh_first = (pgrp); (pgrp)->pg_hash.le_prev = &((&pgrphashtbl[(pgid) & pgrphash]))->lh_first; } while (0);
-  pgrp->pg_jobc = 0;
- } else if (pgrp == pr->ps_pgrp) {
-  if (newsess)
-   pool_put(&session_pool, newsess);
-  pool_put(&pgrp_pool, newpgrp);
-  return (0);
+  panic("%s: session leader attempted setpgrp", __func__);
+ if (newsess != ((void *)0)) {
+  timeout_set(&newsess->s_verauthto, zapverauth, newsess);
+  newsess->s_leader = pr;
+  newsess->s_count = 1;
+  newsess->s_ttyvp = ((void *)0);
+  newsess->s_ttyp = ((void *)0);
+  __builtin_memcpy((newsess->s_login), (pr->ps_pgrp->pg_session->s_login), (sizeof(newsess->s_login)));
+  atomic_clearbits_int(&pr->ps_flags, 0x00000001);
+  pgrp->pg_session = newsess;
+  if (pr != (__curcpu->ci_self)->ci_curproc->p_p)
+   panic("%s: mksession but not curproc", __func__);
  } else {
-  if (newsess)
-   pool_put(&session_pool, newsess);
-  pool_put(&pgrp_pool, newpgrp);
+  pgrp->pg_session = pr->ps_pgrp->pg_session;
+  pgrp->pg_session->s_count++;
  }
+ pgrp->pg_id = pr->ps_pid;
+ do { ((&pgrp->pg_members)->lh_first) = ((void *)0); } while (0);
+ do { if (((pgrp)->pg_hash.le_next = ((&pgrphashtbl[(pr->ps_pid) & pgrphash]))->lh_first) != ((void *)0)) ((&pgrphashtbl[(pr->ps_pid) & pgrphash]))->lh_first->pg_hash.le_prev = &(pgrp)->pg_hash.le_next; ((&pgrphashtbl[(pr->ps_pid) & pgrphash]))->lh_first = (pgrp); (pgrp)->pg_hash.le_prev = &((&pgrphashtbl[(pr->ps_pid) & pgrphash]))->lh_first; } while (0);
+ pgrp->pg_jobc = 0;
+ enterthispgrp(pr, pgrp);
+}
+void
+enterthispgrp(struct process *pr, struct pgrp *pgrp)
+{
+ struct pgrp *savepgrp = pr->ps_pgrp;
  fixjobc(pr, pgrp, 1);
- fixjobc(pr, pr->ps_pgrp, 0);
+ fixjobc(pr, savepgrp, 0);
  do { if ((pr)->ps_pglist.le_next != ((void *)0)) (pr)->ps_pglist.le_next->ps_pglist.le_prev = (pr)->ps_pglist.le_prev; *(pr)->ps_pglist.le_prev = (pr)->ps_pglist.le_next; ((pr)->ps_pglist.le_prev) = ((void *)-1); ((pr)->ps_pglist.le_next) = ((void *)-1); } while (0);
- if ((((&pr->ps_pgrp->pg_members)->lh_first) == ((void *)0)))
-  pgdelete(pr->ps_pgrp);
  pr->ps_pgrp = pgrp;
  do { if (((pr)->ps_pglist.le_next = (&pgrp->pg_members)->lh_first) != ((void *)0)) (&pgrp->pg_members)->lh_first->ps_pglist.le_prev = &(pr)->ps_pglist.le_next; (&pgrp->pg_members)->lh_first = (pr); (pr)->ps_pglist.le_prev = &(&pgrp->pg_members)->lh_first; } while (0);
- return (0);
+ if ((((&savepgrp->pg_members)->lh_first) == ((void *)0)))
+  pgdelete(savepgrp);
 }
 void
 leavepgrp(struct process *pr)
