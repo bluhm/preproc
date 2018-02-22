@@ -1572,6 +1572,155 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
+struct kinfo_pool {
+ unsigned int pr_size;
+ unsigned int pr_pgsize;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_hardlimit;
+ unsigned int pr_npages;
+ unsigned int pr_nout;
+ unsigned int pr_nitems;
+ unsigned long pr_nget;
+ unsigned long pr_nput;
+ unsigned long pr_nfail;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+};
+struct kinfo_pool_cache {
+ uint64_t pr_ngc;
+ unsigned int pr_len;
+ unsigned int pr_nitems;
+ unsigned int pr_contention;
+};
+struct kinfo_pool_cache_cpu {
+ unsigned int pr_cpu;
+ uint64_t pr_nget;
+ uint64_t pr_nfail;
+ uint64_t pr_nput;
+ uint64_t pr_nlget;
+ uint64_t pr_nlfail;
+ uint64_t pr_nlput;
+};
+struct pool;
+struct pool_request;
+struct pool_lock_ops;
+struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
+struct pool_allocator {
+ void *(*pa_alloc)(struct pool *, int, int *);
+ void (*pa_free)(struct pool *, void *);
+ size_t pa_pagesz;
+};
+struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
+struct pool_cache_item;
+struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
+struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
+struct pool {
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
+ struct { struct pool *sqe_next; }
+   pr_poollist;
+ struct pool_pagelist
+   pr_emptypages;
+ struct pool_pagelist
+   pr_fullpages;
+ struct pool_pagelist
+   pr_partpages;
+ struct pool_page_header *
+   pr_curpage;
+ unsigned int pr_size;
+ unsigned int pr_minitems;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_npages;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_slack;
+ unsigned int pr_nitems;
+ unsigned int pr_nout;
+ unsigned int pr_hardlimit;
+ unsigned int pr_serial;
+ unsigned int pr_pgsize;
+ vaddr_t pr_pgmask;
+ struct pool_allocator *
+   pr_alloc;
+ const char * pr_wchan;
+ int pr_flags;
+ int pr_ipl;
+ struct phtree { struct rb_tree rbh_root; }
+   pr_phtree;
+ struct cpumem * pr_cache;
+ unsigned long pr_cache_magic[2];
+ union pool_lock pr_cache_lock;
+ struct pool_cache_lists
+   pr_cache_lists;
+ u_int pr_cache_nitems;
+ u_int pr_cache_items;
+ u_int pr_cache_contention;
+ u_int pr_cache_contention_prev;
+ int pr_cache_tick;
+ int pr_cache_nout;
+ uint64_t pr_cache_ngc;
+ u_int pr_align;
+ u_int pr_maxcolors;
+ int pr_phoffset;
+ const char *pr_hardlimit_warning;
+ struct timeval pr_hardlimit_ratecap;
+ struct timeval pr_hardlimit_warning_last;
+ union pool_lock pr_requests_lock;
+ struct pool_requests
+   pr_requests;
+ unsigned int pr_requesting;
+ unsigned long pr_nget;
+ unsigned long pr_nfail;
+ unsigned long pr_nput;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+ const struct kmem_pa_mode *
+   pr_crange;
+};
+extern struct pool_allocator pool_allocator_single;
+extern struct pool_allocator pool_allocator_multi;
+struct pool_request {
+ struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
+ void (*pr_handler)(struct pool *, void *, void *);
+ void *pr_cookie;
+ void *pr_item;
+};
+void pool_init(struct pool *, size_t, u_int, int, int,
+      const char *, struct pool_allocator *);
+void pool_cache_init(struct pool *);
+void pool_destroy(struct pool *);
+void pool_setlowat(struct pool *, int);
+void pool_sethiwat(struct pool *, int);
+int pool_sethardlimit(struct pool *, u_int, const char *, int);
+struct uvm_constraint_range;
+void pool_set_constraints(struct pool *,
+      const struct kmem_pa_mode *mode);
+void *pool_get(struct pool *, int) __attribute__((__malloc__));
+void pool_request_init(struct pool_request *,
+      void (*)(struct pool *, void *, void *), void *);
+void pool_request(struct pool *, struct pool_request *);
+void pool_put(struct pool *, void *);
+int pool_reclaim(struct pool *);
+void pool_reclaim_all(void);
+int pool_prime(struct pool *, int);
+void pool_printit(struct pool *, const char *,
+      int (*)(const char *, ...));
+void pool_walk(struct pool *, int, int (*)(const char *, ...),
+      void (*)(void *, int, int (*)(const char *, ...)));
+void dma_alloc_init(void);
+void *dma_alloc(size_t size, int flags);
+void dma_free(void *m, size_t size);
 typedef struct _SIPHASH_CTX {
  uint64_t v[4];
  uint8_t buf[8];
@@ -1806,6 +1955,274 @@ int if_congested(void);
 __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
 struct taskq * net_tq(unsigned int);
+struct taskq;
+struct task {
+ struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
+ void (*t_func)(void *);
+ void *t_arg;
+ unsigned int t_flags;
+};
+struct task_list { struct task *tqh_first; struct task **tqh_last; };
+extern struct taskq *const systq;
+extern struct taskq *const systqmp;
+struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
+void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
+void task_set(struct task *, void (*)(void *), void *);
+int task_add(struct taskq *, struct task *);
+int task_del(struct taskq *, struct task *);
+struct ifnet;
+struct ifq_ops;
+struct ifqueue {
+ struct ifnet *ifq_if;
+ union {
+  void *_ifq_softc;
+  struct ifqueue *_ifq_ifqs[1];
+ } _ifq_ptr;
+ struct mutex ifq_mtx;
+ const struct ifq_ops *ifq_ops;
+ void *ifq_q;
+ struct mbuf_list ifq_free;
+ unsigned int ifq_len;
+ unsigned int ifq_oactive;
+ uint64_t ifq_packets;
+ uint64_t ifq_bytes;
+ uint64_t ifq_qdrops;
+ uint64_t ifq_errors;
+ uint64_t ifq_mcasts;
+ struct mutex ifq_task_mtx;
+ struct task_list ifq_task_list;
+ void *ifq_serializer;
+ struct task ifq_start;
+ struct task ifq_restart;
+ unsigned int ifq_maxlen;
+ unsigned int ifq_idx;
+};
+struct ifiqueue {
+ struct ifnet *ifiq_if;
+ struct taskq *ifiq_softnet;
+ union {
+  void *_ifiq_softc;
+  struct ifiqueue *_ifiq_ifiqs[1];
+ } _ifiq_ptr;
+ struct mutex ifiq_mtx;
+ struct mbuf_list ifiq_ml;
+ struct task ifiq_task;
+ uint64_t ifiq_packets;
+ uint64_t ifiq_bytes;
+ uint64_t ifiq_qdrops;
+ uint64_t ifiq_errors;
+ uint64_t ifiq_mcasts;
+ uint64_t ifiq_noproto;
+ unsigned int ifiq_idx;
+};
+struct ifq_ops {
+ unsigned int (*ifqop_idx)(unsigned int,
+        const struct mbuf *);
+ struct mbuf *(*ifqop_enq)(struct ifqueue *, struct mbuf *);
+ struct mbuf *(*ifqop_deq_begin)(struct ifqueue *, void **);
+ void (*ifqop_deq_commit)(struct ifqueue *,
+        struct mbuf *, void *);
+ void (*ifqop_purge)(struct ifqueue *,
+        struct mbuf_list *);
+ void *(*ifqop_alloc)(unsigned int, void *);
+ void (*ifqop_free)(unsigned int, void *);
+};
+void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
+void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
+void ifq_destroy(struct ifqueue *);
+void ifq_add_data(struct ifqueue *, struct if_data *);
+int ifq_enqueue(struct ifqueue *, struct mbuf *);
+struct mbuf *ifq_deq_begin(struct ifqueue *);
+void ifq_deq_commit(struct ifqueue *, struct mbuf *);
+void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
+struct mbuf *ifq_dequeue(struct ifqueue *);
+void ifq_mfreem(struct ifqueue *, struct mbuf *);
+void ifq_mfreeml(struct ifqueue *, struct mbuf_list *);
+unsigned int ifq_purge(struct ifqueue *);
+void *ifq_q_enter(struct ifqueue *, const struct ifq_ops *);
+void ifq_q_leave(struct ifqueue *, void *);
+void ifq_serialize(struct ifqueue *, struct task *);
+int ifq_is_serialized(struct ifqueue *);
+void ifq_barrier(struct ifqueue *);
+static inline void
+ifq_set_oactive(struct ifqueue *ifq)
+{
+ ifq->ifq_oactive = 1;
+}
+static inline void
+ifq_clr_oactive(struct ifqueue *ifq)
+{
+ ifq->ifq_oactive = 0;
+}
+static inline unsigned int
+ifq_is_oactive(struct ifqueue *ifq)
+{
+ return (ifq->ifq_oactive);
+}
+static inline void
+ifq_start(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_start);
+}
+static inline void
+ifq_restart(struct ifqueue *ifq)
+{
+ ifq_serialize(ifq, &ifq->ifq_restart);
+}
+static inline unsigned int
+ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
+{
+ return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
+}
+extern const struct ifq_ops * const ifq_priq_ops;
+void ifiq_init(struct ifiqueue *, struct ifnet *, unsigned int);
+void ifiq_destroy(struct ifiqueue *);
+int ifiq_input(struct ifiqueue *, struct mbuf_list *,
+       unsigned int);
+int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
+void ifiq_add_data(struct ifiqueue *, struct if_data *);
+void ifiq_barrier(struct ifiqueue *);
+struct rtentry;
+struct ifnet;
+struct task;
+struct if_clone {
+ struct { struct if_clone *le_next; struct if_clone **le_prev; } ifc_list;
+ const char *ifc_name;
+ size_t ifc_namelen;
+ int (*ifc_create)(struct if_clone *, int);
+ int (*ifc_destroy)(struct ifnet *);
+};
+struct ifnet_head { struct ifnet *tqh_first; struct ifnet **tqh_last; };
+struct ifnet {
+ void *if_softc;
+ struct refcnt if_refcnt;
+ struct { struct ifnet *tqe_next; struct ifnet **tqe_prev; } if_list;
+ struct { struct ifaddr *tqh_first; struct ifaddr **tqh_last; } if_addrlist;
+ struct { struct ifmaddr *tqh_first; struct ifmaddr **tqh_last; } if_maddrlist;
+ struct { struct ifg_list *tqh_first; struct ifg_list **tqh_last; } if_groups;
+ struct hook_desc_head *if_addrhooks;
+ struct hook_desc_head *if_linkstatehooks;
+ struct hook_desc_head *if_detachhooks;
+ void (*if_rtrequest)(struct ifnet *, int, struct rtentry *);
+ char if_xname[16];
+ int if_pcount;
+ caddr_t if_bpf;
+ caddr_t if_bridgeport;
+ caddr_t if_switchport;
+ caddr_t if_mcast;
+ caddr_t if_mcast6;
+ caddr_t if_pf_kif;
+ union {
+  struct srpl carp_s;
+  struct ifnet *carp_d;
+ } if_carp_ptr;
+ unsigned int if_index;
+ short if_timer;
+ unsigned short if_flags;
+ int if_xflags;
+ struct if_data if_data;
+ uint32_t if_hardmtu;
+ char if_description[64];
+ u_short if_rtlabelid;
+ uint8_t if_priority;
+ uint8_t if_llprio;
+ struct timeout if_slowtimo;
+ struct task if_watchdogtask;
+ struct task if_linkstatetask;
+ struct srpl if_inputs;
+ int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
+       struct rtentry *);
+ int (*if_ll_output)(struct ifnet *, struct mbuf *,
+      struct sockaddr *, struct rtentry *);
+ void (*if_start)(struct ifnet *);
+ int (*if_ioctl)(struct ifnet *, u_long, caddr_t);
+ void (*if_watchdog)(struct ifnet *);
+ int (*if_wol)(struct ifnet *, int);
+ struct ifqueue if_snd;
+ struct ifqueue **if_ifqs;
+ void (*if_qstart)(struct ifqueue *);
+ unsigned int if_nifqs;
+ struct ifiqueue if_rcv;
+ struct ifiqueue **if_iqs;
+ unsigned int if_niqs;
+ struct sockaddr_dl *if_sadl;
+ void *if_afdata[36];
+};
+struct ifaddr {
+ struct sockaddr *ifa_addr;
+ struct sockaddr *ifa_dstaddr;
+ struct sockaddr *ifa_netmask;
+ struct ifnet *ifa_ifp;
+ struct { struct ifaddr *tqe_next; struct ifaddr **tqe_prev; } ifa_list;
+ u_int ifa_flags;
+ u_int ifa_refcnt;
+ int ifa_metric;
+};
+struct ifmaddr {
+ struct sockaddr *ifma_addr;
+ unsigned int ifma_ifidx;
+ unsigned int ifma_refcnt;
+ struct { struct ifmaddr *tqe_next; struct ifmaddr **tqe_prev; } ifma_list;
+};
+struct ifg_group {
+ char ifg_group[16];
+ u_int ifg_refcnt;
+ caddr_t ifg_pf_kif;
+ int ifg_carp_demoted;
+ struct { struct ifg_member *tqh_first; struct ifg_member **tqh_last; } ifg_members;
+ struct { struct ifg_group *tqe_next; struct ifg_group **tqe_prev; } ifg_next;
+};
+struct ifg_member {
+ struct { struct ifg_member *tqe_next; struct ifg_member **tqe_prev; } ifgm_next;
+ struct ifnet *ifgm_ifp;
+};
+struct ifg_list {
+ struct ifg_group *ifgl_group;
+ struct { struct ifg_list *tqe_next; struct ifg_list **tqe_prev; } ifgl_next;
+};
+struct niqueue {
+ struct mbuf_queue ni_q;
+ u_int ni_isr;
+};
+void niq_init(struct niqueue *, u_int, u_int);
+int niq_enqueue(struct niqueue *, struct mbuf *);
+int niq_enlist(struct niqueue *, struct mbuf_list *);
+extern struct ifnet_head ifnet;
+void if_start(struct ifnet *);
+int if_enqueue_try(struct ifnet *, struct mbuf *);
+int if_enqueue(struct ifnet *, struct mbuf *);
+void if_input(struct ifnet *, struct mbuf_list *);
+void if_input_process(struct ifnet *, struct mbuf_list *);
+int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
+int if_output_local(struct ifnet *, struct mbuf *, sa_family_t);
+void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
+void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
+struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
+struct ifaddr *ifa_ifwithdstaddr(struct sockaddr *, u_int);
+struct ifaddr *ifaof_ifpforaddr(struct sockaddr *, struct ifnet *);
+void ifafree(struct ifaddr *);
+int if_isconnected(const struct ifnet *, unsigned int);
+void if_clone_attach(struct if_clone *);
+void if_clone_detach(struct if_clone *);
+int if_clone_create(const char *, int);
+int if_clone_destroy(const char *);
+struct if_clone *
+ if_clone_lookup(const char *, int *);
+void ifa_add(struct ifnet *, struct ifaddr *);
+void ifa_del(struct ifnet *, struct ifaddr *);
+void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
+     struct sockaddr *);
+void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
+     void *), void *);
+void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
+     void *), void *);
+void if_rxr_livelocked(struct if_rxring *);
+void if_rxr_init(struct if_rxring *, u_int, u_int);
+u_int if_rxr_get(struct if_rxring *, u_int);
+int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
+int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
+     struct if_rxring *);
 struct ifnet;
 typedef int (*ifm_change_cb_t)(struct ifnet *);
 typedef void (*ifm_stat_cb_t)(struct ifnet *, struct ifmediareq *);
@@ -2376,6 +2793,134 @@ ifatoia(struct ifaddr *ifa)
 {
  return ((struct in_ifaddr *)(ifa));
 }
+struct in_ifaddr {
+ struct ifaddr ia_ifa;
+ u_int32_t ia_net;
+ u_int32_t ia_netmask;
+ struct { struct in_ifaddr *tqe_next; struct in_ifaddr **tqe_prev; } ia_list;
+ struct sockaddr_in ia_addr;
+ struct sockaddr_in ia_dstaddr;
+ struct sockaddr_in ia_sockmask;
+ struct in_multi *ia_allhosts;
+};
+struct in_aliasreq {
+ char ifra_name[16];
+ union {
+  struct sockaddr_in ifrau_addr;
+  int ifrau_align;
+ } ifra_ifrau;
+ struct sockaddr_in ifra_dstaddr;
+ struct sockaddr_in ifra_mask;
+};
+struct router_info {
+ unsigned int rti_ifidx;
+ int rti_type;
+ int rti_age;
+ struct router_info *rti_next;
+};
+struct in_multi {
+ struct ifmaddr inm_ifma;
+ struct sockaddr_in inm_sin;
+ u_int inm_state;
+ u_int inm_timer;
+ struct router_info *inm_rti;
+};
+static __inline struct in_multi *
+ifmatoinm(struct ifmaddr *ifma)
+{
+       return ((struct in_multi *)(ifma));
+}
+int in_ifinit(struct ifnet *,
+     struct in_ifaddr *, struct sockaddr_in *, int);
+struct in_multi *in_addmulti(struct in_addr *, struct ifnet *);
+void in_delmulti(struct in_multi *);
+int in_hasmulti(struct in_addr *, struct ifnet *);
+void in_ifscrub(struct ifnet *, struct in_ifaddr *);
+int in_control(struct socket *, u_long, caddr_t, struct ifnet *);
+int in_ioctl(u_long, caddr_t, struct ifnet *, int);
+void in_prefixlen2mask(struct in_addr *, int);
+struct ether_addr {
+ u_int8_t ether_addr_octet[6];
+};
+struct ether_header {
+ u_int8_t ether_dhost[6];
+ u_int8_t ether_shost[6];
+ u_int16_t ether_type;
+};
+struct ether_vlan_header {
+        u_char evl_dhost[6];
+        u_char evl_shost[6];
+        u_int16_t evl_encap_proto;
+        u_int16_t evl_tag;
+        u_int16_t evl_proto;
+};
+struct ether_arp {
+ struct arphdr ea_hdr;
+ u_int8_t arp_sha[6];
+ u_int8_t arp_spa[4];
+ u_int8_t arp_tha[6];
+ u_int8_t arp_tpa[4];
+};
+struct sockaddr_inarp {
+ u_int8_t sin_len;
+ u_int8_t sin_family;
+ u_int16_t sin_port;
+ struct in_addr sin_addr;
+ struct in_addr sin_srcaddr;
+ u_int16_t sin_tos;
+ u_int16_t sin_other;
+};
+struct arpcom {
+ struct ifnet ac_if;
+ u_int8_t ac_enaddr[6];
+ char ac__pad[2];
+ struct { struct ether_multi *lh_first; } ac_multiaddrs;
+ int ac_multicnt;
+ int ac_multirangecnt;
+};
+extern int arpt_keep;
+extern int arpt_down;
+extern u_int8_t etherbroadcastaddr[6];
+extern u_int8_t etheranyaddr[6];
+extern u_int8_t ether_ipmulticast_min[6];
+extern u_int8_t ether_ipmulticast_max[6];
+extern unsigned int revarp_ifidx;
+void revarpinput(struct ifnet *, struct mbuf *);
+void revarprequest(struct ifnet *);
+int revarpwhoarewe(struct ifnet *, struct in_addr *, struct in_addr *);
+int revarpwhoami(struct in_addr *, struct ifnet *);
+void arpinput(struct ifnet *, struct mbuf *);
+void arprequest(struct ifnet *, u_int32_t *, u_int32_t *, u_int8_t *);
+void arpwhohas(struct arpcom *, struct in_addr *);
+int arpproxy(struct in_addr, unsigned int);
+int arpresolve(struct ifnet *, struct rtentry *, struct mbuf *,
+     struct sockaddr *, u_char *);
+void arp_rtrequest(struct ifnet *, int, struct rtentry *);
+void ether_fakeaddr(struct ifnet *);
+int ether_addmulti(struct ifreq *, struct arpcom *);
+int ether_delmulti(struct ifreq *, struct arpcom *);
+int ether_multiaddr(struct sockaddr *, u_int8_t[], u_int8_t[]);
+void ether_ifattach(struct ifnet *);
+void ether_ifdetach(struct ifnet *);
+int ether_ioctl(struct ifnet *, struct arpcom *, u_long, caddr_t);
+int ether_input(struct ifnet *, struct mbuf *, void *);
+int ether_output(struct ifnet *,
+     struct mbuf *, struct sockaddr *, struct rtentry *);
+void ether_rtrequest(struct ifnet *, int, struct rtentry *);
+char *ether_sprintf(u_char *);
+struct ether_multi {
+ u_int8_t enm_addrlo[6];
+ u_int8_t enm_addrhi[6];
+ u_int enm_refcount;
+ struct { struct ether_multi *le_next; struct ether_multi **le_prev; } enm_list;
+};
+struct ether_multistep {
+ struct ether_multi *e_enm;
+};
+u_int32_t ether_crc32_le_update(u_int32_t crc, const u_int8_t *, size_t);
+u_int32_t ether_crc32_be_update(u_int32_t crc, const u_int8_t *, size_t);
+u_int32_t ether_crc32_le(const u_int8_t *, size_t);
+u_int32_t ether_crc32_be(const u_int8_t *, size_t);
 struct ip {
  u_int ip_v:4,
     ip_hl:4;
@@ -2573,356 +3118,6 @@ int rip_usrreq(struct socket *,
 int rip_attach(struct socket *, int);
 int rip_detach(struct socket *);
 extern struct socket *ip_mrouter[];
-struct ether_addr {
- u_int8_t ether_addr_octet[6];
-};
-struct ether_header {
- u_int8_t ether_dhost[6];
- u_int8_t ether_shost[6];
- u_int16_t ether_type;
-};
-struct ether_vlan_header {
-        u_char evl_dhost[6];
-        u_char evl_shost[6];
-        u_int16_t evl_encap_proto;
-        u_int16_t evl_tag;
-        u_int16_t evl_proto;
-};
-struct ether_arp {
- struct arphdr ea_hdr;
- u_int8_t arp_sha[6];
- u_int8_t arp_spa[4];
- u_int8_t arp_tha[6];
- u_int8_t arp_tpa[4];
-};
-struct sockaddr_inarp {
- u_int8_t sin_len;
- u_int8_t sin_family;
- u_int16_t sin_port;
- struct in_addr sin_addr;
- struct in_addr sin_srcaddr;
- u_int16_t sin_tos;
- u_int16_t sin_other;
-};
-struct taskq;
-struct task {
- struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
- void (*t_func)(void *);
- void *t_arg;
- unsigned int t_flags;
-};
-struct task_list { struct task *tqh_first; struct task **tqh_last; };
-extern struct taskq *const systq;
-extern struct taskq *const systqmp;
-struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
-void taskq_destroy(struct taskq *);
-void taskq_barrier(struct taskq *);
-void task_set(struct task *, void (*)(void *), void *);
-int task_add(struct taskq *, struct task *);
-int task_del(struct taskq *, struct task *);
-struct ifnet;
-struct ifq_ops;
-struct ifqueue {
- struct ifnet *ifq_if;
- union {
-  void *_ifq_softc;
-  struct ifqueue *_ifq_ifqs[1];
- } _ifq_ptr;
- struct mutex ifq_mtx;
- const struct ifq_ops *ifq_ops;
- void *ifq_q;
- struct mbuf_list ifq_free;
- unsigned int ifq_len;
- unsigned int ifq_oactive;
- uint64_t ifq_packets;
- uint64_t ifq_bytes;
- uint64_t ifq_qdrops;
- uint64_t ifq_errors;
- uint64_t ifq_mcasts;
- struct mutex ifq_task_mtx;
- struct task_list ifq_task_list;
- void *ifq_serializer;
- struct task ifq_start;
- struct task ifq_restart;
- unsigned int ifq_maxlen;
- unsigned int ifq_idx;
-};
-struct ifiqueue {
- struct ifnet *ifiq_if;
- struct taskq *ifiq_softnet;
- union {
-  void *_ifiq_softc;
-  struct ifiqueue *_ifiq_ifiqs[1];
- } _ifiq_ptr;
- struct mutex ifiq_mtx;
- struct mbuf_list ifiq_ml;
- struct task ifiq_task;
- uint64_t ifiq_packets;
- uint64_t ifiq_bytes;
- uint64_t ifiq_qdrops;
- uint64_t ifiq_errors;
- uint64_t ifiq_mcasts;
- uint64_t ifiq_noproto;
- unsigned int ifiq_idx;
-};
-struct ifq_ops {
- unsigned int (*ifqop_idx)(unsigned int,
-        const struct mbuf *);
- struct mbuf *(*ifqop_enq)(struct ifqueue *, struct mbuf *);
- struct mbuf *(*ifqop_deq_begin)(struct ifqueue *, void **);
- void (*ifqop_deq_commit)(struct ifqueue *,
-        struct mbuf *, void *);
- void (*ifqop_purge)(struct ifqueue *,
-        struct mbuf_list *);
- void *(*ifqop_alloc)(unsigned int, void *);
- void (*ifqop_free)(unsigned int, void *);
-};
-void ifq_init(struct ifqueue *, struct ifnet *, unsigned int);
-void ifq_attach(struct ifqueue *, const struct ifq_ops *, void *);
-void ifq_destroy(struct ifqueue *);
-void ifq_add_data(struct ifqueue *, struct if_data *);
-int ifq_enqueue(struct ifqueue *, struct mbuf *);
-struct mbuf *ifq_deq_begin(struct ifqueue *);
-void ifq_deq_commit(struct ifqueue *, struct mbuf *);
-void ifq_deq_rollback(struct ifqueue *, struct mbuf *);
-struct mbuf *ifq_dequeue(struct ifqueue *);
-void ifq_mfreem(struct ifqueue *, struct mbuf *);
-void ifq_mfreeml(struct ifqueue *, struct mbuf_list *);
-unsigned int ifq_purge(struct ifqueue *);
-void *ifq_q_enter(struct ifqueue *, const struct ifq_ops *);
-void ifq_q_leave(struct ifqueue *, void *);
-void ifq_serialize(struct ifqueue *, struct task *);
-int ifq_is_serialized(struct ifqueue *);
-void ifq_barrier(struct ifqueue *);
-static inline void
-ifq_set_oactive(struct ifqueue *ifq)
-{
- ifq->ifq_oactive = 1;
-}
-static inline void
-ifq_clr_oactive(struct ifqueue *ifq)
-{
- ifq->ifq_oactive = 0;
-}
-static inline unsigned int
-ifq_is_oactive(struct ifqueue *ifq)
-{
- return (ifq->ifq_oactive);
-}
-static inline void
-ifq_start(struct ifqueue *ifq)
-{
- ifq_serialize(ifq, &ifq->ifq_start);
-}
-static inline void
-ifq_restart(struct ifqueue *ifq)
-{
- ifq_serialize(ifq, &ifq->ifq_restart);
-}
-static inline unsigned int
-ifq_idx(struct ifqueue *ifq, unsigned int nifqs, const struct mbuf *m)
-{
- return ((*ifq->ifq_ops->ifqop_idx)(nifqs, m));
-}
-extern const struct ifq_ops * const ifq_priq_ops;
-void ifiq_init(struct ifiqueue *, struct ifnet *, unsigned int);
-void ifiq_destroy(struct ifiqueue *);
-int ifiq_input(struct ifiqueue *, struct mbuf_list *,
-       unsigned int);
-int ifiq_enqueue(struct ifiqueue *, struct mbuf *);
-void ifiq_add_data(struct ifiqueue *, struct if_data *);
-void ifiq_barrier(struct ifiqueue *);
-struct rtentry;
-struct ifnet;
-struct task;
-struct if_clone {
- struct { struct if_clone *le_next; struct if_clone **le_prev; } ifc_list;
- const char *ifc_name;
- size_t ifc_namelen;
- int (*ifc_create)(struct if_clone *, int);
- int (*ifc_destroy)(struct ifnet *);
-};
-struct ifnet_head { struct ifnet *tqh_first; struct ifnet **tqh_last; };
-struct ifnet {
- void *if_softc;
- struct refcnt if_refcnt;
- struct { struct ifnet *tqe_next; struct ifnet **tqe_prev; } if_list;
- struct { struct ifaddr *tqh_first; struct ifaddr **tqh_last; } if_addrlist;
- struct { struct ifmaddr *tqh_first; struct ifmaddr **tqh_last; } if_maddrlist;
- struct { struct ifg_list *tqh_first; struct ifg_list **tqh_last; } if_groups;
- struct hook_desc_head *if_addrhooks;
- struct hook_desc_head *if_linkstatehooks;
- struct hook_desc_head *if_detachhooks;
- void (*if_rtrequest)(struct ifnet *, int, struct rtentry *);
- char if_xname[16];
- int if_pcount;
- caddr_t if_bpf;
- caddr_t if_bridgeport;
- caddr_t if_switchport;
- caddr_t if_mcast;
- caddr_t if_mcast6;
- caddr_t if_pf_kif;
- union {
-  struct srpl carp_s;
-  struct ifnet *carp_d;
- } if_carp_ptr;
- unsigned int if_index;
- short if_timer;
- unsigned short if_flags;
- int if_xflags;
- struct if_data if_data;
- uint32_t if_hardmtu;
- char if_description[64];
- u_short if_rtlabelid;
- uint8_t if_priority;
- uint8_t if_llprio;
- struct timeout if_slowtimo;
- struct task if_watchdogtask;
- struct task if_linkstatetask;
- struct srpl if_inputs;
- int (*if_output)(struct ifnet *, struct mbuf *, struct sockaddr *,
-       struct rtentry *);
- int (*if_ll_output)(struct ifnet *, struct mbuf *,
-      struct sockaddr *, struct rtentry *);
- void (*if_start)(struct ifnet *);
- int (*if_ioctl)(struct ifnet *, u_long, caddr_t);
- void (*if_watchdog)(struct ifnet *);
- int (*if_wol)(struct ifnet *, int);
- struct ifqueue if_snd;
- struct ifqueue **if_ifqs;
- void (*if_qstart)(struct ifqueue *);
- unsigned int if_nifqs;
- struct ifiqueue if_rcv;
- struct ifiqueue **if_iqs;
- unsigned int if_niqs;
- struct sockaddr_dl *if_sadl;
- void *if_afdata[36];
-};
-struct ifaddr {
- struct sockaddr *ifa_addr;
- struct sockaddr *ifa_dstaddr;
- struct sockaddr *ifa_netmask;
- struct ifnet *ifa_ifp;
- struct { struct ifaddr *tqe_next; struct ifaddr **tqe_prev; } ifa_list;
- u_int ifa_flags;
- u_int ifa_refcnt;
- int ifa_metric;
-};
-struct ifmaddr {
- struct sockaddr *ifma_addr;
- unsigned int ifma_ifidx;
- unsigned int ifma_refcnt;
- struct { struct ifmaddr *tqe_next; struct ifmaddr **tqe_prev; } ifma_list;
-};
-struct ifg_group {
- char ifg_group[16];
- u_int ifg_refcnt;
- caddr_t ifg_pf_kif;
- int ifg_carp_demoted;
- struct { struct ifg_member *tqh_first; struct ifg_member **tqh_last; } ifg_members;
- struct { struct ifg_group *tqe_next; struct ifg_group **tqe_prev; } ifg_next;
-};
-struct ifg_member {
- struct { struct ifg_member *tqe_next; struct ifg_member **tqe_prev; } ifgm_next;
- struct ifnet *ifgm_ifp;
-};
-struct ifg_list {
- struct ifg_group *ifgl_group;
- struct { struct ifg_list *tqe_next; struct ifg_list **tqe_prev; } ifgl_next;
-};
-struct niqueue {
- struct mbuf_queue ni_q;
- u_int ni_isr;
-};
-void niq_init(struct niqueue *, u_int, u_int);
-int niq_enqueue(struct niqueue *, struct mbuf *);
-int niq_enlist(struct niqueue *, struct mbuf_list *);
-extern struct ifnet_head ifnet;
-void if_start(struct ifnet *);
-int if_enqueue_try(struct ifnet *, struct mbuf *);
-int if_enqueue(struct ifnet *, struct mbuf *);
-void if_input(struct ifnet *, struct mbuf_list *);
-void if_input_process(struct ifnet *, struct mbuf_list *);
-int if_input_local(struct ifnet *, struct mbuf *, sa_family_t);
-int if_output_local(struct ifnet *, struct mbuf *, sa_family_t);
-void if_rtrequest_dummy(struct ifnet *, int, struct rtentry *);
-void p2p_rtrequest(struct ifnet *, int, struct rtentry *);
-struct ifaddr *ifa_ifwithaddr(struct sockaddr *, u_int);
-struct ifaddr *ifa_ifwithdstaddr(struct sockaddr *, u_int);
-struct ifaddr *ifaof_ifpforaddr(struct sockaddr *, struct ifnet *);
-void ifafree(struct ifaddr *);
-int if_isconnected(const struct ifnet *, unsigned int);
-void if_clone_attach(struct if_clone *);
-void if_clone_detach(struct if_clone *);
-int if_clone_create(const char *, int);
-int if_clone_destroy(const char *);
-struct if_clone *
- if_clone_lookup(const char *, int *);
-void ifa_add(struct ifnet *, struct ifaddr *);
-void ifa_del(struct ifnet *, struct ifaddr *);
-void ifa_update_broadaddr(struct ifnet *, struct ifaddr *,
-     struct sockaddr *);
-void if_ih_insert(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
-     void *), void *);
-void if_ih_remove(struct ifnet *, int (*)(struct ifnet *, struct mbuf *,
-     void *), void *);
-void if_rxr_livelocked(struct if_rxring *);
-void if_rxr_init(struct if_rxring *, u_int, u_int);
-u_int if_rxr_get(struct if_rxring *, u_int);
-int if_rxr_info_ioctl(struct if_rxrinfo *, u_int, struct if_rxring_info *);
-int if_rxr_ioctl(struct if_rxrinfo *, const char *, u_int,
-     struct if_rxring *);
-struct arpcom {
- struct ifnet ac_if;
- u_int8_t ac_enaddr[6];
- char ac__pad[2];
- struct { struct ether_multi *lh_first; } ac_multiaddrs;
- int ac_multicnt;
- int ac_multirangecnt;
-};
-extern int arpt_keep;
-extern int arpt_down;
-extern u_int8_t etherbroadcastaddr[6];
-extern u_int8_t etheranyaddr[6];
-extern u_int8_t ether_ipmulticast_min[6];
-extern u_int8_t ether_ipmulticast_max[6];
-extern unsigned int revarp_ifidx;
-void revarpinput(struct ifnet *, struct mbuf *);
-void revarprequest(struct ifnet *);
-int revarpwhoarewe(struct ifnet *, struct in_addr *, struct in_addr *);
-int revarpwhoami(struct in_addr *, struct ifnet *);
-void arpinput(struct ifnet *, struct mbuf *);
-void arprequest(struct ifnet *, u_int32_t *, u_int32_t *, u_int8_t *);
-void arpwhohas(struct arpcom *, struct in_addr *);
-int arpproxy(struct in_addr, unsigned int);
-int arpresolve(struct ifnet *, struct rtentry *, struct mbuf *,
-     struct sockaddr *, u_char *);
-void arp_rtrequest(struct ifnet *, int, struct rtentry *);
-void ether_fakeaddr(struct ifnet *);
-int ether_addmulti(struct ifreq *, struct arpcom *);
-int ether_delmulti(struct ifreq *, struct arpcom *);
-int ether_multiaddr(struct sockaddr *, u_int8_t[], u_int8_t[]);
-void ether_ifattach(struct ifnet *);
-void ether_ifdetach(struct ifnet *);
-int ether_ioctl(struct ifnet *, struct arpcom *, u_long, caddr_t);
-int ether_input(struct ifnet *, struct mbuf *, void *);
-int ether_output(struct ifnet *,
-     struct mbuf *, struct sockaddr *, struct rtentry *);
-void ether_rtrequest(struct ifnet *, int, struct rtentry *);
-char *ether_sprintf(u_char *);
-struct ether_multi {
- u_int8_t enm_addrlo[6];
- u_int8_t enm_addrhi[6];
- u_int enm_refcount;
- struct { struct ether_multi *le_next; struct ether_multi **le_prev; } enm_list;
-};
-struct ether_multistep {
- struct ether_multi *e_enm;
-};
-u_int32_t ether_crc32_le_update(u_int32_t crc, const u_int8_t *, size_t);
-u_int32_t ether_crc32_be_update(u_int32_t crc, const u_int8_t *, size_t);
-u_int32_t ether_crc32_le(const u_int8_t *, size_t);
-u_int32_t ether_crc32_be(const u_int8_t *, size_t);
 struct ip6_hdr {
  union {
   struct ip6_hdrctl {
@@ -3215,6 +3410,148 @@ struct tdb;
 struct tdb *
  ip6_output_ipsec_lookup(struct mbuf *, int *, struct inpcb *);
 int ip6_output_ipsec_send(struct tdb *, struct mbuf *, int, int);
+struct in6_addrlifetime {
+ time_t ia6t_expire;
+ time_t ia6t_preferred;
+ u_int32_t ia6t_vltime;
+ u_int32_t ia6t_pltime;
+};
+struct nd_ifinfo;
+struct in6_ifextra {
+ struct nd_ifinfo *nd_ifinfo;
+ void *rs_lhcookie;
+ int nprefixes;
+ int ndefrouters;
+};
+struct in6_ifaddr {
+ struct ifaddr ia_ifa;
+ struct sockaddr_in6 ia_addr;
+ struct sockaddr_in6 ia_dstaddr;
+ struct sockaddr_in6 ia_prefixmask;
+ struct { struct in6_ifaddr *tqe_next; struct in6_ifaddr **tqe_prev; } ia_list;
+ int ia6_flags;
+ struct in6_addrlifetime ia6_lifetime;
+ time_t ia6_createtime;
+ time_t ia6_updatetime;
+ struct { struct in6_multi_mship *lh_first; } ia6_memberships;
+};
+struct in6_ifstat {
+ u_int64_t ifs6_in_receive;
+ u_int64_t ifs6_in_hdrerr;
+ u_int64_t ifs6_in_toobig;
+ u_int64_t ifs6_in_noroute;
+ u_int64_t ifs6_in_addrerr;
+ u_int64_t ifs6_in_protounknown;
+ u_int64_t ifs6_in_truncated;
+ u_int64_t ifs6_in_discard;
+ u_int64_t ifs6_in_deliver;
+ u_int64_t ifs6_out_forward;
+ u_int64_t ifs6_out_request;
+ u_int64_t ifs6_out_discard;
+ u_int64_t ifs6_out_fragok;
+ u_int64_t ifs6_out_fragfail;
+ u_int64_t ifs6_out_fragcreat;
+ u_int64_t ifs6_reass_reqd;
+ u_int64_t ifs6_reass_ok;
+ u_int64_t ifs6_reass_fail;
+ u_int64_t ifs6_in_mcast;
+ u_int64_t ifs6_out_mcast;
+};
+struct icmp6_ifstat {
+ u_int64_t ifs6_in_msg;
+ u_int64_t ifs6_in_error;
+ u_int64_t ifs6_in_dstunreach;
+ u_int64_t ifs6_in_adminprohib;
+ u_int64_t ifs6_in_timeexceed;
+ u_int64_t ifs6_in_paramprob;
+ u_int64_t ifs6_in_pkttoobig;
+ u_int64_t ifs6_in_echo;
+ u_int64_t ifs6_in_echoreply;
+ u_int64_t ifs6_in_routersolicit;
+ u_int64_t ifs6_in_routeradvert;
+ u_int64_t ifs6_in_neighborsolicit;
+ u_int64_t ifs6_in_neighboradvert;
+ u_int64_t ifs6_in_redirect;
+ u_int64_t ifs6_in_mldquery;
+ u_int64_t ifs6_in_mldreport;
+ u_int64_t ifs6_in_mlddone;
+ u_int64_t ifs6_out_msg;
+ u_int64_t ifs6_out_error;
+ u_int64_t ifs6_out_dstunreach;
+ u_int64_t ifs6_out_adminprohib;
+ u_int64_t ifs6_out_timeexceed;
+ u_int64_t ifs6_out_paramprob;
+ u_int64_t ifs6_out_pkttoobig;
+ u_int64_t ifs6_out_echo;
+ u_int64_t ifs6_out_echoreply;
+ u_int64_t ifs6_out_routersolicit;
+ u_int64_t ifs6_out_routeradvert;
+ u_int64_t ifs6_out_neighborsolicit;
+ u_int64_t ifs6_out_neighboradvert;
+ u_int64_t ifs6_out_redirect;
+ u_int64_t ifs6_out_mldquery;
+ u_int64_t ifs6_out_mldreport;
+ u_int64_t ifs6_out_mlddone;
+};
+struct in6_ifreq {
+ char ifr_name[16];
+ union {
+  struct sockaddr_in6 ifru_addr;
+  struct sockaddr_in6 ifru_dstaddr;
+  short ifru_flags;
+  int ifru_flags6;
+  int ifru_metric;
+  caddr_t ifru_data;
+  struct in6_addrlifetime ifru_lifetime;
+  struct in6_ifstat ifru_stat;
+  struct icmp6_ifstat ifru_icmp6stat;
+ } ifr_ifru;
+};
+struct in6_aliasreq {
+ char ifra_name[16];
+ union {
+  struct sockaddr_in6 ifrau_addr;
+  int ifrau_align;
+  } ifra_ifrau;
+ struct sockaddr_in6 ifra_dstaddr;
+ struct sockaddr_in6 ifra_prefixmask;
+ int ifra_flags;
+ struct in6_addrlifetime ifra_lifetime;
+};
+struct in6_multi_mship {
+ struct in6_multi *i6mm_maddr;
+ struct { struct in6_multi_mship *le_next; struct in6_multi_mship **le_prev; } i6mm_chain;
+};
+struct in6_multi {
+ struct ifmaddr in6m_ifma;
+ struct sockaddr_in6 in6m_sin;
+ u_int in6m_state;
+ u_int in6m_timer;
+};
+static __inline struct in6_multi *
+ifmatoin6m(struct ifmaddr *ifma)
+{
+       return ((struct in6_multi *)(ifma));
+}
+struct in6_multi *in6_addmulti(struct in6_addr *, struct ifnet *, int *);
+void in6_delmulti(struct in6_multi *);
+int in6_hasmulti(struct in6_addr *, struct ifnet *);
+struct in6_multi_mship *in6_joingroup(struct ifnet *, struct in6_addr *, int *);
+void in6_leavegroup(struct in6_multi_mship *);
+int in6_control(struct socket *, u_long, caddr_t, struct ifnet *);
+int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
+int in6_update_ifa(struct ifnet *, struct in6_aliasreq *,
+ struct in6_ifaddr *);
+void in6_purgeaddr(struct ifaddr *);
+int in6if_do_dad(struct ifnet *);
+void *in6_domifattach(struct ifnet *);
+void in6_domifdetach(struct ifnet *, void *);
+struct in6_ifaddr *in6ifa_ifpforlinklocal(struct ifnet *, int);
+struct in6_ifaddr *in6ifa_ifpwithaddr(struct ifnet *, struct in6_addr *);
+int in6_addr2scopeid(unsigned int, struct in6_addr *);
+int in6_matchlen(struct in6_addr *, struct in6_addr *);
+void in6_prefixlen2mask(struct in6_addr *, int);
+void in6_purgeprefix(struct ifnet *);
 struct pipex_mppe_req {
  int16_t stateless;
  int16_t keylenbits;
@@ -4930,6 +5267,303 @@ int bpf_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pflow_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int pipex_sysctl(int *, u_int, void *, size_t *, void *, size_t);
 int mpls_sysctl(int *, u_int, void *, size_t *, void *, size_t);
+struct ifbreq {
+ char ifbr_name[16];
+ char ifbr_ifsname[16];
+ u_int32_t ifbr_ifsflags;
+ u_int32_t ifbr_portno;
+ u_int32_t ifbr_protected;
+ u_int8_t ifbr_state;
+ u_int8_t ifbr_priority;
+ u_int32_t ifbr_path_cost;
+ u_int32_t ifbr_stpflags;
+ u_int8_t ifbr_proto;
+ u_int8_t ifbr_role;
+ u_int32_t ifbr_fwd_trans;
+ u_int64_t ifbr_desg_bridge;
+ u_int32_t ifbr_desg_port;
+ u_int64_t ifbr_root_bridge;
+ u_int32_t ifbr_root_cost;
+ u_int32_t ifbr_root_port;
+};
+struct ifbifconf {
+ char ifbic_name[16];
+ u_int32_t ifbic_len;
+ union {
+  caddr_t ifbicu_buf;
+  struct ifbreq *ifbicu_req;
+ } ifbic_ifbicu;
+};
+struct ifbareq {
+ char ifba_name[16];
+ char ifba_ifsname[16];
+ u_int8_t ifba_age;
+ u_int8_t ifba_flags;
+ struct ether_addr ifba_dst;
+ struct sockaddr_storage ifba_dstsa;
+};
+struct ifbaconf {
+ char ifbac_name[16];
+ u_int32_t ifbac_len;
+ union {
+  caddr_t ifbacu_buf;
+  struct ifbareq *ifbacu_req;
+ } ifbac_ifbacu;
+};
+struct ifbrparam {
+ char ifbrp_name[16];
+ union {
+  u_int32_t ifbrpu_csize;
+  int ifbrpu_ctime;
+  u_int16_t ifbrpu_prio;
+  u_int8_t ifbrpu_hellotime;
+  u_int8_t ifbrpu_fwddelay;
+  u_int8_t ifbrpu_maxage;
+  u_int8_t ifbrpu_proto;
+  u_int8_t ifbrpu_txhc;
+  u_int64_t ifbrpu_datapath;
+  u_int32_t ifbrpu_maxgroup;
+ } ifbrp_ifbrpu;
+};
+struct ifbropreq {
+ char ifbop_name[16];
+ u_int8_t ifbop_holdcount;
+ u_int8_t ifbop_maxage;
+ u_int8_t ifbop_hellotime;
+ u_int8_t ifbop_fwddelay;
+ u_int8_t ifbop_protocol;
+ u_int16_t ifbop_priority;
+ u_int64_t ifbop_root_bridge;
+ u_int16_t ifbop_root_port;
+ u_int32_t ifbop_root_path_cost;
+ u_int64_t ifbop_desg_bridge;
+ struct timeval ifbop_last_tc_time;
+};
+struct ifbrarpf {
+ u_int16_t brla_flags;
+ u_int16_t brla_op;
+ struct ether_addr brla_sha;
+ struct in_addr brla_spa;
+ struct ether_addr brla_tha;
+ struct in_addr brla_tpa;
+};
+struct ifbrlreq {
+ char ifbr_name[16];
+ char ifbr_ifsname[16];
+ u_int8_t ifbr_action;
+ u_int8_t ifbr_flags;
+ struct ether_addr ifbr_src;
+ struct ether_addr ifbr_dst;
+ char ifbr_tagname[64];
+ struct ifbrarpf ifbr_arpf;
+};
+struct ifbrlconf {
+ char ifbrl_name[16];
+ char ifbrl_ifsname[16];
+ u_int32_t ifbrl_len;
+ union {
+  caddr_t ifbrlu_buf;
+  struct ifbrlreq *ifbrlu_req;
+ } ifbrl_ifbrlu;
+};
+struct brl_head { struct brl_node *sqh_first; struct brl_node **sqh_last; };
+struct brl_node {
+ struct { struct brl_node *sqe_next; } brl_next;
+ struct ether_addr brl_src;
+ struct ether_addr brl_dst;
+ u_int16_t brl_tag;
+ u_int8_t brl_action;
+ u_int8_t brl_flags;
+ struct ifbrarpf brl_arpf;
+};
+struct bstp_timer {
+ u_int16_t active;
+ u_int16_t value;
+ u_int32_t latched;
+};
+struct bstp_pri_vector {
+ u_int64_t pv_root_id;
+ u_int32_t pv_cost;
+ u_int64_t pv_dbridge_id;
+ u_int16_t pv_dport_id;
+ u_int16_t pv_port_id;
+};
+struct bstp_config_unit {
+ struct bstp_pri_vector cu_pv;
+ u_int16_t cu_message_age;
+ u_int16_t cu_max_age;
+ u_int16_t cu_forward_delay;
+ u_int16_t cu_hello_time;
+ u_int8_t cu_message_type;
+ u_int8_t cu_topology_change_ack;
+ u_int8_t cu_topology_change;
+ u_int8_t cu_proposal;
+ u_int8_t cu_agree;
+ u_int8_t cu_learning;
+ u_int8_t cu_forwarding;
+ u_int8_t cu_role;
+};
+struct bstp_tcn_unit {
+ u_int8_t tu_message_type;
+};
+struct bstp_port {
+ struct { struct bstp_port *le_next; struct bstp_port **le_prev; } bp_next;
+ struct ifnet *bp_ifp;
+ struct bstp_state *bp_bs;
+ void *bp_lhcookie;
+ u_int8_t bp_active;
+ u_int8_t bp_protover;
+ u_int32_t bp_flags;
+ u_int32_t bp_path_cost;
+ u_int16_t bp_port_msg_age;
+ u_int16_t bp_port_max_age;
+ u_int16_t bp_port_fdelay;
+ u_int16_t bp_port_htime;
+ u_int16_t bp_desg_msg_age;
+ u_int16_t bp_desg_max_age;
+ u_int16_t bp_desg_fdelay;
+ u_int16_t bp_desg_htime;
+ struct bstp_timer bp_edge_delay_timer;
+ struct bstp_timer bp_forward_delay_timer;
+ struct bstp_timer bp_hello_timer;
+ struct bstp_timer bp_message_age_timer;
+ struct bstp_timer bp_migrate_delay_timer;
+ struct bstp_timer bp_recent_backup_timer;
+ struct bstp_timer bp_recent_root_timer;
+ struct bstp_timer bp_tc_timer;
+ struct bstp_config_unit bp_msg_cu;
+ struct bstp_pri_vector bp_desg_pv;
+ struct bstp_pri_vector bp_port_pv;
+ u_int16_t bp_port_id;
+ u_int8_t bp_state;
+ u_int8_t bp_tcstate;
+ u_int8_t bp_role;
+ u_int8_t bp_infois;
+ u_int8_t bp_tc_ack;
+ u_int8_t bp_tc_prop;
+ u_int8_t bp_fdbflush;
+ u_int8_t bp_priority;
+ u_int8_t bp_ptp_link;
+ u_int8_t bp_agree;
+ u_int8_t bp_agreed;
+ u_int8_t bp_sync;
+ u_int8_t bp_synced;
+ u_int8_t bp_proposing;
+ u_int8_t bp_proposed;
+ u_int8_t bp_operedge;
+ u_int8_t bp_reroot;
+ u_int8_t bp_rcvdtc;
+ u_int8_t bp_rcvdtca;
+ u_int8_t bp_rcvdtcn;
+ u_int32_t bp_forward_transitions;
+ u_int8_t bp_txcount;
+};
+struct bstp_state {
+ struct ifnet *bs_ifp;
+ struct bstp_pri_vector bs_bridge_pv;
+ struct bstp_pri_vector bs_root_pv;
+ struct bstp_port *bs_root_port;
+ u_int8_t bs_protover;
+ u_int16_t bs_migration_delay;
+ u_int16_t bs_edge_delay;
+ u_int16_t bs_bridge_max_age;
+ u_int16_t bs_bridge_fdelay;
+ u_int16_t bs_bridge_htime;
+ u_int16_t bs_root_msg_age;
+ u_int16_t bs_root_max_age;
+ u_int16_t bs_root_fdelay;
+ u_int16_t bs_root_htime;
+ u_int16_t bs_hold_time;
+ u_int16_t bs_bridge_priority;
+ u_int8_t bs_txholdcount;
+ u_int8_t bs_allsynced;
+ struct timeout bs_bstptimeout;
+ struct bstp_timer bs_link_timer;
+ struct timeval bs_last_tc_time;
+ struct { struct bstp_port *lh_first; } bs_bplist;
+};
+struct bridge_iflist {
+ struct { struct bridge_iflist *tqe_next; struct bridge_iflist **tqe_prev; } next;
+ struct bridge_softc *bridge_sc;
+ struct bstp_port *bif_stp;
+ struct brl_head bif_brlin;
+ struct brl_head bif_brlout;
+ struct ifnet *ifp;
+ u_int32_t bif_flags;
+ u_int32_t bif_protected;
+ void *bif_dhcookie;
+};
+union brsockaddr_union {
+ struct sockaddr sa;
+ struct sockaddr_in sin;
+ struct sockaddr_in6 sin6;
+};
+struct bridge_tunneltag {
+ union brsockaddr_union brtag_peer;
+ union brsockaddr_union brtag_local;
+ u_int32_t brtag_id;
+};
+struct bridge_rtnode {
+ struct { struct bridge_rtnode *le_next; struct bridge_rtnode **le_prev; } brt_next;
+ struct ifnet *brt_if;
+ u_int8_t brt_flags;
+ u_int8_t brt_age;
+ struct ether_addr brt_addr;
+ struct bridge_tunneltag brt_tunnel;
+};
+struct bridge_softc {
+ struct ifnet sc_if;
+ u_int32_t sc_brtmax;
+ u_int32_t sc_brtcnt;
+ int sc_brttimeout;
+ u_int64_t sc_hashkey[2];
+ struct timeout sc_brtimeout;
+ struct bstp_state *sc_stp;
+ struct { struct bridge_iflist *tqh_first; struct bridge_iflist **tqh_last; } sc_iflist;
+ struct { struct bridge_iflist *tqh_first; struct bridge_iflist **tqh_last; } sc_spanlist;
+ struct { struct bridge_rtnode *lh_first; } sc_rts[1024];
+};
+extern const u_int8_t bstp_etheraddr[];
+struct llc;
+int bridge_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+    struct rtentry *);
+void bridge_update(struct ifnet *, struct ether_addr *, int);
+void bridge_rtdelete(struct bridge_softc *, struct ifnet *, int);
+void bridge_rtagenode(struct ifnet *, int);
+struct bridge_tunneltag *bridge_tunnel(struct mbuf *);
+struct bridge_tunneltag *bridge_tunneltag(struct mbuf *);
+void bridge_tunneluntag(struct mbuf *);
+void bridge_copyaddr(struct sockaddr *, struct sockaddr *);
+void bridge_copytag(struct bridge_tunneltag *, struct bridge_tunneltag *);
+struct bstp_state *bstp_create(struct ifnet *);
+void bstp_destroy(struct bstp_state *);
+void bstp_initialization(struct bstp_state *);
+void bstp_stop(struct bstp_state *);
+int bstp_ioctl(struct ifnet *, u_long, caddr_t);
+struct bstp_port *bstp_add(struct bstp_state *, struct ifnet *);
+void bstp_delete(struct bstp_port *);
+struct mbuf *bstp_input(struct bstp_state *, struct bstp_port *,
+    struct ether_header *, struct mbuf *);
+void bstp_ifstate(void *);
+u_int8_t bstp_getstate(struct bstp_state *, struct bstp_port *);
+void bstp_ifsflags(struct bstp_port *, u_int);
+void bridge_send_icmp_err(struct bridge_softc *, struct ifnet *,
+    struct ether_header *, struct mbuf *, int, struct llc *, int, int, int);
+int bridgectl_ioctl(struct ifnet *, u_long, caddr_t);
+struct ifnet *bridge_rtupdate(struct bridge_softc *,
+    struct ether_addr *, struct ifnet *ifp, int, u_int8_t, struct mbuf *);
+struct bridge_rtnode *bridge_rtlookup(struct bridge_softc *,
+    struct ether_addr *);
+void bridge_rtflush(struct bridge_softc *, int);
+void bridge_rtage(void *);
+u_int8_t bridge_filterrule(struct brl_head *, struct ether_header *,
+    struct mbuf *);
+void bridge_flushrule(struct bridge_iflist *);
+struct mbuf *bridge_ip(struct bridge_softc *, int, struct ifnet *,
+    struct ether_header *, struct mbuf *);
+void bridge_fragment(struct bridge_softc *, struct ifnet *,
+    struct ether_header *, struct mbuf *);
+int bridge_ifenqueue(struct bridge_softc *, struct ifnet *, struct mbuf *);
 struct gre_header {
  uint16_t gre_flags;
  uint16_t gre_proto;
@@ -4954,6 +5588,9 @@ union gre_addr {
  struct in_addr in4;
  struct in6_addr in6;
 };
+static inline int
+  gre_ip_cmp(int, const union gre_addr *,
+      const union gre_addr *);
 struct gre_tunnel {
  uint32_t t_key_mask;
  uint32_t t_key;
@@ -4964,9 +5601,9 @@ struct gre_tunnel {
  uint16_t t_df;
  sa_family_t t_af;
 };
-static inline int
+static int
   gre_cmp(const struct gre_tunnel *, const struct gre_tunnel *);
-static int gre_set_tunnel(struct gre_tunnel *, struct if_laddrreq *);
+static int gre_set_tunnel(struct gre_tunnel *, struct if_laddrreq *, int);
 static int gre_get_tunnel(struct gre_tunnel *, struct if_laddrreq *);
 static int gre_del_tunnel(struct gre_tunnel *);
 static int gre_set_vnetid(struct gre_tunnel *, struct ifreq *);
@@ -4975,8 +5612,8 @@ static int gre_del_vnetid(struct gre_tunnel *);
 static int gre_set_vnetflowid(struct gre_tunnel *, struct ifreq *);
 static int gre_get_vnetflowid(struct gre_tunnel *, struct ifreq *);
 static struct mbuf *
-  gre_encap(const struct gre_tunnel *, struct mbuf *, uint16_t,
-      uint8_t, uint8_t);
+  gre_encap_dst(const struct gre_tunnel *, const union gre_addr *,
+      struct mbuf *, uint16_t, uint8_t, uint8_t);
 static int
   gre_ip_output(const struct gre_tunnel *, struct mbuf *);
 static int gre_tunnel_ioctl(struct ifnet *, struct gre_tunnel *,
@@ -5021,6 +5658,8 @@ static struct gre_softc *
 static void gre_keepalive_send(void *);
 static void gre_keepalive_recv(struct ifnet *ifp, struct mbuf *);
 static void gre_keepalive_hold(void *);
+static struct mbuf *
+  gre_ether_align(struct mbuf *, int);
 struct egre_softc {
  struct gre_tunnel sc_tunnel;
  struct rb_entry sc_entry;
@@ -5028,6 +5667,8 @@ struct egre_softc {
  struct ifmedia sc_media;
 };
 struct egre_tree { struct rb_tree rbh_root; };
+static inline int
+  egre_cmp(const struct egre_softc *, const struct egre_softc *);
 extern const struct rb_type *const egre_tree_RBT_TYPE; __attribute__((__unused__)) static inline void egre_tree_RBT_INIT(struct egre_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_INSERT(struct egre_tree *head, struct egre_softc *elm) { return _rb_insert(egre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_REMOVE(struct egre_tree *head, struct egre_softc *elm) { return _rb_remove(egre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_FIND(struct egre_tree *head, const struct egre_softc *key) { return _rb_find(egre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_NFIND(struct egre_tree *head, const struct egre_softc *key) { return _rb_nfind(egre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_ROOT(struct egre_tree *head) { return _rb_root(egre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int egre_tree_RBT_EMPTY(struct egre_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_MIN(struct egre_tree *head) { return _rb_min(egre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_MAX(struct egre_tree *head) { return _rb_max(egre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_NEXT(struct egre_softc *elm) { return _rb_next(egre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_PREV(struct egre_softc *elm) { return _rb_prev(egre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_LEFT(struct egre_softc *elm) { return _rb_left(egre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_RIGHT(struct egre_softc *elm) { return _rb_right(egre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct egre_softc * egre_tree_RBT_PARENT(struct egre_softc *elm) { return _rb_parent(egre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void egre_tree_RBT_SET_LEFT(struct egre_softc *elm, struct egre_softc *left) { return _rb_set_left(egre_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void egre_tree_RBT_SET_RIGHT(struct egre_softc *elm, struct egre_softc *right) { return _rb_set_right(egre_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void egre_tree_RBT_SET_PARENT(struct egre_softc *elm, struct egre_softc *parent) { return _rb_set_parent(egre_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void egre_tree_RBT_POISON(struct egre_softc *elm, unsigned long poison) { return _rb_poison(egre_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int egre_tree_RBT_CHECK(struct egre_softc *elm, unsigned long poison) { return _rb_check(egre_tree_RBT_TYPE, elm, poison); };
 static int egre_clone_create(struct if_clone *, int);
 static int egre_clone_destroy(struct ifnet *);
@@ -5041,6 +5682,75 @@ static int egre_input(const struct gre_tunnel *, struct mbuf *, int);
 struct if_clone egre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "egre", .ifc_namelen = sizeof("egre") - 1, .ifc_create = egre_clone_create, .ifc_destroy = egre_clone_destroy, };
 struct egre_tree egre_tree = { { ((void *)0) } };
+struct nvgre_entry {
+ struct { struct nvgre_entry *rbe_left; struct nvgre_entry *rbe_right; struct nvgre_entry *rbe_parent; int rbe_color; } nv_entry;
+ struct ether_addr nv_dst;
+ uint8_t nv_type;
+ union gre_addr nv_gateway;
+ struct refcnt nv_refs;
+ int nv_age;
+};
+struct nvgre_map { struct rb_tree rbh_root; };
+static inline int
+  nvgre_entry_cmp(const struct nvgre_entry *,
+      const struct nvgre_entry *);
+extern const struct rb_type *const nvgre_map_RBT_TYPE; __attribute__((__unused__)) static inline void nvgre_map_RBT_INIT(struct nvgre_map *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_INSERT(struct nvgre_map *head, struct nvgre_entry *elm) { return _rb_insert(nvgre_map_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_REMOVE(struct nvgre_map *head, struct nvgre_entry *elm) { return _rb_remove(nvgre_map_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_FIND(struct nvgre_map *head, const struct nvgre_entry *key) { return _rb_find(nvgre_map_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_NFIND(struct nvgre_map *head, const struct nvgre_entry *key) { return _rb_nfind(nvgre_map_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_ROOT(struct nvgre_map *head) { return _rb_root(nvgre_map_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int nvgre_map_RBT_EMPTY(struct nvgre_map *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_MIN(struct nvgre_map *head) { return _rb_min(nvgre_map_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_MAX(struct nvgre_map *head) { return _rb_max(nvgre_map_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_NEXT(struct nvgre_entry *elm) { return _rb_next(nvgre_map_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_PREV(struct nvgre_entry *elm) { return _rb_prev(nvgre_map_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_LEFT(struct nvgre_entry *elm) { return _rb_left(nvgre_map_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_RIGHT(struct nvgre_entry *elm) { return _rb_right(nvgre_map_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_entry * nvgre_map_RBT_PARENT(struct nvgre_entry *elm) { return _rb_parent(nvgre_map_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void nvgre_map_RBT_SET_LEFT(struct nvgre_entry *elm, struct nvgre_entry *left) { return _rb_set_left(nvgre_map_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void nvgre_map_RBT_SET_RIGHT(struct nvgre_entry *elm, struct nvgre_entry *right) { return _rb_set_right(nvgre_map_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void nvgre_map_RBT_SET_PARENT(struct nvgre_entry *elm, struct nvgre_entry *parent) { return _rb_set_parent(nvgre_map_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void nvgre_map_RBT_POISON(struct nvgre_entry *elm, unsigned long poison) { return _rb_poison(nvgre_map_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int nvgre_map_RBT_CHECK(struct nvgre_entry *elm, unsigned long poison) { return _rb_check(nvgre_map_RBT_TYPE, elm, poison); };
+struct nvgre_softc {
+ struct gre_tunnel sc_tunnel;
+ unsigned int sc_ifp0;
+ struct rb_entry sc_uentry;
+ struct rb_entry sc_mentry;
+ struct arpcom sc_ac;
+ struct ifmedia sc_media;
+ struct mbuf_queue sc_send_list;
+ struct task sc_send_task;
+ void *sc_inm;
+ void *sc_lhcookie;
+ void *sc_dhcookie;
+ struct rwlock sc_ether_lock;
+ struct nvgre_map sc_ether_map;
+ unsigned int sc_ether_num;
+ unsigned int sc_ether_max;
+ int sc_ether_tmo;
+ struct timeout sc_ether_age;
+ caddr_t sc_if_bpf;
+};
+struct nvgre_ucast_tree { struct rb_tree rbh_root; };
+struct nvgre_mcast_tree { struct rb_tree rbh_root; };
+static inline int
+  nvgre_cmp_ucast(const struct nvgre_softc *,
+      const struct nvgre_softc *);
+static int
+  nvgre_cmp_mcast(const struct gre_tunnel *,
+      const union gre_addr *, unsigned int,
+      const struct gre_tunnel *, const union gre_addr *,
+      unsigned int);
+static inline int
+  nvgre_cmp_mcast_sc(const struct nvgre_softc *,
+      const struct nvgre_softc *);
+extern const struct rb_type *const nvgre_ucast_tree_RBT_TYPE; __attribute__((__unused__)) static inline void nvgre_ucast_tree_RBT_INIT(struct nvgre_ucast_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_INSERT(struct nvgre_ucast_tree *head, struct nvgre_softc *elm) { return _rb_insert(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_REMOVE(struct nvgre_ucast_tree *head, struct nvgre_softc *elm) { return _rb_remove(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_FIND(struct nvgre_ucast_tree *head, const struct nvgre_softc *key) { return _rb_find(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_NFIND(struct nvgre_ucast_tree *head, const struct nvgre_softc *key) { return _rb_nfind(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_ROOT(struct nvgre_ucast_tree *head) { return _rb_root(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int nvgre_ucast_tree_RBT_EMPTY(struct nvgre_ucast_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_MIN(struct nvgre_ucast_tree *head) { return _rb_min(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_MAX(struct nvgre_ucast_tree *head) { return _rb_max(nvgre_ucast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_NEXT(struct nvgre_softc *elm) { return _rb_next(nvgre_ucast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_PREV(struct nvgre_softc *elm) { return _rb_prev(nvgre_ucast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_LEFT(struct nvgre_softc *elm) { return _rb_left(nvgre_ucast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_RIGHT(struct nvgre_softc *elm) { return _rb_right(nvgre_ucast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_ucast_tree_RBT_PARENT(struct nvgre_softc *elm) { return _rb_parent(nvgre_ucast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void nvgre_ucast_tree_RBT_SET_LEFT(struct nvgre_softc *elm, struct nvgre_softc *left) { return _rb_set_left(nvgre_ucast_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void nvgre_ucast_tree_RBT_SET_RIGHT(struct nvgre_softc *elm, struct nvgre_softc *right) { return _rb_set_right(nvgre_ucast_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void nvgre_ucast_tree_RBT_SET_PARENT(struct nvgre_softc *elm, struct nvgre_softc *parent) { return _rb_set_parent(nvgre_ucast_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void nvgre_ucast_tree_RBT_POISON(struct nvgre_softc *elm, unsigned long poison) { return _rb_poison(nvgre_ucast_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int nvgre_ucast_tree_RBT_CHECK(struct nvgre_softc *elm, unsigned long poison) { return _rb_check(nvgre_ucast_tree_RBT_TYPE, elm, poison); };
+extern const struct rb_type *const nvgre_mcast_tree_RBT_TYPE; __attribute__((__unused__)) static inline void nvgre_mcast_tree_RBT_INIT(struct nvgre_mcast_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_INSERT(struct nvgre_mcast_tree *head, struct nvgre_softc *elm) { return _rb_insert(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_REMOVE(struct nvgre_mcast_tree *head, struct nvgre_softc *elm) { return _rb_remove(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_FIND(struct nvgre_mcast_tree *head, const struct nvgre_softc *key) { return _rb_find(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_NFIND(struct nvgre_mcast_tree *head, const struct nvgre_softc *key) { return _rb_nfind(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_ROOT(struct nvgre_mcast_tree *head) { return _rb_root(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int nvgre_mcast_tree_RBT_EMPTY(struct nvgre_mcast_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_MIN(struct nvgre_mcast_tree *head) { return _rb_min(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_MAX(struct nvgre_mcast_tree *head) { return _rb_max(nvgre_mcast_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_NEXT(struct nvgre_softc *elm) { return _rb_next(nvgre_mcast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_PREV(struct nvgre_softc *elm) { return _rb_prev(nvgre_mcast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_LEFT(struct nvgre_softc *elm) { return _rb_left(nvgre_mcast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_RIGHT(struct nvgre_softc *elm) { return _rb_right(nvgre_mcast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct nvgre_softc * nvgre_mcast_tree_RBT_PARENT(struct nvgre_softc *elm) { return _rb_parent(nvgre_mcast_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void nvgre_mcast_tree_RBT_SET_LEFT(struct nvgre_softc *elm, struct nvgre_softc *left) { return _rb_set_left(nvgre_mcast_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void nvgre_mcast_tree_RBT_SET_RIGHT(struct nvgre_softc *elm, struct nvgre_softc *right) { return _rb_set_right(nvgre_mcast_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void nvgre_mcast_tree_RBT_SET_PARENT(struct nvgre_softc *elm, struct nvgre_softc *parent) { return _rb_set_parent(nvgre_mcast_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void nvgre_mcast_tree_RBT_POISON(struct nvgre_softc *elm, unsigned long poison) { return _rb_poison(nvgre_mcast_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int nvgre_mcast_tree_RBT_CHECK(struct nvgre_softc *elm, unsigned long poison) { return _rb_check(nvgre_mcast_tree_RBT_TYPE, elm, poison); };
+static int nvgre_clone_create(struct if_clone *, int);
+static int nvgre_clone_destroy(struct ifnet *);
+static void nvgre_start(struct ifnet *);
+static int nvgre_ioctl(struct ifnet *, u_long, caddr_t);
+static int nvgre_up(struct nvgre_softc *);
+static int nvgre_down(struct nvgre_softc *);
+static int nvgre_set_parent(struct nvgre_softc *, const char *);
+static void nvgre_link_change(void *);
+static void nvgre_detach(void *);
+static int nvgre_input(const struct gre_tunnel *, struct mbuf *, int);
+static void nvgre_send(void *);
+static int nvgre_rtfind(struct nvgre_softc *, struct ifbaconf *);
+static void nvgre_flush_map(struct nvgre_softc *);
+static void nvgre_input_map(struct nvgre_softc *,
+      const struct gre_tunnel *, const struct ether_header *);
+static void nvgre_age(void *);
+struct if_clone nvgre_cloner =
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "nvgre", .ifc_namelen = sizeof("nvgre") - 1, .ifc_create = nvgre_clone_create, .ifc_destroy = nvgre_clone_destroy, };
+struct nvgre_ucast_tree nvgre_ucast_tree = { { ((void *)0) } };
+struct nvgre_mcast_tree nvgre_mcast_tree = { { ((void *)0) } };
+struct pool nvgre_pool;
 int gre_allow = 0;
 int gre_wccp = 0;
 void
@@ -5048,6 +5758,7 @@ greattach(int n)
 {
  if_clone_attach(&gre_cloner);
  if_clone_attach(&egre_cloner);
+ if_clone_attach(&nvgre_cloner);
 }
 static int
 gre_clone_create(struct if_clone *ifc, int unit)
@@ -5127,6 +5838,63 @@ egre_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   egre_down(sc);
+ do { _rw_exit_write(&netlock ); } while (0);
+ ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
+ ether_ifdetach(ifp);
+ if_detach(ifp);
+ free(sc, 2, sizeof(*sc));
+ return (0);
+}
+static int
+nvgre_clone_create(struct if_clone *ifc, int unit)
+{
+ struct nvgre_softc *sc;
+ struct ifnet *ifp;
+ struct gre_tunnel *tunnel;
+ if (nvgre_pool.pr_size == 0) {
+  pool_init(&nvgre_pool, sizeof(struct nvgre_entry), 0,
+      2, 0, "nvgren", ((void *)0));
+ }
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
+ ifp = &sc->sc_ac.ac_if;
+ snprintf(ifp->if_xname, sizeof(ifp->if_xname), "%s%d",
+     ifc->ifc_name, unit);
+ ifp->if_softc = sc;
+ ifp->if_data.ifi_mtu = 1500;
+ ifp->if_ioctl = nvgre_ioctl;
+ ifp->if_start = nvgre_start;
+ ifp->if_xflags = 0x2;
+ ((&ifp->if_snd)->ifq_maxlen = (256));
+ ifp->if_flags = 0x2 | 0x800 | 0x8000;
+ ether_fakeaddr(ifp);
+ tunnel = &sc->sc_tunnel;
+ tunnel->t_ttl = 1;
+ tunnel->t_df = ((__uint16_t)(0x4000));
+ tunnel->t_key_mask = ((__uint32_t)(0xffffff00U));
+ tunnel->t_key = ((__uint32_t)(0 << 8));
+ mq_init(&sc->sc_send_list, 256 * 2, 2);
+ task_set(&sc->sc_send_task, nvgre_send, sc);
+ _rw_init_flags(&sc->sc_ether_lock, "nvgrelk", 0, ((void *)0));
+ nvgre_map_RBT_INIT(&sc->sc_ether_map);
+ sc->sc_ether_num = 0;
+ sc->sc_ether_max = 100;
+ sc->sc_ether_tmo = 240 * hz;
+ timeout_set_proc(&sc->sc_ether_age, nvgre_age, sc);
+ ifmedia_init(&sc->sc_media, 0, egre_media_change, egre_media_status);
+ ifmedia_add(&sc->sc_media, 0x0000000000000100ULL | 0ULL, 0, ((void *)0));
+ ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
+ if_attach(ifp);
+ ether_ifattach(ifp);
+ bpfattach(&sc->sc_if_bpf, ifp, 12, sizeof(uint32_t));
+ return (0);
+}
+static int
+nvgre_clone_destroy(struct ifnet *ifp)
+{
+ struct nvgre_softc *sc = ifp->if_softc;
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  nvgre_down(sc);
  do { _rw_exit_write(&netlock ); } while (0);
  ifmedia_delete_instance(&sc->sc_media, ((uint64_t) -1));
  ether_ifdetach(ifp);
@@ -5234,8 +6002,10 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   key->t_key_mask = ((__uint32_t)(0x00000000U));
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
  if (gh->gre_proto == ((__uint16_t)(0x6558))) {
-  if (egre_input(key, m, hlen) == -1)
+  if (egre_input(key, m, hlen) == -1 &&
+      nvgre_input(key, m, hlen) == -1)
    goto decline;
+  return (257);
  }
  sc = gre_find(key);
  if (sc == ((void *)0))
@@ -5308,40 +6078,239 @@ egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
 {
  struct egre_softc *sc;
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- struct mbuf *n;
- int off;
  sc = egre_tree_RBT_FIND(&egre_tree, (const struct egre_softc *)key);
  if (sc == ((void *)0))
   return (-1);
+ m = gre_ether_align(m, hlen);
+ if (m == ((void *)0))
+  return (0);
+ if (sc->sc_tunnel.t_key_mask == ((__uint32_t)(0xffffff00U))) {
+  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
+      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
+ }
+ m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ pf_pkt_addr_changed(m);
+ ml_enqueue(&ml, m);
+ if_input(&sc->sc_ac.ac_if, &ml);
+ return (0);
+}
+static int
+nvgre_rtfind(struct nvgre_softc *sc, struct ifbaconf *baconf)
+{
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
+ struct nvgre_entry *nv;
+ struct ifbareq bareq;
+ caddr_t uaddr, end;
+ int error;
+ int age;
+ if (baconf->ifbac_len == 0) {
+  baconf->ifbac_len = sc->sc_ether_num * sizeof(bareq);
+  return (0);
+ }
+ uaddr = baconf->ifbac_ifbacu.ifbacu_buf;
+ end = uaddr + baconf->ifbac_len;
+ _rw_enter_read(&sc->sc_ether_lock );
+ for ((nv) = nvgre_map_RBT_MIN((&sc->sc_ether_map)); (nv) != ((void *)0); (nv) = nvgre_map_RBT_NEXT((nv))) {
+  if (uaddr >= end)
+   break;
+  __builtin_memcpy((bareq.ifba_name), (ifp->if_xname), (sizeof(bareq.ifba_name)));
+  __builtin_memcpy((bareq.ifba_ifsname), (ifp->if_xname), (sizeof(bareq.ifba_ifsname)));
+  __builtin_memcpy((&bareq.ifba_dst), (&nv->nv_dst), (sizeof(bareq.ifba_dst)));
+  __builtin_memset((&bareq.ifba_dstsa), (0), (sizeof(bareq.ifba_dstsa)));
+  switch (sc->sc_tunnel.t_af) {
+  case 2: {
+   struct sockaddr_in *sin;
+   sin = (struct sockaddr_in *)&bareq.ifba_dstsa;
+   sin->sin_len = sizeof(*sin);
+   sin->sin_family = 2;
+   sin->sin_addr = nv->nv_gateway.in4;
+   break;
+  }
+  case 24: {
+   struct sockaddr_in6 *sin6;
+   sin6 = (struct sockaddr_in6 *)&bareq.ifba_dstsa;
+   sin6->sin6_len = sizeof(*sin6);
+   sin6->sin6_family = 24;
+   sin6->sin6_addr = nv->nv_gateway.in6;
+   break;
+  }
+  default:
+   unhandled_af(sc->sc_tunnel.t_af);
+  }
+  switch (nv->nv_type) {
+  case 0:
+   age = (ticks - nv->nv_age) / hz;
+   bareq.ifba_age = (((age)<(0xff))?(age):(0xff));
+   bareq.ifba_flags = 0x00;
+   break;
+  case 1:
+   bareq.ifba_age = 0;
+   bareq.ifba_flags = 0x01;
+   break;
+  }
+  error = copyout(&bareq, uaddr, sizeof(bareq));
+  if (error != 0) {
+   _rw_exit_read(&sc->sc_ether_lock );
+   return (error);
+  }
+  uaddr += sizeof(bareq);
+ }
+ baconf->ifbac_len = sc->sc_ether_num * sizeof(bareq);
+ _rw_exit_read(&sc->sc_ether_lock );
+ return (0);
+}
+static void
+nvgre_flush_map(struct nvgre_softc *sc)
+{
+ struct nvgre_map map;
+ struct nvgre_entry *nv, *nnv;
+ _rw_enter_write(&sc->sc_ether_lock );
+ map = sc->sc_ether_map;
+ nvgre_map_RBT_INIT(&sc->sc_ether_map);
+ sc->sc_ether_num = 0;
+ _rw_exit_write(&sc->sc_ether_lock );
+ for ((nv) = nvgre_map_RBT_MIN((&map)); (nv) != ((void *)0) && ((nnv) = nvgre_map_RBT_NEXT((nv)), 1); (nv) = (nnv)) {
+  nvgre_map_RBT_REMOVE(&map, nv);
+  if (refcnt_rele(&nv->nv_refs))
+   pool_put(&nvgre_pool, nv);
+ }
+}
+static void
+nvgre_input_map(struct nvgre_softc *sc, const struct gre_tunnel *key,
+    const struct ether_header *eh)
+{
+ struct nvgre_entry *nv, nkey;
+ int new = 0;
+ if ((__builtin_memcmp(((((eh->ether_shost)))), (((etherbroadcastaddr))), (6)) == 0) ||
+     (*(eh->ether_shost) & 0x01))
+  return;
+ __builtin_memcpy((&nkey.nv_dst), (eh->ether_shost), (6));
+ _rw_enter_read(&sc->sc_ether_lock );
+ nv = nvgre_map_RBT_FIND(&sc->sc_ether_map, &nkey);
+ if (nv == ((void *)0))
+  new = 1;
+ else {
+  nv->nv_age = ticks;
+  if (nv->nv_type != 0 ||
+      gre_ip_cmp(key->t_af, &key->t_dst, &nv->nv_gateway))
+   nv = ((void *)0);
+  else
+   refcnt_take(&nv->nv_refs);
+ }
+ _rw_exit_read(&sc->sc_ether_lock );
+ if (new) {
+  struct nvgre_entry *onv;
+  unsigned int num;
+  nv = pool_get(&nvgre_pool, 0x0002);
+  if (nv == ((void *)0)) {
+   return;
+  }
+  __builtin_memcpy((&nv->nv_dst), (eh->ether_shost), (6));
+  __builtin_memcpy((&nv->nv_dst), (eh->ether_shost), (6));
+  nv->nv_type = 0;
+  nv->nv_gateway = key->t_dst;
+  refcnt_init(&nv->nv_refs);
+  nv->nv_age = ticks;
+  _rw_enter_write(&sc->sc_ether_lock );
+  num = sc->sc_ether_num;
+  if (++num > sc->sc_ether_max)
+   onv = nv;
+  else {
+   onv = nvgre_map_RBT_INSERT(&sc->sc_ether_map, nv);
+   if (onv == ((void *)0)) {
+    sc->sc_ether_num = num;
+   }
+  }
+  _rw_exit_write(&sc->sc_ether_lock );
+  if (onv != ((void *)0))
+   pool_put(&nvgre_pool, nv);
+ } else if (nv != ((void *)0)) {
+  _rw_enter_write(&sc->sc_ether_lock );
+  nv->nv_gateway = key->t_dst;
+  _rw_exit_write(&sc->sc_ether_lock );
+  if (refcnt_rele(&nv->nv_refs)) {
+   pool_put(&nvgre_pool, nv);
+  }
+ }
+}
+static inline struct nvgre_softc *
+nvgre_mcast_find(const struct gre_tunnel *key, unsigned int if0idx)
+{
+ struct nvgre_softc *sc;
+ int rv;
+ sc = nvgre_mcast_tree_RBT_ROOT(&nvgre_mcast_tree);
+ while (sc != ((void *)0)) {
+  rv = nvgre_cmp_mcast(key, &key->t_src, if0idx,
+      &sc->sc_tunnel, &sc->sc_tunnel.t_dst, sc->sc_ifp0);
+  if (rv == 0)
+   return (sc);
+  if (rv < 0)
+   sc = nvgre_mcast_tree_RBT_LEFT(sc);
+  else
+   sc = nvgre_mcast_tree_RBT_RIGHT(sc);
+ }
+ return (((void *)0));
+}
+static inline struct nvgre_softc *
+nvgre_ucast_find(const struct gre_tunnel *key)
+{
+ return (nvgre_ucast_tree_RBT_FIND(&nvgre_ucast_tree, (struct nvgre_softc *)key));
+}
+static int
+nvgre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
+{
+ struct nvgre_softc *sc;
+ struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
+ extern int ticks;
+ if (((m->m_hdr.mh_flags) & (0x0200|0x0100)))
+  sc = nvgre_mcast_find(key, m->M_dat.MH.MH_pkthdr.ph_ifidx);
+ else
+  sc = nvgre_ucast_find(key);
+ if (sc == ((void *)0))
+  return (-1);
+ {
+  caddr_t if_bpf = sc->sc_if_bpf;
+  if (if_bpf)
+   bpf_mtap_af(if_bpf, key->t_af, m, 1);
+ }
+ m = gre_ether_align(m, hlen);
+ if (m == ((void *)0))
+  return (0);
+ nvgre_input_map(sc, key, ((struct ether_header *)((m)->m_hdr.mh_data)));
+ m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
+     (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
+ m->m_hdr.mh_flags &= ~(0x0200|0x0100);
+ pf_pkt_addr_changed(m);
+ ml_enqueue(&ml, m);
+ if_input(&sc->sc_ac.ac_if, &ml);
+ return (0);
+}
+static struct mbuf *
+gre_ether_align(struct mbuf *m, int hlen)
+{
+ struct mbuf *n;
+ int off;
  m_adj(m, hlen);
  if (m->M_dat.MH.MH_pkthdr.len < sizeof(struct ether_header)) {
   m_freem(m);
-  return (0);
+  return (((void *)0));
  }
  m = m_pullup(m, sizeof(struct ether_header));
  if (m == ((void *)0))
-  return (0);
+  return (((void *)0));
  n = m_getptr(m, sizeof(struct ether_header), &off);
  if (n == ((void *)0)) {
   m_freem(m);
-  return (0);
+  return (((void *)0));
  }
  if (!((((unsigned long)(((caddr_t)((n)->m_hdr.mh_data)) + off)) & (sizeof(uint32_t) - 1)) == 0)) {
   n = m_dup_pkt(m, 2, 0x0002);
   m_freem(m);
   if (n == ((void *)0))
-   return (0);
+   return (((void *)0));
   m = n;
  }
- m->m_hdr.mh_flags &= ~(0x0200|0x0100);
- pf_pkt_addr_changed(m);
- if (sc->sc_tunnel.t_key_mask == ((__uint32_t)(0xffffff00U))) {
-  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
-      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
- }
- ml_enqueue(&ml, m);
- if_input(&sc->sc_ac.ac_if, &ml);
- return (0);
+ return (m);
 }
 static void
 gre_keepalive_recv(struct ifnet *ifp, struct mbuf *m)
@@ -5499,7 +6468,7 @@ gre_start(struct ifnet *ifp)
    ttl = *(m->m_hdr.mh_data + ttloff);
   } else
    ttl = tttl;
-  m = gre_encap(&sc->sc_tunnel, m, proto, ttl, tos);
+  m = gre_encap_dst((&sc->sc_tunnel), &(&sc->sc_tunnel)->t_dst, (m), (proto), (ttl), (tos));
   if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m) != 0) {
    ifp->if_data.ifi_oerrors++;
    continue;
@@ -5512,8 +6481,10 @@ egre_start(struct ifnet *ifp)
  struct egre_softc *sc = ifp->if_softc;
  struct mbuf *m0, *m;
  caddr_t if_bpf;
- if (!gre_allow)
+ if (!gre_allow) {
   ifq_purge(&ifp->if_snd);
+  return;
+ }
  while ((m0 = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
   if_bpf = ifp->if_bpf;
   if (if_bpf)
@@ -5527,8 +6498,7 @@ egre_start(struct ifnet *ifp)
   m->m_hdr.mh_next = m0;
   (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (0)) &~ (sizeof(long) - 1);
   m->m_hdr.mh_len = 0;
-  m = gre_encap(&sc->sc_tunnel, m, ((__uint16_t)(0x6558)),
-      sc->sc_tunnel.t_ttl, 0);
+  m = gre_encap_dst((&sc->sc_tunnel), &(&sc->sc_tunnel)->t_dst, (m), (((__uint16_t)(0x6558))), (sc->sc_tunnel.t_ttl), (0));
   if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m) != 0) {
    ifp->if_data.ifi_oerrors++;
    continue;
@@ -5536,8 +6506,8 @@ egre_start(struct ifnet *ifp)
  }
 }
 static struct mbuf *
-gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
-    uint8_t ttl, uint8_t tos)
+gre_encap_dst(const struct gre_tunnel *tunnel, const union gre_addr *dst,
+    struct mbuf *m, uint16_t proto, uint8_t ttl, uint8_t tos)
 {
  struct gre_header *gh;
  struct gre_h_key *gkh;
@@ -5567,13 +6537,15 @@ gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
   if (m == ((void *)0))
    return (((void *)0));
   ip = ((struct ip *)((m)->m_hdr.mh_data));
+  ip->ip_v = 4;
+  ip->ip_hl = sizeof(*ip) >> 2;
   ip->ip_off = tunnel->t_df;
   ip->ip_tos = tos;
   ip->ip_len = ((__uint16_t)(m->M_dat.MH.MH_pkthdr.len));
   ip->ip_ttl = ttl;
   ip->ip_p = 47;
   ip->ip_src = tunnel->t_src.in4;
-  ip->ip_dst = tunnel->t_dst.in4;
+  ip->ip_dst = dst->in4;
   break;
  }
  case 24: {
@@ -5590,7 +6562,7 @@ gre_encap(const struct gre_tunnel *tunnel, struct mbuf *m, uint16_t proto,
   ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
   ip6->ip6_src = tunnel->t_src.in6;
-  ip6->ip6_dst = tunnel->t_dst.in6;
+  ip6->ip6_dst = dst->in6;
   if (tunnel->t_df)
    ((m->M_dat.MH.MH_pkthdr.csum_flags) |= (0x1000));
   break;
@@ -5653,7 +6625,7 @@ gre_tunnel_ioctl(struct ifnet *ifp, struct gre_tunnel *tunnel,
   error = gre_get_vnetflowid(tunnel, ifr);
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
-  error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data);
+  error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data, 1);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
   error = gre_get_tunnel(tunnel, (struct if_laddrreq *)data);
@@ -5792,6 +6764,158 @@ egre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
  return (error);
 }
 static int
+nvgre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
+{
+ struct nvgre_softc *sc = ifp->if_softc;
+ struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ struct ifreq *ifr = (struct ifreq *)data;
+ struct if_parent *parent = (struct if_parent *)data;
+ struct ifbrparam *bparam = (struct ifbrparam *)data;
+ struct ifnet *ifp0;
+ int error = 0;
+ switch (cmd) {
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = nvgre_up(sc);
+   else
+    error = 52;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = nvgre_down(sc);
+  }
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_set_tunnel(tunnel, (struct if_laddrreq *)data, 0);
+  if (error == 0)
+   nvgre_flush_map(sc);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
+  error = gre_get_tunnel(tunnel, (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = gre_del_tunnel(tunnel);
+  if (error == 0)
+   nvgre_flush_map(sc);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((178))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = nvgre_set_parent(sc, parent->ifp_parent);
+  if (error == 0)
+   nvgre_flush_map(sc);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_parent) & 0x1fff) << 16) | ((('i')) << 8) | ((179))):
+  ifp0 = if_get(sc->sc_ifp0);
+  if (ifp0 == ((void *)0))
+   error = 49;
+  else {
+   __builtin_memcpy((parent->ifp_parent), (ifp0->if_xname), (sizeof(parent->ifp_parent)));
+  }
+  if_put(ifp0);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((180))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  sc->sc_ifp0 = 0;
+  nvgre_flush_map(sc);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  if (ifr->ifr_ifru.ifru_vnetid < 0x00000000U ||
+      ifr->ifr_ifru.ifru_vnetid > 0x00ffffffU) {
+   error = 22;
+   break;
+  }
+  tunnel->t_key = ((__uint32_t)(ifr->ifr_ifru.ifru_vnetid << 8));
+  nvgre_flush_map(sc);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((167))):
+  error = gre_get_vnetid(tunnel, ifr);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+  if (ifr->ifr_ifru.ifru_metric < 0 ||
+      ifr->ifr_ifru.ifru_metric > 255 ||
+      !rtable_exists(ifr->ifr_ifru.ifru_metric)) {
+   error = 22;
+   break;
+  }
+  tunnel->t_rtableid = ifr->ifr_ifru.ifru_metric;
+  nvgre_flush_map(sc);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((162))):
+  ifr->ifr_ifru.ifru_metric = tunnel->t_rtableid;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((193))):
+  tunnel->t_df = ifr->ifr_ifru.ifru_metric ? ((__uint16_t)(0x4000)) : ((__uint16_t)(0));
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((194))):
+  ifr->ifr_ifru.ifru_metric = tunnel->t_df ? 1 : 0;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff) {
+   error = 22;
+   break;
+  }
+  tunnel->t_ttl = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = tunnel->t_ttl;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((64))):
+  if (bparam->ifbrp_ifbrpu.ifbrpu_csize < 1) {
+   error = 22;
+   break;
+  }
+  sc->sc_ether_max = bparam->ifbrp_ifbrpu.ifbrpu_csize;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((65))):
+  bparam->ifbrp_ifbrpu.ifbrpu_csize = sc->sc_ether_max;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((69))):
+  if (bparam->ifbrp_ifbrpu.ifbrpu_ctime < 0 ||
+      bparam->ifbrp_ifbrpu.ifbrpu_ctime > 0x7fffffff / hz) {
+   error = 22;
+   break;
+  }
+  sc->sc_ether_tmo = bparam->ifbrp_ifbrpu.ifbrpu_ctime * hz;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbrparam) & 0x1fff) << 16) | ((('i')) << 8) | ((70))):
+  bparam->ifbrp_ifbrpu.ifbrpu_ctime = sc->sc_ether_tmo / hz;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifbaconf) & 0x1fff) << 16) | ((('i')) << 8) | ((67))):
+  error = nvgre_rtfind(sc, (struct ifbaconf *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifbreq) & 0x1fff) << 16) | ((('i')) << 8) | ((72))):
+  nvgre_flush_map(sc);
+  break;
+ default:
+  error = ether_ioctl(ifp, &sc->sc_ac, cmd, data);
+  break;
+ }
+ if (error == 52) {
+  error = 0;
+ }
+ return (error);
+}
+static int
 gre_up(struct gre_softc *sc)
 {
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
@@ -5886,15 +7010,13 @@ gre_keepalive_send(void *arg)
  t.t_dst = sc->sc_tunnel.t_src;
  t.t_key = sc->sc_tunnel.t_key;
  t.t_key_mask = sc->sc_tunnel.t_key_mask;
- m = gre_encap(&t, m, ((__uint16_t)(0)), ttl, 0xc0);
+ m = gre_encap_dst((&t), &(&t)->t_dst, (m), (((__uint16_t)(0))), (ttl), (0xc0));
  if (m == ((void *)0))
   return;
  switch (sc->sc_tunnel.t_af) {
  case 2: {
   struct ip *ip;
   ip = ((struct ip *)((m)->m_hdr.mh_data));
-  ip->ip_v = 4;
-  ip->ip_hl = sizeof(*ip) >> 2;
   ip->ip_id = ((__uint16_t)(ip_randomid()));
   ip->ip_sum = 0;
   ip->ip_sum = in_cksum(m, sizeof(*ip));
@@ -5905,8 +7027,7 @@ gre_keepalive_send(void *arg)
   proto = ((__uint16_t)(0x86DD));
   break;
  }
- m = gre_encap(&sc->sc_tunnel, m, proto, ttl,
-     0xc0);
+ m = gre_encap_dst((&sc->sc_tunnel), &(&sc->sc_tunnel)->t_dst, (m), (proto), (ttl), (0xc0));
  if (m == ((void *)0))
   return;
  gre_ip_output(&sc->sc_tunnel, m);
@@ -5925,7 +7046,7 @@ gre_keepalive_hold(void *arg)
  do { _rw_exit_write(&netlock ); } while (0);
 }
 static int
-gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
+gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req, int ucast)
 {
  struct sockaddr *src = (struct sockaddr *)&req->addr;
  struct sockaddr *dst = (struct sockaddr *)&req->dstaddr;
@@ -5944,7 +7065,7 @@ gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
    return (22);
   dst4 = (struct sockaddr_in *)dst;
   if (((dst4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
-      (((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+      ((((u_int32_t)(dst4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))) != !ucast))
    return (22);
   tunnel->t_src.in4 = src4->sin_addr;
   tunnel->t_dst.in4 = dst4->sin_addr;
@@ -5958,7 +7079,9 @@ gre_set_tunnel(struct gre_tunnel *tunnel, struct if_laddrreq *req)
    return (22);
   dst6 = (struct sockaddr_in6 *)dst;
   if (((*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&dst6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
-      ((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+      ((&dst6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff) != !ucast)
+   return (22);
+  if (src6->sin6_scope_id != dst6->sin6_scope_id)
    return (22);
   error = in6_embedscope(&tunnel->t_src.in6, src6, ((void *)0));
   if (error != 0)
@@ -6121,6 +7244,301 @@ egre_media_status(struct ifnet *ifp, struct ifmediareq *imr)
  imr->ifm_active = 0x0000000000000100ULL | 0ULL;
  imr->ifm_status = 0x0000000000000001ULL | 0x0000000000000002ULL;
 }
+static int
+nvgre_up(struct nvgre_softc *sc)
+{
+ struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ struct ifnet *ifp0;
+ void *inm;
+ int error;
+ if (tunnel->t_af == 0)
+  return (39);
+ ifp0 = if_get(sc->sc_ifp0);
+ if (ifp0 == ((void *)0))
+  return (6);
+ if (!((ifp0->if_flags) & (0x8000))) {
+  error = 19;
+  goto put;
+ }
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (nvgre_mcast_tree_RBT_INSERT(&nvgre_mcast_tree, sc) != ((void *)0)) {
+  error = 48;
+  goto put;
+ }
+ if (nvgre_ucast_tree_RBT_INSERT(&nvgre_ucast_tree, sc) != ((void *)0)) {
+  error = 48;
+  goto remove_mcast;
+ }
+ switch (tunnel->t_af) {
+ case 2:
+  inm = in_addmulti(&tunnel->t_dst.in4, ifp0);
+  if (inm == ((void *)0)) {
+   error = 53;
+   goto remove_ucast;
+  }
+  break;
+ case 24:
+  inm = in6_addmulti(&tunnel->t_dst.in6, ifp0, &error);
+  if (inm == ((void *)0)) {
+   goto remove_ucast;
+  }
+  break;
+ default:
+  unhandled_af(tunnel->t_af);
+ }
+ sc->sc_lhcookie = hook_establish(ifp0->if_linkstatehooks, 0,
+     nvgre_link_change, sc);
+ if (sc->sc_lhcookie == ((void *)0)) {
+  error = 12;
+  goto delmulti;
+ }
+ sc->sc_dhcookie = hook_establish(ifp0->if_detachhooks, 0,
+     nvgre_detach, sc);
+ if (sc->sc_dhcookie == ((void *)0)) {
+  error = 12;
+  goto dislh;
+ }
+ if_put(ifp0);
+ sc->sc_inm = inm;
+ ((sc->sc_ac.ac_if.if_flags) |= (0x40));
+ timeout_add_sec(&sc->sc_ether_age, 100);
+ return (0);
+dislh:
+ hook_disestablish(ifp0->if_linkstatehooks, sc->sc_lhcookie);
+delmulti:
+ switch (tunnel->t_af) {
+ case 2:
+  in_delmulti(inm);
+  break;
+ case 24:
+  in6_delmulti(inm);
+  break;
+ }
+remove_ucast:
+ nvgre_ucast_tree_RBT_REMOVE(&nvgre_ucast_tree, sc);
+remove_mcast:
+ nvgre_mcast_tree_RBT_REMOVE(&nvgre_mcast_tree, sc);
+put:
+ if_put(ifp0);
+ return (error);
+}
+static int
+nvgre_down(struct nvgre_softc *sc)
+{
+ struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
+ struct taskq *softnet = net_tq(ifp->if_index);
+ struct ifnet *ifp0;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ ((ifp->if_flags) &= ~(0x40));
+ do { _rw_exit_write(&netlock ); } while (0);
+ if (!timeout_del(&sc->sc_ether_age))
+  timeout_barrier(&sc->sc_ether_age);
+ ifq_barrier(&ifp->if_snd);
+ if (!task_del(softnet, &sc->sc_send_task))
+  taskq_barrier(softnet);
+ do { _rw_enter_write(&netlock ); } while (0);
+ mq_purge(&sc->sc_send_list);
+ ifp0 = if_get(sc->sc_ifp0);
+ if (ifp0 != ((void *)0)) {
+  hook_disestablish(ifp0->if_detachhooks, sc->sc_dhcookie);
+  hook_disestablish(ifp0->if_linkstatehooks, sc->sc_lhcookie);
+ }
+ if_put(ifp0);
+ switch (tunnel->t_af) {
+ case 2:
+  in_delmulti(sc->sc_inm);
+  break;
+ case 24:
+  in6_delmulti(sc->sc_inm);
+  break;
+ }
+ nvgre_ucast_tree_RBT_REMOVE(&nvgre_ucast_tree, sc);
+ nvgre_mcast_tree_RBT_REMOVE(&nvgre_mcast_tree, sc);
+ return (0);
+}
+static void
+nvgre_link_change(void *arg)
+{
+}
+static void
+nvgre_detach(void *arg)
+{
+ struct nvgre_softc *sc = arg;
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
+ if (((ifp->if_flags) & (0x40))) {
+  nvgre_down(sc);
+  if_down(ifp);
+ }
+ sc->sc_ifp0 = 0;
+}
+static int
+nvgre_set_parent(struct nvgre_softc *sc, const char *parent)
+{
+ struct ifnet *ifp0;
+ ifp0 = ifunit(parent);
+ if (ifp0 == ((void *)0))
+  return (22);
+ if (!((ifp0->if_flags) & (0x8000)))
+  return (43);
+ sc->sc_ifp0 = ifp0->if_index;
+ return (0);
+}
+static void
+nvgre_age(void *arg)
+{
+ struct nvgre_softc *sc = arg;
+ struct nvgre_entry *nv, *nnv;
+ int tmo = sc->sc_ether_tmo * 2;
+ int diff;
+ if (!((sc->sc_ac.ac_if.if_flags) & (0x40)))
+  return;
+ _rw_enter_write(&sc->sc_ether_lock );
+ for ((nv) = nvgre_map_RBT_MIN((&sc->sc_ether_map)); (nv) != ((void *)0) && ((nnv) = nvgre_map_RBT_NEXT((nv)), 1); (nv) = (nnv)) {
+  if (nv->nv_type != 0)
+   continue;
+  diff = ticks - nv->nv_age;
+  if (diff < tmo)
+   continue;
+  sc->sc_ether_num--;
+  nvgre_map_RBT_REMOVE(&sc->sc_ether_map, nv);
+  if (refcnt_rele(&nv->nv_refs))
+   pool_put(&nvgre_pool, nv);
+ }
+ _rw_exit_write(&sc->sc_ether_lock );
+ timeout_add_sec(&sc->sc_ether_age, 100);
+}
+static inline int
+nvgre_entry_valid(struct nvgre_softc *sc, const struct nvgre_entry *nv)
+{
+ int diff;
+ if (nv == ((void *)0))
+  return (0);
+ if (nv->nv_type == 1)
+  return (1);
+ diff = ticks - nv->nv_age;
+ if (diff < sc->sc_ether_tmo)
+  return (1);
+ return (0);
+}
+static void
+nvgre_start(struct ifnet *ifp)
+{
+ struct nvgre_softc *sc = ifp->if_softc;
+ const struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ union gre_addr gateway;
+ struct nvgre_entry *nv, key;
+ struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
+ struct ether_header *eh;
+ struct mbuf *m, *m0;
+ caddr_t if_bpf;
+ if (!gre_allow) {
+  ifq_purge(&ifp->if_snd);
+  return;
+ }
+ while ((m0 = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf)
+   bpf_mtap_ether(if_bpf, m0, (1<<1));
+  eh = ((struct ether_header *)((m0)->m_hdr.mh_data));
+  if ((__builtin_memcmp(((((eh->ether_dhost)))), (((etherbroadcastaddr))), (6)) == 0))
+   gateway = tunnel->t_dst;
+  else {
+   __builtin_memcpy((&key.nv_dst), (eh->ether_dhost), (sizeof(key.nv_dst)));
+   _rw_enter_read(&sc->sc_ether_lock );
+   nv = nvgre_map_RBT_FIND(&sc->sc_ether_map, &key);
+   if (nvgre_entry_valid(sc, nv))
+    gateway = nv->nv_gateway;
+   else {
+    gateway = tunnel->t_dst;
+   }
+   _rw_exit_read(&sc->sc_ether_lock );
+  }
+  m = m_gethdr(0x0002, m0->m_hdr.mh_type);
+  if (m == ((void *)0)) {
+   m_freem(m0);
+   continue;
+  }
+  do { (m)->m_hdr.mh_flags = ((m)->m_hdr.mh_flags & (0x0001 | 0x0008)); (m)->m_hdr.mh_flags |= (m0)->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000); do { ((m))->M_dat.MH.MH_pkthdr = ((m0))->M_dat.MH.MH_pkthdr; ((m0))->m_hdr.mh_flags &= ~0x0002; { ((&((m0))->M_dat.MH.MH_pkthdr.ph_tags)->slh_first) = ((void *)0); }; ((m0))->M_dat.MH.MH_pkthdr.pf.statekey = ((void *)0); } while ( 0); if (((m)->m_hdr.mh_flags & 0x0001) == 0) (m)->m_hdr.mh_data = (m)->M_dat.MH.MH_dat.MH_databuf; } while ( 0);
+  m->m_hdr.mh_next = m0;
+  (m)->m_hdr.mh_data += (((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr)) - (0)) &~ (sizeof(long) - 1);
+  m->m_hdr.mh_len = 0;
+  m = gre_encap_dst(tunnel, &gateway, m,
+      ((__uint16_t)(0x6558)), tunnel->t_ttl, 0);
+  if (m == ((void *)0))
+   continue;
+  if_bpf = sc->sc_if_bpf;
+  if (if_bpf)
+   bpf_mtap_af(if_bpf, tunnel->t_af, m, (1<<1));
+  m->m_hdr.mh_flags &= ~(0x0100|0x0200);
+  m->M_dat.MH.MH_pkthdr.ph_rtableid = tunnel->t_rtableid;
+  pf_pkt_addr_changed(m);
+  ml_enqueue(&ml, m);
+ }
+ if (!((&ml)->ml_len == 0)) {
+  if (mq_enlist(&sc->sc_send_list, &ml) == 0)
+   task_add(net_tq(ifp->if_index), &sc->sc_send_task);
+ }
+}
+static uint64_t
+nvgre_send4(struct nvgre_softc *sc, struct mbuf_list *ml)
+{
+ struct ip_moptions imo;
+ struct mbuf *m;
+ uint64_t oerrors = 0;
+ imo.imo_ifidx = sc->sc_ifp0;
+ imo.imo_ttl = sc->sc_tunnel.t_ttl;
+ imo.imo_loop = 0;
+ do { _rw_enter_read(&netlock ); } while (0);
+ while ((m = ml_dequeue(ml)) != ((void *)0)) {
+  if (ip_output(m, ((void *)0), ((void *)0), 0x2, &imo, ((void *)0), 0) != 0)
+   oerrors++;
+ }
+ do { _rw_exit_read(&netlock ); } while (0);
+ return (oerrors);
+}
+static uint64_t
+nvgre_send6(struct nvgre_softc *sc, struct mbuf_list *ml)
+{
+ struct ip6_moptions im6o;
+ struct mbuf *m;
+ uint64_t oerrors = 0;
+ im6o.im6o_ifidx = sc->sc_ifp0;
+ im6o.im6o_hlim = sc->sc_tunnel.t_ttl;
+ im6o.im6o_loop = 0;
+ do { _rw_enter_read(&netlock ); } while (0);
+ while ((m = ml_dequeue(ml)) != ((void *)0)) {
+  if (ip6_output(m, ((void *)0), ((void *)0), 0, &im6o, ((void *)0)) != 0)
+   oerrors++;
+ }
+ do { _rw_exit_read(&netlock ); } while (0);
+ return (oerrors);
+}
+static void
+nvgre_send(void *arg)
+{
+ struct nvgre_softc *sc = arg;
+ struct ifnet *ifp = &sc->sc_ac.ac_if;
+ sa_family_t af = sc->sc_tunnel.t_af;
+ struct mbuf_list ml;
+ uint64_t oerrors;
+ if (!((ifp->if_flags) & (0x40)))
+  return;
+ mq_delist(&sc->sc_send_list, &ml);
+ if (((&ml)->ml_len == 0))
+  return;
+ switch (af) {
+ case 2:
+  oerrors = nvgre_send4(sc, &ml);
+  break;
+ case 24:
+  oerrors = nvgre_send6(sc, &ml);
+  break;
+ default:
+  unhandled_af(af);
+ }
+ ifp->if_data.ifi_oerrors += oerrors;
+}
 int
 gre_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
     size_t newlen)
@@ -6193,9 +7611,77 @@ gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
  }
  return (0);
 }
-static int
+static inline int
 egre_cmp(const struct egre_softc *a, const struct egre_softc *b)
 {
  return (gre_cmp(&a->sc_tunnel, &b->sc_tunnel));
 }
 static int egre_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct egre_softc *l = lptr, *r = rptr; return egre_cmp(l, r); } static const struct rb_type egre_tree_RBT_INFO = { egre_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct egre_softc, sc_entry), }; const struct rb_type *const egre_tree_RBT_TYPE = &egre_tree_RBT_INFO;
+static inline int
+nvgre_entry_cmp(const struct nvgre_entry *a, const struct nvgre_entry *b)
+{
+ return (__builtin_memcmp((&a->nv_dst), (&a->nv_dst), (sizeof(a->nv_dst))));
+}
+static int nvgre_map_RBT_COMPARE(const void *lptr, const void *rptr) { const struct nvgre_entry *l = lptr, *r = rptr; return nvgre_entry_cmp(l, r); } static const struct rb_type nvgre_map_RBT_INFO = { nvgre_map_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct nvgre_entry, nv_entry), }; const struct rb_type *const nvgre_map_RBT_TYPE = &nvgre_map_RBT_INFO;
+static int
+nvgre_cmp_tunnel(const struct gre_tunnel *a, const struct gre_tunnel *b)
+{
+ uint32_t ka, kb;
+ ka = a->t_key & ((__uint32_t)(0xffffff00U));
+ kb = b->t_key & ((__uint32_t)(0xffffff00U));
+ if (ka > kb)
+  return (1);
+ if (ka < kb)
+  return (-1);
+ if (a->t_rtableid > b->t_rtableid)
+  return (1);
+ if (a->t_rtableid < b->t_rtableid)
+  return (-1);
+ if (a->t_af > b->t_af)
+  return (1);
+ if (a->t_af < b->t_af)
+  return (-1);
+ return (0);
+}
+static inline int
+nvgre_cmp_ucast(const struct nvgre_softc *na, const struct nvgre_softc *nb)
+{
+ const struct gre_tunnel *a = &na->sc_tunnel;
+ const struct gre_tunnel *b = &nb->sc_tunnel;
+ int rv;
+ rv = nvgre_cmp_tunnel(a, b);
+ if (rv != 0)
+  return (rv);
+ rv = gre_ip_cmp(a->t_af, &a->t_src, &b->t_src);
+ if (rv != 0)
+  return (rv);
+ return (0);
+}
+static int
+nvgre_cmp_mcast(const struct gre_tunnel *a, const union gre_addr *aa,
+    unsigned int if0idxa, const struct gre_tunnel *b,
+    const union gre_addr *ab,unsigned int if0idxb)
+{
+ int rv;
+ rv = nvgre_cmp_tunnel(a, b);
+ if (rv != 0)
+  return (rv);
+ rv = gre_ip_cmp(a->t_af, aa, ab);
+ if (rv != 0)
+  return (rv);
+ if (if0idxa > if0idxb)
+  return (1);
+ if (if0idxa < if0idxb)
+  return (-1);
+ return (0);
+}
+static inline int
+nvgre_cmp_mcast_sc(const struct nvgre_softc *na, const struct nvgre_softc *nb)
+{
+ const struct gre_tunnel *a = &na->sc_tunnel;
+ const struct gre_tunnel *b = &nb->sc_tunnel;
+ return (nvgre_cmp_mcast(a, &a->t_dst, na->sc_ifp0,
+     b, &b->t_dst, nb->sc_ifp0));
+}
+static int nvgre_ucast_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct nvgre_softc *l = lptr, *r = rptr; return nvgre_cmp_ucast(l, r); } static const struct rb_type nvgre_ucast_tree_RBT_INFO = { nvgre_ucast_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct nvgre_softc, sc_uentry), }; const struct rb_type *const nvgre_ucast_tree_RBT_TYPE = &nvgre_ucast_tree_RBT_INFO;
+static int nvgre_mcast_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct nvgre_softc *l = lptr, *r = rptr; return nvgre_cmp_mcast_sc(l, r); } static const struct rb_type nvgre_mcast_tree_RBT_INFO = { nvgre_mcast_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct nvgre_softc, sc_mentry), }; const struct rb_type *const nvgre_mcast_tree_RBT_TYPE = &nvgre_mcast_tree_RBT_INFO;
