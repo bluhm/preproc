@@ -5713,7 +5713,6 @@ struct nvgre_softc {
  unsigned int sc_ether_max;
  int sc_ether_tmo;
  struct timeout sc_ether_age;
- caddr_t sc_if_bpf;
 };
 struct nvgre_ucast_tree { struct rb_tree rbh_root; };
 struct nvgre_mcast_tree { struct rb_tree rbh_root; };
@@ -5885,7 +5884,6 @@ nvgre_clone_create(struct if_clone *ifc, int unit)
  ifmedia_set(&sc->sc_media, 0x0000000000000100ULL | 0ULL);
  if_attach(ifp);
  ether_ifattach(ifp);
- bpfattach(&sc->sc_if_bpf, ifp, 12, sizeof(uint32_t));
  return (0);
 }
 static int
@@ -6268,11 +6266,6 @@ nvgre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
   sc = nvgre_ucast_find(key);
  if (sc == ((void *)0))
   return (-1);
- {
-  caddr_t if_bpf = sc->sc_if_bpf;
-  if (if_bpf)
-   bpf_mtap_af(if_bpf, key->t_af, m, 1);
- }
  m = gre_ether_align(m, hlen);
  if (m == ((void *)0))
   return (0);
@@ -6679,6 +6672,7 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((159))):
+  error = 25;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifkalivereq) & 0x1fff) << 16) | ((('i')) << 8) | ((163))):
   if (ikar->ikar_timeo < 0 || ikar->ikar_timeo > 86400 ||
@@ -7467,9 +7461,6 @@ nvgre_start(struct ifnet *ifp)
       ((__uint16_t)(0x6558)), tunnel->t_ttl, 0);
   if (m == ((void *)0))
    continue;
-  if_bpf = sc->sc_if_bpf;
-  if (if_bpf)
-   bpf_mtap_af(if_bpf, tunnel->t_af, m, (1<<1));
   m->m_hdr.mh_flags &= ~(0x0100|0x0200);
   m->M_dat.MH.MH_pkthdr.ph_rtableid = tunnel->t_rtableid;
   pf_pkt_addr_changed(m);

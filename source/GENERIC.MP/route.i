@@ -4286,11 +4286,14 @@ rt_setgate(struct rtentry *rt, struct sockaddr *gate, u_int rtableid)
 {
  int glen = (gate->sa_len>0 ? (1 + (((gate->sa_len) - 1) | (sizeof(long) - 1))) : sizeof(long));
  struct sockaddr *sa;
- if (rt->rt_gateway == ((void *)0) || glen > (rt->rt_gateway->sa_len>0 ? (1 + (((rt->rt_gateway->sa_len) - 1) | (sizeof(long) - 1))) : sizeof(long))) {
+ if (rt->rt_gateway == ((void *)0) || glen != (rt->rt_gateway->sa_len>0 ? (1 + (((rt->rt_gateway->sa_len) - 1) | (sizeof(long) - 1))) : sizeof(long))) {
   sa = malloc(glen, 5, 0x0002);
   if (sa == ((void *)0))
    return (55);
-  free(rt->rt_gateway, 5, 0);
+  if (rt->rt_gateway != ((void *)0)) {
+   free(rt->rt_gateway, 5,
+       (rt->rt_gateway->sa_len>0 ? (1 + (((rt->rt_gateway->sa_len) - 1) | (sizeof(long) - 1))) : sizeof(long)));
+  }
   rt->rt_gateway = sa;
  }
  __builtin_memmove((rt->rt_gateway), (gate), (glen));
@@ -4302,7 +4305,7 @@ struct rtentry *
 rt_getll(struct rtentry *rt)
 {
  if (((rt->rt_flags) & (0x2))) {
-  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1030, "rt->rt_gwroute != NULL"));
+  ((rt->RT_gw._nh != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1033, "rt->rt_gwroute != NULL"));
   return (rt->RT_gw._nh);
  }
  return (rt);
@@ -4466,7 +4469,7 @@ rt_ifa_purge(struct ifaddr *ifa)
  struct ifnet *ifp = ifa->ifa_ifp;
  unsigned int rtableid;
  int i;
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1270, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1273, "ifp != NULL"));
  for (rtableid = 0; rtableid < rtmap_limit; rtableid++) {
   if (rtable_l2(rtableid) != ifp->if_data.ifi_rdomain)
    continue;
@@ -4739,7 +4742,7 @@ rt_plentosa(sa_family_t af, int plen, struct sockaddr_in6 *sa_mask)
 {
  struct sockaddr_in *sin = (struct sockaddr_in *)sa_mask;
  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa_mask;
- ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1657, "plen >= 0 || plen == -1"));
+ ((plen >= 0 || plen == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/route.c", 1660, "plen >= 0 || plen == -1"));
  if (plen == -1)
   return (((void *)0));
  __builtin_memset((sa_mask), (0), (sizeof(*sa_mask)));
