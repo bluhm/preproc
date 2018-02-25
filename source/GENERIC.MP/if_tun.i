@@ -4241,7 +4241,6 @@ tun_dev_ioctl(struct tun_softc *tp, u_long cmd, caddr_t data, int flag,
     struct proc *p)
 {
  struct tuninfo *tunp;
- struct mbuf *m;
  switch (cmd) {
  case ((unsigned long)0x80000000 | ((sizeof(struct tuninfo) & 0x1fff) << 16) | ((('t')) << 8) | ((91))):
   tunp = (struct tuninfo *)data;
@@ -4285,12 +4284,8 @@ tun_dev_ioctl(struct tun_softc *tp, u_long cmd, caddr_t data, int flag,
    tp->tun_flags &= ~0x0080;
   break;
  case ((unsigned long)0x40000000 | ((sizeof(int) & 0x1fff) << 16) | ((('f')) << 8) | ((127))):
-  m = ifq_deq_begin(&tp->arpcom.ac_if.if_snd);
-  if (m != ((void *)0)) {
-   *(int *)data = m->M_dat.MH.MH_pkthdr.len;
-   ifq_deq_rollback(&tp->arpcom.ac_if.if_snd, m);
-  } else
-   *(int *)data = 0;
+  *(int *)data = (((&tp->arpcom.ac_if.if_snd)->ifq_len) == 0) ?
+      0 : tp->arpcom.ac_if.if_data.ifi_mtu;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((118))):
   tp->tun_pgid = *(int *)data;

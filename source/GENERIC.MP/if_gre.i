@@ -6204,7 +6204,6 @@ nvgre_input_map(struct nvgre_softc *sc, const struct gre_tunnel *key,
    return;
   }
   __builtin_memcpy((&nv->nv_dst), (eh->ether_shost), (6));
-  __builtin_memcpy((&nv->nv_dst), (eh->ether_shost), (6));
   nv->nv_type = 0;
   nv->nv_gateway = key->t_dst;
   refcnt_init(&nv->nv_refs);
@@ -7611,7 +7610,7 @@ static int egre_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const str
 static inline int
 nvgre_entry_cmp(const struct nvgre_entry *a, const struct nvgre_entry *b)
 {
- return (__builtin_memcmp((&a->nv_dst), (&a->nv_dst), (sizeof(a->nv_dst))));
+ return (__builtin_memcmp((&a->nv_dst), (&b->nv_dst), (sizeof(a->nv_dst))));
 }
 static int nvgre_map_RBT_COMPARE(const void *lptr, const void *rptr) { const struct nvgre_entry *l = lptr, *r = rptr; return nvgre_entry_cmp(l, r); } static const struct rb_type nvgre_map_RBT_INFO = { nvgre_map_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct nvgre_entry, nv_entry), }; const struct rb_type *const nvgre_map_RBT_TYPE = &nvgre_map_RBT_INFO;
 static int
