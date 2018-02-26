@@ -5870,7 +5870,7 @@ nvgre_clone_create(struct if_clone *ifc, int unit)
  tunnel->t_ttl = 1;
  tunnel->t_df = ((__uint16_t)(0x4000));
  tunnel->t_key_mask = ((__uint32_t)(0xffffff00U));
- tunnel->t_key = ((__uint32_t)(0 << 8));
+ tunnel->t_key = ((__uint32_t)((0x000fff + 1) << 8));
  mq_init(&sc->sc_send_list, 256 * 2, 2);
  task_set(&sc->sc_send_task, nvgre_send, sc);
  _rw_init_flags(&sc->sc_ether_lock, "nvgrelk", 0, ((void *)0));
