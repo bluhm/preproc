@@ -1410,6 +1410,7 @@ struct uidinfo {
  long ui_lockcnt;
 };
 struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;

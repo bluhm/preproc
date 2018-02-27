@@ -1702,6 +1702,7 @@ struct uidinfo {
  long ui_lockcnt;
 };
 struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
@@ -1964,7 +1965,6 @@ void gsignal(int pgid, int sig);
 void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
 int issignal(struct proc *p);
 void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void postsig(int sig);
 void psignal(struct proc *p, int sig);
 void ptsignal(struct proc *p, int sig, enum signal_type type);
 void siginit(struct process *);
@@ -3303,6 +3303,25 @@ struct usbpcap_ctl_hdr {
  struct usbpcap_pkt_hdr uch_hdr;
  uint8_t uch_stage;
 } __attribute__((packed));
+struct usbpcap_iso_pkt {
+ uint32_t uip_offset;
+ uint32_t uip_length;
+ uint32_t uip_status;
+} __attribute__((packed));
+struct usbpcap_iso_hdr {
+ struct usbpcap_pkt_hdr uih_hdr;
+ uint32_t uih_startframe;
+ uint32_t uih_nframes;
+ uint32_t uih_errors;
+ struct usbpcap_iso_pkt uih_frames[1];
+} __attribute__((packed));
+struct usbpcap_iso_hdr_full {
+ struct usbpcap_pkt_hdr uih_hdr;
+ uint32_t uih_startframe;
+ uint32_t uih_nframes;
+ uint32_t uih_errors;
+ struct usbpcap_iso_pkt uih_frames[40];
+} __attribute__((packed));
 struct usb_softc {
  struct device sc_dev;
  struct usbd_bus *sc_bus;
@@ -3959,22 +3978,45 @@ usb_tap(struct usbd_bus *bus, struct usbd_xfer *xfer, uint8_t dir)
 {
  struct usb_softc *sc = (struct usb_softc *)bus->usbctl;
  usb_endpoint_descriptor_t *ed = xfer->pipe->endpoint->edesc;
- struct usbpcap_ctl_hdr uch;
- struct usbpcap_pkt_hdr *uph = &uch.uch_hdr;
+ union {
+  struct usbpcap_ctl_hdr uch;
+  struct usbpcap_iso_hdr_full uih;
+ } h;
+ struct usbpcap_pkt_hdr *uph = &h.uch.uch_hdr;
+ uint32_t nframes, offset;
  unsigned int bpfdir;
  void *data = ((void *)0);
+ size_t flen;
  caddr_t bpf;
+ int i;
  bpf = bus->bpf;
  if (bpf == ((void *)0))
   return;
  switch (((ed->bmAttributes) & 0x03)) {
  case 0x00:
-  uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(uch)) ? (__uint16_t)(((__uint16_t)(sizeof(uch)) & 0xffU) << 8 | ((__uint16_t)(sizeof(uch)) & 0xff00U) >> 8) : __swap16md(sizeof(uch)));
+  uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(struct usbpcap_ctl_hdr)) ? (__uint16_t)(((__uint16_t)(sizeof(struct usbpcap_ctl_hdr)) & 0xffU) << 8 | ((__uint16_t)(sizeof(struct usbpcap_ctl_hdr)) & 0xff00U) >> 8) : __swap16md(sizeof(struct usbpcap_ctl_hdr)));
   uph->uph_xfertype = 2;
   break;
  case 0x01:
-  uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(*uph)) ? (__uint16_t)(((__uint16_t)(sizeof(*uph)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*uph)) & 0xff00U) >> 8) : __swap16md(sizeof(*uph)));
+  offset = 0;
+  nframes = xfer->nframes;
+  if (nframes > 40) {
+   printf("%s: too many frames: %d > %d\n", __func__,
+       xfer->nframes, 40);
+   nframes = 40;
+  }
+  flen = (nframes - 1) * sizeof(struct usbpcap_iso_pkt);
+  uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(struct usbpcap_iso_hdr) + flen) ? (__uint16_t)(((__uint16_t)(sizeof(struct usbpcap_iso_hdr) + flen) & 0xffU) << 8 | ((__uint16_t)(sizeof(struct usbpcap_iso_hdr) + flen) & 0xff00U) >> 8) : __swap16md(sizeof(struct usbpcap_iso_hdr) + flen));
   uph->uph_xfertype = 0;
+  h.uih.uih_startframe = 0;
+  h.uih.uih_nframes = nframes;
+  h.uih.uih_errors = 0;
+  for (i = 0; i < nframes; i++) {
+   h.uih.uih_frames[i].uip_offset = offset;
+   h.uih.uih_frames[i].uip_length = xfer->frlengths[i];
+   h.uih.uih_frames[i].uip_status = 0;
+   offset += xfer->frlengths[i];
+  }
   break;
  case 0x02:
   uph->uph_hlen = (__uint16_t)(__builtin_constant_p(sizeof(*uph)) ? (__uint16_t)(((__uint16_t)(sizeof(*uph)) & 0xffU) << 8 | ((__uint16_t)(sizeof(*uph)) & 0xff00U) >> 8) : __swap16md(sizeof(*uph)));
@@ -3995,7 +4037,7 @@ usb_tap(struct usbd_bus *bus, struct usbd_xfer *xfer, uint8_t dir)
  uph->uph_epaddr = ed->bEndpointAddress;
  uph->uph_info = 0;
  if ((xfer->rqflags & 0x01) && (dir == 0)) {
-  uch.uch_stage = 0;
+  h.uch.uch_stage = 0;
   uph->uph_dlen = sizeof(usb_device_request_t);
   bpf_tap_hdr(bpf, uph, uph->uph_hlen, &xfer->request,
       uph->uph_dlen, (1<<1));
@@ -4005,11 +4047,13 @@ usb_tap(struct usbd_bus *bus, struct usbd_xfer *xfer, uint8_t dir)
   if (!usbd_xfer_isread(xfer)) {
    data = ((void *)((char *)((&xfer->dmabuf)->block->kaddr + (&xfer->dmabuf)->offs) + (0)));
    uph->uph_dlen = xfer->length;
-   uch.uch_stage = 1;
+   if (xfer->rqflags & 0x01)
+    h.uch.uch_stage = 1;
   } else {
    data = ((void *)0);
    uph->uph_dlen = 0;
-   uch.uch_stage = 2;
+   if (xfer->rqflags & 0x01)
+    h.uch.uch_stage = 2;
   }
  } else {
   bpfdir = 1;
@@ -4017,17 +4061,19 @@ usb_tap(struct usbd_bus *bus, struct usbd_xfer *xfer, uint8_t dir)
   if (usbd_xfer_isread(xfer)) {
    data = ((void *)((char *)((&xfer->dmabuf)->block->kaddr + (&xfer->dmabuf)->offs) + (0)));
    uph->uph_dlen = xfer->actlen;
-   uch.uch_stage = 1;
+   if (xfer->rqflags & 0x01)
+    h.uch.uch_stage = 1;
   } else {
    data = ((void *)0);
    uph->uph_dlen = 0;
-   uch.uch_stage = 2;
+   if (xfer->rqflags & 0x01)
+    h.uch.uch_stage = 2;
   }
  }
  bpf_tap_hdr(bpf, uph, uph->uph_hlen, data, uph->uph_dlen, bpfdir);
  if ((xfer->rqflags & 0x01) && (dir == 1) &&
-     (uch.uch_stage == 1)) {
-  uch.uch_stage = 2;
+     (h.uch.uch_stage == 1)) {
+  h.uch.uch_stage = 2;
   uph->uph_dlen = 0;
   bpf_tap_hdr(bpf, uph, uph->uph_hlen, ((void *)0), 0, 1);
  }

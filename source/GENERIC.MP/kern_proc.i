@@ -1569,6 +1569,7 @@ struct uidinfo {
  long ui_lockcnt;
 };
 struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
@@ -2314,7 +2315,6 @@ void gsignal(int pgid, int sig);
 void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
 int issignal(struct proc *p);
 void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void postsig(int sig);
 void psignal(struct proc *p, int sig);
 void ptsignal(struct proc *p, int sig, enum signal_type type);
 void siginit(struct process *);
@@ -2899,6 +2899,7 @@ void uvm_vnp_setsize(struct vnode *, off_t);
 void uvm_vnp_sync(struct mount *);
 void uvm_vnp_terminate(struct vnode *);
 int uvm_vnp_uncache(struct vnode *);
+struct rwlock uidinfolk;
 struct uihashhead { struct uidinfo *lh_first; } *uihashtbl;
 u_long uihash;
 struct tidhashhead *tidhashtbl;
@@ -2925,6 +2926,7 @@ procinit(void)
  do { ((&allprocess)->lh_first) = ((void *)0); } while (0);
  do { ((&zombprocess)->lh_first) = ((void *)0); } while (0);
  do { ((&allproc)->lh_first) = ((void *)0); } while (0);
+ _rw_init_flags(&uidinfolk, "uidinfo", 0, ((void *)0));
  tidhashtbl = hashinit(maxthread / 4, 41, 0x0002, &tidhash);
  pidhashtbl = hashinit(maxprocess / 4, 41, 0x0002, &pidhash);
  pgrphashtbl = hashinit(maxprocess / 4, 41, 0x0002, &pgrphash);
@@ -2950,12 +2952,15 @@ uid_find(uid_t uid)
  struct uidinfo *uip, *nuip;
  struct uihashhead *uipp;
  uipp = (&uihashtbl[(uid) & uihash]);
+ _rw_enter_write(&uidinfolk );
  for((uip) = ((uipp)->lh_first); (uip)!= ((void *)0); (uip) = ((uip)->ui_hash.le_next))
   if (uip->ui_uid == uid)
    break;
  if (uip)
   return (uip);
+ _rw_exit_write(&uidinfolk );
  nuip = malloc(sizeof(*nuip), 41, 0x0001|0x0008);
+ _rw_enter_write(&uidinfolk );
  for((uip) = ((uipp)->lh_first); (uip)!= ((void *)0); (uip) = ((uip)->ui_hash.le_next))
   if (uip->ui_uid == uid)
    break;
@@ -2967,15 +2972,22 @@ uid_find(uid_t uid)
  do { if (((nuip)->ui_hash.le_next = (uipp)->lh_first) != ((void *)0)) (uipp)->lh_first->ui_hash.le_prev = &(nuip)->ui_hash.le_next; (uipp)->lh_first = (nuip); (nuip)->ui_hash.le_prev = &(uipp)->lh_first; } while (0);
  return (nuip);
 }
+void
+uid_release(struct uidinfo *uip)
+{
+ _rw_exit_write(&uidinfolk );
+}
 int
 chgproccnt(uid_t uid, int diff)
 {
  struct uidinfo *uip;
+ long count;
  uip = uid_find(uid);
- uip->ui_proccnt += diff;
- if (uip->ui_proccnt < 0)
+ count = (uip->ui_proccnt += diff);
+ uid_release(uip);
+ if (count < 0)
   panic("chgproccnt: procs < 0");
- return (uip->ui_proccnt);
+ return count;
 }
 int
 inferior(struct process *pr, struct process *parent)

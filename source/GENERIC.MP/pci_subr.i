@@ -2356,6 +2356,10 @@ static const struct pci_known_product pci_known_products[] = {
      "OZ711E0 CardBus",
  },
  {
+     0x1217, 0x8621,
+     "0Z8621 SD/MMC",
+ },
+ {
      0x10b7, 0x0001,
      "3c985",
  },
@@ -3520,6 +3524,58 @@ static const struct pci_known_product pci_known_products[] = {
      "AMD64 16h Host",
  },
  {
+     0x1022, 0x1570,
+     "AMD64 15h Link Cfg",
+ },
+ {
+     0x1022, 0x1571,
+     "AMD64 15h Address Map",
+ },
+ {
+     0x1022, 0x1572,
+     "AMD64 15h DRAM Cfg",
+ },
+ {
+     0x1022, 0x1573,
+     "AMD64 15h Misc Cfg",
+ },
+ {
+     0x1022, 0x1574,
+     "AMD64 15h CPU Power",
+ },
+ {
+     0x1022, 0x1575,
+     "AMD64 15h Misc Cfg",
+ },
+ {
+     0x1022, 0x1576,
+     "AMD64 15h Root Complex",
+ },
+ {
+     0x1022, 0x1577,
+     "AMD64 15h IOMMU",
+ },
+ {
+     0x1022, 0x1578,
+     "AMD64 15h PSP 2.0",
+ },
+ {
+     0x1022, 0x157a,
+     "AMD64 15h HD Audio",
+ },
+ {
+     0x1022, 0x157b,
+     "AMD64 15h Host",
+ },
+ {
+     0x1022, 0x157c,
+     "AMD64 15h PCIE",
+ },
+ {
+     0x1022, 0x157d,
+     "AMD64 15h Host",
+ },
+ {
      0x1022, 0x1580,
      "AMD64 16h Link Cfg",
  },
@@ -3950,6 +4006,42 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x1022, 0x7814,
      "Bolton xHCI",
+ },
+ {
+     0x1022, 0x7900,
+     "Carrizo SATA",
+ },
+ {
+     0x1022, 0x7901,
+     "Carrizo AHCI",
+ },
+ {
+     0x1022, 0x7902,
+     "Carrizo RAID",
+ },
+ {
+     0x1022, 0x7903,
+     "Carrizo RAID",
+ },
+ {
+     0x1022, 0x7904,
+     "Carrizo AHCI",
+ },
+ {
+     0x1022, 0x7908,
+     "Carrizo USB2",
+ },
+ {
+     0x1022, 0x790b,
+     "Carrizo SMBus",
+ },
+ {
+     0x1022, 0x790e,
+     "Carrizo LPC",
+ },
+ {
+     0x1022, 0x7914,
+     "Carrizo xHCI",
  },
  {
      0x1022, 0x9600,
@@ -7618,6 +7710,26 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x1002, 0x9854,
      "Mullins",
+ },
+ {
+     0x1002, 0x9870,
+     "Carrizo",
+ },
+ {
+     0x1002, 0x9874,
+     "Carrizo",
+ },
+ {
+     0x1002, 0x9875,
+     "Carrizo",
+ },
+ {
+     0x1002, 0x9876,
+     "Carrizo",
+ },
+ {
+     0x1002, 0x9877,
+     "Carrizo",
  },
  {
      0x1002, 0x9900,
@@ -13324,7 +13436,7 @@ static const struct pci_known_product pci_known_products[] = {
      "XXV710 25GbE Backplane",
  },
  {
-     0x8086, 0x158a,
+     0x8086, 0x158b,
      "XXV710 SFP28",
  },
  {

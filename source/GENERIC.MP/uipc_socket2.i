@@ -1806,7 +1806,6 @@ void gsignal(int pgid, int sig);
 void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
 int issignal(struct proc *p);
 void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void postsig(int sig);
 void psignal(struct proc *p, int sig);
 void ptsignal(struct proc *p, int sig, enum signal_type type);
 void siginit(struct process *);

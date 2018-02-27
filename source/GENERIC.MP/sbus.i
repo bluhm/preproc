@@ -1288,6 +1288,7 @@ struct uidinfo {
  long ui_lockcnt;
 };
 struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
@@ -1410,7 +1411,6 @@ void gsignal(int pgid, int sig);
 void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
 int issignal(struct proc *p);
 void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void postsig(int sig);
 void psignal(struct proc *p, int sig);
 void ptsignal(struct proc *p, int sig, enum signal_type type);
 void siginit(struct process *);

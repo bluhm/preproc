@@ -1569,6 +1569,7 @@ struct uidinfo {
  long ui_lockcnt;
 };
 struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
 extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
 extern u_long tidhash;
 extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
@@ -2520,9 +2521,12 @@ lf_alloc(uid_t uid, int allowfail)
  struct lockf *lock;
  uip = uid_find(uid);
  if (uid && allowfail && uip->ui_lockcnt >
-     (allowfail == 1 ? maxlocksperuid : (maxlocksperuid * 2)))
+     (allowfail == 1 ? maxlocksperuid : (maxlocksperuid * 2))) {
+  uid_release(uip);
   return (((void *)0));
+ }
  uip->ui_lockcnt++;
+ uid_release(uip);
  lock = pool_get(&lockfpool, 0x0001);
  lock->lf_uid = uid;
  return (lock);
@@ -2533,6 +2537,7 @@ lf_free(struct lockf *lock)
  struct uidinfo *uip;
  uip = uid_find(lock->lf_uid);
  uip->ui_lockcnt--;
+ uid_release(uip);
  pool_put(&lockfpool, lock);
 }
 int
