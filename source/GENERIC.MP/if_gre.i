@@ -5602,6 +5602,9 @@ struct gre_tunnel {
  sa_family_t t_af;
 };
 static int
+  gre_cmp_src(const struct gre_tunnel *,
+      const struct gre_tunnel *);
+static int
   gre_cmp(const struct gre_tunnel *, const struct gre_tunnel *);
 static int gre_set_tunnel(struct gre_tunnel *, struct if_laddrreq *, int);
 static int gre_get_tunnel(struct gre_tunnel *, struct if_laddrreq *);
@@ -5619,9 +5622,9 @@ static int
 static int gre_tunnel_ioctl(struct ifnet *, struct gre_tunnel *,
       u_long, void *);
 struct gre_softc {
- struct ifnet sc_if;
  struct gre_tunnel sc_tunnel;
  struct { struct gre_softc *tqe_next; struct gre_softc **tqe_prev; } sc_entry;
+ struct ifnet sc_if;
  struct timeout sc_ka_send;
  struct timeout sc_ka_hold;
  unsigned int sc_ka_state;
@@ -5653,11 +5656,34 @@ static int gre_down(struct gre_softc *);
 static void gre_link_state(struct gre_softc *);
 static int gre_input_key(struct mbuf **, int *, int, int,
       struct gre_tunnel *);
-static struct gre_softc *
-  gre_find(const struct gre_tunnel *);
 static void gre_keepalive_send(void *);
 static void gre_keepalive_recv(struct ifnet *ifp, struct mbuf *);
 static void gre_keepalive_hold(void *);
+static struct mbuf *
+  gre_l3_encap_dst(const struct gre_tunnel *, const void *,
+      struct mbuf *m, sa_family_t);
+struct mgre_softc {
+ struct gre_tunnel sc_tunnel;
+ struct rb_entry sc_entry;
+ struct ifnet sc_if;
+};
+struct mgre_tree { struct rb_tree rbh_root; };
+static inline int
+  mgre_cmp(const struct mgre_softc *, const struct mgre_softc *);
+extern const struct rb_type *const mgre_tree_RBT_TYPE; __attribute__((__unused__)) static inline void mgre_tree_RBT_INIT(struct mgre_tree *head) { _rb_init(&head->rbh_root); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_INSERT(struct mgre_tree *head, struct mgre_softc *elm) { return _rb_insert(mgre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_REMOVE(struct mgre_tree *head, struct mgre_softc *elm) { return _rb_remove(mgre_tree_RBT_TYPE, &head->rbh_root, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_FIND(struct mgre_tree *head, const struct mgre_softc *key) { return _rb_find(mgre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_NFIND(struct mgre_tree *head, const struct mgre_softc *key) { return _rb_nfind(mgre_tree_RBT_TYPE, &head->rbh_root, key); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_ROOT(struct mgre_tree *head) { return _rb_root(mgre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline int mgre_tree_RBT_EMPTY(struct mgre_tree *head) { return _rb_empty(&head->rbh_root); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_MIN(struct mgre_tree *head) { return _rb_min(mgre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_MAX(struct mgre_tree *head) { return _rb_max(mgre_tree_RBT_TYPE, &head->rbh_root); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_NEXT(struct mgre_softc *elm) { return _rb_next(mgre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_PREV(struct mgre_softc *elm) { return _rb_prev(mgre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_LEFT(struct mgre_softc *elm) { return _rb_left(mgre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_RIGHT(struct mgre_softc *elm) { return _rb_right(mgre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline struct mgre_softc * mgre_tree_RBT_PARENT(struct mgre_softc *elm) { return _rb_parent(mgre_tree_RBT_TYPE, elm); } __attribute__((__unused__)) static inline void mgre_tree_RBT_SET_LEFT(struct mgre_softc *elm, struct mgre_softc *left) { return _rb_set_left(mgre_tree_RBT_TYPE, elm, left); } __attribute__((__unused__)) static inline void mgre_tree_RBT_SET_RIGHT(struct mgre_softc *elm, struct mgre_softc *right) { return _rb_set_right(mgre_tree_RBT_TYPE, elm, right); } __attribute__((__unused__)) static inline void mgre_tree_RBT_SET_PARENT(struct mgre_softc *elm, struct mgre_softc *parent) { return _rb_set_parent(mgre_tree_RBT_TYPE, elm, parent); } __attribute__((__unused__)) static inline void mgre_tree_RBT_POISON(struct mgre_softc *elm, unsigned long poison) { return _rb_poison(mgre_tree_RBT_TYPE, elm, poison); } __attribute__((__unused__)) static inline int mgre_tree_RBT_CHECK(struct mgre_softc *elm, unsigned long poison) { return _rb_check(mgre_tree_RBT_TYPE, elm, poison); };
+static int mgre_clone_create(struct if_clone *, int);
+static int mgre_clone_destroy(struct ifnet *);
+struct if_clone mgre_cloner =
+    { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mgre", .ifc_namelen = sizeof("mgre") - 1, .ifc_create = mgre_clone_create, .ifc_destroy = mgre_clone_destroy, };
+static int mgre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
+      struct rtentry *);
+static void mgre_start(struct ifnet *);
+static int mgre_ioctl(struct ifnet *, u_long, caddr_t);
+static int mgre_set_tunnel(struct mgre_softc *, struct if_laddrreq *);
+static int mgre_get_tunnel(struct mgre_softc *, struct if_laddrreq *);
+static int mgre_up(struct mgre_softc *);
+static int mgre_down(struct mgre_softc *);
+struct mgre_tree mgre_tree = { { ((void *)0) } };
 static struct mbuf *
   gre_ether_align(struct mbuf *, int);
 struct egre_softc {
@@ -5747,15 +5773,16 @@ static void nvgre_input_map(struct nvgre_softc *,
 static void nvgre_age(void *);
 struct if_clone nvgre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "nvgre", .ifc_namelen = sizeof("nvgre") - 1, .ifc_create = nvgre_clone_create, .ifc_destroy = nvgre_clone_destroy, };
+struct pool nvgre_pool;
 struct nvgre_ucast_tree nvgre_ucast_tree = { { ((void *)0) } };
 struct nvgre_mcast_tree nvgre_mcast_tree = { { ((void *)0) } };
-struct pool nvgre_pool;
 int gre_allow = 0;
 int gre_wccp = 0;
 void
 greattach(int n)
 {
  if_clone_attach(&gre_cloner);
+ if_clone_attach(&mgre_cloner);
  if_clone_attach(&egre_cloner);
  if_clone_attach(&nvgre_cloner);
 }
@@ -5770,7 +5797,7 @@ gre_clone_create(struct if_clone *ifc, int unit)
  ifp = &sc->sc_if;
  ifp->if_softc = sc;
  ifp->if_data.ifi_type = 0x83;
- ifp->if_data.ifi_hdrlen = 24;
+ ifp->if_data.ifi_hdrlen = (sizeof(struct ip) + sizeof(struct gre_header));
  ifp->if_data.ifi_mtu = 1476;
  ifp->if_flags = 0x10|0x8000;
  ifp->if_xflags = 0x2;
@@ -5799,6 +5826,44 @@ gre_clone_destroy(struct ifnet *ifp)
  if (((ifp->if_flags) & (0x40)))
   gre_down(sc);
  do { if (((sc)->sc_entry.tqe_next) != ((void *)0)) (sc)->sc_entry.tqe_next->sc_entry.tqe_prev = (sc)->sc_entry.tqe_prev; else (&gre_list)->tqh_last = (sc)->sc_entry.tqe_prev; *(sc)->sc_entry.tqe_prev = (sc)->sc_entry.tqe_next; ((sc)->sc_entry.tqe_prev) = ((void *)-1); ((sc)->sc_entry.tqe_next) = ((void *)-1); } while (0);
+ do { _rw_exit_write(&netlock ); } while (0);
+ if_detach(ifp);
+ free(sc, 2, sizeof(*sc));
+ return (0);
+}
+static int
+mgre_clone_create(struct if_clone *ifc, int unit)
+{
+ struct mgre_softc *sc;
+ struct ifnet *ifp;
+ sc = malloc(sizeof(*sc), 2, 0x0001|0x0008);
+ ifp = &sc->sc_if;
+ snprintf(ifp->if_xname, sizeof(ifp->if_xname),
+     "%s%d", ifc->ifc_name, unit);
+ ifp->if_softc = sc;
+ ifp->if_data.ifi_type = 0x88;
+ ifp->if_data.ifi_hdrlen = (sizeof(struct ip) + sizeof(struct gre_header));
+ ifp->if_data.ifi_mtu = 1476;
+ ifp->if_flags = 0;
+ ifp->if_xflags = 0x2;
+ ifp->if_rtrequest = p2p_rtrequest; ;
+ ifp->if_output = mgre_output;
+ ifp->if_start = mgre_start;
+ ifp->if_ioctl = mgre_ioctl;
+ sc->sc_tunnel.t_ttl = ip_defttl;
+ sc->sc_tunnel.t_df = ((__uint16_t)(0));
+ if_attach(ifp);
+ if_alloc_sadl(ifp);
+ bpfattach(&ifp->if_bpf, ifp, 12, sizeof(uint32_t));
+ return (0);
+}
+static int
+mgre_clone_destroy(struct ifnet *ifp)
+{
+ struct mgre_softc *sc = ifp->if_softc;
+ do { _rw_enter_write(&netlock ); } while (0);
+ if (((ifp->if_flags) & (0x40)))
+  mgre_down(sc);
  do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
@@ -5930,7 +5995,7 @@ gre_input6(struct mbuf **mp, int *offp, int type, int af)
   return (rip6_input(mp, offp, type, af));
  return (257);
 }
-static struct gre_softc *
+static inline struct ifnet *
 gre_find(const struct gre_tunnel *key)
 {
  struct gre_softc *sc;
@@ -5939,8 +6004,18 @@ gre_find(const struct gre_tunnel *key)
    continue;
   if (!((sc->sc_if.if_flags) & (0x40)))
    continue;
-  return (sc);
+  return (&sc->sc_if);
  }
+ return (((void *)0));
+}
+static inline struct ifnet *
+mgre_find(const struct gre_tunnel *key)
+{
+ struct mgre_softc *sc;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ sc = mgre_tree_RBT_FIND(&mgre_tree, (const struct mgre_softc *)key);
+ if (sc != ((void *)0))
+  return (&sc->sc_if);
  return (((void *)0));
 }
 static int
@@ -5949,8 +6024,8 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
 {
  struct mbuf *m = *mp;
  int iphlen = *offp, hlen;
- struct gre_softc *sc;
  struct ifnet *ifp;
+ const struct gre_tunnel *tunnel;
  caddr_t buf;
  struct gre_header *gh;
  struct gre_h_key *gkh;
@@ -6005,10 +6080,12 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
    goto decline;
   return (257);
  }
- sc = gre_find(key);
- if (sc == ((void *)0))
-  goto decline;
- ifp = &sc->sc_if;
+ ifp = gre_find(key);
+ if (ifp == ((void *)0)) {
+  ifp = mgre_find(key);
+  if (ifp == ((void *)0))
+   goto decline;
+ }
  switch (gh->gre_proto) {
  case ((__uint16_t)(0x883e)): {
   struct mbuf *n;
@@ -6039,6 +6116,9 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   input = mpls_input;
   break;
  case ((__uint16_t)(0)):
+  if (ifp->if_data.ifi_type != 0x83) {
+   goto decline;
+  }
   bpf_af = 0;
   input = gre_keepalive_recv;
   break;
@@ -6046,21 +6126,22 @@ gre_input_key(struct mbuf **mp, int *offp, int type, int af,
   goto decline;
  }
  m_adj(m, hlen);
- if (sc->sc_tunnel.t_ttl == -1) {
+ tunnel = ifp->if_softc;
+ if (tunnel->t_ttl == -1) {
   m = m_pullup(m, ttloff + 1);
   if (m == ((void *)0))
    return (257);
   *(m->m_hdr.mh_data + ttloff) = key->t_ttl;
+ }
+ if (tunnel->t_key_mask == ((__uint32_t)(0xffffff00U))) {
+  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
+      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
  }
  m->m_hdr.mh_flags &= ~(0x0200|0x0100);
  m->m_hdr.mh_flags |= mcast;
  m->M_dat.MH.MH_pkthdr.ph_ifidx = ifp->if_index;
  m->M_dat.MH.MH_pkthdr.ph_rtableid = ifp->if_data.ifi_rdomain;
  pf_pkt_addr_changed(m);
- if (sc->sc_tunnel.t_key_mask == ((__uint32_t)(0xffffff00U))) {
-  m->M_dat.MH.MH_pkthdr.ph_flowid = 0x8000 |
-      (((__uint32_t)(*(__uint32_t *)(&key->t_key))) & ~((__uint32_t)(0xffffff00U)));
- }
  ifp->if_data.ifi_ipackets++;
  ifp->if_data.ifi_ibytes += m->M_dat.MH.MH_pkthdr.len;
  if (ifp->if_bpf)
@@ -6076,6 +6157,7 @@ egre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
 {
  struct egre_softc *sc;
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  sc = egre_tree_RBT_FIND(&egre_tree, (const struct egre_softc *)key);
  if (sc == ((void *)0))
   return (-1);
@@ -6235,6 +6317,7 @@ nvgre_mcast_find(const struct gre_tunnel *key, unsigned int if0idx)
 {
  struct nvgre_softc *sc;
  int rv;
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  sc = nvgre_mcast_tree_RBT_ROOT(&nvgre_mcast_tree);
  while (sc != ((void *)0)) {
   rv = nvgre_cmp_mcast(key, &key->t_src, if0idx,
@@ -6251,6 +6334,7 @@ nvgre_mcast_find(const struct gre_tunnel *key, unsigned int if0idx)
 static inline struct nvgre_softc *
 nvgre_ucast_find(const struct gre_tunnel *key)
 {
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  return (nvgre_ucast_tree_RBT_FIND(&nvgre_ucast_tree, (struct nvgre_softc *)key));
 }
 static int
@@ -6413,58 +6497,136 @@ gre_start(struct ifnet *ifp)
 {
  struct gre_softc *sc = ifp->if_softc;
  struct mbuf *m;
- uint8_t ttl, tos;
- int tttl;
- uint16_t proto;
+ int af;
  caddr_t if_bpf;
- int ttloff;
- tttl = sc->sc_tunnel.t_ttl;
  while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  af = m->M_dat.MH.MH_pkthdr.ph_family;
   if_bpf = ifp->if_bpf;
-  if (if_bpf) {
-   int af = m->M_dat.MH.MH_pkthdr.ph_family;
+  if (if_bpf)
    bpf_mtap_af(if_bpf, af, m, (1<<1));
-  }
-  switch (m->M_dat.MH.MH_pkthdr.ph_family) {
-  case 2: {
-   struct ip *ip;
-   m = m_pullup(m, sizeof(*ip));
-   if (m == ((void *)0))
-    continue;
-   ip = ((struct ip *)((m)->m_hdr.mh_data));
-   tos = ip->ip_tos;
-   ttloff = __builtin_offsetof(struct ip, ip_ttl);
-   proto = ((__uint16_t)(0x0800));
-   break;
-  }
-  case 24:
-   tos = 0;
-   ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
-   proto = ((__uint16_t)(0x86DD));
-   break;
-  case 33:
-   ttloff = 3;
-   tos = 0;
-   if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
-    proto = ((__uint16_t)(0x8848));
-   else
-    proto = ((__uint16_t)(0x8847));
-   break;
-  default:
-   unhandled_af(m->M_dat.MH.MH_pkthdr.ph_family);
-  }
-  if (tttl == -1) {
-   m = m_pullup(m, ttloff + 1);
-   if (m == ((void *)0))
-    continue;
-   ttl = *(m->m_hdr.mh_data + ttloff);
-  } else
-   ttl = tttl;
-  m = gre_encap_dst((&sc->sc_tunnel), &(&sc->sc_tunnel)->t_dst, (m), (proto), (ttl), (tos));
+  m = gre_l3_encap_dst((&sc->sc_tunnel), &(&sc->sc_tunnel)->t_dst, (m), (af));
   if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m) != 0) {
    ifp->if_data.ifi_oerrors++;
    continue;
   }
+ }
+}
+static int
+mgre_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dest,
+    struct rtentry *rt0)
+{
+ struct mgre_softc *sc = ifp->if_softc;
+ struct sockaddr *gate;
+ struct rtentry *rt;
+ struct m_tag *mtag;
+ int error = 0;
+ sa_family_t af;
+ const void *addr;
+ if (!gre_allow) {
+  error = 13;
+  goto drop;
+ }
+ if (!((ifp->if_flags) & (0x40))) {
+  error = 50;
+  goto drop;
+ }
+ switch (dest->sa_family) {
+ case 2:
+ case 24:
+ case 33:
+  break;
+ default:
+  error = 47;
+  goto drop;
+ }
+ if (((m->m_hdr.mh_flags) & (0x0200|0x0100))) {
+  error = 51;
+  goto drop;
+ }
+ rt = rt_getll(rt0);
+ if (((rt->rt_flags) & (0x8))) {
+  error = (rt == rt0) ? 64 : 65;
+  goto drop;
+ }
+ if (!((rt->rt_flags) & (0x4))) {
+  error = 65;
+  goto drop;
+ }
+ if (((rt->rt_flags) & (0x2))) {
+  error = 22;
+  goto drop;
+ }
+ gate = rt->rt_gateway;
+ af = gate->sa_family;
+ if (af != sc->sc_tunnel.t_af) {
+  error = 35;
+  goto drop;
+ }
+ for (mtag = m_tag_find(m, 0x0080, ((void *)0)); mtag;
+      mtag = m_tag_find(m, 0x0080, mtag)) {
+  if (__builtin_memcmp(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index))) == 0) {
+   error = 5;
+   goto drop;
+  }
+ }
+ mtag = m_tag_get(0x0080, sizeof(ifp->if_index), 0x0002);
+ if (mtag == ((void *)0)) {
+  error = 55;
+  goto drop;
+ }
+ __builtin_memcpy(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index)));
+ m_tag_prepend(m, mtag);
+ switch (af) {
+ case 2: {
+  struct sockaddr_in *sin = (struct sockaddr_in *)gate;
+  addr = &sin->sin_addr;
+  break;
+ }
+ case 24: {
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)gate;
+  addr = &sin6->sin6_addr;
+  break;
+ }
+ default:
+  unhandled_af(af);
+ }
+ m = gre_l3_encap_dst(&sc->sc_tunnel, addr, m, dest->sa_family);
+ if (m == ((void *)0))
+  return (55);
+ m->M_dat.MH.MH_pkthdr.ph_family = dest->sa_family;
+ error = if_enqueue(ifp, m);
+ if (error)
+  ifp->if_data.ifi_oerrors++;
+ return (error);
+drop:
+ m_freem(m);
+ return (error);
+}
+static void
+mgre_start(struct ifnet *ifp)
+{
+ struct mgre_softc *sc = ifp->if_softc;
+ struct mbuf *m;
+ caddr_t if_bpf;
+ while ((m = ifq_dequeue(&ifp->if_snd)) != ((void *)0)) {
+  if_bpf = ifp->if_bpf;
+  if (if_bpf) {
+   struct m_hdr mh;
+   struct mbuf *n;
+   int off;
+   n = m_getptr(m, ifp->if_data.ifi_hdrlen, &off);
+   ((n != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1624, "n != NULL"));
+   mh.mh_flags = 0;
+   mh.mh_next = n->m_hdr.mh_next;
+   mh.mh_len = n->m_hdr.mh_len - off;
+   mh.mh_data = n->m_hdr.mh_data + off;
+   bpf_mtap_af(if_bpf, m->M_dat.MH.MH_pkthdr.ph_family,
+       (struct mbuf *)&mh, (1<<1));
+  }
+  if (m == ((void *)0) || gre_ip_output(&sc->sc_tunnel, m) != 0) {
+    ifp->if_data.ifi_oerrors++;
+    continue;
+   }
  }
 }
 static void
@@ -6496,6 +6658,51 @@ egre_start(struct ifnet *ifp)
    continue;
   }
  }
+}
+static struct mbuf *
+gre_l3_encap_dst(const struct gre_tunnel *tunnel, const void *dst,
+    struct mbuf *m, sa_family_t af)
+{
+ uint16_t proto;
+ uint8_t ttl, tos;
+ int tttl = tunnel->t_ttl;
+ int ttloff;
+ switch (af) {
+ case 2: {
+  struct ip *ip;
+  m = m_pullup(m, sizeof(*ip));
+  if (m == ((void *)0))
+   return (((void *)0));
+  ip = ((struct ip *)((m)->m_hdr.mh_data));
+  tos = ip->ip_tos;
+  ttloff = __builtin_offsetof(struct ip, ip_ttl);
+  proto = ((__uint16_t)(0x0800));
+  break;
+ }
+ case 24:
+  tos = 0;
+  ttloff = __builtin_offsetof(struct ip6_hdr, ip6_ctlun.ip6_un1.ip6_un1_hlim);
+  proto = ((__uint16_t)(0x86DD));
+  break;
+ case 33:
+  ttloff = 3;
+  tos = 0;
+  if (m->m_hdr.mh_flags & (0x0100 | 0x0200))
+   proto = ((__uint16_t)(0x8848));
+  else
+   proto = ((__uint16_t)(0x8847));
+  break;
+ default:
+  unhandled_af(af);
+ }
+ if (tttl == -1) {
+  m = m_pullup(m, ttloff + 1);
+  if (m == ((void *)0))
+   return (((void *)0));
+  ttl = *(m->m_hdr.mh_data + ttloff);
+ } else
+  ttl = tttl;
+ return (gre_encap_dst(tunnel, dst, m, proto, ttl, tos));
 }
 static struct mbuf *
 gre_encap_dst(const struct gre_tunnel *tunnel, const union gre_addr *dst,
@@ -6707,6 +6914,132 @@ gre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   break;
  }
  return (error);
+}
+static int
+mgre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
+{
+ struct mgre_softc *sc = ifp->if_softc;
+ struct ifreq *ifr = (struct ifreq *)data;
+ int error = 0;
+ switch(cmd) {
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((12))):
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((16))):
+  if (((ifp->if_flags) & (0x1))) {
+   if (!((ifp->if_flags) & (0x40)))
+    error = mgre_up(sc);
+   else
+    error = 0;
+  } else {
+   if (((ifp->if_flags) & (0x40)))
+    error = mgre_down(sc);
+  }
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((168))):
+  if (ifr->ifr_ifru.ifru_metric != -1 &&
+      (ifr->ifr_ifru.ifru_metric < 1 || ifr->ifr_ifru.ifru_metric > 0xff)) {
+   error = 22;
+   break;
+  }
+  sc->sc_tunnel.t_ttl = ifr->ifr_ifru.ifru_metric;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((169))):
+  ifr->ifr_ifru.ifru_metric = sc->sc_tunnel.t_ttl;
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((74))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+  error = mgre_set_tunnel(sc, (struct if_laddrreq *)data);
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct if_laddrreq) & 0x1fff) << 16) | ((('i')) << 8) | ((75))):
+  error = mgre_get_tunnel(sc, (struct if_laddrreq *)data);
+  break;
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((166))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((175))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((73))):
+ case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((161))):
+  if (((ifp->if_flags) & (0x40))) {
+   error = 16;
+   break;
+  }
+ default:
+  error = gre_tunnel_ioctl(ifp, &sc->sc_tunnel, cmd, data);
+   break;
+  }
+ return (error);
+}
+static int
+mgre_set_tunnel(struct mgre_softc *sc, struct if_laddrreq *req)
+{
+ struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ struct sockaddr *addr = (struct sockaddr *)&req->addr;
+ struct sockaddr *dstaddr = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *addr4;
+ struct sockaddr_in6 *addr6;
+ int error;
+ if (dstaddr->sa_family != 0)
+  return (22);
+ switch (addr->sa_family) {
+ case 2:
+  if (addr->sa_len != sizeof(*addr4))
+   return (22);
+  addr4 = (struct sockaddr_in *)addr;
+  if (((addr4->sin_addr).s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) ||
+      (((u_int32_t)(addr4->sin_addr.s_addr) & ((u_int32_t) ((__uint32_t)((u_int32_t)(0xf0000000))))) == ((u_int32_t) ((__uint32_t)((u_int32_t)(0xe0000000))))))
+   return (22);
+  tunnel->t_src.in4 = addr4->sin_addr;
+  tunnel->t_dst.in4.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))));
+  break;
+ case 24:
+  if (addr->sa_len != sizeof(*addr6))
+   return (22);
+  addr6 = (struct sockaddr_in6 *)addr;
+  if (((*(const u_int32_t *)(const void *)(&(&addr6->sin6_addr)->__u6_addr.__u6_addr8[0]) == 0) && (*(const u_int32_t *)(const void *)(&(&addr6->sin6_addr)->__u6_addr.__u6_addr8[4]) == 0) && (*(const u_int32_t *)(const void *)(&(&addr6->sin6_addr)->__u6_addr.__u6_addr8[8]) == 0) && (*(const u_int32_t *)(const void *)(&(&addr6->sin6_addr)->__u6_addr.__u6_addr8[12]) == 0)) ||
+      ((&addr6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xff))
+   return (22);
+  error = in6_embedscope(&tunnel->t_src.in6, addr6, ((void *)0));
+  if (error != 0)
+   return (error);
+  __builtin_memset((&tunnel->t_dst.in6), (0), (sizeof(tunnel->t_dst.in6)));
+  break;
+ default:
+  return (47);
+ }
+ tunnel->t_af = addr->sa_family;
+ return (0);
+}
+static int
+mgre_get_tunnel(struct mgre_softc *sc, struct if_laddrreq *req)
+{
+ struct gre_tunnel *tunnel = &sc->sc_tunnel;
+ struct sockaddr *dstaddr = (struct sockaddr *)&req->dstaddr;
+ struct sockaddr_in *sin;
+ struct sockaddr_in6 *sin6;
+ switch (tunnel->t_af) {
+ case 0:
+  return (49);
+ case 2:
+  sin = (struct sockaddr_in *)&req->addr;
+  __builtin_memset((sin), (0), (sizeof(*sin)));
+  sin->sin_family = 2;
+  sin->sin_len = sizeof(*sin);
+  sin->sin_addr = tunnel->t_src.in4;
+  break;
+ case 24:
+  sin6 = (struct sockaddr_in6 *)&req->addr;
+  __builtin_memset((sin6), (0), (sizeof(*sin6)));
+  sin6->sin6_family = 24;
+  sin6->sin6_len = sizeof(*sin6);
+  in6_recoverscope(sin6, &tunnel->t_src.in6);
+  break;
+ default:
+  unhandled_af(tunnel->t_af);
+ }
+ dstaddr->sa_len = 2;
+ dstaddr->sa_family = 0;
+ return (0);
 }
 static int
 egre_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
@@ -7208,6 +7541,39 @@ gre_get_vnetflowid(struct gre_tunnel *tunnel, struct ifreq *ifr)
  return (0);
 }
 static int
+mgre_up(struct mgre_softc *sc)
+{
+ unsigned int hlen;
+ switch (sc->sc_tunnel.t_af) {
+ case 0:
+  return (39);
+ case 2:
+  hlen = sizeof(struct ip);
+  break;
+ case 24:
+  hlen = sizeof(struct ip6_hdr);
+  break;
+ }
+ hlen += sizeof(struct gre_header);
+ if (sc->sc_tunnel.t_key_mask != ((__uint32_t)(0x00000000U)))
+  hlen += sizeof(struct gre_h_key);
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ if (mgre_tree_RBT_INSERT(&mgre_tree, sc) != ((void *)0))
+  return (48);
+ sc->sc_if.if_data.ifi_hdrlen = hlen;
+ ((sc->sc_if.if_flags) |= (0x40));
+ return (0);
+}
+static int
+mgre_down(struct mgre_softc *sc)
+{
+ do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
+ ((sc->sc_if.if_flags) &= ~(0x40));
+ sc->sc_if.if_data.ifi_hdrlen = (sizeof(struct ip) + sizeof(struct gre_header));
+ mgre_tree_RBT_REMOVE(&mgre_tree, sc);
+ return (0);
+}
+static int
 egre_up(struct egre_softc *sc)
 {
  if (sc->sc_tunnel.t_af == 0)
@@ -7565,25 +7931,11 @@ gre_ip_cmp(int af, const union gre_addr *a, const union gre_addr *b)
  return (0);
 }
 static int
-gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
+gre_cmp_src(const struct gre_tunnel *a, const struct gre_tunnel *b)
 {
  uint32_t ka, kb;
  uint32_t mask;
  int rv;
- if (a->t_rtableid > b->t_rtableid)
-  return (1);
- if (a->t_rtableid < b->t_rtableid)
-  return (-1);
- if (a->t_af > b->t_af)
-  return (1);
- if (a->t_af < b->t_af)
-  return (-1);
- rv = gre_ip_cmp(a->t_af, &a->t_dst, &b->t_dst);
- if (rv != 0)
-  return (rv);
- rv = gre_ip_cmp(a->t_af, &a->t_src, &b->t_src);
- if (rv != 0)
-  return (rv);
  ka = a->t_key_mask & ((__uint32_t)(0xffffff00U));
  kb = b->t_key_mask & ((__uint32_t)(0xffffff00U));
  if (ka > kb)
@@ -7599,8 +7951,34 @@ gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
   if (ka < kb)
    return (-1);
  }
+ if (a->t_rtableid > b->t_rtableid)
+  return (1);
+ if (a->t_rtableid < b->t_rtableid)
+  return (-1);
+ if (a->t_af > b->t_af)
+  return (1);
+ if (a->t_af < b->t_af)
+  return (-1);
+ rv = gre_ip_cmp(a->t_af, &a->t_src, &b->t_src);
+ if (rv != 0)
+  return (rv);
  return (0);
 }
+static int
+gre_cmp(const struct gre_tunnel *a, const struct gre_tunnel *b)
+{
+ int rv;
+ rv = gre_cmp_src(a, b);
+ if (rv != 0)
+  return (rv);
+ return (gre_ip_cmp(a->t_af, &a->t_dst, &b->t_dst));
+}
+static inline int
+mgre_cmp(const struct mgre_softc *a, const struct mgre_softc *b)
+{
+ return (gre_cmp_src(&a->sc_tunnel, &b->sc_tunnel));
+}
+static int mgre_tree_RBT_COMPARE(const void *lptr, const void *rptr) { const struct mgre_softc *l = lptr, *r = rptr; return mgre_cmp(l, r); } static const struct rb_type mgre_tree_RBT_INFO = { mgre_tree_RBT_COMPARE, ((void *)0), __builtin_offsetof(struct mgre_softc, sc_entry), }; const struct rb_type *const mgre_tree_RBT_TYPE = &mgre_tree_RBT_INFO;
 static inline int
 egre_cmp(const struct egre_softc *a, const struct egre_softc *b)
 {

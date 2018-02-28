@@ -3449,6 +3449,11 @@ setit:
     sc->mii_ticks = 0;
     break;
    }
+  } else if (sc->mii_rev == 6) {
+   reg64 = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x1A));
+   if (reg64 & 0x0004) {
+    sc->mii_ticks = 0;
+   }
   } else {
    reg64 = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x11));
    if (reg64 & 0x0400) {
@@ -3483,6 +3488,10 @@ rgephy_status(struct mii_softc *sc)
   bmsr = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x006C));
   if (bmsr & 0x02)
    mii->mii_media_status |= 0x0000000000000002ULL;
+ } else if (sc->mii_rev == 6) {
+  bmsr = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x1A));
+  if (bmsr & 0x0004)
+   mii->mii_media_status |= 0x0000000000000002ULL;
  } else {
   bmsr = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x11));
   if (bmsr & 0x0400)
@@ -3507,6 +3516,19 @@ rgephy_status(struct mii_softc *sc)
   else if (bmsr & 0x04)
    mii->mii_media_active |= 3;
   if (bmsr & 0x01)
+   mii->mii_media_active |= mii_phy_flowstatus(sc) |
+       0x0000010000000000ULL;
+  else
+   mii->mii_media_active |= 0x0000020000000000ULL;
+ } else if (sc->mii_rev == 6) {
+  bmsr = (*(sc)->mii_pdata->mii_readreg)((sc)->mii_dev.dv_parent, (sc)->mii_phy, (0x1A));
+  if (((bmsr) & 0x0030) == 0x0020)
+   mii->mii_media_active |= 16;
+  else if (((bmsr) & 0x0030) == 0x0010)
+   mii->mii_media_active |= 6;
+  else if (((bmsr) & 0x0030) == 0x0000)
+   mii->mii_media_active |= 3;
+  if (bmsr & 0x0008)
    mii->mii_media_active |= mii_phy_flowstatus(sc) |
        0x0000010000000000ULL;
   else

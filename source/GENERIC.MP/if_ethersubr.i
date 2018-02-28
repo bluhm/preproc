@@ -3902,7 +3902,7 @@ ether_ifdetach(struct ifnet *ifp)
  struct ether_multi *enm;
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 515, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 517, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  for (enm = ((&ac->ac_multiaddrs)->lh_first);
      enm != ((void *)0);
      enm = ((&ac->ac_multiaddrs)->lh_first)) {

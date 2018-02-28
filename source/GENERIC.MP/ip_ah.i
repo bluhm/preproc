@@ -4973,11 +4973,11 @@ ah_massage_headers(struct mbuf **m0, int af, int skip, int alg, int out)
 {
  struct mbuf *m = *m0;
  unsigned char *ptr;
- int error, off, count;
+ int off, count;
  struct ip *ip;
  struct ip6_ext *ip6e;
  struct ip6_hdr ip6;
- int ad, alloc, nxt, noff;
+ int ad, alloc, nxt, noff, error;
  switch (af) {
  case 2:
   *m0 = m = m_pullup(m, skip);
