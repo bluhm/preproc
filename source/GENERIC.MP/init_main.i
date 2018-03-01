@@ -6293,8 +6293,8 @@ main(void *framep)
   panic("fork aiodoned");
  if (kthread_create(uvm_pagezero_thread, ((void *)0), ((void *)0), "zerothread"))
   panic("fork zerothread");
- config_process_deferred_mountroot();
  cpu_boot_secondary_processors();
+ config_process_deferred_mountroot();
  start_init_exec = 1;
  wakeup((void *)&start_init_exec);
  pool_gc_pages(((void *)0));

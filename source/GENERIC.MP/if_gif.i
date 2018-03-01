@@ -4668,7 +4668,7 @@ gif_clone_destroy(struct ifnet *ifp)
  do { _rw_enter_write(&netlock ); } while (0);
  if (((ifp->if_flags) & (0x40)))
   gif_down(sc);
- do { (&sc->sc_tunnel)->t_entry.tqe_next = ((void *)0); (&sc->sc_tunnel)->t_entry.tqe_prev = (&gif_list)->tqh_last; *(&gif_list)->tqh_last = (&sc->sc_tunnel); (&gif_list)->tqh_last = &(&sc->sc_tunnel)->t_entry.tqe_next; } while (0);
+ do { if (((&sc->sc_tunnel)->t_entry.tqe_next) != ((void *)0)) (&sc->sc_tunnel)->t_entry.tqe_next->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_prev; else (&gif_list)->tqh_last = (&sc->sc_tunnel)->t_entry.tqe_prev; *(&sc->sc_tunnel)->t_entry.tqe_prev = (&sc->sc_tunnel)->t_entry.tqe_next; ((&sc->sc_tunnel)->t_entry.tqe_prev) = ((void *)-1); ((&sc->sc_tunnel)->t_entry.tqe_next) = ((void *)-1); } while (0);
  do { _rw_exit_write(&netlock ); } while (0);
  if_detach(ifp);
  free(sc, 2, sizeof(*sc));
@@ -5024,7 +5024,7 @@ in_gif_input(struct mbuf **mp, int *offp, int proto, int af)
  ip = ((struct ip *)((m)->m_hdr.mh_data));
  key.t_af = 2;
  key.t_src.in4 = ip->ip_dst;
- key.t_dst.in4 = ip->ip_dst;
+ key.t_dst.in4 = ip->ip_src;
  rv = gif_input(&key, mp, offp, proto, af, ip->ip_ttl, ip->ip_tos);
  if (rv == -1)
   rv = ipip_input(mp, offp, proto, af);

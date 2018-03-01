@@ -8549,7 +8549,7 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  case 2:
   return (sysctl_rdstring(oldp, oldlenp, newp, osrelease));
  case 3:
-  return (sysctl_rdint(oldp, oldlenp, newp, 201711));
+  return (sysctl_rdint(oldp, oldlenp, newp, 201805));
  case 27:
   return (sysctl_rdstring(oldp, oldlenp, newp, osversion));
  case 4:
