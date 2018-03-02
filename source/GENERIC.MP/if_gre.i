@@ -5675,6 +5675,7 @@ static int mgre_clone_create(struct if_clone *, int);
 static int mgre_clone_destroy(struct ifnet *);
 struct if_clone mgre_cloner =
     { .ifc_list = { ((void *)0), ((void *)0) }, .ifc_name = "mgre", .ifc_namelen = sizeof("mgre") - 1, .ifc_create = mgre_clone_create, .ifc_destroy = mgre_clone_destroy, };
+static void mgre_rtrequest(struct ifnet *, int, struct rtentry *);
 static int mgre_output(struct ifnet *, struct mbuf *, struct sockaddr *,
       struct rtentry *);
 static void mgre_start(struct ifnet *);
@@ -5846,7 +5847,7 @@ mgre_clone_create(struct if_clone *ifc, int unit)
  ifp->if_data.ifi_mtu = 1476;
  ifp->if_flags = 0;
  ifp->if_xflags = 0x2;
- ifp->if_rtrequest = p2p_rtrequest; ;
+ ifp->if_rtrequest = mgre_rtrequest;
  ifp->if_output = mgre_output;
  ifp->if_start = mgre_start;
  ifp->if_ioctl = mgre_ioctl;
@@ -6511,6 +6512,40 @@ gre_start(struct ifnet *ifp)
   }
  }
 }
+void
+mgre_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
+{
+ struct ifnet *lo0ifp;
+ struct ifaddr *ifa, *lo0ifa;
+ switch (req) {
+ case 0x1:
+  if (!((rt->rt_flags) & (0x200000)))
+   break;
+  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
+   if (__builtin_memcmp((((rt)->rt_dest)), (ifa->ifa_addr), (((rt)->rt_dest)->sa_len)) == 0)
+    break;
+  }
+  if (ifa == ((void *)0))
+   break;
+  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1511, "ifa == rt->rt_ifa"));
+  lo0ifp = if_get(rtable_loindex(ifp->if_data.ifi_rdomain));
+  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1514, "lo0ifp != NULL"));
+  for((lo0ifa) = ((&lo0ifp->if_addrlist)->tqh_first); (lo0ifa) != ((void *)0); (lo0ifa) = ((lo0ifa)->ifa_list.tqe_next)) {
+   if (lo0ifa->ifa_addr->sa_family ==
+       ifa->ifa_addr->sa_family)
+    break;
+  }
+  if_put(lo0ifp);
+  if (lo0ifa == ((void *)0))
+   break;
+  rt->rt_flags &= ~0x400;
+  break;
+ case 0x2:
+ case 0xb:
+ default:
+  break;
+ }
+}
 static int
 mgre_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dest,
     struct rtentry *rt0)
@@ -6615,7 +6650,7 @@ mgre_start(struct ifnet *ifp)
    struct mbuf *n;
    int off;
    n = m_getptr(m, ifp->if_data.ifi_hdrlen, &off);
-   ((n != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1624, "n != NULL"));
+   ((n != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1668, "n != NULL"));
    mh.mh_flags = 0;
    mh.mh_next = n->m_hdr.mh_next;
    mh.mh_len = n->m_hdr.mh_len - off;
