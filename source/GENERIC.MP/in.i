@@ -2721,7 +2721,6 @@ int in_cksum(struct mbuf *, int);
 int in4_cksum(struct mbuf *, u_int8_t, int, int);
 void in_proto_cksum_out(struct mbuf *, struct ifnet *);
 void in_ifdetach(struct ifnet *);
-int in_up_loopback(struct ifnet *);
 int in_mask2len(struct in_addr *);
 void in_len2mask(struct in_addr *, int);
 int in_nam2sin(const struct mbuf *, struct sockaddr_in **);
@@ -3337,47 +3336,6 @@ in_broadcast(struct in_addr in, u_int rtableid)
     return 1;
  }
  return (0);
-}
-int
-in_up_loopback(struct ifnet *ifp)
-{
- struct in_ifaddr *ia;
- struct rt_addrinfo info;
- int error;
- if ((ifp->if_flags & 0x8) == 0)
-  return (0);
- ia = malloc(sizeof *ia, 9, 0x0001 | 0x0008);
- ia->ia_addr.sin_family = 2;
- ia->ia_addr.sin_len = sizeof(ia->ia_addr);
- ia->ia_addr.sin_addr.s_addr = ((u_int32_t) ((__uint32_t)((u_int32_t)(0x7f000001))));
- ia->ia_ifa.ifa_addr = sintosa(&ia->ia_addr);
- ia->ia_ifa.ifa_dstaddr = sintosa(&ia->ia_dstaddr);
- ia->ia_ifa.ifa_netmask = sintosa(&ia->ia_sockmask);
- ia->ia_netmask = ((u_int32_t) ((__uint32_t)((u_int32_t)(0xff000000))));
- ia->ia_sockmask.sin_len = 8;
- ia->ia_sockmask.sin_addr.s_addr = ia->ia_netmask;
- ia->ia_ifa.ifa_ifp = ifp;
- if (ifaof_ifpforaddr(ia->ia_ifa.ifa_addr, ifp) != ((void *)0)) {
-  free(ia, 9, sizeof *ia);
-  return (0);
- }
- ifa_add(ifp, &ia->ia_ifa);
- error = rt_ifa_addlocal(&ia->ia_ifa);
- if (error)
-  goto out;
- ia->ia_net = ia->ia_addr.sin_addr.s_addr & ia->ia_netmask;
- in_socktrim(&ia->ia_sockmask);
- __builtin_bzero((&info), (sizeof(info)));
- info.rti_flags = 0x2 | 0x8 | 0x800;
- info.rti_ifa = &ia->ia_ifa;
- info.rti_info[0] = ia->ia_ifa.ifa_addr;
- info.rti_info[2] = ia->ia_ifa.ifa_netmask;
- info.rti_info[1] = ia->ia_ifa.ifa_addr;
- error = rtrequest(0x1, &info, 0, ((void *)0), ifp->if_data.ifi_rdomain);
-out:
- if (error)
-  in_purgeaddr(&ia->ia_ifa);
- return (error);
 }
 struct in_multi *
 in_addmulti(struct in_addr *ap, struct ifnet *ifp)
