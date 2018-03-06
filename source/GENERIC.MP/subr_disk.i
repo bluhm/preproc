@@ -3289,15 +3289,12 @@ readdoslabel(struct buf *bp, void (*strat)(struct buf *),
    if (error == 0) {
     dospartoff = (((u_int64_t)(gptlp)->d_bstarth << 32) + (gptlp)->d_bstart);
     dospartend = (((u_int64_t)(gptlp)->d_bendh << 32) + (gptlp)->d_bend);
-    if (partoffp) {
-     if (dospartoff == 0)
-      return (6);
-     else
-      goto notfat;
-    }
-    *lp = *gptlp;
+    if (partoffp == 0)
+     *lp = *gptlp;
     free(gptlp, 2,
         sizeof(struct disklabel));
+    if (partoffp && dospartoff == 0)
+     return (6);
     goto notfat;
    } else {
     free(gptlp, 2,
@@ -3828,7 +3825,7 @@ disk_detach(struct disk *diskp)
 int
 disk_openpart(struct disk *dk, int part, int fmt, int haslabel)
 {
- ((part >= 0 && part < 16) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_disk.c", 1171, "part >= 0 && part < MAXPARTITIONS"));
+ ((part >= 0 && part < 16) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_disk.c", 1168, "part >= 0 && part < MAXPARTITIONS"));
  if (part != 2 && (!haslabel ||
      part >= dk->dk_label->d_npartitions ||
      dk->dk_label->d_partitions[part].p_fstype == 0))
@@ -3847,7 +3844,7 @@ disk_openpart(struct disk *dk, int part, int fmt, int haslabel)
 void
 disk_closepart(struct disk *dk, int part, int fmt)
 {
- ((part >= 0 && part < 16) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_disk.c", 1196, "part >= 0 && part < MAXPARTITIONS"));
+ ((part >= 0 && part < 16) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/subr_disk.c", 1193, "part >= 0 && part < MAXPARTITIONS"));
  switch (fmt) {
  case 0020000:
   dk->dk_copenmask &= ~(1 << part);

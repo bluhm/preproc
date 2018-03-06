@@ -3848,13 +3848,14 @@ ohci_softintr(void *v)
    xfer->actlen += len;
   cc = (((__uint32_t)(__builtin_constant_p(std->td.td_flags) ? (__uint32_t)(((__uint32_t)(std->td.td_flags) & 0xff) << 24 | ((__uint32_t)(std->td.td_flags) & 0xff00) << 8 | ((__uint32_t)(std->td.td_flags) & 0xff0000) >> 8 | ((__uint32_t)(std->td.td_flags) & 0xff000000) >> 24) : __swap32md(std->td.td_flags))) >> 28);
   if (cc == 0) {
-   if (std->flags & 0x0001) {
+   int done = (std->flags & 0x0001);
+   ohci_free_std(sc, std);
+   if (done) {
     xfer->status = USBD_NORMAL_COMPLETION;
     s = splraise(2);
     usb_transfer_complete(xfer);
     _splx(s);
    }
-   ohci_free_std(sc, std);
   } else {
    struct ohci_soft_td *p, *n;
    opipe = (struct ohci_pipe *)xfer->pipe;
@@ -4936,7 +4937,7 @@ ohci_device_intr_start(struct usbd_xfer *xfer)
 void
 ohci_device_intr_abort(struct usbd_xfer *xfer)
 {
- ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ohci.c", 2910, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
+ ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/ohci.c", 2912, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
  ohci_abort_xfer(xfer, USBD_CANCELLED);
 }
 void

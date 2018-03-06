@@ -5234,7 +5234,7 @@ sys_sigaltstack(struct proc *p, void *v, register_t *retval)
   p->p_sigstk.ss_flags = ss.ss_flags;
   return (0);
  }
- if (ss.ss_size < 8192)
+ if (ss.ss_size < (1U << 13))
   return (12);
  p->p_sigstk = ss;
  return (0);

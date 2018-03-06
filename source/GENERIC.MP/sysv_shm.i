@@ -4344,8 +4344,8 @@ sys_shmat(struct proc *p, void *v, register_t *retval)
   flags |= 0x0010000;
   if (((uap)->shmflg.be.datum) & 020000)
    attach_va =
-       (vaddr_t)((uap)->shmaddr.be.datum) & ~((1 << 13)-1);
-  else if (((vaddr_t)((uap)->shmaddr.be.datum) & ((1 << 13)-1)) == 0)
+       (vaddr_t)((uap)->shmaddr.be.datum) & ~((1U << 13)-1);
+  else if (((vaddr_t)((uap)->shmaddr.be.datum) & ((1U << 13)-1)) == 0)
    attach_va = (vaddr_t)((uap)->shmaddr.be.datum);
   else
    return (22);
