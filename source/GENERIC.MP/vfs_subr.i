@@ -5349,6 +5349,7 @@ void vfs_free_addrlist(struct netexport *);
 void vputonfreelist(struct vnode *);
 int vflush_vnode(struct vnode *, void *);
 int maxvnodes;
+void vfs_unmountall(void);
 struct pool vnode_pool;
 struct pool uvm_vnode_pool;
 static inline int rb_buf_compare(const struct buf *b1, const struct buf *b2);
@@ -6329,43 +6330,29 @@ vfs_stall(struct proc *p, int stall)
   _rw_exit_write(&vfs_stall_lock );
  return (allerror);
 }
-int
-vfs_readonly(struct mount *mp, struct proc *p)
-{
- int error;
- error = vfs_busy(mp, 0x02|0x08);
- if (error) {
-  printf("%s: busy\n", mp->mnt_stat.f_mntonname);
-  return (error);
- }
- uvm_vnp_sync(mp);
- error = (*(mp)->mnt_op->vfs_sync)(mp, 1, 0, p->p_ucred, p);
- if (error) {
-  printf("%s: failed to sync\n", mp->mnt_stat.f_mntonname);
-  vfs_unbusy(mp);
-  return (error);
- }
- mp->mnt_flag |= 0x00010000 | 0x00000001;
- mp->mnt_flag &= ~0x04000000;
- error = (*(mp)->mnt_op->vfs_mount)(mp, mp->mnt_stat.f_mntonname, ((void *)0), ((void *)0), (__curcpu->ci_self)->ci_curproc);
- if (error) {
-  printf("%s: failed to remount rdonly, error %d\n",
-      mp->mnt_stat.f_mntonname, error);
-  vfs_unbusy(mp);
-  return (error);
- }
- if (mp->mnt_syncer != ((void *)0))
-  vgone(mp->mnt_syncer);
- mp->mnt_syncer = ((void *)0);
- vfs_unbusy(mp);
- return (error);
-}
 void
-vfs_rofs(struct proc *p)
+vfs_unmountall(void)
 {
  struct mount *mp, *nmp;
+ int allerror, error, again = 1;
+ retry:
+ allerror = 0;
  for ((mp) = (*(((struct mntlist *)((&mountlist)->tqh_last))->tqh_last)); (mp) != ((void *)0) && ((nmp) = (*(((struct mntlist *)((mp)->mnt_list.tqe_prev))->tqh_last)), 1); (mp) = (nmp)) {
-  (void) vfs_readonly(mp, p);
+  if (vfs_busy(mp, 0x02|0x04))
+   continue;
+  if ((error = dounmount(mp, 0x00080000, (__curcpu->ci_self)->ci_curproc)) != 0) {
+   printf("unmount of %s failed with error %d\n",
+       mp->mnt_stat.f_mntonname, error);
+   allerror = 1;
+  }
+ }
+ if (allerror) {
+  printf("WARNING: some file systems would not unmount\n");
+  if (again) {
+   printf("retrying\n");
+   again = 0;
+   goto retry;
+  }
  }
 }
 void
@@ -6375,7 +6362,7 @@ vfs_shutdown(struct proc *p)
  printf("syncing disks... ");
  if (panicstr == 0) {
   sys_sync(p, ((void *)0), ((void *)0));
-  vfs_rofs(p);
+  vfs_unmountall();
  }
  sr_quiesce();
  if (vfs_syncwait(p, 1))

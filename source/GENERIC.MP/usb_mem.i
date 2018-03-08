@@ -2781,10 +2781,7 @@ usb_block_allocmem(bus_dma_tag_t tag, size_t size, size_t align,
   }
  }
  _splx(s);
- if (!(__curcpu->ci_self)->ci_curproc) {
-  printf("usb_block_allocmem: in interrupt context, failed\n");
-  return (USBD_NOMEM);
- }
+ assertwaitok();
  ;
  p = malloc(sizeof *p, 101, 0x0002);
  if (p == ((void *)0))
