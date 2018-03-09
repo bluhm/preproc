@@ -3009,6 +3009,7 @@ int sys_symlinkat(struct proc *, void *, register_t *);
 int sys_unlinkat(struct proc *, void *, register_t *);
 int sys___set_tcb(struct proc *, void *, register_t *);
 int sys___get_tcb(struct proc *, void *, register_t *);
+int rebooting = 0;
 int
 sys_reboot(struct proc *p, void *v, register_t *retval)
 {
@@ -3017,15 +3018,16 @@ sys_reboot(struct proc *p, void *v, register_t *retval)
  if ((error = suser(p)) != 0)
   return (error);
  sched_stop_secondary_cpus();
- (((((__curcpu->ci_self))->ci_cpuid == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 56, "CPU_IS_PRIMARY(curcpu())"));
+ (((((__curcpu->ci_self))->ci_cpuid == 0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 58, "CPU_IS_PRIMARY(curcpu())"));
  reboot(((uap)->opt.be.datum));
  return (0);
 }
 __attribute__((__noreturn__)) void
 reboot(int howto)
 {
- (((howto & 0x0004) || (__curcpu->ci_self)->ci_curproc != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 66, "(howto & RB_NOSYNC) || curproc != NULL"));
+ (((howto & 0x0004) || (__curcpu->ci_self)->ci_curproc != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_xxx.c", 68, "(howto & RB_NOSYNC) || curproc != NULL"));
  stop_periodic_resettodr();
+ rebooting = 1;
  boot(howto);
 }
 void __stack_smash_handler(char [], int __attribute__((unused)));

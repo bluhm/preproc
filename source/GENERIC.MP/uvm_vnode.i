@@ -3392,6 +3392,7 @@ struct uvn_list_struct uvn_wlist;
 struct uvn_sq_struct { struct uvm_vnode *sqh_first; struct uvm_vnode **sqh_last; };
 struct uvn_sq_struct uvn_sync_q;
 struct rwlock uvn_sync_lock;
+extern int rebooting;
 void uvn_cluster(struct uvm_object *, voff_t, voff_t *, voff_t *);
 void uvn_detach(struct uvm_object *);
 boolean_t uvn_flush(struct uvm_object *, voff_t, voff_t, int);
@@ -3513,7 +3514,7 @@ uvn_detach(struct uvm_object *uobj)
  if (uvn->u_flags & 0x200) {
   do { if ((uvn)->u_wlist.le_next != ((void *)0)) (uvn)->u_wlist.le_next->u_wlist.le_prev = (uvn)->u_wlist.le_prev; *(uvn)->u_wlist.le_prev = (uvn)->u_wlist.le_next; ((uvn)->u_wlist.le_prev) = ((void *)-1); ((uvn)->u_wlist.le_next) = ((void *)-1); } while (0);
  }
- ((uvm_objtree_RBT_EMPTY(&uobj->memt)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_vnode.c", 365, "RBT_EMPTY(uvm_objtree, &uobj->memt)"));
+ ((uvm_objtree_RBT_EMPTY(&uobj->memt)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_vnode.c", 367, "RBT_EMPTY(uvm_objtree, &uobj->memt)"));
  oldflags = uvn->u_flags;
  uvn->u_flags = 0;
  if (oldflags & 0x020)
@@ -3571,7 +3572,7 @@ uvn_flush(struct uvm_object *uobj, voff_t start, voff_t stop, int flags)
   stop = ((((((stop) + ((1 << 13) - 1)) & ~((1 << 13) - 1)))<((((uvn->u_size) + ((1 << 13) - 1)) & ~((1 << 13) - 1))))?((((stop) + ((1 << 13) - 1)) & ~((1 << 13) - 1))):((((uvn->u_size) + ((1 << 13) - 1)) & ~((1 << 13) - 1))));
  }
  if ((flags & 0x001) != 0) {
-  ((uobj->pgops->pgo_mk_pcluster != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_vnode.c", 609, "uobj->pgops->pgo_mk_pcluster != 0"));
+  ((uobj->pgops->pgo_mk_pcluster != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_vnode.c", 611, "uobj->pgops->pgo_mk_pcluster != 0"));
   for (curoff = start ; curoff < stop; curoff += (1 << 13)) {
    if ((pp = uvm_pagelookup(uobj, curoff)) != ((void *)0))
     atomic_clearbits_int(&pp->pg_flags,
@@ -3870,10 +3871,13 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
  if ((uvn->u_flags & 0x080) != 0 && uvn->u_nio == 0) {
   wakeup(&uvn->u_nio);
  }
- if (result == 0)
+ if (result == 0) {
   return(0);
- else
+ } else {
+  while (rebooting)
+   tsleep(&rebooting, 4, "uvndead", 0);
   return(4);
+ }
 }
 int
 uvm_vnp_uncache(struct vnode *vp)
