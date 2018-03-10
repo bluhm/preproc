@@ -5323,6 +5323,10 @@ const struct usb_known_product usb_known_products[] = {
      "DWA-131 rev E1",
  },
  {
+     0x2001, 0x331c,
+     "DWA-182 rev D1",
+ },
+ {
      0x2001, 0x3700,
      "DWL-122",
  },
@@ -5701,6 +5705,14 @@ const struct usb_known_product usb_known_products[] = {
  {
      0x7392, 0x7822,
      "RTL8192CU",
+ },
+ {
+     0x7392, 0xa611,
+     "EW-7611ULB",
+ },
+ {
+     0x7392, 0xb822,
+     "EW-7822ULC",
  },
  {
      0x0eef, 0x0001,
@@ -11745,6 +11757,10 @@ const struct usb_known_product usb_known_products[] = {
  {
      0x0bda, 0x8754,
      "RTL8188CU",
+ },
+ {
+     0x0bda, 0xb720,
+     "RTL8723BU",
  },
  {
      0x0bda, 0xc512,
