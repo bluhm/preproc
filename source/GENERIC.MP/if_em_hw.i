@@ -5024,6 +5024,8 @@ em_set_mac_type(struct em_hw *hw)
   hw->initialize_hw_bits_disable = 1;
   break;
  case 0x1533:
+ case 0x1534:
+ case 0x1535:
  case 0x1536:
  case 0x1537:
  case 0x1538:
@@ -5078,6 +5080,7 @@ em_set_mac_type(struct em_hw *hw)
   break;
  case 0x10DF:
  case 0x10DE:
+ case 0x1525:
   hw->mac_type = em_ich10lan;
   break;
  case 0x10EB:

@@ -6206,7 +6206,7 @@ bnx_init_rx_chain(struct bnx_softc *sc)
   addr = (u_int32_t)sc->rx_bd_chain_paddr[j];
   rxbd->rx_bd_haddr_lo = addr;
  }
- if_rxr_init(&sc->rx_ring, 2, sc->max_rx_bd);
+ if_rxr_init(&sc->rx_ring, 16, sc->max_rx_bd);
  bnx_fill_rx_chain(sc);
  for (i = 0; i < 2; i++)
   bus_dmamap_sync(sc->bnx_dmatag, sc->rx_bd_chain_map[i], 0,

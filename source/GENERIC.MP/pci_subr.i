@@ -13272,6 +13272,10 @@ static const struct pci_known_product pci_known_products[] = {
      "I350 SGMII",
  },
  {
+     0x8086, 0x1525,
+     "ICH10 D BM V",
+ },
+ {
      0x8086, 0x1526,
      "82576",
  },
@@ -13293,6 +13297,14 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x8086, 0x1533,
+     "I210",
+ },
+ {
+     0x8086, 0x1534,
+     "I210",
+ },
+ {
+     0x8086, 0x1535,
      "I210",
  },
  {
@@ -13488,6 +13500,22 @@ static const struct pci_known_product pci_known_products[] = {
      "I219-LM",
  },
  {
+     0x8086, 0x15bb,
+     "I219-LM",
+ },
+ {
+     0x8086, 0x15bc,
+     "I219-V",
+ },
+ {
+     0x8086, 0x15bd,
+     "I219-LM",
+ },
+ {
+     0x8086, 0x15be,
+     "I219-V",
+ },
+ {
      0x8086, 0x15c2,
      "X553 Backplane",
  },
@@ -13529,6 +13557,22 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x8086, 0x15d8,
+     "I219-V",
+ },
+ {
+     0x8086, 0x15df,
+     "I219-LM",
+ },
+ {
+     0x8086, 0x15e0,
+     "I219-V",
+ },
+ {
+     0x8086, 0x15e1,
+     "I219-LM",
+ },
+ {
+     0x8086, 0x15e2,
      "I219-V",
  },
  {
