@@ -5279,11 +5279,12 @@ m_adj(struct mbuf *mp, int req_len)
   while (m != ((void *)0) && len > 0) {
    if (m->m_hdr.mh_len <= len) {
     len -= m->m_hdr.mh_len;
+    m->m_hdr.mh_data += m->m_hdr.mh_len;
     m->m_hdr.mh_len = 0;
     m = m->m_hdr.mh_next;
    } else {
-    m->m_hdr.mh_len -= len;
     m->m_hdr.mh_data += len;
+    m->m_hdr.mh_len -= len;
     len = 0;
    }
   }
@@ -5362,7 +5363,7 @@ m_pullup(struct mbuf *n, int len)
   m->m_hdr.mh_len = 0;
   m->m_hdr.mh_data += adj;
  }
- ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 931, "M_TRAILINGSPACE(m) >= len"));
+ ((m_trailingspace(m) >= len) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 932, "M_TRAILINGSPACE(m) >= len"));
  do {
   if (n == ((void *)0)) {
    (void)m_free(m);
@@ -5478,8 +5479,8 @@ m_makespace(struct mbuf *m0, int skip, int hlen, int *off)
 {
  struct mbuf *m;
  unsigned remain;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1079, "m0->m_flags & M_PKTHDR"));
- ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1086, "hlen < MHLEN"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1080, "m0->m_flags & M_PKTHDR"));
+ ((hlen < ((256 - sizeof(struct m_hdr)) - sizeof(struct pkthdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1087, "hlen < MHLEN"));
  for (m = m0; m && skip > m->m_hdr.mh_len; m = m->m_hdr.mh_next)
   skip -= m->m_hdr.mh_len;
  if (m == ((void *)0))
@@ -5648,7 +5649,7 @@ int
 m_dup_pkthdr(struct mbuf *to, struct mbuf *from, int wait)
 {
  int error;
- ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1318, "from->m_flags & M_PKTHDR"));
+ ((from->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1319, "from->m_flags & M_PKTHDR"));
  to->m_hdr.mh_flags = (to->m_hdr.mh_flags & (0x0001 | 0x0008));
  to->m_hdr.mh_flags |= (from->m_hdr.mh_flags & (0x0002|0x0004|0x0010|0x0100|0x0200|0x0400|0x4000| 0x0800|0x0040|0x1000|0x8000|0x0020|0x0080| 0x2000));
  to->M_dat.MH.MH_pkthdr = from->M_dat.MH.MH_pkthdr;
@@ -5666,7 +5667,7 @@ m_dup_pkt(struct mbuf *m0, unsigned int adj, int wait)
 {
  struct mbuf *m;
  int len;
- ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1346, "m0->m_flags & M_PKTHDR"));
+ ((m0->m_hdr.mh_flags & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/uipc_mbuf.c", 1347, "m0->m_flags & M_PKTHDR"));
  len = m0->M_dat.MH.MH_pkthdr.len + adj;
  if (len > (64 * 1024))
   return (((void *)0));

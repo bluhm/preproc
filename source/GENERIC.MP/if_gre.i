@@ -5844,7 +5844,7 @@ mgre_clone_create(struct if_clone *ifc, int unit)
  ifp->if_data.ifi_type = 0x88;
  ifp->if_data.ifi_hdrlen = (sizeof(struct ip) + sizeof(struct gre_header));
  ifp->if_data.ifi_mtu = 1476;
- ifp->if_flags = 0;
+ ifp->if_flags = 0x8000|0x800;
  ifp->if_xflags = 0x2;
  ifp->if_rtrequest = mgre_rtrequest;
  ifp->if_output = mgre_output;
@@ -6342,7 +6342,6 @@ nvgre_input(const struct gre_tunnel *key, struct mbuf *m, int hlen)
 {
  struct nvgre_softc *sc;
  struct mbuf_list ml = { ((void *)0), ((void *)0), 0 };
- extern int ticks;
  if (((m->m_hdr.mh_flags) & (0x0200|0x0100)))
   sc = nvgre_mcast_find(key, m->M_dat.MH.MH_pkthdr.ph_ifidx);
  else
@@ -6526,9 +6525,9 @@ mgre_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
   }
   if (ifa == ((void *)0))
    break;
-  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1511, "ifa == rt->rt_ifa"));
+  ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1510, "ifa == rt->rt_ifa"));
   lo0ifp = if_get(rtable_loindex(ifp->if_data.ifi_rdomain));
-  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1514, "lo0ifp != NULL"));
+  ((lo0ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1513, "lo0ifp != NULL"));
   for((lo0ifa) = ((&lo0ifp->if_addrlist)->tqh_first); (lo0ifa) != ((void *)0); (lo0ifa) = ((lo0ifa)->ifa_list.tqe_next)) {
    if (lo0ifa->ifa_addr->sa_family ==
        ifa->ifa_addr->sa_family)
@@ -6649,7 +6648,7 @@ mgre_start(struct ifnet *ifp)
    struct mbuf *n;
    int off;
    n = m_getptr(m, ifp->if_data.ifi_hdrlen, &off);
-   ((n != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1668, "n != NULL"));
+   ((n != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_gre.c", 1667, "n != NULL"));
    mh.mh_flags = 0;
    mh.mh_next = n->m_hdr.mh_next;
    mh.mh_len = n->m_hdr.mh_len - off;
