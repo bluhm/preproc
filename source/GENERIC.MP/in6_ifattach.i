@@ -3335,7 +3335,7 @@ in6_get_soii_ifid(struct ifnet *ifp, struct in6_addr *in6)
  SHA512Update(&ctx, &dad_counter, sizeof(dad_counter));
  SHA512Update(&ctx, ip6_soiikey, sizeof(ip6_soiikey));
  SHA512Final(digest, &ctx);
- __builtin_bcopy((digest), (&in6->__u6_addr.__u6_addr8[8]), (8));
+ __builtin_bcopy((digest + (sizeof(digest) - 8)), (&in6->__u6_addr.__u6_addr8[8]), (8));
  return 0;
 }
 void

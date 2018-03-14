@@ -9874,6 +9874,7 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
     return -22;
    }
    req_payload.num_slots = mgr->proposed_vcpis[i]->num_slots;
+   req_payload.vcpi = mgr->proposed_vcpis[i]->vcpi;
   } else {
    port = ((void *)0);
    req_payload.num_slots = 0;
@@ -9885,6 +9886,7 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
    if (req_payload.num_slots) {
     drm_dp_create_payload_step1(mgr, mgr->proposed_vcpis[i]->vcpi, &req_payload);
     mgr->payloads[i].num_slots = req_payload.num_slots;
+    mgr->payloads[i].vcpi = req_payload.vcpi;
    } else if (mgr->payloads[i].num_slots) {
     mgr->payloads[i].num_slots = 0;
     drm_dp_destroy_payload_step1(mgr, port, mgr->payloads[i].vcpi, &mgr->payloads[i]);
@@ -10028,7 +10030,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, _Bool m
   goto out_unlock;
  mgr->mst_state = mst_state;
  if (mst_state) {
-  ({ int __ret = !!(mgr->mst_primary); if (__ret) printf("WARNING %s failed at %s:%d\n", "mgr->mst_primary", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 2035); __builtin_expect(!!(__ret), 0); });
+  ({ int __ret = !!(mgr->mst_primary); if (__ret) printf("WARNING %s failed at %s:%d\n", "mgr->mst_primary", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_dp_mst_topology.c", 2037); __builtin_expect(!!(__ret), 0); });
   ret = drm_dp_dpcd_read(mgr->aux, 0x000, mgr->dpcd, 0xf);
   if (ret != 0xf) {
    do { } while( 0);

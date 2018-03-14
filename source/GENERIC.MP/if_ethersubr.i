@@ -3782,7 +3782,9 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
   goto dropanyway;
  ac = (struct arpcom *)ifp;
  eh = ((struct ether_header *)((m)->m_hdr.mh_data));
- if ((*(eh->ether_dhost) & 0x01)) {
+ if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_dhost), (6)) != 0) {
+  if (!(*(eh->ether_dhost) & 0x01))
+   goto dropanyway;
   if ((ifp->if_flags & 0x800) == 0) {
    if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_shost), (6)) == 0)
     goto dropanyway;
@@ -3795,10 +3797,6 @@ ether_input(struct ifnet *ifp, struct mbuf *m, void *cookie)
  }
  if (m->m_hdr.mh_flags & 0x0020)
   goto dropanyway;
- if ((m->m_hdr.mh_flags & (0x0100|0x0200)) == 0) {
-  if (__builtin_memcmp((ac->ac_enaddr), (eh->ether_dhost), (6)))
-   goto dropanyway;
- }
  etype = ((__uint16_t)(eh->ether_type));
  switch (etype) {
  case 0x0800:
@@ -3901,7 +3899,7 @@ ether_ifdetach(struct ifnet *ifp)
  struct ether_multi *enm;
  if_deactivate(ifp);
  if_ih_remove(ifp, ether_input, ((void *)0));
- (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 517, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
+ (((srp_get_locked(&(&ifp->if_inputs)->sl_head) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_ethersubr.c", 513, "SRPL_EMPTY_LOCKED(&ifp->if_inputs)"));
  for (enm = ((&ac->ac_multiaddrs)->lh_first);
      enm != ((void *)0);
      enm = ((&ac->ac_multiaddrs)->lh_first)) {

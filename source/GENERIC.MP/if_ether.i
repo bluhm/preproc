@@ -2990,6 +2990,7 @@ struct llinfo_arp {
 int arpt_prune = (5 * 60);
 int arpt_keep = (20 * 60);
 int arpt_down = 20;
+struct mbuf *arppullup(struct mbuf *m);
 void arpinvalidate(struct rtentry *);
 void arptfree(struct rtentry *);
 void arptimer(void *);
@@ -3078,7 +3079,7 @@ arp_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
     break;
   }
   if (ifa) {
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 205, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 206, "ifa == rt->rt_ifa"));
    rt->rt_rmx.rmx_expire = 0;
   }
   break;
@@ -3196,7 +3197,7 @@ arpresolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
  if (ifp->if_flags & (0x80|0x20))
   goto bad;
  la = (struct llinfo_arp *)rt->rt_llinfo;
- ((la != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 368, "la != NULL"));
+ ((la != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 369, "la != NULL"));
  if (la_hold_total < 100 && la_hold_total < nmbclust / 64) {
   struct mbuf *mh;
   if (((&la->la_ml)->ml_len) >= 10) {
@@ -3236,24 +3237,33 @@ bad:
  m_freem(m);
  return (22);
 }
-void
-arpinput(struct ifnet *ifp, struct mbuf *m)
+struct mbuf *
+arppullup(struct mbuf *m)
 {
  struct arphdr *ar;
  int len;
  if ((m->m_hdr.mh_flags & 0x0002) == 0)
-  panic("arpintr");
+  panic("arp without packet header");
  len = sizeof(struct arphdr);
  if (m->m_hdr.mh_len < len && (m = m_pullup(m, len)) == ((void *)0))
-  return;
+  return ((void *)0);
  ar = ((struct arphdr *)((m)->m_hdr.mh_data));
  if (((__uint16_t)(ar->ar_hrd)) != 1 ||
-     ((__uint16_t)(ar->ar_pro)) != 0x0800) {
+     ((__uint16_t)(ar->ar_pro)) != 0x0800 ||
+     ar->ar_hln != 6 ||
+     ar->ar_pln != sizeof(struct in_addr)) {
   m_freem(m);
-  return;
+  return ((void *)0);
  }
  len += 2 * (ar->ar_hln + ar->ar_pln);
  if (m->m_hdr.mh_len < len && (m = m_pullup(m, len)) == ((void *)0))
+  return ((void *)0);
+ return m;
+}
+void
+arpinput(struct ifnet *ifp, struct mbuf *m)
+{
+ if ((m = arppullup(m)) == ((void *)0))
   return;
  niq_enqueue(&arpinq, m);
 }
@@ -3321,7 +3331,7 @@ in_arpinput(struct ifnet *ifp, struct mbuf *m)
   itaddr = isaddr;
  } else if (rt != ((void *)0)) {
   int error;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 542);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 553);
   error = arpcache(ifp, ea, rt);
   _kernel_unlock();
   if (error)
@@ -3356,8 +3366,8 @@ arpcache(struct ifnet *ifp, struct ether_arp *ea, struct rtentry *rt)
  struct ifnet *rifp;
  unsigned int len;
  int changed = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 587, "_kernel_lock_held()"));
- ((sdl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 588, "sdl != NULL"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 598, "_kernel_lock_held()"));
+ ((sdl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 599, "sdl != NULL"));
  if (la == ((void *)0))
   return (0);
  if (sdl->sdl_alen > 0) {
@@ -3410,7 +3420,7 @@ arpcache(struct ifnet *ifp, struct ether_arp *ea, struct rtentry *rt)
   rt->rt_rmx.rmx_expire = time_uptime + arpt_keep;
  rt->rt_flags &= ~0x8;
  if (la->la_asked || changed) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 651);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 662);
   rtm_send(rt, 0xb, 0, ifp->if_data.ifi_rdomain);
   _kernel_unlock();
  }
@@ -3443,10 +3453,10 @@ void
 arptfree(struct rtentry *rt)
 {
  struct ifnet *ifp;
- ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 697, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
+ ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 708, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
  arpinvalidate(rt);
  ifp = if_get(rt->rt_ifidx);
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 701, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 712, "ifp != NULL"));
  if (!((rt->rt_flags) & (0x800|0x20000)))
   rtdeletemsg(rt, ifp, ifp->if_data.ifi_rdomain);
  if_put(ifp);
@@ -3510,23 +3520,9 @@ arpproxy(struct in_addr in, unsigned int rtableid)
 void
 revarpinput(struct ifnet *ifp, struct mbuf *m)
 {
- struct arphdr *ar;
- if (m->m_hdr.mh_len < sizeof(struct arphdr))
-  goto out;
- ar = ((struct arphdr *)((m)->m_hdr.mh_data));
- if (((__uint16_t)(ar->ar_hrd)) != 1)
-  goto out;
- if (m->m_hdr.mh_len < sizeof(struct arphdr) + 2 * (ar->ar_hln + ar->ar_pln))
-  goto out;
- switch (((__uint16_t)(ar->ar_pro))) {
- case 0x0800:
-  in_revarpinput(ifp, m);
+ if ((m = arppullup(m)) == ((void *)0))
   return;
- default:
-  break;
- }
-out:
- m_freem(m);
+ in_revarpinput(ifp, m);
 }
 void
 in_revarpinput(struct ifnet *ifp, struct mbuf *m)

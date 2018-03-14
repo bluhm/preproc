@@ -8151,6 +8151,7 @@ static struct edid_quirk {
  { "API", 0x7602, (1 << 0) },
  { "ACR", 2423, (1 << 5) },
  { "AEO", 0, (1 << 10) },
+ { "CPT", 0x17df, (1 << 10) },
  { "MAX", 1516, (1 << 0) },
  { "MAX", 0x77e, (1 << 0) },
  { "EPI", 59264, (1 << 1) },
@@ -8517,7 +8518,7 @@ _Bool drm_edid_block_valid(u8 *raw_edid, int block, _Bool print_bad_edid,
 {
  u8 csum;
  struct edid *edid = (struct edid *)raw_edid;
- if (({ int __ret = !!(!raw_edid); if (__ret) printf("WARNING %s failed at %s:%d\n", "!raw_edid", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 1104); __builtin_expect(!!(__ret), 0); }))
+ if (({ int __ret = !!(!raw_edid); if (__ret) printf("WARNING %s failed at %s:%d\n", "!raw_edid", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 1107); __builtin_expect(!!(__ret), 0); }))
   return 0;
  if (edid_fixup > 8 || edid_fixup < 0)
   edid_fixup = 6;
@@ -10149,8 +10150,8 @@ struct drm_connector *drm_select_eld(struct drm_encoder *encoder)
 {
  struct drm_connector *connector;
  struct drm_device *dev = encoder->dev;
- ({ int __ret = !!(!(rw_status(&dev->mode_config.mutex) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&dev->mode_config.mutex) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3477); __builtin_expect(!!(__ret), 0); });
- ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3478); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(!(rw_status(&dev->mode_config.mutex) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&dev->mode_config.mutex) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3480); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3481); __builtin_expect(!!(__ret), 0); });
  for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
   if (connector->encoder == encoder && connector->eld[0])
    return connector;
