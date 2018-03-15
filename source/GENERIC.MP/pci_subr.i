@@ -13548,6 +13548,18 @@ static const struct pci_known_product pci_known_products[] = {
      "X550T",
  },
  {
+     0x8086, 0x15d2,
+     "JHL6540 Thunderbolt",
+ },
+ {
+     0x8086, 0x15d3,
+     "JHL6540 Thunderbolt",
+ },
+ {
+     0x8086, 0x15d4,
+     "JHL6540 Thunderbolt",
+ },
+ {
      0x8086, 0x15d6,
      "I219-V",
  },
@@ -18144,12 +18156,20 @@ static const struct pci_known_product pci_known_products[] = {
      "HD Graphics 630",
  },
  {
+     0x8086, 0x5914,
+     "Core 8G Host",
+ },
+ {
      0x8086, 0x5915,
      "Core 7G Imaging Unit",
  },
  {
      0x8086, 0x5916,
      "HD Graphics 620",
+ },
+ {
+     0x8086, 0x5917,
+     "UHD Graphics 620",
  },
  {
      0x8086, 0x591a,
@@ -26242,6 +26262,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x144d, 0xa804,
      "SM961/PM961 NVMe",
+ },
+ {
+     0x144d, 0xa808,
+     "SM981/PM981 NVMe",
  },
  {
      0x1923, 0x0300,

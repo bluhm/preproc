@@ -5230,6 +5230,12 @@ ah_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   m_freem(m);
   return 13;
  }
+ if (skip + ahx->authsize + rplen > m->M_dat.MH.MH_pkthdr.len) {
+  ;
+  ahstat_inc(ahs_badauthl);
+  m_freem(m);
+  return 13;
+ }
  tdb->tdb_cur_bytes +=
      (m->M_dat.MH.MH_pkthdr.len - skip - hl * sizeof(u_int32_t));
  ahstat_add(ahs_ibytes, m->M_dat.MH.MH_pkthdr.len - skip - hl * sizeof(u_int32_t));
