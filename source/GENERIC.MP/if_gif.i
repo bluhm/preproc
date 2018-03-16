@@ -5077,8 +5077,6 @@ gif_input(struct gif_tunnel *key, struct mbuf **mp, int *offp, int proto,
   m->m_hdr.mh_flags &= ~0x1000;
   return (-1);
  }
- if (m->m_hdr.mh_flags & (0x0800 | 0x0400))
-  return (-1);
  key->t_rtableid = m->M_dat.MH.MH_pkthdr.ph_rtableid;
  sc = gif_find(key);
  if (sc == ((void *)0)) {

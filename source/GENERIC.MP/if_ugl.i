@@ -3173,7 +3173,7 @@ ugl_start(struct ifnet *ifp)
  if (m_head == ((void *)0))
   return;
  if (ugl_send(sc, m_head, 0)) {
-  ifq_deq_commit(&ifp->if_snd, m_head);
+  ifq_deq_rollback(&ifp->if_snd, m_head);
   ifq_set_oactive(&ifp->if_snd);
   return;
  }
@@ -3210,8 +3210,8 @@ ugl_init(void *xsc)
   }
  }
  ifp->if_flags |= 0x40;
- _splx(s);
  ifq_clr_oactive(&ifp->if_snd);
+ _splx(s);
 }
 int
 ugl_openpipes(struct ugl_softc *sc)

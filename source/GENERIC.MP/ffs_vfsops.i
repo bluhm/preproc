@@ -5536,8 +5536,6 @@ ffs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred, struct pr
    fs->fs_clean = (fs->fs_flags & 0x01) ? 0 : 1;
   } else {
    fs->fs_clean = 0;
-   printf("%s force dirty (dangling %d inflight %d)\n",
-       mp->mnt_stat.f_mntonname, fsa.nlink0, fsa.inflight);
   }
  }
  if (fs->fs_fmod != 0 && (error = ffs_sbupdate(ump, waitfor)) != 0)

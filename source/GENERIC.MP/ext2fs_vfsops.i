@@ -4507,8 +4507,6 @@ ext2fs_sync(struct mount *mp, int waitfor, int stall,
     fs->e2fs.e2fs_state = 0x01;
   } else {
    fs->e2fs.e2fs_state = 0;
-   printf("%s force dirty (dangling %d inflight %d)\n",
-       mp->mnt_stat.f_mntonname, esa.nlink0, esa.inflight);
   }
  }
  if (fs->e2fs_fmod != 0) {

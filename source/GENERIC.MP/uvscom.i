@@ -2285,7 +2285,6 @@ struct uvscom_softc {
  struct device sc_dev;
  struct usbd_device *sc_udev;
  struct usbd_interface *sc_iface;
- int sc_iface_number;
  struct usbd_interface *sc_intr_iface;
  int sc_intr_number;
  struct usbd_pipe *sc_intr_pipe;
@@ -2385,7 +2384,6 @@ uvscom_attach(struct device *parent, struct device *self, void *aux)
   return;
  }
  id = usbd_get_interface_descriptor(sc->sc_iface);
- sc->sc_iface_number = id->bInterfaceNumber;
  for (i = 0; i < id->bNumEndpoints; i++) {
   ed = usbd_interface2endpoint_descriptor(sc->sc_iface, i);
   if (ed == ((void *)0)) {
