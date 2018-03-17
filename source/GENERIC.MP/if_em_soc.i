@@ -3461,6 +3461,7 @@ typedef enum {
     em_pch2lan,
     em_pch_lpt,
     em_pch_spt,
+    em_pch_cnp,
     em_num_macs
 } em_mac_type;
 typedef enum {

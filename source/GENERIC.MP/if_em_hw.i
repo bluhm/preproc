@@ -3972,6 +3972,7 @@ typedef enum {
     em_pch2lan,
     em_pch_lpt,
     em_pch_spt,
+    em_pch_cnp,
     em_num_macs
 } em_mac_type;
 typedef enum {
@@ -5115,6 +5116,16 @@ em_set_mac_type(struct em_hw *hw)
  case 0x15D6:
   hw->mac_type = em_pch_spt;
   break;
+ case 0x15BD:
+ case 0x15BE:
+ case 0x15BB:
+ case 0x15BC:
+ case 0x15DF:
+ case 0x15E0:
+ case 0x15E1:
+ case 0x15E2:
+  hw->mac_type = em_pch_cnp;
+  break;
  case 0x5040:
   hw->mac_type = em_icp_xxxx;
   hw->icp_xxxx_port_num = 0;
@@ -5144,6 +5155,7 @@ em_set_mac_type(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   hw->swfwhw_semaphore_present = 1;
   hw->asf_firmware_present = 1;
   break;
@@ -5228,6 +5240,7 @@ em_set_media_type(struct em_hw *hw)
   case em_pch2lan:
   case em_pch_lpt:
   case em_pch_spt:
+  case em_pch_cnp:
   case em_82573:
   case em_82574:
    hw->media_type = em_media_type_copper;
@@ -5325,6 +5338,7 @@ em_reset_hw(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   if (!hw->phy_reset_disable &&
       em_check_phy_reset_block(hw) == 0) {
    ctrl |= 0x80000000;
@@ -5499,6 +5513,7 @@ em_initialize_hardware_bits(struct em_hw *hw)
   case em_pch2lan:
   case em_pch_lpt:
   case em_pch_spt:
+  case em_pch_cnp:
    if (hw->mac_type == em_ich8lan)
     reg_tarc0 |= 0x30000000;
    reg_ctrl_ext = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00018 : 0x00018));
@@ -5667,7 +5682,8 @@ em_init_hw(struct em_hw *hw)
  if (hw->mac_type == em_pchlan ||
   hw->mac_type == em_pch2lan ||
   hw->mac_type == em_pch_lpt ||
-  hw->mac_type == em_pch_spt) {
+  hw->mac_type == em_pch_spt ||
+  hw->mac_type == em_pch_cnp) {
   fwsm = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54));
   if ((fwsm & 0x00008000) == 0) {
    ctrl = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000));
@@ -5810,6 +5826,7 @@ em_init_hw(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   ctrl = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x03928 : 0x03928));
   ctrl = (ctrl & ~0x00FF0000) |
       0x01010000;
@@ -5889,6 +5906,7 @@ em_setup_link(struct em_hw *hw)
   case em_pch2lan:
   case em_pch_lpt:
   case em_pch_spt:
+  case em_pch_cnp:
   case em_82573:
   case em_82574:
    hw->fc = 3;
@@ -6159,7 +6177,8 @@ em_copper_link_igp_setup(struct em_hw *hw)
  if (hw->mac_type == em_pchlan ||
   hw->mac_type == em_pch2lan ||
   hw->mac_type == em_pch_lpt ||
-  hw->mac_type == em_pch_spt)
+  hw->mac_type == em_pch_spt ||
+  hw->mac_type == em_pch_cnp)
   ret_val = em_set_lplu_state_pchlan(hw, 0);
  else
   ret_val = em_set_d0_lplu_state(hw, 0);
@@ -6356,7 +6375,8 @@ em_copper_link_mgp_setup(struct em_hw *hw)
  if (hw->mac_type == em_pchlan ||
   hw->mac_type == em_pch2lan ||
   hw->mac_type == em_pch_lpt ||
-  hw->mac_type == em_pch_spt)
+  hw->mac_type == em_pch_spt ||
+  hw->mac_type == em_pch_cnp)
   ret_val = em_set_lplu_state_pchlan(hw, 0);
  ret_val = em_read_phy_reg(hw, 0x10, &phy_data);
  if (ret_val)
@@ -6686,6 +6706,7 @@ em_setup_copper_link(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   ret_val = em_write_kmrn_reg(hw, (((0x34) << 5) | ((4) & 0x1F)), 0xFFFF);
   if (ret_val)
    return ret_val;
@@ -7344,7 +7365,8 @@ em_check_for_link(struct em_hw *hw)
    em_check_downshift(hw);
    if (hw->mac_type == em_pch2lan ||
        hw->mac_type == em_pch_lpt ||
-       hw->mac_type == em_pch_spt) {
+       hw->mac_type == em_pch_spt ||
+       hw->mac_type == em_pch_cnp) {
     ret_val = em_set_eee_pchlan(hw);
     if (ret_val)
      return ret_val;
@@ -7810,7 +7832,8 @@ em_read_phy_reg(struct em_hw *hw, uint32_t reg_addr, uint16_t *phy_data)
  if (hw->mac_type == em_pchlan ||
   hw->mac_type == em_pch2lan ||
   hw->mac_type == em_pch_lpt ||
-  hw->mac_type == em_pch_spt)
+  hw->mac_type == em_pch_spt ||
+  hw->mac_type == em_pch_cnp)
   return (em_access_phy_reg_hv(hw, reg_addr, phy_data, 1));
  if (((hw->mac_type == em_80003es2lan) || (hw->mac_type == em_82575)) &&
      (bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00008 : 0x00008)) & 0x00000004)) {
@@ -7899,7 +7922,8 @@ em_read_phy_reg_ex(struct em_hw *hw, uint32_t reg_addr, uint16_t *phy_data)
    return -2;
   }
   *phy_data = (uint16_t) mdic;
-  if (hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)
+  if (hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt ||
+      hw->mac_type == em_pch_spt || hw->mac_type == em_pch_cnp)
    delay(100);
  } else {
   em_shift_out_mdi_bits(hw, 0xFFFFFFFF, 32);
@@ -7918,7 +7942,8 @@ em_write_phy_reg(struct em_hw *hw, uint32_t reg_addr, uint16_t phy_data)
  if (hw->mac_type == em_pchlan ||
   hw->mac_type == em_pch2lan ||
   hw->mac_type == em_pch_lpt ||
-  hw->mac_type == em_pch_spt)
+  hw->mac_type == em_pch_spt ||
+  hw->mac_type == em_pch_cnp)
   return (em_access_phy_reg_hv(hw, reg_addr, &phy_data, 0));
  if (em_swfw_sync_acquire(hw, hw->swfw))
   return -13;
@@ -7997,7 +8022,8 @@ em_write_phy_reg_ex(struct em_hw *hw, uint32_t reg_addr, uint16_t phy_data)
    ;
    return -2;
   }
-  if (hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)
+  if (hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt ||
+      hw->mac_type == em_pch_spt || hw->mac_type == em_pch_cnp)
    delay(100);
  } else {
   em_shift_out_mdi_bits(hw, 0xFFFFFFFF, 32);
@@ -8332,6 +8358,7 @@ em_match_gig_phy(struct em_hw *hw)
   break;
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   if (hw->phy_id == 0x015400A0)
    match = 1;
   break;
@@ -8590,6 +8617,7 @@ em_init_eeprom_params(struct em_hw *hw)
    break;
   }
  case em_pch_spt:
+ case em_pch_cnp:
   {
    int32_t i = 0;
    uint32_t flash_size = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, 0xc);
@@ -9007,6 +9035,7 @@ em_validate_eeprom_checksum(struct em_hw *hw)
   switch (hw->mac_type) {
   case em_pch_lpt:
   case em_pch_spt:
+  case em_pch_cnp:
    word = 0x0003;
    valid_csum_mask = 0x0001;
    break;
@@ -9402,7 +9431,8 @@ em_init_rx_addrs(struct em_hw *hw)
  uint32_t i;
  uint32_t rar_num;
  ;;
- if (hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt || hw->mac_type == em_pch2lan)
+ if (hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt ||
+     hw->mac_type == em_pch_cnp || hw->mac_type == em_pch2lan)
   if (em_phy_no_cable_workaround(hw))
    printf(" ...failed to apply em_phy_no_cable_"
        "workaround.\n");
@@ -9773,7 +9803,8 @@ em_clear_hw_cntrs(struct em_hw *hw)
      hw->mac_type == em_ich9lan ||
      hw->mac_type == em_ich10lan ||
      hw->mac_type == em_pchlan ||
-     (hw->mac_type != em_pch2lan && hw->mac_type != em_pch_lpt && hw->mac_type != em_pch_spt))
+     (hw->mac_type != em_pch2lan && hw->mac_type != em_pch_lpt &&
+      hw->mac_type != em_pch_spt && hw->mac_type != em_pch_cnp))
   return;
  temp = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x04104 : 0x04104));
  temp = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x04108 : 0x04108));
@@ -9866,6 +9897,7 @@ em_get_bus_info(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   hw->bus_type = em_bus_type_pci_express;
   hw->bus_speed = em_bus_speed_2500;
   hw->bus_width = em_bus_width_pciex_1;
@@ -10686,6 +10718,7 @@ em_get_auto_rd_done(struct em_hw *hw)
  case em_pch2lan:
  case em_pch_lpt:
  case em_pch_spt:
+ case em_pch_cnp:
   while (timeout) {
    if (bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00010 : 0x00010)) & 0x00000200)
     break;
@@ -10907,6 +10940,7 @@ em_valid_nvm_bank_detect_ich8lan(struct em_hw *hw, uint32_t *bank)
  ;;
  switch (hw->mac_type) {
  case em_pch_spt:
+ case em_pch_cnp:
   bank1_offset = hw->flash_bank_size * 2;
   act_offset = 0x13 * 2;
   *bank = 0;
@@ -10978,7 +11012,7 @@ em_read_eeprom_spt(struct em_hw *hw, uint16_t offset, uint16_t words,
  uint32_t bank_offset = 0;
  uint32_t dword = 0;
  uint16_t i = 0, add;
- if (hw->mac_type != em_pch_spt)
+ if (hw->mac_type < em_pch_spt)
   return -1;
  error = em_get_software_flag(hw);
  if (error != 0)
@@ -11045,7 +11079,7 @@ em_read_eeprom_ich8(struct em_hw *hw, uint16_t offset, uint16_t words,
  uint32_t bank_offset = 0;
  uint16_t word = 0;
  uint16_t i = 0;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   return em_read_eeprom_spt(hw, offset, words, data);
  error = em_get_software_flag(hw);
  if (error != 0)
@@ -11106,7 +11140,7 @@ em_ich8_cycle_init(struct em_hw *hw)
  int32_t error = 1;
  int32_t i = 0;
  ;;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   hsfsts.regval = bus_space_read_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004) & 0xFFFFUL;
  else
   hsfsts.regval = bus_space_read_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004);
@@ -11116,20 +11150,20 @@ em_ich8_cycle_init(struct em_hw *hw)
  }
  hsfsts.hsf_status.flcerr = 1;
  hsfsts.hsf_status.dael = 1;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   bus_space_write_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval & 0xFFFFUL);
  else
   bus_space_write_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval);
  if (hsfsts.hsf_status.flcinprog == 0) {
   hsfsts.hsf_status.flcdone = 1;
-  if (hw->mac_type == em_pch_spt)
+  if (hw->mac_type >= em_pch_spt)
    bus_space_write_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval & 0xFFFFUL);
   else
    bus_space_write_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval);
   error = 0;
  } else {
   for (i = 0; i < 5000; i++) {
-   if (hw->mac_type == em_pch_spt)
+   if (hw->mac_type >= em_pch_spt)
     hsfsts.regval = bus_space_read_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004) & 0xFFFFUL;
    else
     hsfsts.regval = bus_space_read_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004);
@@ -11141,7 +11175,7 @@ em_ich8_cycle_init(struct em_hw *hw)
   }
   if (error == 0) {
    hsfsts.hsf_status.flcdone = 1;
-   if (hw->mac_type == em_pch_spt)
+   if (hw->mac_type >= em_pch_spt)
     bus_space_write_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval & 0xFFFFUL);
    else
     bus_space_write_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, hsfsts.regval);
@@ -11158,17 +11192,17 @@ em_ich8_flash_cycle(struct em_hw *hw, uint32_t timeout)
  union ich8_hws_flash_status hsfsts;
  int32_t error = 1;
  uint32_t i = 0;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   hsflctl.regval = bus_space_read_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004) >> 16;
  else
   hsflctl.regval = bus_space_read_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0006);
  hsflctl.hsf_ctrl.flcgo = 1;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   bus_space_write_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004, (uint32_t)hsflctl.regval << 16);
  else
   bus_space_write_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0006, hsflctl.regval);
  do {
-  if (hw->mac_type == em_pch_spt)
+  if (hw->mac_type >= em_pch_spt)
    hsfsts.regval = bus_space_read_4(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004) & 0xFFFFUL;
   else
    hsfsts.regval = bus_space_read_2(((struct em_osdep *)(hw)->back)->flash_bus_space_tag, ((struct em_osdep *)(hw)->back)->flash_bus_space_handle, ((struct em_osdep *)(hw)->back)->em_flashoffset + 0x0004);
@@ -11238,7 +11272,7 @@ em_read_ich8_data32(struct em_hw *hw, uint32_t offset, uint32_t *data)
  int32_t error = -1;
  uint32_t count = 0;
  ;;
- if (hw->mac_type != em_pch_spt)
+ if (hw->mac_type < em_pch_spt)
   return error;
  if (offset > 0x00FFFFFF)
   return error;
@@ -11281,7 +11315,7 @@ em_write_ich8_data(struct em_hw *hw, uint32_t index, uint32_t size,
  int32_t error = -1;
  int32_t count = 0;
  ;;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   return -1;
  if (size < 1 || size > 2 || data > size * 0xff ||
      index > 0x00FFFFFF)
@@ -11323,7 +11357,7 @@ em_read_ich8_byte(struct em_hw *hw, uint32_t index, uint8_t *data)
 {
  int32_t status = 0;
  uint16_t word = 0;
- if (hw->mac_type == em_pch_spt)
+ if (hw->mac_type >= em_pch_spt)
   return -1;
  else
   status = em_read_ich8_data(hw, index, 1, &word);
@@ -11579,7 +11613,8 @@ em_init_lcd_from_nvm(struct em_hw *hw)
      hw->mac_type == em_pchlan ||
      hw->mac_type == em_pch2lan ||
      hw->mac_type == em_pch_lpt ||
-     hw->mac_type == em_pch_spt)
+     hw->mac_type == em_pch_spt ||
+     hw->mac_type == em_pch_cnp)
   sw_cfg_mask = (1 << 27);
  else
   sw_cfg_mask = 1;
