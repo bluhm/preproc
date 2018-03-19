@@ -4756,25 +4756,26 @@ void
 tcp_mtudisc(struct inpcb *inp, int errno)
 {
  struct tcpcb *tp = ((struct tcpcb *)(inp)->inp_ppcb);
- struct rtentry *rt = in_pcbrtentry(inp);
+ struct rtentry *rt;
  int change = 0;
- if (tp != 0) {
+ if (tp == ((void *)0))
+  return;
+ rt = in_pcbrtentry(inp);
+ if (rt != ((void *)0)) {
   int orig_maxseg = tp->t_maxseg;
-  if (rt != 0) {
-   if ((rt->rt_flags & 0x4) == 0) {
-    in_rtchange(inp, errno);
-    if ((rt = in_pcbrtentry(inp)) == 0)
-     return;
-   }
-   if (orig_maxseg != tp->t_maxseg ||
-       (rt->rt_rmx.rmx_locks & 0x1))
-    change = 1;
+  if ((rt->rt_flags & 0x4) == 0) {
+   in_rtchange(inp, errno);
+   if ((rt = in_pcbrtentry(inp)) == ((void *)0))
+    return;
   }
-  tcp_mss(tp, -1);
-  tp->snd_nxt = tp->snd_una;
-  if (change || errno > 0)
-   tcp_output(tp);
+  if (orig_maxseg != tp->t_maxseg ||
+      (rt->rt_rmx.rmx_locks & 0x1))
+   change = 1;
  }
+ tcp_mss(tp, -1);
+ tp->snd_nxt = tp->snd_una;
+ if (change || errno > 0)
+  tcp_output(tp);
 }
 void
 tcp_mtudisc_increase(struct inpcb *inp, int errno)
