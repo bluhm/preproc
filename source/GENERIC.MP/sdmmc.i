@@ -1561,6 +1561,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -2989,6 +2990,7 @@ struct sdmmc_chip_functions {
  void (*card_intr_mask)(sdmmc_chipset_handle_t, int);
  void (*card_intr_ack)(sdmmc_chipset_handle_t);
  int (*signal_voltage)(sdmmc_chipset_handle_t, int);
+ int (*hibernate_init)(sdmmc_chipset_handle_t, void *);
 };
 struct sdmmcbus_attach_args {
  const char *saa_busname;
@@ -3571,7 +3573,8 @@ sdmmc_mmc_command(struct sdmmc_softc *sc, struct sdmmc_command *cmd)
  rw_assert_wrlock(&sc->sc_lock);
  ((sc->sct)->exec_command((sc->sch), (cmd)));
  error = cmd->c_error;
- wakeup(cmd);
+ if (!cold)
+  wakeup(cmd);
  return error;
 }
 void

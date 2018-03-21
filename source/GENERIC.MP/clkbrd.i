@@ -1333,6 +1333,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;

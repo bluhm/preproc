@@ -981,6 +981,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -12887,6 +12888,10 @@ const struct usb_known_product usb_known_products[] = {
      "YAP Phone",
  },
  {
+     0x1e0e, 0x9001,
+     "SIM7600E modem",
+ },
+ {
      0x06ea, 0x0001,
      "NetComm Roadster II 56",
  },
@@ -16632,6 +16637,10 @@ const struct usb_known_vendor usb_known_vendors[] = {
  {
      0x1dd5,
      "MetaGeek",
+ },
+ {
+     0x1e0e,
+     "SIMCom Wireless Solutions Co., Ltd.",
  },
  {
      0x1e29,

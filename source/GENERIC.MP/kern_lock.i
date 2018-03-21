@@ -981,6 +981,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -1351,7 +1352,7 @@ _kernel_unlock(void)
 int
 _kernel_lock_held(void)
 {
- if (panicstr)
+ if (panicstr || db_active)
   return 1;
  return (__mp_lock_held(&kernel_lock, (__curcpu->ci_self)));
 }

@@ -981,6 +981,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -1801,7 +1802,7 @@ retry:
  while (__builtin_expect(((((o = rwl->rwl_owner) & op->check) != 0) != 0), 0)) {
   unsigned long set = o | op->wait_set;
   int do_sleep;
-  if (panicstr)
+  if (panicstr || db_active)
    return (0);
   rw_enter_diag(rwl, flags);
   if (flags & 0x0040UL)
@@ -1834,7 +1835,7 @@ _rw_exit(struct rwlock *rwl )
  unsigned long owner = rwl->rwl_owner;
  int wrlock = owner & 0x04UL;
  unsigned long set;
- if (panicstr)
+ if (panicstr || db_active)
   return;
  if (wrlock)
   rw_assert_wrlock(rwl);

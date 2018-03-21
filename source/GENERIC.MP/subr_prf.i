@@ -981,6 +981,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -2902,6 +2903,8 @@ panic(const char *fmt, ...)
 void
 splassert_fail(int wantipl, int haveipl, const char *func)
 {
+ if (panicstr || db_active)
+  return;
  printf("splassert: %s: want %d have %d\n", func, wantipl, haveipl);
  switch (splassert_ctl) {
  case 1:

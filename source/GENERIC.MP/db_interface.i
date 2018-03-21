@@ -1439,6 +1439,7 @@ extern const char ostype[];
 extern const char osversion[];
 extern const char osrelease[];
 extern int cold;
+extern int db_active;
 extern int ncpus;
 extern int ncpusfound;
 extern int nblkdev;
@@ -3176,7 +3177,6 @@ struct db_variable db_regs[] = {
 };
 struct db_variable *db_eregs = db_regs + (sizeof((db_regs)) / sizeof((db_regs)[0]));
 extern label_t *db_recover;
-int db_active = 0;
 extern char *trap_type[];
 void kdb_kbd_trap(struct trapframe64 *);
 void db_prom_cmd(db_expr_t, int, db_expr_t, char *);
