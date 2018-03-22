@@ -1673,6 +1673,8 @@ intr_establish(int level, struct intrhand *ih)
    nih->ih_clr = q->ih_clr;
    nih->ih_ack = q->ih_ack;
    q->ih_ack = ((void *)0);
+   nih->ih_bus = q->ih_bus;
+   nih->ih_cpu = q->ih_cpu;
    intrlev[ih->ih_number] = q = nih;
   } else
    q->ih_pil = min(q->ih_pil, ih->ih_pil);
@@ -1910,7 +1912,7 @@ sun4v_intr_devino_to_sysino(uint64_t devhandle, uint64_t devino, uint64_t *ino)
 {
  if (sun4v_group_interrupt_major < 3)
   return hv_intr_devino_to_sysino(devhandle, devino, ino);
- ((((devino)&(0x0000007c0LL|0x00000003fLL)) == devino) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intr.c", 398, "INTVEC(devino) == devino"));
+ ((((devino)&(0x0000007c0LL|0x00000003fLL)) == devino) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/intr.c", 400, "INTVEC(devino) == devino"));
  *ino = devino | 0x8000;
  return 0;
 }

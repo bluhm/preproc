@@ -2642,7 +2642,7 @@ audio_rintr(void *addr)
  }
  sc->rec.pos += sc->rec.blksz;
  audio_buf_wcommit(&sc->rec, sc->rec.blksz);
- if (sc->rec.used == sc->rec.len) {
+ if (sc->rec.used > sc->rec.len - sc->rec.blksz) {
   do {} while(0);
   sc->rec.xrun += sc->rec.blksz;
   audio_buf_rdiscard(&sc->rec, sc->rec.blksz);

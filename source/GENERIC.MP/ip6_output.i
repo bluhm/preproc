@@ -6445,6 +6445,11 @@ reroute:
    ifp = if_get(rtable_loindex(m->M_dat.MH.MH_pkthdr.ph_rtableid));
   else
    ifp = if_get(rt->rt_ifidx);
+  if (ifp == ((void *)0)) {
+   ip6stat_inc(ip6s_noroute);
+   error = 65;
+   goto bad;
+  }
  } else {
   *dst = dstsock;
  }

@@ -1871,6 +1871,8 @@ rw_status(struct rwlock *rwl)
 void
 rw_assert_wrlock(struct rwlock *rwl)
 {
+ if (panicstr || db_active)
+  return;
  if (!(rwl->rwl_owner & 0x04UL))
   panic("%s: lock not held", rwl->rwl_name);
  if (((struct proc *)((rwl)->rwl_owner & ~0x07UL)) != (struct proc *)(((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL))
@@ -1879,12 +1881,16 @@ rw_assert_wrlock(struct rwlock *rwl)
 void
 rw_assert_rdlock(struct rwlock *rwl)
 {
+ if (panicstr || db_active)
+  return;
  if (!((struct proc *)((rwl)->rwl_owner & ~0x07UL)) || (rwl->rwl_owner & 0x04UL))
   panic("%s: lock not shared", rwl->rwl_name);
 }
 void
 rw_assert_anylock(struct rwlock *rwl)
 {
+ if (panicstr || db_active)
+  return;
  switch (rw_status(rwl)) {
  case 0x0100UL:
   panic("%s: lock held by different process", rwl->rwl_name);
@@ -1895,6 +1901,8 @@ rw_assert_anylock(struct rwlock *rwl)
 void
 rw_assert_unlocked(struct rwlock *rwl)
 {
+ if (panicstr || db_active)
+  return;
  if (rwl->rwl_owner != 0L)
   panic("%s: lock held", rwl->rwl_name);
 }
@@ -1930,7 +1938,7 @@ _rrw_exit(struct rrwlock *rrwl )
 {
  if (((struct proc *)((&rrwl->rrwl_lock)->rwl_owner & ~0x07UL)) ==
      (struct proc *)(((long)(__curcpu->ci_self)->ci_curproc) & ~0x07UL)) {
-  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 409, "rrwl->rrwl_wcnt > 0"));
+  ((rrwl->rrwl_wcnt > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_rwlock.c", 421, "rrwl->rrwl_wcnt > 0"));
   rrwl->rrwl_wcnt--;
   if (rrwl->rrwl_wcnt != 0) {
    (void)0;

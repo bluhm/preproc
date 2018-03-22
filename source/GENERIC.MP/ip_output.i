@@ -6081,6 +6081,7 @@ reroute:
   else
    ifp = if_get(ro->ro_rt->rt_ifidx);
   if (ifp == ((void *)0)) {
+   ipstat_inc(ips_noroute);
    error = 65;
    goto bad;
   }
@@ -6140,7 +6141,7 @@ reroute:
   else {
    if (ipmforwarding && ip_mrouter[ifp->if_data.ifi_rdomain] &&
        (flags & 0x1) == 0) {
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 340);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/ip_output.c", 347);
     rv = ip_mforward(m, ifp);
     _kernel_unlock();
     if (rv != 0) {
