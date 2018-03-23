@@ -3748,6 +3748,7 @@ vldcp_attach(struct device *parent, struct device *self, void *aux)
   printf(", can't allocate rx queue\n");
   goto free_txqueue;
  }
+ lc->lc_rx_state = ((uint64_t)-1);
  for (svc = vldc_svc; svc->vs_name != ((void *)0); svc++) {
   if (strcmp(ca->ca_name, svc->vs_name) == 0) {
    svc->vs_sc = sc;
