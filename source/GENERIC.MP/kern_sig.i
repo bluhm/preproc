@@ -6015,7 +6015,7 @@ userret(struct proc *p)
   psignal(p, 26);
   _kernel_unlock();
  }
- if ((((p)->p_siglist == 0 || (((p)->p_p->ps_flags & 0x00000200) == 0 && ((p)->p_siglist & ~(p)->p_sigmask) == 0)) ? 0 : issignal(p)) != 0) {
+ if ((((p)->p_siglist & ~(p)->p_sigmask) != 0)) {
   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1837);
   while ((signum = (((p)->p_siglist == 0 || (((p)->p_p->ps_flags & 0x00000200) == 0 && ((p)->p_siglist & ~(p)->p_sigmask) == 0)) ? 0 : issignal(p))) != 0)
    postsig(p, signum);
