@@ -8153,6 +8153,7 @@ pledge_fail(struct proc *p, int error, uint64_t code)
  __builtin_memset((&sa), (0), (sizeof sa));
  sa.__sigaction_u.__sa_handler = (void (*)(int))0;
  setsigvec(p, 6, &sa);
+ atomic_clearbits_int(&p->p_sigmask, (1U << ((6)-1)));
  psignal(p, 6);
  p->p_p->ps_pledge = 0;
  return (error);

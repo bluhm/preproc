@@ -2825,7 +2825,7 @@ timeout_run(struct timeout *to)
 {
  void (*fn)(void *);
  void *arg;
- do { if ((&timeout_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&timeout_mutex), __func__); } while (0);
+ do { if (((&timeout_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&timeout_mutex), __func__); } while (0);
  to->to_flags &= ~2;
  to->to_flags |= 8;
  fn = to->to_func;

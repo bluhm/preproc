@@ -2916,7 +2916,7 @@ void pool_cache_gc(struct pool *);
 void pool_cache_pool_info(struct pool *, struct kinfo_pool *);
 int pool_cache_info(struct pool *, void *, size_t *);
 int pool_cache_cpus_info(struct pool *, void *, size_t *);
-int pool_debug = 0;
+int pool_debug = 1;
 struct pool_page_header *
   pool_p_alloc(struct pool *, int, int *);
 void pool_p_insert(struct pool *, struct pool_page_header *);
@@ -4424,12 +4424,12 @@ pool_lock_mtx_leave(union pool_lock *lock )
 void
 pool_lock_mtx_assert_locked(union pool_lock *lock)
 {
- do { if ((&lock->prl_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&lock->prl_mtx), __func__); } while (0);
+ do { if (((&lock->prl_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&lock->prl_mtx), __func__); } while (0);
 }
 void
 pool_lock_mtx_assert_unlocked(union pool_lock *lock)
 {
- do { if ((&lock->prl_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&lock->prl_mtx), __func__); } while (0);
+ do { if (((&lock->prl_mtx)->mtx_owner == (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p held in %s", (&lock->prl_mtx), __func__); } while (0);
 }
 int
 pool_lock_mtx_sleep(void *ident, union pool_lock *lock, int priority,

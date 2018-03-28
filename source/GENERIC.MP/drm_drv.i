@@ -9477,14 +9477,14 @@ drmread(dev_t kdev, struct uio *uio, int ioflag)
   return (error);
  }
  while (drm_dequeue_event(dev, file_priv, uio->uio_resid, &ev)) {
-  do { if ((&dev->event_lock)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&dev->event_lock), __func__); } while (0);
+  do { if (((&dev->event_lock)->mtx_owner == (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p held in %s", (&dev->event_lock), __func__); } while (0);
   error = uiomove(ev->event, ev->event->length, uio);
   ev->destroy(ev);
   if (error)
    break;
   __mtx_enter(&dev->event_lock );
  }
- do { if ((&dev->event_lock)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&dev->event_lock), __func__); } while (0);
+ do { if (((&dev->event_lock)->mtx_owner == (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p held in %s", (&dev->event_lock), __func__); } while (0);
  return (error);
 }
 int
@@ -9493,7 +9493,7 @@ drm_dequeue_event(struct drm_device *dev, struct drm_file *file_priv,
 {
  struct drm_pending_event *e = ((void *)0);
  int gotone = 0;
- do { if ((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
+ do { if (((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
  *out = ((void *)0);
  if (list_empty(&file_priv->event_list))
   goto out;

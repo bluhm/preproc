@@ -3839,6 +3839,7 @@ db_kill_cmd(db_expr_t addr, int have_addr, db_expr_t count, char *modif)
  __builtin_memset((&sa), (0), (sizeof sa));
  sa.__sigaction_u.__sa_handler = (void (*)(int))0;
  setsigvec(p, 6, &sa);
+ atomic_clearbits_int(&p->p_sigmask, (1U << ((6)-1)));
  psignal(p, 6);
 }
 void

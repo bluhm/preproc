@@ -3079,7 +3079,7 @@ uvm_mapent_free_insert(struct vm_map *map, struct uvm_addr_state *uaddr,
  const struct uvm_addr_functions *fun;
  ((void)0);
  (((entry->etype & 0x80) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_map.c", 391, "(entry->etype & UVM_ET_FREEMAPPED) == 0"));
- do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if ((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
+ do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if (((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
  if (uaddr != ((void *)0)) {
   fun = uaddr->uaddr_functions;
   ((void)0);
@@ -3096,7 +3096,7 @@ uvm_mapent_free_remove(struct vm_map *map, struct uvm_addr_state *uaddr,
  const struct uvm_addr_functions *fun;
  (((entry->etype & 0x80) != 0 || uaddr == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_map.c", 417, "(entry->etype & UVM_ET_FREEMAPPED) != 0 || uaddr == NULL"));
  ((uvm_map_uaddr_e(map, entry) == uaddr) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_map.c", 418, "uvm_map_uaddr_e(map, entry) == uaddr"));
- do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if ((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
+ do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if (((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
  if (uaddr != ((void *)0)) {
   fun = uaddr->uaddr_functions;
   if (fun->uaddr_free_remove != ((void *)0))
@@ -3112,7 +3112,7 @@ uvm_mapent_addr_insert(struct vm_map *map, struct vm_map_entry *entry)
   panic("uvm_mapent_addr_insert: entry still in addr list");
  ((void)0);
  ((void)0);
- do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if ((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
+ do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if (((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
  res = uvm_map_addr_RBT_INSERT(&map->addr, entry);
  if (res != ((void *)0)) {
   panic("uvm_mapent_addr_insert: map %p entry %p "
@@ -3127,7 +3127,7 @@ void
 uvm_mapent_addr_remove(struct vm_map *map, struct vm_map_entry *entry)
 {
  struct vm_map_entry *res;
- do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if ((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
+ do { if ((map)->ref_count > 0) { if (((map)->flags & 0x02) == 0) rw_assert_wrlock(&(map)->lock); else do { if (((&(map)->mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&(map)->mtx), __func__); } while (0); } } while (0);
  res = uvm_map_addr_RBT_REMOVE(&map->addr, entry);
  if (res != entry)
   panic("uvm_mapent_addr_remove");

@@ -4076,7 +4076,7 @@ bpf_movein(struct uio *uio, u_int linktype, struct mbuf **mp,
 void
 bpf_attachd(struct bpf_d *d, struct bpf_if *bp)
 {
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  d->bd_bif = bp;
  ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 282, "_kernel_lock_held()"));
  do { void *head; srp_init(&(d)->bd_next.se_next); head = srp_get_locked(&(&bp->bif_dlist)->sl_head); if (head != ((void *)0)) { (&bpf_d_rc)->srpl_ref(&(&bpf_d_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&bpf_d_rc)->srpl_gc, &(d)->bd_next.se_next, head); } (&bpf_d_rc)->srpl_ref(&(&bpf_d_rc)->srpl_gc.srp_gc_cookie, d); srp_update_locked(&(&bpf_d_rc)->srpl_gc, &(&bp->bif_dlist)->sl_head, (d)); } while (0);
@@ -4086,7 +4086,7 @@ void
 bpf_detachd(struct bpf_d *d)
 {
  struct bpf_if *bp;
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  bp = d->bd_bif;
  if (bp == ((void *)0))
   return;
@@ -4176,11 +4176,11 @@ bpfread(dev_t dev, struct uio *uio, int ioflag)
     error = 5;
     goto out;
    }
-   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 468, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 468, "d->bd_in_uiomove == 0")); do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
    break;
   }
   if (d->bd_immediate && d->bd_slen != 0) {
-   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 477, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 477, "d->bd_in_uiomove == 0")); do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
    break;
   }
   if (d->bd_rtout == -1) {
@@ -4201,7 +4201,7 @@ bpfread(dev_t dev, struct uio *uio, int ioflag)
     error = 0;
     goto out;
    }
-   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 510, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 510, "d->bd_in_uiomove == 0")); do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
    break;
   }
  }
@@ -4226,7 +4226,7 @@ out:
 void
 bpf_wakeup(struct bpf_d *d)
 {
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  bpf_get(d);
  if (!task_add(systq, &d->bd_wake_task))
   bpf_put(d);
@@ -4294,7 +4294,7 @@ out:
 void
 bpf_resetd(struct bpf_d *d)
 {
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 650, "d->bd_in_uiomove == 0"));
  if (d->bd_hbuf != ((void *)0)) {
   d->bd_fbuf = d->bd_hbuf;
@@ -4383,7 +4383,7 @@ bpfioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
    error = 22;
   } else if (d->bd_bif->bif_ifp != ((void *)0)) {
    if (d->bd_promisc == 0) {
-    do { if ((&d->bd_mtx)->mtx_owner == (__curcpu->ci_self)) panic("mutex %p held in %s", (&d->bd_mtx), __func__); } while (0);
+    do { if (((&d->bd_mtx)->mtx_owner == (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p held in %s", (&d->bd_mtx), __func__); } while (0);
     do { _rw_enter_write(&netlock ); } while (0);
     error = ifpromisc(d->bd_bif->bif_ifp, 1);
     do { _rw_exit_write(&netlock ); } while (0);
@@ -4803,7 +4803,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
  struct bpf_hdr *hp;
  int totlen, curlen;
  int hdrlen, do_wakeup = 0;
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  if (d->bd_bif == ((void *)0))
   return;
  hdrlen = d->bd_bif->bif_hdrlen;
@@ -4816,7 +4816,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
    ++d->bd_dcount;
    return;
   }
-  ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1489, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+  ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1489, "d->bd_in_uiomove == 0")); do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
   do_wakeup = 1;
   curlen = 0;
  }
@@ -4833,7 +4833,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
  if (d->bd_rdStart && (d->bd_rtout + d->bd_rdStart < ticks)) {
   if (d->bd_fbuf != ((void *)0)) {
    d->bd_rdStart = 0;
-   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1524, "d->bd_in_uiomove == 0")); do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
+   ((d->bd_in_uiomove == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/bpf.c", 1524, "d->bd_in_uiomove == 0")); do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0); (d)->bd_hbuf = (d)->bd_sbuf; (d)->bd_hlen = (d)->bd_slen; (d)->bd_sbuf = (d)->bd_fbuf; (d)->bd_slen = 0; (d)->bd_fbuf = ((void *)0);;
    do_wakeup = 1;
   }
  }
@@ -4843,7 +4843,7 @@ bpf_catchpacket(struct bpf_d *d, u_char *pkt, size_t pktlen, size_t snaplen,
 int
 bpf_allocbufs(struct bpf_d *d)
 {
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  d->bd_fbuf = malloc(d->bd_bufsize, 2, 0x0002);
  if (d->bd_fbuf == ((void *)0))
   return (12);
@@ -5012,7 +5012,7 @@ bpf_setdlt(struct bpf_d *d, u_int dlt)
 {
  const char *name;
  struct bpf_if *bp;
- do { if ((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
+ do { if (((&d->bd_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&d->bd_mtx), __func__); } while (0);
  if (d->bd_bif->bif_dlt == dlt)
   return (0);
  name = d->bd_bif->bif_name;

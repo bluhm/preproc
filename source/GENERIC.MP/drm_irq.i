@@ -7990,7 +7990,7 @@ static void store_vblank(struct drm_device *dev, unsigned int pipe,
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  u32 tslot;
- do { if ((&dev->vblank_time_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->vblank_time_lock), __func__); } while (0);
+ do { if (((&dev->vblank_time_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->vblank_time_lock), __func__); } while (0);
  vblank->last = last;
  tslot = vblank->count + vblank_count_inc;
  ((dev)->vblank[pipe].time[(tslot) % 2]) = *t_vblank;
@@ -8393,7 +8393,7 @@ static void send_vblank_event(struct drm_device *dev,
   struct drm_pending_vblank_event *e,
   unsigned long seq, struct timeval *now)
 {
- do { if ((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
+ do { if (((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
  e->event.sequence = seq;
  e->event.tv_sec = now->tv_sec;
  e->event.tv_usec = now->tv_usec;
@@ -8407,7 +8407,7 @@ static void send_vblank_event(struct drm_device *dev,
 void drm_arm_vblank_event(struct drm_device *dev, unsigned int pipe,
      struct drm_pending_vblank_event *e)
 {
- do { if ((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
+ do { if (((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
  e->pipe = pipe;
  e->event.sequence = drm_vblank_count(dev, pipe);
  list_add_tail(&e->base.link, &dev->vblank_event_list);
@@ -8444,7 +8444,7 @@ static int drm_vblank_enable(struct drm_device *dev, unsigned int pipe)
 {
  struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
  int ret = 0;
- do { if ((&dev->vbl_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->vbl_lock), __func__); } while (0);
+ do { if (((&dev->vbl_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->vbl_lock), __func__); } while (0);
  __mtx_enter(&dev->vblank_time_lock );
  if (!vblank->enabled) {
   ret = dev->driver->enable_vblank(dev, pipe);
@@ -8791,7 +8791,7 @@ static void drm_handle_vblank_events(struct drm_device *dev, unsigned int pipe)
  struct drm_pending_vblank_event *e, *t;
  struct timeval now;
  unsigned int seq;
- do { if ((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
+ do { if (((&dev->event_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&dev->event_lock), __func__); } while (0);
  seq = drm_vblank_count_and_time(dev, pipe, &now);
  for (e = ({ const __typeof( ((__typeof(*e) *)0)->base.link ) *__mptr = ((&dev->vblank_event_list)->next); (__typeof(*e) *)( (char *)__mptr - __builtin_offsetof(__typeof(*e), base.link) );}), t = ({ const __typeof( ((__typeof(*e) *)0)->base.link ) *__mptr = (e->base.link.next); (__typeof(*e) *)( (char *)__mptr - __builtin_offsetof(__typeof(*e), base.link) );}); &e->base.link != (&dev->vblank_event_list); e = t, t = ({ const __typeof( ((__typeof(*t) *)0)->base.link ) *__mptr = (t->base.link.next); (__typeof(*t) *)( (char *)__mptr - __builtin_offsetof(__typeof(*t), base.link) );})) {
   if (e->pipe != pipe)

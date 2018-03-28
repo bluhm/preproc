@@ -6432,7 +6432,7 @@ ip_reass(struct ipqent *ipqe, struct ipq *fp)
  int hlen = ipqe->ipqe_ip->ip_hl << 2;
  int i, next;
  u_int8_t ecn, ecn0;
- do { if ((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
+ do { if (((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
  m->m_hdr.mh_data += hlen;
  m->m_hdr.mh_len -= hlen;
  if (fp == ((void *)0)) {
@@ -6557,7 +6557,7 @@ void
 ip_freef(struct ipq *fp)
 {
  struct ipqent *q;
- do { if ((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
+ do { if (((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
  while ((q = ((&fp->ipq_fragq)->lh_first)) != ((void *)0)) {
   do { if ((q)->ipqe_q.le_next != ((void *)0)) (q)->ipqe_q.le_next->ipqe_q.le_prev = (q)->ipqe_q.le_prev; *(q)->ipqe_q.le_prev = (q)->ipqe_q.le_next; ((q)->ipqe_q.le_prev) = ((void *)-1); ((q)->ipqe_q.le_next) = ((void *)-1); } while (0);
   m_freem(q->ipqe_m);
@@ -6584,7 +6584,7 @@ void
 ip_flush(void)
 {
  int max = 50;
- do { if ((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
+ do { if (((&ipq_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&ipq_mutex), __func__); } while (0);
  while (!(((&ipq)->lh_first) == ((void *)0)) && ip_frags > ip_maxqueue * 3 / 4 && --max) {
   ipstat_inc(ips_fragdropped);
   ip_freef(((&ipq)->lh_first));

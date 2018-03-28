@@ -6277,7 +6277,7 @@ icmp6_reflect(struct mbuf *m, size_t off)
    if ((m = m_pullup(m, l)) == ((void *)0))
     return;
   }
-  __builtin_bcopy(((caddr_t)&nip6), (((caddr_t)((m)->m_hdr.mh_data))), (sizeof(nip6)));
+  __builtin_memcpy((((caddr_t)((m)->m_hdr.mh_data))), (&nip6), (sizeof(nip6)));
  } else {
   size_t l;
   l = sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr);
@@ -6405,7 +6405,7 @@ icmp6_redirect_input(struct mbuf *m, int off)
  __builtin_bzero((&sin6), (sizeof(sin6)));
  sin6.sin6_family = 24;
  sin6.sin6_len = sizeof(struct sockaddr_in6);
- __builtin_bcopy((&reddst6), (&sin6.sin6_addr), (sizeof(reddst6)));
+ __builtin_memcpy((&sin6.sin6_addr), (&reddst6), (sizeof(reddst6)));
  rt = rtalloc(sin6tosa(&sin6), 0, m->M_dat.MH.MH_pkthdr.ph_rtableid);
  if (rt) {
   if (rt->rt_gateway == ((void *)0) ||
@@ -6470,9 +6470,9 @@ icmp6_redirect_input(struct mbuf *m, int off)
   sdst.sin6_family = sgw.sin6_family = ssrc.sin6_family = 24;
   sdst.sin6_len = sgw.sin6_len = ssrc.sin6_len =
    sizeof(struct sockaddr_in6);
-  __builtin_bcopy((&redtgt6), (&sgw.sin6_addr), (sizeof(struct in6_addr)));
-  __builtin_bcopy((&reddst6), (&sdst.sin6_addr), (sizeof(struct in6_addr)));
-  __builtin_bcopy((&src6), (&ssrc.sin6_addr), (sizeof(struct in6_addr)));
+  __builtin_memcpy((&sgw.sin6_addr), (&redtgt6), (sizeof(struct in6_addr)));
+  __builtin_memcpy((&sdst.sin6_addr), (&reddst6), (sizeof(struct in6_addr)));
+  __builtin_memcpy((&ssrc.sin6_addr), (&src6), (sizeof(struct in6_addr)));
   rtredirect(sin6tosa(&sdst), sin6tosa(&sgw), sin6tosa(&ssrc),
       &newrt, m->M_dat.MH.MH_pkthdr.ph_rtableid);
   if (newrt) {
@@ -6486,7 +6486,7 @@ icmp6_redirect_input(struct mbuf *m, int off)
   __builtin_bzero((&sdst), (sizeof(sdst)));
   sdst.sin6_family = 24;
   sdst.sin6_len = sizeof(struct sockaddr_in6);
-  __builtin_bcopy((&reddst6), (&sdst.sin6_addr), (sizeof(struct in6_addr)));
+  __builtin_memcpy((&sdst.sin6_addr), (&reddst6), (sizeof(struct in6_addr)));
   pfctlinput(15, sin6tosa(&sdst));
  }
  freeit:

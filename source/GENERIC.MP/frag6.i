@@ -3774,7 +3774,7 @@ frag6_freef(struct ip6q *q6)
 void
 frag6_unlink(struct ip6q *q6, struct ip6q_head *rmq6)
 {
- do { if ((&frag6_mutex)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&frag6_mutex), __func__); } while (0);
+ do { if (((&frag6_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&frag6_mutex), __func__); } while (0);
  do { if (((q6)->ip6q_queue.tqe_next) != ((void *)0)) (q6)->ip6q_queue.tqe_next->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_prev; else (&frag6_queue)->tqh_last = (q6)->ip6q_queue.tqe_prev; *(q6)->ip6q_queue.tqe_prev = (q6)->ip6q_queue.tqe_next; ((q6)->ip6q_queue.tqe_prev) = ((void *)-1); ((q6)->ip6q_queue.tqe_next) = ((void *)-1); } while (0);
  do { if (((q6)->ip6q_queue.tqe_next = (rmq6)->tqh_first) != ((void *)0)) (rmq6)->tqh_first->ip6q_queue.tqe_prev = &(q6)->ip6q_queue.tqe_next; else (rmq6)->tqh_last = &(q6)->ip6q_queue.tqe_next; (rmq6)->tqh_first = (q6); (q6)->ip6q_queue.tqe_prev = &(rmq6)->tqh_first; } while (0);
  frag6_nfrags -= q6->ip6q_nfrag;

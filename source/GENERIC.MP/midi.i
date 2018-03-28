@@ -2702,7 +2702,7 @@ midi_iintr(void *addr, int data)
 {
  struct midi_softc *sc = (struct midi_softc *)addr;
  struct midi_buffer *mb = &sc->inbuf;
- do { if ((&audio_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
+ do { if (((&audio_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
  if (!(sc->dev.dv_flags & 0x0001) || !(sc->flags & 0x0001))
   return;
  if (((mb)->used >= (1 << 10)))
@@ -2769,7 +2769,7 @@ midi_ointr(void *addr)
 {
  struct midi_softc *sc = (struct midi_softc *)addr;
  struct midi_buffer *mb;
- do { if ((&audio_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
+ do { if (((&audio_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
  if (!(sc->dev.dv_flags & 0x0001) || !(sc->flags & 0x0002))
   return;
  mb = &sc->outbuf;

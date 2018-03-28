@@ -3287,7 +3287,7 @@ in6_get_hw_ifid(struct ifnet *ifp, struct in6_addr *in6)
   if (__builtin_bcmp((addr), (allone), (addrlen)) == 0)
    return -1;
   if (addrlen == 8)
-   __builtin_bcopy((addr), (&in6->__u6_addr.__u6_addr8[8]), (8));
+   __builtin_memcpy((&in6->__u6_addr.__u6_addr8[8]), (addr), (8));
   else if (addrlen == 6) {
    in6->__u6_addr.__u6_addr8[8] = addr[0];
    in6->__u6_addr.__u6_addr8[9] = addr[1];
@@ -3336,7 +3336,7 @@ in6_get_soii_ifid(struct ifnet *ifp, struct in6_addr *in6)
  SHA512Update(&ctx, &dad_counter, sizeof(dad_counter));
  SHA512Update(&ctx, ip6_soiikey, sizeof(ip6_soiikey));
  SHA512Final(digest, &ctx);
- __builtin_bcopy((digest + (sizeof(digest) - 8)), (&in6->__u6_addr.__u6_addr8[8]), (8));
+ __builtin_memcpy((&in6->__u6_addr.__u6_addr8[8]), (digest + (sizeof(digest) - 8)), (8));
  return 0;
 }
 void
@@ -3474,7 +3474,7 @@ in6_nigroup(struct ifnet *ifp, const char *name, int namelen,
  sa6->sin6_addr.__u6_addr.__u6_addr16[0] = ((__uint16_t)(0xff02));
  sa6->sin6_addr.__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifp->if_index));
  sa6->sin6_addr.__u6_addr.__u6_addr8[11] = 2;
- __builtin_bcopy((digest), (&sa6->sin6_addr.__u6_addr.__u6_addr32[3]), (sizeof(sa6->sin6_addr.__u6_addr.__u6_addr32[3])));
+ __builtin_memcpy((&sa6->sin6_addr.__u6_addr.__u6_addr32[3]), (digest), (sizeof(sa6->sin6_addr.__u6_addr.__u6_addr32[3])));
  return 0;
 }
 int

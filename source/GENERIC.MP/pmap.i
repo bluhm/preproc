@@ -4968,7 +4968,7 @@ pmap_page_cache(struct pmap *pm, paddr_t pa, int mode)
  pv = &pg->mdpage.pvent;
  if (pv == ((void *)0))
   return;
- do { if ((&pg->mdpage.pvmtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&pg->mdpage.pvmtx), __func__); } while (0);
+ do { if (((&pg->mdpage.pvmtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&pg->mdpage.pvmtx), __func__); } while (0);
  while (pv) {
   vaddr_t va;
   va = (pv->pv_va & (~((1 << 13) - 1)));

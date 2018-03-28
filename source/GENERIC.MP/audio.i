@@ -2566,7 +2566,7 @@ audio_pintr(void *addr)
  unsigned char *ptr;
  size_t count;
  int error, nblk, todo;
- do { if ((&audio_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
+ do { if (((&audio_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
  if (!(sc->mode & 0x01) || !sc->active) {
   printf("%s: play interrupt but not playing\n", ((sc)->dev.dv_xname));
   return;
@@ -2620,7 +2620,7 @@ audio_rintr(void *addr)
  unsigned char *ptr;
  size_t count;
  int error, nblk, todo;
- do { if ((&audio_lock)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
+ do { if (((&audio_lock)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&audio_lock), __func__); } while (0);
  if (!(sc->mode & 0x02) || !sc->active) {
   printf("%s: rec interrupt but not recording\n", ((sc)->dev.dv_xname));
   return;

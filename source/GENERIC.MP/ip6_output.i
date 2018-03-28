@@ -6690,7 +6690,7 @@ ip6_copyexthdr(struct mbuf **mp, caddr_t hdr, int hlen)
  }
  m->m_hdr.mh_len = hlen;
  if (hdr)
-  __builtin_bcopy((hdr), (((caddr_t)((m)->m_hdr.mh_data))), (hlen));
+  __builtin_memcpy((((caddr_t)((m)->m_hdr.mh_data))), (hdr), (hlen));
  *mp = m;
  return (0);
 }
@@ -6727,7 +6727,7 @@ ip6_insert_jumboopt(struct ip6_exthdrs *exthdrs, u_int32_t plen)
    if (!n)
     return (55);
    n->m_hdr.mh_len = oldoptlen + 8;
-   __builtin_bcopy((((caddr_t)((mopt)->m_hdr.mh_data))), (((caddr_t)((n)->m_hdr.mh_data))), (oldoptlen));
+   __builtin_memcpy((((caddr_t)((n)->m_hdr.mh_data))), (((caddr_t)((mopt)->m_hdr.mh_data))), (oldoptlen));
    optbuf = ((u_int8_t *)((n)->m_hdr.mh_data)) + oldoptlen;
    m_freem(mopt);
    mopt = exthdrs->ip6e_hbh = n;

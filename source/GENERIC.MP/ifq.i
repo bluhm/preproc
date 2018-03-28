@@ -2710,7 +2710,7 @@ ifq_q_leave(struct ifqueue *ifq, void *q)
 void
 ifq_mfreem(struct ifqueue *ifq, struct mbuf *m)
 {
- do { if ((&ifq->ifq_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&ifq->ifq_mtx), __func__); } while (0);
+ do { if (((&ifq->ifq_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&ifq->ifq_mtx), __func__); } while (0);
  ifq->ifq_len--;
  ifq->ifq_qdrops++;
  ml_enqueue(&ifq->ifq_free, m);
@@ -2718,7 +2718,7 @@ ifq_mfreem(struct ifqueue *ifq, struct mbuf *m)
 void
 ifq_mfreeml(struct ifqueue *ifq, struct mbuf_list *ml)
 {
- do { if ((&ifq->ifq_mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (&ifq->ifq_mtx), __func__); } while (0);
+ do { if (((&ifq->ifq_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&ifq->ifq_mtx), __func__); } while (0);
  ifq->ifq_len -= ((ml)->ml_len);
  ifq->ifq_qdrops += ((ml)->ml_len);
  ml_enlist(&ifq->ifq_free, ml);

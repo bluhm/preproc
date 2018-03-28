@@ -5063,13 +5063,8 @@ uvm_wxcheck(struct proc *p, char *call)
  if (pr->ps_wxcounter++ == 0)
   log(5, "%s(%d): %s W^X violation\n",
       pr->ps_comm, pr->ps_pid, call);
- if (uvm_wxabort) {
-  struct sigaction sa;
-  __builtin_memset((&sa), (0), (sizeof sa));
-  sa.__sigaction_u.__sa_handler = (void (*)(int))0;
-  setsigvec(p, 6, &sa);
-  psignal(p, 6);
- }
+ if (uvm_wxabort)
+  sigexit(p, 6);
  return (91);
 }
 int
@@ -5124,7 +5119,7 @@ sys_mmap(struct proc *p, void *v, register_t *retval)
    return (22);
  }
  if ((flags & 0x1000) == 0) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 426);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 422);
   if ((fp = fd_getfile(fdp, fd)) == ((void *)0)) {
    _kernel_unlock();
    return (9);
@@ -5271,14 +5266,14 @@ sys_munmap(struct proc *p, void *v, register_t *retval)
  if (vm_min_address > 0 && addr < vm_min_address)
   return (22);
  map = &p->p_vmspace->vm_map;
- vm_map_lock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 661);
+ vm_map_lock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 657);
  if (!uvm_map_checkprot(map, addr, addr + size, 0x00)) {
-  vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 668);
+  vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 664);
   return (22);
  }
  do { (&dead_entries)->tqh_first = ((void *)0); (&dead_entries)->tqh_last = &(&dead_entries)->tqh_first; } while (0);
  uvm_unmap_remove(map, addr, addr + size, &dead_entries, 0, 1);
- vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 675);
+ vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 671);
  uvm_unmap_detach(&dead_entries, 0);
  return (0);
 }
@@ -5429,13 +5424,13 @@ uvm_mmaplock(vm_map_t map, vaddr_t *addr, vsize_t size, vm_prot_t prot,
  if (prot == 0x00) {
   return (0);
  }
- vm_map_lock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 979);
+ vm_map_lock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 975);
  if (map->flags & 0x04) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 981);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 977);
   if ((((size) >> 13) + uvmexp.wired) > uvmexp.wiredmax
   ) {
    error = 12;
-   vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 990);
+   vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 986);
    uvm_unmap(map, *addr, *addr + size);
    _kernel_unlock();
    return (error);
@@ -5450,7 +5445,7 @@ uvm_mmaplock(vm_map_t map, vaddr_t *addr, vsize_t size, vm_prot_t prot,
   _kernel_unlock();
   return (0);
  }
- vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1011);
+ vm_map_unlock_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1007);
  return (0);
 }
 int
@@ -5601,10 +5596,10 @@ sys_kbind(struct proc *p, void *v, register_t *retval)
   baseva = ((baseva) & ~((1 << 13) - 1));
   if (baseva != last_baseva) {
    if (kva != 0) {
-    vm_map_lock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1268);
+    vm_map_lock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1264);
     uvm_unmap_remove(kernel_map, kva,
         kva+(1 << 13), &dead_entries, 0, 1);
-    vm_map_unlock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1271);
+    vm_map_unlock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1267);
     kva = 0;
    }
    if ((error = uvm_map_extract(&p->p_vmspace->vm_map,
@@ -5618,10 +5613,10 @@ sys_kbind(struct proc *p, void *v, register_t *retval)
   data += paramp[i].kb_size;
  }
  if (kva != 0) {
-  vm_map_lock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1288);
+  vm_map_lock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1284);
   uvm_unmap_remove(kernel_map, kva, kva+(1 << 13),
       &dead_entries, 0, 1);
-  vm_map_unlock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1291);
+  vm_map_unlock_ln(kernel_map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_mmap.c", 1287);
  }
  uvm_unmap_detach(&dead_entries, 0x2);
  return (error);

@@ -1439,6 +1439,8 @@ __mtx_init(struct mutex *mtx, int wantipl)
 void
 __mtx_enter(struct mutex *mtx)
 {
+ if (panicstr || db_active)
+  return;
  while (__mtx_enter_try(mtx) == 0) {
   do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
  }
@@ -1468,7 +1470,9 @@ void
 __mtx_leave(struct mutex *mtx)
 {
  int s;
- do { if ((mtx)->mtx_owner != (__curcpu->ci_self)) panic("mutex %p not held in %s", (mtx), __func__); } while (0);
+ if (panicstr || db_active)
+  return;
+ do { if (((mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (mtx), __func__); } while (0);
  (__curcpu->ci_self)->ci_mutex_level--;
  s = mtx->mtx_oldipl;
  __asm volatile("membar " "#LoadStore|#StoreStore" ::: "memory");
