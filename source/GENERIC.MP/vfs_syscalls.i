@@ -6891,19 +6891,22 @@ sys_pread(struct proc *p, void *v, register_t *retval)
  struct vnode *vp;
  off_t offset;
  int fd = ((uap)->fd.be.datum);
+ iov.iov_base = ((uap)->buf.be.datum);
+ iov.iov_len = ((uap)->nbyte.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (29);
  }
- iov.iov_base = ((uap)->buf.be.datum);
- iov.iov_len = ((uap)->nbyte.be.datum);
  offset = ((uap)->offset.be.datum);
- if (offset < 0 && vp->v_type != VCHR)
+ if (offset < 0 && vp->v_type != VCHR) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (22);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ }
  return (dofilereadv(p, fd, fp, &iov, 1, 0, &offset, retval));
 }
 int
@@ -6917,15 +6920,18 @@ sys_preadv(struct proc *p, void *v, register_t *retval)
  int fd = ((uap)->fd.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (29);
  }
  offset = ((uap)->offset.be.datum);
- if (offset < 0 && vp->v_type != VCHR)
+ if (offset < 0 && vp->v_type != VCHR) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (22);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ }
  return (dofilereadv(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &offset, retval));
 }
@@ -6939,19 +6945,22 @@ sys_pwrite(struct proc *p, void *v, register_t *retval)
  struct vnode *vp;
  off_t offset;
  int fd = ((uap)->fd.be.datum);
+ iov.iov_base = (void *)((uap)->buf.be.datum);
+ iov.iov_len = ((uap)->nbyte.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (29);
  }
- iov.iov_base = (void *)((uap)->buf.be.datum);
- iov.iov_len = ((uap)->nbyte.be.datum);
  offset = ((uap)->offset.be.datum);
- if (offset < 0 && vp->v_type != VCHR)
+ if (offset < 0 && vp->v_type != VCHR) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (22);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ }
  return (dofilewritev(p, fd, fp, &iov, 1, 0, &offset, retval));
 }
 int
@@ -6965,15 +6974,18 @@ sys_pwritev(struct proc *p, void *v, register_t *retval)
  int fd = ((uap)->fd.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (29);
  }
  offset = ((uap)->offset.be.datum);
- if (offset < 0 && vp->v_type != VCHR)
+ if (offset < 0 && vp->v_type != VCHR) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (22);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ }
  return (dofilewritev(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum),
      1, &offset, retval));
 }

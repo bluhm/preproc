@@ -8496,9 +8496,9 @@ void drm_vblank_put(struct drm_device *dev, unsigned int pipe)
  if ((__sync_sub_and_fetch((&vblank->refcount), 1) == 0)) {
   if (drm_vblank_offdelay == 0)
    return;
-  else if (dev->vblank_disable_immediate || drm_vblank_offdelay < 0)
+  else if (drm_vblank_offdelay < 0)
    vblank_disable_fn((unsigned long)vblank);
-  else
+  else if (!dev->vblank_disable_immediate)
    timeout_add((&vblank->disable_timer), (jiffies + ((drm_vblank_offdelay * hz)/1000) - jiffies));
  }
 }
@@ -8824,6 +8824,10 @@ _Bool drm_handle_vblank(struct drm_device *dev, unsigned int pipe)
  __mtx_leave(&dev->vblank_time_lock );
  do { __mtx_enter(&(&vblank->queue)->lock ); wakeup(&vblank->queue); __mtx_leave(&(&vblank->queue)->lock ); } while (0);
  drm_handle_vblank_events(dev, pipe);
+ if (dev->vblank_disable_immediate &&
+     drm_vblank_offdelay > 0 &&
+     !(*(&vblank->refcount)))
+  vblank_disable_fn((unsigned long)vblank);
  _spin_unlock_irqrestore(&dev->event_lock, irqflags );
  return 1;
 }

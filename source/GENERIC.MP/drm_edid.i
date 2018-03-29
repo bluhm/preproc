@@ -10048,6 +10048,11 @@ void drm_edid_to_eld(struct drm_connector *connector, struct edid *edid)
   }
  }
  eld[5] |= sad_count << 4;
+ if (connector->connector_type == 10 ||
+     connector->connector_type == 14)
+  eld[5] |= (1 << 2);
+ else
+  eld[5] |= (0 << 2);
  eld[2] =
   (((drm_eld_calc_baseline_block_size(eld)) + ((4) - 1)) / (4));
  do { } while( 0);
@@ -10151,8 +10156,8 @@ struct drm_connector *drm_select_eld(struct drm_encoder *encoder)
 {
  struct drm_connector *connector;
  struct drm_device *dev = encoder->dev;
- ({ int __ret = !!(!(rw_status(&dev->mode_config.mutex) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&dev->mode_config.mutex) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3480); __builtin_expect(!!(__ret), 0); });
- ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3481); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(!(rw_status(&dev->mode_config.mutex) == 0x0001UL)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&dev->mode_config.mutex) == 0x0001UL)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3485); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(!drm_modeset_is_locked(&dev->mode_config.connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!drm_modeset_is_locked(&dev->mode_config.connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_edid.c", 3486); __builtin_expect(!!(__ret), 0); });
  for (assert_drm_connector_list_read_locked(&(dev)->mode_config), connector = ({ const __typeof( ((struct drm_connector *)0)->head ) *__mptr = ((&(dev)->mode_config.connector_list)->next); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, head) );}); &connector->head != (&(dev)->mode_config.connector_list); connector = ({ const __typeof( ((typeof(*(connector)) *)0)->head ) *__mptr = (((connector)->head.next)); (typeof(*(connector)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(connector)), head) );}))
   if (connector->encoder == encoder && connector->eld[0])
    return connector;

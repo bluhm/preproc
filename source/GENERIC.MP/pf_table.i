@@ -5710,8 +5710,10 @@ pfr_add_tables(struct pfr_table *tbl, int size, int *nadd, int flags)
    if (p == ((void *)0))
     do { rv = (12); goto _bad; } while (0);
    for((q) = ((&addq)->slh_first); (q) != ((void *)0); (q) = ((q)->pfrkt_workq.sle_next)) {
-    if (!pfr_ktable_compare(p, q))
+    if (!pfr_ktable_compare(p, q)) {
+     pfr_destroy_ktable(p, 0);
      goto _skip;
+    }
    }
    do { (p)->pfrkt_workq.sle_next = (&addq)->slh_first; (&addq)->slh_first = (p); } while (0);
    xadd++;

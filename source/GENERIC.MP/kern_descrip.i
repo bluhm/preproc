@@ -5182,9 +5182,11 @@ sys_flock(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- if (fp->f_type != 1)
-  return (45);
  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ if (fp->f_type != 1) {
+  error = 45;
+  goto out;
+ }
  vp = fp->f_data;
  lf.l_whence = 0;
  lf.l_start = 0;

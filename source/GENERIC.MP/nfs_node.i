@@ -3024,7 +3024,6 @@ void nfs_getset_niothreads(int);
 int nfs_kqfilter(void *);
 struct pool nfs_node_pool;
 extern int prtactive;
-struct rwlock nfs_hashlock = { 0, "nfshshlk" };
 extern struct vops nfs_vops;
 static __inline int
 nfsnode_cmp(const struct nfsnode *a, const struct nfsnode *b)
@@ -3050,12 +3049,10 @@ nfs_nget(struct mount *mnt, nfsfh_t *fh, int fhsize, struct nfsnode **npp)
  int error;
  nmp = ((struct nfsmount *)((mnt)->mnt_data));
 loop:
- _rw_enter_write(&nfs_hashlock );
  find.n_fhp = fh;
  find.n_fhsize = fhsize;
  np = nfs_nodetree_RBT_FIND(&nmp->nm_ntree, &find);
  if (np != ((void *)0)) {
-  _rw_exit_write(&nfs_hashlock );
   vp = ((np)->n_vnode);
   error = vget(vp, 0x0001UL, p);
   if (error)
@@ -3063,23 +3060,19 @@ loop:
   *npp = np;
   return (0);
  }
- _rw_exit_write(&nfs_hashlock );
  error = getnewvnode(VT_NFS, mnt, &nfs_vops, &nvp);
- _rw_enter_write(&nfs_hashlock );
  if (error) {
   *npp = ((void *)0);
-  _rw_exit_write(&nfs_hashlock );
   return (error);
  }
  nvp->v_flag |= 0x1000;
- np = nfs_nodetree_RBT_FIND(&nmp->nm_ntree, &find);
- if (np != ((void *)0)) {
+ np = pool_get(&nfs_node_pool, 0x0001 | 0x0008);
+ if (nfs_nodetree_RBT_FIND(&nmp->nm_ntree, &find) != ((void *)0)) {
+  pool_put(&nfs_node_pool, np);
   vgone(nvp);
-  _rw_exit_write(&nfs_hashlock );
   goto loop;
  }
  vp = nvp;
- np = pool_get(&nfs_node_pool, 0x0001 | 0x0008);
  vp->v_data = np;
  vp->v_flag &= ~0x1000;
  np->n_vnode = vp;
@@ -3093,9 +3086,8 @@ loop:
  __builtin_bcopy((fh), (np->n_fhp), (fhsize));
  np->n_fhsize = fhsize;
  np2 = nfs_nodetree_RBT_INSERT(&nmp->nm_ntree, np);
- ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 163, "np2 == NULL"));
+ ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 158, "np2 == NULL"));
  np->n_accstamp = -1;
- _rw_exit(&nfs_hashlock );
  *npp = np;
  return (0);
 }
@@ -3144,9 +3136,7 @@ nfs_reclaim(void *v)
   panic("NULL v_data (no nfsnode set up?) in vnode %p",
       ap->a_vp);
  nmp = ((struct nfsmount *)((vp->v_mount)->mnt_data));
- _rw_enter_write(&nfs_hashlock );
  nfs_nodetree_RBT_REMOVE(&nmp->nm_ntree, np);
- _rw_exit_write(&nfs_hashlock );
  if (np->n_rcred)
   crfree(np->n_rcred);
  if (np->n_wcred)
