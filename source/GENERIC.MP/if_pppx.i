@@ -4730,6 +4730,7 @@ pppxwrite(dev_t dev, struct uio *uio, int ioflag)
   bpf_mtap(pxi->pxi_if.if_bpf, top, 1);
  proto = ((__uint32_t)(*(uint32_t *)(th + 1)));
  m_adj(top, sizeof(uint32_t));
+ do { _rw_enter_write(&netlock ); } while (0);
  switch (proto) {
  case 2:
   ipv4_input(&pxi->pxi_if, top);
@@ -4739,8 +4740,10 @@ pppxwrite(dev_t dev, struct uio *uio, int ioflag)
   break;
  default:
   m_freem(top);
-  return (47);
+  error = 47;
+  break;
  }
+ do { _rw_exit_write(&netlock ); } while (0);
  return (error);
 }
 int
@@ -4876,8 +4879,10 @@ pppxclose(dev_t dev, int flags, int mode, struct proc *p)
  struct pppx_if *pxi;
  _rw_enter_write(&pppx_devs_lk );
  pxd = pppx_dev_lookup(dev);
+ do { _rw_enter_write(&netlock ); } while (0);
  while ((pxi = ((&pxd->pxd_pxis)->lh_first)))
   pppx_if_destroy(pxd, pxi);
+ do { _rw_exit_write(&netlock ); } while (0);
  do { if ((pxd)->pxd_entry.le_next != ((void *)0)) (pxd)->pxd_entry.le_next->pxd_entry.le_prev = (pxd)->pxd_entry.le_prev; *(pxd)->pxd_entry.le_prev = (pxd)->pxd_entry.le_next; ((pxd)->pxd_entry.le_prev) = ((void *)-1); ((pxd)->pxd_entry.le_next) = ((void *)-1); } while (0);
  mq_purge(&pxd->pxd_svcq);
  free(pxd, 2, 0);

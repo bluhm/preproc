@@ -3118,7 +3118,8 @@ buf_alloc_pages(struct buf *bp, vsize_t size)
   i = uvm_pagealloc_multi(buf_object, offs, size,
       0x0001);
  if (i != 0)
-  panic("uvm_pagealloc_multi unable to allocate an buf_object of size %lu", size);
+  panic("uvm_pagealloc_multi unable to allocate an buf_object "
+      "of size %lu", size);
  bcstats.numbufpages += ((size) >> 13);
  bcstats.dmapages += ((size) >> 13);
  ((bp->b_flags) |= (0x04000000));
@@ -3132,16 +3133,16 @@ buf_free_pages(struct buf *bp)
  struct uvm_object *uobj = bp->b_pobj;
  struct vm_page *pg;
  voff_t off, i;
- ((bp->b_data == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 316, "bp->b_data == NULL"));
- ((uobj != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 317, "uobj != NULL"));
+ ((bp->b_data == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 318, "bp->b_data == NULL"));
+ ((uobj != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 319, "uobj != NULL"));
  do { if (splassert_ctl > 0) { splassert_check(5, __func__); } } while (0);
  off = bp->b_poffs;
  bp->b_pobj = ((void *)0);
  bp->b_poffs = 0;
  for (i = 0; i < ((bp->b_bufsize) >> 13); i++) {
   pg = uvm_pagelookup(uobj, off + ((paddr_t)(i) << 13));
-  ((pg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 326, "pg != NULL"));
-  ((pg->wire_count == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 327, "pg->wire_count == 1"));
+  ((pg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 328, "pg != NULL"));
+  ((pg->wire_count == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 329, "pg->wire_count == 1"));
   pg->wire_count = 0;
   uvm_pagefree(pg);
   bcstats.numbufpages--;
@@ -3157,9 +3158,9 @@ buf_realloc_pages(struct buf *bp, struct uvm_constraint_range *where,
  vaddr_t va;
  int dma;
    int i, r;
- ((!(flags & 0x0001) ^ !(flags & 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 345, "!(flags & UVM_PLA_WAITOK) ^ !(flags & UVM_PLA_NOWAIT)"));
+ ((!(flags & 0x0001) ^ !(flags & 0x0002)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 347, "!(flags & UVM_PLA_WAITOK) ^ !(flags & UVM_PLA_NOWAIT)"));
  do { if (splassert_ctl > 0) { splassert_check(5, __func__); } } while (0);
- ((((bp->b_flags) & (0x00000010))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 348, "ISSET(bp->b_flags, B_BUSY)"));
+ ((((bp->b_flags) & (0x00000010))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 350, "ISSET(bp->b_flags, B_BUSY)"));
  dma = ((bp->b_flags) & (0x04000000));
  if (bp->b_data != ((void *)0)) {
   va = (vaddr_t)bp->b_data;
@@ -3181,7 +3182,7 @@ buf_realloc_pages(struct buf *bp, struct uvm_constraint_range *where,
  for (i = 0; i < ((bp->b_bufsize) >> 13); i++) {
   struct vm_page *pg = uvm_pagelookup(bp->b_pobj,
       bp->b_poffs + ((paddr_t)(i) << 13));
-  ((pg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 389, "pg != NULL"));
+  ((pg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/vfs_biomem.c", 391, "pg != NULL"));
   if (!(dma_constraint.ucr_low <= ((pg)->phys_addr) && dma_constraint.ucr_high > ((pg)->phys_addr)))
    dma = 0;
   if (bp->b_data != ((void *)0)) {
