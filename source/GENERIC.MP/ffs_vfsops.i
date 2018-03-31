@@ -4995,7 +4995,7 @@ success:
    fs->fs_clean = ronly &&
        (fs->fs_flags & 0x01) == 0 ? 1 : 0;
    if (ronly)
-    free(fs->fs_contigdirs, 28, 0);
+    free(fs->fs_contigdirs, 28, fs->fs_ncg);
   }
   if (!ronly) {
    if (mp->mnt_flag & 0x04000000)
@@ -5285,7 +5285,7 @@ ffs_mountfs(struct vnode *devvp, struct mount *mp, struct proc *p)
   if ((fs->fs_flags & 0x02) &&
       (error = softdep_mount(devvp, mp, fs, cred)) != 0) {
    free(fs->fs_csp, 28, 0);
-   free(fs->fs_contigdirs, 28, 0);
+   free(fs->fs_contigdirs, 28, fs->fs_ncg);
    goto out;
   }
   fs->fs_fmod = 1;
@@ -5391,7 +5391,7 @@ ffs_unmount(struct mount *mp, int mntflags, struct proc *p)
    fs->fs_clean = 0;
    return (error);
   }
-  free(fs->fs_contigdirs, 28, 0);
+  free(fs->fs_contigdirs, 28, fs->fs_ncg);
  }
  ump->um_devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
  vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);

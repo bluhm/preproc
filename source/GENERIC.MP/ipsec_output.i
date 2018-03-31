@@ -3254,7 +3254,7 @@ struct inpcbtable {
  struct inpcbhead *inpt_hashtbl, *inpt_lhashtbl;
  SIPHASH_KEY inpt_key;
  u_long inpt_hash, inpt_lhash;
- int inpt_count;
+ int inpt_count, inpt_size;
 };
 struct baddynamicports {
  u_int32_t tcp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];

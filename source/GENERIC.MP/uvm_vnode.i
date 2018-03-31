@@ -3806,6 +3806,7 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
  off_t file_offset;
  int waitf, result, mapinflags;
  size_t got, wanted;
+ int netunlocked = 0;
  waitf = (flags & 0x002) ? 0x0001 : 0x0002;
  vn = uvn->u_vnode;
  file_offset = pps[0]->offset;
@@ -3841,24 +3842,25 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
  uio.uio_rw = rw;
  uio.uio_resid = wanted;
  uio.uio_procp = (__curcpu->ci_self)->ci_curproc;
+ if (rw_status(&netlock) == 0x0001UL) {
+  do { _rw_exit_write(&netlock ); } while (0);
+  netunlocked = 1;
+ }
  result = 0;
  if ((uvn->u_flags & 0x040) == 0)
   result = vn_lock(vn, 0x0001UL | 0x0080UL, (__curcpu->ci_self)->ci_curproc);
  if (result == 0) {
-  int netlocked = (rw_status(&netlock) == 0x0001UL);
-  if (netlocked)
-   do { _rw_exit_write(&netlock ); } while (0);
   if (rw == UIO_READ)
    result = VOP_READ(vn, &uio, 0, (__curcpu->ci_self)->ci_curproc->p_ucred);
   else
    result = VOP_WRITE(vn, &uio,
        (flags & 0x080) ? 0x40 : 0,
        (__curcpu->ci_self)->ci_curproc->p_ucred);
-  if (netlocked)
-   do { _rw_enter_write(&netlock ); } while (0);
   if ((uvn->u_flags & 0x040) == 0)
    VOP_UNLOCK(vn, (__curcpu->ci_self)->ci_curproc);
  }
+ if (netunlocked)
+  do { _rw_enter_write(&netlock ); } while (0);
  if (result == 0) {
   got = wanted - uio.uio_resid;
   if (wanted && got == 0) {

@@ -3664,7 +3664,7 @@ ffs_indirtrunc(struct inode *ip, daddr_t lbn, daddr_t dbn,
   }
  }
  if (copy != ((void *)0)) {
-  free(copy, 127, 0);
+  free(copy, 127, fs->fs_bsize);
  } else {
   bp->b_flags |= 0x00000800;
   brelse(bp);

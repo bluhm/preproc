@@ -4936,7 +4936,8 @@ check_inode_unwritten(struct inodedep *inodedep)
  if (inodedep->id_list.wk_state & 0x8000)
   do { (&inodedep->id_list)->wk_state &= ~0x8000; do { if ((&inodedep->id_list)->wk_list.le_next != ((void *)0)) (&inodedep->id_list)->wk_list.le_next->wk_list.le_prev = (&inodedep->id_list)->wk_list.le_prev; *(&inodedep->id_list)->wk_list.le_prev = (&inodedep->id_list)->wk_list.le_next; ((&inodedep->id_list)->wk_list.le_prev) = ((void *)-1); ((&inodedep->id_list)->wk_list.le_next) = ((void *)-1); } while (0); } while (0);
  if (inodedep->id_un.idu_savedino1 != ((void *)0)) {
-  free(inodedep->id_un.idu_savedino1, 79, 0);
+  free(inodedep->id_un.idu_savedino1, 79,
+      sizeof(struct ufs1_dinode));
   inodedep->id_un.idu_savedino1 = ((void *)0);
  }
  if (free_inodedep(inodedep) == 0) {
@@ -5837,7 +5838,7 @@ softdep_disk_write_complete(struct buf *bp)
    if (indirdep->ir_list.wk_state & 0x0100)
     panic("disk_write_complete: indirdep gone");
    __builtin_memcpy((bp->b_data), (indirdep->ir_saveddata), (bp->b_bcount));
-   free(indirdep->ir_saveddata, 83, 0);
+   free(indirdep->ir_saveddata, 83, bp->b_bcount);
    indirdep->ir_saveddata = ((void *)0);
    indirdep->ir_list.wk_state &= ~0x0002;
    indirdep->ir_list.wk_state |= 0x0001;
@@ -5945,7 +5946,8 @@ handle_written_inodeblock(struct inodedep *inodedep, struct buf *bp)
    *dp1 = *inodedep->id_un.idu_savedino1;
   else
    *dp2 = *inodedep->id_un.idu_savedino2;
-  free(inodedep->id_un.idu_savedino1, 79, 0);
+  free(inodedep->id_un.idu_savedino1, 79,
+      sizeof(struct ufs1_dinode));
   inodedep->id_un.idu_savedino1 = ((void *)0);
   if ((bp->b_flags & 0x00000080) == 0)
    stat_inode_bitmap++;
@@ -6475,7 +6477,7 @@ loop:
    break;
   case 11:
    nbp = ((struct mkdir *)(wk))->md_buf;
-   ((bp != nbp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ffs/ffs_softdep.c", 4853, "bp != nbp"));
+   ((bp != nbp) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../ufs/ffs/ffs_softdep.c", 4855, "bp != nbp"));
    gotit = getdirtybuf(nbp, waitfor);
    if (gotit == 0)
     break;

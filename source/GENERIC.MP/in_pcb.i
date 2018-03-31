@@ -4206,7 +4206,7 @@ struct inpcbtable {
  struct inpcbhead *inpt_hashtbl, *inpt_lhashtbl;
  SIPHASH_KEY inpt_key;
  u_long inpt_hash, inpt_lhash;
- int inpt_count;
+ int inpt_count, inpt_size;
 };
 struct baddynamicports {
  u_int32_t tcp[((((65536) + (((sizeof(u_int32_t) * 8)) - 1)) / ((sizeof(u_int32_t) * 8))))];
@@ -6190,6 +6190,7 @@ in_pcbinit(struct inpcbtable *table, int hashsize)
  if (table->inpt_lhashtbl == ((void *)0))
   panic("in_pcbinit: hashinit failed for lport");
  table->inpt_count = 0;
+ table->inpt_size = hashsize;
  arc4random_buf(&table->inpt_key, sizeof(table->inpt_key));
 }
 int
@@ -6429,7 +6430,7 @@ in_pcbconnect(struct inpcb *inp, struct mbuf *nam)
  if (in_pcbhashlookup(inp->inp_table, sin->sin_addr, sin->sin_port,
      *ina, inp->inp_lport, inp->inp_rtableid) != ((void *)0))
   return (48);
- ((inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 530, "inp->inp_laddr.s_addr == INADDR_ANY || inp->inp_lport"));
+ ((inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000)))) || inp->inp_lport) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 531, "inp->inp_laddr.s_addr == INADDR_ANY || inp->inp_lport"));
  if (inp->inp_laddru.iau_a4u.inaddr.s_addr == ((u_int32_t) ((__uint32_t)((u_int32_t)(0x00000000))))) {
   if (inp->inp_lport == 0) {
    error = in_pcbbind(inp, ((void *)0), (__curcpu->ci_self)->ci_curproc);
@@ -6562,7 +6563,7 @@ in_losing(struct inpcb *inp)
   info.rti_info[0] = &inp->inp_ru.ru_route.ro_dst;
   info.rti_info[1] = rt->rt_gateway;
   info.rti_info[2] = rt_plen2mask(rt, &sa_mask);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 719);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 720);
   rtm_miss(0x5, &info, rt->rt_flags, rt->rt_priority,
       rt->rt_ifidx, 0, inp->inp_rtableid);
   _kernel_unlock();
@@ -6746,29 +6747,31 @@ int
 in_pcbresize(struct inpcbtable *table, int hashsize)
 {
  u_long nhash, nlhash;
+ int osize;
  void *nhashtbl, *nlhashtbl, *ohashtbl, *olhashtbl;
  struct inpcb *inp0, *inp1;
  ohashtbl = table->inpt_hashtbl;
  olhashtbl = table->inpt_lhashtbl;
+ osize = table->inpt_size;
  nhashtbl = hashinit(hashsize, 4, 0x0002, &nhash);
+ if (nhashtbl == ((void *)0))
+  return 55;
  nlhashtbl = hashinit(hashsize, 4, 0x0002, &nlhash);
- if (nhashtbl == ((void *)0) || nlhashtbl == ((void *)0)) {
-  if (nhashtbl != ((void *)0))
-   free(nhashtbl, 4, 0);
-  if (nlhashtbl != ((void *)0))
-   free(nlhashtbl, 4, 0);
-  return (55);
+ if (nlhashtbl == ((void *)0)) {
+  hashfree(nhashtbl, hashsize, 4);
+  return 55;
  }
  table->inpt_hashtbl = nhashtbl;
  table->inpt_lhashtbl = nlhashtbl;
  table->inpt_hash = nhash;
  table->inpt_lhash = nlhash;
+ table->inpt_size = hashsize;
  arc4random_buf(&table->inpt_key, sizeof(table->inpt_key));
  for ((inp0) = ((&table->inpt_queue)->tqh_first); (inp0) != ((void *)0) && ((inp1) = ((inp0)->inp_queue.tqe_next), 1); (inp0) = (inp1)) {
   in_pcbrehash(inp0);
  }
- free(ohashtbl, 4, 0);
- free(olhashtbl, 4, 0);
+ hashfree(ohashtbl, osize, 4);
+ hashfree(olhashtbl, osize, 4);
  return (0);
 }
 int in_pcbnotifymiss = 0;
@@ -6847,7 +6850,7 @@ in_pcblookup_listen(struct inpcbtable *table, struct in_addr laddr,
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
   divert = pf_find_divert(m);
-  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1151, "divert != NULL"));
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1154, "divert != NULL"));
   switch (divert->type) {
   case PF_DIVERT_TO:
    key1 = key2 = &divert->addr.pfa.v4;
@@ -6909,7 +6912,7 @@ in6_pcblookup_listen(struct inpcbtable *table, struct in6_addr *laddr,
  if (m && m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) {
   struct pf_divert *divert;
   divert = pf_find_divert(m);
-  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1231, "divert != NULL"));
+  ((divert != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/in_pcb.c", 1234, "divert != NULL"));
   switch (divert->type) {
   case PF_DIVERT_TO:
    key1 = key2 = &divert->addr.pfa.v6;
