@@ -2999,7 +2999,8 @@ struct rtentry *arplookup(struct in_addr *, int, int, unsigned int);
 void in_arpinput(struct ifnet *, struct mbuf *);
 void in_revarpinput(struct ifnet *, struct mbuf *);
 int arpcache(struct ifnet *, struct ether_arp *, struct rtentry *);
-void arpreply(struct ifnet *, struct mbuf *, struct in_addr *, uint8_t *);
+void arpreply(struct ifnet *, struct mbuf *, struct in_addr *, uint8_t *,
+    unsigned int);
 struct niqueue arpinq = { { { ((void *)0), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6))), 0 }, { ((void *)0), ((void *)0), 0 }, ((50)), 0 }, (18) };
 struct { struct llinfo_arp *lh_first; } arp_list;
 struct pool arp_pool;
@@ -3080,7 +3081,7 @@ arp_rtrequest(struct ifnet *ifp, int req, struct rtentry *rt)
     break;
   }
   if (ifa) {
-   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 206, "ifa == rt->rt_ifa"));
+   ((ifa == rt->rt_ifa) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 207, "ifa == rt->rt_ifa"));
    rt->rt_rmx.rmx_expire = 0;
   }
   break;
@@ -3133,11 +3134,14 @@ arprequest(struct ifnet *ifp, u_int32_t *sip, u_int32_t *tip, u_int8_t *enaddr)
  ifp->if_output(ifp, m, &sa, ((void *)0));
 }
 void
-arpreply(struct ifnet *ifp, struct mbuf *m, struct in_addr *sip, uint8_t *eaddr)
+arpreply(struct ifnet *ifp, struct mbuf *m, struct in_addr *sip, uint8_t *eaddr,
+    unsigned int rdomain)
 {
  struct ether_header *eh;
  struct ether_arp *ea;
  struct sockaddr sa;
+ m_resethdr(m);
+ m->M_dat.MH.MH_pkthdr.ph_rtableid = rdomain;
  ea = ((struct ether_arp *)((m)->m_hdr.mh_data));
  ea->ea_hdr.ar_op = ((__uint16_t)(2));
  ea->ea_hdr.ar_pro = ((__uint16_t)(0x0800));
@@ -3198,7 +3202,7 @@ arpresolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
  if (ifp->if_flags & (0x80|0x20))
   goto bad;
  la = (struct llinfo_arp *)rt->rt_llinfo;
- ((la != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 369, "la != NULL"));
+ ((la != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 374, "la != NULL"));
  if (la_hold_total < 100 && la_hold_total < nmbclust / 64) {
   struct mbuf *mh;
   if (((&la->la_ml)->ml_len) >= 10) {
@@ -3332,7 +3336,7 @@ in_arpinput(struct ifnet *ifp, struct mbuf *m)
   itaddr = isaddr;
  } else if (rt != ((void *)0)) {
   int error;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 553);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 558);
   error = arpcache(ifp, ea, rt);
   _kernel_unlock();
   if (error)
@@ -3349,7 +3353,7 @@ in_arpinput(struct ifnet *ifp, struct mbuf *m)
     goto out;
    eaddr = ((caddr_t)((satosdl(rt->rt_gateway))->sdl_data + (satosdl(rt->rt_gateway))->sdl_nlen));
   }
-  arpreply(ifp, m, &itaddr, eaddr);
+  arpreply(ifp, m, &itaddr, eaddr, rdomain);
   rtfree(rt);
   return;
  }
@@ -3367,8 +3371,8 @@ arpcache(struct ifnet *ifp, struct ether_arp *ea, struct rtentry *rt)
  struct ifnet *rifp;
  unsigned int len;
  int changed = 0;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 598, "_kernel_lock_held()"));
- ((sdl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 599, "sdl != NULL"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 603, "_kernel_lock_held()"));
+ ((sdl != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 604, "sdl != NULL"));
  if (la == ((void *)0))
   return (0);
  if (sdl->sdl_alen > 0) {
@@ -3421,7 +3425,7 @@ arpcache(struct ifnet *ifp, struct ether_arp *ea, struct rtentry *rt)
   rt->rt_rmx.rmx_expire = time_uptime + arpt_keep;
  rt->rt_flags &= ~0x8;
  if (la->la_asked || changed) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 662);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 667);
   rtm_send(rt, 0xb, 0, ifp->if_data.ifi_rdomain);
   _kernel_unlock();
  }
@@ -3454,10 +3458,10 @@ void
 arptfree(struct rtentry *rt)
 {
  struct ifnet *ifp;
- ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 708, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
+ ((!((rt->rt_flags) & (0x200000))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 713, "!ISSET(rt->rt_flags, RTF_LOCAL)"));
  arpinvalidate(rt);
  ifp = if_get(rt->rt_ifidx);
- ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 712, "ifp != NULL"));
+ ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet/if_ether.c", 717, "ifp != NULL"));
  if (!((rt->rt_flags) & (0x800|0x20000)))
   rtdeletemsg(rt, ifp, ifp->if_data.ifi_rdomain);
  if_put(ifp);
