@@ -3385,6 +3385,7 @@ struct inodedep {
   struct ufs1_dinode *idu_savedino1;
   struct ufs2_dinode *idu_savedino2;
  } id_un;
+ size_t id_unsize;
  struct { struct inodedep *le_next; struct inodedep **le_prev; } id_deps;
  struct buf *id_buf;
  off_t id_savedsize;
@@ -4936,8 +4937,7 @@ check_inode_unwritten(struct inodedep *inodedep)
  if (inodedep->id_list.wk_state & 0x8000)
   do { (&inodedep->id_list)->wk_state &= ~0x8000; do { if ((&inodedep->id_list)->wk_list.le_next != ((void *)0)) (&inodedep->id_list)->wk_list.le_next->wk_list.le_prev = (&inodedep->id_list)->wk_list.le_prev; *(&inodedep->id_list)->wk_list.le_prev = (&inodedep->id_list)->wk_list.le_next; ((&inodedep->id_list)->wk_list.le_prev) = ((void *)-1); ((&inodedep->id_list)->wk_list.le_next) = ((void *)-1); } while (0); } while (0);
  if (inodedep->id_un.idu_savedino1 != ((void *)0)) {
-  free(inodedep->id_un.idu_savedino1, 79,
-      sizeof(struct ufs1_dinode));
+  free(inodedep->id_un.idu_savedino1, 79, inodedep->id_unsize);
   inodedep->id_un.idu_savedino1 = ((void *)0);
  }
  if (free_inodedep(inodedep) == 0) {
@@ -5600,6 +5600,7 @@ initiate_write_inodeblock_ufs1(struct inodedep *inodedep, struct buf *bp)
   _splx((&lk)->lkt_spl);
   inodedep->id_un.idu_savedino1 = malloc(sizeof(struct ufs1_dinode),
       79, 0x0001);
+  inodedep->id_unsize = sizeof(struct ufs1_dinode);
   (&lk)->lkt_spl = _splraise(5);
   *inodedep->id_un.idu_savedino1 = *dp;
   __builtin_memset((dp), (0), (sizeof(struct ufs1_dinode)));
@@ -5693,6 +5694,7 @@ initiate_write_inodeblock_ufs2(struct inodedep *inodedep, struct buf *bp)
    panic("initiate_write_inodeblock_ufs2: I/O underway");
   inodedep->id_un.idu_savedino2 = malloc(sizeof(struct ufs2_dinode),
       79, 0x0001);
+  inodedep->id_unsize = sizeof(struct ufs2_dinode);
   *inodedep->id_un.idu_savedino2 = *dp;
   __builtin_memset((dp), (0), (sizeof(struct ufs2_dinode)));
   return;
@@ -5946,8 +5948,7 @@ handle_written_inodeblock(struct inodedep *inodedep, struct buf *bp)
    *dp1 = *inodedep->id_un.idu_savedino1;
   else
    *dp2 = *inodedep->id_un.idu_savedino2;
-  free(inodedep->id_un.idu_savedino1, 79,
-      sizeof(struct ufs1_dinode));
+  free(inodedep->id_un.idu_savedino1, 79, inodedep->id_unsize);
   inodedep->id_un.idu_savedino1 = ((void *)0);
   if ((bp->b_flags & 0x00000080) == 0)
    stat_inode_bitmap++;
