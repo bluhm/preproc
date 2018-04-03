@@ -18197,6 +18197,70 @@ static const struct pci_known_product pci_known_products[] = {
      "Iris Plus Graphics 650",
  },
  {
+     0x8086, 0x5a85,
+     "HD Graphics 500",
+ },
+ {
+     0x8086, 0x5a98,
+     "Apollo Lake HD Audio",
+ },
+ {
+     0x8086, 0x5a9a,
+     "Apollo Lake TXE",
+ },
+ {
+     0x8086, 0x5aa8,
+     "Apollo Lake xHCI",
+ },
+ {
+     0x8086, 0x5aac,
+     "Apollo Lake I2C",
+ },
+ {
+     0x8086, 0x5abc,
+     "Apollo Lake HSUART",
+ },
+ {
+     0x8086, 0x5ac2,
+     "Apollo Lake SPI",
+ },
+ {
+     0x8086, 0x5ac4,
+     "Apollo Lake SPI",
+ },
+ {
+     0x8086, 0x5ac6,
+     "Apollo Lake SPI",
+ },
+ {
+     0x8086, 0x5ad4,
+     "Apollo Lake SMBus",
+ },
+ {
+     0x8086, 0x5ad8,
+     "Apollo Lake PCIE",
+ },
+ {
+     0x8086, 0x5ad9,
+     "Apollo Lake PCIE",
+ },
+ {
+     0x8086, 0x5ada,
+     "Apollo Lake PCIE",
+ },
+ {
+     0x8086, 0x5ae3,
+     "Apollo Lake AHCI",
+ },
+ {
+     0x8086, 0x5ae8,
+     "Apollo Lake LPC",
+ },
+ {
+     0x8086, 0x5af0,
+     "Apollo Lake Host",
+ },
+ {
      0x8086, 0x65c0,
      "5100 Host",
  },

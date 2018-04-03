@@ -2496,6 +2496,8 @@ struct com_softc {
  bus_addr_t sc_iobase;
  int sc_frequency;
  bus_space_handle_t sc_ioh;
+ u_char sc_reg_width;
+ u_char sc_reg_shift;
  u_char sc_uarttype;
  u_char sc_hwflags;
  u_char sc_swflags;
@@ -2510,6 +2512,8 @@ struct com_softc {
  void (*disable)(struct com_softc *);
  int enabled;
 };
+uint8_t com_read_reg(struct com_softc *, bus_size_t);
+void com_write_reg(struct com_softc *, bus_size_t, uint8_t);
 int comprobe1(bus_space_tag_t, bus_space_handle_t);
 int comstop(struct tty *, int);
 int comintr(void *);

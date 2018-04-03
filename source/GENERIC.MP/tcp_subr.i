@@ -4832,7 +4832,7 @@ tcp_signature_tdb_init(struct tdb *tdbp, struct xformsw *xsp,
  tdbp->tdb_amxkey = malloc(ii->ii_authkeylen, 76, 0x0002);
  if (tdbp->tdb_amxkey == ((void *)0))
   return (12);
- __builtin_bcopy((ii->ii_authkey), (tdbp->tdb_amxkey), (ii->ii_authkeylen));
+ __builtin_memcpy((tdbp->tdb_amxkey), (ii->ii_authkey), (ii->ii_authkeylen));
  tdbp->tdb_amxkeylen = ii->ii_authkeylen;
  return (0);
 }
@@ -4841,7 +4841,7 @@ tcp_signature_tdb_zeroize(struct tdb *tdbp)
 {
  if (tdbp->tdb_amxkey) {
   explicit_bzero(tdbp->tdb_amxkey, tdbp->tdb_amxkeylen);
-  free(tdbp->tdb_amxkey, 76, 0);
+  free(tdbp->tdb_amxkey, 76, tdbp->tdb_amxkeylen);
   tdbp->tdb_amxkey = ((void *)0);
  }
  return (0);

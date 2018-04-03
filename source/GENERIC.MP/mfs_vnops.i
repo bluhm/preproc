@@ -2886,7 +2886,7 @@ mfs_reclaim(void *v)
 {
  struct vop_reclaim_args *ap = v;
  struct vnode *vp = ap->a_vp;
- free(vp->v_data, 46, 0);
+ free(vp->v_data, 46, sizeof(struct mfsnode));
  vp->v_data = ((void *)0);
  return (0);
 }
