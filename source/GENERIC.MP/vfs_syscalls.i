@@ -5285,10 +5285,14 @@ sys_fchdir(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
- if (fp->f_type != 1 || vp->v_type != VDIR)
+ if (fp->f_type != 1 || vp->v_type != VDIR) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (20);
+ }
  vref(vp);
+ (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  vn_lock(vp, 0x0001UL | 0x2000UL, p);
  error = VOP_ACCESS(vp, 00100, p->p_ucred, p);
  while (!error && (mp = vp->v_un.vu_mountedhere) != ((void *)0)) {
@@ -5932,12 +5936,12 @@ sys_lseek(struct proc *p, void *v, register_t *retval)
  int error, special;
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0))
   return (9);
- if (fp->f_type != 1)
-  return (29);
- vp = fp->f_data;
- if (vp->v_type == VFIFO)
-  return (29);
  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ vp = fp->f_data;
+ if (fp->f_type != 1 || vp->v_type == VFIFO) {
+  error = 29;
+  goto bad;
+ }
  if (vp->v_type == VCHR)
   special = 1;
  else
@@ -6872,12 +6876,16 @@ getvnode(struct proc *p, int fd, struct file **fpp)
  struct vnode *vp;
  if ((fp = fd_getfile(p->p_fd, fd)) == ((void *)0))
   return (9);
- if (fp->f_type != 1)
-  return (22);
- vp = fp->f_data;
- if (vp->v_type == VBAD)
-  return (9);
  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ if (fp->f_type != 1) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
+  return (22);
+ }
+ vp = fp->f_data;
+ if (vp->v_type == VBAD) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
+  return (9);
+ }
  *fpp = fp;
  return (0);
 }

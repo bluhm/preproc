@@ -1420,6 +1420,8 @@ blktochr(dev_t dev)
 void
 assertwaitok(void)
 {
+ if (panicstr || db_active)
+  return;
  do { if (splassert_ctl > 0) { splassert_check(0, __func__); } } while (0);
  if ((__curcpu->ci_self)->ci_mutex_level != 0)
   panic("assertwaitok: non-zero mutex count: %d",

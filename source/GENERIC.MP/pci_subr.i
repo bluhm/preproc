@@ -20785,6 +20785,10 @@ static const struct pci_known_product pci_known_products[] = {
      "i740 PCI",
  },
  {
+     0x11ab, 0x0110,
+     "ARMADA 7K/8K Root Complex",
+ },
+ {
      0x11ab, 0x1fa6,
      "Libertas 88W8300",
  },

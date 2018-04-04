@@ -4513,14 +4513,17 @@ dodup3(struct proc *p, int old, int new, int flags, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, old)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if ((u_int)new >= p->p_p->ps_limit->pl_rlimit[8].rlim_cur ||
-     (u_int)new >= maxfiles)
+     (u_int)new >= maxfiles) {
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (9);
+ }
  if (old == new) {
   *retval = new;
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (0);
  }
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if (new >= fdp->fd_nfiles) {
   if ((error = fdalloc(p, new, &i)) != 0) {
@@ -4976,8 +4979,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 904, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 905, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 907, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 908, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {

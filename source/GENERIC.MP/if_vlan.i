@@ -2500,7 +2500,8 @@ vlan_start(struct ifqueue *ifq)
  while ((m = ifq_dequeue(ifq)) != ((void *)0)) {
   if (ifp->if_bpf)
    bpf_mtap_ether(ifp->if_bpf, m, (1<<1));
-  prio = m->M_dat.MH.MH_pkthdr.pf.prio;
+  prio = ((ifp->if_flags) & (0x1000)) ?
+      ifp->if_llprio : m->M_dat.MH.MH_pkthdr.pf.prio;
   if (prio <= 1)
    prio = !prio;
   if (vlan_mplstunnel(m->M_dat.MH.MH_pkthdr.ph_ifidx)) {
@@ -2629,7 +2630,7 @@ vlan_up(struct ifvlan *ifv)
  struct ifnet *ifp0;
  int error = 0;
  u_int hardmtu;
- ((!((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 447, "!ISSET(ifp->if_flags, IFF_RUNNING)"));
+ ((!((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 448, "!ISSET(ifp->if_flags, IFF_RUNNING)"));
  tagh = ifv->ifv_mib.ifvm_type == 0x88A8 ? svlan_tagh : vlan_tagh;
  list = &tagh[(ifv->ifv_mib.ifvm_tag & ((1 << 5) - 1))];
  ifp0 = if_get(ifv->ifv_ifp0);
@@ -2689,7 +2690,7 @@ vlan_down(struct ifvlan *ifv)
  struct ifnet *ifp0;
  tagh = ifv->ifv_mib.ifvm_type == 0x88A8 ? svlan_tagh : vlan_tagh;
  list = &tagh[(ifv->ifv_mib.ifvm_tag & ((1 << 5) - 1))];
- ((((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 543, "ISSET(ifp->if_flags, IFF_RUNNING)"));
+ ((((ifp->if_flags) & (0x40))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/if_vlan.c", 544, "ISSET(ifp->if_flags, IFF_RUNNING)"));
  vlan_link_state(ifv, 2, 0);
  ((ifp->if_flags) &= ~(0x40));
  ifq_barrier(&ifp->if_snd);
