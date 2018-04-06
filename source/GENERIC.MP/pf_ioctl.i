@@ -5153,7 +5153,7 @@ enum { PF_INOUT, PF_IN, PF_OUT, PF_FWD };
 enum { PF_PASS, PF_DROP, PF_SCRUB, PF_NOSCRUB, PF_NAT, PF_NONAT,
    PF_BINAT, PF_NOBINAT, PF_RDR, PF_NORDR, PF_SYNPROXY_DROP, PF_DEFER,
    PF_MATCH, PF_DIVERT, PF_RT, PF_AFRT };
-enum { PF_TRANS_RULESET, PF_TRANS_ALTQ, PF_TRANS_TABLE };
+enum { PF_TRANS_RULESET, PF_TRANS_TABLE };
 enum { PF_OP_NONE, PF_OP_IRG, PF_OP_EQ, PF_OP_NE, PF_OP_LT,
    PF_OP_LE, PF_OP_GT, PF_OP_GE, PF_OP_XRG, PF_OP_RRG };
 enum { PF_CHANGE_NONE, PF_CHANGE_ADD_HEAD, PF_CHANGE_ADD_TAIL,
@@ -8220,7 +8220,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
-   default:
+   case PF_TRANS_RULESET:
     if ((error = pf_begin_rules(&ioe->ticket,
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
@@ -8229,6 +8229,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
+   default:
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 22;
+    (void)(0);
+    goto fail;
    }
    if (copyout(ioe, io->array+i, sizeof(io->array[i]))) {
     free(table, 127, sizeof(*table));
@@ -8284,7 +8290,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
-   default:
+   case PF_TRANS_RULESET:
     if ((error = pf_rollback_rules(ioe->ticket,
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
@@ -8293,6 +8299,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
+   default:
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 22;
+    (void)(0);
+    goto fail;
    }
   }
   free(table, 127, sizeof(*table));
@@ -8341,7 +8353,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
-   default:
+   case PF_TRANS_RULESET:
     rs = pf_find_ruleset(ioe->anchor);
     if (rs == ((void *)0) ||
         !rs->rules.inactive.open ||
@@ -8354,6 +8366,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
+   default:
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 22;
+    (void)(0);
+    goto fail;
    }
   }
   for (i = 0; i < PF_LIMIT_MAX; i++) {
@@ -8395,7 +8413,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
-   default:
+   case PF_TRANS_RULESET:
     if ((error = pf_commit_rules(ioe->ticket,
         ioe->anchor))) {
      free(table, 127, sizeof(*table));
@@ -8404,6 +8422,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
      goto fail;
     }
     break;
+   default:
+    free(table, 127, sizeof(*table));
+    free(ioe, 127, sizeof(*ioe));
+    error = 22;
+    (void)(0);
+    goto fail;
    }
   }
   for (i = 0; i < PF_LIMIT_MAX; i++) {
