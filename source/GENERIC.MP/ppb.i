@@ -2742,6 +2742,10 @@ ppb_alloc_resources(struct ppb_softc *sc, struct pci_attach_args *pa)
   pci_conf_write(pc, sc->sc_tag, 0x28, 0);
   pci_conf_write(pc, sc->sc_tag, 0x2c, 0);
  }
+ if ((csr & 0x00000001) == 0) {
+  pci_conf_write(pc, sc->sc_tag, 0x1c, 0x000000ff);
+  pci_conf_write(pc, sc->sc_tag, 0x30, 0x0000ffff);
+ }
  if (io_count > 0 && pa->pa_ioex) {
   blr = pci_conf_read(pc, sc->sc_tag, 0x1c);
   sc->sc_iobase = (blr << 8) & 0xf000;

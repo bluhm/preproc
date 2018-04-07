@@ -4776,7 +4776,7 @@ finishdup(struct proc *p, struct file *fp, int old, int new,
  if (oldfp != ((void *)0))
   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (oldfp)->f_count++; } while (0);
  fdp->fd_ofiles[new] = fp;
- fdp->fd_ofileflags[new] = fdp->fd_ofileflags[old] & ~(0x01|0x02);
+ fdp->fd_ofileflags[new] = fdp->fd_ofileflags[old] & ~0x01;
  fp->f_count++;
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  if (dup2 && oldfp == ((void *)0))

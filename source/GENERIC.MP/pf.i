@@ -10207,7 +10207,8 @@ pf_match_rule(struct pf_test_ctx *ctx, struct pf_ruleset *ruleset)
     }
     if (r->log) {
      do { if ((void *)(&ctx->reason) != ((void *)0)) { *(&ctx->reason) = (0); if (0 < 17) pf_status.counters[0]++; } } while (0);
-     pflog_packet(ctx->pd,ctx->reason,r,ctx->a,ruleset,((void *)0));
+     pflog_packet(ctx->pd, ctx->reason, r,
+         ctx->a, ruleset, ((void *)0));
     }
    } else {
     *ctx->rm = r;
@@ -10308,7 +10309,7 @@ pf_test_rule(struct pf_pdesc *pd, struct pf_rule **rm, struct pf_state **sm,
  }
  do { if ((void *)(&ctx.reason) != ((void *)0)) { *(&ctx.reason) = (0); if (0 < 17) pf_status.counters[0]++; } } while (0);
  if (r->log)
-  pflog_packet(pd,ctx.reason,r,a,ruleset,((void *)0));
+  pflog_packet(pd, ctx.reason, r, a, ruleset, ((void *)0));
  if (ctx.act.log & 0x10)
   pf_log_matches(pd, r, a, ruleset, &ctx.rules);
  if (pd->virtual_proto != 256 &&
@@ -12901,11 +12902,12 @@ done:
  if (pd.pflog) {
   struct pf_rule_item *ri;
   if (pd.pflog & 0x08 || r->log & 0x02)
-   pflog_packet(&pd,reason,r,a,ruleset,((void *)0));
+   pflog_packet(&pd, reason, r, a, ruleset, ((void *)0));
   if (s) {
    for((ri) = ((&s->match_rules)->slh_first); (ri) != ((void *)0); (ri) = ((ri)->entry.sle_next))
     if (ri->r->log & 0x02)
-     pflog_packet(&pd,reason,ri->r,a,ruleset,((void *)0));
+     pflog_packet(&pd, reason, ri->r, a,
+         ruleset, ((void *)0));
   }
  }
  pf_counters_inc(action, &pd, s, r, a);
@@ -13050,7 +13052,7 @@ pf_log_matches(struct pf_pdesc *pd, struct pf_rule *rm, struct pf_rule *am,
   return;
  for((ri) = ((matchrules)->slh_first); (ri) != ((void *)0); (ri) = ((ri)->entry.sle_next))
   if (ri->r->log & 0x10)
-   pflog_packet(pd,0,rm,am,ruleset,ri->r);
+   pflog_packet(pd, 0, rm, am, ruleset, ri->r);
 }
 struct pf_state_key *
 pf_state_key_ref(struct pf_state_key *sk)

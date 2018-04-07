@@ -6301,6 +6301,7 @@ udp_input(struct mbuf **mp, int *offp, int proto, int af)
   sorwakeup(last->inp_socket);
   return 257;
  }
+ inp = pf_inp_lookup(m);
  if (inp == ((void *)0)) {
   if (ip6)
    inp = in6_pcbhashlookup(&udbtable, &ip6->ip6_src,
