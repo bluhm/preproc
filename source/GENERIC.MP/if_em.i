@@ -4639,7 +4639,7 @@ em_start(struct ifqueue *ifq)
    m_freem(m);
    continue;
   }
-  ((used <= free) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 646, "used <= free"));
+  ((used <= free) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 649, "used <= free"));
   free -= used;
   if (ifp->if_bpf)
    bpf_mtap_ether(ifp->if_bpf, m, (1<<1));
@@ -4855,7 +4855,7 @@ em_intr(void *arg)
   }
  }
  if (reg_icr & (0x00000008 | 0x00000004)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 970);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 973);
   sc->hw.get_link_status = 1;
   em_check_for_link(&sc->hw);
   em_update_link_status(sc);
@@ -5259,7 +5259,7 @@ em_stop(void *arg, int softonly)
   em_reset_hw(&sc->hw);
  intr_barrier(sc->sc_intrhand);
  ifq_barrier(&ifp->if_snd);
- (((ifp->if_flags & 0x40) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 1547, "(ifp->if_flags & IFF_RUNNING) == 0"));
+ (((ifp->if_flags & 0x40) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 1550, "(ifp->if_flags & IFF_RUNNING) == 0"));
  ifq_clr_oactive(&ifp->if_snd);
  ifp->if_timer = 0;
  em_free_transmit_structures(sc);
@@ -5483,8 +5483,8 @@ em_hardware_init(struct em_softc *sc)
    if (0) printf("\nHardware Initialization Deferred " "\n");
    return (35);
   }
-  printf("\n%s: Hardware Initialization Failed\n",
-         ((sc)->sc_dev.dv_xname));
+  printf("\n%s: Hardware Initialization Failed: %d\n",
+         ((sc)->sc_dev.dv_xname), ret_val);
   return (5);
  }
  em_check_for_link(&sc->hw);
@@ -5777,7 +5777,8 @@ em_initialize_transmit_unit(struct em_softc *sc)
   reg_val |= 0x00010000;
   bus_space_write_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, 0x00F28, reg_val);
   reg_val = bus_space_read_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, ((&sc->hw)->mac_type >= em_82543 ? 0x03840 : 0x03840));
-  reg_val |= (1 << 28 | 1 << 29);
+  reg_val &= ~(1 << 28 | 1 << 29);
+  reg_val |= (1 << 29);
   bus_space_write_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, ((&sc->hw)->mac_type >= em_82543 ? 0x03840 : 0x03840), reg_val);
  }
 }
@@ -5881,7 +5882,7 @@ em_txeof(struct em_softc *sc)
       0, pkt->pkt_map->dm_mapsize,
       0x08);
   bus_dmamap_unload(sc->sc_dmat, pkt->pkt_map);
-  ((pkt->pkt_m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2418, "pkt->pkt_m != NULL"));
+  ((pkt->pkt_m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2423, "pkt->pkt_m != NULL"));
   m_freem(pkt->pkt_m);
   pkt->pkt_m = ((void *)0);
   tail = pkt->pkt_eop;
@@ -5909,7 +5910,7 @@ em_get_buf(struct em_softc *sc, int i)
  int error;
  pkt = &sc->sc_rx_pkts_ring[i];
  desc = &sc->sc_rx_desc_ring[i];
- ((pkt->pkt_m == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2462, "pkt->pkt_m == NULL"));
+ ((pkt->pkt_m == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2467, "pkt->pkt_m == NULL"));
  m = m_clget((((void *)0)), (0x0002), ((2048 + 2)));
  if (m == ((void *)0)) {
   sc->mbuf_cluster_failed++;
@@ -6132,7 +6133,7 @@ em_rxeof(struct em_softc *sc)
   bus_dmamap_unload(sc->sc_dmat, pkt->pkt_map);
   m = pkt->pkt_m;
   pkt->pkt_m = ((void *)0);
-  ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2803, "m != NULL"));
+  ((m != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 2808, "m != NULL"));
   do { (&sc->sc_rx_ring)->rxr_alive -= (1); } while (0);
   rv = 1;
   accept_frame = 1;
@@ -6370,10 +6371,10 @@ em_flush_tx_ring(struct em_softc *sc)
  uint32_t tctl, txd_lower = 0x02000000;
  uint16_t size = 512;
  struct em_tx_desc *txd;
- ((sc->sc_tx_desc_ring != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 3161, "sc->sc_tx_desc_ring != NULL"));
+ ((sc->sc_tx_desc_ring != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 3166, "sc->sc_tx_desc_ring != NULL"));
  tctl = bus_space_read_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, 0x00400);
  bus_space_write_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, 0x00400, tctl | 0x00000002);
- ((bus_space_read_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, 0x03818) == sc->sc_tx_desc_head) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 3166, "EM_READ_REG(&sc->hw, E1000_TDT) == sc->sc_tx_desc_head"));
+ ((bus_space_read_4(((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(&sc->hw)->back)->mem_bus_space_handle, 0x03818) == sc->sc_tx_desc_head) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em.c", 3171, "EM_READ_REG(&sc->hw, E1000_TDT) == sc->sc_tx_desc_head"));
  txd = &sc->sc_tx_desc_ring[sc->sc_tx_desc_head];
  txd->buffer_addr = sc->sc_tx_dma.dma_map->dm_segs[0].ds_addr;
  txd->lower.data = (__uint32_t)(__builtin_constant_p(txd_lower | size) ? (__uint32_t)(((__uint32_t)(txd_lower | size) & 0xff) << 24 | ((__uint32_t)(txd_lower | size) & 0xff00) << 8 | ((__uint32_t)(txd_lower | size) & 0xff0000) >> 8 | ((__uint32_t)(txd_lower | size) & 0xff000000) >> 24) : __swap32md(txd_lower | size));

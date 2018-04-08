@@ -5350,7 +5350,7 @@ em_reset_hw(struct em_hw *hw)
   }
   em_get_software_flag(hw);
   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000), (ctrl | 0x04000000));
-  delay(1000*(5));
+  delay(1000*(20));
   if (hw->mac_type == em_pch2lan && !hw->phy_reset_disable &&
       !(bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54)) & 0x00008000)) {
    delay(1000*(10));
@@ -10861,9 +10861,18 @@ em_check_phy_reset_block(struct em_hw *hw)
  uint32_t fwsm = 0;
  ;;
  if ((hw->mac_type == em_ich8lan || hw->mac_type == em_ich9lan || hw->mac_type == em_ich10lan || hw->mac_type == em_pchlan || hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)) {
-  fwsm = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54));
-  return (fwsm & 0x00000040) ? 0 :
-      12;
+  int i = 0;
+  int blocked = 0;
+  do {
+   fwsm = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54));
+   if (!(fwsm & 0x00000040)) {
+    blocked = 1;
+    delay(1000*(10));
+    continue;
+   }
+   blocked = 0;
+  } while (blocked && (i++ < 30));
+  return blocked ? 12 : 0;
  }
  if (hw->mac_type > em_82547_rev_2)
   manc = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05820 : 0x05820));
