@@ -4774,7 +4774,7 @@ gif_send(struct gif_softc *sc, struct mbuf *m,
   ip6->ip6_ctlun.ip6_un1.ip6_un1_flow = ((__uint32_t)(flow));
   ip6->ip6_ctlun.ip6_un2_vfc |= 0x60;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = ((__uint16_t)(len));
-  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = 47;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = proto;
   ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = ttl;
   ip6->ip6_src = sc->sc_tunnel.t_src.in6;
   ip6->ip6_dst = sc->sc_tunnel.t_dst.in6;
@@ -4823,6 +4823,8 @@ gif_output(struct ifnet *ifp, struct mbuf *m, struct sockaddr *dst,
   error = 55;
   goto drop;
  }
+ __builtin_memcpy(((caddr_t)(mtag + 1)), (&ifp->if_index), (sizeof(ifp->if_index)));
+ m_tag_prepend(m, mtag);
  m->M_dat.MH.MH_pkthdr.ph_family = dst->sa_family;
  error = if_enqueue(ifp, m);
  if (error)

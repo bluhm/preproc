@@ -4179,6 +4179,8 @@ kqueue_register(struct kqueue *kq, struct kevent *kev, struct proc *p)
  if ((kev->flags & 0x0004) && (kn->kn_status & 0x0004)) {
   s = _splraise(15);
   kn->kn_status &= ~0x0004;
+  if (kn->kn_fop->f_event(kn, 0))
+   kn->kn_status |= 0x0001;
   if ((kn->kn_status & 0x0001) &&
       ((kn->kn_status & 0x0002) == 0))
    knote_enqueue(kn);
@@ -4510,7 +4512,7 @@ knote_enqueue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1089, "(kn->kn_status & KN_QUEUED) == 0"));
+ (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1091, "(kn->kn_status & KN_QUEUED) == 0"));
  do { (kn)->kn_tqe.tqe_next = ((void *)0); (kn)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (kn); (&kq->kq_head)->tqh_last = &(kn)->kn_tqe.tqe_next; } while (0);
  kn->kn_status |= 0x0002;
  kq->kq_count++;
@@ -4522,7 +4524,7 @@ knote_dequeue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1104, "kn->kn_status & KN_QUEUED"));
+ ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1106, "kn->kn_status & KN_QUEUED"));
  do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
  kn->kn_status &= ~0x0002;
  kq->kq_count--;

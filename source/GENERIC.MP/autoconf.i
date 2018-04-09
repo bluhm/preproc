@@ -4089,7 +4089,8 @@ extern void *bootargv;
 extern int bootargc;
 extern bootarg_t *bootargp;
 void loadrandom(char *name, char *buf, size_t buflen);
-int mdrandom(char *buf, size_t buflen);
+void mdrandom(char *buf, size_t buflen);
+void fwrandom(char *buf, size_t buflen);
 struct ataparams {
     u_int16_t atap_config;
     u_int16_t atap_cylinders;
