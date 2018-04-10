@@ -2855,11 +2855,10 @@ struct nfsmount {
  struct reqs { struct nfsreq *tqh_first; struct nfsreq **tqh_last; }
   nm_reqsq;
  struct timeout nm_rtimeout;
- int nm_flag;
  struct mount *nm_mountp;
+ struct vnode *nm_vnode;
+ int nm_flag;
  int nm_numgrps;
- u_char nm_fh[64];
- int nm_fhsize;
  struct socket *nm_so;
  int nm_sotype;
  int nm_soproto;
@@ -3077,16 +3076,11 @@ loop:
  vp->v_flag &= ~0x1000;
  np->n_vnode = vp;
  _rw_init_flags(&np->n_commitlock, "nfs_commitlk", 0, ((void *)0));
- if ((fhsize == nmp->nm_fhsize) && !__builtin_bcmp((fh), (nmp->nm_fh), (fhsize))) {
-  if (vp->v_type == VNON)
-   vp->v_type = VDIR;
-  vp->v_flag |= 0x0001;
- }
  np->n_fhp = &np->n_fh;
  __builtin_bcopy((fh), (np->n_fhp), (fhsize));
  np->n_fhsize = fhsize;
  np2 = nfs_nodetree_RBT_INSERT(&nmp->nm_ntree, np);
- ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 158, "np2 == NULL"));
+ ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 146, "np2 == NULL"));
  np->n_accstamp = -1;
  *npp = np;
  return (0);

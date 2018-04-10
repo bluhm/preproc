@@ -4952,11 +4952,10 @@ struct nfsmount {
  struct reqs { struct nfsreq *tqh_first; struct nfsreq **tqh_last; }
   nm_reqsq;
  struct timeout nm_rtimeout;
- int nm_flag;
  struct mount *nm_mountp;
+ struct vnode *nm_vnode;
+ int nm_flag;
  int nm_numgrps;
- u_char nm_fh[64];
- int nm_fhsize;
  struct socket *nm_so;
  int nm_sotype;
  int nm_soproto;

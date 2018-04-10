@@ -3078,12 +3078,15 @@ fail:
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (9);
   }
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   dp = (struct vnode *)fp->f_data;
   if (fp->f_type != 1 || dp->v_type != VDIR) {
+   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
    pool_put(&namei_pool, cnp->cn_pnbuf);
    return (20);
   }
   vref(dp);
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  }
  for (;;) {
   if (!dp->v_mount) {

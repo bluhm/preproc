@@ -4410,23 +4410,25 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
  struct file *fp;
  struct filedesc *fdp;
  u_long com = ((uap)->com.be.datum);
- int error;
+ int error = 0;
  u_int size;
- caddr_t data, memp;
+ caddr_t data, memp = ((void *)0);
  int tmp;
  long long stkbuf[128 / sizeof(long long)];
  fdp = p->p_fd;
- fp = fd_getfile_mode(fdp, ((uap)->fd.be.datum), 0x0001|0x0002);
- if (fp == ((void *)0))
+ if ((fp = fd_getfile_mode(fdp, ((uap)->fd.be.datum), 0x0001|0x0002)) == ((void *)0))
   return (9);
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type == 2) {
   struct socket *so = fp->f_data;
-  if (so->so_state & 0x4000)
-   return (22);
+  if (so->so_state & 0x4000) {
+   error = 22;
+   goto out;
+  }
  }
  error = pledge_ioctl(p, com, fp);
  if (error)
-  return (error);
+  goto out;
  switch (com) {
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('f')) << 8) | ((2))):
  case ((unsigned long)0x20000000 | ((0 & 0x1fff) << 16) | ((('f')) << 8) | ((1))):
@@ -4436,13 +4438,13 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
   else
    fdp->fd_ofileflags[((uap)->fd.be.datum)] |= 0x01;
   _rw_exit_write(&(fdp)->fd_lock );
-  return (0);
+  goto out;
  }
  size = (((com) >> 16) & 0x1fff);
- if (size > (1 << 13))
-  return (25);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
- memp = ((void *)0);
+ if (size > (1 << 13)) {
+  error = 25;
+  goto out;
+ }
  if (size > sizeof (stkbuf)) {
   memp = malloc(size, 14, 0x0001);
   data = memp;
@@ -4515,8 +4517,7 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
   error = copyout(data, ((uap)->data.be.datum), size);
 out:
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
- if (memp)
-  free(memp, 14, size);
+ free(memp, 14, size);
  return (error);
 }
 int selwait, nselcoll;

@@ -3996,11 +3996,10 @@ struct nfsmount {
  struct reqs { struct nfsreq *tqh_first; struct nfsreq **tqh_last; }
   nm_reqsq;
  struct timeout nm_rtimeout;
- int nm_flag;
  struct mount *nm_mountp;
+ struct vnode *nm_vnode;
+ int nm_flag;
  int nm_numgrps;
- u_char nm_fh[64];
- int nm_fhsize;
  struct socket *nm_so;
  int nm_sotype;
  int nm_soproto;
@@ -4193,11 +4192,13 @@ int nfs_kqfilter(void *);
 extern struct nfsstats nfsstats;
 extern int nfs_ticks;
 extern u_int32_t nfs_procids[23];
-int nfs_sysctl(int *, u_int, void *, size_t *, void *, size_t, struct proc *);
+int nfs_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
 int nfs_checkexp(struct mount *, struct mbuf *, int *, struct ucred **);
-struct mount *nfs_mount_diskless(struct nfs_dlmount *, char *, int);
+struct mount *nfs_mount_diskless(struct nfs_dlmount *, char *, int,
+     struct vnode **, struct proc *p);
 int mountnfs(struct nfs_args *, struct mount *, struct mbuf *,
-     const char *, char *);
+     const char *, char *, struct vnode **, struct proc *p);
 int nfs_quotactl(struct mount *, int, uid_t, caddr_t, struct proc *);
 int nfs_root(struct mount *, struct vnode **);
 int nfs_start(struct mount *, int, struct proc *);
@@ -4237,13 +4238,11 @@ nfs_statfs(struct mount *mp, struct statfs *sbp, struct proc *p)
  struct nfsmount *nmp = ((struct nfsmount *)((mp)->mnt_data));
  int error = 0, retattr;
  struct ucred *cred;
- struct nfsnode *np;
  u_quad_t tquad;
  info.nmi_v3 = (nmp->nm_flag & 0x00000200);
- error = nfs_nget(mp, (nfsfh_t *)nmp->nm_fh, nmp->nm_fhsize, &np);
+ error = nfs_root(mp, &vp);
  if (error)
   return (error);
- vp = ((np)->n_vnode);
  cred = crget();
  cred->cr_ngroups = 0;
  if (info.nmi_v3 && (nmp->nm_flag & 0x00100000) == 0)
@@ -4287,7 +4286,7 @@ nfs_statfs(struct mount *mp, struct statfs *sbp, struct proc *p)
  copy_statfs_info(sbp, mp);
  m_freem(info.nmi_mrep);
 nfsmout:
- vrele(vp);
+ vput(vp);
  crfree(cred);
  return (error);
 }
@@ -4361,10 +4360,10 @@ nfs_mountroot(void)
  nfs_boot_init(&nfs_diskless, procp);
  if (nfs_boot_getfh(&nfs_diskless.nd_boot, "root", &nfs_diskless.nd_root, -1))
   panic("nfs_mountroot: root");
- mp = nfs_mount_diskless(&nfs_diskless.nd_root, "/", 0);
- nfs_root(mp, &rootvp);
+ mp = nfs_mount_diskless(&nfs_diskless.nd_root, "/", 0, &vp, procp);
  printf("root on %s\n", nfs_diskless.nd_root.ndm_host);
  do { (mp)->mnt_list.tqe_next = ((void *)0); (mp)->mnt_list.tqe_prev = (&mountlist)->tqh_last; *(&mountlist)->tqh_last = (mp); (&mountlist)->tqh_last = &(mp)->mnt_list.tqe_next; } while (0);
+ rootvp = vp;
  vfs_unbusy(mp);
  error = VOP_GETATTR(rootvp, &attr, procp->p_ucred, procp);
  if (error) panic("nfs_mountroot: getattr for root");
@@ -4378,8 +4377,8 @@ nfs_mountroot(void)
  }
  error = nfs_boot_getfh(&nfs_diskless.nd_boot, "swap", &nfs_diskless.nd_swap, 5);
  if (!error) {
-  mp = nfs_mount_diskless(&nfs_diskless.nd_swap, "/swap", 0);
-  nfs_root(mp, &vp);
+  mp = nfs_mount_diskless(&nfs_diskless.nd_swap, "/swap", 0, &vp,
+      procp);
   vfs_unbusy(mp);
   vp->v_type = VREG;
   vp->v_flag = 0;
@@ -4397,7 +4396,8 @@ nfs_mountroot(void)
  return (0);
 }
 struct mount *
-nfs_mount_diskless(struct nfs_dlmount *ndmntp, char *mntname, int mntflag)
+nfs_mount_diskless(struct nfs_dlmount *ndmntp, char *mntname, int mntflag,
+    struct vnode **vpp, struct proc *p)
 {
  struct mount *mp;
  struct mbuf *m;
@@ -4408,7 +4408,7 @@ nfs_mount_diskless(struct nfs_dlmount *ndmntp, char *mntname, int mntflag)
  m = m_get(0x0001, 3);
  __builtin_bcopy((ndmntp->ndm_args.addr), (((caddr_t)((m)->m_hdr.mh_data))), ((m->m_hdr.mh_len = ndmntp->ndm_args.addr->sa_len)));
  error = mountnfs(&ndmntp->ndm_args, mp, m, mntname,
-     ndmntp->ndm_args.hostname);
+     ndmntp->ndm_args.hostname, vpp, p);
  if (error)
   panic("nfs_mountroot: mount %s failed: %d", mntname, error);
  return (mp);
@@ -4536,6 +4536,7 @@ nfs_mount(struct mount *mp, const char *path, void *data,
  int error;
  struct nfs_args *args = data;
  struct mbuf *nam;
+ struct vnode *vp;
  char hst[90];
  size_t len;
  u_char nfh[64];
@@ -4570,14 +4571,17 @@ nfs_mount(struct mount *mp, const char *path, void *data,
  if (error)
   return (error);
  args->fh = nfh;
- error = mountnfs(args, mp, nam, path, hst);
+ error = mountnfs(args, mp, nam, path, hst, &vp, p);
  return (error);
 }
 int
 mountnfs(struct nfs_args *argp, struct mount *mp, struct mbuf *nam,
-    const char *pth, char *hst)
+    const char *pth, char *hst, struct vnode **vpp, struct proc *p)
 {
  struct nfsmount *nmp;
+ struct nfsnode *np;
+ struct vnode *vp;
+ struct vattr attr;
  int error;
  if (mp->mnt_flag & 0x00010000) {
   nmp = ((struct nfsmount *)((mp)->mnt_data));
@@ -4597,12 +4601,10 @@ mountnfs(struct nfs_args *argp, struct mount *mp, struct mbuf *nam,
  nmp->nm_readdirsize = 8192;
  nmp->nm_numgrps = 16;
  nmp->nm_readahead = 1;
- nmp->nm_fhsize = argp->fhsize;
  nmp->nm_acregmin = 5;
  nmp->nm_acregmax = 60;
  nmp->nm_acdirmin = 5;
  nmp->nm_acdirmax = 60;
- __builtin_bcopy((argp->fh), (nmp->nm_fh), (argp->fhsize));
  mp->mnt_stat.f_namemax = 255;
  __builtin_memset((mp->mnt_stat.f_mntonname), (0), (90));
  strlcpy(mp->mnt_stat.f_mntonname, pth, 90);
@@ -4622,6 +4624,21 @@ mountnfs(struct nfs_args *argp, struct mount *mp, struct mbuf *nam,
      (error = nfs_connect(nmp, ((void *)0))))
   goto bad;
  mp->mnt_stat.f_iosize = 32768;
+ error = nfs_nget(mp, (nfsfh_t *)argp->fh, argp->fhsize, &np);
+ if (error)
+  goto bad;
+ vp = ((np)->n_vnode);
+ error = VOP_GETATTR(vp, &attr, p->p_ucred, p);
+ if (error) {
+  vput(vp);
+  goto bad;
+ }
+ nmp->nm_vnode = vp;
+ if (vp->v_type == VNON)
+  vp->v_type = VDIR;
+ vp->v_flag = 0x0001;
+ VOP_UNLOCK(vp, (__curcpu->ci_self)->ci_curproc);
+ *vpp = vp;
  return (0);
 bad:
  nfs_disconnect(nmp);
@@ -4633,14 +4650,26 @@ int
 nfs_unmount(struct mount *mp, int mntflags, struct proc *p)
 {
  struct nfsmount *nmp;
- int error, flags;
+ struct vnode *vp;
+ int error, flags = 0;
  nmp = ((struct nfsmount *)((mp)->mnt_data));
- flags = 0;
- if (mntflags & 0x00080000)
-  flags |= 0x0002;
- error = vflush(mp, ((void *)0), flags);
+ error = nfs_root(mp, &vp);
  if (error)
   return (error);
+ if ((mntflags & 0x00080000) == 0 && vp->v_usecount > 2) {
+  vput(vp);
+  return (16);
+ }
+ if (mntflags & 0x00080000)
+  flags |= 0x0002;
+ error = vflush(mp, vp, flags);
+ if (error) {
+  vput(vp);
+  return (error);
+ }
+ vrele(vp);
+ vput(vp);
+ vgone(vp);
  nfs_disconnect(nmp);
  m_freem(nmp->nm_nam);
  timeout_del(&nmp->nm_rtimeout);
@@ -4651,14 +4680,18 @@ nfs_unmount(struct mount *mp, int mntflags, struct proc *p)
 int
 nfs_root(struct mount *mp, struct vnode **vpp)
 {
+ struct vnode *vp;
  struct nfsmount *nmp;
- struct nfsnode *np;
  int error;
  nmp = ((struct nfsmount *)((mp)->mnt_data));
- error = nfs_nget(mp, (nfsfh_t *)nmp->nm_fh, nmp->nm_fhsize, &np);
- if (error)
+ vp = nmp->nm_vnode;
+ vref(vp);
+ error = vn_lock(vp, 0x0001UL | 0x2000UL, (__curcpu->ci_self)->ci_curproc);
+ if (error) {
+  vrele(vp);
   return (error);
- *vpp = ((np)->n_vnode);
+ }
+ *vpp = vp;
  return (0);
 }
 int
