@@ -2933,7 +2933,9 @@ log(int level, const char *fmt, ...)
  _splx(s);
  if (!log_open) {
   __builtin_va_start((ap), fmt);
+  __mtx_enter(&kprintf_mutex );
   kprintf(fmt, 0x01, ((void *)0), ((void *)0), ap);
+  __mtx_leave(&kprintf_mutex );
   __builtin_va_end((ap));
  }
  logwakeup();
@@ -2961,7 +2963,9 @@ addlog(const char *fmt, ...)
  _splx(s);
  if (!log_open) {
   __builtin_va_start((ap), fmt);
+  __mtx_enter(&kprintf_mutex );
   kprintf(fmt, 0x01, ((void *)0), ((void *)0), ap);
+  __mtx_leave(&kprintf_mutex );
   __builtin_va_end((ap));
  }
  logwakeup();
@@ -3066,13 +3070,13 @@ printf(const char *fmt, ...)
 {
  va_list ap;
  int retval;
- __mtx_enter(&kprintf_mutex );
  __builtin_va_start((ap), fmt);
+ __mtx_enter(&kprintf_mutex );
  retval = kprintf(fmt, 0x01 | 0x04, ((void *)0), ((void *)0), ap);
+ __mtx_leave(&kprintf_mutex );
  __builtin_va_end((ap));
  if (!panicstr)
   logwakeup();
- __mtx_leave(&kprintf_mutex );
  return(retval);
 }
 int
@@ -3081,9 +3085,9 @@ vprintf(const char *fmt, va_list ap)
  int retval;
  __mtx_enter(&kprintf_mutex );
  retval = kprintf(fmt, 0x01 | 0x04, ((void *)0), ((void *)0), ap);
+ __mtx_leave(&kprintf_mutex );
  if (!panicstr)
   logwakeup();
- __mtx_leave(&kprintf_mutex );
  return (retval);
 }
 int
@@ -3135,6 +3139,8 @@ kprintf(const char *fmt0, int oflags, void *vp, char *sbuf, va_list ap)
  char *xdigs = ((void *)0);
  char buf[(sizeof(quad_t) * 8 / 3 + 2)];
  char *tailp = ((void *)0);
+ if (oflags & 0x01)
+  do { if (((&kprintf_mutex)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&kprintf_mutex), __func__); } while (0);
  if ((oflags & 0x08) && (vp != ((void *)0)))
   tailp = *(char **)vp;
  fmt = (char *)fmt0;

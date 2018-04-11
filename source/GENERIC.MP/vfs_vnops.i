@@ -3357,9 +3357,15 @@ int vn_write(struct file *, off_t *, struct uio *, struct ucred *);
 int vn_poll(struct file *, int, struct proc *);
 int vn_kqfilter(struct file *, struct knote *);
 int vn_closefile(struct file *, struct proc *);
-struct fileops vnops =
- { vn_read, vn_write, vn_ioctl, vn_poll, vn_kqfilter, vn_statfile,
-   vn_closefile };
+struct fileops vnops = {
+ .fo_read = vn_read,
+ .fo_write = vn_write,
+ .fo_ioctl = vn_ioctl,
+ .fo_poll = vn_poll,
+ .fo_kqfilter = vn_kqfilter,
+ .fo_stat = vn_statfile,
+ .fo_close = vn_closefile
+};
 int
 vn_open(struct nameidata *ndp, int fmode, int cmode)
 {

@@ -2432,8 +2432,8 @@ uvm_addr_linsearch(struct vm_map *map, struct uvm_addr_state *uaddr,
      entry = (direction == 1 ?
      uvm_map_addr_RBT_NEXT(entry) :
      uvm_map_addr_RBT_PREV(entry))) {
-  if (((entry)->end + (entry)->guard) > high ||
-      ((entry)->end + (entry)->guard + (entry)->fspace) < low) {
+  if ((direction == 1 && ((entry)->end + (entry)->guard) > high) ||
+      (direction == -1 && ((entry)->end + (entry)->guard + (entry)->fspace) < low)) {
    break;
   }
   if (uvm_addr_fitspace(&low_addr, &high_addr,

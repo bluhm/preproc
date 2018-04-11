@@ -4092,8 +4092,13 @@ int pipe_kqfilter(struct file *fp, struct knote *kn);
 int pipe_ioctl(struct file *, u_long, caddr_t, struct proc *);
 int pipe_stat(struct file *fp, struct stat *ub, struct proc *p);
 static struct fileops pipeops = {
- pipe_read, pipe_write, pipe_ioctl, pipe_poll, pipe_kqfilter,
- pipe_stat, pipe_close
+ .fo_read = pipe_read,
+ .fo_write = pipe_write,
+ .fo_ioctl = pipe_ioctl,
+ .fo_poll = pipe_poll,
+ .fo_kqfilter = pipe_kqfilter,
+ .fo_stat = pipe_stat,
+ .fo_close = pipe_close
 };
 void filt_pipedetach(struct knote *kn);
 int filt_piperead(struct knote *kn, long hint);

@@ -2706,8 +2706,13 @@ void rt_if_track(struct ifnet *);
 int rt_if_linkstate_change(struct rtentry *, void *, u_int);
 int rtdeletemsg(struct rtentry *, struct ifnet *, u_int);
 struct fileops socketops = {
- soo_read, soo_write, soo_ioctl, soo_poll, soo_kqfilter,
- soo_stat, soo_close
+ .fo_read = soo_read,
+ .fo_write = soo_write,
+ .fo_ioctl = soo_ioctl,
+ .fo_poll = soo_poll,
+ .fo_kqfilter = soo_kqfilter,
+ .fo_stat = soo_stat,
+ .fo_close = soo_close
 };
 int
 soo_read(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
