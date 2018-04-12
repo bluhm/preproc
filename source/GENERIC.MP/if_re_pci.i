@@ -3574,12 +3574,18 @@ re_pci_attach(struct device *parent, struct device *self, void *aux)
  int offset;
  pci_set_powerstate(pa->pa_pc, pa->pa_tag, 0x0000);
  pci_conf_write(pc, pa->pa_tag, 0x44, 0x0100);
- if (pci_mapreg_map(pa, 0x14, 0x00000000, 0,
-     &sc->rl_btag, &sc->rl_bhandle, ((void *)0), &psc->sc_iosize, 0)) {
-  if (pci_mapreg_map(pa, 0x10, 0x00000001, 0,
-      &sc->rl_btag, &sc->rl_bhandle, ((void *)0), &psc->sc_iosize, 0)) {
-   printf(": can't map mem or i/o space\n");
-   return;
+ if (pci_mapreg_map(pa, 0x18, 0x00000000 |
+     0x00000004, 0, &sc->rl_btag, &sc->rl_bhandle,
+     ((void *)0), &psc->sc_iosize, 0)) {
+  if (pci_mapreg_map(pa, 0x14, 0x00000000 |
+      0x00000000, 0, &sc->rl_btag, &sc->rl_bhandle,
+      ((void *)0), &psc->sc_iosize, 0)) {
+   if (pci_mapreg_map(pa, 0x10, 0x00000001,
+       0, &sc->rl_btag, &sc->rl_bhandle, ((void *)0),
+       &psc->sc_iosize, 0)) {
+    printf(": can't map mem or i/o space\n");
+    return;
+   }
   }
  }
  if (pci_intr_map_msi(pa, &ih) == 0)

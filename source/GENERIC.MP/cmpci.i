@@ -2836,10 +2836,7 @@ cmpci_activate(struct device *self, int act)
 int
 cmpci_resume(struct cmpci_softc *sc)
 {
- int i;
  cmpci_mixerreg_write(sc, 0x00, 0);
- for (i = 0; i < 28; i++)
-  cmpci_set_mixer_gain(sc, i);
  return 0;
 }
 int

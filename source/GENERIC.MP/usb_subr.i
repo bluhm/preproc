@@ -7480,6 +7480,10 @@ const struct usb_known_product usb_known_products[] = {
      "HUAWEI Mobile K3765",
  },
  {
+     0x12d1, 0x14cf,
+     "HUAWEI Mobile K3772",
+ },
+ {
      0x12d1, 0x14ac,
      "HUAWEI Mobile Modem",
  },
@@ -7502,6 +7506,10 @@ const struct usb_known_product usb_known_products[] = {
  {
      0x12d1, 0x1520,
      "HUAWEI Mobile K3765 Initial",
+ },
+ {
+     0x12d1, 0x1526,
+     "HUAWEI Mobile K3772 Initial",
  },
  {
      0x12d1, 0x1573,

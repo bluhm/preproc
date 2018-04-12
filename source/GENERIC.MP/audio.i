@@ -2410,6 +2410,8 @@ struct audio_softc {
  int offs;
  void (*conv_enc)(unsigned char *, int);
  void (*conv_dec)(unsigned char *, int);
+ struct mixer_ctrl *mix_ents;
+ int mix_nent;
  struct wskbd_vol spkr, mic;
  struct task wskbd_task;
  int wskbd_taskset;
@@ -3086,6 +3088,8 @@ audio_attach(struct device *parent, struct device *self, void *aux)
  struct audio_softc *sc = (void *)self;
  struct audio_attach_args *sa = aux;
  struct audio_hw_if *ops = sa->hwif;
+ struct mixer_devinfo *mi;
+ struct mixer_ctrl *ent;
  void *arg = sa->hdl;
  int error;
  printf("\n");
@@ -3131,11 +3135,45 @@ audio_attach(struct device *parent, struct device *self, void *aux)
  sc->round = 960;
  sc->nblks = 2;
  sc->play.pos = sc->play.xrun = sc->rec.pos = sc->rec.xrun = 0;
+ mi = malloc(sizeof(struct mixer_devinfo), 127, 0x0001);
+ sc->mix_nent = 0;
+ mi->index = 0;
+ while (1) {
+  if (sc->ops->query_devinfo(sc->arg, mi) != 0)
+   break;
+  switch (mi->type) {
+  case 2:
+  case 1:
+  case 3:
+   sc->mix_nent++;
+  }
+  mi->index++;
+ }
+ sc->mix_ents = mallocarray(sc->mix_nent,
+     sizeof(struct mixer_ctrl), 2, 0x0001);
+ ent = sc->mix_ents;
+ mi->index = 0;
+ while (1) {
+  if (sc->ops->query_devinfo(sc->arg, mi) != 0)
+   break;
+  switch (mi->type) {
+  case 3:
+   ent->un.value.num_channels = mi->un.v.num_channels;
+  case 2:
+  case 1:
+   ent->dev = mi->index;
+   ent->type = mi->type;
+   ent++;
+  }
+  mi->index++;
+ }
+ free(mi, 127, sizeof(struct mixer_devinfo));
 }
 int
 audio_activate(struct device *self, int act)
 {
  struct audio_softc *sc = (struct audio_softc *)self;
+ int i;
  switch (act) {
  case 2:
   __mtx_enter(&audio_lock );
@@ -3143,10 +3181,14 @@ audio_activate(struct device *self, int act)
   __mtx_leave(&audio_lock );
   if (sc->mode != 0 && sc->active)
    audio_stop_do(sc);
+  for (i = 0; i != sc->mix_nent; i++)
+   sc->ops->get_port(sc->arg, sc->mix_ents + i);
   do {} while(0);
   break;
  case 5:
   do {} while(0);
+  for (i = 0; i != sc->mix_nent; i++)
+   sc->ops->set_port(sc->arg, sc->mix_ents + i);
   sc->quiesce = 0;
   wakeup(&sc->quiesce);
   if (sc->mode != 0) {
@@ -3192,6 +3234,7 @@ audio_detach(struct device *self, int flags)
   sc->ops->close(sc->arg);
   sc->mode = 0;
  }
+ free(sc->mix_ents, 2, sc->mix_nent * sizeof(struct mixer_ctrl));
  audio_buf_done(sc, &sc->play);
  audio_buf_done(sc, &sc->rec);
  return 0;

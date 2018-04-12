@@ -2433,7 +2433,6 @@ struct ac97_codec_if_vtbl {
  int (*query_devinfo)(struct ac97_codec_if *addr, mixer_devinfo_t *cp);
  int (*get_portnum_by_name)(struct ac97_codec_if *addr, char *class,
      char *device, char *qualifier);
- void (*restore_ports)(struct ac97_codec_if *addr);
  u_int16_t (*get_caps)(struct ac97_codec_if *codec_if);
  int (*set_rate)(struct ac97_codec_if *codec_if, int target,
      u_long *rate);

@@ -5245,8 +5245,6 @@ dupfdopen(struct proc *p, int indx, int mode)
  fdp->fd_ofiles[indx] = wfp;
  fdp->fd_ofileflags[indx] = (fdp->fd_ofileflags[indx] & 0x01) |
      (fdp->fd_ofileflags[dupfd] & ~0x01);
- if (((p->p_p->ps_flags) & (0x00100000)))
-  fdp->fd_ofileflags[indx] |= 0x02;
  wfp->f_count++;
  fd_used(fdp, indx);
  return (0);

@@ -2469,7 +2469,6 @@ struct ac97_codec_if_vtbl {
  int (*query_devinfo)(struct ac97_codec_if *addr, mixer_devinfo_t *cp);
  int (*get_portnum_by_name)(struct ac97_codec_if *addr, char *class,
      char *device, char *qualifier);
- void (*restore_ports)(struct ac97_codec_if *addr);
  u_int16_t (*get_caps)(struct ac97_codec_if *codec_if);
  int (*set_rate)(struct ac97_codec_if *codec_if, int target,
      u_long *rate);
@@ -2886,7 +2885,6 @@ eap_attach(struct device *parent, struct device *self, void *aux)
 int
 eap_resume(struct eap_softc *sc)
 {
- mixer_ctrl_t ctl;
  int i;
  if (!sc->sc_1371) {
   bus_space_write_4((sc)->iot, (sc)->ioh, (0x20), (0x00000200 | 0x00000400));
@@ -2894,18 +2892,6 @@ eap_resume(struct eap_softc *sc)
   eap1370_write_codec(sc, 0x16, 0x02);
   eap1370_write_codec(sc, 0x16, 0x02 | 0x01);
   eap1370_write_codec(sc, 0x17, 0x0);
-  __builtin_bzero((&ctl), (sizeof(ctl)));
-  ctl.dev = 7;
-  ctl.type = 2;
-  ctl.un.mask = sc->sc_record_source;
-  eap1370_hw_if.set_port(sc, &ctl);
-  ctl.dev = 8;
-  ctl.type = 2;
-  ctl.un.mask = sc->sc_input_source;
-  eap1370_hw_if.set_port(sc, &ctl);
-  eap1370_set_mixer(sc, 0x19, sc->sc_mic_preamp);
-  for (i = 0; i < 6; i++)
-   eap1370_write_codec(sc, i, sc->sc_port[i]);
  } else {
   bus_space_write_4((sc)->iot, (sc)->ioh, (0x20), (0));
   bus_space_write_4((sc)->iot, (sc)->ioh, (0x00), (0));
