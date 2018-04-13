@@ -1452,6 +1452,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -5302,6 +5305,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -5334,6 +5338,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -6345,7 +6352,7 @@ start_init(void *arg)
  p->p_vmspace->vm_minsaddr = (caddr_t)(addr + (1 << 13));
  if (uvm_map(&p->p_vmspace->vm_map, &addr, (1 << 13),
      ((void *)0), ((voff_t) -1), 0,
-     ((0x01 | 0x02) | (((0x01 | 0x02 | 0x04)) << 8) | ((1) << 4) | ((0) << 12) | (0x0010000|0x0020000|0x0080000))))
+     ((0x01 | 0x02) | (((0x01 | 0x02 | 0x04)) << 8) | ((1) << 4) | ((0) << 12) | (0x0010000|0x0020000|0x0080000|0x2000000))))
   panic("init: couldn't allocate argument space");
  for (pathp = &initpaths[0]; (path = *pathp) != ((void *)0); pathp++) {
   ucp = (char *)(addr + (1 << 13));

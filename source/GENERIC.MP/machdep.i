@@ -1333,6 +1333,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -4365,6 +4368,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -4397,6 +4401,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -6495,8 +6502,8 @@ sendsig(sig_t catcher, int sig, int mask, u_long code, int type,
  oldsp = tf->tf_out[6] + (2048-1);
  if ((p->p_sigstk.ss_flags & 0x0004) == 0 &&
      !sigonstack(oldsp) && (psp->ps_sigonstack & (1U << ((sig)-1))))
-  fp = (struct sigframe *)((caddr_t)p->p_sigstk.ss_sp +
-      p->p_sigstk.ss_size);
+  fp = (struct sigframe *)
+      (((vaddr_t)p->p_sigstk.ss_sp + p->p_sigstk.ss_size) & ~((1 << 13) - 1));
  else
   fp = (struct sigframe *)oldsp;
  fp = (struct sigframe *)((long)(fp - 1) & ~0x0f);

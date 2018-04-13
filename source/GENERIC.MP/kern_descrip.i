@@ -2226,6 +2226,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -4777,8 +4780,6 @@ finishdup(struct proc *p, struct file *fp, int old, int new,
   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (oldfp)->f_count++; } while (0);
  fdp->fd_ofiles[new] = fp;
  fdp->fd_ofileflags[new] = fdp->fd_ofileflags[old] & ~0x01;
- fp->f_count++;
- (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  if (dup2 && oldfp == ((void *)0))
   fd_used(fdp, new);
  *retval = new;
@@ -4979,8 +4980,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 907, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 908, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 906, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 907, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {
@@ -5238,14 +5239,18 @@ dupfdopen(struct proc *p, int indx, int mode)
  }
  if ((wfp = fd_getfile(fdp, dupfd)) == ((void *)0))
   return (9);
- if (((mode & (0x0001|0x0002)) | wfp->f_flag) != wfp->f_flag)
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (wfp)->f_count++; } while (0);
+ if (((mode & (0x0001|0x0002)) | wfp->f_flag) != wfp->f_flag) {
+  (--(wfp)->f_count == 0 ? fdrop(wfp, p) : 0);
   return (13);
- if (wfp->f_count == 0x7fffffffffffffffL -2)
+ }
+ if (wfp->f_count == 0x7fffffffffffffffL -2) {
+  (--(wfp)->f_count == 0 ? fdrop(wfp, p) : 0);
   return (11);
+ }
  fdp->fd_ofiles[indx] = wfp;
  fdp->fd_ofileflags[indx] = (fdp->fd_ofileflags[indx] & 0x01) |
      (fdp->fd_ofileflags[dupfd] & ~0x01);
- wfp->f_count++;
  fd_used(fdp, indx);
  return (0);
 }

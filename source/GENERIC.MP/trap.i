@@ -1526,6 +1526,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -1805,129 +1808,6 @@ int pledge_fcntl(struct proc *p, int cmd);
 int pledge_swapctl(struct proc *p);
 int pledge_kill(struct proc *p, pid_t pid);
 int pledge_protexec(struct proc *p, int prot);
-struct ktr_header {
- uint ktr_type;
- pid_t ktr_pid;
- pid_t ktr_tid;
- struct timespec ktr_time;
- char ktr_comm[16 +1];
- size_t ktr_len;
-};
-struct ktr_syscall {
- int ktr_code;
- int ktr_argsize;
-};
-struct ktr_sysret {
- int ktr_code;
- int ktr_error;
-};
-struct ktr_genio {
- int ktr_fd;
- enum uio_rw ktr_rw;
-};
-struct ktr_psig {
- int signo;
- sig_t action;
- int mask;
- int code;
- siginfo_t si;
-};
-struct sockaddr;
-struct stat;
-struct ktr_user {
- char ktr_id[20];
-};
-struct ktr_pledge {
- int error;
- int syscall;
- uint64_t code;
-};
-void ktrgenio(struct proc *, int, enum uio_rw, struct iovec *, ssize_t);
-void ktrnamei(struct proc *, char *);
-void ktrpsig(struct proc *, int, sig_t, int, int, siginfo_t *);
-void ktrsyscall(struct proc *, register_t, size_t, register_t []);
-void ktrsysret(struct proc *, register_t, int, const register_t [2]);
-int ktruser(struct proc *, const char *, const void *, size_t);
-void ktrexec(struct proc *, int, const char *, ssize_t);
-void ktrpledge(struct proc *, int, uint64_t, int);
-void ktrcleartrace(struct process *);
-void ktrsettrace(struct process *, int, struct vnode *, struct ucred *);
-void ktrstruct(struct proc *, const char *, const void *, size_t);
-static inline int
-mi_syscall(struct proc *p, register_t code, const struct sysent *callp,
-    register_t *argp, register_t retval[2])
-{
- uint64_t tval;
- int lock = !(callp->sy_flags & 0x01);
- int error, pledged;
- refreshcreds(p);
- if (((p)->p_p->ps_traceflag & (1<<(1)) && ((p)->p_flag & 0x00000001) == 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 62);
-  ktrsyscall(p, code, callp->sy_argsize, argp);
-  _kernel_unlock();
- }
- if (lock)
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 69);
- pledged = (p->p_p->ps_flags & 0x00100000);
- if (pledged && (error = pledge_syscall(p, code, &tval))) {
-  if (!lock)
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 73);
-  error = pledge_fail(p, error, tval);
-  _kernel_unlock();
-  return (error);
- }
- error = (*callp->sy_call)(p, argp, retval);
- if (lock)
-  _kernel_unlock();
- return (error);
-}
-static inline void
-mi_syscall_return(struct proc *p, register_t code, int error,
-    const register_t retval[2])
-{
- userret(p);
- if (((p)->p_p->ps_traceflag & (1<<(2)) && ((p)->p_flag & 0x00000001) == 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 102);
-  ktrsysret(p, code, error, retval);
-  _kernel_unlock();
- }
-}
-static inline void
-mi_child_return(struct proc *p)
-{
- int code = (p->p_flag & 0x04000000) ? 8 :
-     (p->p_p->ps_flags & 0x00000040) ? 66 : 2;
- const register_t child_retval[2] = { 0, 1 };
- userret(p);
- if (((p)->p_p->ps_traceflag & (1<<(2)) && ((p)->p_flag & 0x00000001) == 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 131);
-  ktrsysret(p, code, 0, child_retval);
-  _kernel_unlock();
- }
-}
-static inline void
-mi_ast(struct proc *p, int resched)
-{
- if (p->p_flag & 0x00008000) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 145);
-  do { atomic_clearbits_int(&(p)->p_flag, 0x00008000); addupc_task((p), (p)->p_prof_addr, (p)->p_prof_ticks); (p)->p_prof_ticks = 0; } while (0);
-  _kernel_unlock();
- }
- if (resched)
-  preempt();
-}
-struct syslog_data {
- int log_stat;
- const char *log_tag;
- int log_fac;
- int log_mask;
-};
-void logpri(int);
-void log(int, const char *, ...)
-    __attribute__((__format__(__kprintf__,2,3)));
-int addlog(const char *, ...)
-    __attribute__((__format__(__kprintf__,1,2)));
-void logwakeup(void);
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
 typedef off_t voff_t;
@@ -2185,6 +2065,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -2217,6 +2098,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -2552,6 +2436,146 @@ struct process;
 struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
+struct ktr_header {
+ uint ktr_type;
+ pid_t ktr_pid;
+ pid_t ktr_tid;
+ struct timespec ktr_time;
+ char ktr_comm[16 +1];
+ size_t ktr_len;
+};
+struct ktr_syscall {
+ int ktr_code;
+ int ktr_argsize;
+};
+struct ktr_sysret {
+ int ktr_code;
+ int ktr_error;
+};
+struct ktr_genio {
+ int ktr_fd;
+ enum uio_rw ktr_rw;
+};
+struct ktr_psig {
+ int signo;
+ sig_t action;
+ int mask;
+ int code;
+ siginfo_t si;
+};
+struct sockaddr;
+struct stat;
+struct ktr_user {
+ char ktr_id[20];
+};
+struct ktr_pledge {
+ int error;
+ int syscall;
+ uint64_t code;
+};
+void ktrgenio(struct proc *, int, enum uio_rw, struct iovec *, ssize_t);
+void ktrnamei(struct proc *, char *);
+void ktrpsig(struct proc *, int, sig_t, int, int, siginfo_t *);
+void ktrsyscall(struct proc *, register_t, size_t, register_t []);
+void ktrsysret(struct proc *, register_t, int, const register_t [2]);
+int ktruser(struct proc *, const char *, const void *, size_t);
+void ktrexec(struct proc *, int, const char *, ssize_t);
+void ktrpledge(struct proc *, int, uint64_t, int);
+void ktrcleartrace(struct process *);
+void ktrsettrace(struct process *, int, struct vnode *, struct ucred *);
+void ktrstruct(struct proc *, const char *, const void *, size_t);
+static inline int
+mi_syscall(struct proc *p, register_t code, const struct sysent *callp,
+    register_t *argp, register_t retval[2])
+{
+ uint64_t tval;
+ int lock = !(callp->sy_flags & 0x01);
+ int error, pledged;
+ vaddr_t sp = ((p)->p_md.md_tf->tf_out[6] + (2048-1));
+ refreshcreds(p);
+ if (((p)->p_p->ps_traceflag & (1<<(1)) && ((p)->p_flag & 0x00000001) == 0)) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 65);
+  ktrsyscall(p, code, callp->sy_argsize, argp);
+  _kernel_unlock();
+ }
+ if (p->p_vmspace->vm_map.serial != p->p_spserial ||
+     p->p_spstart == 0 || sp < p->p_spstart || sp >= p->p_spend) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 73);
+  if (!uvm_map_check_stack_range(p, sp)) {
+   printf("syscall [%s]%d/%d sp %lx not inside %lx-%lx\n",
+       p->p_p->ps_comm, p->p_p->ps_pid, p->p_tid,
+       sp, p->p_spstart, p->p_spend);
+   p->p_sitrapno = 0;
+   p->p_sicode = 2;
+   p->p_sigval.sival_ptr = (void *)((p)->p_md.md_tf->tf_pc);
+   psignal(p, 11);
+   _kernel_unlock();
+   return (1);
+  }
+  _kernel_unlock();
+ }
+ if (lock)
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 90);
+ pledged = (p->p_p->ps_flags & 0x00100000);
+ if (pledged && (error = pledge_syscall(p, code, &tval))) {
+  if (!lock)
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 94);
+  error = pledge_fail(p, error, tval);
+  _kernel_unlock();
+  return (error);
+ }
+ error = (*callp->sy_call)(p, argp, retval);
+ if (lock)
+  _kernel_unlock();
+ return (error);
+}
+static inline void
+mi_syscall_return(struct proc *p, register_t code, int error,
+    const register_t retval[2])
+{
+ userret(p);
+ if (((p)->p_p->ps_traceflag & (1<<(2)) && ((p)->p_flag & 0x00000001) == 0)) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 123);
+  ktrsysret(p, code, error, retval);
+  _kernel_unlock();
+ }
+}
+static inline void
+mi_child_return(struct proc *p)
+{
+ int code = (p->p_flag & 0x04000000) ? 8 :
+     (p->p_p->ps_flags & 0x00000040) ? 66 : 2;
+ const register_t child_retval[2] = { 0, 1 };
+ userret(p);
+ if (((p)->p_p->ps_traceflag & (1<<(2)) && ((p)->p_flag & 0x00000001) == 0)) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 152);
+  ktrsysret(p, code, 0, child_retval);
+  _kernel_unlock();
+ }
+}
+static inline void
+mi_ast(struct proc *p, int resched)
+{
+ if (p->p_flag & 0x00008000) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../sys/syscall_mi.h", 166);
+  do { atomic_clearbits_int(&(p)->p_flag, 0x00008000); addupc_task((p), (p)->p_prof_addr, (p)->p_prof_ticks); (p)->p_prof_ticks = 0; } while (0);
+  _kernel_unlock();
+ }
+ if (resched)
+  preempt();
+}
+struct syslog_data {
+ int log_stat;
+ const char *log_tag;
+ int log_fac;
+ int log_mask;
+};
+void logpri(int);
+void log(int, const char *, ...)
+    __attribute__((__format__(__kprintf__,2,3)));
+int addlog(const char *, ...)
+    __attribute__((__format__(__kprintf__,1,2)));
+void logwakeup(void);
 enum IOP { IOP_OP2, IOP_CALL, IOP_reg, IOP_mem };
 enum IOP2 { IOP2_UNIMP, IOP2_BPcc, IOP2_Bicc, IOP2_BPr,
  IOP2_SETHI, IOP2_FBPfcc, IOP2_FBfcc, IOP2_CBccc };
@@ -3044,6 +3068,7 @@ trap(struct trapframe64 *tf, unsigned type, vaddr_t pc, long tstate)
  struct proc *p;
  struct pcb *pcb;
  int pstate = (tstate>>8);
+ vaddr_t sp;
  u_int64_t s;
  int64_t n;
  union sigval sv;
@@ -3094,6 +3119,20 @@ trap(struct trapframe64 *tf, unsigned type, vaddr_t pc, long tstate)
  pcb = &p->p_addr->u_pcb;
  p->p_md.md_tf = tf;
  refreshcreds(p);
+ sp = ((p)->p_md.md_tf->tf_out[6] + (2048-1));
+ if (p->p_vmspace->vm_map.serial != p->p_spserial ||
+     p->p_spstart == 0 || sp < p->p_spstart ||
+     sp >= p->p_spend) {
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 435);
+  if (!uvm_map_check_stack_range(p, sp)) {
+   printf("trap [%s]%d/%d type %d: sp %lx not inside %lx-%lx\n",
+       p->p_p->ps_comm, p->p_p->ps_pid, p->p_tid,
+       (int)type, sp, p->p_spstart, p->p_spend);
+   sv.sival_ptr = (void *)((p)->p_md.md_tf->tf_pc);
+   trapsignal(p, 11, type, 2, sv);
+  }
+  _kernel_unlock();
+ }
  switch (type) {
  default:
   if (type < 0x100) {
@@ -3102,7 +3141,7 @@ dopanic:
        type, type < (sizeof trap_type / sizeof *trap_type) ? trap_type[type] : T,
        pc, (long)tf->tf_npc, pstate, "\20\14IG\13MG\12CLE\11TLE\10\7MM\6RED\5PEF\4AM\3PRIV\2IE\1AG");
   }
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 440);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 457);
   trapsignal(p, 4, type, 1, sv);
   _kernel_unlock();
   break;
@@ -3114,7 +3153,7 @@ dopanic:
  case -1:
   write_user_windows();
   if (rwindow_save(p) == -1) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 462);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 479);
    trapsignal(p, 4, 0, 8, sv);
    _kernel_unlock();
   }
@@ -3123,7 +3162,7 @@ dopanic:
  {
   union instr ins;
   if (copyin((caddr_t)pc, &ins, sizeof(ins)) != 0) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 474);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 491);
    trapsignal(p, 4, 0, 1, sv);
    _kernel_unlock();
    break;
@@ -3144,7 +3183,7 @@ dopanic:
     (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
    break;
   }
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 495);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 512);
   trapsignal(p, 4, 0, 1, sv);
   _kernel_unlock();
   break;
@@ -3153,14 +3192,14 @@ dopanic:
  case 0x009:
  case 0x011:
  case 0x037:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 505);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 522);
   trapsignal(p, 4, 0, 1, sv);
   _kernel_unlock();
   break;
  case 0x020: {
   struct fpstate64 *fs = p->p_md.md_fpstate;
   if (fs == ((void *)0)) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 514);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 531);
    fs = malloc((sizeof *fs), 42, 0x0001);
    *fs = initfpstate;
    fs->fs_qsize = 0;
@@ -3191,7 +3230,7 @@ dopanic:
  {
   union instr ins;
   if (copyin((caddr_t)pc, &ins, sizeof(ins)) != 0) {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 558);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 575);
    trapsignal(p, 4, 0, 1, sv);
    _kernel_unlock();
    break;
@@ -3204,7 +3243,7 @@ dopanic:
    if (emul_qf(ins.i_int, p, sv, tf))
     (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
   } else {
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 571);
+   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 588);
    trapsignal(p, 4, 0, 1, sv);
    _kernel_unlock();
   }
@@ -3212,7 +3251,7 @@ dopanic:
  }
  case 0x080:
  case 0x0c0:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 588);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 605);
   sigexit(p, 9);
   break;
  case 0x034:
@@ -3223,7 +3262,7 @@ dopanic:
    tf->tf_npc = tf->tf_pc + 4;
    break;
   }
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 616);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 633);
   trapsignal(p, 10, 0, 1, sv);
   _kernel_unlock();
   break;
@@ -3244,18 +3283,18 @@ dopanic:
   fpu_cleanup(p, p->p_md.md_fpstate);
   break;
  case 0x023:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 653);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 670);
   trapsignal(p, 7, 0, 1, sv);
   _kernel_unlock();
   break;
  case 0x101:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 659);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 676);
   trapsignal(p, 5, 0, 1, sv);
   _kernel_unlock();
   break;
  case 0x028:
   (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 666);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 683);
   trapsignal(p, 8, 0, 1, sv);
   _kernel_unlock();
   break;
@@ -3269,21 +3308,21 @@ dopanic:
   break;
  case 0x105:
   (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 684);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 701);
   trapsignal(p, 4, 0, 2, sv);
   _kernel_unlock();
   break;
  case 0x106:
   uprintf("T_FIXALIGN\n");
   (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 692);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 709);
   trapsignal(p, 4, 0, 2, sv);
   _kernel_unlock();
   break;
  case 0x107:
   uprintf("T_INTOF\n");
   (n = tf->tf_npc, tf->tf_pc = n, tf->tf_npc = n + 4);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 700);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 717);
   trapsignal(p, 8, 0x01, 2, sv);
   _kernel_unlock();
   break;
@@ -3335,7 +3374,7 @@ data_access_fault(struct trapframe64 *tf, unsigned type, vaddr_t pc,
    : 0x01;
  }
  if (tstate & (0x004<<8)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 789);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 806);
   extern char Lfsprobe[];
   if (p->p_addr->u_pcb.pcb_onfault == Lfsprobe)
    goto kfault;
@@ -3350,7 +3389,7 @@ data_access_fault(struct trapframe64 *tf, unsigned type, vaddr_t pc,
    goto kfault;
   }
  } else {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 817);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 834);
   p->p_md.md_tf = tf;
  }
  vm = p->p_vmspace;
@@ -3443,7 +3482,7 @@ data_access_error(struct trapframe64 *tf, unsigned type, vaddr_t afva,
   tf->tf_npc = onfault + 4;
   return;
  }
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 959);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 976);
  trapsignal(p, 11, 0x01 | 0x02, 1, sv);
  _kernel_unlock();
 out:
@@ -3475,7 +3514,7 @@ text_access_fault(struct trapframe64 *tf, unsigned type, vaddr_t pc,
   panic("kernel text_access_fault: pc=%lx va=%lx", pc, va);
  } else
   p->p_md.md_tf = tf;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1006);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1023);
  vm = p->p_vmspace;
  rv = uvm_fault(&vm->vm_map, va, 0, access_type);
  if (rv == 0 && (caddr_t)va >= vm->vm_maxsaddr)
@@ -3524,7 +3563,7 @@ text_access_error(struct trapframe64 *tf, unsigned type, vaddr_t pc,
          type, sfsr, pc, afsr, afva, tf);
   if (tstate & (0x004<<8))
    panic("text_access_error: kernel memory error");
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1090);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1107);
   trapsignal(p, 10, 0, 1, sv);
   _kernel_unlock();
  }
@@ -3538,7 +3577,7 @@ text_access_error(struct trapframe64 *tf, unsigned type, vaddr_t pc,
       sfsr, "\20\31NF\20TM\16VAT\15VAD\14NFO\13ASI\12A\11NF\10PRIV\7E\6NUCLEUS\5SECONDCTX\4PRIV\3W\2OW\1FV");
  } else
   p->p_md.md_tf = tf;
- _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1110);
+ _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../arch/sparc64/sparc64/trap.c", 1127);
  vm = p->p_vmspace;
  rv = uvm_fault(&vm->vm_map, va, 0, access_type);
  if (rv == 0 && (caddr_t)va >= vm->vm_maxsaddr) {

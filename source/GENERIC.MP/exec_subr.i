@@ -1526,6 +1526,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -2650,6 +2653,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -2682,6 +2686,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -3132,7 +3139,7 @@ vmcmd_map_zero(struct proc *p, struct exec_vmcmd *cmd)
  cmd->ev_addr = ((cmd->ev_addr) & ~((1 << 13) - 1));
  return (uvm_map(&p->p_vmspace->vm_map, &cmd->ev_addr,
      (((cmd->ev_len) + ((1 << 13) - 1)) & ~((1 << 13) - 1)), ((void *)0), ((voff_t) -1), 0,
-     ((cmd->ev_prot) | (((0x01 | 0x02 | 0x04)) << 8) | ((1) << 4) | ((0) << 12) | (0x0010000|0x0080000))));
+     ((cmd->ev_prot) | (((0x01 | 0x02 | 0x04)) << 8) | ((1) << 4) | ((0) << 12) | (0x0010000|0x0080000 | (cmd->ev_flags & 0x0004 ? 0x2000000 : 0)))));
 }
 int
 vmcmd_randomize(struct proc *p, struct exec_vmcmd *cmd)
@@ -3183,6 +3190,6 @@ exec_setup_stack(struct proc *p, struct exec_package *epp)
   epp->ep_minsaddr -= sgap;
  }
  do { struct exec_vmcmd *vcp; if ((&epp->ep_vmcmds)->evs_used >= (&epp->ep_vmcmds)->evs_cnt) vmcmdset_extend(&epp->ep_vmcmds); vcp = &(&epp->ep_vmcmds)->evs_cmds[(&epp->ep_vmcmds)->evs_used++]; vcp->ev_proc = (vmcmd_map_zero); vcp->ev_len = (((epp->ep_minsaddr - epp->ep_ssize) - epp->ep_maxsaddr)); vcp->ev_addr = (epp->ep_maxsaddr); if ((vcp->ev_vp = (((struct vnode *)((void *)0)))) != ((struct vnode *)((void *)0))) vref(((struct vnode *)((void *)0))); vcp->ev_offset = (0); vcp->ev_prot = (0x00); vcp->ev_flags = (0); } while (0);
- do { struct exec_vmcmd *vcp; if ((&epp->ep_vmcmds)->evs_used >= (&epp->ep_vmcmds)->evs_cnt) vmcmdset_extend(&epp->ep_vmcmds); vcp = &(&epp->ep_vmcmds)->evs_cmds[(&epp->ep_vmcmds)->evs_used++]; vcp->ev_proc = (vmcmd_map_zero); vcp->ev_len = (epp->ep_ssize); vcp->ev_addr = ((epp->ep_minsaddr - epp->ep_ssize)); if ((vcp->ev_vp = (((struct vnode *)((void *)0)))) != ((struct vnode *)((void *)0))) vref(((struct vnode *)((void *)0))); vcp->ev_offset = (0); vcp->ev_prot = (0x01 | 0x02); vcp->ev_flags = (0); } while (0);
+ do { struct exec_vmcmd *vcp; if ((&epp->ep_vmcmds)->evs_used >= (&epp->ep_vmcmds)->evs_cnt) vmcmdset_extend(&epp->ep_vmcmds); vcp = &(&epp->ep_vmcmds)->evs_cmds[(&epp->ep_vmcmds)->evs_used++]; vcp->ev_proc = (vmcmd_map_zero); vcp->ev_len = (epp->ep_ssize); vcp->ev_addr = ((epp->ep_minsaddr - epp->ep_ssize)); if ((vcp->ev_vp = (((struct vnode *)((void *)0)))) != ((struct vnode *)((void *)0))) vref(((struct vnode *)((void *)0))); vcp->ev_offset = (0); vcp->ev_prot = (0x01 | 0x02); vcp->ev_flags = (0x0004); } while (0);
  return (0);
 }

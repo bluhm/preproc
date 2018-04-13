@@ -2053,6 +2053,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -4533,6 +4536,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -4565,6 +4569,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -5237,6 +5244,9 @@ sys_sigaltstack(struct proc *p, void *v, register_t *retval)
  }
  if (ss.ss_size < (1U << 13))
   return (12);
+ error = uvm_map_remap_as_stack(p, (vaddr_t)ss.ss_sp, ss.ss_size);
+ if (error)
+  return (error);
  p->p_sigstk = ss;
  return (0);
 }
@@ -5377,7 +5387,7 @@ void
 postsig_done(struct proc *p, int signum, struct sigacts *ps)
 {
  int mask = (1U << ((signum)-1));
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 759, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 764, "_kernel_lock_held()"));
  p->p_ru.ru_nsignals++;
  atomic_setbits_int(&p->p_sigmask, ps->ps_catchmask[signum]);
  if ((ps->ps_sigreset & mask) != 0) {
@@ -5587,7 +5597,7 @@ issignal(struct proc *p)
       signum != 9) {
    p->p_xstat = signum;
    if (dolock)
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1180);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1185);
    single_thread_set(p, SINGLE_PTRACE, 0);
    if (dolock)
     _kernel_unlock();
@@ -5597,7 +5607,7 @@ issignal(struct proc *p)
    if (dolock)
     do { ___mp_unlock((&sched_lock) ); _splx(s); } while ( 0);
    if (dolock)
-    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1192);
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1197);
    single_thread_clear(p, 0);
    if (dolock)
     _kernel_unlock();
@@ -5651,7 +5661,7 @@ proc_stop(struct proc *p, int sw)
 {
  struct process *pr = p->p_p;
  extern void *softclock_si;
- do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1305, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
+ do { do { if (splassert_ctl > 0) { splassert_check(14, __func__); } } while (0); ((__mp_lock_held(&sched_lock, (__curcpu->ci_self))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1310, "__mp_lock_held(&sched_lock, curcpu())")); } while (0);
  p->p_stat = 4;
  atomic_clearbits_int(&pr->ps_flags, 0x00000400);
  atomic_setbits_int(&pr->ps_flags, 0x00008000);
@@ -5686,8 +5696,8 @@ postsig(struct proc *p, int signum)
  int mask, returnmask;
  union sigval sigval;
  int s, code;
- ((signum != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1360, "signum != 0"));
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1361, "_kernel_lock_held()"));
+ ((signum != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1365, "signum != 0"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1366, "_kernel_lock_held()"));
  mask = (1U << ((signum)-1));
  atomic_clearbits_int(&p->p_siglist, mask);
  action = ps->ps_sigact[signum];
@@ -6006,18 +6016,18 @@ userret(struct proc *p)
  int signum;
  if (p->p_flag & 0x00000002) {
   atomic_clearbits_int(&p->p_flag, 0x00000002);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1827);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1832);
   psignal(p, 27);
   _kernel_unlock();
  }
  if (p->p_flag & 0x00000004) {
   atomic_clearbits_int(&p->p_flag, 0x00000004);
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1833);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1838);
   psignal(p, 26);
   _kernel_unlock();
  }
  if ((((p)->p_siglist & ~(p)->p_sigmask) != 0)) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1839);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1844);
   while ((signum = (((p)->p_siglist == 0 || (((p)->p_p->ps_flags & 0x00000200) == 0 && ((p)->p_siglist & ~(p)->p_sigmask) == 0)) ? 0 : issignal(p))) != 0)
    postsig(p, signum);
   _kernel_unlock();
@@ -6025,13 +6035,13 @@ userret(struct proc *p)
  if (p->p_flag & 0x00000008) {
   atomic_clearbits_int(&p->p_flag, 0x00000008);
   p->p_sigmask = p->p_oldmask;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1855);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1860);
   while ((signum = (((p)->p_siglist == 0 || (((p)->p_p->ps_flags & 0x00000200) == 0 && ((p)->p_siglist & ~(p)->p_sigmask) == 0)) ? 0 : issignal(p))) != 0)
    postsig(p, signum);
   _kernel_unlock();
  }
  if (p->p_flag & 0x00080000) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1862);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1867);
   single_thread_check(p, 0);
   _kernel_unlock();
  }
@@ -6069,7 +6079,7 @@ single_thread_set(struct proc *p, enum single_thread_mode mode, int deep)
  struct process *pr = p->p_p;
  struct proc *q;
  int error;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1923, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 1928, "_kernel_lock_held()"));
  if ((error = single_thread_check(p, deep)))
   return error;
  switch (mode) {
@@ -6151,8 +6161,8 @@ single_thread_clear(struct proc *p, int flag)
 {
  struct process *pr = p->p_p;
  struct proc *q;
- ((pr->ps_single == p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 2019, "pr->ps_single == p"));
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 2020, "_kernel_lock_held()"));
+ ((pr->ps_single == p) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 2024, "pr->ps_single == p"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sig.c", 2025, "_kernel_lock_held()"));
  pr->ps_single = ((void *)0);
  atomic_clearbits_int(&pr->ps_flags, 0x00002000 | 0x00001000);
  for((q) = ((&pr->ps_threads)->tqh_first); (q) != ((void *)0); (q) = ((q)->p_thr_link.tqe_next)) {

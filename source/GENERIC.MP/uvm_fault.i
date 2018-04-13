@@ -1546,6 +1546,9 @@ struct proc {
  struct timespec p_rtime;
  int p_siglist;
  sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
  u_char p_priority;
  u_char p_usrpri;
  int p_pledge_syscall;
@@ -1973,6 +1976,7 @@ struct vm_map {
  struct pmap * pmap;
  struct rwlock lock;
  struct mutex mtx;
+ u_int serial;
  struct uvm_map_addr addr;
  vsize_t size;
  int ref_count;
@@ -2005,6 +2009,9 @@ int uvm_map_inherit(vm_map_t, vaddr_t, vaddr_t, vm_inherit_t);
 int uvm_map_advice(vm_map_t, vaddr_t, vaddr_t, int);
 void uvm_map_init(void);
 boolean_t uvm_map_lookup_entry(vm_map_t, vaddr_t, vm_map_entry_t *);
+boolean_t uvm_map_check_stack_range(struct proc *, vaddr_t sp);
+boolean_t uvm_map_is_stack_remappable(vm_map_t, vaddr_t, vsize_t);
+int uvm_map_remap_as_stack(struct proc *, vaddr_t, vsize_t);
 int uvm_map_replace(vm_map_t, vaddr_t, vaddr_t,
       vm_map_entry_t, int);
 int uvm_map_reserve(vm_map_t, vsize_t, vaddr_t, vsize_t,
@@ -2552,7 +2559,8 @@ uvmfault_amapcopy(struct uvm_faultinfo *ufi)
   if (uvmfault_lookup(ufi, 1) == 0)
    return;
   if ((((ufi->entry)->etype & 0x08) != 0))
-   amap_copy(ufi->map, ufi->entry, 0x0002, 1,
+   amap_copy(ufi->map, ufi->entry, 0x0002,
+    (((ufi->entry)->etype & 0x40) != 0) ? 0 : 1,
     ufi->orig_rvaddr, ufi->orig_rvaddr + 1);
   if ((((ufi->entry)->etype & 0x08) != 0)) {
    uvmfault_unlockmaps(ufi, 1);
@@ -2581,8 +2589,8 @@ uvmfault_anonget(struct uvm_faultinfo *ufi, struct vm_amap *amap,
   we_own = 0;
   pg = anon->an_page;
   if (pg) {
-   ((pg->pg_flags & 0x00100000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 286, "pg->pg_flags & PQ_ANON"));
-   ((pg->uanon == anon) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 287, "pg->uanon == anon"));
+   ((pg->pg_flags & 0x00100000) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 287, "pg->pg_flags & PQ_ANON"));
+   ((pg->uanon == anon) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 288, "pg->uanon == anon"));
    if ((pg->pg_flags & (0x00000001|0x00000020)) == 0)
     return (0);
    atomic_setbits_int(&pg->pg_flags, 0x00000002);
@@ -2621,7 +2629,7 @@ uvmfault_anonget(struct uvm_faultinfo *ufi, struct vm_amap *amap,
     return (7);
    }
    if (result != 0) {
-    ((result != 3) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 376, "result != VM_PAGER_PEND"));
+    ((result != 3) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 377, "result != VM_PAGER_PEND"));
     anon->an_page = ((void *)0);
     uvm_swap_markbad(anon->an_swslot, 1);
     anon->an_swslot = (-1);
@@ -2661,7 +2669,7 @@ uvmfault_update_stats(struct uvm_faultinfo *ufi)
   return;
  if (map->flags & 0x40) {
   p = (__curcpu->ci_self)->ci_curproc;
-  ((p != ((void *)0) && &p->p_vmspace->vm_map == map) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 462, "p != NULL && &p->p_vmspace->vm_map == map"));
+  ((p != ((void *)0) && &p->p_vmspace->vm_map == map) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 463, "p != NULL && &p->p_vmspace->vm_map == map"));
   res = ((map->pmap)->pm_stats.resident_count);
   res <<= (13 - 10);
   if (p->p_ru.ru_maxrss < res)
@@ -2823,7 +2831,7 @@ ReFault:
     if (pages[lcv] == ((void *)0) ||
         pages[lcv] == ((struct vm_page *) -1L))
      continue;
-    (((pages[lcv]->pg_flags & 0x00000020) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 756, "(pages[lcv]->pg_flags & PG_RELEASED) == 0"));
+    (((pages[lcv]->pg_flags & 0x00000020) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 757, "(pages[lcv]->pg_flags & PG_RELEASED) == 0"));
     if (lcv == centeridx) {
      uobjpage = pages[lcv];
      continue;
@@ -2869,7 +2877,7 @@ ReFault:
   }
   if (anon == ((void *)0) || pg == ((void *)0)) {
    uvmfault_unlockall(&ufi, amap, ((void *)0), oanon);
-   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 887, "uvmexp.swpgonly <= uvmexp.swpages"));
+   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 888, "uvmexp.swpgonly <= uvmexp.swpages"));
    if (anon == ((void *)0))
     uvmexp.fltnoanon++;
    else {
@@ -2889,7 +2897,7 @@ ReFault:
   ;
   ret = amap_add(&ufi.entry->aref,
       ufi.orig_rvaddr - ufi.entry->start, anon, 1);
-  ((ret == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 913, "ret == 0"));
+  ((ret == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 914, "ret == 0"));
   oanon->an_ref--;
  } else {
   uvmexp.flt_anon++;
@@ -2902,7 +2910,7 @@ ReFault:
      enter_prot, access_type | 0x00000020 | (wired ? 0x00000010 : 0))
      != 0) {
   uvmfault_unlockall(&ufi, amap, ((void *)0), oanon);
-  ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 948, "uvmexp.swpgonly <= uvmexp.swpages"));
+  ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 949, "uvmexp.swpgonly <= uvmexp.swpages"));
   if (uvmexp.swpgonly == uvmexp.swpages) {
    return (12);
   }
@@ -2926,7 +2934,7 @@ Case2:
   uobjpage = ((struct vm_page *) -1L);
   promote = 1;
  } else {
-  ((uobjpage != ((struct vm_page *) -1L)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 996, "uobjpage != PGO_DONTCARE"));
+  ((uobjpage != ((struct vm_page *) -1L)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 997, "uobjpage != PGO_DONTCARE"));
   promote = (access_type & 0x02) &&
        (((ufi.entry)->etype & 0x04) != 0);
  }
@@ -2942,7 +2950,7 @@ Case2:
       0, access_type & ((((ufi.entry)->etype & 0x04) != 0) ? ~0x02 : (0x01 | 0x02 | 0x04)), ufi.entry->advice,
       0x002);
   if (result != 0) {
-   ((result != 3) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1027, "result != VM_PAGER_PEND"));
+   ((result != 3) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1028, "result != VM_PAGER_PEND"));
    if (result == 5) {
     tsleep(&lbolt, 4, "fltagain2", 0);
     goto ReFault;
@@ -2996,7 +3004,7 @@ Case2:
     ;
    }
    uvmfault_unlockall(&ufi, amap, uobj, ((void *)0));
-   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1141, "uvmexp.swpgonly <= uvmexp.swpages"));
+   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1142, "uvmexp.swpgonly <= uvmexp.swpages"));
    if (anon == ((void *)0))
     uvmexp.fltnoanon++;
    else {
@@ -3032,7 +3040,7 @@ Case2:
   if (amap_add(&ufi.entry->aref,
       ufi.orig_rvaddr - ufi.entry->start, anon, 0)) {
    uvmfault_unlockall(&ufi, amap, ((void *)0), oanon);
-   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1195, "uvmexp.swpgonly <= uvmexp.swpages"));
+   ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1196, "uvmexp.swpgonly <= uvmexp.swpages"));
    uvm_anfree(anon);
    uvmexp.fltnoamap++;
    if (uvmexp.swpgonly == uvmexp.swpages)
@@ -3050,7 +3058,7 @@ Case2:
   atomic_clearbits_int(&pg->pg_flags, 0x00000001|0x00000040|0x00000002);
   ;
   uvmfault_unlockall(&ufi, amap, uobj, ((void *)0));
-  ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1229, "uvmexp.swpgonly <= uvmexp.swpages"));
+  ((uvmexp.swpgonly <= uvmexp.swpages) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1230, "uvmexp.swpgonly <= uvmexp.swpages"));
   if (uvmexp.swpgonly == uvmexp.swpages) {
    return (12);
   }
@@ -3095,9 +3103,9 @@ uvm_fault_wire(vm_map_t map, vaddr_t start, vaddr_t end, vm_prot_t access_type)
 void
 uvm_fault_unwire(vm_map_t map, vaddr_t start, vaddr_t end)
 {
- vm_map_lock_read_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1310);
+ vm_map_lock_read_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1311);
  uvm_fault_unwire_locked(map, start, end);
- vm_map_unlock_read_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1312);
+ vm_map_unlock_read_ln(map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1313);
 }
 void
 uvm_fault_unwire_locked(vm_map_t map, vaddr_t start, vaddr_t end)
@@ -3107,18 +3115,18 @@ uvm_fault_unwire_locked(vm_map_t map, vaddr_t start, vaddr_t end)
  vaddr_t va;
  paddr_t pa;
  struct vm_page *pg;
- (((map->flags & 0x02) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1329, "(map->flags & VM_MAP_INTRSAFE) == 0"));
+ (((map->flags & 0x02) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1330, "(map->flags & VM_MAP_INTRSAFE) == 0"));
  __mtx_enter(&uvm.pageqlock );
- ((start >= ((map)->min_offset) && end <= ((map)->max_offset)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1340, "start >= vm_map_min(map) && end <= vm_map_max(map)"));
+ ((start >= ((map)->min_offset) && end <= ((map)->max_offset)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1341, "start >= vm_map_min(map) && end <= vm_map_max(map)"));
  if (uvm_map_lookup_entry(map, start, &entry) == 0)
   panic("uvm_fault_unwire_locked: address not in map");
  for (va = start; va < end ; va += (1 << 13)) {
   if (pmap_extract(pmap, va, &pa) == 0)
    continue;
-  ((va >= entry->start) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1349, "va >= entry->start"));
+  ((va >= entry->start) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1350, "va >= entry->start"));
   while (va >= entry->end) {
    next = uvm_map_addr_RBT_NEXT(entry);
-   ((next != ((void *)0) && next->start <= entry->end) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1352, "next != NULL && next->start <= entry->end"));
+   ((next != ((void *)0) && next->start <= entry->end) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1353, "next != NULL && next->start <= entry->end"));
    entry = next;
   }
   if (((entry)->wired_count != 0) == 0)
@@ -3137,9 +3145,9 @@ uvmfault_unlockmaps(struct uvm_faultinfo *ufi, boolean_t write_locked)
  }
  uvmfault_update_stats(ufi);
  if (write_locked) {
-  vm_map_unlock_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1384);
+  vm_map_unlock_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1385);
  } else {
-  vm_map_unlock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1386);
+  vm_map_unlock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1387);
  }
 }
 void
@@ -3159,9 +3167,9 @@ uvmfault_lookup(struct uvm_faultinfo *ufi, boolean_t write_lock)
       ufi->orig_rvaddr >= ufi->map->max_offset)
    return(0);
   if (write_lock) {
-   vm_map_lock_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1438);
+   vm_map_lock_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1439);
   } else {
-   vm_map_lock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1440);
+   vm_map_lock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1441);
   }
   if (!uvm_map_lookup_entry(ufi->map, ufi->orig_rvaddr,
       &ufi->entry)) {
@@ -3187,9 +3195,9 @@ uvmfault_relock(struct uvm_faultinfo *ufi)
   return 1;
  }
  uvmexp.fltrelck++;
- vm_map_lock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1496);
+ vm_map_lock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1497);
  if (ufi->mapv != ufi->map->timestamp) {
-  vm_map_unlock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1498);
+  vm_map_unlock_read_ln(ufi->map, "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_fault.c", 1499);
   return(0);
  }
  uvmexp.fltrelckok++;
