@@ -7265,6 +7265,12 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
   }
   __builtin_memcpy((qs), (&q->queue), (sizeof(*qs)));
   qs->qid = pf_qname2qid(qs->qname, 1);
+  if (qs->qid == 0) {
+   pool_put(&pf_queue_pl, qs);
+   error = 16;
+   (void)(0);
+   break;
+  }
   if (qs->parent[0] && (qs->parent_qid =
       pf_qname2qid(qs->parent, 0)) == 0) {
    pool_put(&pf_queue_pl, qs);

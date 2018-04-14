@@ -4162,21 +4162,26 @@ int
 hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
 {
  struct hfsc_if *hif = arg;
- struct hfsc_class *cl, *parent;
+ struct hfsc_class *cl, *parent, *np = ((void *)0);
  struct hfsc_sc rtsc, lssc, ulsc;
  int error = 0;
  ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 418, "hif != NULL"));
+ ((q->qid != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 419, "q->qid != 0"));
+ if (q->linkshare.m1.absolute == 0 && q->linkshare.m2.absolute == 0 &&
+     q->parent_qid == 0)
+  return (22);
  if (q->parent_qid == 0 && hif->hif_rootclass == ((void *)0)) {
-  parent = hfsc_class_create(hif, ((void *)0), ((void *)0), ((void *)0), ((void *)0),
+  np = hfsc_class_create(hif, ((void *)0), ((void *)0), ((void *)0), ((void *)0),
       0, 0, 0x10000 | q->qid);
-  if (parent == ((void *)0))
+  if (np == ((void *)0))
    return (22);
+  parent = np;
  } else if ((parent = hfsc_clh2cph(hif, q->parent_qid)) == ((void *)0))
   return (22);
- if (q->qid == 0)
-  return (22);
- if (hfsc_clh2cph(hif, q->qid) != ((void *)0))
+ if (hfsc_clh2cph(hif, q->qid) != ((void *)0)) {
+  hfsc_class_destroy(hif, np);
   return (16);
+ }
  rtsc.m1 = q->realtime.m1.absolute;
  rtsc.d = q->realtime.d;
  rtsc.m2 = q->realtime.m2.absolute;
@@ -4186,18 +4191,11 @@ hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
  ulsc.m1 = q->upperlimit.m1.absolute;
  ulsc.d = q->upperlimit.d;
  ulsc.m2 = q->upperlimit.m2.absolute;
- if (rtsc.m1 == 0 && rtsc.m2 == 0 && lssc.m1 == 0 &&
-     lssc.m2 == 0 && ulsc.m1 == 0 && ulsc.m2 == 0 &&
-     q->parent_qid == 0 && strncmp(q->qname, "_root_", 6) == 0) {
-  hfsc_class_destroy(hif, parent);
-  parent = ((void *)0);
- }
- cl = hfsc_class_create(hif, &rtsc, &lssc, &ulsc,
-     parent, q->qlimit, q->flags, q->qid);
- if (cl == ((void *)0))
+ if ((cl = hfsc_class_create(hif, &rtsc, &lssc, &ulsc,
+     parent, q->qlimit, q->flags, q->qid)) == ((void *)0)) {
+  hfsc_class_destroy(hif, np);
   return (12);
- if (parent == ((void *)0))
-  return (0);
+ }
  cl->cl_qops = pf_queue_manager(q);
  if (cl->cl_qops == ((void *)0) || cl->cl_rsc != ((void *)0)) {
   cl->cl_qops = pfq_hfsc_ops;
@@ -4207,6 +4205,7 @@ hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
   if (cl->cl_qdata == ((void *)0)) {
    cl->cl_qops = ((void *)0);
    hfsc_class_destroy(hif, cl);
+   hfsc_class_destroy(hif, np);
    return (12);
   }
   error = cl->cl_qops->pfq_addqueue(cl->cl_qdata, q);
@@ -4214,11 +4213,12 @@ hfsc_pf_addqueue(void *arg, struct pf_queuespec *q)
    cl->cl_qops->pfq_free(cl->cl_qdata);
    cl->cl_qops = ((void *)0);
    hfsc_class_destroy(hif, cl);
+   hfsc_class_destroy(hif, np);
    return (error);
   }
  }
- ((cl->cl_qops != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 483, "cl->cl_qops != NULL"));
- ((cl->cl_qdata != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 484, "cl->cl_qdata != NULL"));
+ ((cl->cl_qops != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 480, "cl->cl_qops != NULL"));
+ ((cl->cl_qdata != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 481, "cl->cl_qdata != NULL"));
  return (0);
 }
 int
@@ -4295,8 +4295,8 @@ void *
 hfsc_alloc(unsigned int idx, void *q)
 {
  struct hfsc_if *hif = q;
- ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 591, "idx == 0"));
- ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 592, "hif != NULL"));
+ ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 588, "idx == 0"));
+ ((hif != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 589, "hif != NULL"));
  return (hif);
 }
 void
@@ -4305,8 +4305,8 @@ hfsc_free(unsigned int idx, void *q)
  struct hfsc_if *hif = q;
  struct hfsc_class *cl;
  int i, restart;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 603, "_kernel_lock_held()"));
- ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 604, "idx == 0"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 600, "_kernel_lock_held()"));
+ ((idx == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 601, "idx == 0"));
  timeout_del(&hif->hif_defer);
  do {
   restart = 0;
@@ -4416,7 +4416,7 @@ hfsc_class_destroy(struct hfsc_if *hif, struct hfsc_class *cl)
  if (cl->cl_children != ((void *)0))
   return (16);
  s = _splraise(6);
- ((hfsc_class_qlength(cl) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 743, "hfsc_class_qlength(cl) == 0"));
+ ((hfsc_class_qlength(cl) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 740, "hfsc_class_qlength(cl) == 0"));
  if (cl->cl_parent != ((void *)0)) {
   struct hfsc_class *p = cl->cl_parent->cl_children;
   if (p == cl)
@@ -4435,7 +4435,7 @@ hfsc_class_destroy(struct hfsc_if *hif, struct hfsc_class *cl)
   }
  hif->hif_classes--;
  _splx(s);
- (((((&cl->cl_actc)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 767, "TAILQ_EMPTY(&cl->cl_actc)"));
+ (((((&cl->cl_actc)->tqh_first) == ((void *)0))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 764, "TAILQ_EMPTY(&cl->cl_actc)"));
  if (cl == hif->hif_rootclass)
   hif->hif_rootclass = ((void *)0);
  if (cl == hif->hif_defaultclass)
@@ -4545,7 +4545,7 @@ hfsc_update_sc(struct hfsc_if *hif, struct hfsc_class *cl, int len)
  if (hfsc_class_qlength(cl) > 0) {
   if (cl->cl_rsc != ((void *)0)) {
    struct mbuf *m0;
-   ((cl->cl_qops == pfq_hfsc_ops) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 935, "cl->cl_qops == pfq_hfsc_ops"));
+   ((cl->cl_qops == pfq_hfsc_ops) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/hfsc.c", 932, "cl->cl_qops == pfq_hfsc_ops"));
    m0 = ((&cl->cl_q.q)->ml_head);
    next_len = m0->M_dat.MH.MH_pkthdr.len;
    if (realtime)
