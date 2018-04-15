@@ -20569,6 +20569,10 @@ static const struct pci_known_product pci_known_products[] = {
      "PNIC-II",
  },
  {
+     0x14a4, 0x5100,
+     "CB1 NVMe",
+ },
+ {
      0x16ab, 0x1103,
      "8031",
  },
@@ -30246,6 +30250,10 @@ static const struct pci_known_vendor pci_known_vendors[] = {
  {
      0x1462,
      "MSI",
+ },
+ {
+     0x14a4,
+     "Lite-On",
  },
  {
      0x14b9,
