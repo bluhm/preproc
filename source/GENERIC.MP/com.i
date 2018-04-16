@@ -3363,6 +3363,9 @@ comopen(dev_t dev, int flag, int mode, struct proc *p)
    case 0x07:
     com_write_reg(sc, 1, 0);
     break;
+   case 0x12:
+    com_write_reg(sc, 0x8b, 0);
+    break;
    }
   }
   if (((sc->sc_hwflags) & (0x02))) {
@@ -3499,6 +3502,9 @@ compwroff(struct com_softc *sc)
   case 0x07:
    com_write_reg(sc, 1, 0x10);
    break;
+  case 0x12:
+   com_write_reg(sc, 0x8b, 0xff);
+   break;
   }
  }
 }
@@ -3525,6 +3531,9 @@ com_resume(struct com_softc *sc)
    break;
   case 0x07:
    com_write_reg(sc, 1, 0);
+   break;
+  case 0x12:
+   com_write_reg(sc, 0x8b, 0);
    break;
   }
  }
@@ -3832,7 +3841,7 @@ comstart(struct tty *tp)
   com_write_reg(sc, 1, sc->sc_ier);
  }
  if (((sc->sc_hwflags) & (0x02))) {
-  u_char buffer[128];
+  u_char buffer[256];
   int i, n;
   n = q_to_b(&tp->t_outq, buffer,
       min(sc->sc_fifolen, sizeof buffer));
@@ -4123,7 +4132,7 @@ void
 com_attach_subr(struct com_softc *sc)
 {
  int probe = 0;
- u_int8_t lcr;
+ u_int8_t lcr, dvid;
  sc->sc_ier = 0;
  com_write_reg(sc, 1, sc->sc_ier);
  if (sc->sc_iot == comconsiot && sc->sc_iobase == comconsaddr) {
@@ -4154,6 +4163,11 @@ com_attach_subr(struct com_softc *sc)
    break;
   }
   probe = 1;
+ }
+ if (probe && sc->sc_uarttype == 0x04) {
+  dvid = com_read_reg(sc, 0x8d);
+  if (dvid == 0x82 || dvid == 0x84 || dvid == 0x88)
+   sc->sc_uarttype = 0x12;
  }
  if (probe && sc->sc_uarttype == 0x04) {
   com_write_reg(sc, 3, lcr | 0x80);
@@ -4227,11 +4241,17 @@ com_attach_subr(struct com_softc *sc)
   ((sc->sc_hwflags) |= (0x02));
   sc->sc_fifolen = 64;
   break;
+ case 0x12:
+  printf(": xr17v35x, 256 byte fifo\n");
+  ((sc->sc_hwflags) |= (0x02));
+  sc->sc_fifolen = 256;
+  break;
  default:
   panic("comattach: bad fifo type");
  }
  if (!((sc->sc_hwflags) & (0x40)))
-  com_fifo_probe(sc);
+  if (sc->sc_fifolen < 256)
+   com_fifo_probe(sc);
  if (sc->sc_fifolen == 0) {
   ((sc->sc_hwflags) &= ~(0x02));
   sc->sc_fifolen = 1;

@@ -2440,6 +2440,27 @@ struct puc_device_description {
   u_short offset;
  } ports[16];
 };
+struct puc_port_type {
+ enum {
+  PUC_PORT_LPT = 1,
+  PUC_PORT_COM,
+  PUC_PORT_COM_MUL4,
+  PUC_PORT_COM_MUL8,
+  PUC_PORT_COM_MUL10,
+  PUC_PORT_COM_MUL128,
+  PUC_PORT_COM_125MHZ,
+ } type;
+ u_int32_t freq;
+};
+static const struct puc_port_type puc_port_types[] = {
+ { PUC_PORT_LPT, 0 },
+ { PUC_PORT_COM, 1843200 },
+ { PUC_PORT_COM_MUL4, 1843200 * 4 },
+ { PUC_PORT_COM_MUL8, 1843200 * 8 },
+ { PUC_PORT_COM_MUL10, 1843200 * 10 },
+ { PUC_PORT_COM_MUL128, 1843200 * 128 },
+ { PUC_PORT_COM_125MHZ, 125000000 },
+};
 struct puc_attach_args {
  int port;
  int type;
@@ -2466,7 +2487,10 @@ struct puc_softc {
  struct {
   struct device *dev;
   void *intrhand;
+  int (*real_intrhand)(void *);
+  void *real_intrhand_arg;
  } sc_ports[16];
+ int sc_xr17v35x;
 };
 const struct puc_device_description *
     puc_find_description(u_int16_t, u_int16_t, u_int16_t, u_int16_t);
@@ -2560,7 +2584,7 @@ com_puc_match(parent, match, aux)
  void *match, *aux;
 {
  struct puc_attach_args *pa = aux;
- if ((((pa->type) & 0x80) == 0x80))
+ if (((pa->type) != PUC_PORT_LPT))
   return(1);
  return(0);
 }
@@ -2572,6 +2596,7 @@ com_puc_attach(parent, self, aux)
  struct com_softc *sc = (void *)self;
  struct puc_attach_args *pa = aux;
  const char *intrstr;
+ int i;
  intrstr = pa->intr_string(pa);
  sc->sc_ih = pa->intr_establish(pa, 6, comintr, sc,
      sc->sc_dev.dv_xname);
@@ -2586,10 +2611,12 @@ com_puc_attach(parent, self, aux)
  sc->sc_iot = pa->t;
  sc->sc_ioh = pa->h;
  sc->sc_iobase = pa->a;
- if (((pa->type) & 0x40))
-  sc->sc_frequency = 1843200 * ((pa->type) & 0x3f);
- else
-  sc->sc_frequency = 1843200 * (1 << ((pa->type) & 0x3f));
+ sc->sc_frequency = 1843200;
+ for (i = 0; i < (sizeof((puc_port_types)) / sizeof((puc_port_types)[0])); i++)
+  if (puc_port_types[i].type == pa->type) {
+   sc->sc_frequency = puc_port_types[i].freq;
+   break;
+  }
  com_attach_subr(sc);
 }
 int
