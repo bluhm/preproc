@@ -2969,11 +2969,6 @@ uaddr_pivot_print(struct uvm_addr_state *uaddr_p, boolean_t full,
   }
  }
 }
-struct uaddr_bs_strat {
- vaddr_t start;
- vaddr_t end;
- int dir;
-};
 const struct uvm_addr_functions uaddr_stack_brk_functions = {
  .uaddr_select = &uaddr_stack_brk_select,
  .uaddr_destroy = &uaddr_destroy,
@@ -2985,37 +2980,32 @@ uaddr_stack_brk_select(struct vm_map *map, struct uvm_addr_state *uaddr,
     vsize_t sz, vaddr_t align, vaddr_t offset,
     vm_prot_t prot, vaddr_t hint)
 {
- vsize_t before_gap, after_gap;
- int stack_idx, brk_idx;
- struct uaddr_bs_strat strat[2], *s;
- vsize_t sb_size;
- before_gap = ((arc4random() & 0x3) + 1) << 13;
- after_gap = ((arc4random() & 0x3) + 1) << 13;
- sb_size = (map->s_end - map->s_start) + (map->b_end - map->b_start);
- sb_size >>= 13;
- if (arc4random_uniform((((sb_size)>(0xffffffff))?(sb_size):(0xffffffff))) >
-     map->b_end - map->b_start) {
-  brk_idx = 1;
-  stack_idx = 0;
- } else {
-  brk_idx = 0;
-  stack_idx = 1;
- }
- s = &strat[stack_idx];
- s->start = (((map->s_start)>(uaddr->uaddr_minaddr))?(map->s_start):(uaddr->uaddr_minaddr));
- s->end = (((map->s_end)<(uaddr->uaddr_maxaddr))?(map->s_end):(uaddr->uaddr_maxaddr));
- s->dir = 1;
- s = &strat[brk_idx];
- s->start = (((map->b_start)>(uaddr->uaddr_minaddr))?(map->b_start):(uaddr->uaddr_minaddr));
- s->end = (((map->b_end)<(uaddr->uaddr_maxaddr))?(map->b_end):(uaddr->uaddr_maxaddr));
- s->dir = -1;
- for (s = &strat[0]; s < &strat[(sizeof((strat)) / sizeof((strat)[0]))]; s++) {
-  if (s->end - s->start < sz)
-   continue;
+ vaddr_t start;
+ vaddr_t end;
+ vsize_t before_gap;
+ vsize_t after_gap;
+ int dir;
+ start = (((map->b_start)>(uaddr->uaddr_minaddr))?(map->b_start):(uaddr->uaddr_minaddr));
+ end = (((map->b_end)<(uaddr->uaddr_maxaddr))?(map->b_end):(uaddr->uaddr_maxaddr));
+ before_gap = 0;
+ after_gap = 0;
+ dir = -1;
+ if (end - start >= sz) {
   if (uvm_addr_linsearch(map, uaddr, entry_out, addr_out,
-      0, sz, align, offset, s->dir, s->start, s->end - sz,
+      0, sz, align, offset, dir, start, end - sz,
       before_gap, after_gap) == 0)
    return 0;
+ }
+ start = (((map->s_start)>(uaddr->uaddr_minaddr))?(map->s_start):(uaddr->uaddr_minaddr));
+ end = (((map->s_end)<(uaddr->uaddr_maxaddr))?(map->s_end):(uaddr->uaddr_maxaddr));
+ before_gap = ((arc4random() & 0x3) + 1) << 13;
+ after_gap = ((arc4random() & 0x3) + 1) << 13;
+ dir = 1;
+ if (end - start >= sz + before_gap + after_gap) {
+  if (uvm_addr_linsearch(map, uaddr, entry_out, addr_out,
+      0, sz, align, offset, dir, start, end - sz,
+      before_gap, after_gap) == 0)
+  return 0;
  }
  return 12;
 }

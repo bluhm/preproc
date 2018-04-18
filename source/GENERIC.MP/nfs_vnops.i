@@ -5033,6 +5033,7 @@ nfs_lookup(void *v)
  cnp->cn_flags &= ~0x200000;
  flags = cnp->cn_flags;
  *vpp = ((struct vnode *)((void *)0));
+ newvp = ((struct vnode *)((void *)0));
  if ((flags & 0x008000) && (dvp->v_mount->mnt_flag & 0x00000001) &&
      (cnp->cn_nameiop == 2 || cnp->cn_nameiop == 3))
   return (30);
@@ -5085,8 +5086,10 @@ nfs_lookup(void *v)
    if (cnp->cn_nameiop != 0 && (flags & 0x008000))
     cnp->cn_flags |= 0x000800;
    if ((!lockparent || !(flags & 0x008000)) &&
-        newvp != dvp)
+        newvp != dvp) {
     VOP_UNLOCK(dvp, p);
+    cnp->cn_flags |= 0x200000;
+   }
    return (0);
   }
   cache_purge(newvp);
@@ -5439,7 +5442,6 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
   rdev = nfs_xdrneg1;
  else {
   VOP_ABORTOP(dvp, cnp);
-  vput(dvp);
   return (45);
  }
  nfsstats.rpccnt[11]++;
@@ -5466,17 +5468,13 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1314, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1316, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 11, &info);
  if (!error) {
   { struct nfsnode *ttnp; nfsfh_t *ttfhp; int ttfhsize; if (info.nmi_v3) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; (gotvp) = ((int)((__uint32_t)((int32_t)(*tl)))); } else (gotvp) = 1; if (gotvp) { { if ((info.nmi_v3)) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; if (((ttfhsize) = ((int)((__uint32_t)((int32_t)(*tl))))) <= 0 || (ttfhsize) > 64) { m_freem(info.nmi_mrep); error = 72; goto nfsmout; } } else (ttfhsize) = 32; { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= ((((ttfhsize)+3)&(~0x3)))) { ((ttfhp)) = (nfsfh_t *)(info.nmi_dpos); info.nmi_dpos += ((((ttfhsize)+3)&(~0x3))); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, ((((ttfhsize)+3)&(~0x3))), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { ((ttfhp)) = (nfsfh_t *)cp2; } }; }; if ((t1 = nfs_nget((dvp)->v_mount, ttfhp, ttfhsize, &ttnp)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ((ttnp)->n_vnode); } if (info.nmi_v3) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; if (gotvp) (gotvp) = ((int)((__uint32_t)((int32_t)(*tl)))); else if (((int)((__uint32_t)((int32_t)(*tl))))) { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (84)) { info.nmi_dpos += (84); } else if ((t1 = nfs_adv(&info.nmi_md, &info.nmi_dpos, (84), t1)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } }; } if (gotvp) { struct vnode *ttvp = ((newvp)); if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, (((void *)0)))) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } ((newvp)) = ttvp; }; };
   if (!gotvp) {
-   if (newvp) {
-    vrele(newvp);
-    newvp = ((void *)0);
-   }
    error = nfs_lookitup(dvp, cnp->cn_nameptr,
        cnp->cn_namelen, cnp->cn_cred, cnp->cn_proc, &np);
    if (!error)
@@ -5489,7 +5487,7 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
 nfsmout:
  if (error) {
   if (newvp)
-   vrele(newvp);
+   vput(newvp);
  } else {
   if (cnp->cn_flags & 0x004000)
    nfs_cache_enter(dvp, newvp, cnp);
@@ -5499,7 +5497,6 @@ nfsmout:
  ((struct nfsnode *)(dvp)->v_data)->n_flag |= 0x0004;
  if (!wccflag)
   ((((struct nfsnode *)(dvp)->v_data))->n_attrstamp = 0);
- vrele(dvp);
  return (error);
 }
 int
@@ -5510,8 +5507,9 @@ nfs_mknod(void *v)
  int error;
  error = nfs_mknodrpc(ap->a_dvp, &newvp, ap->a_cnp, ap->a_vap);
  if (!error)
-  vrele(newvp);
+  vput(newvp);
  do { struct klist *list = (&ap->a_dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
+ vput(ap->a_dvp);
  return (error);
 }
 int
@@ -5530,8 +5528,11 @@ nfs_create(void *v)
  caddr_t cp2;
  int error = 0, wccflag = 0, gotvp = 0, fmode = 0;
  info.nmi_v3 = (((struct nfsmount *)(((dvp)->v_mount)->mnt_data))->nm_flag & 0x00000200);
- if (vap->va_type == VSOCK)
-  return (nfs_mknodrpc(dvp, ap->a_vpp, cnp, vap));
+ if (vap->va_type == VSOCK) {
+  error = nfs_mknodrpc(dvp, ap->a_vpp, cnp, vap);
+  vput(dvp);
+  return (error);
+ }
  if (vap->va_vaflags & 0x02)
   fmode |= 0x0800;
 again:
@@ -5560,17 +5561,13 @@ again:
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1426, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1427, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 8, &info);
  if (!error) {
   { struct nfsnode *ttnp; nfsfh_t *ttfhp; int ttfhsize; if (info.nmi_v3) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; (gotvp) = ((int)((__uint32_t)((int32_t)(*tl)))); } else (gotvp) = 1; if (gotvp) { { if ((info.nmi_v3)) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; if (((ttfhsize) = ((int)((__uint32_t)((int32_t)(*tl))))) <= 0 || (ttfhsize) > 64) { m_freem(info.nmi_mrep); error = 72; goto nfsmout; } } else (ttfhsize) = 32; { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= ((((ttfhsize)+3)&(~0x3)))) { ((ttfhp)) = (nfsfh_t *)(info.nmi_dpos); info.nmi_dpos += ((((ttfhsize)+3)&(~0x3))); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, ((((ttfhsize)+3)&(~0x3))), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { ((ttfhp)) = (nfsfh_t *)cp2; } }; }; if ((t1 = nfs_nget((dvp)->v_mount, ttfhp, ttfhsize, &ttnp)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ((ttnp)->n_vnode); } if (info.nmi_v3) { { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; if (gotvp) (gotvp) = ((int)((__uint32_t)((int32_t)(*tl)))); else if (((int)((__uint32_t)((int32_t)(*tl))))) { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (84)) { info.nmi_dpos += (84); } else if ((t1 = nfs_adv(&info.nmi_md, &info.nmi_dpos, (84), t1)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } }; } if (gotvp) { struct vnode *ttvp = ((newvp)); if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, (((void *)0)))) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } ((newvp)) = ttvp; }; };
   if (!gotvp) {
-   if (newvp) {
-    vrele(newvp);
-    newvp = ((void *)0);
-   }
    error = nfs_lookitup(dvp, cnp->cn_nameptr,
        cnp->cn_namelen, cnp->cn_cred, cnp->cn_proc, &np);
    if (!error)
@@ -5582,12 +5579,14 @@ again:
  m_freem(info.nmi_mrep);
 nfsmout:
  if (error) {
+  if (newvp) {
+   vput(newvp);
+   newvp = ((void *)0);
+  }
   if (info.nmi_v3 && (fmode & 0x0800) && error == 10004) {
    fmode &= ~0x0800;
    goto again;
   }
-  if (newvp)
-   vrele(newvp);
  } else if (info.nmi_v3 && (fmode & 0x0800))
   error = nfs_setattrrpc(newvp, vap, cnp->cn_cred, cnp->cn_proc);
  if (!error) {
@@ -5600,7 +5599,7 @@ nfsmout:
  if (!wccflag)
   ((((struct nfsnode *)(dvp)->v_data))->n_attrstamp = 0);
  do { struct klist *list = (&ap->a_dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
- vrele(dvp);
+ vput(dvp);
  return (error);
 }
 int
@@ -5633,10 +5632,13 @@ nfs_remove(void *v)
   error = nfs_sillyrename(dvp, vp, cnp);
  pool_put(&namei_pool, cnp->cn_pnbuf);
  ((np)->n_attrstamp = 0);
- vrele(dvp);
- vrele(vp);
  do { struct klist *list = (&vp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0001))); } while (0);
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
+ if (vp == dvp)
+  vrele(vp);
+ else
+  vput(vp);
+ vput(dvp);
  return (error);
 }
 int
@@ -5696,7 +5698,7 @@ nfs_rename(void *v)
  if (tvp && tvp->v_usecount > 1 && !((struct nfsnode *)(tvp)->v_data)->n_sillyrename &&
      tvp->v_type != VDIR && !nfs_sillyrename(tdvp, tvp, tcnp)) {
   do { struct klist *list = (&tvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0001))); } while (0);
-  vrele(tvp);
+  vput(tvp);
   tvp = ((void *)0);
  }
  error = nfs_renamerpc(fdvp, fcnp->cn_nameptr, fcnp->cn_namelen,
@@ -5854,13 +5856,13 @@ nfs_symlink(void *v)
  m_freem(info.nmi_mrep);
 nfsmout:
  if (newvp)
-  vrele(newvp);
+  vput(newvp);
  pool_put(&namei_pool, cnp->cn_pnbuf);
  ((struct nfsnode *)(dvp)->v_data)->n_flag |= 0x0004;
  if (!wccflag)
   ((((struct nfsnode *)(dvp)->v_data))->n_attrstamp = 0);
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
- vrele(dvp);
+ vput(dvp);
  return (error);
 }
 int
@@ -5921,7 +5923,7 @@ nfsmout:
  }
  if (error) {
   if (newvp)
-   vrele(newvp);
+   vput(newvp);
  } else {
   do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002|0x0010))); } while (0);
   if (cnp->cn_flags & 0x004000)
@@ -5929,7 +5931,7 @@ nfsmout:
   *ap->a_vpp = newvp;
  }
  pool_put(&namei_pool, cnp->cn_pnbuf);
- vrele(dvp);
+ vput(dvp);
  return (error);
 }
 int
@@ -5947,7 +5949,7 @@ nfs_rmdir(void *v)
  info.nmi_v3 = (((struct nfsmount *)(((dvp)->v_mount)->mnt_data))->nm_flag & 0x00000200);
  if (dvp == vp) {
   vrele(dvp);
-  vrele(dvp);
+  vput(dvp);
   pool_put(&namei_pool, cnp->cn_pnbuf);
   return (22);
  }
@@ -5970,8 +5972,8 @@ nfsmout:
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002|0x0010))); } while (0);
  do { struct klist *list = (&vp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0001))); } while (0);
  cache_purge(vp);
- vrele(vp);
- vrele(dvp);
+ vput(vp);
+ vput(dvp);
  if (error == 2)
   error = 0;
  return (error);
@@ -6379,7 +6381,10 @@ nfs_readdirplusrpc(struct vnode *vp, struct uio *uiop, struct ucred *cred,
     { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= ((((i)+3)&(~0x3)))) { info.nmi_dpos += ((((i)+3)&(~0x3))); } else if ((t1 = nfs_adv(&info.nmi_md, &info.nmi_dpos, ((((i)+3)&(~0x3))), t1)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } };
    }
    if (newvp != ((struct vnode *)((void *)0))) {
-    vrele(newvp);
+    if (newvp == vp)
+     vrele(newvp);
+    else
+     vput(newvp);
     newvp = ((struct vnode *)((void *)0));
    }
    { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } };
@@ -6407,8 +6412,12 @@ nfs_readdirplusrpc(struct vnode *vp, struct uio *uiop, struct ucred *cred,
    printf("EEK! readdirplusrpc resid > 0\n");
  }
 nfsmout:
- if (newvp != ((struct vnode *)((void *)0)))
-  vrele(newvp);
+ if (newvp != ((struct vnode *)((void *)0))) {
+  if (newvp == vp)
+   vrele(newvp);
+  else
+   vput(newvp);
+ }
  return (error);
 }
 int
@@ -6501,7 +6510,10 @@ nfs_lookitup(struct vnode *dvp, char *name, int len, struct ucred *cred,
    { if (info.nmi_mrep != ((void *)0)) { struct vnode *ttvp = (newvp); { t1 = ((caddr_t)((info.nmi_md)->m_hdr.mh_data)) + info.nmi_md->m_hdr.mh_len - info.nmi_dpos; if (t1 >= (4)) { (tl) = (u_int32_t *)(info.nmi_dpos); info.nmi_dpos += (4); } else if ((t1 = nfsm_disct(&info.nmi_md, &info.nmi_dpos, (4), t1, &cp2)) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } else { (tl) = (u_int32_t *)cp2; } }; if (((attrflag) = ((int)((__uint32_t)((int32_t)(*tl))))) != 0) { if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, ((void *)0))) != 0) { error = t1; (attrflag) = 0; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ttvp; } } };
    if (!attrflag && *npp == ((void *)0)) {
     m_freem(info.nmi_mrep);
-    vrele(newvp);
+    if (newvp == dvp)
+     vrele(newvp);
+    else
+     vput(newvp);
     return (2);
    }
   } else
@@ -6511,8 +6523,10 @@ nfs_lookitup(struct vnode *dvp, char *name, int len, struct ucred *cred,
 nfsmout:
  if (npp && *npp == ((void *)0)) {
   if (error) {
-   if (newvp)
+   if (newvp == dvp)
     vrele(newvp);
+   else
+    vput(newvp);
   } else
    *npp = np;
  }
