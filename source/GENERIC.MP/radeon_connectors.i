@@ -5262,7 +5262,8 @@ request_firmware(const struct firmware **fw, const char *name,
     struct device *device)
 {
  int r;
- struct firmware *f = malloc(sizeof(struct firmware), 145, 0x0001);
+ struct firmware *f = malloc(sizeof(struct firmware), 145,
+     0x0001 | 0x0008);
  *fw = f;
  r = loadfirmware(name, ((u_char **)(__uintptr_t)(const void *)(&f->data)), &f->size);
  if (r != 0)
@@ -5273,7 +5274,8 @@ request_firmware(const struct firmware **fw, const char *name,
 static inline void
 release_firmware(const struct firmware *fw)
 {
- free(((u_char *)(__uintptr_t)(const void *)(fw->data)), 145, fw->size);
+ if (fw)
+  free(((u_char *)(__uintptr_t)(const void *)(fw->data)), 2, fw->size);
  free(((struct firmware *)(__uintptr_t)(const void *)(fw)), 145, sizeof(*fw));
 }
 void *memchr_inv(const void *, int, size_t);

@@ -4555,7 +4555,7 @@ sys_fcntl(struct proc *p, void *v, register_t *retval)
  struct sys_fcntl_args *uap = v;
  int fd = ((uap)->fd.be.datum);
  struct filedesc *fdp = p->p_fd;
- struct file *fp;
+ struct file *fp, *fp2;
  struct vnode *vp;
  int i, tmp, newmin, flg = 0x040;
  struct flock fl;
@@ -4715,13 +4715,18 @@ restart:
    error = 22;
    goto out;
   }
-  if (fp != fd_getfile(fdp, fd)) {
+  fp2 = fd_getfile(fdp, fd);
+  if (fp2 != ((void *)0))
+   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp2)->f_count++; } while (0);
+  if (fp != fp2) {
    fl.l_whence = 0;
    fl.l_start = 0;
    fl.l_len = 0;
    VOP_ADVLOCK(vp, fdp, 2, &fl, 0x040);
    fl.l_type = 2;
   }
+  if (fp2 != ((void *)0))
+   (--(fp2)->f_count == 0 ? fdrop(fp2, p) : 0);
   goto out;
  case 7:
   error = pledge_flock(p);
@@ -4980,8 +4985,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 906, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 907, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 911, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 912, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {

@@ -3317,19 +3317,13 @@ wskbd_attach(struct device *parent, struct device *self, void *aux)
  struct wskbd_softc *sc = (struct wskbd_softc *)self;
  struct wskbddev_attach_args *ap = aux;
  kbd_t layout;
- struct wsmux_softc *wsmux_sc;
+ struct wsmux_softc *wsmux_sc = ((void *)0);
  int mux, error;
  sc->sc_isconsole = ap->console;
  sc->sc_base.me_ops = &wskbd_srcops;
  mux = sc->sc_base.me_dv.dv_cfdata->cf_loc[1];
- if (ap->console) {
-  mux = -1;
- }
- if (mux >= 0) {
-  printf(" mux %d", mux);
+ if (mux >= 0)
   wsmux_sc = wsmux_getmux(mux);
- } else
-  wsmux_sc = ((void *)0);
  if (ap->console) {
   sc->id = &wskbd_console_data;
  } else {
@@ -3368,29 +3362,30 @@ wskbd_attach(struct device *parent, struct device *self, void *aux)
  sc->sc_bell_data = wskbd_default_bell_data;
  sc->sc_keyrepeat_data = wskbd_default_keyrepeat_data;
  if (ap->console) {
-  ((wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 449, "wskbd_console_initted"));
-  ((wskbd_console_device == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 450, "wskbd_console_device == NULL"));
+  ((wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 436, "wskbd_console_initted"));
+  ((wskbd_console_device == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 437, "wskbd_console_device == NULL"));
   wskbd_console_device = sc;
   printf(": console keyboard");
   wsdisplay_set_console_kbd(&sc->sc_base);
   if (sc->sc_base.me_dispdv != ((void *)0))
    printf(", using %s", sc->sc_base.me_dispdv->dv_xname);
  }
- printf("\n");
- if (wsmux_sc != ((void *)0)) {
+ if (wsmux_sc != ((void *)0) && ap->console == 0) {
+  printf(" mux %d\n", mux);
   error = wsmux_attach_sc(wsmux_sc, &sc->sc_base);
   if (error)
    printf("%s: attach error=%d\n",
        sc->sc_base.me_dv.dv_xname, error);
   if (wsmux_get_layout(wsmux_sc) == 0x0000)
    wsmux_set_layout(wsmux_sc, layout);
- }
+ } else
+ printf("\n");
 }
 void
 wskbd_cnattach(const struct wskbd_consops *consops, void *conscookie,
     const struct wskbd_mapdata *mapdata)
 {
- ((!wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 506, "!wskbd_console_initted"));
+ ((!wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 495, "!wskbd_console_initted"));
  __builtin_bcopy((mapdata), (&wskbd_console_data.t_keymap), (sizeof(*mapdata)));
  wskbd_update_layout(&wskbd_console_data, mapdata->layout);
  wskbd_console_data.t_consops = consops;
@@ -3401,7 +3396,7 @@ wskbd_cnattach(const struct wskbd_consops *consops, void *conscookie,
 void
 wskbd_cndetach(void)
 {
- ((wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 524, "wskbd_console_initted"));
+ ((wskbd_console_initted) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 513, "wskbd_console_initted"));
  wskbd_console_data.t_keymap.keydesc = ((void *)0);
  wskbd_console_data.t_keymap.layout = 0x0000;
  wskbd_console_data.t_consops = ((void *)0);
@@ -3454,7 +3449,7 @@ wskbd_detach(struct device *self, int flags)
   timeout_del(&sc->sc_repeat_ch);
  }
  if (sc->sc_isconsole) {
-  ((wskbd_console_device == sc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 612, "wskbd_console_device == sc"));
+  ((wskbd_console_device == sc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/wscons/wskbd.c", 601, "wskbd_console_device == sc"));
   wskbd_cndetach();
  }
  evar = sc->sc_base.me_evp;

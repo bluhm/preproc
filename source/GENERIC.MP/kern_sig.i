@@ -5242,7 +5242,7 @@ sys_sigaltstack(struct proc *p, void *v, register_t *retval)
   p->p_sigstk.ss_flags = ss.ss_flags;
   return (0);
  }
- if (ss.ss_size < (1U << 13))
+ if (ss.ss_size < (3U << 13))
   return (12);
  error = uvm_map_remap_as_stack(p, (vaddr_t)ss.ss_sp, ss.ss_size);
  if (error)

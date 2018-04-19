@@ -3583,6 +3583,7 @@ morespace:
    error = 9;
    goto fail;
   }
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   if (fp->f_count == 0x7fffffffffffffffL -2) {
    error = 11;
    goto fail;
@@ -3597,7 +3598,6 @@ morespace:
   rp->fp = fp;
   rp->flags = fdp->fd_ofileflags[fd] & 0x02;
   rp--;
-  fp->f_count++;
   if ((unp = fptounp(fp)) != ((void *)0)) {
    unp->unp_file = fp;
    unp->unp_msgcount++;
@@ -3606,12 +3606,14 @@ morespace:
  }
  return (0);
 fail:
+ if (fp != ((void *)0))
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  for ( ; i > 0; i--) {
   rp++;
   fp = rp->fp;
-  fp->f_count--;
   if ((unp = fptounp(fp)) != ((void *)0))
    unp->unp_msgcount--;
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   unp_rights--;
  }
  return (error);
