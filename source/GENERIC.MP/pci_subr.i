@@ -3465,6 +3465,14 @@ static const struct pci_known_product pci_known_products[] = {
      "AMD64 16h PCIE",
  },
  {
+     0x1022, 0x1456,
+     "Cryptographic Co-processor v5a",
+ },
+ {
+     0x1022, 0x1468,
+     "Cryptographic Co-processor v5b",
+ },
+ {
      0x1022, 0x1510,
      "AMD64 14h Host",
  },
@@ -3514,7 +3522,7 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x1022, 0x1537,
-     "CCP",
+     "Cryptographic Co-processor v3",
  },
  {
      0x1022, 0x1566,
