@@ -3461,6 +3461,50 @@ static const struct pci_known_product pci_known_products[] = {
      "AMD64 15/1xh IOMMU",
  },
  {
+     0x1022, 0x141a,
+     "AMD64 15h Link Cfg",
+ },
+ {
+     0x1022, 0x141b,
+     "AMD64 15h Address Map",
+ },
+ {
+     0x1022, 0x141c,
+     "AMD64 15h DRAM Cfg",
+ },
+ {
+     0x1022, 0x141d,
+     "AMD64 15h Misc Cfg",
+ },
+ {
+     0x1022, 0x141e,
+     "AMD64 15h CPU Power",
+ },
+ {
+     0x1022, 0x141f,
+     "AMD64 15h Misc Cfg",
+ },
+ {
+     0x1022, 0x1422,
+     "AMD64 15h Root Complex",
+ },
+ {
+     0x1022, 0x1423,
+     "AMD64 15h IOMMU",
+ },
+ {
+     0x1022, 0x1424,
+     "AMD64 15h PCIE",
+ },
+ {
+     0x1022, 0x1425,
+     "AMD64 15h PCIE",
+ },
+ {
+     0x1022, 0x1426,
+     "AMD64 15h PCIE",
+ },
+ {
      0x1022, 0x1439,
      "AMD64 16h PCIE",
  },
@@ -4525,8 +4569,100 @@ static const struct pci_known_product pci_known_products[] = {
      "ISDN",
  },
  {
+     0x1002, 0x1304,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1305,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1306,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1307,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1308,
+     "Kaveri HD Audio",
+ },
+ {
+     0x1002, 0x1309,
+     "Kaveri Radeon R6/R7",
+ },
+ {
+     0x1002, 0x130a,
+     "Kaveri Radeon R6",
+ },
+ {
+     0x1002, 0x130b,
+     "Kaveri Radeon R4",
+ },
+ {
+     0x1002, 0x130c,
+     "Kaveri Radeon R7",
+ },
+ {
+     0x1002, 0x130d,
+     "Kaveri Radeon R6",
+ },
+ {
+     0x1002, 0x130e,
+     "Kaveri Radeon R5",
+ },
+ {
+     0x1002, 0x130f,
+     "Kaveri Radeon R7",
+ },
+ {
+     0x1002, 0x1310,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1311,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1312,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1313,
+     "Kaveri Radeon R7",
+ },
+ {
      0x1002, 0x1314,
      "Radeon HD 6310 HD Audio",
+ },
+ {
+     0x1002, 0x1315,
+     "Kaveri Radeon R5",
+ },
+ {
+     0x1002, 0x1316,
+     "Kaveri Radeon R5",
+ },
+ {
+     0x1002, 0x1317,
+     "Kaveri",
+ },
+ {
+     0x1002, 0x1318,
+     "Kaveri Radeon R5",
+ },
+ {
+     0x1002, 0x131b,
+     "Kaveri Radeon R4",
+ },
+ {
+     0x1002, 0x131c,
+     "Kaveri Radeon R7",
+ },
+ {
+     0x1002, 0x131d,
+     "Kaveri Radeon R6",
  },
  {
      0x1002, 0x1714,
