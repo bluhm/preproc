@@ -13,10 +13,11 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-The included preprocessed OpenBSD source files are under the Berkeley
-copyright and OpenBSD copyright.  As the preprocessor removes the
-copyright text form every file, the original license is provieded
-here.
+The included preprocessed OpenBSD source files are under the Berkeley,
+and OpenBSD, and many other people's copyright.  As the preprocessor
+removes the copyright text form every file, the original BSD license
+is attached here.  Please consult the OpenBSD source files for all
+the individual copyright statements of this code.
 
 Copyright (c) 1982, 1986, 1990, 1991, 1993
     The Regents of the University of California.  All rights reserved.
