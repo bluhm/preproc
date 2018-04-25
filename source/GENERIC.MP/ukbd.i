@@ -2740,6 +2740,8 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
+void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
+      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);

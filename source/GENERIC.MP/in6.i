@@ -2357,7 +2357,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -3652,15 +3652,22 @@ int
 in6_control(struct socket *so, u_long cmd, caddr_t data, struct ifnet *ifp)
 {
  int privileged;
+ int error;
+ do { _rw_enter_write(&netlock ); } while (0);
  privileged = 0;
  if ((so->so_state & 0x080) != 0)
   privileged++;
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_sg_req6) & 0x1fff) << 16) | ((('u')) << 8) | ((106))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_mif_req6) & 0x1fff) << 16) | ((('u')) << 8) | ((107))):
-  return (mrt6_ioctl(so, cmd, data));
+  error = mrt6_ioctl(so, cmd, data);
+  break;
+ default:
+  error = in6_ioctl(cmd, data, ifp, privileged);
+  break;
  }
- return (in6_ioctl(cmd, data, ifp, privileged));
+ do { _rw_exit_write(&netlock ); } while (0);
+ return error;
 }
 int
 in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
@@ -3808,12 +3815,12 @@ in6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   if (ia6 == ((void *)0)) {
    break;
   }
+  if (ia6->ia6_flags & 0x02)
+   nd6_dad_start(&ia6->ia_ifa);
   if (!newifaddr) {
    dohooks(ifp->if_addrhooks, 0);
    break;
   }
-  if (ia6->ia6_flags & 0x02)
-   nd6_dad_start(&ia6->ia_ifa);
   plen = in6_mask2len(&ia6->ia_prefixmask.sin6_addr, ((void *)0));
   if ((ifp->if_flags & 0x8) || plen == 128) {
    dohooks(ifp->if_addrhooks, 0);
@@ -3944,6 +3951,8 @@ in6_update_ifa(struct ifnet *ifp, struct in6_aliasreq *ifra,
   ia6->ia6_lifetime.ia6t_preferred = 0;
  if ((error = in6_ifinit(ifp, ia6, hostIsNew)) != 0)
   goto unlink;
+ if (ia6->ia6_flags & (0x02|0x04))
+  ifra->ifra_flags |= 0x02;
  ia6->ia6_flags = ifra->ifra_flags;
  nd6_expire_timer_update(ia6);
  if (!hostIsNew)

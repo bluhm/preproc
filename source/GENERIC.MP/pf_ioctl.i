@@ -3660,7 +3660,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -7514,7 +7514,7 @@ pfioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    case 24:
     break;
    default:
-    pool_put(&pf_rule_pl, newrule);
+    pf_rm_rule(((void *)0), newrule);
     error = 47;
     (void)(0);
     goto fail;

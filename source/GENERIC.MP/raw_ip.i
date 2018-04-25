@@ -2577,7 +2577,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -5472,10 +5472,10 @@ rip_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
  int error = 0;
- soassertlocked(so);
  if (req == 11)
   return (in_control(so, (u_long)m, (caddr_t)nam,
       (struct ifnet *)control));
+ soassertlocked(so);
  if (inp == ((void *)0)) {
   error = 22;
   goto release;

@@ -2803,6 +2803,8 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
+void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
+      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
@@ -2821,8 +2823,6 @@ extern const struct usbd_quirks usbd_no_quirk;
 const struct usbd_quirks *usbd_find_quirk(usb_device_descriptor_t *);
 usbd_status usbd_set_config(struct usbd_device *, int);
 void usbd_devinfo(struct usbd_device *, int, char *, size_t);
-void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
-      char *, size_t, int);
 char *usbd_get_device_string(struct usbd_device *, uByte);
 char *usbd_get_string(struct usbd_device *, int, char *, size_t);
 int usbd_getnewaddr(struct usbd_bus *);

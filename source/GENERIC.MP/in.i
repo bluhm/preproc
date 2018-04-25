@@ -2557,7 +2557,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -3018,15 +3018,22 @@ int
 in_control(struct socket *so, u_long cmd, caddr_t data, struct ifnet *ifp)
 {
  int privileged;
+ int error;
+ do { _rw_enter_write(&netlock ); } while (0);
  privileged = 0;
  if ((so->so_state & 0x080) != 0)
   privileged++;
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_vif_req) & 0x1fff) << 16) | ((('u')) << 8) | ((51))):
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_sg_req) & 0x1fff) << 16) | ((('u')) << 8) | ((52))):
-  return (mrt_ioctl(so, cmd, data));
+  error = mrt_ioctl(so, cmd, data);
+  break;
+ default:
+  error = in_ioctl(cmd, data, ifp, privileged);
+  break;
  }
- return (in_ioctl(cmd, data, ifp, privileged));
+ do { _rw_exit_write(&netlock ); } while (0);
+ return error;
 }
 int
 in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)

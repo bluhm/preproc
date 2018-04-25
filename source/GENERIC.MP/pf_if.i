@@ -3260,7 +3260,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -4555,7 +4555,7 @@ pfi_kif_unref(struct pfi_kif *kif, enum pfi_kif_refs what)
   break;
  case PFI_KIF_REF_ROUTE:
   if (kif->pfik_routes <= 0) {
-   do { if (pf_status.debug >= (3)) { log(3, "pf: "); addlog("pfi_kif_unref: state refcount <= 0"); addlog("\n"); } } while (0);
+   do { if (pf_status.debug >= (3)) { log(3, "pf: "); addlog("pfi_kif_unref: route refcount <= 0"); addlog("\n"); } } while (0);
    return;
   }
   kif->pfik_routes--;

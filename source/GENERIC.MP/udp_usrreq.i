@@ -2962,7 +2962,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -6694,7 +6694,6 @@ udp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
 {
  struct inpcb *inp;
  int error = 0;
- soassertlocked(so);
  if (req == 11) {
   if ((so->so_proto->pr_domain->dom_family) == 24)
    return (in6_control(so, (u_long)m, (caddr_t)addr,
@@ -6703,6 +6702,7 @@ udp_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *addr,
    return (in_control(so, (u_long)m, (caddr_t)addr,
        (struct ifnet *)control));
  }
+ soassertlocked(so);
  inp = ((struct inpcb *)(so)->so_pcb);
  if (inp == ((void *)0)) {
   error = 22;

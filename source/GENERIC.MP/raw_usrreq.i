@@ -1875,9 +1875,9 @@ raw_usrreq(struct socket *so, int req, struct mbuf *m, struct mbuf *nam,
  struct rawcb *rp = ((struct rawcb *)(so)->so_pcb);
  int error = 0;
  int len;
- soassertlocked(so);
  if (req == 11)
   return (45);
+ soassertlocked(so);
  if (control && control->m_hdr.mh_len) {
   m_freem(m);
   return (45);

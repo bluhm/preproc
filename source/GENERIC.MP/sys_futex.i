@@ -3462,7 +3462,7 @@ futex_wait(uint32_t *uaddr, uint32_t val, const struct timespec *timeout)
  p->p_futex = f;
  error = rwsleep(p, &ftlock, 50|0x100, "fsleep", (int)to_ticks);
  if (error == -1)
-  error = 4;
+  error = 88;
  else if (error == 35) {
   if (p->p_futex == ((void *)0))
    error = 0;

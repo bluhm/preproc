@@ -3896,6 +3896,8 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
+void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
+      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
@@ -7097,10 +7099,13 @@ int
 uvideo_querycap(void *v, struct v4l2_capability *caps)
 {
  struct uvideo_softc *sc = v;
+ char vendor[127];
+ char product[127];
  __builtin_bzero((caps), (sizeof(*caps)));
  strlcpy(caps->driver, ((sc)->sc_dev.dv_xname), sizeof(caps->driver));
- strlcpy(caps->card, "Generic USB video class device",
-     sizeof(caps->card));
+ usbd_devinfo_vp(sc->sc_udev, vendor, sizeof (vendor), product,
+     sizeof (product), 0);
+ strlcpy(caps->card, product, sizeof(caps->card));
  strlcpy(caps->bus_info, "usb", sizeof(caps->bus_info));
  caps->version = 1;
  caps->capabilities = 0x00000001

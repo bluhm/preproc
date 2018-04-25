@@ -3765,7 +3765,7 @@ thrsleep(struct proc *p, struct sys___thrsleep_args *v)
 out:
  p->p_thrslpid = 0;
  if (error == -1)
-  error = 4;
+  error = 88;
  return (error);
 }
 int
@@ -3777,12 +3777,16 @@ sys___thrsleep(struct proc *p, void *v, register_t *retval)
  if (((uap)->tp.be.datum) != ((void *)0)) {
   if ((error = copyin(((uap)->tp.be.datum), &ts, sizeof(ts)))) {
    *retval = error;
-   return (0);
+   return 0;
+  }
+  if (ts.tv_nsec < 0 || ts.tv_nsec >= 1000000000) {
+   *retval = 22;
+   return 0;
   }
   ((uap)->tp.be.datum) = &ts;
  }
  *retval = thrsleep(p, uap);
- return (0);
+ return 0;
 }
 int
 sys___thrwakeup(struct proc *p, void *v, register_t *retval)
@@ -3819,14 +3823,14 @@ refcnt_take(struct refcnt *r)
 {
  u_int refcnt;
  refcnt = _atomic_add_int_nv((&r->refs), 1);
- ((refcnt != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 670, "refcnt != 0"));
+ ((refcnt != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 674, "refcnt != 0"));
 }
 int
 refcnt_rele(struct refcnt *r)
 {
  u_int refcnt;
  refcnt = _atomic_sub_int_nv((&r->refs), 1);
- ((refcnt != ~0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 682, "refcnt != ~0"));
+ ((refcnt != ~0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_synch.c", 686, "refcnt != ~0"));
  return (refcnt == 0);
 }
 void

@@ -2675,7 +2675,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -6886,13 +6886,14 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct proc *p)
   if ((error = suser(p)) != 0)
    break;
  default:
-  do { _rw_enter_write(&netlock ); } while (0);
   error = ((*so->so_proto->pr_usrreq)(so, 11,
    (struct mbuf *) cmd, (struct mbuf *) data,
    (struct mbuf *) ifp, p));
-  if (error == 45)
+  if (error == 45) {
+   do { _rw_enter_write(&netlock ); } while (0);
    error = ((*ifp->if_ioctl)(ifp, cmd, data));
-  do { _rw_exit_write(&netlock ); } while (0);
+   do { _rw_exit_write(&netlock ); } while (0);
+  }
   break;
  }
  if (oif_flags != ifp->if_flags || oif_xflags != ifp->if_xflags)

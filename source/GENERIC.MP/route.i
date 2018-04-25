@@ -2836,7 +2836,7 @@ void rt_maskedcopy(struct sockaddr *,
      struct sockaddr *, struct sockaddr *);
 struct sockaddr *rt_plen2mask(struct rtentry *, struct sockaddr_in6 *);
 void rtm_send(struct rtentry *, int, int, unsigned int);
-void rtm_addr(struct rtentry *, int, struct ifaddr *);
+void rtm_addr(int, struct ifaddr *);
 void rtm_miss(int, struct rt_addrinfo *, int, uint8_t, u_int, int, u_int);
 int rt_setgate(struct rtentry *, struct sockaddr *, u_int);
 struct rtentry *rt_getll(struct rtentry *);
@@ -4360,7 +4360,7 @@ rt_ifa_add(struct ifaddr *ifa, int flags, struct sockaddr *dst)
  error = rtrequest(0x1, &info, prio, &rt, rtableid);
  if (error == 0) {
   if (flags & 0x200000)
-   rtm_addr(rt, 0xc, ifa);
+   rtm_addr(0xc, ifa);
   rtm_send(rt, 0x1, 0, rtableid);
   rtfree(rt);
  }
@@ -4405,7 +4405,7 @@ rt_ifa_del(struct ifaddr *ifa, int flags, struct sockaddr *dst)
  if (error == 0) {
   rtm_send(rt, 0x2, 0, rtableid);
   if (flags & 0x200000)
-   rtm_addr(rt, 0xd, ifa);
+   rtm_addr(0xd, ifa);
   rtfree(rt);
  }
  m_free(m);
