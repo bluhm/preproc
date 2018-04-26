@@ -1222,7 +1222,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -1271,6 +1272,7 @@ void fdfree(struct proc *p);
 int fdrelease(struct proc *p, int);
 void fdremove(struct filedesc *, int);
 void fdcloseexec(struct proc *);
+struct file *fd_iterfile(struct file *, struct proc *);
 struct file *fd_getfile(struct filedesc *, int);
 struct file *fd_getfile_mode(struct filedesc *, int, int);
 int closef(struct file *, struct proc *);
@@ -2393,7 +2395,6 @@ struct file {
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
 extern int maxfiles;
 extern int numfiles;
 extern struct fileops vnops;
@@ -4443,6 +4444,22 @@ fd_unused(struct filedesc *fdp, int fd)
  fdp->fd_openfd--;
 }
 struct file *
+fd_iterfile(struct file *fp, struct proc *p)
+{
+ struct file *nfp;
+ if (fp == ((void *)0))
+  nfp = ((&filehead)->lh_first);
+ else
+  nfp = ((fp)->f_list.le_next);
+ while (nfp != ((void *)0) && nfp->f_count == 0)
+  nfp = ((nfp)->f_list.le_next);
+ if (nfp != ((void *)0))
+  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (nfp)->f_count++; } while (0);
+ if (fp != ((void *)0))
+  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
+ return nfp;
+}
+struct file *
 fd_getfile(struct filedesc *fdp, int fd)
 {
  struct file *fp;
@@ -4456,7 +4473,7 @@ struct file *
 fd_getfile_mode(struct filedesc *fdp, int fd, int mode)
 {
  struct file *fp;
- ((mode != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 201, "mode != 0"));
+ ((mode != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 223, "mode != 0"));
  fp = fd_getfile(fdp, fd);
  if (fp == ((void *)0) || (fp->f_flag & mode) == 0)
   return (((void *)0));
@@ -4985,8 +5002,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 911, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 912, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 933, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 934, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {

@@ -1222,7 +1222,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -2004,7 +2005,6 @@ struct file {
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
-extern struct filelist filehead;
 extern int maxfiles;
 extern int numfiles;
 extern struct fileops vnops;
@@ -2047,6 +2047,7 @@ void fdfree(struct proc *p);
 int fdrelease(struct proc *p, int);
 void fdremove(struct filedesc *, int);
 void fdcloseexec(struct proc *);
+struct file *fd_iterfile(struct file *, struct proc *);
 struct file *fd_getfile(struct filedesc *, int);
 struct file *fd_getfile_mode(struct filedesc *, int, int);
 int closef(struct file *, struct proc *);
@@ -9303,7 +9304,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
 {
  struct kinfo_file *kf;
  struct filedesc *fdp;
- struct file *fp, *nfp;
+ struct file *fp;
  struct process *pr;
  size_t buflen, elem_size, elem_count, outsize;
  char *dp = where;
@@ -9341,13 +9342,8 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), 0, ((void *)0), ((void *)0), p, inp->inp_socket, show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    do { _rw_exit_write(&netlock ); } while (0);
   }
-  fp = ((&filehead)->lh_first);
-  while (fp != ((void *)0) && fp->f_count == 0)
-   fp = ((fp)->f_list.le_next);
-  if (fp == ((void *)0))
-   break;
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
-  do {
+  fp = ((void *)0);
+  while ((fp = fd_iterfile(fp, p)) != ((void *)0)) {
    if (fp->f_count > 1 &&
        (((fp)->f_iflags & 0x02) == 0) &&
        (arg == 0 || fp->f_type == arg)) {
@@ -9361,14 +9357,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
     if (!skip)
      do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, fp, ((void *)0), 0, ((void *)0), ((void *)0), p, ((void *)0), show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    }
-   nfp = ((fp)->f_list.le_next);
-   while (nfp != ((void *)0) && nfp->f_count == 0)
-    nfp = ((nfp)->f_list.le_next);
-   if (nfp != ((void *)0))
-    do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (nfp)->f_count++; } while (0);
-   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
-   fp = nfp;
-  } while (fp != ((void *)0));
+  }
   break;
  case 2:
   if (arg < -1) {
@@ -9895,8 +9884,8 @@ sysctl_proc_vmmap(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   goto done;
  if (len == 0)
   goto done;
- ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2067, "len <= oldlen"));
- (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2068, "(len % sizeof(struct kinfo_vmentry)) == 0"));
+ ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2054, "len <= oldlen"));
+ (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2055, "(len % sizeof(struct kinfo_vmentry)) == 0"));
  error = copyout(kve, oldp, len);
 done:
  *oldlenp = len;

@@ -1483,7 +1483,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -4270,9 +4271,19 @@ _spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned
 {
  __mtx_leave(mtxp );
 }
+typedef struct wait_queue wait_queue_t;
+struct wait_queue {
+ unsigned int flags;
+ void *private;
+ int (*func)(wait_queue_t *, unsigned, int, void *);
+};
+extern struct mutex sch_mtx;
+extern void *sch_ident;
+extern int sch_priority;
 struct wait_queue_head {
  struct mutex lock;
  unsigned int count;
+ struct wait_queue *_wq;
 };
 typedef struct wait_queue_head wait_queue_head_t;
 static inline void
@@ -4280,6 +4291,41 @@ init_waitqueue_head(wait_queue_head_t *wq)
 {
  do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
+ wq->_wq = ((void *)0);
+}
+static inline void
+__add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+{
+ head->_wq = new;
+}
+static inline void
+__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+{
+ head->_wq = ((void *)0);
+}
+static inline void
+_wake_up(wait_queue_head_t *wq )
+{
+ __mtx_enter(&wq->lock );
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
+ __mtx_leave(&wq->lock );
+}
+static inline void
+wake_up_all_locked(wait_queue_head_t *wq)
+{
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
 }
 struct completion {
  u_int done;
@@ -4691,24 +4737,244 @@ static inline void
 prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
 {
  if (*wait == ((void *)0)) {
-  __mtx_enter(&wq->lock );
+  __mtx_enter(&sch_mtx );
   *wait = wq;
  }
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = wq;
+ sch_priority = state;
 }
 static inline void
 finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 {
- if (*wait)
-  __mtx_leave(&wq->lock );
+ if (*wait) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
+}
+static inline void
+set_current_state(int state)
+{
+ if (sch_ident != (__curcpu->ci_self)->ci_curproc)
+  __mtx_enter(&sch_mtx );
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ sch_priority = state;
+}
+static inline void
+__set_current_state(int state)
+{
+ ((state == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1318, "state == TASK_RUNNING"));
+ if (sch_ident == (__curcpu->ci_self)->ci_curproc) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
 }
 static inline long
-schedule_timeout(long timeout, wait_queue_head_t **wait)
+schedule_timeout(long timeout)
 {
+ int err;
+ long deadline;
  if (cold) {
   delay((timeout * 1000000) / hz);
-  return -60;
+  return 0;
  }
- return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+ if (timeout == (0x7fffffff)) {
+  err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", 0);
+  sch_ident = (__curcpu->ci_self)->ci_curproc;
+  return timeout;
+ }
+ deadline = ticks + timeout;
+ err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", timeout);
+ timeout = deadline - ticks;
+ if (timeout < 0)
+  timeout = 0;
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ return timeout;
+}
+struct seq_file;
+static inline void
+seq_printf(struct seq_file *m, const char *fmt, ...) {};
+struct fence {
+ struct kref refcount;
+ const struct fence_ops *ops;
+ unsigned long flags;
+ unsigned int context;
+ unsigned int seqno;
+ struct mutex *lock;
+ struct list_head cb_list;
+};
+enum fence_flag_bits {
+ FENCE_FLAG_SIGNALED_BIT,
+ FENCE_FLAG_ENABLE_SIGNAL_BIT,
+ FENCE_FLAG_USER_BITS,
+};
+struct fence_ops {
+ const char * (*get_driver_name)(struct fence *);
+ const char * (*get_timeline_name)(struct fence *);
+ _Bool (*enable_signaling)(struct fence *);
+ _Bool (*signaled)(struct fence *);
+ long (*wait)(struct fence *, _Bool, long);
+ void (*release)(struct fence *);
+};
+struct fence_cb;
+typedef void (*fence_func_t)(struct fence *fence, struct fence_cb *cb);
+struct fence_cb {
+ struct list_head node;
+ fence_func_t func;
+};
+unsigned int fence_context_alloc(unsigned int);
+static inline struct fence *
+fence_get(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline struct fence *
+fence_get_rcu(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline void
+fence_release(struct kref *ref)
+{
+ struct fence *fence = ({ const __typeof( ((struct fence *)0)->refcount ) *__mptr = (ref); (struct fence *)( (char *)__mptr - __builtin_offsetof(struct fence, refcount) );});
+ if (fence->ops && fence->ops->release)
+  fence->ops->release(fence);
+ else
+  free(fence, 145, 0);
+}
+static inline void
+fence_put(struct fence *fence)
+{
+ if (fence)
+  kref_put(&fence->refcount, fence_release);
+}
+static inline int
+fence_signal(struct fence *fence)
+{
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ if (test_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags)) {
+  struct fence_cb *cur, *tmp;
+  __mtx_enter(fence->lock );
+  for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+   list_del_init(&cur->node);
+   cur->func(fence, cur);
+  }
+  __mtx_leave(fence->lock );
+ }
+ return 0;
+}
+static inline int
+fence_signal_locked(struct fence *fence)
+{
+ struct fence_cb *cur, *tmp;
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+  list_del_init(&cur->node);
+  cur->func(fence, cur);
+ }
+ return 0;
+}
+static inline _Bool
+fence_is_signaled(struct fence *fence)
+{
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return 1;
+ if (fence->ops->signaled && fence->ops->signaled(fence)) {
+  fence_signal(fence);
+  return 1;
+ }
+ return 0;
+}
+static inline long
+fence_wait_timeout(struct fence *fence, _Bool intr, signed long timeout)
+{
+ if (timeout < 0)
+  return -22;
+ if (timeout == 0)
+  return fence_is_signaled(fence);
+ return fence->ops->wait(fence, intr, timeout);
+}
+static inline long
+fence_wait(struct fence *fence, _Bool intr)
+{
+ return fence_wait_timeout(fence, intr, (0x7fffffff));
+}
+static inline void
+fence_enable_sw_signaling(struct fence *fence)
+{
+ if (!test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags) &&
+     !test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  __mtx_enter(fence->lock );
+  if (!fence->ops->enable_signaling(fence))
+   fence_signal_locked(fence);
+  __mtx_leave(fence->lock );
+ }
+}
+static inline void
+fence_init(struct fence *fence, const struct fence_ops *ops,
+    struct mutex *lock, unsigned context, unsigned seqno)
+{
+ fence->ops = ops;
+ fence->lock = lock;
+ fence->context = context;
+ fence->seqno = seqno;
+ fence->flags = 0;
+ kref_init(&fence->refcount);
+ INIT_LIST_HEAD(&fence->cb_list);
+}
+static inline int
+fence_add_callback(struct fence *fence, struct fence_cb *cb,
+    fence_func_t func)
+{
+ int ret = 0;
+ _Bool was_set;
+ if (({ int __ret = !!(!fence || !func); if (__ret) printf("WARNING %s failed at %s:%d\n", "!fence || !func", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1536); __builtin_expect(!!(__ret), 0); }))
+  return -22;
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  INIT_LIST_HEAD(&cb->node);
+  return -2;
+ }
+ __mtx_enter(fence->lock );
+ was_set = test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags);
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  ret = -2;
+ else if (!was_set) {
+  if (!fence->ops->enable_signaling(fence)) {
+   fence_signal_locked(fence);
+   ret = -2;
+  }
+ }
+ if (!ret) {
+  cb->func = func;
+  list_add_tail(&cb->node, &fence->cb_list);
+ } else
+  INIT_LIST_HEAD(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
+}
+static inline _Bool
+fence_remove_callback(struct fence *fence, struct fence_cb *cb)
+{
+ _Bool ret;
+ __mtx_enter(fence->lock );
+ ret = !list_empty(&cb->node);
+ if (ret)
+  list_del_init(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
 }
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
@@ -5019,7 +5285,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 2114, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
@@ -5074,6 +5340,48 @@ cpu_relax(void)
   delay(tick);
   jiffies++;
  }
+}
+struct lock_class_key {
+};
+typedef struct {
+ unsigned int sequence;
+} seqcount_t;
+static inline void
+__seqcount_init(seqcount_t *s, const char *name,
+    struct lock_class_key *key)
+{
+ s->sequence = 0;
+}
+static inline unsigned int
+read_seqcount_begin(const seqcount_t *s)
+{
+ unsigned int r;
+ for (;;) {
+  r = s->sequence;
+  if ((r & 1) == 0)
+   break;
+  cpu_relax();
+ }
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return r;
+}
+static inline int
+read_seqcount_retry(const seqcount_t *s, unsigned start)
+{
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return (s->sequence != start);
+}
+static inline void
+write_seqcount_begin(seqcount_t *s)
+{
+ s->sequence++;
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+}
+static inline void
+write_seqcount_end(seqcount_t *s)
+{
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ s->sequence++;
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
 {
@@ -6036,6 +6344,25 @@ rb_replace_node(struct rb_node *victim, struct rb_node *new,
  if (victim->__entry.rbe_right)
   ((victim->__entry.rbe_right))->__entry.rbe_parent = (new);
  *new = *victim;
+}
+struct interval_tree_node {
+ struct rb_node rb;
+ unsigned long start;
+ unsigned long last;
+};
+static inline struct interval_tree_node *
+interval_tree_iter_first(struct rb_root *root,
+    unsigned long start, unsigned long last)
+{
+ return ((void *)0);
+}
+static inline void
+interval_tree_insert(struct interval_tree_node *node, struct rb_root *root)
+{
+}
+static inline void
+interval_tree_remove(struct interval_tree_node *node, struct rb_root *root)
+{
 }
 struct drm_vma_offset_file {
  struct rb_node vm_rb;
@@ -8236,6 +8563,12 @@ struct drm_radeon_gem_create {
  uint32_t initial_domain;
  uint32_t flags;
 };
+struct drm_radeon_gem_userptr {
+ uint64_t addr;
+ uint64_t size;
+ uint32_t flags;
+ uint32_t handle;
+};
 struct drm_radeon_gem_set_tiling {
  uint32_t handle;
  uint32_t tiling_flags;
@@ -8315,15 +8648,104 @@ struct drm_radeon_info {
  uint32_t pad;
  uint64_t value;
 };
+struct rcu_head {
+};
+extern struct ww_class reservation_ww_class;
+extern struct lock_class_key reservation_seqcount_class;
+extern const char reservation_seqcount_string[];
+struct reservation_object_list {
+ struct rcu_head rcu;
+ u32 shared_count, shared_max;
+ struct fence *shared[];
+};
+struct reservation_object {
+ struct ww_mutex lock;
+ seqcount_t seq;
+ struct fence *fence_excl;
+ struct reservation_object_list *fence;
+ struct reservation_object_list *staged;
+};
+static inline void
+reservation_object_init(struct reservation_object *obj)
+{
+ ww_mutex_init(&obj->lock, &reservation_ww_class);
+ __seqcount_init(&obj->seq, reservation_seqcount_string, &reservation_seqcount_class);
+ do { (obj->fence) = (((void *)0)); } while(0);
+ do { (obj->fence_excl) = (((void *)0)); } while(0);
+ obj->staged = ((void *)0);
+}
+static inline void
+reservation_object_fini(struct reservation_object *obj)
+{
+ int i;
+ struct reservation_object_list *fobj;
+ struct fence *excl;
+ excl = (obj->fence_excl);
+ if (excl)
+  fence_put(excl);
+ fobj = (obj->fence);
+ if (fobj) {
+  for (i = 0; i < fobj->shared_count; ++i)
+   fence_put((fobj->shared[i]));
+  kfree(fobj);
+ }
+ kfree(obj->staged);
+ ww_mutex_destroy(&obj->lock);
+}
+static inline struct reservation_object_list *
+reservation_object_get_list(struct reservation_object *obj)
+{
+ return (obj->fence);
+}
+static inline struct fence *
+reservation_object_get_excl(struct reservation_object *obj)
+{
+ return (obj->fence_excl);
+}
+int reservation_object_reserve_shared(struct reservation_object *obj);
+void reservation_object_add_shared_fence(struct reservation_object *obj,
+      struct fence *fence);
+void reservation_object_add_excl_fence(struct reservation_object *obj,
+           struct fence *fence);
+int reservation_object_get_fences_rcu(struct reservation_object *obj,
+          struct fence **pfence_excl,
+          unsigned *pshared_count,
+          struct fence ***pshared);
+long reservation_object_wait_timeout_rcu(struct reservation_object *obj,
+      _Bool wait_all, _Bool intr,
+      unsigned long timeout);
+_Bool reservation_object_test_signaled_rcu(struct reservation_object *obj,
+       _Bool test_all);
+struct drm_hash_item {
+ struct { struct drm_hash_item *le_next; struct drm_hash_item **le_prev; } head;
+ unsigned long key;
+};
+struct drm_open_hash {
+ struct drm_hash_item_list { struct drm_hash_item *lh_first; } *table;
+ uint8_t order;
+};
+extern int drm_ht_create(struct drm_open_hash *ht, unsigned int order);
+extern int drm_ht_insert_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern int drm_ht_just_insert_please(struct drm_open_hash *ht, struct drm_hash_item *item,
+         unsigned long seed, int bits, int shift,
+         unsigned long add);
+extern int drm_ht_find_item(struct drm_open_hash *ht, unsigned long key, struct drm_hash_item **item);
+extern void drm_ht_verbose_list(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_key(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern void drm_ht_remove(struct drm_open_hash *ht);
 struct ttm_bo_device;
 struct drm_mm_node;
-struct ttm_placement {
+struct ttm_place {
  unsigned fpfn;
  unsigned lpfn;
+ uint32_t flags;
+};
+struct ttm_placement {
  unsigned num_placement;
- const uint32_t *placement;
+ const struct ttm_place *placement;
  unsigned num_busy_placement;
- const uint32_t *busy_placement;
+ const struct ttm_place *busy_placement;
 };
 struct ttm_bus_placement {
  void *addr;
@@ -8361,7 +8783,6 @@ struct ttm_buffer_object {
  size_t acc_size;
  struct kref kref;
  struct kref list_kref;
- wait_queue_head_t event_queue;
  struct ttm_mem_reg mem;
  struct uvm_object *persistent_swap_storage;
  struct ttm_tt *ttm;
@@ -8371,15 +8792,14 @@ struct ttm_buffer_object {
  struct list_head ddestroy;
  struct list_head swap;
  struct list_head io_reserve_lru;
- uint32_t val_seq;
- _Bool seq_valid;
- atomic_t reserved;
- void *sync_obj;
  unsigned long priv_flags;
  struct drm_vma_offset_node vma_node;
- unsigned long offset;
+ uint64_t offset;
  uint32_t cur_placement;
  struct sg_table *sg;
+ struct reservation_object *resv;
+ struct reservation_object ttm_resv;
+ struct rwlock wu_mutex;
 };
 struct ttm_bo_kmap_obj {
  void *virtual;
@@ -8400,6 +8820,9 @@ ttm_bo_reference(struct ttm_buffer_object *bo)
 }
 extern int ttm_bo_wait(struct ttm_buffer_object *bo, _Bool lazy,
          _Bool interruptible, _Bool no_wait);
+extern _Bool ttm_bo_mem_compat(struct ttm_placement *placement,
+         struct ttm_mem_reg *mem,
+         uint32_t *new_flags);
 extern int ttm_bo_validate(struct ttm_buffer_object *bo,
     struct ttm_placement *placement,
     _Bool interruptible,
@@ -8431,6 +8854,7 @@ extern int ttm_bo_init(struct ttm_bo_device *bdev,
    struct uvm_object *persistent_swap_storage,
    size_t acc_size,
    struct sg_table *sg,
+   struct reservation_object *resv,
    void (*destroy) (struct ttm_buffer_object *));
 extern int ttm_bo_create(struct ttm_bo_device *bdev,
     unsigned long size,
@@ -8440,8 +8864,6 @@ extern int ttm_bo_create(struct ttm_bo_device *bdev,
     _Bool interruptible,
     struct uvm_object *persistent_swap_storage,
     struct ttm_buffer_object **p_bo);
-extern int ttm_bo_check_placement(struct ttm_buffer_object *bo,
-     struct ttm_placement *placement);
 extern int ttm_bo_init_mm(struct ttm_bo_device *bdev, unsigned type,
     unsigned long p_size);
 extern int ttm_bo_clean_mm(struct ttm_bo_device *bdev, unsigned mem_type);
@@ -8459,12 +8881,9 @@ extern struct uvm_object *ttm_bo_mmap(voff_t, vsize_t,
           struct ttm_bo_device *);
 extern ssize_t ttm_bo_io(struct ttm_bo_device *bdev, struct file *filp,
     const char *wbuf, char *rbuf,
-    size_t count, off_t *f_pos, _Bool write);
+    size_t count, loff_t *f_pos, _Bool write);
 extern void ttm_bo_swapout_all(struct ttm_bo_device *bdev);
-static inline _Bool ttm_bo_is_reserved(struct ttm_buffer_object *bo)
-{
- return (*(&bo->reserved));
-}
+extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo);
 struct ttm_mem_shrink {
  int (*do_shrink) (struct ttm_mem_shrink *);
 };
@@ -8472,9 +8891,8 @@ struct ttm_mem_zone;
 struct ttm_mem_global {
  struct kobject kobj;
  struct ttm_mem_shrink *shrink;
- struct taskq *swap_queue;
- struct task task;
- _Bool task_queued;
+ struct workqueue_struct *swap_queue;
+ struct work_struct work;
  spinlock_t lock;
  struct ttm_mem_zone *zones[2];
  unsigned int num_zones;
@@ -8502,7 +8920,7 @@ static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
           struct ttm_mem_shrink *shrink)
 {
  __mtx_enter(&glob->lock );
- ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 137, "!(glob->shrink != shrink)"));
+ ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 135, "!(glob->shrink != shrink)"));
  glob->shrink = ((void *)0);
  __mtx_leave(&glob->lock );
 }
@@ -8566,7 +8984,8 @@ struct ttm_tt {
 };
 struct ttm_dma_tt {
  struct ttm_tt ttm;
- bus_addr_t *dma_address;
+ void **cpu_address;
+ dma_addr_t *dma_address;
  struct list_head pages_list;
 };
 struct ttm_mem_type_manager;
@@ -8575,7 +8994,7 @@ struct ttm_mem_type_manager_func {
  int (*takedown)(struct ttm_mem_type_manager *man);
  int (*get_node)(struct ttm_mem_type_manager *man,
     struct ttm_buffer_object *bo,
-    struct ttm_placement *placement,
+    const struct ttm_place *place,
     struct ttm_mem_reg *mem);
  void (*put_node)(struct ttm_mem_type_manager *man,
     struct ttm_mem_reg *mem);
@@ -8586,7 +9005,7 @@ struct ttm_mem_type_manager {
  _Bool has_type;
  _Bool use_type;
  uint32_t flags;
- unsigned long gpu_offset;
+ uint64_t gpu_offset;
  uint64_t size;
  uint32_t available_caching;
  uint32_t default_caching;
@@ -8616,12 +9035,6 @@ struct ttm_bo_driver {
        struct ttm_mem_reg *new_mem);
  int (*verify_access) (struct ttm_buffer_object *bo,
          struct file *filp);
- _Bool (*sync_obj_signaled) (void *sync_obj);
- int (*sync_obj_wait) (void *sync_obj,
-         _Bool lazy, _Bool interruptible);
- int (*sync_obj_flush) (void *sync_obj);
- void (*sync_obj_unref) (void **sync_obj);
- void *(*sync_obj_ref) (void *sync_obj);
  void (*move_notify)(struct ttm_buffer_object *bo,
        struct ttm_mem_reg *new_mem);
  int (*fault_reserve_notify)(struct ttm_buffer_object *bo);
@@ -8649,7 +9062,6 @@ struct ttm_bo_device {
  struct ttm_bo_global *glob;
  struct ttm_bo_driver *driver;
  struct ttm_mem_type_manager man[8];
- spinlock_t fence_lock;
  bus_space_tag_t iot;
  bus_space_tag_t memt;
  bus_dma_tag_t dmat;
@@ -8678,10 +9090,10 @@ extern int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
 extern void ttm_tt_destroy(struct ttm_tt *ttm);
 extern void ttm_tt_unbind(struct ttm_tt *ttm);
 extern int ttm_tt_swapin(struct ttm_tt *ttm);
-extern void ttm_tt_cache_flush(struct vm_page *pages[], unsigned long num_pages);
 extern int ttm_tt_set_placement_caching(struct ttm_tt *ttm, uint32_t placement);
 extern int ttm_tt_swapout(struct ttm_tt *ttm,
      struct uvm_object *persistent_swap_storage);
+extern void ttm_tt_unpopulate(struct ttm_tt *ttm);
 extern _Bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev,
        struct ttm_mem_reg *mem);
 extern int ttm_bo_mem_space(struct ttm_buffer_object *bo,
@@ -8699,6 +9111,7 @@ extern int ttm_bo_device_release(struct ttm_bo_device *bdev);
 extern int ttm_bo_device_init(struct ttm_bo_device *bdev,
          struct ttm_bo_global *glob,
          struct ttm_bo_driver *driver,
+         struct address_space *mapping,
          uint64_t file_page_offset, _Bool need_dma32);
 extern void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo);
 extern void ttm_bo_unmap_virtual_locked(struct ttm_buffer_object *bo);
@@ -8707,17 +9120,80 @@ extern void ttm_mem_io_free_vm(struct ttm_buffer_object *bo);
 extern int ttm_mem_io_lock(struct ttm_mem_type_manager *man,
       _Bool interruptible);
 extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
-extern int ttm_bo_reserve(struct ttm_buffer_object *bo,
+extern void ttm_bo_del_sub_from_lru(struct ttm_buffer_object *bo);
+extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
+static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       _Bool no_wait, _Bool use_ticket,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ if (no_wait) {
+  _Bool success;
+  if (({ int __ret = !!(ticket); if (__ret) printf("WARNING %s failed at %s:%d\n", "ticket", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 788); __builtin_expect(!!(__ret), 0); }))
+   return -16;
+  success = ww_mutex_trylock(&bo->resv->lock);
+  return success ? 0 : -16;
+ }
+ if (interruptible)
+  ret = ww_mutex_lock_interruptible(&bo->resv->lock, ticket);
+ else
+  ret = ww_mutex_lock(&bo->resv->lock, ticket);
+ if (ret == -4)
+  return -4;
+ return ret;
+}
+static inline int ttm_bo_reserve(struct ttm_buffer_object *bo,
      _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence, uint32_t sequence);
-extern int ttm_bo_reserve_locked(struct ttm_buffer_object *bo,
-     _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence,
-     uint32_t sequence);
-extern void ttm_bo_unreserve(struct ttm_buffer_object *bo);
-extern void ttm_bo_unreserve_locked(struct ttm_buffer_object *bo);
-extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo,
-      _Bool interruptible);
+     _Bool no_wait, _Bool use_ticket,
+     struct ww_acquire_ctx *ticket)
+{
+ int ret;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 856); __builtin_expect(!!(__ret), 0); });
+ ret = __ttm_bo_reserve(bo, interruptible, no_wait, use_ticket, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ return ret;
+}
+static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 881); __builtin_expect(!!(__ret), 0); });
+ if (interruptible)
+  ret = ww_mutex_lock_slow_interruptible(&bo->resv->lock,
+             ticket);
+ else
+  ww_mutex_lock_slow(&bo->resv->lock, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ else if (ret == -4)
+  ret = -4;
+ return ret;
+}
+static inline void __ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ ww_mutex_unlock(&bo->resv->lock);
+}
+static inline void ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ if (!(bo->mem.placement & (1 << 21))) {
+  __mtx_enter(&bo->glob->lru_lock );
+  ttm_bo_add_to_lru(bo);
+  __mtx_leave(&bo->glob->lru_lock );
+ }
+ __ttm_bo_unreserve(bo);
+}
+static inline void ttm_bo_unreserve_ticket(struct ttm_buffer_object *bo,
+        struct ww_acquire_ctx *t)
+{
+ ttm_bo_unreserve(bo);
+}
+int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
+         struct ttm_mem_reg *mem);
+void ttm_mem_io_free(struct ttm_bo_device *bdev,
+       struct ttm_mem_reg *mem);
 extern int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
       _Bool evict, _Bool no_wait_gpu,
       struct ttm_mem_reg *new_mem);
@@ -8726,7 +9202,7 @@ extern int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
          struct ttm_mem_reg *new_mem);
 extern void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
 extern int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
-         void *sync_obj,
+         struct fence *fence,
          _Bool evict, _Bool no_wait_gpu,
          struct ttm_mem_reg *new_mem);
 extern pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp);
@@ -8734,14 +9210,16 @@ extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
 struct ttm_validate_buffer {
  struct list_head head;
  struct ttm_buffer_object *bo;
- _Bool reserved;
- _Bool removed;
- int put_count;
- void *old_sync_obj;
+ _Bool shared;
 };
-extern void ttm_eu_backoff_reservation(struct list_head *list);
-extern int ttm_eu_reserve_buffers(struct list_head *list);
-extern void ttm_eu_fence_buffer_objects(struct list_head *list, void *sync_obj);
+extern void ttm_eu_backoff_reservation(struct ww_acquire_ctx *ticket,
+           struct list_head *list);
+extern int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
+      struct list_head *list, _Bool intr,
+      struct list_head *dups);
+extern void ttm_eu_fence_buffer_objects(struct ww_acquire_ctx *ticket,
+     struct list_head *list,
+     struct fence *fence);
 typedef u_int16_t keysym_t;
 typedef u_int32_t kbd_t;
 struct wscons_keymap {
@@ -9193,6 +9671,13 @@ enum radeon_family {
  CHIP_TAHITI,
  CHIP_PITCAIRN,
  CHIP_VERDE,
+ CHIP_OLAND,
+ CHIP_HAINAN,
+ CHIP_BONAIRE,
+ CHIP_KAVERI,
+ CHIP_KABINI,
+ CHIP_HAWAII,
+ CHIP_MULLINS,
  CHIP_LAST,
 };
 enum radeon_chip_flags {
@@ -9207,6 +9692,7 @@ enum radeon_chip_flags {
  RADEON_NEW_MEMMAP = 0x00400000UL,
  RADEON_IS_PCI = 0x00800000UL,
  RADEON_IS_IGPGART = 0x01000000UL,
+ RADEON_IS_PX = 0x02000000UL,
 };
 struct est_timings {
  u8 t1;
@@ -9482,6 +9968,302 @@ int drm_dp_link_power_down(struct drm_dp_aux *aux, struct drm_dp_link *link);
 int drm_dp_link_configure(struct drm_dp_aux *aux, struct drm_dp_link *link);
 int drm_dp_aux_register(struct drm_dp_aux *aux);
 void drm_dp_aux_unregister(struct drm_dp_aux *aux);
+struct drm_dp_mst_branch;
+struct drm_dp_vcpi {
+ int vcpi;
+ int pbn;
+ int aligned_pbn;
+ int num_slots;
+};
+struct drm_dp_mst_port {
+ struct kref kref;
+ u8 port_num;
+ _Bool input;
+ _Bool mcs;
+ _Bool ddps;
+ u8 pdt;
+ _Bool ldps;
+ u8 dpcd_rev;
+ u8 num_sdp_streams;
+ u8 num_sdp_stream_sinks;
+ uint16_t available_pbn;
+ struct list_head next;
+ struct drm_dp_mst_branch *mstb;
+ struct drm_dp_aux aux;
+ struct drm_dp_mst_branch *parent;
+ struct drm_dp_vcpi vcpi;
+ struct drm_connector *connector;
+ struct drm_dp_mst_topology_mgr *mgr;
+ struct edid *cached_edid;
+};
+struct drm_dp_mst_branch {
+ struct kref kref;
+ u8 rad[8];
+ u8 lct;
+ int num_ports;
+ int msg_slots;
+ struct list_head ports;
+ struct drm_dp_mst_port *port_parent;
+ struct drm_dp_mst_topology_mgr *mgr;
+ struct drm_dp_sideband_msg_tx *tx_slots[2];
+ int last_seqno;
+ _Bool link_address_sent;
+ u8 guid[16];
+};
+struct drm_dp_sideband_msg_hdr {
+ u8 lct;
+ u8 lcr;
+ u8 rad[8];
+ _Bool broadcast;
+ _Bool path_msg;
+ u8 msg_len;
+ _Bool somt;
+ _Bool eomt;
+ _Bool seqno;
+};
+struct drm_dp_nak_reply {
+ u8 guid[16];
+ u8 reason;
+ u8 nak_data;
+};
+struct drm_dp_link_address_ack_reply {
+ u8 guid[16];
+ u8 nports;
+ struct drm_dp_link_addr_reply_port {
+  _Bool input_port;
+  u8 peer_device_type;
+  u8 port_number;
+  _Bool mcs;
+  _Bool ddps;
+  _Bool legacy_device_plug_status;
+  u8 dpcd_revision;
+  u8 peer_guid[16];
+  u8 num_sdp_streams;
+  u8 num_sdp_stream_sinks;
+ } ports[16];
+};
+struct drm_dp_remote_dpcd_read_ack_reply {
+ u8 port_number;
+ u8 num_bytes;
+ u8 bytes[255];
+};
+struct drm_dp_remote_dpcd_write_ack_reply {
+ u8 port_number;
+};
+struct drm_dp_remote_dpcd_write_nak_reply {
+ u8 port_number;
+ u8 reason;
+ u8 bytes_written_before_failure;
+};
+struct drm_dp_remote_i2c_read_ack_reply {
+ u8 port_number;
+ u8 num_bytes;
+ u8 bytes[255];
+};
+struct drm_dp_remote_i2c_read_nak_reply {
+ u8 port_number;
+ u8 nak_reason;
+ u8 i2c_nak_transaction;
+};
+struct drm_dp_remote_i2c_write_ack_reply {
+ u8 port_number;
+};
+struct drm_dp_sideband_msg_rx {
+ u8 chunk[48];
+ u8 msg[256];
+ u8 curchunk_len;
+ u8 curchunk_idx;
+ u8 curchunk_hdrlen;
+ u8 curlen;
+ _Bool have_somt;
+ _Bool have_eomt;
+ struct drm_dp_sideband_msg_hdr initial_hdr;
+};
+struct drm_dp_allocate_payload {
+ u8 port_number;
+ u8 number_sdp_streams;
+ u8 vcpi;
+ u16 pbn;
+ u8 sdp_stream_sink[8];
+};
+struct drm_dp_allocate_payload_ack_reply {
+ u8 port_number;
+ u8 vcpi;
+ u16 allocated_pbn;
+};
+struct drm_dp_connection_status_notify {
+ u8 guid[16];
+ u8 port_number;
+ _Bool legacy_device_plug_status;
+ _Bool displayport_device_plug_status;
+ _Bool message_capability_status;
+ _Bool input_port;
+ u8 peer_device_type;
+};
+struct drm_dp_remote_dpcd_read {
+ u8 port_number;
+ u32 dpcd_address;
+ u8 num_bytes;
+};
+struct drm_dp_remote_dpcd_write {
+ u8 port_number;
+ u32 dpcd_address;
+ u8 num_bytes;
+ u8 *bytes;
+};
+struct drm_dp_remote_i2c_read {
+ u8 num_transactions;
+ u8 port_number;
+ struct {
+  u8 i2c_dev_id;
+  u8 num_bytes;
+  u8 *bytes;
+  u8 no_stop_bit;
+  u8 i2c_transaction_delay;
+ } transactions[4];
+ u8 read_i2c_device_id;
+ u8 num_bytes_read;
+};
+struct drm_dp_remote_i2c_write {
+ u8 port_number;
+ u8 write_i2c_device_id;
+ u8 num_bytes;
+ u8 *bytes;
+};
+struct drm_dp_port_number_req {
+ u8 port_number;
+};
+struct drm_dp_enum_path_resources_ack_reply {
+ u8 port_number;
+ u16 full_payload_bw_number;
+ u16 avail_payload_bw_number;
+};
+struct drm_dp_port_number_rep {
+ u8 port_number;
+};
+struct drm_dp_query_payload {
+ u8 port_number;
+ u8 vcpi;
+};
+struct drm_dp_resource_status_notify {
+ u8 port_number;
+ u8 guid[16];
+ u16 available_pbn;
+};
+struct drm_dp_query_payload_ack_reply {
+ u8 port_number;
+ u8 allocated_pbn;
+};
+struct drm_dp_sideband_msg_req_body {
+ u8 req_type;
+ union ack_req {
+  struct drm_dp_connection_status_notify conn_stat;
+  struct drm_dp_port_number_req port_num;
+  struct drm_dp_resource_status_notify resource_stat;
+  struct drm_dp_query_payload query_payload;
+  struct drm_dp_allocate_payload allocate_payload;
+  struct drm_dp_remote_dpcd_read dpcd_read;
+  struct drm_dp_remote_dpcd_write dpcd_write;
+  struct drm_dp_remote_i2c_read i2c_read;
+  struct drm_dp_remote_i2c_write i2c_write;
+ } u;
+};
+struct drm_dp_sideband_msg_reply_body {
+ u8 reply_type;
+ u8 req_type;
+ union ack_replies {
+  struct drm_dp_nak_reply nak;
+  struct drm_dp_link_address_ack_reply link_addr;
+  struct drm_dp_port_number_rep port_number;
+  struct drm_dp_enum_path_resources_ack_reply path_resources;
+  struct drm_dp_allocate_payload_ack_reply allocate_payload;
+  struct drm_dp_query_payload_ack_reply query_payload;
+  struct drm_dp_remote_dpcd_read_ack_reply remote_dpcd_read_ack;
+  struct drm_dp_remote_dpcd_write_ack_reply remote_dpcd_write_ack;
+  struct drm_dp_remote_dpcd_write_nak_reply remote_dpcd_write_nack;
+  struct drm_dp_remote_i2c_read_ack_reply remote_i2c_read_ack;
+  struct drm_dp_remote_i2c_read_nak_reply remote_i2c_read_nack;
+  struct drm_dp_remote_i2c_write_ack_reply remote_i2c_write_ack;
+ } u;
+};
+struct drm_dp_sideband_msg_tx {
+ u8 msg[256];
+ u8 chunk[48];
+ u8 cur_offset;
+ u8 cur_len;
+ struct drm_dp_mst_branch *dst;
+ struct list_head next;
+ int seqno;
+ int state;
+ _Bool path_msg;
+ struct drm_dp_sideband_msg_reply_body reply;
+};
+struct drm_dp_mst_topology_mgr;
+struct drm_dp_mst_topology_cbs {
+ struct drm_connector *(*add_connector)(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port, const char *path);
+ void (*register_connector)(struct drm_connector *connector);
+ void (*destroy_connector)(struct drm_dp_mst_topology_mgr *mgr,
+      struct drm_connector *connector);
+ void (*hotplug)(struct drm_dp_mst_topology_mgr *mgr);
+};
+struct drm_dp_payload {
+ int payload_state;
+ int start_slot;
+ int num_slots;
+ int vcpi;
+};
+struct drm_dp_mst_topology_mgr {
+ struct device *dev;
+ struct drm_dp_mst_topology_cbs *cbs;
+ int max_dpcd_transaction_bytes;
+ struct drm_dp_aux *aux;
+ int max_payloads;
+ int conn_base_id;
+ struct drm_dp_sideband_msg_rx down_rep_recv;
+ struct drm_dp_sideband_msg_rx up_req_recv;
+ struct rwlock lock;
+ _Bool mst_state;
+ struct drm_dp_mst_branch *mst_primary;
+ u8 dpcd[0xf];
+ u8 sink_count;
+ int pbn_div;
+ int total_slots;
+ int avail_slots;
+ int total_pbn;
+ struct rwlock qlock;
+ struct list_head tx_msg_downq;
+ _Bool tx_down_in_progress;
+ struct rwlock payload_lock;
+ struct drm_dp_vcpi **proposed_vcpis;
+ struct drm_dp_payload *payloads;
+ unsigned long payload_mask;
+ unsigned long vcpi_mask;
+ wait_queue_head_t tx_waitq;
+ struct work_struct work;
+ struct work_struct tx_work;
+ struct list_head destroy_connector_list;
+ struct rwlock destroy_connector_lock;
+ struct work_struct destroy_connector_work;
+};
+int drm_dp_mst_topology_mgr_init(struct drm_dp_mst_topology_mgr *mgr, struct device *dev, struct drm_dp_aux *aux, int max_dpcd_transaction_bytes, int max_payloads, int conn_base_id);
+void drm_dp_mst_topology_mgr_destroy(struct drm_dp_mst_topology_mgr *mgr);
+int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, _Bool mst_state);
+int drm_dp_mst_hpd_irq(struct drm_dp_mst_topology_mgr *mgr, u8 *esi, _Bool *handled);
+enum drm_connector_status drm_dp_mst_detect_port(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+struct edid *drm_dp_mst_get_edid(struct drm_connector *connector, struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+int drm_dp_calc_pbn_mode(int clock, int bpp);
+_Bool drm_dp_mst_allocate_vcpi(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port, int pbn, int *slots);
+int drm_dp_mst_get_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+void drm_dp_mst_reset_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr, struct drm_dp_mst_port *port);
+void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
+    struct drm_dp_mst_port *port);
+int drm_dp_find_vcpi_slots(struct drm_dp_mst_topology_mgr *mgr,
+      int pbn);
+int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr);
+int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr);
+int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr);
+void drm_dp_mst_topology_mgr_suspend(struct drm_dp_mst_topology_mgr *mgr);
+int drm_dp_mst_topology_mgr_resume(struct drm_dp_mst_topology_mgr *mgr);
 typedef union dfixed {
  u32 full;
 } fixed20_12;
@@ -9743,6 +10525,12 @@ enum radeon_hpd_id {
  RADEON_HPD_6,
  RADEON_HPD_NONE = 0xff,
 };
+enum radeon_output_csc {
+ RADEON_OUTPUT_CSC_BYPASS = 0,
+ RADEON_OUTPUT_CSC_TVRGB = 1,
+ RADEON_OUTPUT_CSC_YCBCR601 = 2,
+ RADEON_OUTPUT_CSC_YCBCR709 = 3,
+};
 struct radeon_i2c_bus_rec {
  _Bool valid;
  uint8_t i2c_id;
@@ -9795,10 +10583,11 @@ struct radeon_pll {
 struct radeon_i2c_chan {
  struct i2c_adapter adapter;
  struct drm_device *dev;
+ struct i2c_algo_bit_data bit;
+ struct radeon_i2c_bus_rec rec;
  struct drm_dp_aux aux;
  _Bool has_aux;
  struct rwlock mutex;
- struct radeon_i2c_bus_rec rec;
 };
 enum radeon_connector_table {
  CT_NONE = 0,
@@ -9834,7 +10623,7 @@ struct radeon_mode_info {
  enum radeon_connector_table connector_table;
  _Bool mode_config_initialized;
  struct radeon_crtc *crtcs[6];
- struct radeon_afmt *afmt[6];
+ struct radeon_afmt *afmt[7];
  struct drm_property *coherent_mode_property;
  struct drm_property *load_detect_property;
  struct drm_property *tv_std_property;
@@ -9842,11 +10631,15 @@ struct radeon_mode_info {
  struct drm_property *underscan_property;
  struct drm_property *underscan_hborder_property;
  struct drm_property *underscan_vborder_property;
+ struct drm_property *audio_property;
+ struct drm_property *dither_property;
+ struct drm_property *output_csc_property;
  struct edid *bios_hardcoded_edid;
  int bios_hardcoded_edid_size;
  struct radeon_fbdev *rfbdev;
  u16 firmware_flags;
  struct radeon_encoder *bl_encoder;
+ uint32_t active_encoders;
 };
 struct radeon_backlight_privdata {
  struct radeon_encoder *encoder;
@@ -9863,6 +10656,7 @@ struct radeon_tv_regs {
 };
 struct radeon_atom_ss {
  uint16_t percentage;
+ uint16_t percentage_divider;
  uint8_t type;
  uint16_t step;
  uint8_t delay;
@@ -9871,20 +10665,30 @@ struct radeon_atom_ss {
  uint16_t rate;
  uint16_t amount;
 };
+enum radeon_flip_status {
+ RADEON_FLIP_NONE,
+ RADEON_FLIP_PENDING,
+ RADEON_FLIP_SUBMITTED
+};
 struct radeon_crtc {
  struct drm_crtc base;
  int crtc_id;
  u16 lut_r[256], lut_g[256], lut_b[256];
  _Bool enabled;
  _Bool can_tile;
- _Bool in_mode_set;
+ _Bool cursor_out_of_bounds;
  uint32_t crtc_offset;
  struct drm_gem_object *cursor_bo;
  uint64_t cursor_addr;
+ int cursor_x;
+ int cursor_y;
+ int cursor_hot_x;
+ int cursor_hot_y;
  int cursor_width;
  int cursor_height;
+ int max_cursor_width;
+ int max_cursor_height;
  uint32_t legacy_display_base_addr;
- uint32_t legacy_cursor_offset;
  enum radeon_rmx_type rmx_type;
  u8 h_border;
  u8 v_border;
@@ -9892,8 +10696,9 @@ struct radeon_crtc {
  fixed20_12 hsc;
  struct drm_display_mode native_mode;
  int pll_id;
- struct radeon_unpin_work *unpin_work;
- int deferred_flip_completion;
+ struct workqueue_struct *flip_queue;
+ struct radeon_flip_work *flip_work;
+ enum radeon_flip_status flip_status;
  struct radeon_atom_ss ss;
  _Bool ss_enabled;
  u32 adjusted_clock;
@@ -9903,6 +10708,12 @@ struct radeon_crtc {
  u32 pll_flags;
  struct drm_encoder *encoder;
  struct drm_connector *connector;
+ u32 line_time;
+ u32 wm_low;
+ u32 wm_high;
+ u32 lb_vblank_lead_lines;
+ struct drm_display_mode hw_mode;
+ enum radeon_output_csc output_csc;
 };
 struct radeon_encoder_primary_dac {
  uint32_t ps2_pdac_adj;
@@ -9955,9 +10766,21 @@ struct radeon_encoder_atom_dig {
  uint8_t backlight_level;
  int panel_mode;
  struct radeon_afmt *afmt;
+ struct r600_audio_pin *pin;
+ int active_mst_links;
 };
 struct radeon_encoder_atom_dac {
  enum radeon_tv_std tv_std;
+};
+struct radeon_encoder_mst {
+ int crtc;
+ struct radeon_encoder *primary;
+ struct radeon_connector *connector;
+ struct drm_dp_mst_port *port;
+ int pbn;
+ int fe;
+ _Bool fe_from_be;
+ _Bool enc_active;
 };
 struct radeon_encoder {
  struct drm_encoder base;
@@ -9976,21 +10799,27 @@ struct radeon_encoder {
  int audio_polling_active;
  _Bool is_ext_encoder;
  u16 caps;
+ struct radeon_audio_funcs *audio;
+ enum radeon_output_csc output_csc;
+ _Bool can_mst;
+ uint32_t offset;
+ _Bool is_mst_encoder;
 };
 struct radeon_connector_atom_dig {
  uint32_t igp_lane_info;
- struct radeon_i2c_chan *dp_i2c_bus;
  u8 dpcd[0xf];
  u8 dp_sink_type;
  int dp_clock;
  int dp_lane_count;
  _Bool edp_on;
+ _Bool is_mst;
 };
 struct radeon_gpio_rec {
  _Bool valid;
  u8 id;
  u32 reg64;
  u32 mask;
+ u32 shift;
 };
 struct radeon_hpd {
  enum radeon_hpd_id hpd;
@@ -10010,6 +10839,19 @@ struct radeon_router {
  u8 cd_mux_control_pin;
  u8 cd_mux_state;
 };
+enum radeon_connector_audio {
+ RADEON_AUDIO_DISABLE = 0,
+ RADEON_AUDIO_ENABLE = 1,
+ RADEON_AUDIO_AUTO = 2
+};
+enum radeon_connector_dither {
+ RADEON_FMT_DITHER_DISABLE = 0,
+ RADEON_FMT_DITHER_ENABLE = 1,
+};
+struct stream_attribs {
+ uint16_t fe;
+ uint16_t slots;
+};
 struct radeon_connector {
  struct drm_connector base;
  uint32_t connector_id;
@@ -10021,19 +10863,133 @@ struct radeon_connector {
  void *con_priv;
  _Bool dac_load_detect;
  _Bool detected_by_load;
+ _Bool detected_hpd_without_ddc;
  uint16_t connector_object_id;
  struct radeon_hpd hpd;
  struct radeon_router router;
  struct radeon_i2c_chan *router_bus;
+ enum radeon_connector_audio audio;
+ enum radeon_connector_dither dither;
+ int pixelclock_for_modeset;
+ _Bool is_mst_connector;
+ struct radeon_connector *mst_port;
+ struct drm_dp_mst_port *port;
+ struct drm_dp_mst_topology_mgr mst_mgr;
+ struct radeon_encoder *mst_encoder;
+ struct stream_attribs cur_stream_attribs[6];
+ int enabled_attribs;
 };
 struct radeon_framebuffer {
  struct drm_framebuffer base;
  struct drm_gem_object *obj;
 };
+struct atom_clock_dividers {
+ u32 post_div;
+ union {
+  struct {
+   u32 reserved : 6;
+   u32 whole_fb_div : 12;
+   u32 frac_fb_div : 14;
+  };
+  u32 fb_div;
+ };
+ u32 ref_div;
+ _Bool enable_post_div;
+ _Bool enable_dithen;
+ u32 vco_mode;
+ u32 real_clock;
+ u32 post_divider;
+ u32 flags;
+};
+struct atom_mpll_param {
+ union {
+  struct {
+   u32 reserved : 8;
+   u32 clkfrac : 12;
+   u32 clkf : 12;
+  };
+  u32 fb_div;
+ };
+ u32 post_div;
+ u32 bwcntl;
+ u32 dll_speed;
+ u32 vco_mode;
+ u32 yclk_sel;
+ u32 qdr;
+ u32 half_rate;
+};
+struct atom_memory_info {
+ u8 mem_vendor;
+ u8 mem_type;
+};
+struct atom_memory_clock_range_table
+{
+ u8 num_entries;
+ u8 rsv[3];
+ u32 mclk[16];
+};
+struct atom_mc_reg_entry {
+ u32 mclk_max;
+ u32 mc_data[32];
+};
+struct atom_mc_register_address {
+ u16 s1;
+ u8 pre_reg_data;
+};
+struct atom_mc_reg_table {
+ u8 last;
+ u8 num_entries;
+ struct atom_mc_reg_entry mc_reg_table_entry[20];
+ struct atom_mc_register_address mc_reg_address[32];
+};
+struct atom_voltage_table_entry
+{
+ u16 value;
+ u32 smio_low;
+};
+struct atom_voltage_table
+{
+ u32 count;
+ u32 mask_low;
+ u32 phase_delay;
+ struct atom_voltage_table_entry entries[32];
+};
+extern void
+radeon_add_atom_connector(struct drm_device *dev,
+     uint32_t connector_id,
+     uint32_t supported_device,
+     int connector_type,
+     struct radeon_i2c_bus_rec *i2c_bus,
+     uint32_t igp_lane_info,
+     uint16_t connector_object_id,
+     struct radeon_hpd *hpd,
+     struct radeon_router *router);
+extern void
+radeon_add_legacy_connector(struct drm_device *dev,
+       uint32_t connector_id,
+       uint32_t supported_device,
+       int connector_type,
+       struct radeon_i2c_bus_rec *i2c_bus,
+       uint16_t connector_object_id,
+       struct radeon_hpd *hpd);
+extern uint32_t
+radeon_get_encoder_enum(struct drm_device *dev, uint32_t supported_device,
+   uint8_t dac);
+extern void radeon_link_encoder_connector(struct drm_device *dev);
 extern enum radeon_tv_std
 radeon_combios_get_tv_info(struct radeon_device *rdev);
 extern enum radeon_tv_std
 radeon_atombios_get_tv_info(struct radeon_device *rdev);
+extern void radeon_atombios_get_default_voltages(struct radeon_device *rdev,
+       u16 *vddc, u16 *vddci, u16 *mvdd);
+extern void
+radeon_combios_connected_scratch_regs(struct drm_connector *connector,
+          struct drm_encoder *encoder,
+          _Bool connected);
+extern void
+radeon_atombios_connected_scratch_regs(struct drm_connector *connector,
+           struct drm_encoder *encoder,
+           _Bool connected);
 extern struct drm_connector *
 radeon_get_connector_for_encoder(struct drm_encoder *encoder);
 extern struct drm_connector *
@@ -10042,9 +10998,9 @@ extern _Bool radeon_dig_monitor_is_duallink(struct drm_encoder *encoder,
         u32 pixel_clock);
 extern u16 radeon_encoder_get_dp_bridge_encoder_id(struct drm_encoder *encoder);
 extern u16 radeon_connector_encoder_get_dp_bridge_encoder_id(struct drm_connector *connector);
-extern _Bool radeon_connector_encoder_is_hbr2(struct drm_connector *connector);
 extern _Bool radeon_connector_is_dp12_capable(struct drm_connector *connector);
 extern int radeon_get_monitor_bpc(struct drm_connector *connector);
+extern struct edid *radeon_connector_edid(struct drm_connector *connector);
 extern void radeon_connector_hotplug(struct drm_connector *connector);
 extern int radeon_dp_mode_valid_helper(struct drm_connector *connector,
            struct drm_display_mode *mode);
@@ -10057,19 +11013,30 @@ extern u8 radeon_dp_getsinktype(struct radeon_connector *radeon_connector);
 extern _Bool radeon_dp_getdpcd(struct radeon_connector *radeon_connector);
 extern int radeon_dp_get_panel_mode(struct drm_encoder *encoder,
         struct drm_connector *connector);
+extern int radeon_dp_get_dp_link_config(struct drm_connector *connector,
+     const u8 *dpcd,
+     unsigned pix_clock,
+     unsigned *dp_lanes, unsigned *dp_rate);
+extern void radeon_dp_set_rx_power_state(struct drm_connector *connector,
+      u8 power_state);
 extern void radeon_dp_aux_init(struct radeon_connector *radeon_connector);
 extern ssize_t
 radeon_dp_aux_transfer_native(struct drm_dp_aux *aux, struct drm_dp_aux_msg *msg);
 extern void atombios_dig_encoder_setup(struct drm_encoder *encoder, int action, int panel_mode);
+extern void atombios_dig_encoder_setup2(struct drm_encoder *encoder, int action, int panel_mode, int enc_override);
 extern void radeon_atom_encoder_init(struct radeon_device *rdev);
 extern void radeon_atom_disp_eng_pll_init(struct radeon_device *rdev);
 extern void atombios_dig_transmitter_setup(struct drm_encoder *encoder,
         int action, uint8_t lane_num,
         uint8_t lane_set);
+extern void atombios_dig_transmitter_setup2(struct drm_encoder *encoder,
+         int action, uint8_t lane_num,
+         uint8_t lane_set, int fe);
+extern void atombios_set_mst_encoder_crtc_source(struct drm_encoder *encoder,
+       int fe);
 extern void radeon_atom_ext_encoder_setup_ddc(struct drm_encoder *encoder);
 extern struct drm_encoder *radeon_get_external_encoder(struct drm_encoder *encoder);
-extern int radeon_dp_i2c_aux_ch(struct i2c_controller *adapter, int mode,
-    u8 write_byte, u8 *read_byte);
+void radeon_atom_copy_swap(u8 *dst, u8 *src, u8 num_bytes, _Bool to_le);
 extern void radeon_i2c_init(struct radeon_device *rdev);
 extern void radeon_i2c_fini(struct radeon_device *rdev);
 extern void radeon_combios_i2c_init(struct radeon_device *rdev);
@@ -10079,9 +11046,6 @@ extern void radeon_i2c_add(struct radeon_device *rdev,
       const char *name);
 extern struct radeon_i2c_chan *radeon_i2c_lookup(struct radeon_device *rdev,
        struct radeon_i2c_bus_rec *i2c_bus);
-extern struct radeon_i2c_chan *radeon_i2c_create_dp(struct drm_device *dev,
-          struct radeon_i2c_bus_rec *rec,
-          const char *name);
 extern struct radeon_i2c_chan *radeon_i2c_create(struct drm_device *dev,
        struct radeon_i2c_bus_rec *rec,
        const char *name);
@@ -10097,14 +11061,14 @@ extern void radeon_i2c_put_byte(struct radeon_i2c_chan *i2c,
 extern void radeon_router_select_ddc_port(struct radeon_connector *radeon_connector);
 extern void radeon_router_select_cd_port(struct radeon_connector *radeon_connector);
 extern _Bool radeon_ddc_probe(struct radeon_connector *radeon_connector, _Bool use_aux);
-extern int radeon_ddc_get_modes(struct radeon_connector *radeon_connector);
-extern struct drm_encoder *radeon_best_encoder(struct drm_connector *connector);
 extern _Bool radeon_atombios_get_ppll_ss_info(struct radeon_device *rdev,
           struct radeon_atom_ss *ss,
           int id);
 extern _Bool radeon_atombios_get_asic_ss_info(struct radeon_device *rdev,
           struct radeon_atom_ss *ss,
           int id, u32 clock);
+extern struct radeon_gpio_rec radeon_atombios_lookup_gpio(struct radeon_device *rdev,
+         u8 id);
 extern void radeon_compute_pll_legacy(struct radeon_pll *pll,
           uint64_t freq,
           uint32_t *dot_clock_p,
@@ -10130,6 +11094,7 @@ extern void atombios_digital_setup(struct drm_encoder *encoder, int action);
 extern int atombios_get_encoder_mode(struct drm_encoder *encoder);
 extern _Bool atombios_set_edp_panel_power(struct drm_connector *connector, int action);
 extern void radeon_encoder_set_active_device(struct drm_encoder *encoder);
+extern _Bool radeon_encoder_is_digital(struct drm_encoder *encoder);
 extern void radeon_crtc_load_lut(struct drm_crtc *crtc);
 extern int atombios_crtc_set_base(struct drm_crtc *crtc, int x, int y,
        struct drm_framebuffer *old_fb);
@@ -10152,13 +11117,16 @@ extern int radeon_crtc_set_base_atomic(struct drm_crtc *crtc,
 extern int radeon_crtc_do_set_base(struct drm_crtc *crtc,
        struct drm_framebuffer *fb,
        int x, int y, int atomic);
-extern int radeon_crtc_cursor_set(struct drm_crtc *crtc,
-      struct drm_file *file_priv,
-      uint32_t handle,
-      uint32_t width,
-      uint32_t height);
+extern int radeon_crtc_cursor_set2(struct drm_crtc *crtc,
+       struct drm_file *file_priv,
+       uint32_t handle,
+       uint32_t width,
+       uint32_t height,
+       int32_t hot_x,
+       int32_t hot_y);
 extern int radeon_crtc_cursor_move(struct drm_crtc *crtc,
        int x, int y);
+extern void radeon_cursor_reset(struct drm_crtc *crtc);
 extern int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
           unsigned int flags, int *vpos, int *hpos,
           ktime_t *stime, ktime_t *etime,
@@ -10246,15 +11214,58 @@ void radeon_legacy_tv_adjust_pll2(struct drm_encoder *encoder,
 void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
           struct drm_display_mode *mode,
           struct drm_display_mode *adjusted_mode);
+void avivo_program_fmt(struct drm_encoder *encoder);
+void dce3_program_fmt(struct drm_encoder *encoder);
+void dce4_program_fmt(struct drm_encoder *encoder);
+void dce8_program_fmt(struct drm_encoder *encoder);
 int radeon_fbdev_init(struct radeon_device *rdev);
 void radeon_fbdev_fini(struct radeon_device *rdev);
 void radeon_fbdev_set_suspend(struct radeon_device *rdev, int state);
-int radeon_fbdev_total_size(struct radeon_device *rdev);
 _Bool radeon_fbdev_robj_is_fb(struct radeon_device *rdev, struct radeon_bo *robj);
+void radeon_fbdev_restore_mode(struct radeon_device *rdev);
 void radeon_fb_output_poll_changed(struct radeon_device *rdev);
+void radeon_crtc_handle_vblank(struct radeon_device *rdev, int crtc_id);
+void radeon_fb_add_connector(struct radeon_device *rdev, struct drm_connector *connector);
+void radeon_fb_remove_connector(struct radeon_device *rdev, struct drm_connector *connector);
 void radeon_crtc_handle_flip(struct radeon_device *rdev, int crtc_id);
 int radeon_align_pitch(struct radeon_device *rdev, int width, int bpp, _Bool tiled);
-void radeondrm_burner(void *, u_int, u_int);
+int radeon_dp_mst_init(struct radeon_connector *radeon_connector);
+int radeon_dp_mst_probe(struct radeon_connector *radeon_connector);
+int radeon_dp_mst_check_status(struct radeon_connector *radeon_connector);
+int radeon_mst_debugfs_init(struct radeon_device *rdev);
+void radeon_dp_mst_prepare_pll(struct drm_crtc *crtc, struct drm_display_mode *mode);
+void radeon_setup_mst_connector(struct drm_device *dev);
+int radeon_atom_pick_dig_encoder(struct drm_encoder *encoder, int fe_idx);
+void radeon_atom_release_dig_encoder(struct radeon_device *rdev, int enc_idx);
+enum {
+ MAX_TRAPID = 8,
+ MAX_WATCH_ADDRESSES = 4
+};
+enum {
+ ADDRESS_WATCH_REG_ADDR_HI = 0,
+ ADDRESS_WATCH_REG_ADDR_LO,
+ ADDRESS_WATCH_REG_CNTL,
+ ADDRESS_WATCH_REG_MAX
+};
+enum {
+ ADDRESS_WATCH_REG_CNTL_ATC_BIT = 0x10000000UL,
+ ADDRESS_WATCH_REG_CNTL_DEFAULT_MASK = 0x00FFFFFF,
+ ADDRESS_WATCH_REG_ADDLOW_MASK_EXTENSION = 0x03000000,
+ ADDRESS_WATCH_REG_ADDLOW_SHIFT = 6,
+ ADDRESS_WATCH_REG_ADDHIGH_MASK = 0xFFFF
+};
+union TCP_WATCH_CNTL_BITS {
+ struct {
+  uint32_t mask:24;
+  uint32_t vmid:4;
+  uint32_t atc:1;
+  uint32_t mode:2;
+  uint32_t valid:1;
+ } bitfields, bits;
+ uint32_t u32All;
+ signed int i32All;
+ float f32All;
+};
 extern int radeon_no_wb;
 extern int radeon_modeset;
 extern int radeon_dynclks;
@@ -10272,7 +11283,19 @@ extern int radeon_hw_i2c;
 extern int radeon_pcie_gen2;
 extern int radeon_msi;
 extern int radeon_lockup_timeout;
+extern int radeon_fastfb;
+extern int radeon_dpm;
+extern int radeon_aspm;
+extern int radeon_runtime_pm;
+extern int radeon_hard_reset;
+extern int radeon_vm_size;
+extern int radeon_vm_block_size;
+extern int radeon_deep_color;
+extern int radeon_use_pflipirq;
+extern int radeon_bapm;
+extern int radeon_backlight;
 extern int radeon_auxch;
+extern int radeon_mst;
 enum radeon_pll_errata {
  CHIP_ERRATA_R300_CG = 0x00000001,
  CHIP_ERRATA_PLL_DUMMYREADS = 0x00000002,
@@ -10281,8 +11304,9 @@ enum radeon_pll_errata {
 struct radeon_device;
 _Bool radeon_get_bios(struct radeon_device *rdev);
 struct radeon_dummy_page {
+ uint64_t entry;
  struct drm_dmamem *dmah;
- bus_addr_t addr;
+ dma_addr_t addr;
 };
 int radeon_dummy_page_init(struct radeon_device *rdev);
 void radeon_dummy_page_fini(struct radeon_device *rdev);
@@ -10295,51 +11319,112 @@ struct radeon_clock {
  uint32_t default_mclk;
  uint32_t default_sclk;
  uint32_t default_dispclk;
+ uint32_t current_dispclk;
  uint32_t dp_extclk;
  uint32_t max_pixel_clock;
+ uint32_t vco_freq;
 };
 int radeon_pm_init(struct radeon_device *rdev);
+int radeon_pm_late_init(struct radeon_device *rdev);
 void radeon_pm_fini(struct radeon_device *rdev);
 void radeon_pm_compute_clocks(struct radeon_device *rdev);
 void radeon_pm_suspend(struct radeon_device *rdev);
 void radeon_pm_resume(struct radeon_device *rdev);
 void radeon_combios_get_power_modes(struct radeon_device *rdev);
 void radeon_atombios_get_power_modes(struct radeon_device *rdev);
+int radeon_atom_get_clock_dividers(struct radeon_device *rdev,
+       u8 clock_type,
+       u32 clock,
+       _Bool strobe_mode,
+       struct atom_clock_dividers *dividers);
+int radeon_atom_get_memory_pll_dividers(struct radeon_device *rdev,
+     u32 clock,
+     _Bool strobe_mode,
+     struct atom_mpll_param *mpll_param);
 void radeon_atom_set_voltage(struct radeon_device *rdev, u16 voltage_level, u8 voltage_type);
+int radeon_atom_get_voltage_gpio_settings(struct radeon_device *rdev,
+       u16 voltage_level, u8 voltage_type,
+       u32 *gpio_value, u32 *gpio_mask);
+void radeon_atom_set_engine_dram_timings(struct radeon_device *rdev,
+      u32 eng_clock, u32 mem_clock);
+int radeon_atom_get_voltage_step(struct radeon_device *rdev,
+     u8 voltage_type, u16 *voltage_step);
+int radeon_atom_get_max_vddc(struct radeon_device *rdev, u8 voltage_type,
+        u16 voltage_id, u16 *voltage);
+int radeon_atom_get_leakage_vddc_based_on_leakage_idx(struct radeon_device *rdev,
+            u16 *voltage,
+            u16 leakage_idx);
+int radeon_atom_get_leakage_id_from_vbios(struct radeon_device *rdev,
+       u16 *leakage_id);
+int radeon_atom_get_leakage_vddc_based_on_leakage_params(struct radeon_device *rdev,
+        u16 *vddc, u16 *vddci,
+        u16 virtual_voltage_id,
+        u16 vbios_voltage_id);
+int radeon_atom_get_voltage_evv(struct radeon_device *rdev,
+    u16 virtual_voltage_id,
+    u16 *voltage);
+int radeon_atom_round_to_true_voltage(struct radeon_device *rdev,
+          u8 voltage_type,
+          u16 nominal_voltage,
+          u16 *true_voltage);
+int radeon_atom_get_min_voltage(struct radeon_device *rdev,
+    u8 voltage_type, u16 *min_voltage);
+int radeon_atom_get_max_voltage(struct radeon_device *rdev,
+    u8 voltage_type, u16 *max_voltage);
+int radeon_atom_get_voltage_table(struct radeon_device *rdev,
+      u8 voltage_type, u8 voltage_mode,
+      struct atom_voltage_table *voltage_table);
+_Bool radeon_atom_is_voltage_gpio(struct radeon_device *rdev,
+     u8 voltage_type, u8 voltage_mode);
+int radeon_atom_get_svi2_info(struct radeon_device *rdev,
+         u8 voltage_type,
+         u8 *svd_gpio_id, u8 *svc_gpio_id);
+void radeon_atom_update_memory_dll(struct radeon_device *rdev,
+       u32 mem_clock);
+void radeon_atom_set_ac_timing(struct radeon_device *rdev,
+          u32 mem_clock);
+int radeon_atom_init_mc_reg_table(struct radeon_device *rdev,
+      u8 module_index,
+      struct atom_mc_reg_table *reg_table);
+int radeon_atom_get_memory_info(struct radeon_device *rdev,
+    u8 module_index, struct atom_memory_info *mem_info);
+int radeon_atom_get_mclk_range_table(struct radeon_device *rdev,
+         _Bool gddr5, u8 module_index,
+         struct atom_memory_clock_range_table *mclk_range_table);
+int radeon_atom_get_max_vddc(struct radeon_device *rdev, u8 voltage_type,
+        u16 voltage_id, u16 *voltage);
 void rs690_pm_info(struct radeon_device *rdev);
-extern int rv6xx_get_temp(struct radeon_device *rdev);
-extern int rv770_get_temp(struct radeon_device *rdev);
-extern int evergreen_get_temp(struct radeon_device *rdev);
-extern int sumo_get_temp(struct radeon_device *rdev);
-extern int si_get_temp(struct radeon_device *rdev);
 extern void evergreen_tiling_fields(unsigned tiling_flags, unsigned *bankw,
         unsigned *bankh, unsigned *mtaspect,
         unsigned *tile_split);
 struct radeon_fence_driver {
+ struct radeon_device *rdev;
  uint32_t scratch_reg;
  uint64_t gpu_addr;
  volatile uint32_t *cpu_addr;
- uint64_t sync_seq[5];
+ uint64_t sync_seq[8];
  atomic64_t last_seq;
- unsigned long last_activity;
- _Bool initialized;
+ _Bool initialized, delayed_irq;
+ struct delayed_work lockup_work;
 };
 struct radeon_fence {
+ struct fence base;
  struct radeon_device *rdev;
- struct kref kref;
  uint64_t seq;
  unsigned ring;
+ _Bool is_vm_update;
+ wait_queue_t fence_wake;
 };
 int radeon_fence_driver_start_ring(struct radeon_device *rdev, int ring);
 int radeon_fence_driver_init(struct radeon_device *rdev);
 void radeon_fence_driver_fini(struct radeon_device *rdev);
-void radeon_fence_driver_force_completion(struct radeon_device *rdev);
+void radeon_fence_driver_force_completion(struct radeon_device *rdev, int ring);
 int radeon_fence_emit(struct radeon_device *rdev, struct radeon_fence **fence, int ring);
 void radeon_fence_process(struct radeon_device *rdev, int ring);
 _Bool radeon_fence_signaled(struct radeon_fence *fence);
 int radeon_fence_wait(struct radeon_fence *fence, _Bool interruptible);
-int radeon_fence_wait_next_locked(struct radeon_device *rdev, int ring);
-int radeon_fence_wait_empty_locked(struct radeon_device *rdev, int ring);
+int radeon_fence_wait_next(struct radeon_device *rdev, int ring);
+int radeon_fence_wait_empty(struct radeon_device *rdev, int ring);
 int radeon_fence_wait_any(struct radeon_device *rdev,
      struct radeon_fence **fences,
      _Bool intr);
@@ -10357,7 +11442,7 @@ static inline struct radeon_fence *radeon_fence_later(struct radeon_fence *a,
  if (!b) {
   return a;
  }
- ((!(a->ring != b->ring)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/radeon.h", 264, "!(a->ring != b->ring)"));
+ ((!(a->ring != b->ring)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/radeon.h", 409, "!(a->ring != b->ring)"));
  if (a->seq > b->seq) {
   return a;
  } else {
@@ -10373,7 +11458,7 @@ static inline _Bool radeon_fence_is_earlier(struct radeon_fence *a,
  if (!b) {
   return 1;
  }
- ((!(a->ring != b->ring)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/radeon.h", 284, "!(a->ring != b->ring)"));
+ ((!(a->ring != b->ring)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/radeon.h", 429, "!(a->ring != b->ring)"));
  return a->seq < b->seq;
 }
 struct radeon_surface_reg {
@@ -10386,24 +11471,32 @@ struct radeon_mman {
  _Bool mem_global_referenced;
  _Bool initialized;
 };
+struct radeon_bo_list {
+ struct radeon_bo *robj;
+ struct ttm_validate_buffer tv;
+ uint64_t gpu_offset;
+ unsigned prefered_domains;
+ unsigned allowed_domains;
+ uint32_t tiling_flags;
+};
 struct radeon_bo_va {
  struct list_head bo_list;
- uint64_t soffset;
- uint64_t eoffset;
  uint32_t flags;
- _Bool valid;
+ struct radeon_fence *last_pt_update;
  unsigned ref_count;
- struct list_head vm_list;
+ struct interval_tree_node it;
+ struct list_head vm_status;
  struct radeon_vm *vm;
  struct radeon_bo *bo;
 };
 struct radeon_bo {
- struct drm_gem_object gem_base;
  struct list_head list;
- u32 placements[3];
+ u32 initial_domain;
+ struct ttm_place placements[4];
  struct ttm_placement placement;
  struct ttm_buffer_object tbo;
  struct ttm_bo_kmap_obj kmap;
+ u32 flags;
  unsigned pin_count;
  void *kptr;
  u32 tiling_flags;
@@ -10411,22 +11504,18 @@ struct radeon_bo {
  int surface_reg;
  struct list_head va;
  struct radeon_device *rdev;
+ struct drm_gem_object gem_base;
  struct ttm_bo_kmap_obj dma_buf_vmap;
- int vmapping_count;
+ pid_t pid;
+ struct radeon_mn *mn;
+ struct list_head mn_list;
 };
-struct radeon_bo_list {
- struct ttm_validate_buffer tv;
- struct radeon_bo *bo;
- uint64_t gpu_offset;
- unsigned rdomain;
- unsigned wdomain;
- u32 tiling_flags;
-};
+int radeon_gem_debugfs_init(struct radeon_device *rdev);
 struct radeon_sa_manager {
  wait_queue_head_t wq;
  struct radeon_bo *bo;
  struct list_head *hole;
- struct list_head flist[5];
+ struct list_head flist[8];
  struct list_head olist;
  unsigned size;
  uint64_t gpu_addr;
@@ -10449,9 +11538,9 @@ struct radeon_gem {
 };
 int radeon_gem_init(struct radeon_device *rdev);
 void radeon_gem_fini(struct radeon_device *rdev);
-int radeon_gem_object_create(struct radeon_device *rdev, int size,
+int radeon_gem_object_create(struct radeon_device *rdev, unsigned long size,
     int alignment, int initial_domain,
-    _Bool discardable, _Bool kernel,
+    u32 flags, _Bool kernel,
     struct drm_gem_object **obj);
 int radeon_mode_dumb_create(struct drm_file *file_priv,
        struct drm_device *dev,
@@ -10459,9 +11548,6 @@ int radeon_mode_dumb_create(struct drm_file *file_priv,
 int radeon_mode_dumb_mmap(struct drm_file *filp,
      struct drm_device *dev,
      uint32_t handle, uint64_t *offset_p);
-int radeon_mode_dumb_destroy(struct drm_file *file_priv,
-        struct drm_device *dev,
-        uint32_t handle);
 struct radeon_semaphore {
  struct radeon_sa_bo *sa_bo;
  signed waiters;
@@ -10469,19 +11555,33 @@ struct radeon_semaphore {
 };
 int radeon_semaphore_create(struct radeon_device *rdev,
        struct radeon_semaphore **semaphore);
-void radeon_semaphore_emit_signal(struct radeon_device *rdev, int ring,
+_Bool radeon_semaphore_emit_signal(struct radeon_device *rdev, int ring,
       struct radeon_semaphore *semaphore);
-void radeon_semaphore_emit_wait(struct radeon_device *rdev, int ring,
+_Bool radeon_semaphore_emit_wait(struct radeon_device *rdev, int ring,
     struct radeon_semaphore *semaphore);
-int radeon_semaphore_sync_rings(struct radeon_device *rdev,
-    struct radeon_semaphore *semaphore,
-    int signaler, int waiter);
 void radeon_semaphore_free(struct radeon_device *rdev,
       struct radeon_semaphore **semaphore,
       struct radeon_fence *fence);
+struct radeon_sync {
+ struct radeon_semaphore *semaphores[4];
+ struct radeon_fence *sync_to[8];
+ struct radeon_fence *last_vm_update;
+};
+void radeon_sync_create(struct radeon_sync *sync);
+void radeon_sync_fence(struct radeon_sync *sync,
+         struct radeon_fence *fence);
+int radeon_sync_resv(struct radeon_device *rdev,
+       struct radeon_sync *sync,
+       struct reservation_object *resv,
+       _Bool shared);
+int radeon_sync_rings(struct radeon_device *rdev,
+        struct radeon_sync *sync,
+        int waiting_ring);
+void radeon_sync_free(struct radeon_device *rdev, struct radeon_sync *sync,
+        struct radeon_fence *fence);
 struct radeon_mc;
 struct radeon_gart {
- bus_addr_t table_addr;
+ dma_addr_t table_addr;
  struct drm_dmamem *dmah;
  struct radeon_bo *robj;
  void *ptr;
@@ -10489,7 +11589,7 @@ struct radeon_gart {
  unsigned num_cpu_pages;
  unsigned table_size;
  struct vm_page **pages;
- bus_addr_t *pages_addr;
+ uint64_t *pages_entry;
  _Bool ready;
 };
 int radeon_gart_table_ram_alloc(struct radeon_device *rdev);
@@ -10504,12 +11604,11 @@ void radeon_gart_unbind(struct radeon_device *rdev, unsigned offset,
    int pages);
 int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
        int pages, struct vm_page **pagelist,
-       bus_addr_t *dma_addr);
-void radeon_gart_restore(struct radeon_device *rdev);
+       dma_addr_t *dma_addr, uint32_t flags);
 struct radeon_mc {
- bus_size_t aper_size;
- bus_addr_t aper_base;
- bus_addr_t agp_base;
+ resource_size_t aper_size;
+ resource_size_t aper_base;
+ resource_size_t agp_base;
  u64 mc_vram_size;
  u64 visible_vram_size;
  u64 gtt_size;
@@ -10523,6 +11622,7 @@ struct radeon_mc {
  _Bool vram_is_ddr;
  _Bool igp_sideport_enabled;
  u64 gtt_base_align;
+ u64 mc_mask;
 };
 _Bool radeon_combios_sideport_present(struct radeon_device *rdev);
 _Bool radeon_atombios_sideport_present(struct radeon_device *rdev);
@@ -10534,14 +11634,28 @@ struct radeon_scratch {
 };
 int radeon_scratch_get(struct radeon_device *rdev, uint32_t *reg64);
 void radeon_scratch_free(struct radeon_device *rdev, uint32_t reg64);
-struct radeon_unpin_work {
- struct task task;
+struct radeon_doorbell {
+ resource_size_t base;
+ resource_size_t size;
+ bus_space_handle_t bsh;
+ u32 num_doorbells;
+ unsigned long used[((((1024)) + ((8 * sizeof(long)) - 1)) / (8 * sizeof(long)))];;
+};
+int radeon_doorbell_get(struct radeon_device *rdev, u32 *page);
+void radeon_doorbell_free(struct radeon_device *rdev, u32 doorbell);
+void radeon_doorbell_get_kfd_info(struct radeon_device *rdev,
+      phys_addr_t *aperture_base,
+      size_t *aperture_size,
+      size_t *start_offset);
+struct radeon_flip_work {
+ struct work_struct flip_work;
+ struct work_struct unpin_work;
  struct radeon_device *rdev;
  int crtc_id;
- struct radeon_fence *fence;
+ uint64_t base;
  struct drm_pending_vblank_event *event;
  struct radeon_bo *old_rbo;
- u64 new_crtc_base;
+ struct fence *fence;
 };
 struct r500_irq_stat_regs {
  u32 disp_int;
@@ -10576,25 +11690,43 @@ struct evergreen_irq_stat_regs {
  u32 afmt_status5;
  u32 afmt_status6;
 };
+struct cik_irq_stat_regs {
+ u32 disp_int;
+ u32 disp_int_cont;
+ u32 disp_int_cont2;
+ u32 disp_int_cont3;
+ u32 disp_int_cont4;
+ u32 disp_int_cont5;
+ u32 disp_int_cont6;
+ u32 d1grph_int;
+ u32 d2grph_int;
+ u32 d3grph_int;
+ u32 d4grph_int;
+ u32 d5grph_int;
+ u32 d6grph_int;
+};
 union radeon_irq_stat_regs {
  struct r500_irq_stat_regs r500;
  struct r600_irq_stat_regs r600;
  struct evergreen_irq_stat_regs evergreen;
+ struct cik_irq_stat_regs cik;
 };
 struct radeon_irq {
  _Bool installed;
  spinlock_t lock;
- atomic_t ring_int[5];
+ atomic_t ring_int[8];
  _Bool crtc_vblank_int[6];
  atomic_t pflip[6];
  wait_queue_head_t vblank_queue;
- _Bool hpd[6];
- _Bool afmt[6];
+ _Bool hpd[7];
+ _Bool afmt[7];
  union radeon_irq_stat_regs stat_regs;
+ _Bool dpm_thermal;
 };
 int radeon_irq_kms_init(struct radeon_device *rdev);
 void radeon_irq_kms_fini(struct radeon_device *rdev);
 void radeon_irq_kms_sw_irq_get(struct radeon_device *rdev, int ring);
+_Bool radeon_irq_kms_sw_irq_get_delayed(struct radeon_device *rdev, int ring);
 void radeon_irq_kms_sw_irq_put(struct radeon_device *rdev, int ring);
 void radeon_irq_kms_pflip_irq_get(struct radeon_device *rdev, int crtc);
 void radeon_irq_kms_pflip_irq_put(struct radeon_device *rdev, int crtc);
@@ -10602,7 +11734,6 @@ void radeon_irq_kms_enable_afmt(struct radeon_device *rdev, int block);
 void radeon_irq_kms_disable_afmt(struct radeon_device *rdev, int block);
 void radeon_irq_kms_enable_hpd(struct radeon_device *rdev, unsigned hpd_mask);
 void radeon_irq_kms_disable_hpd(struct radeon_device *rdev, unsigned hpd_mask);
-_Bool radeon_msi_ok(struct radeon_device *rdev);
 struct radeon_ib {
  struct radeon_sa_bo *sa_bo;
  uint32_t length_dw;
@@ -10612,57 +11743,74 @@ struct radeon_ib {
  struct radeon_fence *fence;
  struct radeon_vm *vm;
  _Bool is_const_ib;
- struct radeon_fence *sync_to[5];
- struct radeon_semaphore *semaphore;
+ struct radeon_sync sync;
 };
 struct radeon_ring {
  struct radeon_bo *ring_obj;
  volatile uint32_t *ring;
- unsigned rptr;
  unsigned rptr_offs;
- unsigned rptr_reg;
  unsigned rptr_save_reg;
  u64 next_rptr_gpu_addr;
  volatile u32 *next_rptr_cpu_addr;
  unsigned wptr;
  unsigned wptr_old;
- unsigned wptr_reg;
  unsigned ring_size;
  unsigned ring_free_dw;
  int count_dw;
- unsigned long last_activity;
- unsigned last_rptr;
+ atomic_t last_rptr;
+ atomic64_t last_activity;
  uint64_t gpu_addr;
  uint32_t align_mask;
  uint32_t ptr_mask;
  _Bool ready;
- u32 ptr_reg_shift;
- u32 ptr_reg_mask;
  u32 nop;
  u32 idx;
  u64 last_semaphore_signal_addr;
  u64 last_semaphore_wait_addr;
+ u32 me;
+ u32 pipe;
+ u32 queue;
+ struct radeon_bo *mqd_obj;
+ u32 doorbell_index;
+ unsigned wptr_offs;
+};
+struct radeon_mec {
+ struct radeon_bo *hpd_eop_obj;
+ u64 hpd_eop_gpu_addr;
+ u32 num_pipe;
+ u32 num_mec;
+ u32 num_queue;
+};
+struct radeon_vm_pt {
+ struct radeon_bo *bo;
+ uint64_t addr;
+};
+struct radeon_vm_id {
+ unsigned id;
+ uint64_t pd_gpu_addr;
+ struct radeon_fence *flushed_updates;
+ struct radeon_fence *last_id_use;
 };
 struct radeon_vm {
- struct list_head list;
- struct list_head va;
- unsigned id;
- struct radeon_sa_bo *page_directory;
- uint64_t pd_gpu_addr;
- struct radeon_sa_bo **page_tables;
  struct rwlock mutex;
- struct radeon_fence *fence;
- struct radeon_fence *last_flush;
+ struct rb_root va;
+ spinlock_t status_lock;
+ struct list_head invalidated;
+ struct list_head freed;
+ struct list_head cleared;
+ struct radeon_bo *page_directory;
+ unsigned max_pde_used;
+ struct radeon_vm_pt *page_tables;
+ struct radeon_bo_va *ib_bo_va;
+ struct radeon_vm_id ids[8];
 };
 struct radeon_vm_manager {
- struct rwlock lock;
- struct list_head lru_vm;
  struct radeon_fence *active[16];
- struct radeon_sa_manager sa_manager;
  uint32_t max_pfn;
  unsigned nvm;
  u64 vram_base_offset;
  _Bool enabled;
+ uint32_t saved_table_addr[16];
 };
 struct radeon_fpriv {
  struct radeon_vm vm;
@@ -10677,45 +11825,43 @@ struct r600_ih {
  atomic_t lock;
  _Bool enabled;
 };
-struct r600_blit_cp_primitives {
- void (*set_render_target)(struct radeon_device *rdev, int format,
-      int w, int h, u64 gpu_addr);
- void (*cp_set_surface_sync)(struct radeon_device *rdev,
-        u32 sync_type, u32 size,
-        u64 mc_addr);
- void (*set_shaders)(struct radeon_device *rdev);
- void (*set_vtx_resource)(struct radeon_device *rdev, u64 gpu_addr);
- void (*set_tex_resource)(struct radeon_device *rdev,
-     int format, int w, int h, int pitch,
-     u64 gpu_addr, u32 size);
- void (*set_scissors)(struct radeon_device *rdev, int x1, int y1,
-        int x2, int y2);
- void (*draw_auto)(struct radeon_device *rdev);
- void (*set_default_state)(struct radeon_device *rdev);
+enum section_id {
+    SECT_NONE,
+    SECT_CONTEXT,
+    SECT_CLEAR,
+    SECT_CTRLCONST
 };
-struct r600_blit {
- struct radeon_bo *shader_obj;
- struct r600_blit_cp_primitives primitives;
- int max_dim;
- int ring_size_common;
- int ring_size_per_loop;
- u64 shader_gpu_addr;
- u32 vs_offset, ps_offset;
- u32 state_offset;
- u32 state_len;
+struct cs_extent_def {
+    const unsigned int *extent;
+    const unsigned int reg_index;
+    const unsigned int reg_count;
 };
-struct si_rlc {
+struct cs_section_def {
+    const struct cs_extent_def *section;
+    const enum section_id id;
+};
+struct radeon_rlc {
  struct radeon_bo *save_restore_obj;
  uint64_t save_restore_gpu_addr;
+ volatile uint32_t *sr_ptr;
+ const u32 *reg_list;
+ u32 reg_list_size;
  struct radeon_bo *clear_state_obj;
  uint64_t clear_state_gpu_addr;
+ volatile uint32_t *cs_ptr;
+ const struct cs_section_def *cs_data;
+ u32 clear_state_size;
+ struct radeon_bo *cp_table_obj;
+ uint64_t cp_table_gpu_addr;
+ volatile uint32_t *cp_table_ptr;
+ u32 cp_table_size;
 };
 int radeon_ib_get(struct radeon_device *rdev, int ring,
     struct radeon_ib *ib, struct radeon_vm *vm,
     unsigned size);
 void radeon_ib_free(struct radeon_device *rdev, struct radeon_ib *ib);
 int radeon_ib_schedule(struct radeon_device *rdev, struct radeon_ib *ib,
-         struct radeon_ib *const_ib);
+         struct radeon_ib *const_ib, _Bool hdp_flush);
 int radeon_ib_pool_init(struct radeon_device *rdev);
 void radeon_ib_pool_fini(struct radeon_device *rdev);
 int radeon_ib_ring_tests(struct radeon_device *rdev);
@@ -10724,21 +11870,22 @@ _Bool radeon_ring_supports_scratch_reg(struct radeon_device *rdev,
 void radeon_ring_free_size(struct radeon_device *rdev, struct radeon_ring *cp);
 int radeon_ring_alloc(struct radeon_device *rdev, struct radeon_ring *cp, unsigned ndw);
 int radeon_ring_lock(struct radeon_device *rdev, struct radeon_ring *cp, unsigned ndw);
-void radeon_ring_commit(struct radeon_device *rdev, struct radeon_ring *cp);
-void radeon_ring_unlock_commit(struct radeon_device *rdev, struct radeon_ring *cp);
+void radeon_ring_commit(struct radeon_device *rdev, struct radeon_ring *cp,
+   _Bool hdp_flush);
+void radeon_ring_unlock_commit(struct radeon_device *rdev, struct radeon_ring *cp,
+          _Bool hdp_flush);
 void radeon_ring_undo(struct radeon_ring *ring);
 void radeon_ring_unlock_undo(struct radeon_device *rdev, struct radeon_ring *cp);
 int radeon_ring_test(struct radeon_device *rdev, struct radeon_ring *cp);
-void radeon_ring_force_activity(struct radeon_device *rdev, struct radeon_ring *ring);
-void radeon_ring_lockup_update(struct radeon_ring *ring);
+void radeon_ring_lockup_update(struct radeon_device *rdev,
+          struct radeon_ring *ring);
 _Bool radeon_ring_test_lockup(struct radeon_device *rdev, struct radeon_ring *ring);
 unsigned radeon_ring_backup(struct radeon_device *rdev, struct radeon_ring *ring,
        uint32_t **data);
 int radeon_ring_restore(struct radeon_device *rdev, struct radeon_ring *ring,
    unsigned size, uint32_t *data);
 int radeon_ring_init(struct radeon_device *rdev, struct radeon_ring *cp, unsigned ring_size,
-       unsigned rptr_offs, unsigned rptr_reg, unsigned wptr_reg,
-       u32 ptr_reg_shift, u32 ptr_reg_mask, u32 nop);
+       unsigned rptr_offs, u32 nop);
 void radeon_ring_fini(struct radeon_device *rdev, struct radeon_ring *cp);
 void r600_dma_stop(struct radeon_device *rdev);
 int r600_dma_resume(struct radeon_device *rdev);
@@ -10746,22 +11893,10 @@ void r600_dma_fini(struct radeon_device *rdev);
 void cayman_dma_stop(struct radeon_device *rdev);
 int cayman_dma_resume(struct radeon_device *rdev);
 void cayman_dma_fini(struct radeon_device *rdev);
-struct radeon_cs_reloc {
- struct drm_gem_object *gobj;
- struct radeon_bo *robj;
- struct radeon_bo_list lobj;
- uint32_t handle;
- uint32_t flags;
-};
 struct radeon_cs_chunk {
- uint32_t chunk_id;
  uint32_t length_dw;
- int kpage_idx[2];
- uint32_t *kpage[2];
  uint32_t *kdata;
  void *user_ptr;
- int last_copied_page;
- int last_page_index;
 };
 struct radeon_cs_parser {
  struct device *dev;
@@ -10772,14 +11907,14 @@ struct radeon_cs_parser {
  uint64_t *chunks_array;
  unsigned idx;
  unsigned nrelocs;
- struct radeon_cs_reloc *relocs;
- struct radeon_cs_reloc **relocs_ptr;
+ struct radeon_bo_list *relocs;
+ struct radeon_bo_list *vm_bos;
  struct list_head validated;
  unsigned dma_reloc_idx;
- int chunk_ib_idx;
- int chunk_relocs_idx;
- int chunk_flags_idx;
- int chunk_const_ib_idx;
+ struct radeon_cs_chunk *chunk_ib;
+ struct radeon_cs_chunk *chunk_relocs;
+ struct radeon_cs_chunk *chunk_flags;
+ struct radeon_cs_chunk *chunk_const_ib;
  struct radeon_ib ib;
  struct radeon_ib const_ib;
  void *track;
@@ -10788,9 +11923,15 @@ struct radeon_cs_parser {
  u32 cs_flags;
  u32 ring;
  s32 priority;
+ struct ww_acquire_ctx ticket;
 };
-extern int radeon_cs_finish_pages(struct radeon_cs_parser *p);
-extern u32 radeon_get_ib_value(struct radeon_cs_parser *p, int idx);
+static inline u32 radeon_get_ib_value(struct radeon_cs_parser *p, int idx)
+{
+ struct radeon_cs_chunk *ibc = p->chunk_ib;
+ if (ibc->kdata)
+  return ibc->kdata[idx];
+ return p->ib.ptr[idx];
+}
 struct radeon_cs_packet {
  unsigned idx;
  unsigned type;
@@ -10818,6 +11959,7 @@ struct radeon_wb {
 enum radeon_pm_method {
  PM_METHOD_PROFILE,
  PM_METHOD_DYNPM,
+ PM_METHOD_DPM,
 };
 enum radeon_dynpm_state {
  DYNPM_STATE_DISABLED,
@@ -10845,6 +11987,16 @@ enum radeon_pm_state_type {
  POWER_STATE_TYPE_BATTERY,
  POWER_STATE_TYPE_BALANCED,
  POWER_STATE_TYPE_PERFORMANCE,
+ POWER_STATE_TYPE_INTERNAL_UVD,
+ POWER_STATE_TYPE_INTERNAL_UVD_SD,
+ POWER_STATE_TYPE_INTERNAL_UVD_HD,
+ POWER_STATE_TYPE_INTERNAL_UVD_HD2,
+ POWER_STATE_TYPE_INTERNAL_UVD_MVC,
+ POWER_STATE_TYPE_INTERNAL_BOOT,
+ POWER_STATE_TYPE_INTERNAL_THERMAL,
+ POWER_STATE_TYPE_INTERNAL_ACPI,
+ POWER_STATE_TYPE_INTERNAL_ULV,
+ POWER_STATE_TYPE_INTERNAL_3DPERF,
 };
 enum radeon_pm_profile_type {
  PM_PROFILE_DEFAULT,
@@ -10861,12 +12013,18 @@ struct radeon_pm_profile {
 };
 enum radeon_int_thermal_type {
  THERMAL_TYPE_NONE,
+ THERMAL_TYPE_EXTERNAL,
+ THERMAL_TYPE_EXTERNAL_GPIO,
  THERMAL_TYPE_RV6XX,
  THERMAL_TYPE_RV770,
+ THERMAL_TYPE_ADT7473_WITH_INTERNAL,
  THERMAL_TYPE_EVERGREEN,
  THERMAL_TYPE_SUMO,
  THERMAL_TYPE_NI,
  THERMAL_TYPE_SI,
+ THERMAL_TYPE_EMC2103_WITH_INTERNAL,
+ THERMAL_TYPE_CI,
+ THERMAL_TYPE_KV,
 };
 struct radeon_voltage {
  enum radeon_voltage_type type;
@@ -10895,6 +12053,236 @@ struct radeon_power_state {
  u32 misc2;
  int pcie_lanes;
 };
+enum radeon_dpm_auto_throttle_src {
+ RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL,
+ RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL
+};
+enum radeon_dpm_event_src {
+ RADEON_DPM_EVENT_SRC_ANALOG = 0,
+ RADEON_DPM_EVENT_SRC_EXTERNAL = 1,
+ RADEON_DPM_EVENT_SRC_DIGITAL = 2,
+ RADEON_DPM_EVENT_SRC_ANALOG_OR_EXTERNAL = 3,
+ RADEON_DPM_EVENT_SRC_DIGIAL_OR_EXTERNAL = 4
+};
+enum radeon_vce_level {
+ RADEON_VCE_LEVEL_AC_ALL = 0,
+ RADEON_VCE_LEVEL_DC_EE = 1,
+ RADEON_VCE_LEVEL_DC_LL_LOW = 2,
+ RADEON_VCE_LEVEL_DC_LL_HIGH = 3,
+ RADEON_VCE_LEVEL_DC_GP_LOW = 4,
+ RADEON_VCE_LEVEL_DC_GP_HIGH = 5,
+};
+struct radeon_ps {
+ u32 caps;
+ u32 class;
+ u32 class2;
+ u32 vclk;
+ u32 dclk;
+ u32 evclk;
+ u32 ecclk;
+ _Bool vce_active;
+ enum radeon_vce_level vce_level;
+ void *ps_priv;
+};
+struct radeon_dpm_thermal {
+ struct work_struct work;
+ int min_temp;
+ int max_temp;
+ _Bool high_to_low;
+};
+enum radeon_clk_action
+{
+ RADEON_SCLK_UP = 1,
+ RADEON_SCLK_DOWN
+};
+struct radeon_blacklist_clocks
+{
+ u32 sclk;
+ u32 mclk;
+ enum radeon_clk_action action;
+};
+struct radeon_clock_and_voltage_limits {
+ u32 sclk;
+ u32 mclk;
+ u16 vddc;
+ u16 vddci;
+};
+struct radeon_clock_array {
+ u32 count;
+ u32 *values;
+};
+struct radeon_clock_voltage_dependency_entry {
+ u32 clk;
+ u16 v;
+};
+struct radeon_clock_voltage_dependency_table {
+ u32 count;
+ struct radeon_clock_voltage_dependency_entry *entries;
+};
+union radeon_cac_leakage_entry {
+ struct {
+  u16 vddc;
+  u32 leakage;
+ };
+ struct {
+  u16 vddc1;
+  u16 vddc2;
+  u16 vddc3;
+ };
+};
+struct radeon_cac_leakage_table {
+ u32 count;
+ union radeon_cac_leakage_entry *entries;
+};
+struct radeon_phase_shedding_limits_entry {
+ u16 voltage;
+ u32 sclk;
+ u32 mclk;
+};
+struct radeon_phase_shedding_limits_table {
+ u32 count;
+ struct radeon_phase_shedding_limits_entry *entries;
+};
+struct radeon_uvd_clock_voltage_dependency_entry {
+ u32 vclk;
+ u32 dclk;
+ u16 v;
+};
+struct radeon_uvd_clock_voltage_dependency_table {
+ u8 count;
+ struct radeon_uvd_clock_voltage_dependency_entry *entries;
+};
+struct radeon_vce_clock_voltage_dependency_entry {
+ u32 ecclk;
+ u32 evclk;
+ u16 v;
+};
+struct radeon_vce_clock_voltage_dependency_table {
+ u8 count;
+ struct radeon_vce_clock_voltage_dependency_entry *entries;
+};
+struct radeon_ppm_table {
+ u8 ppm_design;
+ u16 cpu_core_number;
+ u32 platform_tdp;
+ u32 small_ac_platform_tdp;
+ u32 platform_tdc;
+ u32 small_ac_platform_tdc;
+ u32 apu_tdp;
+ u32 dgpu_tdp;
+ u32 dgpu_ulv_power;
+ u32 tj_max;
+};
+struct radeon_cac_tdp_table {
+ u16 tdp;
+ u16 configurable_tdp;
+ u16 tdc;
+ u16 battery_power_limit;
+ u16 small_power_limit;
+ u16 low_cac_leakage;
+ u16 high_cac_leakage;
+ u16 maximum_power_delivery_limit;
+};
+struct radeon_dpm_dynamic_state {
+ struct radeon_clock_voltage_dependency_table vddc_dependency_on_sclk;
+ struct radeon_clock_voltage_dependency_table vddci_dependency_on_mclk;
+ struct radeon_clock_voltage_dependency_table vddc_dependency_on_mclk;
+ struct radeon_clock_voltage_dependency_table mvdd_dependency_on_mclk;
+ struct radeon_clock_voltage_dependency_table vddc_dependency_on_dispclk;
+ struct radeon_uvd_clock_voltage_dependency_table uvd_clock_voltage_dependency_table;
+ struct radeon_vce_clock_voltage_dependency_table vce_clock_voltage_dependency_table;
+ struct radeon_clock_voltage_dependency_table samu_clock_voltage_dependency_table;
+ struct radeon_clock_voltage_dependency_table acp_clock_voltage_dependency_table;
+ struct radeon_clock_array valid_sclk_values;
+ struct radeon_clock_array valid_mclk_values;
+ struct radeon_clock_and_voltage_limits max_clock_voltage_on_dc;
+ struct radeon_clock_and_voltage_limits max_clock_voltage_on_ac;
+ u32 mclk_sclk_ratio;
+ u32 sclk_mclk_delta;
+ u16 vddc_vddci_delta;
+ u16 min_vddc_for_pcie_gen2;
+ struct radeon_cac_leakage_table cac_leakage_table;
+ struct radeon_phase_shedding_limits_table phase_shedding_limits_table;
+ struct radeon_ppm_table *ppm_table;
+ struct radeon_cac_tdp_table *cac_tdp_table;
+};
+struct radeon_dpm_fan {
+ u16 t_min;
+ u16 t_med;
+ u16 t_high;
+ u16 pwm_min;
+ u16 pwm_med;
+ u16 pwm_high;
+ u8 t_hyst;
+ u32 cycle_delay;
+ u16 t_max;
+ u8 control_mode;
+ u16 default_max_fan_pwm;
+ u16 default_fan_output_sensitivity;
+ u16 fan_output_sensitivity;
+ _Bool ucode_fan_control;
+};
+enum radeon_pcie_gen {
+ RADEON_PCIE_GEN1 = 0,
+ RADEON_PCIE_GEN2 = 1,
+ RADEON_PCIE_GEN3 = 2,
+ RADEON_PCIE_GEN_INVALID = 0xffff
+};
+enum radeon_dpm_forced_level {
+ RADEON_DPM_FORCED_LEVEL_AUTO = 0,
+ RADEON_DPM_FORCED_LEVEL_LOW = 1,
+ RADEON_DPM_FORCED_LEVEL_HIGH = 2,
+};
+struct radeon_vce_state {
+ u32 evclk;
+ u32 ecclk;
+ u32 sclk;
+ u32 mclk;
+ u8 clk_idx;
+ u8 pstate;
+};
+struct radeon_dpm {
+ struct radeon_ps *ps;
+ int num_ps;
+ struct radeon_ps *current_ps;
+ struct radeon_ps *requested_ps;
+ struct radeon_ps *boot_ps;
+ struct radeon_ps *uvd_ps;
+ struct radeon_vce_state vce_states[6];
+ enum radeon_vce_level vce_level;
+ enum radeon_pm_state_type state;
+ enum radeon_pm_state_type user_state;
+ u32 platform_caps;
+ u32 voltage_response_time;
+ u32 backbias_response_time;
+ void *priv;
+ u32 new_active_crtcs;
+ int new_active_crtc_count;
+ u32 current_active_crtcs;
+ int current_active_crtc_count;
+ _Bool single_display;
+ struct radeon_dpm_dynamic_state dyn_state;
+ struct radeon_dpm_fan fan;
+ u32 tdp_limit;
+ u32 near_tdp_limit;
+ u32 near_tdp_limit_adjusted;
+ u32 sq_ramping_threshold;
+ u32 cac_leakage;
+ u16 tdp_od_limit;
+ u32 tdp_adjustment;
+ u16 load_line_slope;
+ _Bool power_control;
+ _Bool ac_power;
+ _Bool thermal_active;
+ _Bool uvd_active;
+ _Bool vce_active;
+ struct radeon_dpm_thermal thermal;
+ enum radeon_dpm_forced_level forced_level;
+ unsigned sd;
+ unsigned hd;
+};
+void radeon_dpm_enable_uvd(struct radeon_device *rdev, _Bool enable);
+void radeon_dpm_enable_vce(struct radeon_device *rdev, _Bool enable);
 struct radeon_pm {
  struct rwlock mutex;
  struct rwlock mclk_lock;
@@ -10942,16 +12330,100 @@ struct radeon_pm {
  struct radeon_pm_profile profiles[7];
  enum radeon_int_thermal_type int_thermal_type;
  struct device *int_hwmon_dev;
+ _Bool no_fan;
+ u8 fan_pulses_per_revolution;
+ u8 fan_min_rpm;
+ u8 fan_max_rpm;
+ _Bool dpm_enabled;
+ _Bool sysfs_initialized;
+ struct radeon_dpm dpm;
 };
 int radeon_pm_get_type_index(struct radeon_device *rdev,
         enum radeon_pm_state_type ps_type,
         int instance);
-struct r600_audio {
+struct radeon_uvd {
+ struct radeon_bo *vcpu_bo;
+ void *cpu_addr;
+ uint64_t gpu_addr;
+ atomic_t handles[10];
+ struct drm_file *filp[10];
+ unsigned img_size[10];
+ struct delayed_work idle_work;
+};
+int radeon_uvd_init(struct radeon_device *rdev);
+void radeon_uvd_fini(struct radeon_device *rdev);
+int radeon_uvd_suspend(struct radeon_device *rdev);
+int radeon_uvd_resume(struct radeon_device *rdev);
+int radeon_uvd_get_create_msg(struct radeon_device *rdev, int ring,
+         uint32_t handle, struct radeon_fence **fence);
+int radeon_uvd_get_destroy_msg(struct radeon_device *rdev, int ring,
+          uint32_t handle, struct radeon_fence **fence);
+void radeon_uvd_force_into_uvd_segment(struct radeon_bo *rbo,
+           uint32_t allowed_domains);
+void radeon_uvd_free_handles(struct radeon_device *rdev,
+        struct drm_file *filp);
+int radeon_uvd_cs_parse(struct radeon_cs_parser *parser);
+void radeon_uvd_note_usage(struct radeon_device *rdev);
+int radeon_uvd_calc_upll_dividers(struct radeon_device *rdev,
+      unsigned vclk, unsigned dclk,
+      unsigned vco_min, unsigned vco_max,
+      unsigned fb_factor, unsigned fb_mask,
+      unsigned pd_min, unsigned pd_max,
+      unsigned pd_even,
+      unsigned *optimal_fb_div,
+      unsigned *optimal_vclk_div,
+      unsigned *optimal_dclk_div);
+int radeon_uvd_send_upll_ctlreq(struct radeon_device *rdev,
+                                unsigned cg_upll_func_cntl);
+struct radeon_vce {
+ struct radeon_bo *vcpu_bo;
+ uint64_t gpu_addr;
+ unsigned fw_version;
+ unsigned fb_version;
+ atomic_t handles[16];
+ struct drm_file *filp[16];
+ unsigned img_size[16];
+ struct delayed_work idle_work;
+ uint32_t keyselect;
+};
+int radeon_vce_init(struct radeon_device *rdev);
+void radeon_vce_fini(struct radeon_device *rdev);
+int radeon_vce_suspend(struct radeon_device *rdev);
+int radeon_vce_resume(struct radeon_device *rdev);
+int radeon_vce_get_create_msg(struct radeon_device *rdev, int ring,
+         uint32_t handle, struct radeon_fence **fence);
+int radeon_vce_get_destroy_msg(struct radeon_device *rdev, int ring,
+          uint32_t handle, struct radeon_fence **fence);
+void radeon_vce_free_handles(struct radeon_device *rdev, struct drm_file *filp);
+void radeon_vce_note_usage(struct radeon_device *rdev);
+int radeon_vce_cs_reloc(struct radeon_cs_parser *p, int lo, int hi, unsigned size);
+int radeon_vce_cs_parse(struct radeon_cs_parser *p);
+_Bool radeon_vce_semaphore_emit(struct radeon_device *rdev,
+          struct radeon_ring *ring,
+          struct radeon_semaphore *semaphore,
+          _Bool emit_wait);
+void radeon_vce_ib_execute(struct radeon_device *rdev, struct radeon_ib *ib);
+void radeon_vce_fence_emit(struct radeon_device *rdev,
+      struct radeon_fence *fence);
+int radeon_vce_ring_test(struct radeon_device *rdev, struct radeon_ring *ring);
+int radeon_vce_ib_test(struct radeon_device *rdev, struct radeon_ring *ring);
+struct r600_audio_pin {
  int channels;
  int rate;
  int bits_per_sample;
  u8 status_bits;
  u8 category_code;
+ u32 offset;
+ _Bool connected;
+ u32 id;
+};
+struct r600_audio {
+ _Bool enabled;
+ struct r600_audio_pin pin[7];
+ int num_pins;
+ struct radeon_audio_funcs *hdmi_funcs;
+ struct radeon_audio_funcs *dp_funcs;
+ struct radeon_audio_basic_funcs *funcs;
 };
 void radeon_benchmark(struct radeon_device *rdev, int test_number);
 void radeon_test_moves(struct radeon_device *rdev);
@@ -10959,6 +12431,11 @@ void radeon_test_ring_sync(struct radeon_device *rdev,
       struct radeon_ring *cpA,
       struct radeon_ring *cpB);
 void radeon_test_syncing(struct radeon_device *rdev);
+static inline int radeon_mn_register(struct radeon_bo *bo, unsigned long addr)
+{
+ return -19;
+}
+static inline void radeon_mn_unregister(struct radeon_bo *bo) {}
 struct radeon_debugfs {
  struct drm_info_list *files;
  unsigned num_files;
@@ -10967,6 +12444,24 @@ int radeon_debugfs_add_files(struct radeon_device *rdev,
         struct drm_info_list *files,
         unsigned nfiles);
 int radeon_debugfs_fence_init(struct radeon_device *rdev);
+struct radeon_asic_ring {
+ u32 (*get_rptr)(struct radeon_device *rdev, struct radeon_ring *ring);
+ u32 (*get_wptr)(struct radeon_device *rdev, struct radeon_ring *ring);
+ void (*set_wptr)(struct radeon_device *rdev, struct radeon_ring *ring);
+ int (*ib_parse)(struct radeon_device *rdev, struct radeon_ib *ib);
+ int (*cs_parse)(struct radeon_cs_parser *p);
+ void (*ib_execute)(struct radeon_device *rdev, struct radeon_ib *ib);
+ void (*emit_fence)(struct radeon_device *rdev, struct radeon_fence *fence);
+ void (*hdp_flush)(struct radeon_device *rdev, struct radeon_ring *ring);
+ _Bool (*emit_semaphore)(struct radeon_device *rdev, struct radeon_ring *cp,
+          struct radeon_semaphore *semaphore, _Bool emit_wait);
+ void (*vm_flush)(struct radeon_device *rdev, struct radeon_ring *ring,
+    unsigned vm_id, uint64_t pd_addr);
+ int (*ring_test)(struct radeon_device *rdev, struct radeon_ring *cp);
+ int (*ib_test)(struct radeon_device *rdev, struct radeon_ring *cp);
+ _Bool (*is_lockup)(struct radeon_device *rdev, struct radeon_ring *cp);
+ void (*ring_start)(struct radeon_device *rdev, struct radeon_ring *cp);
+};
 struct radeon_asic {
  int (*init)(struct radeon_device *rdev);
  void (*fini)(struct radeon_device *rdev);
@@ -10974,34 +12469,38 @@ struct radeon_asic {
  int (*suspend)(struct radeon_device *rdev);
  void (*vga_set_state)(struct radeon_device *rdev, _Bool state);
  int (*asic_reset)(struct radeon_device *rdev);
- void (*ioctl_wait_idle)(struct radeon_device *rdev, struct radeon_bo *bo);
+ void (*mmio_hdp_flush)(struct radeon_device *rdev);
  _Bool (*gui_idle)(struct radeon_device *rdev);
  int (*mc_wait_for_idle)(struct radeon_device *rdev);
+ u32 (*get_xclk)(struct radeon_device *rdev);
+ uint64_t (*get_gpu_clock_counter)(struct radeon_device *rdev);
+ int (*get_allowed_info_register)(struct radeon_device *rdev, u32 reg64, u32 *val);
  struct {
   void (*tlb_flush)(struct radeon_device *rdev);
-  int (*set_page)(struct radeon_device *rdev, int i, uint64_t addr);
+  uint64_t (*get_page_entry)(uint64_t addr, uint32_t flags);
+  void (*set_page)(struct radeon_device *rdev, unsigned i,
+     uint64_t entry);
  } gart;
  struct {
   int (*init)(struct radeon_device *rdev);
   void (*fini)(struct radeon_device *rdev);
-  u32 pt_ring_index;
-  void (*set_page)(struct radeon_device *rdev, uint64_t pe,
-     uint64_t addr, unsigned count,
-     uint32_t incr, uint32_t flags);
+  void (*copy_pages)(struct radeon_device *rdev,
+       struct radeon_ib *ib,
+       uint64_t pe, uint64_t src,
+       unsigned count);
+  void (*write_pages)(struct radeon_device *rdev,
+        struct radeon_ib *ib,
+        uint64_t pe,
+        uint64_t addr, unsigned count,
+        uint32_t incr, uint32_t flags);
+  void (*set_pages)(struct radeon_device *rdev,
+      struct radeon_ib *ib,
+      uint64_t pe,
+      uint64_t addr, unsigned count,
+      uint32_t incr, uint32_t flags);
+  void (*pad_ib)(struct radeon_ib *ib);
  } vm;
- struct {
-  void (*ib_execute)(struct radeon_device *rdev, struct radeon_ib *ib);
-  int (*ib_parse)(struct radeon_device *rdev, struct radeon_ib *ib);
-  void (*emit_fence)(struct radeon_device *rdev, struct radeon_fence *fence);
-  void (*emit_semaphore)(struct radeon_device *rdev, struct radeon_ring *cp,
-           struct radeon_semaphore *semaphore, _Bool emit_wait);
-  int (*cs_parse)(struct radeon_cs_parser *p);
-  void (*ring_start)(struct radeon_device *rdev, struct radeon_ring *cp);
-  int (*ring_test)(struct radeon_device *rdev, struct radeon_ring *cp);
-  int (*ib_test)(struct radeon_device *rdev, struct radeon_ring *cp);
-  _Bool (*is_lockup)(struct radeon_device *rdev, struct radeon_ring *cp);
-  void (*vm_flush)(struct radeon_device *rdev, int ridx, struct radeon_vm *vm);
- } ring[5];
+ struct radeon_asic_ring *ring[8];
  struct {
   int (*set)(struct radeon_device *rdev);
   int (*process)(struct radeon_device *rdev);
@@ -11012,25 +12511,27 @@ struct radeon_asic {
   void (*wait_for_vblank)(struct radeon_device *rdev, int crtc);
   void (*set_backlight_level)(struct radeon_encoder *radeon_encoder, u8 level);
   u8 (*get_backlight_level)(struct radeon_encoder *radeon_encoder);
+  void (*hdmi_enable)(struct drm_encoder *encoder, _Bool enable);
+  void (*hdmi_setmode)(struct drm_encoder *encoder, struct drm_display_mode *mode);
  } display;
  struct {
-  int (*blit)(struct radeon_device *rdev,
-       uint64_t src_offset,
-       uint64_t dst_offset,
-       unsigned num_gpu_pages,
-       struct radeon_fence **fence);
+  struct radeon_fence *(*blit)(struct radeon_device *rdev,
+          uint64_t src_offset,
+          uint64_t dst_offset,
+          unsigned num_gpu_pages,
+          struct reservation_object *resv);
   u32 blit_ring_index;
-  int (*dma)(struct radeon_device *rdev,
-      uint64_t src_offset,
-      uint64_t dst_offset,
-      unsigned num_gpu_pages,
-      struct radeon_fence **fence);
+  struct radeon_fence *(*dma)(struct radeon_device *rdev,
+         uint64_t src_offset,
+         uint64_t dst_offset,
+         unsigned num_gpu_pages,
+         struct reservation_object *resv);
   u32 dma_ring_index;
-  int (*copy)(struct radeon_device *rdev,
-       uint64_t src_offset,
-       uint64_t dst_offset,
-       unsigned num_gpu_pages,
-       struct radeon_fence **fence);
+  struct radeon_fence *(*copy)(struct radeon_device *rdev,
+          uint64_t src_offset,
+          uint64_t dst_offset,
+          unsigned num_gpu_pages,
+          struct reservation_object *resv);
   u32 copy_ring_index;
  } copy;
  struct {
@@ -11058,11 +12559,39 @@ struct radeon_asic {
   int (*get_pcie_lanes)(struct radeon_device *rdev);
   void (*set_pcie_lanes)(struct radeon_device *rdev, int lanes);
   void (*set_clock_gating)(struct radeon_device *rdev, int enable);
+  int (*set_uvd_clocks)(struct radeon_device *rdev, u32 vclk, u32 dclk);
+  int (*set_vce_clocks)(struct radeon_device *rdev, u32 evclk, u32 ecclk);
+  int (*get_temperature)(struct radeon_device *rdev);
  } pm;
  struct {
-  void (*pre_page_flip)(struct radeon_device *rdev, int crtc);
-  u32 (*page_flip)(struct radeon_device *rdev, int crtc, u64 crtc_base);
-  void (*post_page_flip)(struct radeon_device *rdev, int crtc);
+  int (*init)(struct radeon_device *rdev);
+  void (*setup_asic)(struct radeon_device *rdev);
+  int (*enable)(struct radeon_device *rdev);
+  int (*late_enable)(struct radeon_device *rdev);
+  void (*disable)(struct radeon_device *rdev);
+  int (*pre_set_power_state)(struct radeon_device *rdev);
+  int (*set_power_state)(struct radeon_device *rdev);
+  void (*post_set_power_state)(struct radeon_device *rdev);
+  void (*display_configuration_changed)(struct radeon_device *rdev);
+  void (*fini)(struct radeon_device *rdev);
+  u32 (*get_sclk)(struct radeon_device *rdev, _Bool low);
+  u32 (*get_mclk)(struct radeon_device *rdev, _Bool low);
+  void (*print_power_state)(struct radeon_device *rdev, struct radeon_ps *ps);
+  void (*debugfs_print_current_performance_level)(struct radeon_device *rdev, struct seq_file *m);
+  int (*force_performance_level)(struct radeon_device *rdev, enum radeon_dpm_forced_level level);
+  _Bool (*vblank_too_short)(struct radeon_device *rdev);
+  void (*powergate_uvd)(struct radeon_device *rdev, _Bool gate);
+  void (*enable_bapm)(struct radeon_device *rdev, _Bool enable);
+  void (*fan_ctrl_set_mode)(struct radeon_device *rdev, u32 mode);
+  u32 (*fan_ctrl_get_mode)(struct radeon_device *rdev);
+  int (*set_fan_speed_percent)(struct radeon_device *rdev, u32 speed);
+  int (*get_fan_speed_percent)(struct radeon_device *rdev, u32 *speed);
+  u32 (*get_current_sclk)(struct radeon_device *rdev);
+  u32 (*get_current_mclk)(struct radeon_device *rdev);
+ } dpm;
+ struct {
+  void (*page_flip)(struct radeon_device *rdev, int crtc, u64 crtc_base);
+  _Bool (*page_flip_pending)(struct radeon_device *rdev, int crtc);
  } pflip;
 };
 struct r100_asic {
@@ -11095,6 +12624,7 @@ struct r600_asic {
  unsigned tiling_group_size;
  unsigned tile_config;
  unsigned backend_map;
+ unsigned active_simds;
 };
 struct rv770_asic {
  unsigned max_pipes;
@@ -11119,6 +12649,7 @@ struct rv770_asic {
  unsigned tiling_group_size;
  unsigned tile_config;
  unsigned backend_map;
+ unsigned active_simds;
 };
 struct evergreen_asic {
  unsigned num_ses;
@@ -11144,6 +12675,7 @@ struct evergreen_asic {
  unsigned tiling_group_size;
  unsigned tile_config;
  unsigned backend_map;
+ unsigned active_simds;
 };
 struct cayman_asic {
  unsigned max_shader_engines;
@@ -11179,6 +12711,7 @@ struct cayman_asic {
  unsigned num_gpus;
  unsigned multi_gpu_tile_size;
  unsigned tile_config;
+ unsigned active_simds;
 };
 struct si_asic {
  unsigned max_shader_engines;
@@ -11205,6 +12738,37 @@ struct si_asic {
  unsigned num_gpus;
  unsigned multi_gpu_tile_size;
  unsigned tile_config;
+ uint32_t tile_mode_array[32];
+ uint32_t active_cus;
+};
+struct cik_asic {
+ unsigned max_shader_engines;
+ unsigned max_tile_pipes;
+ unsigned max_cu_per_sh;
+ unsigned max_sh_per_se;
+ unsigned max_backends_per_se;
+ unsigned max_texture_channel_caches;
+ unsigned max_gprs;
+ unsigned max_gs_threads;
+ unsigned max_hw_contexts;
+ unsigned sc_prim_fifo_size_frontend;
+ unsigned sc_prim_fifo_size_backend;
+ unsigned sc_hiz_tile_fifo_size;
+ unsigned sc_earlyz_tile_fifo_size;
+ unsigned num_tile_pipes;
+ unsigned backend_enable_mask;
+ unsigned backend_disable_mask_per_asic;
+ unsigned backend_map;
+ unsigned num_texture_channel_caches;
+ unsigned mem_max_burst_length_bytes;
+ unsigned mem_row_size_in_kb;
+ unsigned shader_engine_tile_size;
+ unsigned num_gpus;
+ unsigned multi_gpu_tile_size;
+ unsigned tile_config;
+ uint32_t tile_mode_array[32];
+ uint32_t macrotile_mode_array[16];
+ uint32_t active_cus;
 };
 union radeon_asic_config {
  struct r300_asic r300;
@@ -11214,6 +12778,7 @@ union radeon_asic_config {
  struct evergreen_asic evergreen;
  struct cayman_asic cayman;
  struct si_asic si;
+ struct cik_asic cik;
 };
 void radeon_agp_disable(struct radeon_device *rdev);
 int radeon_asic_init(struct radeon_device *rdev);
@@ -11221,6 +12786,8 @@ int radeon_gem_info_ioctl(struct drm_device *dev, void *data,
      struct drm_file *filp);
 int radeon_gem_create_ioctl(struct drm_device *dev, void *data,
        struct drm_file *filp);
+int radeon_gem_userptr_ioctl(struct drm_device *dev, void *data,
+        struct drm_file *filp);
 int radeon_gem_pin_ioctl(struct drm_device *dev, void *data,
     struct drm_file *file_priv);
 int radeon_gem_unpin_ioctl(struct drm_device *dev, void *data,
@@ -11239,6 +12806,8 @@ int radeon_gem_wait_idle_ioctl(struct drm_device *dev, void *data,
          struct drm_file *filp);
 int radeon_gem_va_ioctl(struct drm_device *dev, void *data,
      struct drm_file *filp);
+int radeon_gem_op_ioctl(struct drm_device *dev, void *data,
+   struct drm_file *filp);
 int radeon_cs_ioctl(struct drm_device *dev, void *data, struct drm_file *filp);
 int radeon_gem_set_tiling_ioctl(struct drm_device *dev, void *data,
     struct drm_file *filp);
@@ -11294,9 +12863,11 @@ struct radeon_atcs {
 typedef uint32_t (*radeon_rreg_t)(struct radeon_device*, uint32_t);
 typedef void (*radeon_wreg_t)(struct radeon_device*, uint32_t, uint32_t);
 struct radeon_device {
- struct device dev;
+ struct device self;
+ struct device *dev;
  struct drm_device *ddev;
  struct pci_dev *pdev;
+ struct rwlock exclusive_lock;
  pci_chipset_tag_t pc;
  pcitag_t pa_tag;
  pci_intr_handle_t intrh;
@@ -11315,7 +12886,6 @@ struct radeon_device {
  struct sunfb sf;
  bus_size_t fb_offset;
  bus_space_handle_t memh;
- struct rwlock exclusive_lock;
  unsigned long fb_aper_offset;
  unsigned long fb_aper_size;
  union radeon_asic_config config;
@@ -11330,10 +12900,21 @@ struct radeon_device {
  _Bool is_atom_bios;
  uint16_t bios_header_start;
  struct radeon_bo *stollen_vga_memory;
- bus_addr_t rmmio_base;
- bus_size_t rmmio_size;
+ resource_size_t rmmio_base;
+ resource_size_t rmmio_size;
  spinlock_t mmio_idx_lock;
- bus_space_handle_t rmmio;
+ spinlock_t smc_idx_lock;
+ spinlock_t pll_idx_lock;
+ spinlock_t mc_idx_lock;
+ spinlock_t pcie_idx_lock;
+ spinlock_t pciep_idx_lock;
+ spinlock_t pif_idx_lock;
+ spinlock_t cg_idx_lock;
+ spinlock_t uvd_idx_lock;
+ spinlock_t rcu_idx_lock;
+ spinlock_t didt_idx_lock;
+ spinlock_t end_idx_lock;
+ bus_space_handle_t rmmio_bsh;
  radeon_rreg_t mc_rreg;
  radeon_wreg_t mc_wreg;
  radeon_rreg_t pll_rreg;
@@ -11342,23 +12923,27 @@ struct radeon_device {
  radeon_rreg_t pciep_rreg;
  radeon_wreg_t pciep_wreg;
  bus_space_handle_t rio_mem;
- bus_size_t rio_mem_size;
+ resource_size_t rio_mem_size;
  struct radeon_clock clock;
  struct radeon_mc mc;
  struct radeon_gart gart;
  struct radeon_mode_info mode_info;
  struct radeon_scratch scratch;
+ struct radeon_doorbell doorbell;
  struct radeon_mman mman;
- struct radeon_fence_driver fence_drv[5];
+ struct radeon_fence_driver fence_drv[8];
  wait_queue_head_t fence_queue;
+ unsigned fence_context;
  struct rwlock ring_lock;
- struct radeon_ring ring[5];
+ struct radeon_ring ring[8];
  _Bool ib_pool_ready;
  struct radeon_sa_manager ring_tmp_bo;
  struct radeon_irq irq;
  struct radeon_asic *asic;
  struct radeon_gem gem;
  struct radeon_pm pm;
+ struct radeon_uvd uvd;
+ struct radeon_vce vce;
  uint32_t bios_scratch[8];
  struct radeon_wb wb;
  struct radeon_dummy_page dummy_page;
@@ -11366,28 +12951,34 @@ struct radeon_device {
  _Bool suspend;
  _Bool need_dma32;
  _Bool accel_working;
+ _Bool fastfb_working;
+ _Bool needs_reset, in_reset;
  struct radeon_surface_reg surface_regs[8];
- u_char *me_fw;
- size_t me_fw_size;
- u_char *pfp_fw;
- size_t pfp_fw_size;
- u_char *rlc_fw;
- size_t rlc_fw_size;
- u_char *mc_fw;
- size_t mc_fw_size;
- u_char *ce_fw;
- size_t ce_fw_size;
- struct r600_blit r600_blit;
+ const struct firmware *me_fw;
+ const struct firmware *pfp_fw;
+ const struct firmware *rlc_fw;
+ const struct firmware *mc_fw;
+ const struct firmware *ce_fw;
+ const struct firmware *mec_fw;
+ const struct firmware *mec2_fw;
+ const struct firmware *sdma_fw;
+ const struct firmware *smc_fw;
+ const struct firmware *uvd_fw;
+ const struct firmware *vce_fw;
+ _Bool new_fw;
  struct r600_vram_scratch vram_scratch;
  int msi_enabled;
  struct r600_ih ih;
- struct si_rlc rlc;
- struct task hotplug_task;
- struct task audio_task;
+ struct radeon_rlc rlc;
+ struct radeon_mec mec;
+ struct delayed_work hotplug_work;
+ struct work_struct dp_work;
+ struct work_struct audio_work;
  int num_crtc;
  struct rwlock dc_hw_i2c_mutex;
- _Bool audio_enabled;
- struct r600_audio audio_status;
+ _Bool has_uvd;
+ struct r600_audio audio;
+ struct notifier_block acpi_nb;
  struct drm_file *hyperz_filp;
  struct drm_file *cmask_filp;
  struct radeon_i2c_chan *i2c_bus[16];
@@ -11395,31 +12986,77 @@ struct radeon_device {
  unsigned debugfs_count;
  struct radeon_vm_manager vm_manager;
  struct rwlock gpu_clock_mutex;
+ atomic64_t vram_usage;
+ atomic64_t gtt_usage;
+ atomic64_t num_bytes_moved;
+ atomic_t gpu_reset_counter;
  struct radeon_atif atif;
  struct radeon_atcs atcs;
+ struct rwlock srbm_mutex;
+ struct rwlock grbm_idx_mutex;
+ u32 cg_flags;
+ u32 pg_flags;
+ _Bool have_disp_power_ref;
+ u32 px_quirk_flags;
+ u64 vram_pin_size;
+ u64 gart_pin_size;
+ struct kfd_dev *kfd;
+ struct rwlock mn_lock;
+ struct hlist_head mn_hash[1 << (7)];
 };
+_Bool radeon_is_px(struct drm_device *dev);
 int radeon_device_init(struct radeon_device *rdev,
-         struct drm_device *ddev);
+         struct drm_device *ddev,
+         struct pci_dev *pdev,
+         uint32_t flags);
 void radeon_device_fini(struct radeon_device *rdev);
 int radeon_gpu_wait_for_idle(struct radeon_device *rdev);
-uint32_t r100_mm_rreg(struct radeon_device *rdev, uint32_t reg64,
-        _Bool always_indirect);
-void r100_mm_wreg(struct radeon_device *rdev, uint32_t reg64, uint32_t v,
-    _Bool always_indirect);
+uint32_t r100_mm_rreg_slow(struct radeon_device *rdev, uint32_t reg64);
+void r100_mm_wreg_slow(struct radeon_device *rdev, uint32_t reg64, uint32_t v);
+static inline uint32_t r100_mm_rreg(struct radeon_device *rdev, uint32_t reg64,
+        _Bool always_indirect)
+{
+ if ((reg64 < rdev->rmmio_size || reg64 < 0x10000) && !always_indirect)
+  return bus_space_read_4(rdev->memt, rdev->rmmio_bsh, reg64);
+ else
+  return r100_mm_rreg_slow(rdev, reg64);
+}
+static inline void r100_mm_wreg(struct radeon_device *rdev, uint32_t reg64, uint32_t v,
+    _Bool always_indirect)
+{
+ if ((reg64 < rdev->rmmio_size || reg64 < 0x10000) && !always_indirect)
+  bus_space_write_4(rdev->memt, rdev->rmmio_bsh, reg64, v);
+ else
+  r100_mm_wreg_slow(rdev, reg64, v);
+}
 u32 r100_io_rreg(struct radeon_device *rdev, u32 reg64);
 void r100_io_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
-static inline uint32_t rv370_pcie_rreg(struct radeon_device *rdev, uint32_t reg64)
+u32 cik_mm_rdoorbell(struct radeon_device *rdev, u32 index);
+void cik_mm_wdoorbell(struct radeon_device *rdev, u32 index, u32 v);
+extern const struct fence_ops radeon_fence_ops;
+static inline struct radeon_fence *to_radeon_fence(struct fence *f)
 {
- uint32_t r;
- r100_mm_wreg(rdev, (0x0030), (((reg64) & rdev->pcie_reg_mask)), 0);
- r = r100_mm_rreg(rdev, (0x0034), 0);
- return r;
+ struct radeon_fence *__f = ({ const __typeof( ((struct radeon_fence *)0)->base ) *__mptr = (f); (struct radeon_fence *)( (char *)__mptr - __builtin_offsetof(struct radeon_fence, base) );});
+ if (__f->base.ops == &radeon_fence_ops)
+  return __f;
+ return ((void *)0);
 }
-static inline void rv370_pcie_wreg(struct radeon_device *rdev, uint32_t reg64, uint32_t v)
-{
- r100_mm_wreg(rdev, (0x0030), (((reg64) & rdev->pcie_reg_mask)), 0);
- r100_mm_wreg(rdev, (0x0034), ((v)), 0);
-}
+uint32_t rv370_pcie_rreg(struct radeon_device *rdev, uint32_t reg64);
+void rv370_pcie_wreg(struct radeon_device *rdev, uint32_t reg64, uint32_t v);
+u32 tn_smc_rreg(struct radeon_device *rdev, u32 reg64);
+void tn_smc_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 r600_rcu_rreg(struct radeon_device *rdev, u32 reg64);
+void r600_rcu_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 eg_cg_rreg(struct radeon_device *rdev, u32 reg64);
+void eg_cg_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 eg_pif_phy0_rreg(struct radeon_device *rdev, u32 reg64);
+void eg_pif_phy0_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 eg_pif_phy1_rreg(struct radeon_device *rdev, u32 reg64);
+void eg_pif_phy1_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 r600_uvd_ctx_rreg(struct radeon_device *rdev, u32 reg64);
+void r600_uvd_ctx_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
+u32 cik_didt_rreg(struct radeon_device *rdev, u32 reg64);
+void cik_didt_wreg(struct radeon_device *rdev, u32 reg64, u32 v);
 void r100_pll_errata_after_index(struct radeon_device *rdev);
 int radeon_combios_init(struct radeon_device *rdev);
 void radeon_combios_fini(struct radeon_device *rdev);
@@ -11427,12 +13064,16 @@ int radeon_atombios_init(struct radeon_device *rdev);
 void radeon_atombios_fini(struct radeon_device *rdev);
 static inline void radeon_ring_write(struct radeon_ring *ring, uint32_t v)
 {
+ if (ring->count_dw <= 0)
+  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "radeon: writing more dwords to the ring than expected!\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
  ring->ring[ring->wptr++] = v;
  ring->wptr &= ring->ptr_mask;
  ring->count_dw--;
  ring->ring_free_dw--;
 }
 extern int radeon_gpu_reset(struct radeon_device *rdev);
+extern void radeon_pci_config_reset(struct radeon_device *rdev);
+extern void r600_set_bios_scratch_engine_hung(struct radeon_device *rdev, _Bool hung);
 extern void radeon_agp_disable(struct radeon_device *rdev);
 extern int radeon_modeset_init(struct radeon_device *rdev);
 extern void radeon_modeset_fini(struct radeon_device *rdev);
@@ -11450,28 +13091,43 @@ extern void radeon_legacy_set_clock_gating(struct radeon_device *rdev, int enabl
 extern void radeon_atom_set_clock_gating(struct radeon_device *rdev, int enable);
 extern void radeon_ttm_placement_from_domain(struct radeon_bo *rbo, u32 domain);
 extern _Bool radeon_ttm_bo_is_radeon_bo(struct ttm_buffer_object *bo);
+extern int radeon_ttm_tt_set_userptr(struct ttm_tt *ttm, uint64_t addr,
+         uint32_t flags);
+extern _Bool radeon_ttm_tt_has_userptr(struct ttm_tt *ttm);
+extern _Bool radeon_ttm_tt_is_readonly(struct ttm_tt *ttm);
 extern void radeon_vram_location(struct radeon_device *rdev, struct radeon_mc *mc, u64 base);
 extern void radeon_gtt_location(struct radeon_device *rdev, struct radeon_mc *mc);
-extern int radeon_resume_kms(struct drm_device *dev);
-extern int radeon_suspend_kms(struct drm_device *dev);
+extern int radeon_resume_kms(struct drm_device *dev, _Bool resume, _Bool fbcon);
+extern int radeon_suspend_kms(struct drm_device *dev, _Bool suspend, _Bool fbcon);
 extern void radeon_ttm_set_active_vram_size(struct radeon_device *rdev, u64 size);
-extern struct uvm_object *radeon_mmap(struct drm_device *, voff_t, vsize_t);
+extern void radeon_program_register_sequence(struct radeon_device *rdev,
+          const u32 *registers,
+          const u32 array_size);
 int radeon_vm_manager_init(struct radeon_device *rdev);
 void radeon_vm_manager_fini(struct radeon_device *rdev);
-void radeon_vm_init(struct radeon_device *rdev, struct radeon_vm *vm);
+int radeon_vm_init(struct radeon_device *rdev, struct radeon_vm *vm);
 void radeon_vm_fini(struct radeon_device *rdev, struct radeon_vm *vm);
-int radeon_vm_alloc_pt(struct radeon_device *rdev, struct radeon_vm *vm);
-void radeon_vm_add_to_lru(struct radeon_device *rdev, struct radeon_vm *vm);
+struct radeon_bo_list *radeon_vm_get_bos(struct radeon_device *rdev,
+       struct radeon_vm *vm,
+                                          struct list_head *head);
 struct radeon_fence *radeon_vm_grab_id(struct radeon_device *rdev,
            struct radeon_vm *vm, int ring);
+void radeon_vm_flush(struct radeon_device *rdev,
+                     struct radeon_vm *vm,
+       int ring, struct radeon_fence *fence);
 void radeon_vm_fence(struct radeon_device *rdev,
        struct radeon_vm *vm,
        struct radeon_fence *fence);
 uint64_t radeon_vm_map_gart(struct radeon_device *rdev, uint64_t addr);
-int radeon_vm_bo_update_pte(struct radeon_device *rdev,
-       struct radeon_vm *vm,
-       struct radeon_bo *bo,
-       struct ttm_mem_reg *mem);
+int radeon_vm_update_page_directory(struct radeon_device *rdev,
+        struct radeon_vm *vm);
+int radeon_vm_clear_freed(struct radeon_device *rdev,
+     struct radeon_vm *vm);
+int radeon_vm_clear_invalids(struct radeon_device *rdev,
+        struct radeon_vm *vm);
+int radeon_vm_bo_update(struct radeon_device *rdev,
+   struct radeon_bo_va *bo_va,
+   struct ttm_mem_reg *mem);
 void radeon_vm_bo_invalidate(struct radeon_device *rdev,
         struct radeon_bo *bo);
 struct radeon_bo_va *radeon_vm_bo_find(struct radeon_vm *vm,
@@ -11483,9 +13139,17 @@ int radeon_vm_bo_set_addr(struct radeon_device *rdev,
      struct radeon_bo_va *bo_va,
      uint64_t offset,
      uint32_t flags);
-int radeon_vm_bo_rmv(struct radeon_device *rdev,
-       struct radeon_bo_va *bo_va);
-void r600_audio_update_hdmi(void *arg1);
+void radeon_vm_bo_rmv(struct radeon_device *rdev,
+        struct radeon_bo_va *bo_va);
+void r600_audio_update_hdmi(struct work_struct *work);
+struct r600_audio_pin *r600_audio_get_pin(struct radeon_device *rdev);
+struct r600_audio_pin *dce6_audio_get_pin(struct radeon_device *rdev);
+void r600_audio_enable(struct radeon_device *rdev,
+         struct r600_audio_pin *pin,
+         u8 enable_mask);
+void dce6_audio_enable(struct radeon_device *rdev,
+         struct r600_audio_pin *pin,
+         u8 enable_mask);
 int r600_vram_scratch_init(struct radeon_device *rdev);
 void r600_vram_scratch_fini(struct radeon_device *rdev);
 unsigned r600_mip_minify(unsigned size, unsigned level);
@@ -11504,19 +13168,27 @@ struct radeon_hdmi_acr {
  int cts_48khz;
 };
 extern struct radeon_hdmi_acr r600_hdmi_acr(uint32_t clock);
-extern void r600_hdmi_enable(struct drm_encoder *encoder);
-extern void r600_hdmi_disable(struct drm_encoder *encoder);
-extern void r600_hdmi_setmode(struct drm_encoder *encoder, struct drm_display_mode *mode);
 extern u32 r6xx_remap_render_backend(struct radeon_device *rdev,
          u32 tiling_pipe_num,
          u32 max_rb_num,
          u32 total_max_rb_num,
          u32 enabled_rb_mask);
-extern void evergreen_hdmi_setmode(struct drm_encoder *encoder, struct drm_display_mode *mode);
 extern int ni_init_microcode(struct radeon_device *rdev);
 extern int ni_mc_load_microcode(struct radeon_device *rdev);
 static inline int radeon_acpi_init(struct radeon_device *rdev) { return 0; }
 static inline void radeon_acpi_fini(struct radeon_device *rdev) { }
+int radeon_cs_packet_parse(struct radeon_cs_parser *p,
+      struct radeon_cs_packet *pkt,
+      unsigned idx);
+_Bool radeon_cs_packet_next_is_pkt3_nop(struct radeon_cs_parser *p);
+void radeon_cs_dump_packet(struct radeon_cs_parser *p,
+      struct radeon_cs_packet *pkt);
+int radeon_cs_packet_next_reloc(struct radeon_cs_parser *p,
+    struct radeon_bo_list **cs_reloc,
+    int nomm);
+int r600_cs_common_vline_parse(struct radeon_cs_parser *p,
+          uint32_t *vline_start_end,
+          uint32_t *vline_status);
 static inline unsigned radeon_mem_type_to_domain(u32 mem_type)
 {
  switch (mem_type) {
@@ -11531,7 +13203,17 @@ static inline unsigned radeon_mem_type_to_domain(u32 mem_type)
  }
  return 0;
 }
-int radeon_bo_reserve(struct radeon_bo *bo, _Bool no_intr);
+static inline int radeon_bo_reserve(struct radeon_bo *bo, _Bool no_intr)
+{
+ int r;
+ r = ttm_bo_reserve(&bo->tbo, !no_intr, 0, 0, 0);
+ if (__builtin_expect(!!(r != 0), 0)) {
+  if (r != -4)
+   printf("drm:pid%d:%s *ERROR* " "%p reserve failed\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , bo);
+  return r;
+ }
+ return 0;
+}
 static inline void radeon_bo_unreserve(struct radeon_bo *bo)
 {
  ttm_bo_unreserve(&bo->tbo);
@@ -11543,10 +13225,6 @@ static inline u64 radeon_bo_gpu_offset(struct radeon_bo *bo)
 static inline unsigned long radeon_bo_size(struct radeon_bo *bo)
 {
  return bo->tbo.num_pages << 13;
-}
-static inline _Bool radeon_bo_is_reserved(struct radeon_bo *bo)
-{
- return ttm_bo_is_reserved(&bo->tbo);
 }
 static inline unsigned radeon_bo_ngpu_pages(struct radeon_bo *bo)
 {
@@ -11564,11 +13242,13 @@ extern int radeon_bo_wait(struct radeon_bo *bo, u32 *mem_type,
      _Bool no_wait);
 extern int radeon_bo_create(struct radeon_device *rdev,
        unsigned long size, int byte_align,
-       _Bool kernel, u32 domain,
+       _Bool kernel, u32 domain, u32 flags,
        struct sg_table *sg,
+       struct reservation_object *resv,
        struct radeon_bo **bo_ptr);
 extern int radeon_bo_kmap(struct radeon_bo *bo, void **ptr);
 extern void radeon_bo_kunmap(struct radeon_bo *bo);
+extern struct radeon_bo *radeon_bo_ref(struct radeon_bo *bo);
 extern void radeon_bo_unref(struct radeon_bo **bo);
 extern int radeon_bo_pin(struct radeon_bo *bo, u32 domain, u64 *gpu_addr);
 extern int radeon_bo_pin_restricted(struct radeon_bo *bo, u32 domain,
@@ -11578,9 +13258,9 @@ extern int radeon_bo_evict_vram(struct radeon_device *rdev);
 extern void radeon_bo_force_delete(struct radeon_device *rdev);
 extern int radeon_bo_init(struct radeon_device *rdev);
 extern void radeon_bo_fini(struct radeon_device *rdev);
-extern void radeon_bo_list_add_object(struct radeon_bo_list *lobj,
-    struct list_head *head);
-extern int radeon_bo_list_validate(struct list_head *head);
+extern int radeon_bo_list_validate(struct radeon_device *rdev,
+       struct ww_acquire_ctx *ticket,
+       struct list_head *head, int ring);
 extern int radeon_bo_set_tiling_flags(struct radeon_bo *bo,
     u32 tiling_flags, u32 pitch);
 extern void radeon_bo_get_tiling_flags(struct radeon_bo *bo,
@@ -11588,9 +13268,11 @@ extern void radeon_bo_get_tiling_flags(struct radeon_bo *bo,
 extern int radeon_bo_check_tiling(struct radeon_bo *bo, _Bool has_moved,
     _Bool force_drop);
 extern void radeon_bo_move_notify(struct ttm_buffer_object *bo,
-     struct ttm_mem_reg *mem);
+      struct ttm_mem_reg *new_mem);
 extern int radeon_bo_fault_reserve_notify(struct ttm_buffer_object *bo);
 extern int radeon_bo_get_surface_reg(struct radeon_bo *bo);
+extern void radeon_bo_fence(struct radeon_bo *bo, struct radeon_fence *fence,
+       _Bool shared);
 static inline uint64_t radeon_sa_bo_gpu_addr(struct radeon_sa_bo *sa_bo)
 {
  return sa_bo->manager->gpu_addr + sa_bo->soffset;
@@ -11601,7 +13283,8 @@ static inline void * radeon_sa_bo_cpu_addr(struct radeon_sa_bo *sa_bo)
 }
 extern int radeon_sa_bo_manager_init(struct radeon_device *rdev,
          struct radeon_sa_manager *sa_manager,
-         unsigned size, u32 align, u32 domain);
+         unsigned size, u32 align, u32 domain,
+         u32 flags);
 extern void radeon_sa_bo_manager_fini(struct radeon_device *rdev,
           struct radeon_sa_manager *sa_manager);
 extern int radeon_sa_bo_manager_start(struct radeon_device *rdev,
@@ -11611,7 +13294,7 @@ extern int radeon_sa_bo_manager_suspend(struct radeon_device *rdev,
 extern int radeon_sa_bo_new(struct radeon_device *rdev,
        struct radeon_sa_manager *sa_manager,
        struct radeon_sa_bo **sa_bo,
-       unsigned size, unsigned align, _Bool block);
+       unsigned size, unsigned align);
 extern void radeon_sa_bo_free(struct radeon_device *rdev,
          struct radeon_sa_bo **sa_bo,
          struct radeon_fence *fence);
@@ -11629,6 +13312,7 @@ struct card_info {
 struct atom_context {
  struct card_info *card;
  struct rwlock mutex;
+ struct rwlock scratch_mutex;
  void *bios;
  uint32_t cmd_table, data_table;
  uint16_t *iio;
@@ -11646,6 +13330,7 @@ struct atom_context {
 extern int atom_debug;
 struct atom_context *atom_parse(struct card_info *, void *);
 int atom_execute_table(struct atom_context *, int, uint32_t *);
+int atom_execute_table_scratch_unlocked(struct atom_context *, int, uint32_t *);
 int atom_asic_init(struct atom_context *);
 void atom_destroy(struct atom_context *);
 _Bool atom_parse_data_header(struct atom_context *ctx, int index, uint16_t *size,
@@ -11704,7 +13389,7 @@ typedef struct _ATOM_MASTER_LIST_OF_COMMAND_TABLES{
   USHORT AdjustDisplayPll;
   USHORT AdjustMemoryController;
   USHORT EnableASIC_StaticPwrMgt;
-  USHORT ASIC_StaticPwrMgtStatusChange;
+  USHORT SetUniphyInstance;
   USHORT DAC_LoadDetection;
   USHORT LVTMAEncoderControl;
   USHORT HW_Misc_Operation;
@@ -11716,7 +13401,7 @@ typedef struct _ATOM_MASTER_LIST_OF_COMMAND_TABLES{
   USHORT TVEncoderControl;
   USHORT PatchMCSetting;
   USHORT MC_SEQ_Control;
-  USHORT TV1OutputControl;
+  USHORT Gfx_Harvesting;
   USHORT EnableScaler;
   USHORT BlankCRTC;
   USHORT EnableCRTC;
@@ -11823,6 +13508,7 @@ typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V3
   union
   {
     ATOM_COMPUTE_CLOCK_FREQ ulClock;
+    ULONG ulClockParams;
     ATOM_S_MPLL_FB_DIVIDER ulFbDiv;
   };
   UCHAR ucRefDiv;
@@ -11832,7 +13518,7 @@ typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V3
 }COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V3;
 typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V4
 {
-  ULONG ucPostDiv;
+  ULONG ucPostDiv:8;
   ULONG ulClock:24;
 }COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V4;
 typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V5
@@ -11840,6 +13526,7 @@ typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V5
   union
   {
     ATOM_COMPUTE_CLOCK_FREQ ulClock;
+    ULONG ulClockParams;
     ATOM_S_MPLL_FB_DIVIDER ulFbDiv;
   };
   UCHAR ucRefDiv;
@@ -11851,6 +13538,20 @@ typedef struct _COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V5
   };
   UCHAR ucReserved;
 }COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V5;
+typedef struct _COMPUTE_GPU_CLOCK_INPUT_PARAMETERS_V1_6
+{
+  ATOM_COMPUTE_CLOCK_FREQ ulClock;
+  ULONG ulReserved[2];
+}COMPUTE_GPU_CLOCK_INPUT_PARAMETERS_V1_6;
+typedef struct _COMPUTE_GPU_CLOCK_OUTPUT_PARAMETERS_V1_6
+{
+  COMPUTE_MEMORY_ENGINE_PLL_PARAMETERS_V4 ulClock;
+  ATOM_S_MPLL_FB_DIVIDER ulFbDiv;
+  UCHAR ucPllRefDiv;
+  UCHAR ucPllPostDiv;
+  UCHAR ucPllCntlFlag;
+  UCHAR ucReserved;
+}COMPUTE_GPU_CLOCK_OUTPUT_PARAMETERS_V1_6;
 typedef struct _COMPUTE_MEMORY_CLOCK_PARAM_PARAMETERS_V2_1
 {
   union
@@ -12473,6 +14174,14 @@ typedef struct _DVO_ENCODER_CONTROL_PARAMETERS_V3
   UCHAR ucAction;
   UCHAR ucReseved[4];
 }DVO_ENCODER_CONTROL_PARAMETERS_V3;
+typedef struct _DVO_ENCODER_CONTROL_PARAMETERS_V1_4
+{
+  USHORT usPixelClock;
+  UCHAR ucDVOConfig;
+  UCHAR ucAction;
+  UCHAR ucBitPerColor;
+  UCHAR ucReseved[3];
+}DVO_ENCODER_CONTROL_PARAMETERS_V1_4;
 typedef struct _SET_VOLTAGE_PARAMETERS
 {
   UCHAR ucVoltageType;
@@ -12515,6 +14224,19 @@ typedef struct _GET_LEAKAGE_VOLTAGE_INFO_OUTPUT_PARAMETER_V1_1
   USHORT usVoltageId;
   ULONG ulReseved;
 }GET_LEAKAGE_VOLTAGE_INFO_OUTPUT_PARAMETER_V1_1;
+typedef struct _GET_VOLTAGE_INFO_INPUT_PARAMETER_V1_2
+{
+  UCHAR ucVoltageType;
+  UCHAR ucVoltageMode;
+  USHORT usVoltageLevel;
+  ULONG ulSCLKFreq;
+}GET_VOLTAGE_INFO_INPUT_PARAMETER_V1_2;
+typedef struct _GET_EVV_VOLTAGE_INFO_OUTPUT_PARAMETER_V1_2
+{
+  USHORT usVoltageLevel;
+  USHORT usVoltageId;
+  ULONG ulReseved;
+}GET_EVV_VOLTAGE_INFO_OUTPUT_PARAMETER_V1_2;
 typedef struct _TV_ENCODER_CONTROL_PARAMETERS
 {
   USHORT usPixelClock;
@@ -12799,7 +14521,8 @@ typedef struct _ATOM_FIRMWARE_INFO_V2_2
   ULONG ulFirmwareRevision;
   ULONG ulDefaultEngineClock;
   ULONG ulDefaultMemoryClock;
-  ULONG ulReserved[2];
+  ULONG ulSPLL_OutputFreq;
+  ULONG ulGPUPLL_OutputFreq;
   ULONG ulReserved1;
   ULONG ulReserved2;
   ULONG ulMaxPixelClockPLL_Output;
@@ -13374,7 +15097,8 @@ typedef struct _ATOM_EXTERNAL_DISPLAY_CONNECTION_INFO
   UCHAR uc3DStereoPinId;
   UCHAR ucRemoteDisplayConfig;
   UCHAR uceDPToLVDSRxId;
-  UCHAR Reserved[4];
+  UCHAR ucFixDPVoltageSwing;
+  UCHAR Reserved[3];
 }ATOM_EXTERNAL_DISPLAY_CONNECTION_INFO;
 typedef struct _ATOM_COMMON_RECORD_HEADER
 {
@@ -13535,6 +15259,21 @@ typedef struct _ATOM_CONNECTOR_REMOTE_CAP_RECORD
   ATOM_COMMON_RECORD_HEADER sheader;
   USHORT usReserved;
 }ATOM_CONNECTOR_REMOTE_CAP_RECORD;
+typedef struct _ATOM_CONNECTOR_LAYOUT_INFO
+{
+   USHORT usConnectorObjectId;
+   UCHAR ucConnectorType;
+   UCHAR ucPosition;
+}ATOM_CONNECTOR_LAYOUT_INFO;
+typedef struct _ATOM_BRACKET_LAYOUT_RECORD
+{
+  ATOM_COMMON_RECORD_HEADER sheader;
+  UCHAR ucLength;
+  UCHAR ucWidth;
+  UCHAR ucConnNum;
+  UCHAR ucReserved;
+  ATOM_CONNECTOR_LAYOUT_INFO asConnInfo[1];
+}ATOM_BRACKET_LAYOUT_RECORD;
 typedef struct _ATOM_VOLTAGE_INFO_HEADER
 {
    USHORT usVDDCBaseLevel;
@@ -13659,10 +15398,19 @@ typedef struct _ATOM_LEAKAGE_VOLTAGE_OBJECT_V3
    ULONG ulMaxVoltageLevel;
    LEAKAGE_VOLTAGE_LUT_ENTRY_V2 asLeakageIdLut[1];
 }ATOM_LEAKAGE_VOLTAGE_OBJECT_V3;
+typedef struct _ATOM_SVID2_VOLTAGE_OBJECT_V3
+{
+   ATOM_VOLTAGE_OBJECT_HEADER_V3 sHeader;
+   USHORT usLoadLine_PSI;
+   UCHAR ucSVDGpioId;
+   UCHAR ucSVCGpioId;
+   ULONG ulReserved;
+}ATOM_SVID2_VOLTAGE_OBJECT_V3;
 typedef union _ATOM_VOLTAGE_OBJECT_V3{
   ATOM_GPIO_VOLTAGE_OBJECT_V3 asGpioVoltageObj;
   ATOM_I2C_VOLTAGE_OBJECT_V3 asI2cVoltageObj;
   ATOM_LEAKAGE_VOLTAGE_OBJECT_V3 asLeakageObj;
+  ATOM_SVID2_VOLTAGE_OBJECT_V3 asSVID2Obj;
 }ATOM_VOLTAGE_OBJECT_V3;
 typedef struct _ATOM_VOLTAGE_OBJECT_INFO_V3_1
 {
@@ -13683,6 +15431,59 @@ typedef struct _ATOM_ASIC_PROFILING_INFO
   ATOM_COMMON_TABLE_HEADER asHeader;
  ATOM_ASIC_PROFILE_VOLTAGE asVoltage;
 }ATOM_ASIC_PROFILING_INFO;
+typedef struct _ATOM_ASIC_PROFILING_INFO_V2_1
+{
+  ATOM_COMMON_TABLE_HEADER asHeader;
+  UCHAR ucLeakageBinNum;
+  USHORT usLeakageBinArrayOffset;
+  UCHAR ucElbVDDC_Num;
+  USHORT usElbVDDC_IdArrayOffset;
+  USHORT usElbVDDC_LevelArrayOffset;
+  UCHAR ucElbVDDCI_Num;
+  USHORT usElbVDDCI_IdArrayOffset;
+  USHORT usElbVDDCI_LevelArrayOffset;
+}ATOM_ASIC_PROFILING_INFO_V2_1;
+typedef struct _ATOM_ASIC_PROFILING_INFO_V3_1
+{
+  ATOM_COMMON_TABLE_HEADER asHeader;
+  ULONG ulEvvDerateTdp;
+  ULONG ulEvvDerateTdc;
+  ULONG ulBoardCoreTemp;
+  ULONG ulMaxVddc;
+  ULONG ulMinVddc;
+  ULONG ulLoadLineSlop;
+  ULONG ulLeakageTemp;
+  ULONG ulLeakageVoltage;
+  ULONG ulCACmEncodeRange;
+  ULONG ulCACmEncodeAverage;
+  ULONG ulCACbEncodeRange;
+  ULONG ulCACbEncodeAverage;
+  ULONG ulKt_bEncodeRange;
+  ULONG ulKt_bEncodeAverage;
+  ULONG ulKv_mEncodeRange;
+  ULONG ulKv_mEncodeAverage;
+  ULONG ulKv_bEncodeRange;
+  ULONG ulKv_bEncodeAverage;
+  ULONG ulLkgEncodeLn_MaxDivMin;
+  ULONG ulLkgEncodeMin;
+  ULONG ulEfuseLogisticAlpha;
+  USHORT usPowerDpm0;
+  USHORT usCurrentDpm0;
+  USHORT usPowerDpm1;
+  USHORT usCurrentDpm1;
+  USHORT usPowerDpm2;
+  USHORT usCurrentDpm2;
+  USHORT usPowerDpm3;
+  USHORT usCurrentDpm3;
+  USHORT usPowerDpm4;
+  USHORT usCurrentDpm4;
+  USHORT usPowerDpm5;
+  USHORT usCurrentDpm5;
+  USHORT usPowerDpm6;
+  USHORT usCurrentDpm6;
+  USHORT usPowerDpm7;
+  USHORT usCurrentDpm7;
+}ATOM_ASIC_PROFILING_INFO_V3_1;
 typedef struct _ATOM_POWER_SOURCE_OBJECT
 {
  UCHAR ucPwrSrcId;
@@ -13772,6 +15573,18 @@ typedef struct _ATOM_FUSION_SYSTEM_INFO_V1
   ATOM_INTEGRATED_SYSTEM_INFO_V6 sIntegratedSysInfo;
   ULONG ulPowerplayTable[128];
 }ATOM_FUSION_SYSTEM_INFO_V1;
+typedef struct _ATOM_TDP_CONFIG_BITS
+{
+  ULONG uReserved:2;
+  ULONG uTDP_Value:14;
+  ULONG uCTDP_Value:14;
+  ULONG uCTDP_Enable:2;
+}ATOM_TDP_CONFIG_BITS;
+typedef union _ATOM_TDP_CONFIG
+{
+  ATOM_TDP_CONFIG_BITS TDP_config;
+  ULONG TDP_config_all;
+}ATOM_TDP_CONFIG;
 typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_7
 {
   ATOM_COMMON_TABLE_HEADER sHeader;
@@ -13797,7 +15610,8 @@ typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_7
   UCHAR ucMemoryType;
   UCHAR ucUMAChannelNumber;
   UCHAR strVBIOSMsg[40];
-  ULONG ulReserved[20];
+  ATOM_TDP_CONFIG asTdpConfig;
+  ULONG ulReserved[19];
   ATOM_AVAILABLE_SCLK_LIST sAvail_SCLK[5];
   ULONG ulGMCRestoreResetTime;
   ULONG ulMinimumNClk;
@@ -13822,7 +15636,7 @@ typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_7
   USHORT GnbTdpLimit;
   USHORT usMaxLVDSPclkFreqInSingleLink;
   UCHAR ucLvdsMisc;
-  UCHAR ucLVDSReserved;
+  UCHAR ucTravisLVDSVolAdjust;
   UCHAR ucLVDSPwrOnSeqDIGONtoDE_in4Ms;
   UCHAR ucLVDSPwrOnSeqDEtoVARY_BL_in4Ms;
   UCHAR ucLVDSPwrOffSeqVARY_BLtoDE_in4Ms;
@@ -13830,7 +15644,7 @@ typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_7
   UCHAR ucLVDSOffToOnDelay_in4Ms;
   UCHAR ucLVDSPwrOnSeqVARY_BLtoBLON_in4Ms;
   UCHAR ucLVDSPwrOffSeqBLONtoVARY_BL_in4Ms;
-  UCHAR ucLVDSReserved1;
+  UCHAR ucMinAllowedBL_Level;
   ULONG ulLCDBitDepthControlVal;
   ULONG ulNbpStateMemclkFreq[4];
   USHORT usNBP2Voltage;
@@ -13848,6 +15662,74 @@ typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_7
   UCHAR ucDPMState3DclkFid;
   ATOM_EXTERNAL_DISPLAY_CONNECTION_INFO sExtDispConnInfo;
 }ATOM_INTEGRATED_SYSTEM_INFO_V1_7;
+typedef struct _ATOM_INTEGRATED_SYSTEM_INFO_V1_8
+{
+  ATOM_COMMON_TABLE_HEADER sHeader;
+  ULONG ulBootUpEngineClock;
+  ULONG ulDentistVCOFreq;
+  ULONG ulBootUpUMAClock;
+  ATOM_CLK_VOLT_CAPABILITY sDISPCLK_Voltage[4];
+  ULONG ulBootUpReqDisplayVector;
+  ULONG ulVBIOSMisc;
+  ULONG ulGPUCapInfo;
+  ULONG ulDISP_CLK2Freq;
+  USHORT usRequestedPWMFreqInHz;
+  UCHAR ucHtcTmpLmt;
+  UCHAR ucHtcHystLmt;
+  ULONG ulReserved2;
+  ULONG ulSystemConfig;
+  ULONG ulCPUCapInfo;
+  ULONG ulReserved3;
+  USHORT usGPUReservedSysMemSize;
+  USHORT usExtDispConnInfoOffset;
+  USHORT usPanelRefreshRateRange;
+  UCHAR ucMemoryType;
+  UCHAR ucUMAChannelNumber;
+  UCHAR strVBIOSMsg[40];
+  ATOM_TDP_CONFIG asTdpConfig;
+  ULONG ulReserved[19];
+  ATOM_AVAILABLE_SCLK_LIST sAvail_SCLK[5];
+  ULONG ulGMCRestoreResetTime;
+  ULONG ulReserved4;
+  ULONG ulIdleNClk;
+  ULONG ulDDR_DLL_PowerUpTime;
+  ULONG ulDDR_PLL_PowerUpTime;
+  USHORT usPCIEClkSSPercentage;
+  USHORT usPCIEClkSSType;
+  USHORT usLvdsSSPercentage;
+  USHORT usLvdsSSpreadRateIn10Hz;
+  USHORT usHDMISSPercentage;
+  USHORT usHDMISSpreadRateIn10Hz;
+  USHORT usDVISSPercentage;
+  USHORT usDVISSpreadRateIn10Hz;
+  ULONG ulGPUReservedSysMemBaseAddrLo;
+  ULONG ulGPUReservedSysMemBaseAddrHi;
+  ULONG ulReserved5[3];
+  USHORT usMaxLVDSPclkFreqInSingleLink;
+  UCHAR ucLvdsMisc;
+  UCHAR ucTravisLVDSVolAdjust;
+  UCHAR ucLVDSPwrOnSeqDIGONtoDE_in4Ms;
+  UCHAR ucLVDSPwrOnSeqDEtoVARY_BL_in4Ms;
+  UCHAR ucLVDSPwrOffSeqVARY_BLtoDE_in4Ms;
+  UCHAR ucLVDSPwrOffSeqDEtoDIGON_in4Ms;
+  UCHAR ucLVDSOffToOnDelay_in4Ms;
+  UCHAR ucLVDSPwrOnSeqVARY_BLtoBLON_in4Ms;
+  UCHAR ucLVDSPwrOffSeqBLONtoVARY_BL_in4Ms;
+  UCHAR ucMinAllowedBL_Level;
+  ULONG ulLCDBitDepthControlVal;
+  ULONG ulNbpStateMemclkFreq[4];
+  ULONG ulReserved6;
+  ULONG ulNbpStateNClkFreq[4];
+  USHORT usNBPStateVoltage[4];
+  USHORT usBootUpNBVoltage;
+  USHORT usReserved2;
+  ATOM_EXTERNAL_DISPLAY_CONNECTION_INFO sExtDispConnInfo;
+}ATOM_INTEGRATED_SYSTEM_INFO_V1_8;
+typedef struct _ATOM_FUSION_SYSTEM_INFO_V2
+{
+  ATOM_INTEGRATED_SYSTEM_INFO_V1_8 sIntegratedSysInfo;
+  ULONG ulPowerplayTable[128];
+}ATOM_FUSION_SYSTEM_INFO_V2;
 typedef struct _ATOM_I2C_DATA_RECORD
 {
   UCHAR ucNunberOfBytes;
@@ -14645,8 +16527,9 @@ typedef struct _ATOM_DISP_OUT_INFO_V3
   UCHAR ucMaxActiveDispEngineNum;
   UCHAR ucMaxPPLLNum;
   UCHAR ucCoreRefClkSource;
-  UCHAR ucReserved[3];
- ASIC_TRANSMITTER_INFO_V2 asTransmitterInfo[1];
+  UCHAR ucDispCaps;
+  UCHAR ucReserved[2];
+  ASIC_TRANSMITTER_INFO_V2 asTransmitterInfo[1];
 }ATOM_DISP_OUT_INFO_V3;
 typedef enum CORE_REF_CLK_SOURCE{
   CLOCK_SRC_XTALIN=0,
@@ -14755,6 +16638,16 @@ typedef struct _DIG_TRANSMITTER_INFO_HEADER_V3_1{
   USHORT usPhyPllRegListOffset;
   USHORT usPhyPllSettingOffset;
 }DIG_TRANSMITTER_INFO_HEADER_V3_1;
+typedef struct _DIG_TRANSMITTER_INFO_HEADER_V3_2{
+  ATOM_COMMON_TABLE_HEADER sHeader;
+  USHORT usDPVsPreEmphSettingOffset;
+  USHORT usPhyAnalogRegListOffset;
+  USHORT usPhyAnalogSettingOffset;
+  USHORT usPhyPllRegListOffset;
+  USHORT usPhyPllSettingOffset;
+  USHORT usDPSSRegListOffset;
+  USHORT usDPSSSettingOffset;
+}DIG_TRANSMITTER_INFO_HEADER_V3_2;
 typedef struct _CLOCK_CONDITION_REGESTER_INFO{
   USHORT usRegisterIndex;
   UCHAR ucStartBit;
@@ -14774,17 +16667,39 @@ typedef struct _PHY_CONDITION_REG_VAL{
   ULONG ulCondition;
   ULONG ulRegVal;
 }PHY_CONDITION_REG_VAL;
+typedef struct _PHY_CONDITION_REG_VAL_V2{
+  ULONG ulCondition;
+  UCHAR ucCondition2;
+  ULONG ulRegVal;
+}PHY_CONDITION_REG_VAL_V2;
 typedef struct _PHY_CONDITION_REG_INFO{
   USHORT usRegIndex;
   USHORT usSize;
   PHY_CONDITION_REG_VAL asRegVal[1];
 }PHY_CONDITION_REG_INFO;
+typedef struct _PHY_CONDITION_REG_INFO_V2{
+  USHORT usRegIndex;
+  USHORT usSize;
+  PHY_CONDITION_REG_VAL_V2 asRegVal[1];
+}PHY_CONDITION_REG_INFO_V2;
 typedef struct _PHY_ANALOG_SETTING_INFO{
   UCHAR ucEncodeMode;
   UCHAR ucPhySel;
   USHORT usSize;
   PHY_CONDITION_REG_INFO asAnalogSetting[1];
 }PHY_ANALOG_SETTING_INFO;
+typedef struct _PHY_ANALOG_SETTING_INFO_V2{
+  UCHAR ucEncodeMode;
+  UCHAR ucPhySel;
+  USHORT usSize;
+  PHY_CONDITION_REG_INFO_V2 asAnalogSetting[1];
+}PHY_ANALOG_SETTING_INFO_V2;
+typedef struct _GFX_HAVESTING_PARAMETERS {
+  UCHAR ucGfxBlkId;
+  UCHAR ucReserved;
+  UCHAR ucActiveUnitNumPerSH;
+  UCHAR ucMaxUnitNumPerSH;
+} GFX_HAVESTING_PARAMETERS;
 typedef struct _ATOM_DAC_INFO
 {
   ATOM_COMMON_TABLE_HEADER sHeader;
@@ -14985,6 +16900,47 @@ typedef struct _ATOM_POWERPLAY_INFO_V3
   UCHAR ucNumOfPowerModeEntries;
   ATOM_POWERMODE_INFO_V3 asPowerPlayInfo[8];
 }ATOM_POWERPLAY_INFO_V3;
+#pragma pack()
+#pragma pack(1)
+typedef struct {
+  ULONG Signature;
+  ULONG TableLength;
+  UCHAR Revision;
+  UCHAR Checksum;
+  UCHAR OemId[6];
+  UCHAR OemTableId[8];
+  ULONG OemRevision;
+  ULONG CreatorId;
+  ULONG CreatorRevision;
+} AMD_ACPI_DESCRIPTION_HEADER;
+typedef struct {
+  AMD_ACPI_DESCRIPTION_HEADER SHeader;
+  UCHAR TableUUID[16];
+  ULONG VBIOSImageOffset;
+  ULONG Lib1ImageOffset;
+  ULONG Reserved[4];
+}UEFI_ACPI_VFCT;
+typedef struct {
+  ULONG PCIBus;
+  ULONG PCIDevice;
+  ULONG PCIFunction;
+  USHORT VendorID;
+  USHORT DeviceID;
+  USHORT SSVID;
+  USHORT SSID;
+  ULONG Revision;
+  ULONG ImageLength;
+}VFCT_IMAGE_HEADER;
+typedef struct {
+  VFCT_IMAGE_HEADER VbiosHeader;
+  UCHAR VbiosContent[1];
+}GOP_VBIOS_CONTENT;
+typedef struct {
+  VFCT_IMAGE_HEADER Lib1Header;
+  UCHAR Lib1Content[1];
+}GOP_LIB1_CONTENT;
+#pragma pack()
+#pragma pack(1)
 typedef struct _ATOM_PPLIB_THERMALCONTROLLER
 {
     UCHAR ucType;
@@ -15017,6 +16973,13 @@ typedef struct _ATOM_PPLIB_FANTABLE2
     ATOM_PPLIB_FANTABLE basicTable;
     USHORT usTMax;
 } ATOM_PPLIB_FANTABLE2;
+typedef struct _ATOM_PPLIB_FANTABLE3
+{
+ ATOM_PPLIB_FANTABLE2 basicTable2;
+ UCHAR ucFanControlMode;
+ USHORT usFanPWMMax;
+ USHORT usFanOutputSensitivity;
+} ATOM_PPLIB_FANTABLE3;
 typedef struct _ATOM_PPLIB_EXTENDEDHEADER
 {
     USHORT usSize;
@@ -15024,6 +16987,10 @@ typedef struct _ATOM_PPLIB_EXTENDEDHEADER
     ULONG ulMaxMemoryClock;
     USHORT usVCETableOffset;
     USHORT usUVDTableOffset;
+    USHORT usSAMUTableOffset;
+    USHORT usPPMTableOffset;
+    USHORT usACPTableOffset;
+    USHORT usPowerTuneTableOffset;
 } ATOM_PPLIB_EXTENDEDHEADER;
 typedef struct _ATOM_PPLIB_POWERPLAYTABLE
 {
@@ -15067,7 +17034,7 @@ typedef struct _ATOM_PPLIB_POWERPLAYTABLE4
     USHORT usVddcDependencyOnMCLKOffset;
     USHORT usMaxClockVoltageOnDCOffset;
     USHORT usVddcPhaseShedLimitsTableOffset;
-    USHORT usReserved;
+    USHORT usMvddDependencyOnMCLKOffset;
 } ATOM_PPLIB_POWERPLAYTABLE4, *LPATOM_PPLIB_POWERPLAYTABLE4;
 typedef struct _ATOM_PPLIB_POWERPLAYTABLE5
 {
@@ -15109,6 +17076,21 @@ typedef struct _ATOM_PPLIB_R600_CLOCK_INFO
       USHORT usUnused2;
       ULONG ulFlags;
 } ATOM_PPLIB_R600_CLOCK_INFO;
+typedef struct _ATOM_PPLIB_RS780_CLOCK_INFO
+{
+      USHORT usLowEngineClockLow;
+      UCHAR ucLowEngineClockHigh;
+      USHORT usHighEngineClockLow;
+      UCHAR ucHighEngineClockHigh;
+      USHORT usMemoryClockLow;
+      UCHAR ucMemoryClockHigh;
+      UCHAR ucPadding;
+      USHORT usVDDC;
+      UCHAR ucMaxHTLinkWidth;
+      UCHAR ucMinHTLinkWidth;
+      USHORT usHTLinkFreq;
+      ULONG ulFlags;
+} ATOM_PPLIB_RS780_CLOCK_INFO;
 typedef struct _ATOM_PPLIB_EVERGREEN_CLOCK_INFO
 {
       USHORT usEngineClockLow;
@@ -15132,21 +17114,15 @@ typedef struct _ATOM_PPLIB_SI_CLOCK_INFO
       UCHAR ucUnused1;
       ULONG ulFlags;
 } ATOM_PPLIB_SI_CLOCK_INFO;
-typedef struct _ATOM_PPLIB_RS780_CLOCK_INFO
+typedef struct _ATOM_PPLIB_CI_CLOCK_INFO
 {
-      USHORT usLowEngineClockLow;
-      UCHAR ucLowEngineClockHigh;
-      USHORT usHighEngineClockLow;
-      UCHAR ucHighEngineClockHigh;
+      USHORT usEngineClockLow;
+      UCHAR ucEngineClockHigh;
       USHORT usMemoryClockLow;
       UCHAR ucMemoryClockHigh;
-      UCHAR ucPadding;
-      USHORT usVDDC;
-      UCHAR ucMaxHTLinkWidth;
-      UCHAR ucMinHTLinkWidth;
-      USHORT usHTLinkFreq;
-      ULONG ulFlags;
-} ATOM_PPLIB_RS780_CLOCK_INFO;
+      UCHAR ucPCIEGen;
+      USHORT usPCIELane;
+} ATOM_PPLIB_CI_CLOCK_INFO;
 typedef struct _ATOM_PPLIB_SUMO_CLOCK_INFO{
       USHORT usEngineClockLow;
       UCHAR ucEngineClockHigh;
@@ -15200,11 +17176,21 @@ typedef struct _ATOM_PPLIB_Clock_Voltage_Limit_Table
     UCHAR ucNumEntries;
     ATOM_PPLIB_Clock_Voltage_Limit_Record entries[1];
 }ATOM_PPLIB_Clock_Voltage_Limit_Table;
-typedef struct _ATOM_PPLIB_CAC_Leakage_Record
+union _ATOM_PPLIB_CAC_Leakage_Record
 {
-    USHORT usVddc;
-    ULONG ulLeakageValue;
-}ATOM_PPLIB_CAC_Leakage_Record;
+    struct
+    {
+        USHORT usVddc;
+        ULONG ulLeakageValue;
+    };
+    struct
+     {
+        USHORT usVddc1;
+        USHORT usVddc2;
+        USHORT usVddc3;
+     };
+};
+typedef union _ATOM_PPLIB_CAC_Leakage_Record ATOM_PPLIB_CAC_Leakage_Record;
 typedef struct _ATOM_PPLIB_CAC_Leakage_Table
 {
     UCHAR ucNumEntries;
@@ -15277,59 +17263,75 @@ typedef struct _ATOM_PPLIB_UVD_Clock_Voltage_Limit_Table
     UCHAR numEntries;
     ATOM_PPLIB_UVD_Clock_Voltage_Limit_Record entries[1];
 }ATOM_PPLIB_UVD_Clock_Voltage_Limit_Table;
-typedef struct _ATOM_PPLIB_UVD_State_Record
-{
-    UCHAR ucUVDClockInfoIndex;
-    UCHAR ucClockInfoIndex;
-}ATOM_PPLIB_UVD_State_Record;
-typedef struct _ATOM_PPLIB_UVD_State_Table
-{
-    UCHAR numEntries;
-    ATOM_PPLIB_UVD_State_Record entries[1];
-}ATOM_PPLIB_UVD_State_Table;
 typedef struct _ATOM_PPLIB_UVD_Table
 {
       UCHAR revid;
 }ATOM_PPLIB_UVD_Table;
-#pragma pack()
-#pragma pack(1)
-typedef struct {
-  ULONG Signature;
-  ULONG TableLength;
-  UCHAR Revision;
-  UCHAR Checksum;
-  UCHAR OemId[6];
-  UCHAR OemTableId[8];
-  ULONG OemRevision;
-  ULONG CreatorId;
-  ULONG CreatorRevision;
-} AMD_ACPI_DESCRIPTION_HEADER;
-typedef struct {
-  AMD_ACPI_DESCRIPTION_HEADER SHeader;
-  UCHAR TableUUID[16];
-  ULONG VBIOSImageOffset;
-  ULONG Lib1ImageOffset;
-  ULONG Reserved[4];
-}UEFI_ACPI_VFCT;
-typedef struct {
-  ULONG PCIBus;
-  ULONG PCIDevice;
-  ULONG PCIFunction;
-  USHORT VendorID;
-  USHORT DeviceID;
-  USHORT SSVID;
-  USHORT SSID;
-  ULONG Revision;
-  ULONG ImageLength;
-}VFCT_IMAGE_HEADER;
-typedef struct {
-  VFCT_IMAGE_HEADER VbiosHeader;
-  UCHAR VbiosContent[1];
-}GOP_VBIOS_CONTENT;
-typedef struct {
-  VFCT_IMAGE_HEADER Lib1Header;
-  UCHAR Lib1Content[1];
-}GOP_LIB1_CONTENT;
+typedef struct _ATOM_PPLIB_SAMClk_Voltage_Limit_Record
+{
+      USHORT usVoltage;
+      USHORT usSAMClockLow;
+      UCHAR ucSAMClockHigh;
+}ATOM_PPLIB_SAMClk_Voltage_Limit_Record;
+typedef struct _ATOM_PPLIB_SAMClk_Voltage_Limit_Table{
+    UCHAR numEntries;
+    ATOM_PPLIB_SAMClk_Voltage_Limit_Record entries[1];
+}ATOM_PPLIB_SAMClk_Voltage_Limit_Table;
+typedef struct _ATOM_PPLIB_SAMU_Table
+{
+      UCHAR revid;
+      ATOM_PPLIB_SAMClk_Voltage_Limit_Table limits;
+}ATOM_PPLIB_SAMU_Table;
+typedef struct _ATOM_PPLIB_ACPClk_Voltage_Limit_Record
+{
+      USHORT usVoltage;
+      USHORT usACPClockLow;
+      UCHAR ucACPClockHigh;
+}ATOM_PPLIB_ACPClk_Voltage_Limit_Record;
+typedef struct _ATOM_PPLIB_ACPClk_Voltage_Limit_Table{
+    UCHAR numEntries;
+    ATOM_PPLIB_ACPClk_Voltage_Limit_Record entries[1];
+}ATOM_PPLIB_ACPClk_Voltage_Limit_Table;
+typedef struct _ATOM_PPLIB_ACP_Table
+{
+      UCHAR revid;
+      ATOM_PPLIB_ACPClk_Voltage_Limit_Table limits;
+}ATOM_PPLIB_ACP_Table;
+typedef struct _ATOM_PowerTune_Table{
+    USHORT usTDP;
+    USHORT usConfigurableTDP;
+    USHORT usTDC;
+    USHORT usBatteryPowerLimit;
+    USHORT usSmallPowerLimit;
+    USHORT usLowCACLeakage;
+    USHORT usHighCACLeakage;
+}ATOM_PowerTune_Table;
+typedef struct _ATOM_PPLIB_POWERTUNE_Table
+{
+      UCHAR revid;
+      ATOM_PowerTune_Table power_tune_table;
+}ATOM_PPLIB_POWERTUNE_Table;
+typedef struct _ATOM_PPLIB_POWERTUNE_Table_V1
+{
+      UCHAR revid;
+      ATOM_PowerTune_Table power_tune_table;
+      USHORT usMaximumPowerDeliveryLimit;
+      USHORT usReserve[7];
+} ATOM_PPLIB_POWERTUNE_Table_V1;
+typedef struct _ATOM_PPLIB_PPM_Table
+{
+      UCHAR ucRevId;
+      UCHAR ucPpmDesign;
+      USHORT usCpuCoreNumber;
+      ULONG ulPlatformTDP;
+      ULONG ulSmallACPlatformTDP;
+      ULONG ulPlatformTDC;
+      ULONG ulSmallACPlatformTDC;
+      ULONG ulApuTDP;
+      ULONG ulDGpuTDP;
+      ULONG ulDGpuUlvPower;
+      ULONG ulTjmax;
+} ATOM_PPLIB_PPM_Table;
 #pragma pack()
 struct drm_rect {
  int x1, y1, x2, y2;
@@ -15463,11 +17465,11 @@ static void avivo_crtc_load_lut(struct drm_crtc *crtc)
  r100_mm_wreg(rdev, (0x6480), (radeon_crtc->crtc_id), 0);
  r100_mm_wreg(rdev, (0x6484), (0), 0);
  r100_mm_wreg(rdev, (0x649c), (0x0000003f), 0);
- bus_space_write_1(rdev->memt, rdev->rmmio, (0x6488), (0));
+ bus_space_write_1(rdev->memt, rdev->rmmio_bsh, (0x6488), (0));
  for (i = 0; i < 256; i++) {
   r100_mm_wreg(rdev, (0x6494), ((radeon_crtc->lut_r[i] << 20) | (radeon_crtc->lut_g[i] << 10) | (radeon_crtc->lut_b[i] << 0)), 0);
  }
- r100_mm_wreg(rdev, (0x6108 + radeon_crtc->crtc_offset), (radeon_crtc->crtc_id), 0);
+ do { uint32_t tmp_ = r100_mm_rreg(rdev, (0x6108 + radeon_crtc->crtc_offset), 0); tmp_ &= (~1); tmp_ |= ((radeon_crtc->crtc_id) & ~(~1)); r100_mm_wreg(rdev, (0x6108 + radeon_crtc->crtc_offset), (tmp_), 0); } while (0);
 }
 static void dce4_crtc_load_lut(struct drm_crtc *crtc)
 {
@@ -15517,8 +17519,11 @@ static void dce5_crtc_load_lut(struct drm_crtc *crtc)
  r100_mm_wreg(rdev, (0x6960 + radeon_crtc->crtc_offset), (((((0) & 0x3) << 0) | (((0) & 0x3) << 4) | (((0) & 0x3) << 8) | (((0) & 0x3) << 12))), 0);
  r100_mm_wreg(rdev, (0x6964 + radeon_crtc->crtc_offset), (((((0) & 0x3) << 0) | (((0) & 0x3) << 4))), 0);
  r100_mm_wreg(rdev, (0x6a80 + radeon_crtc->crtc_offset), (((((0) & 0x7) << 0) | (((0) & 0x7) << 4))), 0);
- r100_mm_wreg(rdev, (0x68f0 + radeon_crtc->crtc_offset), (((((0) & 0x7) << 0) | (((0) & 0x7) << 4))), 0);
+ r100_mm_wreg(rdev, (0x68f0 + radeon_crtc->crtc_offset), (((((radeon_crtc->output_csc) & 0x7) << 0) | (((0) & 0x7) << 4))), 0);
  r100_mm_wreg(rdev, (0x6940 + radeon_crtc->crtc_offset), (0), 0);
+ if (((rdev->family >= CHIP_BONAIRE))) {
+  r100_mm_wreg(rdev, (0x6af0 + radeon_crtc->crtc_offset), ((1 << 1)), 0);
+ }
 }
 static void legacy_crtc_load_lut(struct drm_crtc *crtc)
 {
@@ -15533,7 +17538,7 @@ static void legacy_crtc_load_lut(struct drm_crtc *crtc)
  else
   dac2_cntl |= (1 << 5);
  r100_mm_wreg(rdev, (0x007c), (dac2_cntl), 0);
- bus_space_write_1(rdev->memt, rdev->rmmio, (0x00b0), (0));
+ bus_space_write_1(rdev->memt, rdev->rmmio_bsh, (0x00b0), (0));
  for (i = 0; i < 256; i++) {
   r100_mm_wreg(rdev, (0x00b8), ((radeon_crtc->lut_r[i] << 20) | (radeon_crtc->lut_g[i] << 10) | (radeon_crtc->lut_b[i] << 0)), 0);
  }
@@ -15585,11 +17590,13 @@ static void radeon_crtc_destroy(struct drm_crtc *crtc)
 {
  struct radeon_crtc *radeon_crtc = ({ const __typeof( ((struct radeon_crtc *)0)->base ) *__mptr = (crtc); (struct radeon_crtc *)( (char *)__mptr - __builtin_offsetof(struct radeon_crtc, base) );});
  drm_crtc_cleanup(crtc);
+ destroy_workqueue(radeon_crtc->flip_queue);
  kfree(radeon_crtc);
 }
-static void radeon_unpin_work_func(void *arg1)
+static void radeon_unpin_work_func(struct work_struct *__work)
 {
- struct radeon_unpin_work *work = arg1;
+ struct radeon_flip_work *work =
+  ({ const __typeof( ((struct radeon_flip_work *)0)->unpin_work ) *__mptr = (__work); (struct radeon_flip_work *)( (char *)__mptr - __builtin_offsetof(struct radeon_flip_work, unpin_work) );});
  int r;
  r = radeon_bo_reserve(work->old_rbo, 0);
  if (__builtin_expect(!!(r == 0), 1)) {
@@ -15603,47 +17610,118 @@ static void radeon_unpin_work_func(void *arg1)
  drm_gem_object_unreference_unlocked(&work->old_rbo->gem_base);
  kfree(work);
 }
-void radeon_crtc_handle_flip(struct radeon_device *rdev, int crtc_id)
+void radeon_crtc_handle_vblank(struct radeon_device *rdev, int crtc_id)
 {
  struct radeon_crtc *radeon_crtc = rdev->mode_info.crtcs[crtc_id];
- struct radeon_unpin_work *work;
  unsigned long flags;
  u32 update_pending;
  int vpos, hpos;
+ if (radeon_crtc == ((void *)0))
+  return;
+ if ((radeon_use_pflipirq == 2) && ((rdev->family >= CHIP_CEDAR)))
+  return;
  _spin_lock_irqsave(&rdev->ddev->event_lock, flags );
- work = radeon_crtc->unpin_work;
- if (work == ((void *)0) ||
-     (work->fence && !radeon_fence_signaled(work->fence))) {
+ if (radeon_crtc->flip_status != RADEON_FLIP_SUBMITTED) {
+  do { } while( 0);
   _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
   return;
  }
- if (!radeon_crtc->deferred_flip_completion) {
-  update_pending = (rdev)->asic->pflip.page_flip((rdev), (crtc_id), (work->new_crtc_base));
- } else {
-  update_pending = 0;
-  radeon_crtc->deferred_flip_completion = 0;
- }
+ update_pending = (rdev)->asic->pflip.page_flip_pending((rdev), (crtc_id));
  if (update_pending &&
      ((1 << 0) & radeon_get_crtc_scanoutpos(rdev->ddev,
-              crtc_id, 0,
-              &vpos, &hpos, ((void *)0), ((void *)0), &rdev->mode_info.crtcs[crtc_id]->base.hwmode)) &&
+              crtc_id,
+              (1 << 30),
+              &vpos, &hpos, ((void *)0), ((void *)0),
+              &rdev->mode_info.crtcs[crtc_id]->base.hwmode)) &&
      ((vpos >= (99 * rdev->mode_info.crtcs[crtc_id]->base.hwmode.crtc_vdisplay)/100) ||
       (vpos < 0 && !((rdev->family >= CHIP_RS600))))) {
   update_pending = 0;
  }
- if (update_pending) {
-  radeon_crtc->deferred_flip_completion = 1;
+ _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
+ if (!update_pending)
+  radeon_crtc_handle_flip(rdev, crtc_id);
+}
+void radeon_crtc_handle_flip(struct radeon_device *rdev, int crtc_id)
+{
+ struct radeon_crtc *radeon_crtc = rdev->mode_info.crtcs[crtc_id];
+ struct radeon_flip_work *work;
+ unsigned long flags;
+ if (radeon_crtc == ((void *)0))
+  return;
+ _spin_lock_irqsave(&rdev->ddev->event_lock, flags );
+ work = radeon_crtc->flip_work;
+ if (radeon_crtc->flip_status != RADEON_FLIP_SUBMITTED) {
+  do { } while( 0);
   _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
   return;
  }
- radeon_crtc->unpin_work = ((void *)0);
+ radeon_crtc->flip_status = RADEON_FLIP_NONE;
+ radeon_crtc->flip_work = ((void *)0);
  if (work->event)
   drm_send_vblank_event(rdev->ddev, crtc_id, work->event);
  _spin_unlock_irqrestore(&rdev->ddev->event_lock, flags );
  drm_vblank_put(rdev->ddev, radeon_crtc->crtc_id);
- radeon_fence_unref(&work->fence);
- (work->rdev)->asic->pflip.post_page_flip((work->rdev), (work->crtc_id));
- task_add(systq, &work->task);
+ radeon_irq_kms_pflip_irq_put(rdev, work->crtc_id);
+ queue_work(radeon_crtc->flip_queue, &work->unpin_work);
+}
+static void radeon_flip_work_func(struct work_struct *__work)
+{
+ struct radeon_flip_work *work =
+  ({ const __typeof( ((struct radeon_flip_work *)0)->flip_work ) *__mptr = (__work); (struct radeon_flip_work *)( (char *)__mptr - __builtin_offsetof(struct radeon_flip_work, flip_work) );});
+ struct radeon_device *rdev = work->rdev;
+ struct radeon_crtc *radeon_crtc = rdev->mode_info.crtcs[work->crtc_id];
+ struct drm_crtc *crtc = &radeon_crtc->base;
+ unsigned long flags;
+ int r;
+ int vpos, hpos, stat, min_udelay = 0;
+ unsigned repcnt = 4;
+ struct drm_vblank_crtc *vblank = &crtc->dev->vblank[work->crtc_id];
+        _rw_enter_read(&rdev->exclusive_lock );
+ if (work->fence) {
+  struct radeon_fence *fence;
+  fence = to_radeon_fence(work->fence);
+  if (fence && fence->rdev == rdev) {
+   r = radeon_fence_wait(fence, 0);
+   if (r == -11) {
+    _rw_exit_read(&rdev->exclusive_lock );
+    do {
+     r = radeon_gpu_reset(rdev);
+    } while (r == -35);
+    _rw_enter_read(&rdev->exclusive_lock );
+   }
+  } else
+   r = fence_wait(work->fence, 0);
+  if (r)
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to wait on page flip fence (%d)!\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , r);
+  fence_put(work->fence);
+  work->fence = ((void *)0);
+ }
+ _spin_lock_irqsave(&crtc->dev->event_lock, flags );
+ radeon_irq_kms_pflip_irq_get(rdev, radeon_crtc->crtc_id);
+ while (radeon_crtc->enabled && --repcnt) {
+  stat = radeon_get_crtc_scanoutpos(rdev->ddev, work->crtc_id,
+        (1 << 31),
+        &vpos, &hpos, ((void *)0), ((void *)0),
+        &crtc->hwmode);
+  if ((stat & ((1 << 0) | (1 << 2))) !=
+      ((1 << 0) | (1 << 2)) ||
+      !(vpos >= 0 && hpos <= 0))
+   break;
+  min_udelay = (-hpos + 1) * max(vblank->linedur_ns / 1000, 5);
+  if (min_udelay > vblank->framedur_ns / 2000) {
+   repcnt = 0;
+   break;
+  }
+  _spin_unlock_irqrestore(&crtc->dev->event_lock, flags );
+  usleep_range(min_udelay, 2 * min_udelay);
+  _spin_lock_irqsave(&crtc->dev->event_lock, flags );
+ };
+ if (!repcnt)
+  do { } while( 0);
+ (rdev)->asic->pflip.page_flip((rdev), (radeon_crtc->crtc_id), (work->base));
+ radeon_crtc->flip_status = RADEON_FLIP_SUBMITTED;
+ _spin_unlock_irqrestore(&crtc->dev->event_lock, flags );
+ _rw_exit_read(&rdev->exclusive_lock );
 }
 static int radeon_crtc_page_flip(struct drm_crtc *crtc,
      struct drm_framebuffer *fb,
@@ -15656,56 +17734,44 @@ static int radeon_crtc_page_flip(struct drm_crtc *crtc,
  struct radeon_framebuffer *old_radeon_fb;
  struct radeon_framebuffer *new_radeon_fb;
  struct drm_gem_object *obj;
- struct radeon_bo *rbo;
- struct radeon_unpin_work *work;
+ struct radeon_flip_work *work;
+ struct radeon_bo *new_rbo;
+ uint32_t tiling_flags, pitch_pixels;
+ uint64_t base;
  unsigned long flags;
- u32 tiling_flags, pitch_pixels;
- u64 base;
  int r;
  work = kzalloc(sizeof *work, (0x0001 | 0x0004));
  if (work == ((void *)0))
   return -12;
- work->event = event;
+ INIT_WORK(&work->flip_work, radeon_flip_work_func);
+ INIT_WORK(&work->unpin_work, radeon_unpin_work_func);
  work->rdev = rdev;
  work->crtc_id = radeon_crtc->crtc_id;
+ work->event = event;
  old_radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (crtc->primary->fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
- new_radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
  obj = old_radeon_fb->obj;
  drm_gem_object_reference(obj);
- rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
- work->old_rbo = rbo;
+ work->old_rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
+ new_radeon_fb = ({ const __typeof( ((struct radeon_framebuffer *)0)->base ) *__mptr = (fb); (struct radeon_framebuffer *)( (char *)__mptr - __builtin_offsetof(struct radeon_framebuffer, base) );});
  obj = new_radeon_fb->obj;
- rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
- __mtx_enter(&rbo->tbo.bdev->fence_lock );
- if (rbo->tbo.sync_obj)
-  work->fence = radeon_fence_ref(rbo->tbo.sync_obj);
- __mtx_leave(&rbo->tbo.bdev->fence_lock );
- task_set(&work->task, radeon_unpin_work_func, work);
- _spin_lock_irqsave(&dev->event_lock, flags );
- if (radeon_crtc->unpin_work) {
-  do { } while( 0);
-  r = -16;
-  goto unlock_free;
- }
- radeon_crtc->unpin_work = work;
- radeon_crtc->deferred_flip_completion = 0;
- _spin_unlock_irqrestore(&dev->event_lock, flags );
+ new_rbo = ({ const __typeof( ((struct radeon_bo *)0)->gem_base ) *__mptr = ((obj)); (struct radeon_bo *)( (char *)__mptr - __builtin_offsetof(struct radeon_bo, gem_base) );});
  do { } while( 0);
- r = radeon_bo_reserve(rbo, 0);
+ r = radeon_bo_reserve(new_rbo, 0);
  if (__builtin_expect(!!(r != 0), 0)) {
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to reserve new rbo buffer before flip\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
-  goto pflip_cleanup;
+  goto cleanup;
  }
- r = radeon_bo_pin_restricted(rbo, 0x4,
+ r = radeon_bo_pin_restricted(new_rbo, 0x4,
          ((rdev->family >= CHIP_RS600)) ? 0 : 1 << 27, &base);
  if (__builtin_expect(!!(r != 0), 0)) {
-  radeon_bo_unreserve(rbo);
+  radeon_bo_unreserve(new_rbo);
   r = -22;
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to pin new rbo buffer before flip\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
-  goto pflip_cleanup;
+  goto cleanup;
  }
- radeon_bo_get_tiling_flags(rbo, &tiling_flags, ((void *)0));
- radeon_bo_unreserve(rbo);
+ work->fence = fence_get(reservation_object_get_excl(new_rbo->tbo.resv));
+ radeon_bo_get_tiling_flags(new_rbo, &tiling_flags, ((void *)0));
+ radeon_bo_unreserve(new_rbo);
  if (!((rdev->family >= CHIP_RS600))) {
   base -= radeon_crtc->legacy_display_base_addr;
   pitch_pixels = fb->pitches[0] / (fb->bits_per_pixel / 8);
@@ -15739,41 +17805,78 @@ static int radeon_crtc_page_flip(struct drm_crtc *crtc,
   }
   base &= ~7;
  }
- _spin_lock_irqsave(&dev->event_lock, flags );
- work->new_crtc_base = base;
- _spin_unlock_irqrestore(&dev->event_lock, flags );
- crtc->primary->fb = fb;
- r = drm_vblank_get(dev, radeon_crtc->crtc_id);
+ work->base = base;
+ r = drm_vblank_get(crtc->dev, radeon_crtc->crtc_id);
  if (r) {
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to get vblank before flip\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
-  goto pflip_cleanup1;
- }
- (rdev)->asic->pflip.pre_page_flip((rdev), (radeon_crtc->crtc_id));
- return 0;
-pflip_cleanup1:
- if (__builtin_expect(!!(radeon_bo_reserve(rbo, 0) != 0), 0)) {
-  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to reserve new rbo in error path\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
   goto pflip_cleanup;
  }
- if (__builtin_expect(!!(radeon_bo_unpin(rbo) != 0), 0)) {
+ _spin_lock_irqsave(&crtc->dev->event_lock, flags );
+ if (radeon_crtc->flip_status != RADEON_FLIP_NONE) {
+  do { } while( 0);
+  _spin_unlock_irqrestore(&crtc->dev->event_lock, flags );
+  r = -16;
+  goto vblank_cleanup;
+ }
+ radeon_crtc->flip_status = RADEON_FLIP_PENDING;
+ radeon_crtc->flip_work = work;
+ crtc->primary->fb = fb;
+ _spin_unlock_irqrestore(&crtc->dev->event_lock, flags );
+ queue_work(radeon_crtc->flip_queue, &work->flip_work);
+ return 0;
+vblank_cleanup:
+ drm_vblank_put(crtc->dev, radeon_crtc->crtc_id);
+pflip_cleanup:
+ if (__builtin_expect(!!(radeon_bo_reserve(new_rbo, 0) != 0), 0)) {
+  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to reserve new rbo in error path\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
+  goto cleanup;
+ }
+ if (__builtin_expect(!!(radeon_bo_unpin(new_rbo) != 0), 0)) {
   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "failed to unpin new rbo in error path\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__);
  }
- radeon_bo_unreserve(rbo);
-pflip_cleanup:
- _spin_lock_irqsave(&dev->event_lock, flags );
- radeon_crtc->unpin_work = ((void *)0);
-unlock_free:
- _spin_unlock_irqrestore(&dev->event_lock, flags );
- drm_gem_object_unreference_unlocked(old_radeon_fb->obj);
- radeon_fence_unref(&work->fence);
+ radeon_bo_unreserve(new_rbo);
+cleanup:
+ drm_gem_object_unreference_unlocked(&work->old_rbo->gem_base);
+ fence_put(work->fence);
  kfree(work);
  return r;
 }
+static int
+radeon_crtc_set_config(struct drm_mode_set *set)
+{
+ struct drm_device *dev;
+ struct radeon_device *rdev;
+ struct drm_crtc *crtc;
+ _Bool active = 0;
+ int ret;
+ if (!set || !set->crtc)
+  return -22;
+ dev = set->crtc->dev;
+ ret = pm_runtime_get_sync(dev->dev);
+ if (ret < 0)
+  return ret;
+ ret = drm_crtc_helper_set_config(set);
+ for (crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = ((&dev->mode_config.crtc_list)->next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}); &crtc->head != (&dev->mode_config.crtc_list); crtc = ({ const __typeof( ((__typeof(*crtc) *)0)->head ) *__mptr = (crtc->head.next); (__typeof(*crtc) *)( (char *)__mptr - __builtin_offsetof(__typeof(*crtc), head) );}))
+  if (crtc->enabled)
+   active = 1;
+ ;
+ rdev = dev->dev_private;
+ if (active && !rdev->have_disp_power_ref) {
+  rdev->have_disp_power_ref = 1;
+  return ret;
+ }
+ if (!active && rdev->have_disp_power_ref) {
+  ;
+  rdev->have_disp_power_ref = 0;
+ }
+ ;
+ return ret;
+}
 static const struct drm_crtc_funcs radeon_crtc_funcs = {
- .cursor_set = radeon_crtc_cursor_set,
+ .cursor_set2 = radeon_crtc_cursor_set2,
  .cursor_move = radeon_crtc_cursor_move,
  .gamma_set = radeon_crtc_gamma_set,
- .set_config = drm_crtc_helper_set_config,
+ .set_config = radeon_crtc_set_config,
  .destroy = radeon_crtc_destroy,
  .page_flip = radeon_crtc_page_flip,
 };
@@ -15788,7 +17891,17 @@ static void radeon_crtc_init(struct drm_device *dev, int index)
  drm_crtc_init(dev, &radeon_crtc->base, &radeon_crtc_funcs);
  drm_mode_crtc_set_gamma_size(&radeon_crtc->base, 256);
  radeon_crtc->crtc_id = index;
+ radeon_crtc->flip_queue = create_singlethread_workqueue("radeon-crtc");
  rdev->mode_info.crtcs[index] = radeon_crtc;
+ if (rdev->family >= CHIP_BONAIRE) {
+  radeon_crtc->max_cursor_width = 128;
+  radeon_crtc->max_cursor_height = 128;
+ } else {
+  radeon_crtc->max_cursor_width = 64;
+  radeon_crtc->max_cursor_height = 64;
+ }
+ dev->mode_config.cursor_width = radeon_crtc->max_cursor_width;
+ dev->mode_config.cursor_height = radeon_crtc->max_cursor_height;
  for (i = 0; i < 256; i++) {
   radeon_crtc->lut_r[i] = rasops_cmap[3 * i] << 2;
   radeon_crtc->lut_g[i] = rasops_cmap[(3 * i) + 1] << 2;
@@ -15801,6 +17914,65 @@ static void radeon_crtc_init(struct drm_device *dev, int index)
 }
 static void radeon_print_display_setup(struct drm_device *dev)
 {
+ struct drm_connector *connector;
+ struct radeon_connector *radeon_connector;
+ struct drm_encoder *encoder;
+ struct radeon_encoder *radeon_encoder;
+ uint32_t devices;
+ int i = 0;
+ do { } while( 0);
+ for (connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = ((&dev->mode_config.connector_list)->next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );}); &connector->head != (&dev->mode_config.connector_list); connector = ({ const __typeof( ((__typeof(*connector) *)0)->head ) *__mptr = (connector->head.next); (__typeof(*connector) *)( (char *)__mptr - __builtin_offsetof(__typeof(*connector), head) );})) {
+  radeon_connector = ({ const __typeof( ((struct radeon_connector *)0)->base ) *__mptr = (connector); (struct radeon_connector *)( (char *)__mptr - __builtin_offsetof(struct radeon_connector, base) );});
+  do { } while( 0);
+  do { } while( 0);
+  if (radeon_connector->hpd.hpd != RADEON_HPD_NONE)
+   do { } while( 0);
+  if (radeon_connector->ddc_bus) {
+   do { } while( 0);
+   if (radeon_connector->router.ddc_valid)
+    do { } while( 0);
+   if (radeon_connector->router.cd_valid)
+    do { } while( 0);
+  } else {
+   if (connector->connector_type == 1 ||
+       connector->connector_type == 2 ||
+       connector->connector_type == 3 ||
+       connector->connector_type == 4 ||
+       connector->connector_type == 11 ||
+       connector->connector_type == 12)
+    do { } while( 0);
+  }
+  do { } while( 0);
+  for (encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = ((&dev->mode_config.encoder_list)->next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );}); &encoder->head != (&dev->mode_config.encoder_list); encoder = ({ const __typeof( ((__typeof(*encoder) *)0)->head ) *__mptr = (encoder->head.next); (__typeof(*encoder) *)( (char *)__mptr - __builtin_offsetof(__typeof(*encoder), head) );})) {
+   radeon_encoder = ({ const __typeof( ((struct radeon_encoder *)0)->base ) *__mptr = (encoder); (struct radeon_encoder *)( (char *)__mptr - __builtin_offsetof(struct radeon_encoder, base) );});
+   devices = radeon_encoder->devices & radeon_connector->devices;
+   if (devices) {
+    if (devices & (0x1L << 0x00000000 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000004 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000001 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000003 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000007 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000009 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x0000000A ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x0000000B ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000006 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000002 ))
+     do { } while( 0);
+    if (devices & (0x1L << 0x00000008 ))
+     do { } while( 0);
+   }
+  }
+  i++;
+ }
 }
 static _Bool radeon_setup_enc_conn(struct drm_device *dev)
 {
@@ -15826,98 +17998,35 @@ static _Bool radeon_setup_enc_conn(struct drm_device *dev)
  }
  return ret;
 }
-int radeon_ddc_get_modes(struct radeon_connector *radeon_connector)
+static void avivo_reduce_ratio(unsigned *nom, unsigned *den,
+          unsigned nom_min, unsigned den_min)
 {
- struct drm_device *dev = radeon_connector->base.dev;
- struct radeon_device *rdev = dev->dev_private;
- int ret = 0;
- if (radeon_connector->router.ddc_valid)
-  radeon_router_select_ddc_port(radeon_connector);
- if (radeon_connector_encoder_get_dp_bridge_encoder_id(&radeon_connector->base) !=
-     0x00) {
-  struct radeon_connector_atom_dig *dig = radeon_connector->con_priv;
-  if (dig->dp_i2c_bus)
-   radeon_connector->edid = drm_get_edid(&radeon_connector->base,
-             &dig->dp_i2c_bus->adapter);
- } else if ((radeon_connector->base.connector_type == 10) ||
-     (radeon_connector->base.connector_type == 14)) {
-  struct radeon_connector_atom_dig *dig = radeon_connector->con_priv;
-  if ((dig->dp_sink_type == 0x13 ||
-       dig->dp_sink_type == 0x14) && dig->dp_i2c_bus)
-   radeon_connector->edid = drm_get_edid(&radeon_connector->base,
-             &dig->dp_i2c_bus->adapter);
-  else if (radeon_connector->ddc_bus && !radeon_connector->edid)
-   radeon_connector->edid = drm_get_edid(&radeon_connector->base,
-             &radeon_connector->ddc_bus->adapter);
- } else {
-  if (radeon_connector->ddc_bus && !radeon_connector->edid)
-   radeon_connector->edid = drm_get_edid(&radeon_connector->base,
-             &radeon_connector->ddc_bus->adapter);
+ unsigned tmp;
+ tmp = gcd(*nom, *den);
+ *nom /= tmp;
+ *den /= tmp;
+        if (*nom < nom_min) {
+  tmp = (((nom_min) + ((*nom) - 1)) / (*nom));
+  *nom *= tmp;
+  *den *= tmp;
  }
- if (!radeon_connector->edid) {
-  if (rdev->is_atom_bios) {
-   if (((radeon_connector->base.connector_type == 7) ||
-        (radeon_connector->base.connector_type == 14)))
-    radeon_connector->edid = radeon_bios_get_hardcoded_edid(rdev);
-  } else
-   radeon_connector->edid = radeon_bios_get_hardcoded_edid(rdev);
+ if (*den < den_min) {
+  tmp = (((den_min) + ((*den) - 1)) / (*den));
+  *nom *= tmp;
+  *den *= tmp;
  }
- if (radeon_connector->edid) {
-  drm_mode_connector_update_edid_property(&radeon_connector->base, radeon_connector->edid);
-  ret = drm_add_edid_modes(&radeon_connector->base, radeon_connector->edid);
-  drm_edid_to_eld(&radeon_connector->base, radeon_connector->edid);
-  return ret;
- }
- drm_mode_connector_update_edid_property(&radeon_connector->base, ((void *)0));
- return 0;
 }
-static void avivo_get_fb_div(struct radeon_pll *pll,
-        u32 target_clock,
-        u32 post_div,
-        u32 ref_div,
-        u32 *fb_div,
-        u32 *frac_fb_div)
+static void avivo_get_fb_ref_div(unsigned nom, unsigned den, unsigned post_div,
+     unsigned fb_div_max, unsigned ref_div_max,
+     unsigned *fb_div, unsigned *ref_div)
 {
- u32 tmp = post_div * ref_div;
- tmp *= target_clock;
- *fb_div = tmp / pll->reference_freq;
- *frac_fb_div = tmp % pll->reference_freq;
-        if (*fb_div > pll->max_feedback_div)
-  *fb_div = pll->max_feedback_div;
-        else if (*fb_div < pll->min_feedback_div)
-                *fb_div = pll->min_feedback_div;
-}
-static u32 avivo_get_post_div(struct radeon_pll *pll,
-         u32 target_clock)
-{
- u32 vco, post_div, tmp;
- if (pll->flags & (1 << 12))
-  return pll->post_div;
- if (pll->flags & (1 << 14)) {
-  if (pll->flags & (1 << 13))
-   vco = pll->lcd_pll_out_min;
-  else
-   vco = pll->pll_out_min;
- } else {
-  if (pll->flags & (1 << 13))
-   vco = pll->lcd_pll_out_max;
-  else
-   vco = pll->pll_out_max;
+ ref_div_max = max(min(100 / post_div, ref_div_max), 1u);
+ *ref_div = min(max((((den) + ((post_div) / 2)) / (post_div)), 1u), ref_div_max);
+ *fb_div = (((nom * *ref_div * post_div) + ((den) / 2)) / (den));
+        if (*fb_div > fb_div_max) {
+  *ref_div = (((*ref_div * fb_div_max) + ((*fb_div) / 2)) / (*fb_div));
+  *fb_div = fb_div_max;
  }
- post_div = vco / target_clock;
- tmp = vco % target_clock;
- if (pll->flags & (1 << 14)) {
-  if (tmp)
-   post_div++;
- } else {
-  if (!tmp)
-   post_div--;
- }
- if (post_div > pll->max_post_div)
-  post_div = pll->max_post_div;
- else if (post_div < pll->min_post_div)
-  post_div = pll->min_post_div;
- return post_div;
 }
 void radeon_compute_pll_avivo(struct radeon_pll *pll,
          u32 freq,
@@ -15927,45 +18036,99 @@ void radeon_compute_pll_avivo(struct radeon_pll *pll,
          u32 *ref_div_p,
          u32 *post_div_p)
 {
- u32 target_clock = freq / 10;
- u32 post_div = avivo_get_post_div(pll, target_clock);
- u32 ref_div = pll->min_ref_div;
- u32 fb_div = 0, frac_fb_div = 0, tmp;
- if (pll->flags & (1 << 2))
-  ref_div = pll->reference_div;
+ unsigned target_clock = pll->flags & (1 << 10) ?
+  freq : freq / 10;
+ unsigned fb_div_min, fb_div_max, fb_div;
+ unsigned post_div_min, post_div_max, post_div;
+ unsigned ref_div_min, ref_div_max, ref_div;
+ unsigned post_div_best, diff_best;
+ unsigned nom, den;
+ fb_div_min = pll->min_feedback_div;
+ fb_div_max = pll->max_feedback_div;
  if (pll->flags & (1 << 10)) {
-  avivo_get_fb_div(pll, target_clock, post_div, ref_div, &fb_div, &frac_fb_div);
-  frac_fb_div = (100 * frac_fb_div) / pll->reference_freq;
-  if (frac_fb_div >= 5) {
-   frac_fb_div -= 5;
-   frac_fb_div = frac_fb_div / 10;
-   frac_fb_div++;
-  }
-  if (frac_fb_div >= 10) {
-   fb_div++;
-   frac_fb_div = 0;
-  }
+  fb_div_min *= 10;
+  fb_div_max *= 10;
+ }
+ if (pll->flags & (1 << 2))
+  ref_div_min = pll->reference_div;
+ else
+  ref_div_min = pll->min_ref_div;
+ if (pll->flags & (1 << 10) &&
+     pll->flags & (1 << 2))
+  ref_div_max = pll->reference_div;
+ else if (pll->flags & (1 << 14))
+  ref_div_max = min(pll->max_ref_div, 7u);
+ else
+  ref_div_max = pll->max_ref_div;
+ if (pll->flags & (1 << 12)) {
+  post_div_min = pll->post_div;
+  post_div_max = pll->post_div;
  } else {
-  while (ref_div <= pll->max_ref_div) {
-   avivo_get_fb_div(pll, target_clock, post_div, ref_div,
-      &fb_div, &frac_fb_div);
-   if (frac_fb_div >= (pll->reference_freq / 2))
-    fb_div++;
-   frac_fb_div = 0;
-   tmp = (pll->reference_freq * fb_div) / (post_div * ref_div);
-   tmp = (tmp * 10000) / target_clock;
-   if (tmp > (10000 + 10))
-    ref_div++;
-   else if (tmp >= (10000 - 10))
-    break;
-   else
-    ref_div++;
+  unsigned vco_min, vco_max;
+  if (pll->flags & (1 << 13)) {
+   vco_min = pll->lcd_pll_out_min;
+   vco_max = pll->lcd_pll_out_max;
+  } else {
+   vco_min = pll->pll_out_min;
+   vco_max = pll->pll_out_max;
+  }
+  if (pll->flags & (1 << 10)) {
+   vco_min *= 10;
+   vco_max *= 10;
+  }
+  post_div_min = vco_min / target_clock;
+  if ((target_clock * post_div_min) < vco_min)
+   ++post_div_min;
+  if (post_div_min < pll->min_post_div)
+   post_div_min = pll->min_post_div;
+  post_div_max = vco_max / target_clock;
+  if ((target_clock * post_div_max) > vco_max)
+   --post_div_max;
+  if (post_div_max > pll->max_post_div)
+   post_div_max = pll->max_post_div;
+ }
+ nom = target_clock;
+ den = pll->reference_freq;
+ avivo_reduce_ratio(&nom, &den, fb_div_min, post_div_min);
+ if (pll->flags & (1 << 14))
+  post_div_best = post_div_min;
+ else
+  post_div_best = post_div_max;
+ diff_best = ~0;
+ for (post_div = post_div_min; post_div <= post_div_max; ++post_div) {
+  unsigned diff;
+  avivo_get_fb_ref_div(nom, den, post_div, fb_div_max,
+         ref_div_max, &fb_div, &ref_div);
+  diff = abs(target_clock - (pll->reference_freq * fb_div) /
+   (ref_div * post_div));
+  if (diff < diff_best || (diff == diff_best &&
+      !(pll->flags & (1 << 14)))) {
+   post_div_best = post_div;
+   diff_best = diff;
   }
  }
- *dot_clock_p = ((pll->reference_freq * fb_div * 10) + (pll->reference_freq * frac_fb_div)) /
-  (ref_div * post_div * 10);
- *fb_div_p = fb_div;
- *frac_fb_div_p = frac_fb_div;
+ post_div = post_div_best;
+ avivo_get_fb_ref_div(nom, den, post_div, fb_div_max, ref_div_max,
+        &fb_div, &ref_div);
+ avivo_reduce_ratio(&fb_div, &ref_div, fb_div_min, ref_div_min);
+ if (pll->flags & (1 << 10) && (fb_div % 10)) {
+  fb_div_min = max(fb_div_min, (9 - (fb_div % 10)) * 20 + 50);
+  if (fb_div < fb_div_min) {
+   unsigned tmp = (((fb_div_min) + ((fb_div) - 1)) / (fb_div));
+   fb_div *= tmp;
+   ref_div *= tmp;
+  }
+ }
+ if (pll->flags & (1 << 10)) {
+  *fb_div_p = fb_div / 10;
+  *frac_fb_div_p = fb_div % 10;
+ } else {
+  *fb_div_p = fb_div;
+  *frac_fb_div_p = 0;
+ }
+ *dot_clock_p = ((pll->reference_freq * *fb_div_p * 10) +
+   (pll->reference_freq * *frac_fb_div_p)) /
+         (ref_div * post_div * 10);
  *ref_div_p = ref_div;
  *post_div_p = post_div;
  do { } while( 0);
@@ -15974,7 +18137,7 @@ static inline uint32_t radeon_div(uint64_t n, uint32_t d)
 {
  uint64_t mod;
  n += d / 2;
- mod = (n /= d);
+ mod = ({ uint32_t __base = (d); uint32_t __rem = ((uint64_t)(n)) % __base; (n) = ((uint64_t)(n)) / __base; __rem; });
  return n;
 }
 void radeon_compute_pll_legacy(struct radeon_pll *pll,
@@ -16165,12 +18328,12 @@ radeon_framebuffer_init(struct drm_device *dev,
 {
  int ret;
  rfb->obj = obj;
+ drm_helper_mode_fill_fb_struct(&rfb->base, mode_cmd);
  ret = drm_framebuffer_init(dev, &rfb->base, &radeon_fb_funcs);
  if (ret) {
   rfb->obj = ((void *)0);
   return ret;
  }
- drm_helper_mode_fill_fb_struct(&rfb->base, mode_cmd);
  return 0;
 }
 static struct drm_framebuffer *
@@ -16227,6 +18390,21 @@ static struct drm_prop_enum_list radeon_underscan_enum_list[] =
  { UNDERSCAN_ON, "on" },
  { UNDERSCAN_AUTO, "auto" },
 };
+static struct drm_prop_enum_list radeon_audio_enum_list[] =
+{ { RADEON_AUDIO_DISABLE, "off" },
+ { RADEON_AUDIO_ENABLE, "on" },
+ { RADEON_AUDIO_AUTO, "auto" },
+};
+static struct drm_prop_enum_list radeon_dither_enum_list[] =
+{ { RADEON_FMT_DITHER_DISABLE, "off" },
+ { RADEON_FMT_DITHER_ENABLE, "on" },
+};
+static struct drm_prop_enum_list radeon_output_csc_enum_list[] =
+{ { RADEON_OUTPUT_CSC_BYPASS, "bypass" },
+ { RADEON_OUTPUT_CSC_TVRGB, "tvrgb" },
+ { RADEON_OUTPUT_CSC_YCBCR601, "ycbcr601" },
+ { RADEON_OUTPUT_CSC_YCBCR709, "ycbcr709" },
+};
 static int radeon_modeset_create_props(struct radeon_device *rdev)
 {
  int sz;
@@ -16268,6 +18446,21 @@ static int radeon_modeset_create_props(struct radeon_device *rdev)
      "underscan vborder", 0, 128);
  if (!rdev->mode_info.underscan_vborder_property)
   return -12;
+ sz = (sizeof((radeon_audio_enum_list)) / sizeof((radeon_audio_enum_list)[0]));
+ rdev->mode_info.audio_property =
+  drm_property_create_enum(rdev->ddev, 0,
+      "audio",
+      radeon_audio_enum_list, sz);
+ sz = (sizeof((radeon_dither_enum_list)) / sizeof((radeon_dither_enum_list)[0]));
+ rdev->mode_info.dither_property =
+  drm_property_create_enum(rdev->ddev, 0,
+      "dither",
+      radeon_dither_enum_list, sz);
+ sz = (sizeof((radeon_output_csc_enum_list)) / sizeof((radeon_output_csc_enum_list)[0]));
+ rdev->mode_info.output_csc_property =
+  drm_property_create_enum(rdev->ddev, 0,
+      "output_csc",
+      radeon_output_csc_enum_list, sz);
  return 0;
 }
 void radeon_update_display_priority(struct radeon_device *rdev)
@@ -16284,40 +18477,36 @@ void radeon_update_display_priority(struct radeon_device *rdev)
 static void radeon_afmt_init(struct radeon_device *rdev)
 {
  int i;
- for (i = 0; i < 6; i++)
+ for (i = 0; i < 7; i++)
   rdev->mode_info.afmt[i] = ((void *)0);
- if (((rdev->family >= CHIP_ARUBA))) {
+ if (((rdev->family == CHIP_HAINAN))) {
  } else if (((rdev->family >= CHIP_CEDAR))) {
-  rdev->mode_info.afmt[0] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-  if (rdev->mode_info.afmt[0]) {
-   rdev->mode_info.afmt[0]->offset = (0x6df0 - 0x6df0);
-   rdev->mode_info.afmt[0]->id = 0;
-  }
-  rdev->mode_info.afmt[1] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-  if (rdev->mode_info.afmt[1]) {
-   rdev->mode_info.afmt[1]->offset = (0x79f0 - 0x6df0);
-   rdev->mode_info.afmt[1]->id = 1;
-  }
-  if (!((rdev->family >= CHIP_PALM) && (rdev->flags & RADEON_IS_IGP))) {
-   rdev->mode_info.afmt[2] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-   if (rdev->mode_info.afmt[2]) {
-    rdev->mode_info.afmt[2]->offset = (0x105f0 - 0x6df0);
-    rdev->mode_info.afmt[2]->id = 2;
-   }
-   rdev->mode_info.afmt[3] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-   if (rdev->mode_info.afmt[3]) {
-    rdev->mode_info.afmt[3]->offset = (0x111f0 - 0x6df0);
-    rdev->mode_info.afmt[3]->id = 3;
-   }
-   rdev->mode_info.afmt[4] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-   if (rdev->mode_info.afmt[4]) {
-    rdev->mode_info.afmt[4]->offset = (0x11df0 - 0x6df0);
-    rdev->mode_info.afmt[4]->id = 4;
-   }
-   rdev->mode_info.afmt[5] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
-   if (rdev->mode_info.afmt[5]) {
-    rdev->mode_info.afmt[5]->offset = (0x129f0 - 0x6df0);
-    rdev->mode_info.afmt[5]->id = 5;
+  static uint32_t eg_offsets[] = {
+   (0x6df0 - 0x6df0),
+   (0x79f0 - 0x6df0),
+   (0x105f0 - 0x6df0),
+   (0x111f0 - 0x6df0),
+   (0x11df0 - 0x6df0),
+   (0x129f0 - 0x6df0),
+   0x13830 - 0x7030,
+  };
+  int num_afmt;
+  if (((rdev->family >= CHIP_BONAIRE)))
+   num_afmt = 7;
+  else if (((rdev->family >= CHIP_ARUBA)))
+   num_afmt = 6;
+  else if (((rdev->family >= CHIP_BARTS)))
+   num_afmt = 6;
+  else if (((rdev->family >= CHIP_PALM) && (rdev->flags & RADEON_IS_IGP)))
+   num_afmt = 2;
+  else
+   num_afmt = 6;
+  ((!(num_afmt > (sizeof((eg_offsets)) / sizeof((eg_offsets)[0])))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/radeon/radeon_display.c", 1582, "!(num_afmt > (sizeof((eg_offsets)) / sizeof((eg_offsets)[0])))"));
+  for (i = 0; i < num_afmt; i++) {
+   rdev->mode_info.afmt[i] = kzalloc(sizeof(struct radeon_afmt), (0x0001 | 0x0004));
+   if (rdev->mode_info.afmt[i]) {
+    rdev->mode_info.afmt[i]->offset = eg_offsets[i];
+    rdev->mode_info.afmt[i]->id = i;
    }
   }
  } else if (((rdev->family >= CHIP_RV620))) {
@@ -16349,7 +18538,7 @@ static void radeon_afmt_init(struct radeon_device *rdev)
 static void radeon_afmt_fini(struct radeon_device *rdev)
 {
  int i;
- for (i = 0; i < 6; i++) {
+ for (i = 0; i < 7; i++) {
   kfree(rdev->mode_info.afmt[i]);
   rdev->mode_info.afmt[i] = ((void *)0);
  }
@@ -16395,16 +18584,15 @@ int radeon_modeset_init(struct radeon_device *rdev)
  }
  (rdev)->asic->hpd.init((rdev));
  radeon_afmt_init(rdev);
- radeon_pm_init(rdev);
  radeon_fbdev_init(rdev);
  drm_kms_helper_poll_init(rdev->ddev);
+ ret = radeon_pm_late_init(rdev);
  return 0;
 }
 void radeon_modeset_fini(struct radeon_device *rdev)
 {
  radeon_fbdev_fini(rdev);
  kfree(rdev->mode_info.bios_hardcoded_edid);
- radeon_pm_fini(rdev);
  if (rdev->mode_info.mode_config_initialized) {
   radeon_afmt_fini(rdev);
   drm_kms_helper_poll_fini(rdev->ddev);
@@ -16463,7 +18651,7 @@ _Bool radeon_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
        (!(mode->flags & (1<<4))) &&
        ((radeon_encoder->underscan_type == UNDERSCAN_ON) ||
         ((radeon_encoder->underscan_type == UNDERSCAN_AUTO) &&
-         drm_detect_hdmi_monitor(radeon_connector->edid) &&
+         drm_detect_hdmi_monitor(radeon_connector_edid(connector)) &&
          is_hdtv_mode(mode)))) {
     if (radeon_encoder->underscan_hborder != 0)
      radeon_crtc->h_border = radeon_encoder->underscan_hborder;
@@ -16501,8 +18689,10 @@ _Bool radeon_crtc_scaling_mode_fixup(struct drm_crtc *crtc,
  }
  return 1;
 }
-int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int crtc, unsigned int flags,
-          int *vpos, int *hpos, ktime_t *stime, ktime_t *etime, const struct drm_display_mode *mode)
+int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int pipe,
+          unsigned int flags, int *vpos, int *hpos,
+          ktime_t *stime, ktime_t *etime,
+          const struct drm_display_mode *mode)
 {
  u32 stat_crtc = 0, vbl = 0, position = 0;
  int vbl_start, vbl_end, vtotal, ret = 0;
@@ -16511,49 +18701,49 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int crtc, unsign
  if (stime)
   *stime = ktime_get();
  if (((rdev->family >= CHIP_CEDAR))) {
-  if (crtc == 0) {
+  if (pipe == 0) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x6df0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x6df0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 1) {
+  if (pipe == 1) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x79f0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x79f0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 2) {
+  if (pipe == 2) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x105f0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x105f0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 3) {
+  if (pipe == 3) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x111f0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x111f0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 4) {
+  if (pipe == 4) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x11df0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x11df0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 5) {
+  if (pipe == 5) {
    vbl = r100_mm_rreg(rdev, (0x6e34 + (0x129f0 - 0x6df0)), 0);
    position = r100_mm_rreg(rdev, (0x6e90 + (0x129f0 - 0x6df0)), 0);
    ret |= (1 << 0);
   }
  } else if (((rdev->family >= CHIP_RS600))) {
-  if (crtc == 0) {
+  if (pipe == 0) {
    vbl = r100_mm_rreg(rdev, (0x6024), 0);
    position = r100_mm_rreg(rdev, (0x60a0), 0);
    ret |= (1 << 0);
   }
-  if (crtc == 1) {
+  if (pipe == 1) {
    vbl = r100_mm_rreg(rdev, (0x6824), 0);
    position = r100_mm_rreg(rdev, (0x68a0), 0);
    ret |= (1 << 0);
   }
  } else {
-  if (crtc == 0) {
+  if (pipe == 0) {
    vbl = (r100_mm_rreg(rdev, (0x0208), 0) &
     (0x07ff << 16)) >> 16;
    position = (r100_mm_rreg(rdev, (0x0210), 0) >> 16) & (0x07ff << 0);
@@ -16562,7 +18752,7 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int crtc, unsign
     in_vbl = 0;
    ret |= (1 << 0);
   }
-  if (crtc == 1) {
+  if (pipe == 1) {
    vbl = (r100_mm_rreg(rdev, (0x0308), 0) &
     (0x07ff << 16)) >> 16;
    position = (r100_mm_rreg(rdev, (0x0310), 0) >> 16) & (0x07ff << 0);
@@ -16582,17 +18772,26 @@ int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int crtc, unsign
   vbl_end = (vbl >> 16) & 0x1fff;
  }
  else {
-  vbl_start = rdev->mode_info.crtcs[crtc]->base.hwmode.crtc_vdisplay;
+  vbl_start = mode->crtc_vdisplay;
   vbl_end = 0;
  }
+ if (flags & (1 << 31)) {
+     *hpos = *vpos - vbl_start;
+ }
+ if (!(flags & (1 << 30)))
+  vbl_start -= rdev->mode_info.crtcs[pipe]->lb_vblank_lead_lines;
  if ((*vpos < vbl_start) && (*vpos >= vbl_end))
   in_vbl = 0;
+ if (in_vbl)
+     ret |= (1 << 1);
+ if (flags & (1 << 31)) {
+  *vpos -= vbl_start;
+  return ret;
+ }
  if (in_vbl && (*vpos >= vbl_start)) {
-  vtotal = rdev->mode_info.crtcs[crtc]->base.hwmode.crtc_vtotal;
+  vtotal = mode->crtc_vtotal;
   *vpos = *vpos - vtotal;
  }
  *vpos = *vpos - vbl_end;
- if (in_vbl)
-  ret |= (1 << 1);
  return ret;
 }

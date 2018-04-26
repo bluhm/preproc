@@ -1483,7 +1483,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -4270,9 +4271,19 @@ _spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned
 {
  __mtx_leave(mtxp );
 }
+typedef struct wait_queue wait_queue_t;
+struct wait_queue {
+ unsigned int flags;
+ void *private;
+ int (*func)(wait_queue_t *, unsigned, int, void *);
+};
+extern struct mutex sch_mtx;
+extern void *sch_ident;
+extern int sch_priority;
 struct wait_queue_head {
  struct mutex lock;
  unsigned int count;
+ struct wait_queue *_wq;
 };
 typedef struct wait_queue_head wait_queue_head_t;
 static inline void
@@ -4280,6 +4291,41 @@ init_waitqueue_head(wait_queue_head_t *wq)
 {
  do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
+ wq->_wq = ((void *)0);
+}
+static inline void
+__add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+{
+ head->_wq = new;
+}
+static inline void
+__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+{
+ head->_wq = ((void *)0);
+}
+static inline void
+_wake_up(wait_queue_head_t *wq )
+{
+ __mtx_enter(&wq->lock );
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
+ __mtx_leave(&wq->lock );
+}
+static inline void
+wake_up_all_locked(wait_queue_head_t *wq)
+{
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
 }
 struct completion {
  u_int done;
@@ -4691,24 +4737,244 @@ static inline void
 prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
 {
  if (*wait == ((void *)0)) {
-  __mtx_enter(&wq->lock );
+  __mtx_enter(&sch_mtx );
   *wait = wq;
  }
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = wq;
+ sch_priority = state;
 }
 static inline void
 finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 {
- if (*wait)
-  __mtx_leave(&wq->lock );
+ if (*wait) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
+}
+static inline void
+set_current_state(int state)
+{
+ if (sch_ident != (__curcpu->ci_self)->ci_curproc)
+  __mtx_enter(&sch_mtx );
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ sch_priority = state;
+}
+static inline void
+__set_current_state(int state)
+{
+ ((state == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1318, "state == TASK_RUNNING"));
+ if (sch_ident == (__curcpu->ci_self)->ci_curproc) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
 }
 static inline long
-schedule_timeout(long timeout, wait_queue_head_t **wait)
+schedule_timeout(long timeout)
 {
+ int err;
+ long deadline;
  if (cold) {
   delay((timeout * 1000000) / hz);
-  return -60;
+  return 0;
  }
- return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+ if (timeout == (0x7fffffff)) {
+  err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", 0);
+  sch_ident = (__curcpu->ci_self)->ci_curproc;
+  return timeout;
+ }
+ deadline = ticks + timeout;
+ err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", timeout);
+ timeout = deadline - ticks;
+ if (timeout < 0)
+  timeout = 0;
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ return timeout;
+}
+struct seq_file;
+static inline void
+seq_printf(struct seq_file *m, const char *fmt, ...) {};
+struct fence {
+ struct kref refcount;
+ const struct fence_ops *ops;
+ unsigned long flags;
+ unsigned int context;
+ unsigned int seqno;
+ struct mutex *lock;
+ struct list_head cb_list;
+};
+enum fence_flag_bits {
+ FENCE_FLAG_SIGNALED_BIT,
+ FENCE_FLAG_ENABLE_SIGNAL_BIT,
+ FENCE_FLAG_USER_BITS,
+};
+struct fence_ops {
+ const char * (*get_driver_name)(struct fence *);
+ const char * (*get_timeline_name)(struct fence *);
+ _Bool (*enable_signaling)(struct fence *);
+ _Bool (*signaled)(struct fence *);
+ long (*wait)(struct fence *, _Bool, long);
+ void (*release)(struct fence *);
+};
+struct fence_cb;
+typedef void (*fence_func_t)(struct fence *fence, struct fence_cb *cb);
+struct fence_cb {
+ struct list_head node;
+ fence_func_t func;
+};
+unsigned int fence_context_alloc(unsigned int);
+static inline struct fence *
+fence_get(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline struct fence *
+fence_get_rcu(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline void
+fence_release(struct kref *ref)
+{
+ struct fence *fence = ({ const __typeof( ((struct fence *)0)->refcount ) *__mptr = (ref); (struct fence *)( (char *)__mptr - __builtin_offsetof(struct fence, refcount) );});
+ if (fence->ops && fence->ops->release)
+  fence->ops->release(fence);
+ else
+  free(fence, 145, 0);
+}
+static inline void
+fence_put(struct fence *fence)
+{
+ if (fence)
+  kref_put(&fence->refcount, fence_release);
+}
+static inline int
+fence_signal(struct fence *fence)
+{
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ if (test_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags)) {
+  struct fence_cb *cur, *tmp;
+  __mtx_enter(fence->lock );
+  for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+   list_del_init(&cur->node);
+   cur->func(fence, cur);
+  }
+  __mtx_leave(fence->lock );
+ }
+ return 0;
+}
+static inline int
+fence_signal_locked(struct fence *fence)
+{
+ struct fence_cb *cur, *tmp;
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+  list_del_init(&cur->node);
+  cur->func(fence, cur);
+ }
+ return 0;
+}
+static inline _Bool
+fence_is_signaled(struct fence *fence)
+{
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return 1;
+ if (fence->ops->signaled && fence->ops->signaled(fence)) {
+  fence_signal(fence);
+  return 1;
+ }
+ return 0;
+}
+static inline long
+fence_wait_timeout(struct fence *fence, _Bool intr, signed long timeout)
+{
+ if (timeout < 0)
+  return -22;
+ if (timeout == 0)
+  return fence_is_signaled(fence);
+ return fence->ops->wait(fence, intr, timeout);
+}
+static inline long
+fence_wait(struct fence *fence, _Bool intr)
+{
+ return fence_wait_timeout(fence, intr, (0x7fffffff));
+}
+static inline void
+fence_enable_sw_signaling(struct fence *fence)
+{
+ if (!test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags) &&
+     !test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  __mtx_enter(fence->lock );
+  if (!fence->ops->enable_signaling(fence))
+   fence_signal_locked(fence);
+  __mtx_leave(fence->lock );
+ }
+}
+static inline void
+fence_init(struct fence *fence, const struct fence_ops *ops,
+    struct mutex *lock, unsigned context, unsigned seqno)
+{
+ fence->ops = ops;
+ fence->lock = lock;
+ fence->context = context;
+ fence->seqno = seqno;
+ fence->flags = 0;
+ kref_init(&fence->refcount);
+ INIT_LIST_HEAD(&fence->cb_list);
+}
+static inline int
+fence_add_callback(struct fence *fence, struct fence_cb *cb,
+    fence_func_t func)
+{
+ int ret = 0;
+ _Bool was_set;
+ if (({ int __ret = !!(!fence || !func); if (__ret) printf("WARNING %s failed at %s:%d\n", "!fence || !func", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1536); __builtin_expect(!!(__ret), 0); }))
+  return -22;
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  INIT_LIST_HEAD(&cb->node);
+  return -2;
+ }
+ __mtx_enter(fence->lock );
+ was_set = test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags);
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  ret = -2;
+ else if (!was_set) {
+  if (!fence->ops->enable_signaling(fence)) {
+   fence_signal_locked(fence);
+   ret = -2;
+  }
+ }
+ if (!ret) {
+  cb->func = func;
+  list_add_tail(&cb->node, &fence->cb_list);
+ } else
+  INIT_LIST_HEAD(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
+}
+static inline _Bool
+fence_remove_callback(struct fence *fence, struct fence_cb *cb)
+{
+ _Bool ret;
+ __mtx_enter(fence->lock );
+ ret = !list_empty(&cb->node);
+ if (ret)
+  list_del_init(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
 }
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
@@ -5019,7 +5285,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 2114, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
@@ -5074,6 +5340,48 @@ cpu_relax(void)
   delay(tick);
   jiffies++;
  }
+}
+struct lock_class_key {
+};
+typedef struct {
+ unsigned int sequence;
+} seqcount_t;
+static inline void
+__seqcount_init(seqcount_t *s, const char *name,
+    struct lock_class_key *key)
+{
+ s->sequence = 0;
+}
+static inline unsigned int
+read_seqcount_begin(const seqcount_t *s)
+{
+ unsigned int r;
+ for (;;) {
+  r = s->sequence;
+  if ((r & 1) == 0)
+   break;
+  cpu_relax();
+ }
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return r;
+}
+static inline int
+read_seqcount_retry(const seqcount_t *s, unsigned start)
+{
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return (s->sequence != start);
+}
+static inline void
+write_seqcount_begin(seqcount_t *s)
+{
+ s->sequence++;
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+}
+static inline void
+write_seqcount_end(seqcount_t *s)
+{
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ s->sequence++;
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
 {
@@ -6036,6 +6344,25 @@ rb_replace_node(struct rb_node *victim, struct rb_node *new,
  if (victim->__entry.rbe_right)
   ((victim->__entry.rbe_right))->__entry.rbe_parent = (new);
  *new = *victim;
+}
+struct interval_tree_node {
+ struct rb_node rb;
+ unsigned long start;
+ unsigned long last;
+};
+static inline struct interval_tree_node *
+interval_tree_iter_first(struct rb_root *root,
+    unsigned long start, unsigned long last)
+{
+ return ((void *)0);
+}
+static inline void
+interval_tree_insert(struct interval_tree_node *node, struct rb_root *root)
+{
+}
+static inline void
+interval_tree_remove(struct interval_tree_node *node, struct rb_root *root)
+{
 }
 struct drm_vma_offset_file {
  struct rb_node vm_rb;
@@ -7948,15 +8275,104 @@ static inline int drm_dev_to_irq(struct drm_device *dev)
  return -1;
 }
 int drm_pcie_get_speed_cap_mask(struct drm_device *, u32 *);
+struct rcu_head {
+};
+extern struct ww_class reservation_ww_class;
+extern struct lock_class_key reservation_seqcount_class;
+extern const char reservation_seqcount_string[];
+struct reservation_object_list {
+ struct rcu_head rcu;
+ u32 shared_count, shared_max;
+ struct fence *shared[];
+};
+struct reservation_object {
+ struct ww_mutex lock;
+ seqcount_t seq;
+ struct fence *fence_excl;
+ struct reservation_object_list *fence;
+ struct reservation_object_list *staged;
+};
+static inline void
+reservation_object_init(struct reservation_object *obj)
+{
+ ww_mutex_init(&obj->lock, &reservation_ww_class);
+ __seqcount_init(&obj->seq, reservation_seqcount_string, &reservation_seqcount_class);
+ do { (obj->fence) = (((void *)0)); } while(0);
+ do { (obj->fence_excl) = (((void *)0)); } while(0);
+ obj->staged = ((void *)0);
+}
+static inline void
+reservation_object_fini(struct reservation_object *obj)
+{
+ int i;
+ struct reservation_object_list *fobj;
+ struct fence *excl;
+ excl = (obj->fence_excl);
+ if (excl)
+  fence_put(excl);
+ fobj = (obj->fence);
+ if (fobj) {
+  for (i = 0; i < fobj->shared_count; ++i)
+   fence_put((fobj->shared[i]));
+  kfree(fobj);
+ }
+ kfree(obj->staged);
+ ww_mutex_destroy(&obj->lock);
+}
+static inline struct reservation_object_list *
+reservation_object_get_list(struct reservation_object *obj)
+{
+ return (obj->fence);
+}
+static inline struct fence *
+reservation_object_get_excl(struct reservation_object *obj)
+{
+ return (obj->fence_excl);
+}
+int reservation_object_reserve_shared(struct reservation_object *obj);
+void reservation_object_add_shared_fence(struct reservation_object *obj,
+      struct fence *fence);
+void reservation_object_add_excl_fence(struct reservation_object *obj,
+           struct fence *fence);
+int reservation_object_get_fences_rcu(struct reservation_object *obj,
+          struct fence **pfence_excl,
+          unsigned *pshared_count,
+          struct fence ***pshared);
+long reservation_object_wait_timeout_rcu(struct reservation_object *obj,
+      _Bool wait_all, _Bool intr,
+      unsigned long timeout);
+_Bool reservation_object_test_signaled_rcu(struct reservation_object *obj,
+       _Bool test_all);
+struct drm_hash_item {
+ struct { struct drm_hash_item *le_next; struct drm_hash_item **le_prev; } head;
+ unsigned long key;
+};
+struct drm_open_hash {
+ struct drm_hash_item_list { struct drm_hash_item *lh_first; } *table;
+ uint8_t order;
+};
+extern int drm_ht_create(struct drm_open_hash *ht, unsigned int order);
+extern int drm_ht_insert_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern int drm_ht_just_insert_please(struct drm_open_hash *ht, struct drm_hash_item *item,
+         unsigned long seed, int bits, int shift,
+         unsigned long add);
+extern int drm_ht_find_item(struct drm_open_hash *ht, unsigned long key, struct drm_hash_item **item);
+extern void drm_ht_verbose_list(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_key(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern void drm_ht_remove(struct drm_open_hash *ht);
 struct ttm_bo_device;
 struct drm_mm_node;
-struct ttm_placement {
+struct ttm_place {
  unsigned fpfn;
  unsigned lpfn;
+ uint32_t flags;
+};
+struct ttm_placement {
  unsigned num_placement;
- const uint32_t *placement;
+ const struct ttm_place *placement;
  unsigned num_busy_placement;
- const uint32_t *busy_placement;
+ const struct ttm_place *busy_placement;
 };
 struct ttm_bus_placement {
  void *addr;
@@ -7994,7 +8410,6 @@ struct ttm_buffer_object {
  size_t acc_size;
  struct kref kref;
  struct kref list_kref;
- wait_queue_head_t event_queue;
  struct ttm_mem_reg mem;
  struct uvm_object *persistent_swap_storage;
  struct ttm_tt *ttm;
@@ -8004,15 +8419,14 @@ struct ttm_buffer_object {
  struct list_head ddestroy;
  struct list_head swap;
  struct list_head io_reserve_lru;
- uint32_t val_seq;
- _Bool seq_valid;
- atomic_t reserved;
- void *sync_obj;
  unsigned long priv_flags;
  struct drm_vma_offset_node vma_node;
- unsigned long offset;
+ uint64_t offset;
  uint32_t cur_placement;
  struct sg_table *sg;
+ struct reservation_object *resv;
+ struct reservation_object ttm_resv;
+ struct rwlock wu_mutex;
 };
 struct ttm_bo_kmap_obj {
  void *virtual;
@@ -8033,6 +8447,9 @@ ttm_bo_reference(struct ttm_buffer_object *bo)
 }
 extern int ttm_bo_wait(struct ttm_buffer_object *bo, _Bool lazy,
          _Bool interruptible, _Bool no_wait);
+extern _Bool ttm_bo_mem_compat(struct ttm_placement *placement,
+         struct ttm_mem_reg *mem,
+         uint32_t *new_flags);
 extern int ttm_bo_validate(struct ttm_buffer_object *bo,
     struct ttm_placement *placement,
     _Bool interruptible,
@@ -8064,6 +8481,7 @@ extern int ttm_bo_init(struct ttm_bo_device *bdev,
    struct uvm_object *persistent_swap_storage,
    size_t acc_size,
    struct sg_table *sg,
+   struct reservation_object *resv,
    void (*destroy) (struct ttm_buffer_object *));
 extern int ttm_bo_create(struct ttm_bo_device *bdev,
     unsigned long size,
@@ -8073,8 +8491,6 @@ extern int ttm_bo_create(struct ttm_bo_device *bdev,
     _Bool interruptible,
     struct uvm_object *persistent_swap_storage,
     struct ttm_buffer_object **p_bo);
-extern int ttm_bo_check_placement(struct ttm_buffer_object *bo,
-     struct ttm_placement *placement);
 extern int ttm_bo_init_mm(struct ttm_bo_device *bdev, unsigned type,
     unsigned long p_size);
 extern int ttm_bo_clean_mm(struct ttm_bo_device *bdev, unsigned mem_type);
@@ -8092,12 +8508,9 @@ extern struct uvm_object *ttm_bo_mmap(voff_t, vsize_t,
           struct ttm_bo_device *);
 extern ssize_t ttm_bo_io(struct ttm_bo_device *bdev, struct file *filp,
     const char *wbuf, char *rbuf,
-    size_t count, off_t *f_pos, _Bool write);
+    size_t count, loff_t *f_pos, _Bool write);
 extern void ttm_bo_swapout_all(struct ttm_bo_device *bdev);
-static inline _Bool ttm_bo_is_reserved(struct ttm_buffer_object *bo)
-{
- return (*(&bo->reserved));
-}
+extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo);
 struct ttm_mem_shrink {
  int (*do_shrink) (struct ttm_mem_shrink *);
 };
@@ -8105,9 +8518,8 @@ struct ttm_mem_zone;
 struct ttm_mem_global {
  struct kobject kobj;
  struct ttm_mem_shrink *shrink;
- struct taskq *swap_queue;
- struct task task;
- _Bool task_queued;
+ struct workqueue_struct *swap_queue;
+ struct work_struct work;
  spinlock_t lock;
  struct ttm_mem_zone *zones[2];
  unsigned int num_zones;
@@ -8135,7 +8547,7 @@ static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
           struct ttm_mem_shrink *shrink)
 {
  __mtx_enter(&glob->lock );
- ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 137, "!(glob->shrink != shrink)"));
+ ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 135, "!(glob->shrink != shrink)"));
  glob->shrink = ((void *)0);
  __mtx_leave(&glob->lock );
 }
@@ -8199,7 +8611,8 @@ struct ttm_tt {
 };
 struct ttm_dma_tt {
  struct ttm_tt ttm;
- bus_addr_t *dma_address;
+ void **cpu_address;
+ dma_addr_t *dma_address;
  struct list_head pages_list;
 };
 struct ttm_mem_type_manager;
@@ -8208,7 +8621,7 @@ struct ttm_mem_type_manager_func {
  int (*takedown)(struct ttm_mem_type_manager *man);
  int (*get_node)(struct ttm_mem_type_manager *man,
     struct ttm_buffer_object *bo,
-    struct ttm_placement *placement,
+    const struct ttm_place *place,
     struct ttm_mem_reg *mem);
  void (*put_node)(struct ttm_mem_type_manager *man,
     struct ttm_mem_reg *mem);
@@ -8219,7 +8632,7 @@ struct ttm_mem_type_manager {
  _Bool has_type;
  _Bool use_type;
  uint32_t flags;
- unsigned long gpu_offset;
+ uint64_t gpu_offset;
  uint64_t size;
  uint32_t available_caching;
  uint32_t default_caching;
@@ -8249,12 +8662,6 @@ struct ttm_bo_driver {
        struct ttm_mem_reg *new_mem);
  int (*verify_access) (struct ttm_buffer_object *bo,
          struct file *filp);
- _Bool (*sync_obj_signaled) (void *sync_obj);
- int (*sync_obj_wait) (void *sync_obj,
-         _Bool lazy, _Bool interruptible);
- int (*sync_obj_flush) (void *sync_obj);
- void (*sync_obj_unref) (void **sync_obj);
- void *(*sync_obj_ref) (void *sync_obj);
  void (*move_notify)(struct ttm_buffer_object *bo,
        struct ttm_mem_reg *new_mem);
  int (*fault_reserve_notify)(struct ttm_buffer_object *bo);
@@ -8282,7 +8689,6 @@ struct ttm_bo_device {
  struct ttm_bo_global *glob;
  struct ttm_bo_driver *driver;
  struct ttm_mem_type_manager man[8];
- spinlock_t fence_lock;
  bus_space_tag_t iot;
  bus_space_tag_t memt;
  bus_dma_tag_t dmat;
@@ -8311,10 +8717,10 @@ extern int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
 extern void ttm_tt_destroy(struct ttm_tt *ttm);
 extern void ttm_tt_unbind(struct ttm_tt *ttm);
 extern int ttm_tt_swapin(struct ttm_tt *ttm);
-extern void ttm_tt_cache_flush(struct vm_page *pages[], unsigned long num_pages);
 extern int ttm_tt_set_placement_caching(struct ttm_tt *ttm, uint32_t placement);
 extern int ttm_tt_swapout(struct ttm_tt *ttm,
      struct uvm_object *persistent_swap_storage);
+extern void ttm_tt_unpopulate(struct ttm_tt *ttm);
 extern _Bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev,
        struct ttm_mem_reg *mem);
 extern int ttm_bo_mem_space(struct ttm_buffer_object *bo,
@@ -8332,6 +8738,7 @@ extern int ttm_bo_device_release(struct ttm_bo_device *bdev);
 extern int ttm_bo_device_init(struct ttm_bo_device *bdev,
          struct ttm_bo_global *glob,
          struct ttm_bo_driver *driver,
+         struct address_space *mapping,
          uint64_t file_page_offset, _Bool need_dma32);
 extern void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo);
 extern void ttm_bo_unmap_virtual_locked(struct ttm_buffer_object *bo);
@@ -8340,17 +8747,80 @@ extern void ttm_mem_io_free_vm(struct ttm_buffer_object *bo);
 extern int ttm_mem_io_lock(struct ttm_mem_type_manager *man,
       _Bool interruptible);
 extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
-extern int ttm_bo_reserve(struct ttm_buffer_object *bo,
+extern void ttm_bo_del_sub_from_lru(struct ttm_buffer_object *bo);
+extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
+static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       _Bool no_wait, _Bool use_ticket,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ if (no_wait) {
+  _Bool success;
+  if (({ int __ret = !!(ticket); if (__ret) printf("WARNING %s failed at %s:%d\n", "ticket", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 788); __builtin_expect(!!(__ret), 0); }))
+   return -16;
+  success = ww_mutex_trylock(&bo->resv->lock);
+  return success ? 0 : -16;
+ }
+ if (interruptible)
+  ret = ww_mutex_lock_interruptible(&bo->resv->lock, ticket);
+ else
+  ret = ww_mutex_lock(&bo->resv->lock, ticket);
+ if (ret == -4)
+  return -4;
+ return ret;
+}
+static inline int ttm_bo_reserve(struct ttm_buffer_object *bo,
      _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence, uint32_t sequence);
-extern int ttm_bo_reserve_locked(struct ttm_buffer_object *bo,
-     _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence,
-     uint32_t sequence);
-extern void ttm_bo_unreserve(struct ttm_buffer_object *bo);
-extern void ttm_bo_unreserve_locked(struct ttm_buffer_object *bo);
-extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo,
-      _Bool interruptible);
+     _Bool no_wait, _Bool use_ticket,
+     struct ww_acquire_ctx *ticket)
+{
+ int ret;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 856); __builtin_expect(!!(__ret), 0); });
+ ret = __ttm_bo_reserve(bo, interruptible, no_wait, use_ticket, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ return ret;
+}
+static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 881); __builtin_expect(!!(__ret), 0); });
+ if (interruptible)
+  ret = ww_mutex_lock_slow_interruptible(&bo->resv->lock,
+             ticket);
+ else
+  ww_mutex_lock_slow(&bo->resv->lock, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ else if (ret == -4)
+  ret = -4;
+ return ret;
+}
+static inline void __ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ ww_mutex_unlock(&bo->resv->lock);
+}
+static inline void ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ if (!(bo->mem.placement & (1 << 21))) {
+  __mtx_enter(&bo->glob->lru_lock );
+  ttm_bo_add_to_lru(bo);
+  __mtx_leave(&bo->glob->lru_lock );
+ }
+ __ttm_bo_unreserve(bo);
+}
+static inline void ttm_bo_unreserve_ticket(struct ttm_buffer_object *bo,
+        struct ww_acquire_ctx *t)
+{
+ ttm_bo_unreserve(bo);
+}
+int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
+         struct ttm_mem_reg *mem);
+void ttm_mem_io_free(struct ttm_bo_device *bdev,
+       struct ttm_mem_reg *mem);
 extern int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
       _Bool evict, _Bool no_wait_gpu,
       struct ttm_mem_reg *new_mem);
@@ -8359,26 +8829,41 @@ extern int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
          struct ttm_mem_reg *new_mem);
 extern void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
 extern int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
-         void *sync_obj,
+         struct fence *fence,
          _Bool evict, _Bool no_wait_gpu,
          struct ttm_mem_reg *new_mem);
 extern pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp);
 extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
+struct device;
 int ttm_page_alloc_init(struct ttm_mem_global *glob, unsigned max_pages);
 void ttm_page_alloc_fini(void);
 extern int ttm_pool_populate(struct ttm_tt *ttm);
 extern void ttm_pool_unpopulate(struct ttm_tt *ttm);
+extern int ttm_page_alloc_debugfs(struct seq_file *m, void *data);
 static inline int ttm_dma_page_alloc_init(struct ttm_mem_global *glob,
        unsigned max_pages)
 {
  return -19;
 }
 static inline void ttm_dma_page_alloc_fini(void) { return; }
+static inline int ttm_dma_page_alloc_debugfs(struct seq_file *m, void *data)
+{
+ return 0;
+}
+static inline int ttm_dma_populate(struct ttm_dma_tt *ttm_dma,
+       struct device *dev)
+{
+ return -12;
+}
+static inline void ttm_dma_unpopulate(struct ttm_dma_tt *ttm_dma,
+          struct device *dev)
+{
+}
 struct ttm_page_pool {
  spinlock_t lock;
  _Bool fill_lock;
  struct pglist list;
- int ttm_page_alloc_flags;
+ gfp_t gfp_flags;
  unsigned npages;
  char *name;
  unsigned long nfrees;
@@ -8402,26 +8887,6 @@ struct ttm_pool_manager {
   } ;
  };
 };
-struct vm_page *ttm_uvm_alloc_page(void);
-void ttm_uvm_free_page(struct vm_page *);
-struct vm_page *
-ttm_uvm_alloc_page(void)
-{
- struct pglist mlist;
- int error;
- do { (&mlist)->tqh_first = ((void *)0); (&mlist)->tqh_last = &(&mlist)->tqh_first; } while (0);
- error = uvm_pglistalloc((1 << 13), dma_constraint.ucr_low,
-    dma_constraint.ucr_high, 0, 0, &mlist,
-    1, 0x0001 | 0x0004);
- if (error)
-  return ((void *)0);
- return ((&mlist)->tqh_first);
-}
-void
-ttm_uvm_free_page(struct vm_page *m)
-{
- uvm_pagefree(m);
-}
 static void ttm_pool_kobj_release(struct kobject *kobj)
 {
  struct ttm_pool_manager *m =
@@ -8464,7 +8929,7 @@ static void ttm_pages_put(struct vm_page *pages[], unsigned npages)
  if (set_pages_array_wb(pages, npages))
   printf("[TTM] " "Failed to set %d pages to wb!\n", npages);
  for (i = 0; i < npages; ++i)
-  ttm_uvm_free_page(pages[i]);
+  __free_page(pages[i]);
 }
 static void ttm_pool_update_free_locked(struct ttm_page_pool *pool,
   unsigned freed_pages)
@@ -8472,8 +8937,10 @@ static void ttm_pool_update_free_locked(struct ttm_page_pool *pool,
  pool->npages -= freed_pages;
  pool->nfrees += freed_pages;
 }
-static int ttm_page_pool_free(struct ttm_page_pool *pool, unsigned nr_free)
+static int ttm_page_pool_free(struct ttm_page_pool *pool, unsigned nr_free,
+         _Bool use_static)
 {
+ static struct vm_page *static_buf[((1 << 13)/sizeof(struct vm_page *))];
  unsigned long irq_flags;
  struct vm_page *p, *p1;
  struct vm_page **pages_to_free;
@@ -8482,8 +8949,11 @@ static int ttm_page_pool_free(struct ttm_page_pool *pool, unsigned nr_free)
  unsigned i;
  if (((1 << 13)/sizeof(struct vm_page *)) < nr_free)
   npages_to_free = ((1 << 13)/sizeof(struct vm_page *));
- pages_to_free = kmalloc(npages_to_free * sizeof(struct vm_page *),
-   (0x0001 | 0x0004));
+ if (use_static)
+  pages_to_free = static_buf;
+ else
+  pages_to_free = kmalloc(npages_to_free * sizeof(struct vm_page *),
+     (0x0001 | 0x0004));
  if (!pages_to_free) {
   printf("[TTM] " "Failed to allocate memory for pool free operation\n");
   return 0;
@@ -8522,7 +8992,8 @@ restart:
  if (freed_pages)
   ttm_pages_put(pages_to_free, freed_pages);
 out:
- kfree(pages_to_free);
+ if (pages_to_free != static_buf)
+  kfree(pages_to_free);
  return nr_free;
 }
 static void ttm_pool_mm_shrink_init(struct ttm_pool_manager *manager)
@@ -8530,7 +9001,7 @@ static void ttm_pool_mm_shrink_init(struct ttm_pool_manager *manager)
 }
 static void ttm_pool_mm_shrink_fini(struct ttm_pool_manager *manager)
 {
- printf("%s stub\n", __func__);
+ do { printf("%s: stub\n", __func__); } while(0);
 }
 static int ttm_set_pages_caching(struct vm_page **pages,
   enum ttm_caching_state cstate, unsigned cpages)
@@ -8559,10 +9030,10 @@ static void ttm_handle_caching_state_failure(struct pglist *pages,
  unsigned i;
  for (i = 0; i < cpages; ++i) {
   do { if (((failed_pages[i])->pageq.tqe_next) != ((void *)0)) (failed_pages[i])->pageq.tqe_next->pageq.tqe_prev = (failed_pages[i])->pageq.tqe_prev; else (pages)->tqh_last = (failed_pages[i])->pageq.tqe_prev; *(failed_pages[i])->pageq.tqe_prev = (failed_pages[i])->pageq.tqe_next; ((failed_pages[i])->pageq.tqe_prev) = ((void *)-1); ((failed_pages[i])->pageq.tqe_next) = ((void *)-1); } while (0);
-  ttm_uvm_free_page(failed_pages[i]);
+  __free_page(failed_pages[i]);
  }
 }
-static int ttm_alloc_new_pages(struct pglist *pages, int gfp_flags,
+static int ttm_alloc_new_pages(struct pglist *pages, gfp_t gfp_flags,
   int ttm_flags, enum ttm_caching_state cstate, unsigned count)
 {
  struct vm_page **caching_array;
@@ -8577,7 +9048,7 @@ static int ttm_alloc_new_pages(struct pglist *pages, int gfp_flags,
   return -12;
  }
  for (i = 0, cpages = 0; i < count; ++i) {
-  p = ttm_uvm_alloc_page();
+  p = alloc_page(gfp_flags);
   if (!p) {
    printf("[TTM] " "Unable to get page %u\n", i);
    if (cpages) {
@@ -8634,8 +9105,8 @@ static void ttm_page_pool_fill_locked(struct ttm_page_pool *pool,
   unsigned alloc_size = _manager->options.alloc_size;
   _spin_unlock_irqrestore(&pool->lock, *irq_flags );
   do { (&new_pages)->tqh_first = ((void *)0); (&new_pages)->tqh_last = &(&new_pages)->tqh_first; } while (0);
-  r = ttm_alloc_new_pages(&new_pages, pool->ttm_page_alloc_flags,
-      ttm_flags, cstate, alloc_size);
+  r = ttm_alloc_new_pages(&new_pages, pool->gfp_flags, ttm_flags,
+    cstate, alloc_size);
   _spin_lock_irqsave(&pool->lock, *irq_flags );
   if (!r) {
    do { if (!(((&new_pages)->tqh_first) == ((void *)0))) { *(&pool->list)->tqh_last = (&new_pages)->tqh_first; (&new_pages)->tqh_first->pageq.tqe_prev = (&pool->list)->tqh_last; (&pool->list)->tqh_last = (&new_pages)->tqh_last; do { ((&new_pages))->tqh_first = ((void *)0); ((&new_pages))->tqh_last = &((&new_pages))->tqh_first; } while (0); } } while (0);
@@ -8689,7 +9160,7 @@ static void ttm_put_pages(struct vm_page **pages, unsigned npages, int flags,
  if (pool == ((void *)0)) {
   for (i = 0; i < npages; i++) {
    if (pages[i]) {
-    ttm_uvm_free_page(pages[i]);
+    __free_page(pages[i]);
     pages[i] = ((void *)0);
    }
   }
@@ -8711,7 +9182,7 @@ static void ttm_put_pages(struct vm_page **pages, unsigned npages, int flags,
  }
  _spin_unlock_irqrestore(&pool->lock, irq_flags );
  if (npages)
-  ttm_page_pool_free(pool, npages);
+  ttm_page_pool_free(pool, npages, 0);
 }
 static int ttm_get_pages(struct vm_page **pages, unsigned npages, int flags,
     enum ttm_caching_state cstate)
@@ -8719,23 +9190,18 @@ static int ttm_get_pages(struct vm_page **pages, unsigned npages, int flags,
  struct ttm_page_pool *pool = ttm_get_pool(flags, cstate);
  struct pglist plist;
  struct vm_page *p = ((void *)0);
- const struct kmem_pa_mode *kp;
- int gfp_flags = 0;
+ gfp_t gfp_flags = (0x0001 | 0x0004);
  unsigned count;
  int r;
+ if (flags & (1 << 6))
+  gfp_flags |= 0x0008;
  if (pool == ((void *)0)) {
-  if (flags & (1 << 6)) {
-   if (flags & (1 << 7))
-    kp = &kp_dma_zero;
-   else
-    kp = &kp_zero;
-  } else if (flags & (1 << 7)) {
-   kp = &kp_dma;
-  } else {
-   kp = &kp_dirty;
-  }
+  if (flags & (1 << 7))
+   gfp_flags |= 0;
+  else
+   gfp_flags |= 0;
   for (r = 0; r < npages; ++r) {
-   p = ttm_uvm_alloc_page();
+   p = alloc_page(gfp_flags);
    if (!p) {
     printf("[TTM] " "Unable to allocate page\n");
     return -12;
@@ -8744,7 +9210,7 @@ static int ttm_get_pages(struct vm_page **pages, unsigned npages, int flags,
   }
   return 0;
  }
- gfp_flags |= pool->ttm_page_alloc_flags;
+ gfp_flags |= pool->gfp_flags;
  do { (&plist)->tqh_first = ((void *)0); (&plist)->tqh_last = &(&plist)->tqh_first; } while (0);
  npages = ttm_page_pool_get_pages(pool, &plist, flags, cstate, npages);
  count = 0;
@@ -8770,28 +9236,30 @@ static int ttm_get_pages(struct vm_page **pages, unsigned npages, int flags,
  }
  return 0;
 }
-static void ttm_page_pool_init_locked(struct ttm_page_pool *pool, int flags,
+static void ttm_page_pool_init_locked(struct ttm_page_pool *pool, gfp_t flags,
   char *name)
 {
  do { (void)(((void *)0)); (void)(0); __mtx_init((&pool->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  pool->fill_lock = 0;
  do { (&pool->list)->tqh_first = ((void *)0); (&pool->list)->tqh_last = &(&pool->list)->tqh_first; } while (0);
  pool->npages = pool->nfrees = 0;
- pool->ttm_page_alloc_flags = flags;
+ pool->gfp_flags = flags;
  pool->name = name;
 }
 int ttm_page_alloc_init(struct ttm_mem_global *glob, unsigned max_pages)
 {
  int ret;
- ({ int __ret = !!(_manager); if (__ret) printf("WARNING %s failed at %s:%d\n", "_manager", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_page_alloc.c", 838); __builtin_expect(!!(__ret), 0); });
+ ({ int __ret = !!(_manager); if (__ret) printf("WARNING %s failed at %s:%d\n", "_manager", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_page_alloc.c", 855); __builtin_expect(!!(__ret), 0); });
  do { } while(0);
  _manager = kzalloc(sizeof(*_manager), (0x0001 | 0x0004));
+ if (!_manager)
+  return -12;
  ttm_page_pool_init_locked(&_manager->wc_pool, 0, "wc");
  ttm_page_pool_init_locked(&_manager->uc_pool, 0, "uc");
  ttm_page_pool_init_locked(&_manager->wc_pool_dma32,
-     (1 << 7), "wc dma");
+      (0x0001 | 0x0004) | 0, "wc dma");
  ttm_page_pool_init_locked(&_manager->uc_pool_dma32,
-     (1 << 7), "uc dma");
+      (0x0001 | 0x0004) | 0, "uc dma");
  _manager->options.max_size = max_pages;
  _manager->options.small = 16;
  _manager->options.alloc_size = ((1 << 13)/sizeof(struct vm_page *));
@@ -8811,7 +9279,7 @@ void ttm_page_alloc_fini(void)
  do { } while(0);
  ttm_pool_mm_shrink_fini(_manager);
  for (i = 0; i < 4; ++i)
-  ttm_page_pool_free(&_manager->pools[i], (~0U));
+  ttm_page_pool_free(&_manager->pools[i], (~0U), 1);
  kobject_put(&_manager->kobj);
  _manager = ((void *)0);
 }
@@ -8863,4 +9331,23 @@ void ttm_pool_unpopulate(struct ttm_tt *ttm)
  ttm->state = tt_unpopulated;
 }
 ;
+int ttm_page_alloc_debugfs(struct seq_file *m, void *data)
+{
+ struct ttm_page_pool *p;
+ unsigned i;
+ char *h[] = {"pool", "refills", "pages freed", "size"};
+ if (!_manager) {
+  seq_printf(m, "No pool allocator running.\n");
+  return 0;
+ }
+ seq_printf(m, "%6s %12s %13s %8s\n",
+   h[0], h[1], h[2], h[3]);
+ for (i = 0; i < 4; ++i) {
+  p = &_manager->pools[i];
+  seq_printf(m, "%6s %12ld %13ld %8d\n",
+    p->name, p->nrefills,
+    p->nfrees, p->npages);
+ }
+ return 0;
+}
 ;

@@ -1242,7 +1242,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -5208,9 +5209,10 @@ nfsmout:
    nfs_cache_enter(dvp, ((void *)0), cnp);
   }
   if (newvp != ((struct vnode *)((void *)0))) {
-   vrele(newvp);
    if (newvp != dvp)
-    VOP_UNLOCK(newvp, p);
+    vput(newvp);
+   else
+    vrele(newvp);
   }
   if ((cnp->cn_nameiop == 1 || cnp->cn_nameiop == 3) &&
       (flags & 0x008000) && error == 2) {
@@ -5468,7 +5470,7 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1316, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1317, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 11, &info);
@@ -5561,7 +5563,7 @@ again:
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1427, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1428, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 8, &info);

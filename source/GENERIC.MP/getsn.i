@@ -499,7 +499,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -538,10 +539,11 @@ void cnpollc(int);
 void cnbell(u_int, u_int, u_int);
 void cnrint(void);
 void nullcnpollc(dev_t, int);
-int
-getsn(char *cp, int size)
+size_t
+getsn(char *cp, size_t size)
 {
- int len = 0, c;
+ size_t len = 0;
+ int c;
  char *lp = cp;
  while (1) {
   c = cngetc();

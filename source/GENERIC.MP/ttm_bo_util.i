@@ -991,247 +991,67 @@ int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
-struct kmemstats {
- long ks_inuse;
- long ks_calls;
- long ks_memuse;
- u_short ks_limblocks;
- u_short ks_mapblocks;
- long ks_maxused;
- long ks_limit;
- long ks_size;
- long ks_spare;
-};
-struct kmemusage {
- short ku_indx;
- union {
-  u_short freecnt;
-  u_short pagecnt;
- } ku_un;
-};
-struct kmem_freelist;
-struct kmembuckets {
- struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
- u_int64_t kb_calls;
- u_int64_t kb_total;
- u_int64_t kb_totalfree;
- u_int64_t kb_elmpercl;
- u_int64_t kb_highwat;
- u_int64_t kb_couldfree;
-};
-extern struct kmemstats kmemstats[];
-extern struct kmemusage *kmemusage;
-extern char *kmembase;
-extern struct kmembuckets bucket[];
-void *malloc(size_t, int, int);
-void *mallocarray(size_t, size_t, int, int);
-void free(void *, int, size_t);
-int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-size_t malloc_roundup(size_t);
-void malloc_printit(int (*)(const char *, ...));
-void poison_mem(void *, size_t);
-int poison_check(void *, size_t, size_t *, uint32_t *);
-uint32_t poison_value(void *);
-struct kinfo_pool {
- unsigned int pr_size;
- unsigned int pr_pgsize;
- unsigned int pr_itemsperpage;
- unsigned int pr_minpages;
- unsigned int pr_maxpages;
- unsigned int pr_hardlimit;
- unsigned int pr_npages;
- unsigned int pr_nout;
- unsigned int pr_nitems;
- unsigned long pr_nget;
- unsigned long pr_nput;
- unsigned long pr_nfail;
- unsigned long pr_npagealloc;
- unsigned long pr_npagefree;
- unsigned int pr_hiwat;
- unsigned long pr_nidle;
-};
-struct kinfo_pool_cache {
- uint64_t pr_ngc;
- unsigned int pr_len;
- unsigned int pr_nitems;
- unsigned int pr_contention;
-};
-struct kinfo_pool_cache_cpu {
- unsigned int pr_cpu;
- uint64_t pr_nget;
- uint64_t pr_nfail;
- uint64_t pr_nput;
- uint64_t pr_nlget;
- uint64_t pr_nlfail;
- uint64_t pr_nlput;
-};
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
- rbt->rbt_root = ((void *)0);
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
 }
-static inline int
-_rb_empty(struct rb_tree *rbt)
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
 {
- return (rbt->rbt_root == ((void *)0));
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
 }
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
-struct pool;
-struct pool_request;
-struct pool_lock_ops;
-struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
-struct pool_allocator {
- void *(*pa_alloc)(struct pool *, int, int *);
- void (*pa_free)(struct pool *, void *);
- size_t pa_pagesz;
-};
-struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
-struct pool_cache_item;
-struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
-struct cpumem;
-union pool_lock {
- struct mutex prl_mtx;
- struct rwlock prl_rwlock;
-};
-struct pool {
- union pool_lock pr_lock;
- const struct pool_lock_ops *
-   pr_lock_ops;
- struct { struct pool *sqe_next; }
-   pr_poollist;
- struct pool_pagelist
-   pr_emptypages;
- struct pool_pagelist
-   pr_fullpages;
- struct pool_pagelist
-   pr_partpages;
- struct pool_page_header *
-   pr_curpage;
- unsigned int pr_size;
- unsigned int pr_minitems;
- unsigned int pr_minpages;
- unsigned int pr_maxpages;
- unsigned int pr_npages;
- unsigned int pr_itemsperpage;
- unsigned int pr_slack;
- unsigned int pr_nitems;
- unsigned int pr_nout;
- unsigned int pr_hardlimit;
- unsigned int pr_serial;
- unsigned int pr_pgsize;
- vaddr_t pr_pgmask;
- struct pool_allocator *
-   pr_alloc;
- const char * pr_wchan;
- int pr_flags;
- int pr_ipl;
- struct phtree { struct rb_tree rbh_root; }
-   pr_phtree;
- struct cpumem * pr_cache;
- unsigned long pr_cache_magic[2];
- union pool_lock pr_cache_lock;
- struct pool_cache_lists
-   pr_cache_lists;
- u_int pr_cache_nitems;
- u_int pr_cache_items;
- u_int pr_cache_contention;
- u_int pr_cache_contention_prev;
- int pr_cache_tick;
- int pr_cache_nout;
- uint64_t pr_cache_ngc;
- u_int pr_align;
- u_int pr_maxcolors;
- int pr_phoffset;
- const char *pr_hardlimit_warning;
- struct timeval pr_hardlimit_ratecap;
- struct timeval pr_hardlimit_warning_last;
- union pool_lock pr_requests_lock;
- struct pool_requests
-   pr_requests;
- unsigned int pr_requesting;
- unsigned long pr_nget;
- unsigned long pr_nfail;
- unsigned long pr_nput;
- unsigned long pr_npagealloc;
- unsigned long pr_npagefree;
- unsigned int pr_hiwat;
- unsigned long pr_nidle;
- const struct kmem_pa_mode *
-   pr_crange;
-};
-extern struct pool_allocator pool_allocator_single;
-extern struct pool_allocator pool_allocator_multi;
-struct pool_request {
- struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
- void (*pr_handler)(struct pool *, void *, void *);
- void *pr_cookie;
- void *pr_item;
-};
-void pool_init(struct pool *, size_t, u_int, int, int,
-      const char *, struct pool_allocator *);
-void pool_cache_init(struct pool *);
-void pool_destroy(struct pool *);
-void pool_setlowat(struct pool *, int);
-void pool_sethiwat(struct pool *, int);
-int pool_sethardlimit(struct pool *, u_int, const char *, int);
-struct uvm_constraint_range;
-void pool_set_constraints(struct pool *,
-      const struct kmem_pa_mode *mode);
-void *pool_get(struct pool *, int) __attribute__((__malloc__));
-void pool_request_init(struct pool_request *,
-      void (*)(struct pool *, void *, void *), void *);
-void pool_request(struct pool *, struct pool_request *);
-void pool_put(struct pool *, void *);
-int pool_reclaim(struct pool *);
-void pool_reclaim_all(void);
-int pool_prime(struct pool *, int);
-void pool_printit(struct pool *, const char *,
-      int (*)(const char *, ...));
-void pool_walk(struct pool *, int, int (*)(const char *, ...),
-      void (*)(void *, int, int (*)(const char *, ...)));
-void dma_alloc_init(void);
-void *dma_alloc(size_t size, int flags);
-void dma_free(void *m, size_t size);
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+ return (n);
+}
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+ return (r);
+}
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
 extern long hostid;
 extern char hostname[256];
 extern int hostnamelen;
@@ -1252,6 +1072,62 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
+struct sigacts {
+ sig_t ps_sigact[33];
+ sigset_t ps_catchmask[33];
+ sigset_t ps_sigonstack;
+ sigset_t ps_sigintr;
+ sigset_t ps_sigreset;
+ sigset_t ps_siginfo;
+ sigset_t ps_sigignore;
+ sigset_t ps_sigcatch;
+ int ps_flags;
+ int ps_refcnt;
+};
+enum signal_type { SPROCESS, STHREAD, SPROPAGATED };
+int coredump(struct proc *p);
+void execsigs(struct proc *p);
+void gsignal(int pgid, int sig);
+void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
+int issignal(struct proc *p);
+void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
+void psignal(struct proc *p, int sig);
+void ptsignal(struct proc *p, int sig, enum signal_type type);
+void siginit(struct process *);
+void trapsignal(struct proc *p, int sig, u_long code, int type,
+     union sigval val);
+void sigexit(struct proc *, int);
+int sigonstack(size_t);
+void setsigvec(struct proc *, int, struct sigaction *);
+int killpg1(struct proc *, int, int, int);
+void signal_init(void);
+struct sigacts *sigactsinit(struct process *);
+struct sigacts *sigactsshare(struct process *);
+void sigstkinit(struct sigaltstack *);
+void sigactsunshare(struct process *);
+void sigactsfree(struct process *);
+void sendsig(sig_t action, int sig, int returnmask, u_long code,
+     int type, union sigval val);
+typedef __int_least8_t int_least8_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least64_t uint_least64_t;
+typedef __int_fast8_t int_fast8_t;
+typedef __uint_fast8_t uint_fast8_t;
+typedef __int_fast16_t int_fast16_t;
+typedef __uint_fast16_t uint_fast16_t;
+typedef __int_fast32_t int_fast32_t;
+typedef __uint_fast32_t uint_fast32_t;
+typedef __int_fast64_t int_fast64_t;
+typedef __uint_fast64_t uint_fast64_t;
+typedef __intptr_t intptr_t;
+typedef __uintptr_t uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
@@ -1504,7 +1380,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -1514,62 +1391,6 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct mdproc {
- struct trapframe64 *md_tf;
- struct fpstate64 *md_fpstate;
- volatile int md_astpending;
-};
-struct kevent {
- __uintptr_t ident;
- short filter;
- unsigned short flags;
- unsigned int fflags;
- __int64_t data;
- void *udata;
-};
-struct knote;
-struct klist { struct knote *slh_first; };
-struct filterops {
- int f_isfd;
- int (*f_attach)(struct knote *kn);
- void (*f_detach)(struct knote *kn);
- int (*f_event)(struct knote *kn, long hint);
-};
-struct knote {
- struct { struct knote *sle_next; } kn_link;
- struct { struct knote *sle_next; } kn_selnext;
- struct { struct knote *tqe_next; struct knote **tqe_prev; } kn_tqe;
- struct kqueue *kn_kq;
- struct kevent kn_kevent;
- int kn_status;
- int kn_sfflags;
- __int64_t kn_sdata;
- union {
-  struct file *p_fp;
-  struct process *p_process;
- } kn_ptr;
- const struct filterops *kn_fop;
- void *kn_hook;
-};
-struct proc;
-extern void knote(struct klist *list, long hint);
-extern void knote_activate(struct knote *);
-extern void knote_remove(struct proc *p, struct klist *list);
-extern void knote_fdclose(struct proc *p, int fd);
-extern void knote_processexit(struct proc *);
-extern int kqueue_register(struct kqueue *kq,
-      struct kevent *kev, struct proc *p);
-extern int filt_seltrue(struct knote *kn, long hint);
-extern int seltrue_kqfilter(dev_t, struct knote *);
-extern void klist_invalidate(struct klist *);
-struct selinfo {
- struct klist si_note;
- pid_t si_seltid;
- short si_flags;
-};
-struct proc;
-void selrecord(struct proc *selector, struct selinfo *);
-void selwakeup(struct selinfo *);
 struct circq {
  struct circq *next;
  struct circq *prev;
@@ -1597,557 +1418,47 @@ void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
-static inline unsigned int
-_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
-{
- __asm volatile("cas [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline unsigned long
-_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline void *
-_atomic_cas_ptr(volatile void *p, void *e, void *n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*(volatile unsigned long *)p)
-     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
- return (n);
-}
-static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
-static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-static inline void *
-_atomic_swap_ptr(volatile void *p, void *v)
-{
- void *e, *r;
- r = *(void **)p;
- do {
-  e = r;
-  r = _atomic_cas_ptr((p), (e), (v));
- } while (r != e);
- return (r);
-}
-static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static __inline void
-atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e | v));
- } while (r != e);
-}
-static __inline void
-atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e & ~v));
- } while (r != e);
-}
-struct process;
-struct session {
- int s_count;
- struct process *s_leader;
- struct vnode *s_ttyvp;
- struct tty *s_ttyp;
- char s_login[32];
- pid_t s_verauthppid;
- uid_t s_verauthuid;
- struct timeout s_verauthto;
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
 };
-void zapverauth( void *);
-struct pgrp {
- struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
- struct { struct process *lh_first; } pg_members;
- struct session *pg_session;
- pid_t pg_id;
- int pg_jobc;
+struct rb_tree {
+ struct rb_entry *rbt_root;
 };
-struct exec_package;
-struct proc;
-struct ps_strings;
-struct uvm_object;
-union sigval;
-struct emul {
- char e_name[8];
- int *e_errno;
- void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
- int e_nosys;
- int e_nsysent;
- struct sysent *e_sysent;
- char **e_syscallnames;
- int e_arglen;
- void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
-        void *, void *);
- void (*e_setregs)(struct proc *, struct exec_package *,
-      u_long, register_t *);
- int (*e_fixup)(struct proc *, struct exec_package *);
- int (*e_coredump)(struct proc *, void *cookie);
- char *e_sigcode;
- char *e_esigcode;
- char *e_esigret;
- int e_flags;
- struct uvm_object *e_sigobject;
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
 };
-struct tusage {
- struct timespec tu_runtime;
- uint64_t tu_uticks;
- uint64_t tu_sticks;
- uint64_t tu_iticks;
-};
-struct process {
- struct proc *ps_mainproc;
- struct ucred *ps_ucred;
- struct { struct process *le_next; struct process **le_prev; } ps_list;
- struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
- struct { struct process *le_next; struct process **le_prev; } ps_pglist;
- struct process *ps_pptr;
- struct { struct process *le_next; struct process **le_prev; } ps_sibling;
- struct { struct process *lh_first; } ps_children;
- struct { struct process *le_next; struct process **le_prev; } ps_hash;
- struct sigacts *ps_sigacts;
- struct vnode *ps_textvp;
- struct filedesc *ps_fd;
- struct vmspace *ps_vmspace;
- pid_t ps_pid;
- struct klist ps_klist;
- int ps_flags;
- struct proc *ps_single;
- int ps_singlecount;
- int ps_traceflag;
- struct vnode *ps_tracevp;
- struct ucred *ps_tracecred;
- pid_t ps_oppid;
- int ps_ptmask;
- struct ptrace_state *ps_ptstat;
- struct rusage *ps_ru;
- struct tusage ps_tu;
- struct rusage ps_cru;
- struct itimerval ps_timer[3];
- u_int64_t ps_wxcounter;
- struct plimit *ps_limit;
- struct pgrp *ps_pgrp;
- struct emul *ps_emul;
- char ps_comm[16 +1];
- vaddr_t ps_strings;
- vaddr_t ps_sigcode;
- vaddr_t ps_sigcoderet;
- u_long ps_sigcookie;
- u_int ps_rtableid;
- char ps_nice;
- struct uprof {
-  caddr_t pr_base;
-  size_t pr_size;
-  u_long pr_off;
-  u_int pr_scale;
- } ps_prof;
- u_short ps_acflag;
- uint64_t ps_pledge;
- uint64_t ps_execpledge;
- int64_t ps_kbind_cookie;
- u_long ps_kbind_addr;
- int ps_refcnt;
- struct timespec ps_start;
- struct timeout ps_realit_to;
-};
-struct lock_list_entry;
-struct proc {
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
- struct { struct proc *le_next; struct proc **le_prev; } p_list;
- struct process *p_p;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
- struct futex *p_futex;
- struct filedesc *p_fd;
- struct vmspace *p_vmspace;
- int p_flag;
- u_char p_spare;
- char p_stat;
- char p_pad1[1];
- u_char p_descfd;
- pid_t p_tid;
- struct { struct proc *le_next; struct proc **le_prev; } p_hash;
- int p_dupfd;
- long p_thrslpid;
- u_int p_estcpu;
- int p_cpticks;
- const volatile void *p_wchan;
- struct timeout p_sleep_to;
- const char *p_wmesg;
- fixpt_t p_pctcpu;
- u_int p_slptime;
- u_int p_uticks;
- u_int p_sticks;
- u_int p_iticks;
- struct cpu_info * volatile p_cpu;
- struct rusage p_ru;
- struct tusage p_tu;
- struct timespec p_rtime;
- int p_siglist;
- sigset_t p_sigmask;
- u_int p_spserial;
- vaddr_t p_spstart;
- vaddr_t p_spend;
- u_char p_priority;
- u_char p_usrpri;
- int p_pledge_syscall;
- struct ucred *p_ucred;
- struct sigaltstack p_sigstk;
- u_long p_prof_addr;
- u_long p_prof_ticks;
- struct user *p_addr;
- struct mdproc p_md;
- sigset_t p_oldmask;
- int p_sisig;
- union sigval p_sigval;
- long p_sitrapno;
- int p_sicode;
- u_short p_xstat;
- struct lock_list_entry *p_sleeplocks;
-};
-struct uidinfo {
- struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
- uid_t ui_uid;
- long ui_proccnt;
- long ui_lockcnt;
-};
-struct uidinfo *uid_find(uid_t);
-void uid_release(struct uidinfo *);
-extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
-extern u_long tidhash;
-extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
-extern u_long pidhash;
-extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
-extern u_long pgrphash;
-extern struct proc proc0;
-extern struct process process0;
-extern int nprocesses, maxprocess;
-extern int nthreads, maxthread;
-extern int randompid;
-struct proclist { struct proc *lh_first; };
-struct processlist { struct process *lh_first; };
-extern struct processlist allprocess;
-extern struct processlist zombprocess;
-extern struct proclist allproc;
-extern struct process *initprocess;
-extern struct proc *reaperproc;
-extern struct proc *syncerproc;
-extern struct pool process_pool;
-extern struct pool proc_pool;
-extern struct pool rusage_pool;
-extern struct pool ucred_pool;
-extern struct pool session_pool;
-extern struct pool pgrp_pool;
-void freepid(pid_t);
-struct process *prfind(pid_t);
-struct process *zombiefind(pid_t);
-struct proc *tfind(pid_t);
-struct pgrp *pgfind(pid_t);
-void proc_printit(struct proc *p, const char *modif,
-    int (*pr)(const char *, ...));
-int chgproccnt(uid_t uid, int diff);
-void enternewpgrp(struct process *, struct pgrp *, struct session *);
-void enterthispgrp(struct process *, struct pgrp *);
-int inferior(struct process *, struct process *);
-void leavepgrp(struct process *);
-void killjobc(struct process *);
-void preempt(void);
-void procinit(void);
-void resetpriority(struct proc *);
-void setrunnable(struct proc *);
-void endtsleep(void *);
-void unsleep(struct proc *);
-void reaper(void);
-void exit1(struct proc *, int, int);
-void exit2(struct proc *);
-int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
-     register_t *);
-void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
-     void *_tcb, void (*_func)(void *), void *_arg);
-void cpu_exit(struct proc *);
-void process_initialize(struct process *, struct proc *);
-int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
-     void *_arg, register_t *_retval, struct proc **_newprocp);
-int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
-     pid_t *_tidptr, register_t *_retval);
-int groupmember(gid_t, struct ucred *);
-void dorefreshcreds(struct process *, struct proc *);
-void dosigsuspend(struct proc *, sigset_t);
 static inline void
-refreshcreds(struct proc *p)
+_rb_init(struct rb_tree *rbt)
 {
- struct process *pr = p->p_p;
- if (pr->ps_ucred != p->p_ucred)
-  dorefreshcreds(pr, p);
+ rbt->rbt_root = ((void *)0);
 }
-enum single_thread_mode {
- SINGLE_SUSPEND,
- SINGLE_PTRACE,
- SINGLE_UNWIND,
- SINGLE_EXIT
-};
-int single_thread_set(struct proc *, enum single_thread_mode, int);
-void single_thread_wait(struct process *);
-void single_thread_clear(struct proc *, int);
-int single_thread_check(struct proc *, int);
-void child_return(void *);
-int proc_cansugid(struct proc *);
-struct sleep_state {
- int sls_s;
- int sls_catch;
- int sls_do_sleep;
- int sls_sig;
-};
-struct cond {
- int c_wait;
-};
-void proc_trampoline_mp(void);
-struct cpuset {
- int cs_set[(((256) - 1)/32 + 1)];
-};
-void cpuset_init_cpu(struct cpu_info *);
-void cpuset_clear(struct cpuset *);
-void cpuset_add(struct cpuset *, struct cpu_info *);
-void cpuset_del(struct cpuset *, struct cpu_info *);
-int cpuset_isset(struct cpuset *, struct cpu_info *);
-void cpuset_add_all(struct cpuset *);
-void cpuset_copy(struct cpuset *, struct cpuset *);
-void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
-void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
-void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
-struct cpu_info *cpuset_first(struct cpuset *);
-struct buf;
-struct proc;
-struct tty;
-struct uio;
-struct vnode;
-struct knote;
-struct bdevsw {
- int (*d_open)(dev_t dev, int oflags, int devtype,
-         struct proc *p);
- int (*d_close)(dev_t dev, int fflag, int devtype,
-         struct proc *p);
- void (*d_strategy)(struct buf *bp);
- int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
-         int fflag, struct proc *p);
- int (*d_dump)(dev_t dev, daddr_t blkno, caddr_t va,
-        size_t size);
- daddr_t (*d_psize)(dev_t dev);
- u_int d_type;
-};
-extern struct bdevsw bdevsw[];
-struct cdevsw {
- int (*d_open)(dev_t dev, int oflags, int devtype,
-         struct proc *p);
- int (*d_close)(dev_t dev, int fflag, int devtype,
-         struct proc *);
- int (*d_read)(dev_t dev, struct uio *uio, int ioflag);
- int (*d_write)(dev_t dev, struct uio *uio, int ioflag);
- int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
-         int fflag, struct proc *p);
- int (*d_stop)(struct tty *tp, int rw);
- struct tty *
-  (*d_tty)(dev_t dev);
- int (*d_poll)(dev_t dev, int events, struct proc *p);
- paddr_t (*d_mmap)(dev_t, off_t, int);
- u_int d_type;
- u_int d_flags;
- int (*d_kqfilter)(dev_t dev, struct knote *kn);
-};
-extern struct cdevsw cdevsw[];
-struct linesw {
- int (*l_open)(dev_t dev, struct tty *tp, struct proc *p);
- int (*l_close)(struct tty *tp, int flags, struct proc *p);
- int (*l_read)(struct tty *tp, struct uio *uio,
-         int flag);
- int (*l_write)(struct tty *tp, struct uio *uio,
-         int flag);
- int (*l_ioctl)(struct tty *tp, u_long cmd, caddr_t data,
-         int flag, struct proc *p);
- int (*l_rint)(int c, struct tty *tp);
- int (*l_start)(struct tty *tp);
- int (*l_modem)(struct tty *tp, int flag);
-};
-extern struct linesw linesw[];
-struct swdevt {
- dev_t sw_dev;
- int sw_flags;
-};
-extern struct swdevt swdevt[];
-extern int chrtoblktbl[];
-extern int nchrtoblktbl;
-struct bdevsw *bdevsw_lookup(dev_t);
-struct cdevsw *cdevsw_lookup(dev_t);
-dev_t chrtoblk(dev_t);
-dev_t blktochr(dev_t);
-int iskmemdev(dev_t);
-int iszerodev(dev_t);
-dev_t getnulldev(void);
-int filedescopen(dev_t, int, int, struct proc *); int filedescclose(dev_t, int, int, struct proc *); int filedescread(dev_t, struct uio *, int); int filedescwrite(dev_t, struct uio *, int); int filedescioctl(dev_t, u_long, caddr_t, int, struct proc *); int filedescstop(struct tty *, int); struct tty *filedesctty(dev_t); int filedescpoll(dev_t, int, struct proc *); paddr_t filedescmmap(dev_t, off_t, int); int filedesckqfilter(dev_t, struct knote *);
-int logopen(dev_t, int, int, struct proc *); int logclose(dev_t, int, int, struct proc *); int logread(dev_t, struct uio *, int); int logwrite(dev_t, struct uio *, int); int logioctl(dev_t, u_long, caddr_t, int, struct proc *); int logstop(struct tty *, int); struct tty *logtty(dev_t); int logpoll(dev_t, int, struct proc *); paddr_t logmmap(dev_t, off_t, int); int logkqfilter(dev_t, struct knote *);
-int ptsopen(dev_t, int, int, struct proc *); int ptsclose(dev_t, int, int, struct proc *); int ptsread(dev_t, struct uio *, int); int ptswrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptsstop(struct tty *, int); struct tty *ptytty(dev_t); int ptspoll(dev_t, int, struct proc *); paddr_t ptsmmap(dev_t, off_t, int); int ptskqfilter(dev_t, struct knote *);
-int ptcopen(dev_t, int, int, struct proc *); int ptcclose(dev_t, int, int, struct proc *); int ptcread(dev_t, struct uio *, int); int ptcwrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptcstop(struct tty *, int); struct tty *ptytty(dev_t); int ptcpoll(dev_t, int, struct proc *); paddr_t ptcmmap(dev_t, off_t, int); int ptckqfilter(dev_t, struct knote *);
-int ptmopen(dev_t, int, int, struct proc *); int ptmclose(dev_t, int, int, struct proc *); int ptmread(dev_t, struct uio *, int); int ptmwrite(dev_t, struct uio *, int); int ptmioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptmstop(struct tty *, int); struct tty *ptmtty(dev_t); int ptmpoll(dev_t, int, struct proc *); paddr_t ptmmmap(dev_t, off_t, int); int ptmkqfilter(dev_t, struct knote *);
-int cttyopen(dev_t, int, int, struct proc *); int cttyclose(dev_t, int, int, struct proc *); int cttyread(dev_t, struct uio *, int); int cttywrite(dev_t, struct uio *, int); int cttyioctl(dev_t, u_long, caddr_t, int, struct proc *); int cttystop(struct tty *, int); struct tty *cttytty(dev_t); int cttypoll(dev_t, int, struct proc *); paddr_t cttymmap(dev_t, off_t, int); int cttykqfilter(dev_t, struct knote *);
-int audioopen(dev_t, int, int, struct proc *); int audioclose(dev_t, int, int, struct proc *); int audioread(dev_t, struct uio *, int); int audiowrite(dev_t, struct uio *, int); int audioioctl(dev_t, u_long, caddr_t, int, struct proc *); int audiostop(struct tty *, int); struct tty *audiotty(dev_t); int audiopoll(dev_t, int, struct proc *); paddr_t audiommap(dev_t, off_t, int); int audiokqfilter(dev_t, struct knote *);
-int drmopen(dev_t, int, int, struct proc *); int drmclose(dev_t, int, int, struct proc *); int drmread(dev_t, struct uio *, int); int drmwrite(dev_t, struct uio *, int); int drmioctl(dev_t, u_long, caddr_t, int, struct proc *); int drmstop(struct tty *, int); struct tty *drmtty(dev_t); int drmpoll(dev_t, int, struct proc *); paddr_t drmmmap(dev_t, off_t, int); int drmkqfilter(dev_t, struct knote *);
-int midiopen(dev_t, int, int, struct proc *); int midiclose(dev_t, int, int, struct proc *); int midiread(dev_t, struct uio *, int); int midiwrite(dev_t, struct uio *, int); int midiioctl(dev_t, u_long, caddr_t, int, struct proc *); int midistop(struct tty *, int); struct tty *miditty(dev_t); int midipoll(dev_t, int, struct proc *); paddr_t midimmap(dev_t, off_t, int); int midikqfilter(dev_t, struct knote *);
-int radioopen(dev_t, int, int, struct proc *); int radioclose(dev_t, int, int, struct proc *); int radioread(dev_t, struct uio *, int); int radiowrite(dev_t, struct uio *, int); int radioioctl(dev_t, u_long, caddr_t, int, struct proc *); int radiostop(struct tty *, int); struct tty *radiotty(dev_t); int radiopoll(dev_t, int, struct proc *); paddr_t radiommap(dev_t, off_t, int); int radiokqfilter(dev_t, struct knote *);
-int videoopen(dev_t, int, int, struct proc *); int videoclose(dev_t, int, int, struct proc *); int videoread(dev_t, struct uio *, int); int videowrite(dev_t, struct uio *, int); int videoioctl(dev_t, u_long, caddr_t, int, struct proc *); int videostop(struct tty *, int); struct tty *videotty(dev_t); int videopoll(dev_t, int, struct proc *); paddr_t videommap(dev_t, off_t, int); int videokqfilter(dev_t, struct knote *);
-int cnopen(dev_t, int, int, struct proc *); int cnclose(dev_t, int, int, struct proc *); int cnread(dev_t, struct uio *, int); int cnwrite(dev_t, struct uio *, int); int cnioctl(dev_t, u_long, caddr_t, int, struct proc *); int cnstop(struct tty *, int); struct tty *cntty(dev_t); int cnpoll(dev_t, int, struct proc *); paddr_t cnmmap(dev_t, off_t, int); int cnkqfilter(dev_t, struct knote *);
-int swopen(dev_t, int, int, struct proc *); int swclose(dev_t, int, int, struct proc *); void swstrategy(struct buf *); int swioctl(dev_t, u_long, caddr_t, int, struct proc *); int swdump(dev_t, daddr_t, caddr_t, size_t); daddr_t swsize(dev_t);
-int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); void vndstrategy(struct buf *); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vnddump(dev_t, daddr_t, caddr_t, size_t); daddr_t vndsize(dev_t);
-int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); int vndread(dev_t, struct uio *, int); int vndwrite(dev_t, struct uio *, int); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vndstop(struct tty *, int); struct tty *vndtty(dev_t); int vndpoll(dev_t, int, struct proc *); paddr_t vndmmap(dev_t, off_t, int); int vndkqfilter(dev_t, struct knote *);
-int chopen(dev_t, int, int, struct proc *); int chclose(dev_t, int, int, struct proc *); int chread(dev_t, struct uio *, int); int chwrite(dev_t, struct uio *, int); int chioctl(dev_t, u_long, caddr_t, int, struct proc *); int chstop(struct tty *, int); struct tty *chtty(dev_t); int chpoll(dev_t, int, struct proc *); paddr_t chmmap(dev_t, off_t, int); int chkqfilter(dev_t, struct knote *);
-int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); void sdstrategy(struct buf *); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sddump(dev_t, daddr_t, caddr_t, size_t); daddr_t sdsize(dev_t);
-int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); int sdread(dev_t, struct uio *, int); int sdwrite(dev_t, struct uio *, int); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sdstop(struct tty *, int); struct tty *sdtty(dev_t); int sdpoll(dev_t, int, struct proc *); paddr_t sdmmap(dev_t, off_t, int); int sdkqfilter(dev_t, struct knote *);
-int sesopen(dev_t, int, int, struct proc *); int sesclose(dev_t, int, int, struct proc *); int sesread(dev_t, struct uio *, int); int seswrite(dev_t, struct uio *, int); int sesioctl(dev_t, u_long, caddr_t, int, struct proc *); int sesstop(struct tty *, int); struct tty *sestty(dev_t); int sespoll(dev_t, int, struct proc *); paddr_t sesmmap(dev_t, off_t, int); int seskqfilter(dev_t, struct knote *);
-int stopen(dev_t, int, int, struct proc *); int stclose(dev_t, int, int, struct proc *); int stread(dev_t, struct uio *, int); int stwrite(dev_t, struct uio *, int); int stioctl(dev_t, u_long, caddr_t, int, struct proc *); int ststop(struct tty *, int); struct tty *sttty(dev_t); int stpoll(dev_t, int, struct proc *); paddr_t stmmap(dev_t, off_t, int); int stkqfilter(dev_t, struct knote *);
-int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); void cdstrategy(struct buf *); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cddump(dev_t, daddr_t, caddr_t, size_t); daddr_t cdsize(dev_t);
-int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); int cdread(dev_t, struct uio *, int); int cdwrite(dev_t, struct uio *, int); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cdstop(struct tty *, int); struct tty *cdtty(dev_t); int cdpoll(dev_t, int, struct proc *); paddr_t cdmmap(dev_t, off_t, int); int cdkqfilter(dev_t, struct knote *);
-int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); void rdstrategy(struct buf *); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rddump(dev_t, daddr_t, caddr_t, size_t); daddr_t rdsize(dev_t);
-int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); int rdread(dev_t, struct uio *, int); int rdwrite(dev_t, struct uio *, int); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rdstop(struct tty *, int); struct tty *rdtty(dev_t); int rdpoll(dev_t, int, struct proc *); paddr_t rdmmap(dev_t, off_t, int); int rdkqfilter(dev_t, struct knote *);
-int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); void ukstrategy(struct buf *); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukdump(dev_t, daddr_t, caddr_t, size_t); daddr_t uksize(dev_t);
-int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); int ukread(dev_t, struct uio *, int); int ukwrite(dev_t, struct uio *, int); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukstop(struct tty *, int); struct tty *uktty(dev_t); int ukpoll(dev_t, int, struct proc *); paddr_t ukmmap(dev_t, off_t, int); int ukkqfilter(dev_t, struct knote *);
-int diskmapopen(dev_t, int, int, struct proc *); int diskmapclose(dev_t, int, int, struct proc *); int diskmapread(dev_t, struct uio *, int); int diskmapwrite(dev_t, struct uio *, int); int diskmapioctl(dev_t, u_long, caddr_t, int, struct proc *); int diskmapstop(struct tty *, int); struct tty *diskmaptty(dev_t); int diskmappoll(dev_t, int, struct proc *); paddr_t diskmapmmap(dev_t, off_t, int); int diskmapkqfilter(dev_t, struct knote *);
-int bpfopen(dev_t, int, int, struct proc *); int bpfclose(dev_t, int, int, struct proc *); int bpfread(dev_t, struct uio *, int); int bpfwrite(dev_t, struct uio *, int); int bpfioctl(dev_t, u_long, caddr_t, int, struct proc *); int bpfstop(struct tty *, int); struct tty *bpftty(dev_t); int bpfpoll(dev_t, int, struct proc *); paddr_t bpfmmap(dev_t, off_t, int); int bpfkqfilter(dev_t, struct knote *);
-int pfopen(dev_t, int, int, struct proc *); int pfclose(dev_t, int, int, struct proc *); int pfread(dev_t, struct uio *, int); int pfwrite(dev_t, struct uio *, int); int pfioctl(dev_t, u_long, caddr_t, int, struct proc *); int pfstop(struct tty *, int); struct tty *pftty(dev_t); int pfpoll(dev_t, int, struct proc *); paddr_t pfmmap(dev_t, off_t, int); int pfkqfilter(dev_t, struct knote *);
-int tunopen(dev_t, int, int, struct proc *); int tunclose(dev_t, int, int, struct proc *); int tunread(dev_t, struct uio *, int); int tunwrite(dev_t, struct uio *, int); int tunioctl(dev_t, u_long, caddr_t, int, struct proc *); int tunstop(struct tty *, int); struct tty *tuntty(dev_t); int tunpoll(dev_t, int, struct proc *); paddr_t tunmmap(dev_t, off_t, int); int tunkqfilter(dev_t, struct knote *);
-int tapopen(dev_t, int, int, struct proc *); int tapclose(dev_t, int, int, struct proc *); int tapread(dev_t, struct uio *, int); int tapwrite(dev_t, struct uio *, int); int tapioctl(dev_t, u_long, caddr_t, int, struct proc *); int tapstop(struct tty *, int); struct tty *taptty(dev_t); int tappoll(dev_t, int, struct proc *); paddr_t tapmmap(dev_t, off_t, int); int tapkqfilter(dev_t, struct knote *);
-int switchopen(dev_t, int, int, struct proc *); int switchclose(dev_t, int, int, struct proc *); int switchread(dev_t, struct uio *, int); int switchwrite(dev_t, struct uio *, int); int switchioctl(dev_t, u_long, caddr_t, int, struct proc *); int switchstop(struct tty *, int); struct tty *switchtty(dev_t); int switchpoll(dev_t, int, struct proc *); paddr_t switchmmap(dev_t, off_t, int); int switchkqfilter(dev_t, struct knote *);
-int pppxopen(dev_t, int, int, struct proc *); int pppxclose(dev_t, int, int, struct proc *); int pppxread(dev_t, struct uio *, int); int pppxwrite(dev_t, struct uio *, int); int pppxioctl(dev_t, u_long, caddr_t, int, struct proc *); int pppxstop(struct tty *, int); struct tty *pppxtty(dev_t); int pppxpoll(dev_t, int, struct proc *); paddr_t pppxmmap(dev_t, off_t, int); int pppxkqfilter(dev_t, struct knote *);
-int randomopen(dev_t, int, int, struct proc *); int randomclose(dev_t, int, int, struct proc *); int randomread(dev_t, struct uio *, int); int randomwrite(dev_t, struct uio *, int); int randomioctl(dev_t, u_long, caddr_t, int, struct proc *); int randomstop(struct tty *, int); struct tty *randomtty(dev_t); int randompoll(dev_t, int, struct proc *); paddr_t randommmap(dev_t, off_t, int); int randomkqfilter(dev_t, struct knote *);
-int wsdisplayopen(dev_t, int, int, struct proc *); int wsdisplayclose(dev_t, int, int, struct proc *); int wsdisplayread(dev_t, struct uio *, int); int wsdisplaywrite(dev_t, struct uio *, int); int wsdisplayioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsdisplaystop(struct tty *, int); struct tty *wsdisplaytty(dev_t); int wsdisplaypoll(dev_t, int, struct proc *); paddr_t wsdisplaymmap(dev_t, off_t, int); int wsdisplaykqfilter(dev_t, struct knote *);
-int wskbdopen(dev_t, int, int, struct proc *); int wskbdclose(dev_t, int, int, struct proc *); int wskbdread(dev_t, struct uio *, int); int wskbdwrite(dev_t, struct uio *, int); int wskbdioctl(dev_t, u_long, caddr_t, int, struct proc *); int wskbdstop(struct tty *, int); struct tty *wskbdtty(dev_t); int wskbdpoll(dev_t, int, struct proc *); paddr_t wskbdmmap(dev_t, off_t, int); int wskbdkqfilter(dev_t, struct knote *);
-int wsmouseopen(dev_t, int, int, struct proc *); int wsmouseclose(dev_t, int, int, struct proc *); int wsmouseread(dev_t, struct uio *, int); int wsmousewrite(dev_t, struct uio *, int); int wsmouseioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmousestop(struct tty *, int); struct tty *wsmousetty(dev_t); int wsmousepoll(dev_t, int, struct proc *); paddr_t wsmousemmap(dev_t, off_t, int); int wsmousekqfilter(dev_t, struct knote *);
-int wsmuxopen(dev_t, int, int, struct proc *); int wsmuxclose(dev_t, int, int, struct proc *); int wsmuxread(dev_t, struct uio *, int); int wsmuxwrite(dev_t, struct uio *, int); int wsmuxioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmuxstop(struct tty *, int); struct tty *wsmuxtty(dev_t); int wsmuxpoll(dev_t, int, struct proc *); paddr_t wsmuxmmap(dev_t, off_t, int); int wsmuxkqfilter(dev_t, struct knote *);
-int ksymsopen(dev_t, int, int, struct proc *); int ksymsclose(dev_t, int, int, struct proc *); int ksymsread(dev_t, struct uio *, int); int ksymswrite(dev_t, struct uio *, int); int ksymsioctl(dev_t, u_long, caddr_t, int, struct proc *); int ksymsstop(struct tty *, int); struct tty *ksymstty(dev_t); int ksymspoll(dev_t, int, struct proc *); paddr_t ksymsmmap(dev_t, off_t, int); int ksymskqfilter(dev_t, struct knote *);
-int bioopen(dev_t, int, int, struct proc *); int bioclose(dev_t, int, int, struct proc *); int bioread(dev_t, struct uio *, int); int biowrite(dev_t, struct uio *, int); int bioioctl(dev_t, u_long, caddr_t, int, struct proc *); int biostop(struct tty *, int); struct tty *biotty(dev_t); int biopoll(dev_t, int, struct proc *); paddr_t biommap(dev_t, off_t, int); int biokqfilter(dev_t, struct knote *);
-int vscsiopen(dev_t, int, int, struct proc *); int vscsiclose(dev_t, int, int, struct proc *); int vscsiread(dev_t, struct uio *, int); int vscsiwrite(dev_t, struct uio *, int); int vscsiioctl(dev_t, u_long, caddr_t, int, struct proc *); int vscsistop(struct tty *, int); struct tty *vscsitty(dev_t); int vscsipoll(dev_t, int, struct proc *); paddr_t vscsimmap(dev_t, off_t, int); int vscsikqfilter(dev_t, struct knote *);
-int gpropen(dev_t, int, int, struct proc *); int gprclose(dev_t, int, int, struct proc *); int gprread(dev_t, struct uio *, int); int gprwrite(dev_t, struct uio *, int); int gprioctl(dev_t, u_long, caddr_t, int, struct proc *); int gprstop(struct tty *, int); struct tty *gprtty(dev_t); int gprpoll(dev_t, int, struct proc *); paddr_t gprmmap(dev_t, off_t, int); int gprkqfilter(dev_t, struct knote *);
-int bktropen(dev_t, int, int, struct proc *); int bktrclose(dev_t, int, int, struct proc *); int bktrread(dev_t, struct uio *, int); int bktrwrite(dev_t, struct uio *, int); int bktrioctl(dev_t, u_long, caddr_t, int, struct proc *); int bktrstop(struct tty *, int); struct tty *bktrtty(dev_t); int bktrpoll(dev_t, int, struct proc *); paddr_t bktrmmap(dev_t, off_t, int); int bktrkqfilter(dev_t, struct knote *);
-int usbopen(dev_t, int, int, struct proc *); int usbclose(dev_t, int, int, struct proc *); int usbread(dev_t, struct uio *, int); int usbwrite(dev_t, struct uio *, int); int usbioctl(dev_t, u_long, caddr_t, int, struct proc *); int usbstop(struct tty *, int); struct tty *usbtty(dev_t); int usbpoll(dev_t, int, struct proc *); paddr_t usbmmap(dev_t, off_t, int); int usbkqfilter(dev_t, struct knote *);
-int ugenopen(dev_t, int, int, struct proc *); int ugenclose(dev_t, int, int, struct proc *); int ugenread(dev_t, struct uio *, int); int ugenwrite(dev_t, struct uio *, int); int ugenioctl(dev_t, u_long, caddr_t, int, struct proc *); int ugenstop(struct tty *, int); struct tty *ugentty(dev_t); int ugenpoll(dev_t, int, struct proc *); paddr_t ugenmmap(dev_t, off_t, int); int ugenkqfilter(dev_t, struct knote *);
-int uhidopen(dev_t, int, int, struct proc *); int uhidclose(dev_t, int, int, struct proc *); int uhidread(dev_t, struct uio *, int); int uhidwrite(dev_t, struct uio *, int); int uhidioctl(dev_t, u_long, caddr_t, int, struct proc *); int uhidstop(struct tty *, int); struct tty *uhidtty(dev_t); int uhidpoll(dev_t, int, struct proc *); paddr_t uhidmmap(dev_t, off_t, int); int uhidkqfilter(dev_t, struct knote *);
-int ucomopen(dev_t, int, int, struct proc *); int ucomclose(dev_t, int, int, struct proc *); int ucomread(dev_t, struct uio *, int); int ucomwrite(dev_t, struct uio *, int); int ucomioctl(dev_t, u_long, caddr_t, int, struct proc *); int ucomstop(struct tty *, int); struct tty *ucomtty(dev_t); int ucompoll(dev_t, int, struct proc *); paddr_t ucommmap(dev_t, off_t, int); int ucomkqfilter(dev_t, struct knote *);
-int ulptopen(dev_t, int, int, struct proc *); int ulptclose(dev_t, int, int, struct proc *); int ulptread(dev_t, struct uio *, int); int ulptwrite(dev_t, struct uio *, int); int ulptioctl(dev_t, u_long, caddr_t, int, struct proc *); int ulptstop(struct tty *, int); struct tty *ulpttty(dev_t); int ulptpoll(dev_t, int, struct proc *); paddr_t ulptmmap(dev_t, off_t, int); int ulptkqfilter(dev_t, struct knote *);
-int urioopen(dev_t, int, int, struct proc *); int urioclose(dev_t, int, int, struct proc *); int urioread(dev_t, struct uio *, int); int uriowrite(dev_t, struct uio *, int); int urioioctl(dev_t, u_long, caddr_t, int, struct proc *); int uriostop(struct tty *, int); struct tty *uriotty(dev_t); int uriopoll(dev_t, int, struct proc *); paddr_t uriommap(dev_t, off_t, int); int uriokqfilter(dev_t, struct knote *);
-int hotplugopen(dev_t, int, int, struct proc *); int hotplugclose(dev_t, int, int, struct proc *); int hotplugread(dev_t, struct uio *, int); int hotplugwrite(dev_t, struct uio *, int); int hotplugioctl(dev_t, u_long, caddr_t, int, struct proc *); int hotplugstop(struct tty *, int); struct tty *hotplugtty(dev_t); int hotplugpoll(dev_t, int, struct proc *); paddr_t hotplugmmap(dev_t, off_t, int); int hotplugkqfilter(dev_t, struct knote *);
-int gpioopen(dev_t, int, int, struct proc *); int gpioclose(dev_t, int, int, struct proc *); int gpioread(dev_t, struct uio *, int); int gpiowrite(dev_t, struct uio *, int); int gpioioctl(dev_t, u_long, caddr_t, int, struct proc *); int gpiostop(struct tty *, int); struct tty *gpiotty(dev_t); int gpiopoll(dev_t, int, struct proc *); paddr_t gpiommap(dev_t, off_t, int); int gpiokqfilter(dev_t, struct knote *);
-int amdmsropen(dev_t, int, int, struct proc *); int amdmsrclose(dev_t, int, int, struct proc *); int amdmsrread(dev_t, struct uio *, int); int amdmsrwrite(dev_t, struct uio *, int); int amdmsrioctl(dev_t, u_long, caddr_t, int, struct proc *); int amdmsrstop(struct tty *, int); struct tty *amdmsrtty(dev_t); int amdmsrpoll(dev_t, int, struct proc *); paddr_t amdmsrmmap(dev_t, off_t, int); int amdmsrkqfilter(dev_t, struct knote *);
-int fuseopen(dev_t, int, int, struct proc *); int fuseclose(dev_t, int, int, struct proc *); int fuseread(dev_t, struct uio *, int); int fusewrite(dev_t, struct uio *, int); int fuseioctl(dev_t, u_long, caddr_t, int, struct proc *); int fusestop(struct tty *, int); struct tty *fusetty(dev_t); int fusepoll(dev_t, int, struct proc *); paddr_t fusemmap(dev_t, off_t, int); int fusekqfilter(dev_t, struct knote *);
-int pvbusopen(dev_t, int, int, struct proc *); int pvbusclose(dev_t, int, int, struct proc *); int pvbusread(dev_t, struct uio *, int); int pvbuswrite(dev_t, struct uio *, int); int pvbusioctl(dev_t, u_long, caddr_t, int, struct proc *); int pvbusstop(struct tty *, int); struct tty *pvbustty(dev_t); int pvbuspoll(dev_t, int, struct proc *); paddr_t pvbusmmap(dev_t, off_t, int); int pvbuskqfilter(dev_t, struct knote *);
-int ipmiopen(dev_t, int, int, struct proc *); int ipmiclose(dev_t, int, int, struct proc *); int ipmiread(dev_t, struct uio *, int); int ipmiwrite(dev_t, struct uio *, int); int ipmiioctl(dev_t, u_long, caddr_t, int, struct proc *); int ipmistop(struct tty *, int); struct tty *ipmitty(dev_t); int ipmipoll(dev_t, int, struct proc *); paddr_t ipmimmap(dev_t, off_t, int); int ipmikqfilter(dev_t, struct knote *);
-typedef __int_least8_t int_least8_t;
-typedef __uint_least8_t uint_least8_t;
-typedef __int_least16_t int_least16_t;
-typedef __uint_least16_t uint_least16_t;
-typedef __int_least32_t int_least32_t;
-typedef __uint_least32_t uint_least32_t;
-typedef __int_least64_t int_least64_t;
-typedef __uint_least64_t uint_least64_t;
-typedef __int_fast8_t int_fast8_t;
-typedef __uint_fast8_t uint_fast8_t;
-typedef __int_fast16_t int_fast16_t;
-typedef __uint_fast16_t uint_fast16_t;
-typedef __int_fast32_t int_fast32_t;
-typedef __uint_fast32_t uint_fast32_t;
-typedef __int_fast64_t int_fast64_t;
-typedef __uint_fast64_t uint_fast64_t;
-typedef __intptr_t intptr_t;
-typedef __uintptr_t uintptr_t;
-typedef __intmax_t intmax_t;
-typedef __uintmax_t uintmax_t;
-struct mem_range_desc {
- u_int64_t mr_base;
- u_int64_t mr_len;
- int mr_flags;
- char mr_owner[8];
-};
-struct mem_range_op {
- struct mem_range_desc *mo_desc;
- int mo_arg[2];
-};
-struct mem_range_softc;
-struct mem_range_ops {
- void (*init)(struct mem_range_softc *sc);
- int (*set)(struct mem_range_softc *sc,
-      struct mem_range_desc *mrd, int *arg);
- void (*initAP)(struct mem_range_softc *sc);
- void (*reload)(struct mem_range_softc *sc);
-};
-struct mem_range_softc {
- struct mem_range_ops *mr_op;
- int mr_cap;
- int mr_ndesc;
- struct mem_range_desc *mr_desc;
-};
-extern struct mem_range_softc mem_range_softc;
-
-extern void mem_range_attach(void);
-extern int mem_range_attr_get(struct mem_range_desc *mrd, int *arg);
-extern int mem_range_attr_set(struct mem_range_desc *mrd, int *arg);
-extern void mem_range_AP_init(void);
-extern void mem_range_reload(void);
-
-struct extent_region {
- struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
- u_long er_start;
- u_long er_end;
- int er_flags;
-};
-struct extent {
- char *ex_name;
- struct { struct extent_region *lh_first; } ex_regions;
- u_long ex_start;
- u_long ex_end;
- int ex_mtype;
- int ex_flags;
- struct { struct extent *le_next; struct extent **le_prev; } ex_link;
-};
-struct extent_fixed {
- struct extent fex_extent;
- struct { struct extent_region *lh_first; } fex_freelist;
- caddr_t fex_storage;
- size_t fex_storagesize;
-};
-void extent_print_all(void);
-struct extent *extent_create(char *, u_long, u_long, int,
-     caddr_t, size_t, int);
-void extent_destroy(struct extent *);
-int extent_alloc_subregion(struct extent *, u_long, u_long,
-     u_long, u_long, u_long, u_long, int, u_long *);
-int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
-     u_long, u_long, u_long, u_long, int, struct extent_region *,
-     u_long *);
-int extent_alloc_region(struct extent *, u_long, u_long, int);
-int extent_free(struct extent *, u_long, u_long, int);
-void extent_print(struct extent *);
-extern int db_radix;
-extern int db_max_width;
-extern int db_tab_stop_width;
-extern int db_max_line;
-extern int db_panic;
-extern int db_console;
-extern int db_log;
-extern int db_is_active;
-extern int db_profile;
-int ddb_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-         struct proc *);
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
 typedef off_t voff_t;
@@ -2184,6 +1495,15 @@ extern void sp_tlb_flush_pte(vaddr_t addr, int ctx);
 extern void sp_tlb_flush_ctx(int ctx);
 void smp_tlb_flush_pte(vaddr_t, int);
 void smp_tlb_flush_ctx(int);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 struct page_size_map {
  u_int64_t mask;
  u_int64_t code;
@@ -2735,6 +2055,83 @@ struct process;
 struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
+extern int db_radix;
+extern int db_max_width;
+extern int db_tab_stop_width;
+extern int db_max_line;
+extern int db_panic;
+extern int db_console;
+extern int db_log;
+extern int db_is_active;
+extern int db_profile;
+int ddb_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+         struct proc *);
+typedef uint16_t i2c_addr_t;
+typedef enum {
+ I2C_OP_READ = 0,
+ I2C_OP_READ_WITH_STOP = 1,
+ I2C_OP_WRITE = 2,
+ I2C_OP_WRITE_WITH_STOP = 3,
+} i2c_op_t;
+struct device;
+typedef struct i2c_controller {
+ void *ic_cookie;
+ int (*ic_acquire_bus)(void *, int);
+ void (*ic_release_bus)(void *, int);
+ int (*ic_exec)(void *, i2c_op_t, i2c_addr_t, const void *, size_t,
+      void *, size_t, int);
+ int (*ic_send_start)(void *, int);
+ int (*ic_send_stop)(void *, int);
+ int (*ic_initiate_xfer)(void *, i2c_addr_t, int);
+ int (*ic_read_byte)(void *, uint8_t *, int);
+ int (*ic_write_byte)(void *, uint8_t, int);
+ void *(*ic_intr_establish)(void *, void *, int, int (*)(void *),
+      void *, const char *);
+ const char *(*ic_intr_string)(void *, void *);
+} *i2c_tag_t;
+struct i2cbus_attach_args {
+ const char *iba_name;
+ i2c_tag_t iba_tag;
+ void (*iba_bus_scan)(struct device *, struct i2cbus_attach_args *,
+      void *);
+ void *iba_bus_scan_arg;
+};
+struct i2c_attach_args {
+ i2c_tag_t ia_tag;
+ i2c_addr_t ia_addr;
+ int ia_size;
+ char *ia_name;
+ void *ia_cookie;
+ void *ia_intr;
+};
+int iicbus_print(void *, const char *);
+int iic_exec(i2c_tag_t, i2c_op_t, i2c_addr_t, const void *,
+     size_t, void *, size_t, int);
+int iic_smbus_write_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t, int);
+int iic_smbus_read_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t *, int);
+int iic_smbus_receive_byte(i2c_tag_t, i2c_addr_t, uint8_t *, int);
+void iic_ignore_addr(u_int8_t addr);
+typedef u_int16_t pci_vendor_id_t;
+typedef u_int16_t pci_product_id_t;
+typedef u_int8_t pci_class_t;
+typedef u_int8_t pci_subclass_t;
+typedef u_int8_t pci_interface_t;
+typedef u_int8_t pci_revision_t;
+typedef u_int8_t pci_intr_pin_t;
+typedef u_int8_t pci_intr_line_t;
+struct pci_vpd_smallres {
+ uint8_t vpdres_byte0;
+} __attribute__((__packed__));
+struct pci_vpd_largeres {
+ uint8_t vpdres_byte0;
+ uint8_t vpdres_len_lsb;
+ uint8_t vpdres_len_msb;
+} __attribute__((__packed__));
+struct pci_vpd {
+ uint8_t vpd_key0;
+ uint8_t vpd_key1;
+ uint8_t vpd_len;
+} __attribute__((__packed__));
 enum devclass {
  DV_DULL,
  DV_CPU,
@@ -2826,6 +2223,81 @@ struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
 struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
 void device_register(struct device *, void *);
 int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+struct kmem_freelist;
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
+struct extent_region {
+ struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
+ u_long er_start;
+ u_long er_end;
+ int er_flags;
+};
+struct extent {
+ char *ex_name;
+ struct { struct extent_region *lh_first; } ex_regions;
+ u_long ex_start;
+ u_long ex_end;
+ int ex_mtype;
+ int ex_flags;
+ struct { struct extent *le_next; struct extent **le_prev; } ex_link;
+};
+struct extent_fixed {
+ struct extent fex_extent;
+ struct { struct extent_region *lh_first; } fex_freelist;
+ caddr_t fex_storage;
+ size_t fex_storagesize;
+};
+void extent_print_all(void);
+struct extent *extent_create(char *, u_long, u_long, int,
+     caddr_t, size_t, int);
+void extent_destroy(struct extent *);
+int extent_alloc_subregion(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, u_long *);
+int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, struct extent_region *,
+     u_long *);
+int extent_alloc_region(struct extent *, u_long, u_long, int);
+int extent_free(struct extent *, u_long, u_long, int);
+void extent_print(struct extent *);
 extern int bus_space_debug;
 enum bus_type {
  UPA_BUS_SPACE,
@@ -3479,27 +2951,6 @@ struct sparc_bus_dmamap {
  int dm_nsegs;
  bus_dma_segment_t dm_segs[1];
 };
-typedef u_int16_t pci_vendor_id_t;
-typedef u_int16_t pci_product_id_t;
-typedef u_int8_t pci_class_t;
-typedef u_int8_t pci_subclass_t;
-typedef u_int8_t pci_interface_t;
-typedef u_int8_t pci_revision_t;
-typedef u_int8_t pci_intr_pin_t;
-typedef u_int8_t pci_intr_line_t;
-struct pci_vpd_smallres {
- uint8_t vpdres_byte0;
-} __attribute__((__packed__));
-struct pci_vpd_largeres {
- uint8_t vpdres_byte0;
- uint8_t vpdres_len_lsb;
- uint8_t vpdres_len_msb;
-} __attribute__((__packed__));
-struct pci_vpd {
- uint8_t vpd_key0;
- uint8_t vpd_key1;
- uint8_t vpd_len;
-} __attribute__((__packed__));
 typedef u_int32_t pcireg_t;
 struct pcibus_attach_args;
 struct pci_softc;
@@ -3641,203 +3092,6 @@ void pci_devinfo(pcireg_t, pcireg_t, int, char *, size_t);
 const struct pci_quirkdata *
  pci_lookup_quirkdata(pci_vendor_id_t, pci_product_id_t);
 void pciagp_set_pchb(struct pci_attach_args *);
-struct agp_attach_args {
- char *aa_busname;
- struct pci_attach_args *aa_pa;
-};
-struct agpbus_attach_args {
- char *aa_busname;
-        struct pci_attach_args *aa_pa;
- const struct agp_methods *aa_methods;
- bus_addr_t aa_apaddr;
- bus_size_t aa_apsize;
-};
-enum agp_acquire_state {
- AGP_ACQUIRE_FREE,
- AGP_ACQUIRE_USER,
- AGP_ACQUIRE_KERNEL
-};
-struct agp_info {
- u_int32_t ai_mode;
- bus_addr_t ai_aperture_base;
- bus_size_t ai_aperture_size;
- vsize_t ai_memory_allowed;
- vsize_t ai_memory_used;
- u_int32_t ai_devid;
-};
-struct agp_memory_info {
-        vsize_t ami_size;
-        bus_addr_t ami_physical;
-        off_t ami_offset;
-        int ami_is_bound;
-};
-struct agp_methods {
- void (*bind_page)(void *, bus_addr_t, paddr_t, int);
- void (*unbind_page)(void *, bus_addr_t);
- void (*flush_tlb)(void *);
- int (*enable)(void *, u_int32_t mode);
-};
-struct agp_softc {
- struct device sc_dev;
- const struct agp_methods *sc_methods;
- void *sc_chipc;
- bus_dma_tag_t sc_dmat;
- bus_space_tag_t sc_memt;
- pci_chipset_tag_t sc_pc;
- pcitag_t sc_pcitag;
- bus_addr_t sc_apaddr;
- bus_size_t sc_apsize;
- uint32_t sc_stolen_entries;
- pcireg_t sc_id;
- int sc_opened;
- int sc_capoff;
- int sc_nextid;
- enum agp_acquire_state sc_state;
- u_int32_t sc_maxmem;
- u_int32_t sc_allocated;
-};
-struct agp_gatt {
- u_int32_t ag_entries;
- u_int32_t *ag_virtual;
- bus_addr_t ag_physical;
- bus_dmamap_t ag_dmamap;
- bus_dma_segment_t ag_dmaseg;
- size_t ag_size;
-};
-struct agp_map;
-struct device *agp_attach_bus(struct pci_attach_args *,
-       const struct agp_methods *, bus_addr_t, bus_size_t,
-       struct device *);
-struct agp_gatt *
- agp_alloc_gatt(bus_dma_tag_t, u_int32_t);
-void agp_free_gatt(bus_dma_tag_t, struct agp_gatt *);
-void agp_flush_cache(void);
-void agp_flush_cache_range(vaddr_t, vsize_t);
-int agp_generic_enable(struct agp_softc *, u_int32_t);
-int agp_init_map(bus_space_tag_t, bus_addr_t, bus_size_t, int, struct
-     agp_map **);
-void agp_destroy_map(struct agp_map *);
-int agp_map_subregion(struct agp_map *, bus_size_t, bus_size_t,
-     bus_space_handle_t *);
-void agp_unmap_subregion(struct agp_map *, bus_space_handle_t,
-     bus_size_t);
-void agp_map_atomic(struct agp_map *, bus_size_t, bus_space_handle_t *);
-void agp_unmap_atomic(struct agp_map *, bus_space_handle_t);
-int agp_alloc_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t *,
-     bus_addr_t *, bus_dma_segment_t *);
-void agp_free_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t,
-     bus_dma_segment_t *);
-int agpdev_print(void *, const char *);
-int agpbus_probe(struct agp_attach_args *aa);
-paddr_t agp_mmap(struct agp_softc *, off_t, int);
-void *agp_find_device(int);
-enum agp_acquire_state agp_state(void *);
-void agp_get_info(void *, struct agp_info *);
-int agp_acquire(void *);
-int agp_release(void *);
-int agp_enable(void *, u_int32_t);
-void agp_memory_info(void *, void *, struct agp_memory_info *);
-extern long hostid;
-extern char hostname[256];
-extern int hostnamelen;
-extern char domainname[256];
-extern int domainnamelen;
-extern struct timespec boottime;
-extern struct timezone tz;
-extern int tick;
-extern int tickfix;
-extern int tickfixinterval;
-extern int tickadj;
-extern int ticks;
-extern int hz;
-extern int stathz;
-extern int profhz;
-extern int lbolt;
-extern int tickdelta;
-extern long timedelta;
-extern int64_t adjtimedelta;
-extern struct bintime naptime;
-struct sigacts {
- sig_t ps_sigact[33];
- sigset_t ps_catchmask[33];
- sigset_t ps_sigonstack;
- sigset_t ps_sigintr;
- sigset_t ps_sigreset;
- sigset_t ps_siginfo;
- sigset_t ps_sigignore;
- sigset_t ps_sigcatch;
- int ps_flags;
- int ps_refcnt;
-};
-enum signal_type { SPROCESS, STHREAD, SPROPAGATED };
-int coredump(struct proc *p);
-void execsigs(struct proc *p);
-void gsignal(int pgid, int sig);
-void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
-int issignal(struct proc *p);
-void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void psignal(struct proc *p, int sig);
-void ptsignal(struct proc *p, int sig, enum signal_type type);
-void siginit(struct process *);
-void trapsignal(struct proc *p, int sig, u_long code, int type,
-     union sigval val);
-void sigexit(struct proc *, int);
-int sigonstack(size_t);
-void setsigvec(struct proc *, int, struct sigaction *);
-int killpg1(struct proc *, int, int, int);
-void signal_init(void);
-struct sigacts *sigactsinit(struct process *);
-struct sigacts *sigactsshare(struct process *);
-void sigstkinit(struct sigaltstack *);
-void sigactsunshare(struct process *);
-void sigactsfree(struct process *);
-void sendsig(sig_t action, int sig, int returnmask, u_long code,
-     int type, union sigval val);
-typedef uint16_t i2c_addr_t;
-typedef enum {
- I2C_OP_READ = 0,
- I2C_OP_READ_WITH_STOP = 1,
- I2C_OP_WRITE = 2,
- I2C_OP_WRITE_WITH_STOP = 3,
-} i2c_op_t;
-struct device;
-typedef struct i2c_controller {
- void *ic_cookie;
- int (*ic_acquire_bus)(void *, int);
- void (*ic_release_bus)(void *, int);
- int (*ic_exec)(void *, i2c_op_t, i2c_addr_t, const void *, size_t,
-      void *, size_t, int);
- int (*ic_send_start)(void *, int);
- int (*ic_send_stop)(void *, int);
- int (*ic_initiate_xfer)(void *, i2c_addr_t, int);
- int (*ic_read_byte)(void *, uint8_t *, int);
- int (*ic_write_byte)(void *, uint8_t, int);
- void *(*ic_intr_establish)(void *, void *, int, int (*)(void *),
-      void *, const char *);
- const char *(*ic_intr_string)(void *, void *);
-} *i2c_tag_t;
-struct i2cbus_attach_args {
- const char *iba_name;
- i2c_tag_t iba_tag;
- void (*iba_bus_scan)(struct device *, struct i2cbus_attach_args *,
-      void *);
- void *iba_bus_scan_arg;
-};
-struct i2c_attach_args {
- i2c_tag_t ia_tag;
- i2c_addr_t ia_addr;
- int ia_size;
- char *ia_name;
- void *ia_cookie;
- void *ia_intr;
-};
-int iicbus_print(void *, const char *);
-int iic_exec(i2c_tag_t, i2c_op_t, i2c_addr_t, const void *,
-     size_t, void *, size_t, int);
-int iic_smbus_write_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t, int);
-int iic_smbus_read_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t *, int);
-int iic_smbus_receive_byte(i2c_tag_t, i2c_addr_t, uint8_t *, int);
-void iic_ignore_addr(u_int8_t addr);
 typedef int8_t __s8;
 typedef uint8_t __u8;
 typedef int16_t __s16;
@@ -4275,9 +3529,19 @@ _spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned
 {
  __mtx_leave(mtxp );
 }
+typedef struct wait_queue wait_queue_t;
+struct wait_queue {
+ unsigned int flags;
+ void *private;
+ int (*func)(wait_queue_t *, unsigned, int, void *);
+};
+extern struct mutex sch_mtx;
+extern void *sch_ident;
+extern int sch_priority;
 struct wait_queue_head {
  struct mutex lock;
  unsigned int count;
+ struct wait_queue *_wq;
 };
 typedef struct wait_queue_head wait_queue_head_t;
 static inline void
@@ -4285,6 +3549,41 @@ init_waitqueue_head(wait_queue_head_t *wq)
 {
  do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
+ wq->_wq = ((void *)0);
+}
+static inline void
+__add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+{
+ head->_wq = new;
+}
+static inline void
+__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+{
+ head->_wq = ((void *)0);
+}
+static inline void
+_wake_up(wait_queue_head_t *wq )
+{
+ __mtx_enter(&wq->lock );
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
+ __mtx_leave(&wq->lock );
+}
+static inline void
+wake_up_all_locked(wait_queue_head_t *wq)
+{
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
 }
 struct completion {
  u_int done;
@@ -4696,24 +3995,244 @@ static inline void
 prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
 {
  if (*wait == ((void *)0)) {
-  __mtx_enter(&wq->lock );
+  __mtx_enter(&sch_mtx );
   *wait = wq;
  }
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = wq;
+ sch_priority = state;
 }
 static inline void
 finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 {
- if (*wait)
-  __mtx_leave(&wq->lock );
+ if (*wait) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
+}
+static inline void
+set_current_state(int state)
+{
+ if (sch_ident != (__curcpu->ci_self)->ci_curproc)
+  __mtx_enter(&sch_mtx );
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ sch_priority = state;
+}
+static inline void
+__set_current_state(int state)
+{
+ ((state == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1318, "state == TASK_RUNNING"));
+ if (sch_ident == (__curcpu->ci_self)->ci_curproc) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
 }
 static inline long
-schedule_timeout(long timeout, wait_queue_head_t **wait)
+schedule_timeout(long timeout)
 {
+ int err;
+ long deadline;
  if (cold) {
   delay((timeout * 1000000) / hz);
-  return -60;
+  return 0;
  }
- return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+ if (timeout == (0x7fffffff)) {
+  err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", 0);
+  sch_ident = (__curcpu->ci_self)->ci_curproc;
+  return timeout;
+ }
+ deadline = ticks + timeout;
+ err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", timeout);
+ timeout = deadline - ticks;
+ if (timeout < 0)
+  timeout = 0;
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ return timeout;
+}
+struct seq_file;
+static inline void
+seq_printf(struct seq_file *m, const char *fmt, ...) {};
+struct fence {
+ struct kref refcount;
+ const struct fence_ops *ops;
+ unsigned long flags;
+ unsigned int context;
+ unsigned int seqno;
+ struct mutex *lock;
+ struct list_head cb_list;
+};
+enum fence_flag_bits {
+ FENCE_FLAG_SIGNALED_BIT,
+ FENCE_FLAG_ENABLE_SIGNAL_BIT,
+ FENCE_FLAG_USER_BITS,
+};
+struct fence_ops {
+ const char * (*get_driver_name)(struct fence *);
+ const char * (*get_timeline_name)(struct fence *);
+ _Bool (*enable_signaling)(struct fence *);
+ _Bool (*signaled)(struct fence *);
+ long (*wait)(struct fence *, _Bool, long);
+ void (*release)(struct fence *);
+};
+struct fence_cb;
+typedef void (*fence_func_t)(struct fence *fence, struct fence_cb *cb);
+struct fence_cb {
+ struct list_head node;
+ fence_func_t func;
+};
+unsigned int fence_context_alloc(unsigned int);
+static inline struct fence *
+fence_get(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline struct fence *
+fence_get_rcu(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline void
+fence_release(struct kref *ref)
+{
+ struct fence *fence = ({ const __typeof( ((struct fence *)0)->refcount ) *__mptr = (ref); (struct fence *)( (char *)__mptr - __builtin_offsetof(struct fence, refcount) );});
+ if (fence->ops && fence->ops->release)
+  fence->ops->release(fence);
+ else
+  free(fence, 145, 0);
+}
+static inline void
+fence_put(struct fence *fence)
+{
+ if (fence)
+  kref_put(&fence->refcount, fence_release);
+}
+static inline int
+fence_signal(struct fence *fence)
+{
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ if (test_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags)) {
+  struct fence_cb *cur, *tmp;
+  __mtx_enter(fence->lock );
+  for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+   list_del_init(&cur->node);
+   cur->func(fence, cur);
+  }
+  __mtx_leave(fence->lock );
+ }
+ return 0;
+}
+static inline int
+fence_signal_locked(struct fence *fence)
+{
+ struct fence_cb *cur, *tmp;
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+  list_del_init(&cur->node);
+  cur->func(fence, cur);
+ }
+ return 0;
+}
+static inline _Bool
+fence_is_signaled(struct fence *fence)
+{
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return 1;
+ if (fence->ops->signaled && fence->ops->signaled(fence)) {
+  fence_signal(fence);
+  return 1;
+ }
+ return 0;
+}
+static inline long
+fence_wait_timeout(struct fence *fence, _Bool intr, signed long timeout)
+{
+ if (timeout < 0)
+  return -22;
+ if (timeout == 0)
+  return fence_is_signaled(fence);
+ return fence->ops->wait(fence, intr, timeout);
+}
+static inline long
+fence_wait(struct fence *fence, _Bool intr)
+{
+ return fence_wait_timeout(fence, intr, (0x7fffffff));
+}
+static inline void
+fence_enable_sw_signaling(struct fence *fence)
+{
+ if (!test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags) &&
+     !test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  __mtx_enter(fence->lock );
+  if (!fence->ops->enable_signaling(fence))
+   fence_signal_locked(fence);
+  __mtx_leave(fence->lock );
+ }
+}
+static inline void
+fence_init(struct fence *fence, const struct fence_ops *ops,
+    struct mutex *lock, unsigned context, unsigned seqno)
+{
+ fence->ops = ops;
+ fence->lock = lock;
+ fence->context = context;
+ fence->seqno = seqno;
+ fence->flags = 0;
+ kref_init(&fence->refcount);
+ INIT_LIST_HEAD(&fence->cb_list);
+}
+static inline int
+fence_add_callback(struct fence *fence, struct fence_cb *cb,
+    fence_func_t func)
+{
+ int ret = 0;
+ _Bool was_set;
+ if (({ int __ret = !!(!fence || !func); if (__ret) printf("WARNING %s failed at %s:%d\n", "!fence || !func", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1536); __builtin_expect(!!(__ret), 0); }))
+  return -22;
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  INIT_LIST_HEAD(&cb->node);
+  return -2;
+ }
+ __mtx_enter(fence->lock );
+ was_set = test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags);
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  ret = -2;
+ else if (!was_set) {
+  if (!fence->ops->enable_signaling(fence)) {
+   fence_signal_locked(fence);
+   ret = -2;
+  }
+ }
+ if (!ret) {
+  cb->func = func;
+  list_add_tail(&cb->node, &fence->cb_list);
+ } else
+  INIT_LIST_HEAD(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
+}
+static inline _Bool
+fence_remove_callback(struct fence *fence, struct fence_cb *cb)
+{
+ _Bool ret;
+ __mtx_enter(fence->lock );
+ ret = !list_empty(&cb->node);
+ if (ret)
+  list_del_init(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
 }
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
@@ -5024,7 +4543,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 2114, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
@@ -5079,6 +4598,48 @@ cpu_relax(void)
   delay(tick);
   jiffies++;
  }
+}
+struct lock_class_key {
+};
+typedef struct {
+ unsigned int sequence;
+} seqcount_t;
+static inline void
+__seqcount_init(seqcount_t *s, const char *name,
+    struct lock_class_key *key)
+{
+ s->sequence = 0;
+}
+static inline unsigned int
+read_seqcount_begin(const seqcount_t *s)
+{
+ unsigned int r;
+ for (;;) {
+  r = s->sequence;
+  if ((r & 1) == 0)
+   break;
+  cpu_relax();
+ }
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return r;
+}
+static inline int
+read_seqcount_retry(const seqcount_t *s, unsigned start)
+{
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return (s->sequence != start);
+}
+static inline void
+write_seqcount_begin(seqcount_t *s)
+{
+ s->sequence++;
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+}
+static inline void
+write_seqcount_end(seqcount_t *s)
+{
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ s->sequence++;
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
 {
@@ -5284,6 +4845,1696 @@ release_firmware(const struct firmware *fw)
  free(((struct firmware *)(__uintptr_t)(const void *)(fw)), 145, sizeof(*fw));
 }
 void *memchr_inv(const void *, int, size_t);
+struct ww_class {
+ volatile u_long stamp;
+ const char *name;
+};
+struct ww_acquire_ctx {
+ u_long stamp;
+ struct ww_class *ww_class;
+};
+struct ww_mutex {
+ struct mutex lock;
+ volatile int acquired;
+ volatile struct ww_acquire_ctx *ctx;
+ volatile struct proc *owner;
+};
+static inline void
+ww_acquire_init(struct ww_acquire_ctx *ctx, struct ww_class *ww_class) {
+ ctx->stamp = __sync_fetch_and_add(&ww_class->stamp, 1);
+ ctx->ww_class = ww_class;
+}
+static inline void
+ww_acquire_done(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
+}
+static inline void
+ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
+}
+static inline void
+ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
+ lock->acquired = 0;
+ lock->ctx = ((void *)0);
+ lock->owner = ((void *)0);
+}
+static inline _Bool
+ww_mutex_is_locked(struct ww_mutex *lock) {
+ _Bool res = 0;
+ __mtx_enter(&lock->lock );
+ if (lock->acquired > 0) res = 1;
+ __mtx_leave(&lock->lock );
+ return res;
+}
+static inline int
+ww_mutex_trylock(struct ww_mutex *lock) {
+ int res = 0;
+ __mtx_enter(&lock->lock );
+ if (lock->acquired == 0) {
+  ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
+  lock->acquired = 1;
+  lock->owner = (__curcpu->ci_self)->ci_curproc;
+  res = 1;
+ }
+ __mtx_leave(&lock->lock );
+ return res;
+}
+static inline int
+__ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
+ int err;
+ __mtx_enter(&lock->lock );
+ for (;;) {
+  if (lock->acquired == 0) {
+   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
+   lock->acquired = 1;
+   lock->ctx = ctx;
+   lock->owner = (__curcpu->ci_self)->ci_curproc;
+   err = 0;
+   break;
+  }
+  else if (lock->owner == (__curcpu->ci_self)->ci_curproc) {
+   err = -37;
+   break;
+  }
+  else {
+   if (slow || ctx == ((void *)0) ||
+       (lock->ctx && ctx->stamp < lock->ctx->stamp)) {
+    int s = msleep(lock, &lock->lock,
+            intr ? 0x100 : 0,
+            ctx ? ctx->ww_class->name : "ww_mutex_lock", 0);
+    if (intr && (s == 4 || s == -1)) {
+     err = -4;
+     break;
+    }
+   }
+   else {
+    err = -11;
+    break;
+   }
+  }
+ }
+ __mtx_leave(&lock->lock );
+ return err;
+}
+static inline int
+ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
+ return __ww_mutex_lock(lock, ctx, 0, 0);
+}
+static inline void
+ww_mutex_lock_slow(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
+ (void)__ww_mutex_lock(lock, ctx, 1, 0);
+}
+static inline int
+ww_mutex_lock_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
+ return __ww_mutex_lock(lock, ctx, 0, 1);
+}
+static inline int
+ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
+ return __ww_mutex_lock(lock, ctx, 1, 1);
+}
+static inline void
+ww_mutex_unlock(struct ww_mutex *lock) {
+ __mtx_enter(&lock->lock );
+ ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->owner == curproc"));
+ ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 221, "lock->acquired == 1"));
+ lock->acquired = 0;
+ lock->ctx = ((void *)0);
+ lock->owner = ((void *)0);
+ __mtx_leave(&lock->lock );
+ wakeup(lock);
+}
+static inline void
+ww_mutex_destroy(struct ww_mutex *lock) {
+ ((lock->acquired == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 232, "lock->acquired == 0"));
+ ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 233, "lock->ctx == NULL"));
+ ((lock->owner == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 234, "lock->owner == NULL"));
+}
+struct rcu_head {
+};
+extern struct ww_class reservation_ww_class;
+extern struct lock_class_key reservation_seqcount_class;
+extern const char reservation_seqcount_string[];
+struct reservation_object_list {
+ struct rcu_head rcu;
+ u32 shared_count, shared_max;
+ struct fence *shared[];
+};
+struct reservation_object {
+ struct ww_mutex lock;
+ seqcount_t seq;
+ struct fence *fence_excl;
+ struct reservation_object_list *fence;
+ struct reservation_object_list *staged;
+};
+static inline void
+reservation_object_init(struct reservation_object *obj)
+{
+ ww_mutex_init(&obj->lock, &reservation_ww_class);
+ __seqcount_init(&obj->seq, reservation_seqcount_string, &reservation_seqcount_class);
+ do { (obj->fence) = (((void *)0)); } while(0);
+ do { (obj->fence_excl) = (((void *)0)); } while(0);
+ obj->staged = ((void *)0);
+}
+static inline void
+reservation_object_fini(struct reservation_object *obj)
+{
+ int i;
+ struct reservation_object_list *fobj;
+ struct fence *excl;
+ excl = (obj->fence_excl);
+ if (excl)
+  fence_put(excl);
+ fobj = (obj->fence);
+ if (fobj) {
+  for (i = 0; i < fobj->shared_count; ++i)
+   fence_put((fobj->shared[i]));
+  kfree(fobj);
+ }
+ kfree(obj->staged);
+ ww_mutex_destroy(&obj->lock);
+}
+static inline struct reservation_object_list *
+reservation_object_get_list(struct reservation_object *obj)
+{
+ return (obj->fence);
+}
+static inline struct fence *
+reservation_object_get_excl(struct reservation_object *obj)
+{
+ return (obj->fence_excl);
+}
+int reservation_object_reserve_shared(struct reservation_object *obj);
+void reservation_object_add_shared_fence(struct reservation_object *obj,
+      struct fence *fence);
+void reservation_object_add_excl_fence(struct reservation_object *obj,
+           struct fence *fence);
+int reservation_object_get_fences_rcu(struct reservation_object *obj,
+          struct fence **pfence_excl,
+          unsigned *pshared_count,
+          struct fence ***pshared);
+long reservation_object_wait_timeout_rcu(struct reservation_object *obj,
+      _Bool wait_all, _Bool intr,
+      unsigned long timeout);
+_Bool reservation_object_test_signaled_rcu(struct reservation_object *obj,
+       _Bool test_all);
+struct drm_hash_item {
+ struct { struct drm_hash_item *le_next; struct drm_hash_item **le_prev; } head;
+ unsigned long key;
+};
+struct drm_open_hash {
+ struct drm_hash_item_list { struct drm_hash_item *lh_first; } *table;
+ uint8_t order;
+};
+extern int drm_ht_create(struct drm_open_hash *ht, unsigned int order);
+extern int drm_ht_insert_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern int drm_ht_just_insert_please(struct drm_open_hash *ht, struct drm_hash_item *item,
+         unsigned long seed, int bits, int shift,
+         unsigned long add);
+extern int drm_ht_find_item(struct drm_open_hash *ht, unsigned long key, struct drm_hash_item **item);
+extern void drm_ht_verbose_list(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_key(struct drm_open_hash *ht, unsigned long key);
+extern int drm_ht_remove_item(struct drm_open_hash *ht, struct drm_hash_item *item);
+extern void drm_ht_remove(struct drm_open_hash *ht);
+enum drm_mm_search_flags {
+ DRM_MM_SEARCH_DEFAULT = 0,
+ DRM_MM_SEARCH_BEST = 1 << 0,
+ DRM_MM_SEARCH_BELOW = 1 << 1,
+};
+enum drm_mm_allocator_flags {
+ DRM_MM_CREATE_DEFAULT = 0,
+ DRM_MM_CREATE_TOP = 1 << 0,
+};
+struct drm_mm_node {
+ struct list_head node_list;
+ struct list_head hole_stack;
+ unsigned hole_follows : 1;
+ unsigned scanned_block : 1;
+ unsigned scanned_prev_free : 1;
+ unsigned scanned_next_free : 1;
+ unsigned scanned_preceeds_hole : 1;
+ unsigned allocated : 1;
+ unsigned long color;
+ u64 start;
+ u64 size;
+ struct drm_mm *mm;
+};
+struct drm_mm {
+ struct list_head hole_stack;
+ struct drm_mm_node head_node;
+ unsigned int scan_check_range : 1;
+ unsigned scan_alignment;
+ unsigned long scan_color;
+ u64 scan_size;
+ u64 scan_hit_start;
+ u64 scan_hit_end;
+ unsigned scanned_blocks;
+ u64 scan_start;
+ u64 scan_end;
+ struct drm_mm_node *prev_scanned_node;
+ void (*color_adjust)(struct drm_mm_node *node, unsigned long color,
+        u64 *start, u64 *end);
+};
+static inline _Bool drm_mm_node_allocated(struct drm_mm_node *node)
+{
+ return node->allocated;
+}
+static inline _Bool drm_mm_initialized(struct drm_mm *mm)
+{
+ return mm->hole_stack.next;
+}
+static inline u64 __drm_mm_hole_node_start(struct drm_mm_node *hole_node)
+{
+ return hole_node->start + hole_node->size;
+}
+static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
+{
+ ((!(!hole_node->hole_follows)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h", 149, "!(!hole_node->hole_follows)"));
+ return __drm_mm_hole_node_start(hole_node);
+}
+static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
+{
+ return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
+}
+static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
+{
+ return __drm_mm_hole_node_end(hole_node);
+}
+int drm_mm_reserve_node(struct drm_mm *mm, struct drm_mm_node *node);
+int drm_mm_insert_node_generic(struct drm_mm *mm,
+          struct drm_mm_node *node,
+          u64 size,
+          unsigned alignment,
+          unsigned long color,
+          enum drm_mm_search_flags sflags,
+          enum drm_mm_allocator_flags aflags);
+static inline int drm_mm_insert_node(struct drm_mm *mm,
+         struct drm_mm_node *node,
+         u64 size,
+         unsigned alignment,
+         enum drm_mm_search_flags flags)
+{
+ return drm_mm_insert_node_generic(mm, node, size, alignment, 0, flags,
+       DRM_MM_CREATE_DEFAULT);
+}
+int drm_mm_insert_node_in_range_generic(struct drm_mm *mm,
+     struct drm_mm_node *node,
+     u64 size,
+     unsigned alignment,
+     unsigned long color,
+     u64 start,
+     u64 end,
+     enum drm_mm_search_flags sflags,
+     enum drm_mm_allocator_flags aflags);
+static inline int drm_mm_insert_node_in_range(struct drm_mm *mm,
+           struct drm_mm_node *node,
+           u64 size,
+           unsigned alignment,
+           u64 start,
+           u64 end,
+           enum drm_mm_search_flags flags)
+{
+ return drm_mm_insert_node_in_range_generic(mm, node, size, alignment,
+         0, start, end, flags,
+         DRM_MM_CREATE_DEFAULT);
+}
+void drm_mm_remove_node(struct drm_mm_node *node);
+void drm_mm_replace_node(struct drm_mm_node *old, struct drm_mm_node *new);
+void drm_mm_init(struct drm_mm *mm,
+   u64 start,
+   u64 size);
+void drm_mm_takedown(struct drm_mm *mm);
+_Bool drm_mm_clean(struct drm_mm *mm);
+void drm_mm_init_scan(struct drm_mm *mm,
+        u64 size,
+        unsigned alignment,
+        unsigned long color);
+void drm_mm_init_scan_with_range(struct drm_mm *mm,
+     u64 size,
+     unsigned alignment,
+     unsigned long color,
+     u64 start,
+     u64 end);
+_Bool drm_mm_scan_add_block(struct drm_mm_node *node);
+_Bool drm_mm_scan_remove_block(struct drm_mm_node *node);
+void drm_mm_debug_table(struct drm_mm *mm, const char *prefix);
+struct rb_node {
+ struct { struct rb_node *rbe_left; struct rb_node *rbe_right; struct rb_node *rbe_parent; int rbe_color; } __entry;
+};
+struct rb_root {
+ struct rb_node *rb_node;
+};
+int panic_cmp(struct rb_node *one, struct rb_node *two);
+struct linux_root { struct rb_node *rbh_root; };
+ void linux_root_RB_INSERT_COLOR(struct linux_root *, struct rb_node *); void linux_root_RB_REMOVE_COLOR(struct linux_root *, struct rb_node *, struct rb_node *); struct rb_node *linux_root_RB_REMOVE(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_INSERT(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_FIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NFIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NEXT(struct rb_node *); struct rb_node *linux_root_RB_PREV(struct rb_node *); struct rb_node *linux_root_RB_MINMAX(struct linux_root *, int);;
+static inline void
+rb_link_node(struct rb_node *node, struct rb_node *parent,
+    struct rb_node **rb_link)
+{
+ ((node))->__entry.rbe_parent = (parent);
+ ((node))->__entry.rbe_color = (1);
+ node->__entry.rbe_left = node->__entry.rbe_right = ((void *)0);
+ *rb_link = node;
+}
+static inline void
+rb_replace_node(struct rb_node *victim, struct rb_node *new,
+    struct rb_root *root)
+{
+ struct rb_node *p;
+ p = (victim)->__entry.rbe_parent;
+ if (p) {
+  if (p->__entry.rbe_left == victim)
+   p->__entry.rbe_left = new;
+  else
+   p->__entry.rbe_right = new;
+ } else
+  root->rb_node = new;
+ if (victim->__entry.rbe_left)
+  ((victim->__entry.rbe_left))->__entry.rbe_parent = (new);
+ if (victim->__entry.rbe_right)
+  ((victim->__entry.rbe_right))->__entry.rbe_parent = (new);
+ *new = *victim;
+}
+struct interval_tree_node {
+ struct rb_node rb;
+ unsigned long start;
+ unsigned long last;
+};
+static inline struct interval_tree_node *
+interval_tree_iter_first(struct rb_root *root,
+    unsigned long start, unsigned long last)
+{
+ return ((void *)0);
+}
+static inline void
+interval_tree_insert(struct interval_tree_node *node, struct rb_root *root)
+{
+}
+static inline void
+interval_tree_remove(struct interval_tree_node *node, struct rb_root *root)
+{
+}
+struct drm_vma_offset_file {
+ struct rb_node vm_rb;
+ struct file *vm_filp;
+ unsigned long vm_count;
+};
+struct drm_vma_offset_node {
+ rwlock_t vm_lock;
+ struct drm_mm_node vm_node;
+ struct rb_node vm_rb;
+ struct rb_root vm_files;
+};
+struct drm_vma_offset_manager {
+ rwlock_t vm_lock;
+ struct rb_root vm_addr_space_rb;
+ struct drm_mm vm_addr_space_mm;
+};
+void drm_vma_offset_manager_init(struct drm_vma_offset_manager *mgr,
+     unsigned long page_offset, unsigned long size);
+void drm_vma_offset_manager_destroy(struct drm_vma_offset_manager *mgr);
+struct drm_vma_offset_node *drm_vma_offset_lookup(struct drm_vma_offset_manager *mgr,
+        unsigned long start,
+        unsigned long pages);
+struct drm_vma_offset_node *drm_vma_offset_lookup_locked(struct drm_vma_offset_manager *mgr,
+          unsigned long start,
+          unsigned long pages);
+int drm_vma_offset_add(struct drm_vma_offset_manager *mgr,
+         struct drm_vma_offset_node *node, unsigned long pages);
+void drm_vma_offset_remove(struct drm_vma_offset_manager *mgr,
+      struct drm_vma_offset_node *node);
+int drm_vma_node_allow(struct drm_vma_offset_node *node, struct file *filp);
+void drm_vma_node_revoke(struct drm_vma_offset_node *node, struct file *filp);
+_Bool drm_vma_node_is_allowed(struct drm_vma_offset_node *node,
+        struct file *filp);
+static inline struct drm_vma_offset_node *
+drm_vma_offset_exact_lookup(struct drm_vma_offset_manager *mgr,
+       unsigned long start,
+       unsigned long pages)
+{
+ struct drm_vma_offset_node *node;
+ node = drm_vma_offset_lookup(mgr, start, pages);
+ return (node && node->vm_node.start == start) ? node : ((void *)0);
+}
+static inline void drm_vma_offset_lock_lookup(struct drm_vma_offset_manager *mgr)
+{
+ _rw_enter_read(&mgr->vm_lock );
+}
+static inline void drm_vma_offset_unlock_lookup(struct drm_vma_offset_manager *mgr)
+{
+ _rw_exit_read(&mgr->vm_lock );
+}
+static inline void drm_vma_node_reset(struct drm_vma_offset_node *node)
+{
+ __builtin_memset((node), (0), (sizeof(*node)));
+ node->vm_files = (struct rb_root) { ((void *)0) };
+ _rw_init_flags(&node->vm_lock, "drmvma", 0, ((void *)0));
+}
+static inline unsigned long drm_vma_node_start(struct drm_vma_offset_node *node)
+{
+ return node->vm_node.start;
+}
+static inline unsigned long drm_vma_node_size(struct drm_vma_offset_node *node)
+{
+ return node->vm_node.size;
+}
+static inline _Bool drm_vma_node_has_offset(struct drm_vma_offset_node *node)
+{
+ return drm_mm_node_allocated(&node->vm_node);
+}
+static inline __u64 drm_vma_node_offset_addr(struct drm_vma_offset_node *node)
+{
+ return ((__u64)node->vm_node.start) << 13;
+}
+static inline void drm_vma_node_unmap(struct drm_vma_offset_node *node,
+          struct address_space *file_mapping)
+{
+ if (file_mapping && drm_vma_node_has_offset(node))
+  ;
+}
+static inline int drm_vma_node_verify_access(struct drm_vma_offset_node *node,
+          struct file *filp)
+{
+ return drm_vma_node_is_allowed(node, filp) ? 0 : -13;
+}
+struct ttm_bo_device;
+struct drm_mm_node;
+struct ttm_place {
+ unsigned fpfn;
+ unsigned lpfn;
+ uint32_t flags;
+};
+struct ttm_placement {
+ unsigned num_placement;
+ const struct ttm_place *placement;
+ unsigned num_busy_placement;
+ const struct ttm_place *busy_placement;
+};
+struct ttm_bus_placement {
+ void *addr;
+ unsigned long base;
+ unsigned long size;
+ unsigned long offset;
+ _Bool is_iomem;
+ _Bool io_reserved_vm;
+ uint64_t io_reserved_count;
+ bus_space_handle_t bsh;
+};
+struct ttm_mem_reg {
+ void *mm_node;
+ unsigned long start;
+ unsigned long size;
+ unsigned long num_pages;
+ uint32_t page_alignment;
+ uint32_t mem_type;
+ uint32_t placement;
+ struct ttm_bus_placement bus;
+};
+enum ttm_bo_type {
+ ttm_bo_type_device,
+ ttm_bo_type_kernel,
+ ttm_bo_type_sg
+};
+struct ttm_tt;
+struct ttm_buffer_object {
+ struct uvm_object uobj;
+ struct ttm_bo_global *glob;
+ struct ttm_bo_device *bdev;
+ enum ttm_bo_type type;
+ void (*destroy) (struct ttm_buffer_object *);
+ unsigned long num_pages;
+ size_t acc_size;
+ struct kref kref;
+ struct kref list_kref;
+ struct ttm_mem_reg mem;
+ struct uvm_object *persistent_swap_storage;
+ struct ttm_tt *ttm;
+ _Bool evicted;
+ atomic_t cpu_writers;
+ struct list_head lru;
+ struct list_head ddestroy;
+ struct list_head swap;
+ struct list_head io_reserve_lru;
+ unsigned long priv_flags;
+ struct drm_vma_offset_node vma_node;
+ uint64_t offset;
+ uint32_t cur_placement;
+ struct sg_table *sg;
+ struct reservation_object *resv;
+ struct reservation_object ttm_resv;
+ struct rwlock wu_mutex;
+};
+struct ttm_bo_kmap_obj {
+ void *virtual;
+ struct vm_page *page;
+ enum {
+  ttm_bo_map_iomap = 1 | 0x80,
+  ttm_bo_map_vmap = 2,
+  ttm_bo_map_kmap = 3,
+  ttm_bo_map_premapped = 4 | 0x80,
+ } bo_kmap_type;
+ struct ttm_buffer_object *bo;
+};
+static inline struct ttm_buffer_object *
+ttm_bo_reference(struct ttm_buffer_object *bo)
+{
+ kref_get(&bo->kref);
+ return bo;
+}
+extern int ttm_bo_wait(struct ttm_buffer_object *bo, _Bool lazy,
+         _Bool interruptible, _Bool no_wait);
+extern _Bool ttm_bo_mem_compat(struct ttm_placement *placement,
+         struct ttm_mem_reg *mem,
+         uint32_t *new_flags);
+extern int ttm_bo_validate(struct ttm_buffer_object *bo,
+    struct ttm_placement *placement,
+    _Bool interruptible,
+    _Bool no_wait_gpu);
+extern void ttm_bo_unref(struct ttm_buffer_object **bo);
+extern void ttm_bo_list_ref_sub(struct ttm_buffer_object *bo, int count,
+    _Bool never_free);
+extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
+extern int ttm_bo_del_from_lru(struct ttm_buffer_object *bo);
+extern int ttm_bo_lock_delayed_workqueue(struct ttm_bo_device *bdev);
+extern void ttm_bo_unlock_delayed_workqueue(struct ttm_bo_device *bdev,
+         int resched);
+extern int
+ttm_bo_synccpu_write_grab(struct ttm_buffer_object *bo, _Bool no_wait);
+extern void ttm_bo_synccpu_write_release(struct ttm_buffer_object *bo);
+size_t ttm_bo_acc_size(struct ttm_bo_device *bdev,
+         unsigned long bo_size,
+         unsigned struct_size);
+size_t ttm_bo_dma_acc_size(struct ttm_bo_device *bdev,
+      unsigned long bo_size,
+      unsigned struct_size);
+extern int ttm_bo_init(struct ttm_bo_device *bdev,
+   struct ttm_buffer_object *bo,
+   unsigned long size,
+   enum ttm_bo_type type,
+   struct ttm_placement *placement,
+   uint32_t page_alignment,
+   _Bool interrubtible,
+   struct uvm_object *persistent_swap_storage,
+   size_t acc_size,
+   struct sg_table *sg,
+   struct reservation_object *resv,
+   void (*destroy) (struct ttm_buffer_object *));
+extern int ttm_bo_create(struct ttm_bo_device *bdev,
+    unsigned long size,
+    enum ttm_bo_type type,
+    struct ttm_placement *placement,
+    uint32_t page_alignment,
+    _Bool interruptible,
+    struct uvm_object *persistent_swap_storage,
+    struct ttm_buffer_object **p_bo);
+extern int ttm_bo_init_mm(struct ttm_bo_device *bdev, unsigned type,
+    unsigned long p_size);
+extern int ttm_bo_clean_mm(struct ttm_bo_device *bdev, unsigned mem_type);
+extern int ttm_bo_evict_mm(struct ttm_bo_device *bdev, unsigned mem_type);
+static inline void *ttm_kmap_obj_virtual(struct ttm_bo_kmap_obj *map,
+      _Bool *is_iomem)
+{
+ *is_iomem = !!(map->bo_kmap_type & 0x80);
+ return map->virtual;
+}
+extern int ttm_bo_kmap(struct ttm_buffer_object *bo, unsigned long start_page,
+         unsigned long num_pages, struct ttm_bo_kmap_obj *map);
+extern void ttm_bo_kunmap(struct ttm_bo_kmap_obj *map);
+extern struct uvm_object *ttm_bo_mmap(voff_t, vsize_t,
+          struct ttm_bo_device *);
+extern ssize_t ttm_bo_io(struct ttm_bo_device *bdev, struct file *filp,
+    const char *wbuf, char *rbuf,
+    size_t count, loff_t *f_pos, _Bool write);
+extern void ttm_bo_swapout_all(struct ttm_bo_device *bdev);
+extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo);
+struct ttm_mem_shrink {
+ int (*do_shrink) (struct ttm_mem_shrink *);
+};
+struct ttm_mem_zone;
+struct ttm_mem_global {
+ struct kobject kobj;
+ struct ttm_mem_shrink *shrink;
+ struct workqueue_struct *swap_queue;
+ struct work_struct work;
+ spinlock_t lock;
+ struct ttm_mem_zone *zones[2];
+ unsigned int num_zones;
+ struct ttm_mem_zone *zone_kernel;
+ struct ttm_mem_zone *zone_dma32;
+};
+static inline void ttm_mem_init_shrink(struct ttm_mem_shrink *shrink,
+           int (*func) (struct ttm_mem_shrink *))
+{
+ shrink->do_shrink = func;
+}
+static inline int ttm_mem_register_shrink(struct ttm_mem_global *glob,
+       struct ttm_mem_shrink *shrink)
+{
+ __mtx_enter(&glob->lock );
+ if (glob->shrink != ((void *)0)) {
+  __mtx_leave(&glob->lock );
+  return -16;
+ }
+ glob->shrink = shrink;
+ __mtx_leave(&glob->lock );
+ return 0;
+}
+static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
+          struct ttm_mem_shrink *shrink)
+{
+ __mtx_enter(&glob->lock );
+ ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 135, "!(glob->shrink != shrink)"));
+ glob->shrink = ((void *)0);
+ __mtx_leave(&glob->lock );
+}
+extern int ttm_mem_global_init(struct ttm_mem_global *glob);
+extern void ttm_mem_global_release(struct ttm_mem_global *glob);
+extern int ttm_mem_global_alloc(struct ttm_mem_global *glob, uint64_t memory,
+    _Bool no_wait, _Bool interruptible);
+extern void ttm_mem_global_free(struct ttm_mem_global *glob,
+    uint64_t amount);
+extern int ttm_mem_global_alloc_page(struct ttm_mem_global *glob,
+         struct vm_page *page,
+         _Bool no_wait, _Bool interruptible);
+extern void ttm_mem_global_free_page(struct ttm_mem_global *glob,
+         struct vm_page *page);
+extern size_t ttm_round_pot(size_t size);
+struct kobject;
+extern struct kobject *ttm_get_kobj(void);
+enum drm_global_types {
+ DRM_GLOBAL_TTM_MEM = 0,
+ DRM_GLOBAL_TTM_BO,
+ DRM_GLOBAL_TTM_OBJECT,
+ DRM_GLOBAL_NUM
+};
+struct drm_global_reference {
+ enum drm_global_types global_type;
+ size_t size;
+ void *object;
+ int (*init) (struct drm_global_reference *);
+ void (*release) (struct drm_global_reference *);
+};
+extern void drm_global_init(void);
+extern void drm_global_release(void);
+extern int drm_global_item_ref(struct drm_global_reference *ref);
+extern void drm_global_item_unref(struct drm_global_reference *ref);
+struct ttm_backend_func {
+ int (*bind) (struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
+ int (*unbind) (struct ttm_tt *ttm);
+ void (*destroy) (struct ttm_tt *ttm);
+};
+enum ttm_caching_state {
+ tt_uncached,
+ tt_wc,
+ tt_cached
+};
+struct ttm_tt {
+ struct ttm_bo_device *bdev;
+ struct ttm_backend_func *func;
+ struct vm_page *dummy_read_page;
+ struct vm_page **pages;
+ uint32_t page_flags;
+ unsigned long num_pages;
+ struct sg_table *sg;
+ struct ttm_bo_global *glob;
+ struct uvm_object *swap_storage;
+ enum ttm_caching_state caching_state;
+ enum {
+  tt_bound,
+  tt_unbound,
+  tt_unpopulated,
+ } state;
+};
+struct ttm_dma_tt {
+ struct ttm_tt ttm;
+ void **cpu_address;
+ dma_addr_t *dma_address;
+ struct list_head pages_list;
+};
+struct ttm_mem_type_manager;
+struct ttm_mem_type_manager_func {
+ int (*init)(struct ttm_mem_type_manager *man, unsigned long p_size);
+ int (*takedown)(struct ttm_mem_type_manager *man);
+ int (*get_node)(struct ttm_mem_type_manager *man,
+    struct ttm_buffer_object *bo,
+    const struct ttm_place *place,
+    struct ttm_mem_reg *mem);
+ void (*put_node)(struct ttm_mem_type_manager *man,
+    struct ttm_mem_reg *mem);
+ void (*debug)(struct ttm_mem_type_manager *man, const char *prefix);
+};
+struct ttm_mem_type_manager {
+ struct ttm_bo_device *bdev;
+ _Bool has_type;
+ _Bool use_type;
+ uint32_t flags;
+ uint64_t gpu_offset;
+ uint64_t size;
+ uint32_t available_caching;
+ uint32_t default_caching;
+ const struct ttm_mem_type_manager_func *func;
+ void *priv;
+ struct rwlock io_reserve_mutex;
+ _Bool use_io_reserve_lru;
+ _Bool io_reserve_fastpath;
+ struct list_head io_reserve_lru;
+ struct list_head lru;
+};
+struct ttm_bo_driver {
+ struct ttm_tt *(*ttm_tt_create)(struct ttm_bo_device *bdev,
+     unsigned long size,
+     uint32_t page_flags,
+     struct vm_page *dummy_read_page);
+ int (*ttm_tt_populate)(struct ttm_tt *ttm);
+ void (*ttm_tt_unpopulate)(struct ttm_tt *ttm);
+ int (*invalidate_caches) (struct ttm_bo_device *bdev, uint32_t flags);
+ int (*init_mem_type) (struct ttm_bo_device *bdev, uint32_t type,
+         struct ttm_mem_type_manager *man);
+  void(*evict_flags) (struct ttm_buffer_object *bo,
+    struct ttm_placement *placement);
+ int (*move) (struct ttm_buffer_object *bo,
+       _Bool evict, _Bool interruptible,
+       _Bool no_wait_gpu,
+       struct ttm_mem_reg *new_mem);
+ int (*verify_access) (struct ttm_buffer_object *bo,
+         struct file *filp);
+ void (*move_notify)(struct ttm_buffer_object *bo,
+       struct ttm_mem_reg *new_mem);
+ int (*fault_reserve_notify)(struct ttm_buffer_object *bo);
+ void (*swap_notify) (struct ttm_buffer_object *bo);
+ int (*io_mem_reserve)(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
+ void (*io_mem_free)(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
+};
+struct ttm_bo_global_ref {
+ struct drm_global_reference ref;
+ struct ttm_mem_global *mem_glob;
+};
+struct ttm_bo_global {
+ struct kobject kobj;
+ struct ttm_mem_global *mem_glob;
+ struct vm_page *dummy_read_page;
+ struct ttm_mem_shrink shrink;
+ struct rwlock device_list_mutex;
+ spinlock_t lru_lock;
+ struct list_head device_list;
+ struct list_head swap_lru;
+ atomic_t bo_count;
+};
+struct ttm_bo_device {
+ struct list_head device_list;
+ struct ttm_bo_global *glob;
+ struct ttm_bo_driver *driver;
+ struct ttm_mem_type_manager man[8];
+ bus_space_tag_t iot;
+ bus_space_tag_t memt;
+ bus_dma_tag_t dmat;
+ struct drm_vma_offset_manager vma_manager;
+ struct list_head ddestroy;
+ uint32_t val_seq;
+ struct address_space *dev_mapping;
+ struct delayed_work wq;
+ _Bool need_dma32;
+};
+static inline uint32_t
+ttm_flag_masked(uint32_t *old, uint32_t new, uint32_t mask)
+{
+ *old ^= (*old ^ new) & mask;
+ return *old;
+}
+extern int ttm_tt_init(struct ttm_tt *ttm, struct ttm_bo_device *bdev,
+   unsigned long size, uint32_t page_flags,
+   struct vm_page *dummy_read_page);
+extern int ttm_dma_tt_init(struct ttm_dma_tt *ttm_dma, struct ttm_bo_device *bdev,
+      unsigned long size, uint32_t page_flags,
+      struct vm_page *dummy_read_page);
+extern void ttm_tt_fini(struct ttm_tt *ttm);
+extern void ttm_dma_tt_fini(struct ttm_dma_tt *ttm_dma);
+extern int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
+extern void ttm_tt_destroy(struct ttm_tt *ttm);
+extern void ttm_tt_unbind(struct ttm_tt *ttm);
+extern int ttm_tt_swapin(struct ttm_tt *ttm);
+extern int ttm_tt_set_placement_caching(struct ttm_tt *ttm, uint32_t placement);
+extern int ttm_tt_swapout(struct ttm_tt *ttm,
+     struct uvm_object *persistent_swap_storage);
+extern void ttm_tt_unpopulate(struct ttm_tt *ttm);
+extern _Bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev,
+       struct ttm_mem_reg *mem);
+extern int ttm_bo_mem_space(struct ttm_buffer_object *bo,
+    struct ttm_placement *placement,
+    struct ttm_mem_reg *mem,
+    _Bool interruptible,
+    _Bool no_wait_gpu);
+extern void ttm_bo_mem_put(struct ttm_buffer_object *bo,
+      struct ttm_mem_reg *mem);
+extern void ttm_bo_mem_put_locked(struct ttm_buffer_object *bo,
+      struct ttm_mem_reg *mem);
+extern void ttm_bo_global_release(struct drm_global_reference *ref);
+extern int ttm_bo_global_init(struct drm_global_reference *ref);
+extern int ttm_bo_device_release(struct ttm_bo_device *bdev);
+extern int ttm_bo_device_init(struct ttm_bo_device *bdev,
+         struct ttm_bo_global *glob,
+         struct ttm_bo_driver *driver,
+         struct address_space *mapping,
+         uint64_t file_page_offset, _Bool need_dma32);
+extern void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo);
+extern void ttm_bo_unmap_virtual_locked(struct ttm_buffer_object *bo);
+extern int ttm_mem_io_reserve_vm(struct ttm_buffer_object *bo);
+extern void ttm_mem_io_free_vm(struct ttm_buffer_object *bo);
+extern int ttm_mem_io_lock(struct ttm_mem_type_manager *man,
+      _Bool interruptible);
+extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
+extern void ttm_bo_del_sub_from_lru(struct ttm_buffer_object *bo);
+extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
+static inline int __ttm_bo_reserve(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       _Bool no_wait, _Bool use_ticket,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ if (no_wait) {
+  _Bool success;
+  if (({ int __ret = !!(ticket); if (__ret) printf("WARNING %s failed at %s:%d\n", "ticket", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 788); __builtin_expect(!!(__ret), 0); }))
+   return -16;
+  success = ww_mutex_trylock(&bo->resv->lock);
+  return success ? 0 : -16;
+ }
+ if (interruptible)
+  ret = ww_mutex_lock_interruptible(&bo->resv->lock, ticket);
+ else
+  ret = ww_mutex_lock(&bo->resv->lock, ticket);
+ if (ret == -4)
+  return -4;
+ return ret;
+}
+static inline int ttm_bo_reserve(struct ttm_buffer_object *bo,
+     _Bool interruptible,
+     _Bool no_wait, _Bool use_ticket,
+     struct ww_acquire_ctx *ticket)
+{
+ int ret;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 856); __builtin_expect(!!(__ret), 0); });
+ ret = __ttm_bo_reserve(bo, interruptible, no_wait, use_ticket, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ return ret;
+}
+static inline int ttm_bo_reserve_slowpath(struct ttm_buffer_object *bo,
+       _Bool interruptible,
+       struct ww_acquire_ctx *ticket)
+{
+ int ret = 0;
+ ({ int __ret = !!(!(*(&bo->kref.refcount))); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(*(&bo->kref.refcount))", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_driver.h", 881); __builtin_expect(!!(__ret), 0); });
+ if (interruptible)
+  ret = ww_mutex_lock_slow_interruptible(&bo->resv->lock,
+             ticket);
+ else
+  ww_mutex_lock_slow(&bo->resv->lock, ticket);
+ if (__builtin_expect(!!(ret == 0), 1))
+  ttm_bo_del_sub_from_lru(bo);
+ else if (ret == -4)
+  ret = -4;
+ return ret;
+}
+static inline void __ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ ww_mutex_unlock(&bo->resv->lock);
+}
+static inline void ttm_bo_unreserve(struct ttm_buffer_object *bo)
+{
+ if (!(bo->mem.placement & (1 << 21))) {
+  __mtx_enter(&bo->glob->lru_lock );
+  ttm_bo_add_to_lru(bo);
+  __mtx_leave(&bo->glob->lru_lock );
+ }
+ __ttm_bo_unreserve(bo);
+}
+static inline void ttm_bo_unreserve_ticket(struct ttm_buffer_object *bo,
+        struct ww_acquire_ctx *t)
+{
+ ttm_bo_unreserve(bo);
+}
+int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
+         struct ttm_mem_reg *mem);
+void ttm_mem_io_free(struct ttm_bo_device *bdev,
+       struct ttm_mem_reg *mem);
+extern int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
+      _Bool evict, _Bool no_wait_gpu,
+      struct ttm_mem_reg *new_mem);
+extern int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
+         _Bool evict, _Bool no_wait_gpu,
+         struct ttm_mem_reg *new_mem);
+extern void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
+extern int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
+         struct fence *fence,
+         _Bool evict, _Bool no_wait_gpu,
+         struct ttm_mem_reg *new_mem);
+extern pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp);
+extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
+struct kinfo_pool {
+ unsigned int pr_size;
+ unsigned int pr_pgsize;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_hardlimit;
+ unsigned int pr_npages;
+ unsigned int pr_nout;
+ unsigned int pr_nitems;
+ unsigned long pr_nget;
+ unsigned long pr_nput;
+ unsigned long pr_nfail;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+};
+struct kinfo_pool_cache {
+ uint64_t pr_ngc;
+ unsigned int pr_len;
+ unsigned int pr_nitems;
+ unsigned int pr_contention;
+};
+struct kinfo_pool_cache_cpu {
+ unsigned int pr_cpu;
+ uint64_t pr_nget;
+ uint64_t pr_nfail;
+ uint64_t pr_nput;
+ uint64_t pr_nlget;
+ uint64_t pr_nlfail;
+ uint64_t pr_nlput;
+};
+struct pool;
+struct pool_request;
+struct pool_lock_ops;
+struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
+struct pool_allocator {
+ void *(*pa_alloc)(struct pool *, int, int *);
+ void (*pa_free)(struct pool *, void *);
+ size_t pa_pagesz;
+};
+struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
+struct pool_cache_item;
+struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
+struct cpumem;
+union pool_lock {
+ struct mutex prl_mtx;
+ struct rwlock prl_rwlock;
+};
+struct pool {
+ union pool_lock pr_lock;
+ const struct pool_lock_ops *
+   pr_lock_ops;
+ struct { struct pool *sqe_next; }
+   pr_poollist;
+ struct pool_pagelist
+   pr_emptypages;
+ struct pool_pagelist
+   pr_fullpages;
+ struct pool_pagelist
+   pr_partpages;
+ struct pool_page_header *
+   pr_curpage;
+ unsigned int pr_size;
+ unsigned int pr_minitems;
+ unsigned int pr_minpages;
+ unsigned int pr_maxpages;
+ unsigned int pr_npages;
+ unsigned int pr_itemsperpage;
+ unsigned int pr_slack;
+ unsigned int pr_nitems;
+ unsigned int pr_nout;
+ unsigned int pr_hardlimit;
+ unsigned int pr_serial;
+ unsigned int pr_pgsize;
+ vaddr_t pr_pgmask;
+ struct pool_allocator *
+   pr_alloc;
+ const char * pr_wchan;
+ int pr_flags;
+ int pr_ipl;
+ struct phtree { struct rb_tree rbh_root; }
+   pr_phtree;
+ struct cpumem * pr_cache;
+ unsigned long pr_cache_magic[2];
+ union pool_lock pr_cache_lock;
+ struct pool_cache_lists
+   pr_cache_lists;
+ u_int pr_cache_nitems;
+ u_int pr_cache_items;
+ u_int pr_cache_contention;
+ u_int pr_cache_contention_prev;
+ int pr_cache_tick;
+ int pr_cache_nout;
+ uint64_t pr_cache_ngc;
+ u_int pr_align;
+ u_int pr_maxcolors;
+ int pr_phoffset;
+ const char *pr_hardlimit_warning;
+ struct timeval pr_hardlimit_ratecap;
+ struct timeval pr_hardlimit_warning_last;
+ union pool_lock pr_requests_lock;
+ struct pool_requests
+   pr_requests;
+ unsigned int pr_requesting;
+ unsigned long pr_nget;
+ unsigned long pr_nfail;
+ unsigned long pr_nput;
+ unsigned long pr_npagealloc;
+ unsigned long pr_npagefree;
+ unsigned int pr_hiwat;
+ unsigned long pr_nidle;
+ const struct kmem_pa_mode *
+   pr_crange;
+};
+extern struct pool_allocator pool_allocator_single;
+extern struct pool_allocator pool_allocator_multi;
+struct pool_request {
+ struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
+ void (*pr_handler)(struct pool *, void *, void *);
+ void *pr_cookie;
+ void *pr_item;
+};
+void pool_init(struct pool *, size_t, u_int, int, int,
+      const char *, struct pool_allocator *);
+void pool_cache_init(struct pool *);
+void pool_destroy(struct pool *);
+void pool_setlowat(struct pool *, int);
+void pool_sethiwat(struct pool *, int);
+int pool_sethardlimit(struct pool *, u_int, const char *, int);
+struct uvm_constraint_range;
+void pool_set_constraints(struct pool *,
+      const struct kmem_pa_mode *mode);
+void *pool_get(struct pool *, int) __attribute__((__malloc__));
+void pool_request_init(struct pool_request *,
+      void (*)(struct pool *, void *, void *), void *);
+void pool_request(struct pool *, struct pool_request *);
+void pool_put(struct pool *, void *);
+int pool_reclaim(struct pool *);
+void pool_reclaim_all(void);
+int pool_prime(struct pool *, int);
+void pool_printit(struct pool *, const char *,
+      int (*)(const char *, ...));
+void pool_walk(struct pool *, int, int (*)(const char *, ...),
+      void (*)(void *, int, int (*)(const char *, ...)));
+void dma_alloc_init(void);
+void *dma_alloc(size_t size, int flags);
+void dma_free(void *m, size_t size);
+extern long hostid;
+extern char hostname[256];
+extern int hostnamelen;
+extern char domainname[256];
+extern int domainnamelen;
+extern struct timespec boottime;
+extern struct timezone tz;
+extern int tick;
+extern int tickfix;
+extern int tickfixinterval;
+extern int tickadj;
+extern int ticks;
+extern int hz;
+extern int stathz;
+extern int profhz;
+extern int lbolt;
+extern int tickdelta;
+extern long timedelta;
+extern int64_t adjtimedelta;
+extern struct bintime naptime;
+struct mdproc {
+ struct trapframe64 *md_tf;
+ struct fpstate64 *md_fpstate;
+ volatile int md_astpending;
+};
+struct kevent {
+ __uintptr_t ident;
+ short filter;
+ unsigned short flags;
+ unsigned int fflags;
+ __int64_t data;
+ void *udata;
+};
+struct knote;
+struct klist { struct knote *slh_first; };
+struct filterops {
+ int f_isfd;
+ int (*f_attach)(struct knote *kn);
+ void (*f_detach)(struct knote *kn);
+ int (*f_event)(struct knote *kn, long hint);
+};
+struct knote {
+ struct { struct knote *sle_next; } kn_link;
+ struct { struct knote *sle_next; } kn_selnext;
+ struct { struct knote *tqe_next; struct knote **tqe_prev; } kn_tqe;
+ struct kqueue *kn_kq;
+ struct kevent kn_kevent;
+ int kn_status;
+ int kn_sfflags;
+ __int64_t kn_sdata;
+ union {
+  struct file *p_fp;
+  struct process *p_process;
+ } kn_ptr;
+ const struct filterops *kn_fop;
+ void *kn_hook;
+};
+struct proc;
+extern void knote(struct klist *list, long hint);
+extern void knote_activate(struct knote *);
+extern void knote_remove(struct proc *p, struct klist *list);
+extern void knote_fdclose(struct proc *p, int fd);
+extern void knote_processexit(struct proc *);
+extern int kqueue_register(struct kqueue *kq,
+      struct kevent *kev, struct proc *p);
+extern int filt_seltrue(struct knote *kn, long hint);
+extern int seltrue_kqfilter(dev_t, struct knote *);
+extern void klist_invalidate(struct klist *);
+struct selinfo {
+ struct klist si_note;
+ pid_t si_seltid;
+ short si_flags;
+};
+struct proc;
+void selrecord(struct proc *selector, struct selinfo *);
+void selwakeup(struct selinfo *);
+struct process;
+struct session {
+ int s_count;
+ struct process *s_leader;
+ struct vnode *s_ttyvp;
+ struct tty *s_ttyp;
+ char s_login[32];
+ pid_t s_verauthppid;
+ uid_t s_verauthuid;
+ struct timeout s_verauthto;
+};
+void zapverauth( void *);
+struct pgrp {
+ struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
+ struct { struct process *lh_first; } pg_members;
+ struct session *pg_session;
+ pid_t pg_id;
+ int pg_jobc;
+};
+struct exec_package;
+struct proc;
+struct ps_strings;
+struct uvm_object;
+union sigval;
+struct emul {
+ char e_name[8];
+ int *e_errno;
+ void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
+ int e_nosys;
+ int e_nsysent;
+ struct sysent *e_sysent;
+ char **e_syscallnames;
+ int e_arglen;
+ void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
+        void *, void *);
+ void (*e_setregs)(struct proc *, struct exec_package *,
+      u_long, register_t *);
+ int (*e_fixup)(struct proc *, struct exec_package *);
+ int (*e_coredump)(struct proc *, void *cookie);
+ char *e_sigcode;
+ char *e_esigcode;
+ char *e_esigret;
+ int e_flags;
+ struct uvm_object *e_sigobject;
+};
+struct tusage {
+ struct timespec tu_runtime;
+ uint64_t tu_uticks;
+ uint64_t tu_sticks;
+ uint64_t tu_iticks;
+};
+struct process {
+ struct proc *ps_mainproc;
+ struct ucred *ps_ucred;
+ struct { struct process *le_next; struct process **le_prev; } ps_list;
+ struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
+ struct { struct process *le_next; struct process **le_prev; } ps_pglist;
+ struct process *ps_pptr;
+ struct { struct process *le_next; struct process **le_prev; } ps_sibling;
+ struct { struct process *lh_first; } ps_children;
+ struct { struct process *le_next; struct process **le_prev; } ps_hash;
+ struct sigacts *ps_sigacts;
+ struct vnode *ps_textvp;
+ struct filedesc *ps_fd;
+ struct vmspace *ps_vmspace;
+ pid_t ps_pid;
+ struct klist ps_klist;
+ int ps_flags;
+ struct proc *ps_single;
+ int ps_singlecount;
+ int ps_traceflag;
+ struct vnode *ps_tracevp;
+ struct ucred *ps_tracecred;
+ pid_t ps_oppid;
+ int ps_ptmask;
+ struct ptrace_state *ps_ptstat;
+ struct rusage *ps_ru;
+ struct tusage ps_tu;
+ struct rusage ps_cru;
+ struct itimerval ps_timer[3];
+ u_int64_t ps_wxcounter;
+ struct plimit *ps_limit;
+ struct pgrp *ps_pgrp;
+ struct emul *ps_emul;
+ char ps_comm[16 +1];
+ vaddr_t ps_strings;
+ vaddr_t ps_sigcode;
+ vaddr_t ps_sigcoderet;
+ u_long ps_sigcookie;
+ u_int ps_rtableid;
+ char ps_nice;
+ struct uprof {
+  caddr_t pr_base;
+  size_t pr_size;
+  u_long pr_off;
+  u_int pr_scale;
+ } ps_prof;
+ u_short ps_acflag;
+ uint64_t ps_pledge;
+ uint64_t ps_execpledge;
+ int64_t ps_kbind_cookie;
+ u_long ps_kbind_addr;
+ int ps_refcnt;
+ struct timespec ps_start;
+ struct timeout ps_realit_to;
+};
+struct lock_list_entry;
+struct proc {
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
+ struct { struct proc *le_next; struct proc **le_prev; } p_list;
+ struct process *p_p;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
+ struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
+ struct futex *p_futex;
+ struct filedesc *p_fd;
+ struct vmspace *p_vmspace;
+ int p_flag;
+ u_char p_spare;
+ char p_stat;
+ char p_pad1[1];
+ u_char p_descfd;
+ pid_t p_tid;
+ struct { struct proc *le_next; struct proc **le_prev; } p_hash;
+ int p_dupfd;
+ long p_thrslpid;
+ u_int p_estcpu;
+ int p_cpticks;
+ const volatile void *p_wchan;
+ struct timeout p_sleep_to;
+ const char *p_wmesg;
+ fixpt_t p_pctcpu;
+ u_int p_slptime;
+ u_int p_uticks;
+ u_int p_sticks;
+ u_int p_iticks;
+ struct cpu_info * volatile p_cpu;
+ struct rusage p_ru;
+ struct tusage p_tu;
+ struct timespec p_rtime;
+ int p_siglist;
+ sigset_t p_sigmask;
+ u_int p_spserial;
+ vaddr_t p_spstart;
+ vaddr_t p_spend;
+ u_char p_priority;
+ u_char p_usrpri;
+ int p_pledge_syscall;
+ struct ucred *p_ucred;
+ struct sigaltstack p_sigstk;
+ u_long p_prof_addr;
+ u_long p_prof_ticks;
+ struct user *p_addr;
+ struct mdproc p_md;
+ sigset_t p_oldmask;
+ int p_sisig;
+ union sigval p_sigval;
+ long p_sitrapno;
+ int p_sicode;
+ u_short p_xstat;
+ struct lock_list_entry *p_sleeplocks;
+};
+struct uidinfo {
+ struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
+ uid_t ui_uid;
+ long ui_proccnt;
+ long ui_lockcnt;
+};
+struct uidinfo *uid_find(uid_t);
+void uid_release(struct uidinfo *);
+extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
+extern u_long tidhash;
+extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
+extern u_long pidhash;
+extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
+extern u_long pgrphash;
+extern struct proc proc0;
+extern struct process process0;
+extern int nprocesses, maxprocess;
+extern int nthreads, maxthread;
+extern int randompid;
+struct proclist { struct proc *lh_first; };
+struct processlist { struct process *lh_first; };
+extern struct processlist allprocess;
+extern struct processlist zombprocess;
+extern struct proclist allproc;
+extern struct process *initprocess;
+extern struct proc *reaperproc;
+extern struct proc *syncerproc;
+extern struct pool process_pool;
+extern struct pool proc_pool;
+extern struct pool rusage_pool;
+extern struct pool ucred_pool;
+extern struct pool session_pool;
+extern struct pool pgrp_pool;
+void freepid(pid_t);
+struct process *prfind(pid_t);
+struct process *zombiefind(pid_t);
+struct proc *tfind(pid_t);
+struct pgrp *pgfind(pid_t);
+void proc_printit(struct proc *p, const char *modif,
+    int (*pr)(const char *, ...));
+int chgproccnt(uid_t uid, int diff);
+void enternewpgrp(struct process *, struct pgrp *, struct session *);
+void enterthispgrp(struct process *, struct pgrp *);
+int inferior(struct process *, struct process *);
+void leavepgrp(struct process *);
+void killjobc(struct process *);
+void preempt(void);
+void procinit(void);
+void resetpriority(struct proc *);
+void setrunnable(struct proc *);
+void endtsleep(void *);
+void unsleep(struct proc *);
+void reaper(void);
+void exit1(struct proc *, int, int);
+void exit2(struct proc *);
+int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
+     register_t *);
+void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
+     void *_tcb, void (*_func)(void *), void *_arg);
+void cpu_exit(struct proc *);
+void process_initialize(struct process *, struct proc *);
+int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
+     void *_arg, register_t *_retval, struct proc **_newprocp);
+int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
+     pid_t *_tidptr, register_t *_retval);
+int groupmember(gid_t, struct ucred *);
+void dorefreshcreds(struct process *, struct proc *);
+void dosigsuspend(struct proc *, sigset_t);
+static inline void
+refreshcreds(struct proc *p)
+{
+ struct process *pr = p->p_p;
+ if (pr->ps_ucred != p->p_ucred)
+  dorefreshcreds(pr, p);
+}
+enum single_thread_mode {
+ SINGLE_SUSPEND,
+ SINGLE_PTRACE,
+ SINGLE_UNWIND,
+ SINGLE_EXIT
+};
+int single_thread_set(struct proc *, enum single_thread_mode, int);
+void single_thread_wait(struct process *);
+void single_thread_clear(struct proc *, int);
+int single_thread_check(struct proc *, int);
+void child_return(void *);
+int proc_cansugid(struct proc *);
+struct sleep_state {
+ int sls_s;
+ int sls_catch;
+ int sls_do_sleep;
+ int sls_sig;
+};
+struct cond {
+ int c_wait;
+};
+void proc_trampoline_mp(void);
+struct cpuset {
+ int cs_set[(((256) - 1)/32 + 1)];
+};
+void cpuset_init_cpu(struct cpu_info *);
+void cpuset_clear(struct cpuset *);
+void cpuset_add(struct cpuset *, struct cpu_info *);
+void cpuset_del(struct cpuset *, struct cpu_info *);
+int cpuset_isset(struct cpuset *, struct cpu_info *);
+void cpuset_add_all(struct cpuset *);
+void cpuset_copy(struct cpuset *, struct cpuset *);
+void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
+void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
+void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
+struct cpu_info *cpuset_first(struct cpuset *);
+struct buf;
+struct proc;
+struct tty;
+struct uio;
+struct vnode;
+struct knote;
+struct bdevsw {
+ int (*d_open)(dev_t dev, int oflags, int devtype,
+         struct proc *p);
+ int (*d_close)(dev_t dev, int fflag, int devtype,
+         struct proc *p);
+ void (*d_strategy)(struct buf *bp);
+ int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
+         int fflag, struct proc *p);
+ int (*d_dump)(dev_t dev, daddr_t blkno, caddr_t va,
+        size_t size);
+ daddr_t (*d_psize)(dev_t dev);
+ u_int d_type;
+};
+extern struct bdevsw bdevsw[];
+struct cdevsw {
+ int (*d_open)(dev_t dev, int oflags, int devtype,
+         struct proc *p);
+ int (*d_close)(dev_t dev, int fflag, int devtype,
+         struct proc *);
+ int (*d_read)(dev_t dev, struct uio *uio, int ioflag);
+ int (*d_write)(dev_t dev, struct uio *uio, int ioflag);
+ int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
+         int fflag, struct proc *p);
+ int (*d_stop)(struct tty *tp, int rw);
+ struct tty *
+  (*d_tty)(dev_t dev);
+ int (*d_poll)(dev_t dev, int events, struct proc *p);
+ paddr_t (*d_mmap)(dev_t, off_t, int);
+ u_int d_type;
+ u_int d_flags;
+ int (*d_kqfilter)(dev_t dev, struct knote *kn);
+};
+extern struct cdevsw cdevsw[];
+struct linesw {
+ int (*l_open)(dev_t dev, struct tty *tp, struct proc *p);
+ int (*l_close)(struct tty *tp, int flags, struct proc *p);
+ int (*l_read)(struct tty *tp, struct uio *uio,
+         int flag);
+ int (*l_write)(struct tty *tp, struct uio *uio,
+         int flag);
+ int (*l_ioctl)(struct tty *tp, u_long cmd, caddr_t data,
+         int flag, struct proc *p);
+ int (*l_rint)(int c, struct tty *tp);
+ int (*l_start)(struct tty *tp);
+ int (*l_modem)(struct tty *tp, int flag);
+};
+extern struct linesw linesw[];
+struct swdevt {
+ dev_t sw_dev;
+ int sw_flags;
+};
+extern struct swdevt swdevt[];
+extern int chrtoblktbl[];
+extern int nchrtoblktbl;
+struct bdevsw *bdevsw_lookup(dev_t);
+struct cdevsw *cdevsw_lookup(dev_t);
+dev_t chrtoblk(dev_t);
+dev_t blktochr(dev_t);
+int iskmemdev(dev_t);
+int iszerodev(dev_t);
+dev_t getnulldev(void);
+int filedescopen(dev_t, int, int, struct proc *); int filedescclose(dev_t, int, int, struct proc *); int filedescread(dev_t, struct uio *, int); int filedescwrite(dev_t, struct uio *, int); int filedescioctl(dev_t, u_long, caddr_t, int, struct proc *); int filedescstop(struct tty *, int); struct tty *filedesctty(dev_t); int filedescpoll(dev_t, int, struct proc *); paddr_t filedescmmap(dev_t, off_t, int); int filedesckqfilter(dev_t, struct knote *);
+int logopen(dev_t, int, int, struct proc *); int logclose(dev_t, int, int, struct proc *); int logread(dev_t, struct uio *, int); int logwrite(dev_t, struct uio *, int); int logioctl(dev_t, u_long, caddr_t, int, struct proc *); int logstop(struct tty *, int); struct tty *logtty(dev_t); int logpoll(dev_t, int, struct proc *); paddr_t logmmap(dev_t, off_t, int); int logkqfilter(dev_t, struct knote *);
+int ptsopen(dev_t, int, int, struct proc *); int ptsclose(dev_t, int, int, struct proc *); int ptsread(dev_t, struct uio *, int); int ptswrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptsstop(struct tty *, int); struct tty *ptytty(dev_t); int ptspoll(dev_t, int, struct proc *); paddr_t ptsmmap(dev_t, off_t, int); int ptskqfilter(dev_t, struct knote *);
+int ptcopen(dev_t, int, int, struct proc *); int ptcclose(dev_t, int, int, struct proc *); int ptcread(dev_t, struct uio *, int); int ptcwrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptcstop(struct tty *, int); struct tty *ptytty(dev_t); int ptcpoll(dev_t, int, struct proc *); paddr_t ptcmmap(dev_t, off_t, int); int ptckqfilter(dev_t, struct knote *);
+int ptmopen(dev_t, int, int, struct proc *); int ptmclose(dev_t, int, int, struct proc *); int ptmread(dev_t, struct uio *, int); int ptmwrite(dev_t, struct uio *, int); int ptmioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptmstop(struct tty *, int); struct tty *ptmtty(dev_t); int ptmpoll(dev_t, int, struct proc *); paddr_t ptmmmap(dev_t, off_t, int); int ptmkqfilter(dev_t, struct knote *);
+int cttyopen(dev_t, int, int, struct proc *); int cttyclose(dev_t, int, int, struct proc *); int cttyread(dev_t, struct uio *, int); int cttywrite(dev_t, struct uio *, int); int cttyioctl(dev_t, u_long, caddr_t, int, struct proc *); int cttystop(struct tty *, int); struct tty *cttytty(dev_t); int cttypoll(dev_t, int, struct proc *); paddr_t cttymmap(dev_t, off_t, int); int cttykqfilter(dev_t, struct knote *);
+int audioopen(dev_t, int, int, struct proc *); int audioclose(dev_t, int, int, struct proc *); int audioread(dev_t, struct uio *, int); int audiowrite(dev_t, struct uio *, int); int audioioctl(dev_t, u_long, caddr_t, int, struct proc *); int audiostop(struct tty *, int); struct tty *audiotty(dev_t); int audiopoll(dev_t, int, struct proc *); paddr_t audiommap(dev_t, off_t, int); int audiokqfilter(dev_t, struct knote *);
+int drmopen(dev_t, int, int, struct proc *); int drmclose(dev_t, int, int, struct proc *); int drmread(dev_t, struct uio *, int); int drmwrite(dev_t, struct uio *, int); int drmioctl(dev_t, u_long, caddr_t, int, struct proc *); int drmstop(struct tty *, int); struct tty *drmtty(dev_t); int drmpoll(dev_t, int, struct proc *); paddr_t drmmmap(dev_t, off_t, int); int drmkqfilter(dev_t, struct knote *);
+int midiopen(dev_t, int, int, struct proc *); int midiclose(dev_t, int, int, struct proc *); int midiread(dev_t, struct uio *, int); int midiwrite(dev_t, struct uio *, int); int midiioctl(dev_t, u_long, caddr_t, int, struct proc *); int midistop(struct tty *, int); struct tty *miditty(dev_t); int midipoll(dev_t, int, struct proc *); paddr_t midimmap(dev_t, off_t, int); int midikqfilter(dev_t, struct knote *);
+int radioopen(dev_t, int, int, struct proc *); int radioclose(dev_t, int, int, struct proc *); int radioread(dev_t, struct uio *, int); int radiowrite(dev_t, struct uio *, int); int radioioctl(dev_t, u_long, caddr_t, int, struct proc *); int radiostop(struct tty *, int); struct tty *radiotty(dev_t); int radiopoll(dev_t, int, struct proc *); paddr_t radiommap(dev_t, off_t, int); int radiokqfilter(dev_t, struct knote *);
+int videoopen(dev_t, int, int, struct proc *); int videoclose(dev_t, int, int, struct proc *); int videoread(dev_t, struct uio *, int); int videowrite(dev_t, struct uio *, int); int videoioctl(dev_t, u_long, caddr_t, int, struct proc *); int videostop(struct tty *, int); struct tty *videotty(dev_t); int videopoll(dev_t, int, struct proc *); paddr_t videommap(dev_t, off_t, int); int videokqfilter(dev_t, struct knote *);
+int cnopen(dev_t, int, int, struct proc *); int cnclose(dev_t, int, int, struct proc *); int cnread(dev_t, struct uio *, int); int cnwrite(dev_t, struct uio *, int); int cnioctl(dev_t, u_long, caddr_t, int, struct proc *); int cnstop(struct tty *, int); struct tty *cntty(dev_t); int cnpoll(dev_t, int, struct proc *); paddr_t cnmmap(dev_t, off_t, int); int cnkqfilter(dev_t, struct knote *);
+int swopen(dev_t, int, int, struct proc *); int swclose(dev_t, int, int, struct proc *); void swstrategy(struct buf *); int swioctl(dev_t, u_long, caddr_t, int, struct proc *); int swdump(dev_t, daddr_t, caddr_t, size_t); daddr_t swsize(dev_t);
+int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); void vndstrategy(struct buf *); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vnddump(dev_t, daddr_t, caddr_t, size_t); daddr_t vndsize(dev_t);
+int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); int vndread(dev_t, struct uio *, int); int vndwrite(dev_t, struct uio *, int); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vndstop(struct tty *, int); struct tty *vndtty(dev_t); int vndpoll(dev_t, int, struct proc *); paddr_t vndmmap(dev_t, off_t, int); int vndkqfilter(dev_t, struct knote *);
+int chopen(dev_t, int, int, struct proc *); int chclose(dev_t, int, int, struct proc *); int chread(dev_t, struct uio *, int); int chwrite(dev_t, struct uio *, int); int chioctl(dev_t, u_long, caddr_t, int, struct proc *); int chstop(struct tty *, int); struct tty *chtty(dev_t); int chpoll(dev_t, int, struct proc *); paddr_t chmmap(dev_t, off_t, int); int chkqfilter(dev_t, struct knote *);
+int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); void sdstrategy(struct buf *); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sddump(dev_t, daddr_t, caddr_t, size_t); daddr_t sdsize(dev_t);
+int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); int sdread(dev_t, struct uio *, int); int sdwrite(dev_t, struct uio *, int); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sdstop(struct tty *, int); struct tty *sdtty(dev_t); int sdpoll(dev_t, int, struct proc *); paddr_t sdmmap(dev_t, off_t, int); int sdkqfilter(dev_t, struct knote *);
+int sesopen(dev_t, int, int, struct proc *); int sesclose(dev_t, int, int, struct proc *); int sesread(dev_t, struct uio *, int); int seswrite(dev_t, struct uio *, int); int sesioctl(dev_t, u_long, caddr_t, int, struct proc *); int sesstop(struct tty *, int); struct tty *sestty(dev_t); int sespoll(dev_t, int, struct proc *); paddr_t sesmmap(dev_t, off_t, int); int seskqfilter(dev_t, struct knote *);
+int stopen(dev_t, int, int, struct proc *); int stclose(dev_t, int, int, struct proc *); int stread(dev_t, struct uio *, int); int stwrite(dev_t, struct uio *, int); int stioctl(dev_t, u_long, caddr_t, int, struct proc *); int ststop(struct tty *, int); struct tty *sttty(dev_t); int stpoll(dev_t, int, struct proc *); paddr_t stmmap(dev_t, off_t, int); int stkqfilter(dev_t, struct knote *);
+int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); void cdstrategy(struct buf *); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cddump(dev_t, daddr_t, caddr_t, size_t); daddr_t cdsize(dev_t);
+int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); int cdread(dev_t, struct uio *, int); int cdwrite(dev_t, struct uio *, int); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cdstop(struct tty *, int); struct tty *cdtty(dev_t); int cdpoll(dev_t, int, struct proc *); paddr_t cdmmap(dev_t, off_t, int); int cdkqfilter(dev_t, struct knote *);
+int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); void rdstrategy(struct buf *); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rddump(dev_t, daddr_t, caddr_t, size_t); daddr_t rdsize(dev_t);
+int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); int rdread(dev_t, struct uio *, int); int rdwrite(dev_t, struct uio *, int); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rdstop(struct tty *, int); struct tty *rdtty(dev_t); int rdpoll(dev_t, int, struct proc *); paddr_t rdmmap(dev_t, off_t, int); int rdkqfilter(dev_t, struct knote *);
+int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); void ukstrategy(struct buf *); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukdump(dev_t, daddr_t, caddr_t, size_t); daddr_t uksize(dev_t);
+int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); int ukread(dev_t, struct uio *, int); int ukwrite(dev_t, struct uio *, int); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukstop(struct tty *, int); struct tty *uktty(dev_t); int ukpoll(dev_t, int, struct proc *); paddr_t ukmmap(dev_t, off_t, int); int ukkqfilter(dev_t, struct knote *);
+int diskmapopen(dev_t, int, int, struct proc *); int diskmapclose(dev_t, int, int, struct proc *); int diskmapread(dev_t, struct uio *, int); int diskmapwrite(dev_t, struct uio *, int); int diskmapioctl(dev_t, u_long, caddr_t, int, struct proc *); int diskmapstop(struct tty *, int); struct tty *diskmaptty(dev_t); int diskmappoll(dev_t, int, struct proc *); paddr_t diskmapmmap(dev_t, off_t, int); int diskmapkqfilter(dev_t, struct knote *);
+int bpfopen(dev_t, int, int, struct proc *); int bpfclose(dev_t, int, int, struct proc *); int bpfread(dev_t, struct uio *, int); int bpfwrite(dev_t, struct uio *, int); int bpfioctl(dev_t, u_long, caddr_t, int, struct proc *); int bpfstop(struct tty *, int); struct tty *bpftty(dev_t); int bpfpoll(dev_t, int, struct proc *); paddr_t bpfmmap(dev_t, off_t, int); int bpfkqfilter(dev_t, struct knote *);
+int pfopen(dev_t, int, int, struct proc *); int pfclose(dev_t, int, int, struct proc *); int pfread(dev_t, struct uio *, int); int pfwrite(dev_t, struct uio *, int); int pfioctl(dev_t, u_long, caddr_t, int, struct proc *); int pfstop(struct tty *, int); struct tty *pftty(dev_t); int pfpoll(dev_t, int, struct proc *); paddr_t pfmmap(dev_t, off_t, int); int pfkqfilter(dev_t, struct knote *);
+int tunopen(dev_t, int, int, struct proc *); int tunclose(dev_t, int, int, struct proc *); int tunread(dev_t, struct uio *, int); int tunwrite(dev_t, struct uio *, int); int tunioctl(dev_t, u_long, caddr_t, int, struct proc *); int tunstop(struct tty *, int); struct tty *tuntty(dev_t); int tunpoll(dev_t, int, struct proc *); paddr_t tunmmap(dev_t, off_t, int); int tunkqfilter(dev_t, struct knote *);
+int tapopen(dev_t, int, int, struct proc *); int tapclose(dev_t, int, int, struct proc *); int tapread(dev_t, struct uio *, int); int tapwrite(dev_t, struct uio *, int); int tapioctl(dev_t, u_long, caddr_t, int, struct proc *); int tapstop(struct tty *, int); struct tty *taptty(dev_t); int tappoll(dev_t, int, struct proc *); paddr_t tapmmap(dev_t, off_t, int); int tapkqfilter(dev_t, struct knote *);
+int switchopen(dev_t, int, int, struct proc *); int switchclose(dev_t, int, int, struct proc *); int switchread(dev_t, struct uio *, int); int switchwrite(dev_t, struct uio *, int); int switchioctl(dev_t, u_long, caddr_t, int, struct proc *); int switchstop(struct tty *, int); struct tty *switchtty(dev_t); int switchpoll(dev_t, int, struct proc *); paddr_t switchmmap(dev_t, off_t, int); int switchkqfilter(dev_t, struct knote *);
+int pppxopen(dev_t, int, int, struct proc *); int pppxclose(dev_t, int, int, struct proc *); int pppxread(dev_t, struct uio *, int); int pppxwrite(dev_t, struct uio *, int); int pppxioctl(dev_t, u_long, caddr_t, int, struct proc *); int pppxstop(struct tty *, int); struct tty *pppxtty(dev_t); int pppxpoll(dev_t, int, struct proc *); paddr_t pppxmmap(dev_t, off_t, int); int pppxkqfilter(dev_t, struct knote *);
+int randomopen(dev_t, int, int, struct proc *); int randomclose(dev_t, int, int, struct proc *); int randomread(dev_t, struct uio *, int); int randomwrite(dev_t, struct uio *, int); int randomioctl(dev_t, u_long, caddr_t, int, struct proc *); int randomstop(struct tty *, int); struct tty *randomtty(dev_t); int randompoll(dev_t, int, struct proc *); paddr_t randommmap(dev_t, off_t, int); int randomkqfilter(dev_t, struct knote *);
+int wsdisplayopen(dev_t, int, int, struct proc *); int wsdisplayclose(dev_t, int, int, struct proc *); int wsdisplayread(dev_t, struct uio *, int); int wsdisplaywrite(dev_t, struct uio *, int); int wsdisplayioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsdisplaystop(struct tty *, int); struct tty *wsdisplaytty(dev_t); int wsdisplaypoll(dev_t, int, struct proc *); paddr_t wsdisplaymmap(dev_t, off_t, int); int wsdisplaykqfilter(dev_t, struct knote *);
+int wskbdopen(dev_t, int, int, struct proc *); int wskbdclose(dev_t, int, int, struct proc *); int wskbdread(dev_t, struct uio *, int); int wskbdwrite(dev_t, struct uio *, int); int wskbdioctl(dev_t, u_long, caddr_t, int, struct proc *); int wskbdstop(struct tty *, int); struct tty *wskbdtty(dev_t); int wskbdpoll(dev_t, int, struct proc *); paddr_t wskbdmmap(dev_t, off_t, int); int wskbdkqfilter(dev_t, struct knote *);
+int wsmouseopen(dev_t, int, int, struct proc *); int wsmouseclose(dev_t, int, int, struct proc *); int wsmouseread(dev_t, struct uio *, int); int wsmousewrite(dev_t, struct uio *, int); int wsmouseioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmousestop(struct tty *, int); struct tty *wsmousetty(dev_t); int wsmousepoll(dev_t, int, struct proc *); paddr_t wsmousemmap(dev_t, off_t, int); int wsmousekqfilter(dev_t, struct knote *);
+int wsmuxopen(dev_t, int, int, struct proc *); int wsmuxclose(dev_t, int, int, struct proc *); int wsmuxread(dev_t, struct uio *, int); int wsmuxwrite(dev_t, struct uio *, int); int wsmuxioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmuxstop(struct tty *, int); struct tty *wsmuxtty(dev_t); int wsmuxpoll(dev_t, int, struct proc *); paddr_t wsmuxmmap(dev_t, off_t, int); int wsmuxkqfilter(dev_t, struct knote *);
+int ksymsopen(dev_t, int, int, struct proc *); int ksymsclose(dev_t, int, int, struct proc *); int ksymsread(dev_t, struct uio *, int); int ksymswrite(dev_t, struct uio *, int); int ksymsioctl(dev_t, u_long, caddr_t, int, struct proc *); int ksymsstop(struct tty *, int); struct tty *ksymstty(dev_t); int ksymspoll(dev_t, int, struct proc *); paddr_t ksymsmmap(dev_t, off_t, int); int ksymskqfilter(dev_t, struct knote *);
+int bioopen(dev_t, int, int, struct proc *); int bioclose(dev_t, int, int, struct proc *); int bioread(dev_t, struct uio *, int); int biowrite(dev_t, struct uio *, int); int bioioctl(dev_t, u_long, caddr_t, int, struct proc *); int biostop(struct tty *, int); struct tty *biotty(dev_t); int biopoll(dev_t, int, struct proc *); paddr_t biommap(dev_t, off_t, int); int biokqfilter(dev_t, struct knote *);
+int vscsiopen(dev_t, int, int, struct proc *); int vscsiclose(dev_t, int, int, struct proc *); int vscsiread(dev_t, struct uio *, int); int vscsiwrite(dev_t, struct uio *, int); int vscsiioctl(dev_t, u_long, caddr_t, int, struct proc *); int vscsistop(struct tty *, int); struct tty *vscsitty(dev_t); int vscsipoll(dev_t, int, struct proc *); paddr_t vscsimmap(dev_t, off_t, int); int vscsikqfilter(dev_t, struct knote *);
+int gpropen(dev_t, int, int, struct proc *); int gprclose(dev_t, int, int, struct proc *); int gprread(dev_t, struct uio *, int); int gprwrite(dev_t, struct uio *, int); int gprioctl(dev_t, u_long, caddr_t, int, struct proc *); int gprstop(struct tty *, int); struct tty *gprtty(dev_t); int gprpoll(dev_t, int, struct proc *); paddr_t gprmmap(dev_t, off_t, int); int gprkqfilter(dev_t, struct knote *);
+int bktropen(dev_t, int, int, struct proc *); int bktrclose(dev_t, int, int, struct proc *); int bktrread(dev_t, struct uio *, int); int bktrwrite(dev_t, struct uio *, int); int bktrioctl(dev_t, u_long, caddr_t, int, struct proc *); int bktrstop(struct tty *, int); struct tty *bktrtty(dev_t); int bktrpoll(dev_t, int, struct proc *); paddr_t bktrmmap(dev_t, off_t, int); int bktrkqfilter(dev_t, struct knote *);
+int usbopen(dev_t, int, int, struct proc *); int usbclose(dev_t, int, int, struct proc *); int usbread(dev_t, struct uio *, int); int usbwrite(dev_t, struct uio *, int); int usbioctl(dev_t, u_long, caddr_t, int, struct proc *); int usbstop(struct tty *, int); struct tty *usbtty(dev_t); int usbpoll(dev_t, int, struct proc *); paddr_t usbmmap(dev_t, off_t, int); int usbkqfilter(dev_t, struct knote *);
+int ugenopen(dev_t, int, int, struct proc *); int ugenclose(dev_t, int, int, struct proc *); int ugenread(dev_t, struct uio *, int); int ugenwrite(dev_t, struct uio *, int); int ugenioctl(dev_t, u_long, caddr_t, int, struct proc *); int ugenstop(struct tty *, int); struct tty *ugentty(dev_t); int ugenpoll(dev_t, int, struct proc *); paddr_t ugenmmap(dev_t, off_t, int); int ugenkqfilter(dev_t, struct knote *);
+int uhidopen(dev_t, int, int, struct proc *); int uhidclose(dev_t, int, int, struct proc *); int uhidread(dev_t, struct uio *, int); int uhidwrite(dev_t, struct uio *, int); int uhidioctl(dev_t, u_long, caddr_t, int, struct proc *); int uhidstop(struct tty *, int); struct tty *uhidtty(dev_t); int uhidpoll(dev_t, int, struct proc *); paddr_t uhidmmap(dev_t, off_t, int); int uhidkqfilter(dev_t, struct knote *);
+int ucomopen(dev_t, int, int, struct proc *); int ucomclose(dev_t, int, int, struct proc *); int ucomread(dev_t, struct uio *, int); int ucomwrite(dev_t, struct uio *, int); int ucomioctl(dev_t, u_long, caddr_t, int, struct proc *); int ucomstop(struct tty *, int); struct tty *ucomtty(dev_t); int ucompoll(dev_t, int, struct proc *); paddr_t ucommmap(dev_t, off_t, int); int ucomkqfilter(dev_t, struct knote *);
+int ulptopen(dev_t, int, int, struct proc *); int ulptclose(dev_t, int, int, struct proc *); int ulptread(dev_t, struct uio *, int); int ulptwrite(dev_t, struct uio *, int); int ulptioctl(dev_t, u_long, caddr_t, int, struct proc *); int ulptstop(struct tty *, int); struct tty *ulpttty(dev_t); int ulptpoll(dev_t, int, struct proc *); paddr_t ulptmmap(dev_t, off_t, int); int ulptkqfilter(dev_t, struct knote *);
+int urioopen(dev_t, int, int, struct proc *); int urioclose(dev_t, int, int, struct proc *); int urioread(dev_t, struct uio *, int); int uriowrite(dev_t, struct uio *, int); int urioioctl(dev_t, u_long, caddr_t, int, struct proc *); int uriostop(struct tty *, int); struct tty *uriotty(dev_t); int uriopoll(dev_t, int, struct proc *); paddr_t uriommap(dev_t, off_t, int); int uriokqfilter(dev_t, struct knote *);
+int hotplugopen(dev_t, int, int, struct proc *); int hotplugclose(dev_t, int, int, struct proc *); int hotplugread(dev_t, struct uio *, int); int hotplugwrite(dev_t, struct uio *, int); int hotplugioctl(dev_t, u_long, caddr_t, int, struct proc *); int hotplugstop(struct tty *, int); struct tty *hotplugtty(dev_t); int hotplugpoll(dev_t, int, struct proc *); paddr_t hotplugmmap(dev_t, off_t, int); int hotplugkqfilter(dev_t, struct knote *);
+int gpioopen(dev_t, int, int, struct proc *); int gpioclose(dev_t, int, int, struct proc *); int gpioread(dev_t, struct uio *, int); int gpiowrite(dev_t, struct uio *, int); int gpioioctl(dev_t, u_long, caddr_t, int, struct proc *); int gpiostop(struct tty *, int); struct tty *gpiotty(dev_t); int gpiopoll(dev_t, int, struct proc *); paddr_t gpiommap(dev_t, off_t, int); int gpiokqfilter(dev_t, struct knote *);
+int amdmsropen(dev_t, int, int, struct proc *); int amdmsrclose(dev_t, int, int, struct proc *); int amdmsrread(dev_t, struct uio *, int); int amdmsrwrite(dev_t, struct uio *, int); int amdmsrioctl(dev_t, u_long, caddr_t, int, struct proc *); int amdmsrstop(struct tty *, int); struct tty *amdmsrtty(dev_t); int amdmsrpoll(dev_t, int, struct proc *); paddr_t amdmsrmmap(dev_t, off_t, int); int amdmsrkqfilter(dev_t, struct knote *);
+int fuseopen(dev_t, int, int, struct proc *); int fuseclose(dev_t, int, int, struct proc *); int fuseread(dev_t, struct uio *, int); int fusewrite(dev_t, struct uio *, int); int fuseioctl(dev_t, u_long, caddr_t, int, struct proc *); int fusestop(struct tty *, int); struct tty *fusetty(dev_t); int fusepoll(dev_t, int, struct proc *); paddr_t fusemmap(dev_t, off_t, int); int fusekqfilter(dev_t, struct knote *);
+int pvbusopen(dev_t, int, int, struct proc *); int pvbusclose(dev_t, int, int, struct proc *); int pvbusread(dev_t, struct uio *, int); int pvbuswrite(dev_t, struct uio *, int); int pvbusioctl(dev_t, u_long, caddr_t, int, struct proc *); int pvbusstop(struct tty *, int); struct tty *pvbustty(dev_t); int pvbuspoll(dev_t, int, struct proc *); paddr_t pvbusmmap(dev_t, off_t, int); int pvbuskqfilter(dev_t, struct knote *);
+int ipmiopen(dev_t, int, int, struct proc *); int ipmiclose(dev_t, int, int, struct proc *); int ipmiread(dev_t, struct uio *, int); int ipmiwrite(dev_t, struct uio *, int); int ipmiioctl(dev_t, u_long, caddr_t, int, struct proc *); int ipmistop(struct tty *, int); struct tty *ipmitty(dev_t); int ipmipoll(dev_t, int, struct proc *); paddr_t ipmimmap(dev_t, off_t, int); int ipmikqfilter(dev_t, struct knote *);
+struct mem_range_desc {
+ u_int64_t mr_base;
+ u_int64_t mr_len;
+ int mr_flags;
+ char mr_owner[8];
+};
+struct mem_range_op {
+ struct mem_range_desc *mo_desc;
+ int mo_arg[2];
+};
+struct mem_range_softc;
+struct mem_range_ops {
+ void (*init)(struct mem_range_softc *sc);
+ int (*set)(struct mem_range_softc *sc,
+      struct mem_range_desc *mrd, int *arg);
+ void (*initAP)(struct mem_range_softc *sc);
+ void (*reload)(struct mem_range_softc *sc);
+};
+struct mem_range_softc {
+ struct mem_range_ops *mr_op;
+ int mr_cap;
+ int mr_ndesc;
+ struct mem_range_desc *mr_desc;
+};
+extern struct mem_range_softc mem_range_softc;
+
+extern void mem_range_attach(void);
+extern int mem_range_attr_get(struct mem_range_desc *mrd, int *arg);
+extern int mem_range_attr_set(struct mem_range_desc *mrd, int *arg);
+extern void mem_range_AP_init(void);
+extern void mem_range_reload(void);
+
+struct agp_attach_args {
+ char *aa_busname;
+ struct pci_attach_args *aa_pa;
+};
+struct agpbus_attach_args {
+ char *aa_busname;
+        struct pci_attach_args *aa_pa;
+ const struct agp_methods *aa_methods;
+ bus_addr_t aa_apaddr;
+ bus_size_t aa_apsize;
+};
+enum agp_acquire_state {
+ AGP_ACQUIRE_FREE,
+ AGP_ACQUIRE_USER,
+ AGP_ACQUIRE_KERNEL
+};
+struct agp_info {
+ u_int32_t ai_mode;
+ bus_addr_t ai_aperture_base;
+ bus_size_t ai_aperture_size;
+ vsize_t ai_memory_allowed;
+ vsize_t ai_memory_used;
+ u_int32_t ai_devid;
+};
+struct agp_memory_info {
+        vsize_t ami_size;
+        bus_addr_t ami_physical;
+        off_t ami_offset;
+        int ami_is_bound;
+};
+struct agp_methods {
+ void (*bind_page)(void *, bus_addr_t, paddr_t, int);
+ void (*unbind_page)(void *, bus_addr_t);
+ void (*flush_tlb)(void *);
+ int (*enable)(void *, u_int32_t mode);
+};
+struct agp_softc {
+ struct device sc_dev;
+ const struct agp_methods *sc_methods;
+ void *sc_chipc;
+ bus_dma_tag_t sc_dmat;
+ bus_space_tag_t sc_memt;
+ pci_chipset_tag_t sc_pc;
+ pcitag_t sc_pcitag;
+ bus_addr_t sc_apaddr;
+ bus_size_t sc_apsize;
+ uint32_t sc_stolen_entries;
+ pcireg_t sc_id;
+ int sc_opened;
+ int sc_capoff;
+ int sc_nextid;
+ enum agp_acquire_state sc_state;
+ u_int32_t sc_maxmem;
+ u_int32_t sc_allocated;
+};
+struct agp_gatt {
+ u_int32_t ag_entries;
+ u_int32_t *ag_virtual;
+ bus_addr_t ag_physical;
+ bus_dmamap_t ag_dmamap;
+ bus_dma_segment_t ag_dmaseg;
+ size_t ag_size;
+};
+struct agp_map;
+struct device *agp_attach_bus(struct pci_attach_args *,
+       const struct agp_methods *, bus_addr_t, bus_size_t,
+       struct device *);
+struct agp_gatt *
+ agp_alloc_gatt(bus_dma_tag_t, u_int32_t);
+void agp_free_gatt(bus_dma_tag_t, struct agp_gatt *);
+void agp_flush_cache(void);
+void agp_flush_cache_range(vaddr_t, vsize_t);
+int agp_generic_enable(struct agp_softc *, u_int32_t);
+int agp_init_map(bus_space_tag_t, bus_addr_t, bus_size_t, int, struct
+     agp_map **);
+void agp_destroy_map(struct agp_map *);
+int agp_map_subregion(struct agp_map *, bus_size_t, bus_size_t,
+     bus_space_handle_t *);
+void agp_unmap_subregion(struct agp_map *, bus_space_handle_t,
+     bus_size_t);
+void agp_map_atomic(struct agp_map *, bus_size_t, bus_space_handle_t *);
+void agp_unmap_atomic(struct agp_map *, bus_space_handle_t);
+int agp_alloc_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t *,
+     bus_addr_t *, bus_dma_segment_t *);
+void agp_free_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t,
+     bus_dma_segment_t *);
+int agpdev_print(void *, const char *);
+int agpbus_probe(struct agp_attach_args *aa);
+paddr_t agp_mmap(struct agp_softc *, off_t, int);
+void *agp_find_device(int);
+enum agp_acquire_state agp_state(void *);
+void agp_get_info(void *, struct agp_info *);
+int agp_acquire(void *);
+int agp_release(void *);
+int agp_enable(void *, u_int32_t);
+void agp_memory_info(void *, void *, struct agp_memory_info *);
 typedef unsigned long drm_handle_t;
 typedef unsigned int drm_context_t;
 typedef unsigned int drm_drawable_t;
@@ -5883,248 +7134,6 @@ typedef struct drm_agp_binding drm_agp_binding_t;
 typedef struct drm_agp_info drm_agp_info_t;
 typedef struct drm_scatter_gather drm_scatter_gather_t;
 typedef struct drm_set_version drm_set_version_t;
-enum drm_mm_search_flags {
- DRM_MM_SEARCH_DEFAULT = 0,
- DRM_MM_SEARCH_BEST = 1 << 0,
- DRM_MM_SEARCH_BELOW = 1 << 1,
-};
-enum drm_mm_allocator_flags {
- DRM_MM_CREATE_DEFAULT = 0,
- DRM_MM_CREATE_TOP = 1 << 0,
-};
-struct drm_mm_node {
- struct list_head node_list;
- struct list_head hole_stack;
- unsigned hole_follows : 1;
- unsigned scanned_block : 1;
- unsigned scanned_prev_free : 1;
- unsigned scanned_next_free : 1;
- unsigned scanned_preceeds_hole : 1;
- unsigned allocated : 1;
- unsigned long color;
- u64 start;
- u64 size;
- struct drm_mm *mm;
-};
-struct drm_mm {
- struct list_head hole_stack;
- struct drm_mm_node head_node;
- unsigned int scan_check_range : 1;
- unsigned scan_alignment;
- unsigned long scan_color;
- u64 scan_size;
- u64 scan_hit_start;
- u64 scan_hit_end;
- unsigned scanned_blocks;
- u64 scan_start;
- u64 scan_end;
- struct drm_mm_node *prev_scanned_node;
- void (*color_adjust)(struct drm_mm_node *node, unsigned long color,
-        u64 *start, u64 *end);
-};
-static inline _Bool drm_mm_node_allocated(struct drm_mm_node *node)
-{
- return node->allocated;
-}
-static inline _Bool drm_mm_initialized(struct drm_mm *mm)
-{
- return mm->hole_stack.next;
-}
-static inline u64 __drm_mm_hole_node_start(struct drm_mm_node *hole_node)
-{
- return hole_node->start + hole_node->size;
-}
-static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
-{
- ((!(!hole_node->hole_follows)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h", 149, "!(!hole_node->hole_follows)"));
- return __drm_mm_hole_node_start(hole_node);
-}
-static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
-{
- return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
-}
-static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
-{
- return __drm_mm_hole_node_end(hole_node);
-}
-int drm_mm_reserve_node(struct drm_mm *mm, struct drm_mm_node *node);
-int drm_mm_insert_node_generic(struct drm_mm *mm,
-          struct drm_mm_node *node,
-          u64 size,
-          unsigned alignment,
-          unsigned long color,
-          enum drm_mm_search_flags sflags,
-          enum drm_mm_allocator_flags aflags);
-static inline int drm_mm_insert_node(struct drm_mm *mm,
-         struct drm_mm_node *node,
-         u64 size,
-         unsigned alignment,
-         enum drm_mm_search_flags flags)
-{
- return drm_mm_insert_node_generic(mm, node, size, alignment, 0, flags,
-       DRM_MM_CREATE_DEFAULT);
-}
-int drm_mm_insert_node_in_range_generic(struct drm_mm *mm,
-     struct drm_mm_node *node,
-     u64 size,
-     unsigned alignment,
-     unsigned long color,
-     u64 start,
-     u64 end,
-     enum drm_mm_search_flags sflags,
-     enum drm_mm_allocator_flags aflags);
-static inline int drm_mm_insert_node_in_range(struct drm_mm *mm,
-           struct drm_mm_node *node,
-           u64 size,
-           unsigned alignment,
-           u64 start,
-           u64 end,
-           enum drm_mm_search_flags flags)
-{
- return drm_mm_insert_node_in_range_generic(mm, node, size, alignment,
-         0, start, end, flags,
-         DRM_MM_CREATE_DEFAULT);
-}
-void drm_mm_remove_node(struct drm_mm_node *node);
-void drm_mm_replace_node(struct drm_mm_node *old, struct drm_mm_node *new);
-void drm_mm_init(struct drm_mm *mm,
-   u64 start,
-   u64 size);
-void drm_mm_takedown(struct drm_mm *mm);
-_Bool drm_mm_clean(struct drm_mm *mm);
-void drm_mm_init_scan(struct drm_mm *mm,
-        u64 size,
-        unsigned alignment,
-        unsigned long color);
-void drm_mm_init_scan_with_range(struct drm_mm *mm,
-     u64 size,
-     unsigned alignment,
-     unsigned long color,
-     u64 start,
-     u64 end);
-_Bool drm_mm_scan_add_block(struct drm_mm_node *node);
-_Bool drm_mm_scan_remove_block(struct drm_mm_node *node);
-void drm_mm_debug_table(struct drm_mm *mm, const char *prefix);
-struct rb_node {
- struct { struct rb_node *rbe_left; struct rb_node *rbe_right; struct rb_node *rbe_parent; int rbe_color; } __entry;
-};
-struct rb_root {
- struct rb_node *rb_node;
-};
-int panic_cmp(struct rb_node *one, struct rb_node *two);
-struct linux_root { struct rb_node *rbh_root; };
- void linux_root_RB_INSERT_COLOR(struct linux_root *, struct rb_node *); void linux_root_RB_REMOVE_COLOR(struct linux_root *, struct rb_node *, struct rb_node *); struct rb_node *linux_root_RB_REMOVE(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_INSERT(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_FIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NFIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NEXT(struct rb_node *); struct rb_node *linux_root_RB_PREV(struct rb_node *); struct rb_node *linux_root_RB_MINMAX(struct linux_root *, int);;
-static inline void
-rb_link_node(struct rb_node *node, struct rb_node *parent,
-    struct rb_node **rb_link)
-{
- ((node))->__entry.rbe_parent = (parent);
- ((node))->__entry.rbe_color = (1);
- node->__entry.rbe_left = node->__entry.rbe_right = ((void *)0);
- *rb_link = node;
-}
-static inline void
-rb_replace_node(struct rb_node *victim, struct rb_node *new,
-    struct rb_root *root)
-{
- struct rb_node *p;
- p = (victim)->__entry.rbe_parent;
- if (p) {
-  if (p->__entry.rbe_left == victim)
-   p->__entry.rbe_left = new;
-  else
-   p->__entry.rbe_right = new;
- } else
-  root->rb_node = new;
- if (victim->__entry.rbe_left)
-  ((victim->__entry.rbe_left))->__entry.rbe_parent = (new);
- if (victim->__entry.rbe_right)
-  ((victim->__entry.rbe_right))->__entry.rbe_parent = (new);
- *new = *victim;
-}
-struct drm_vma_offset_file {
- struct rb_node vm_rb;
- struct file *vm_filp;
- unsigned long vm_count;
-};
-struct drm_vma_offset_node {
- rwlock_t vm_lock;
- struct drm_mm_node vm_node;
- struct rb_node vm_rb;
- struct rb_root vm_files;
-};
-struct drm_vma_offset_manager {
- rwlock_t vm_lock;
- struct rb_root vm_addr_space_rb;
- struct drm_mm vm_addr_space_mm;
-};
-void drm_vma_offset_manager_init(struct drm_vma_offset_manager *mgr,
-     unsigned long page_offset, unsigned long size);
-void drm_vma_offset_manager_destroy(struct drm_vma_offset_manager *mgr);
-struct drm_vma_offset_node *drm_vma_offset_lookup(struct drm_vma_offset_manager *mgr,
-        unsigned long start,
-        unsigned long pages);
-struct drm_vma_offset_node *drm_vma_offset_lookup_locked(struct drm_vma_offset_manager *mgr,
-          unsigned long start,
-          unsigned long pages);
-int drm_vma_offset_add(struct drm_vma_offset_manager *mgr,
-         struct drm_vma_offset_node *node, unsigned long pages);
-void drm_vma_offset_remove(struct drm_vma_offset_manager *mgr,
-      struct drm_vma_offset_node *node);
-int drm_vma_node_allow(struct drm_vma_offset_node *node, struct file *filp);
-void drm_vma_node_revoke(struct drm_vma_offset_node *node, struct file *filp);
-_Bool drm_vma_node_is_allowed(struct drm_vma_offset_node *node,
-        struct file *filp);
-static inline struct drm_vma_offset_node *
-drm_vma_offset_exact_lookup(struct drm_vma_offset_manager *mgr,
-       unsigned long start,
-       unsigned long pages)
-{
- struct drm_vma_offset_node *node;
- node = drm_vma_offset_lookup(mgr, start, pages);
- return (node && node->vm_node.start == start) ? node : ((void *)0);
-}
-static inline void drm_vma_offset_lock_lookup(struct drm_vma_offset_manager *mgr)
-{
- _rw_enter_read(&mgr->vm_lock );
-}
-static inline void drm_vma_offset_unlock_lookup(struct drm_vma_offset_manager *mgr)
-{
- _rw_exit_read(&mgr->vm_lock );
-}
-static inline void drm_vma_node_reset(struct drm_vma_offset_node *node)
-{
- __builtin_memset((node), (0), (sizeof(*node)));
- node->vm_files = (struct rb_root) { ((void *)0) };
- _rw_init_flags(&node->vm_lock, "drmvma", 0, ((void *)0));
-}
-static inline unsigned long drm_vma_node_start(struct drm_vma_offset_node *node)
-{
- return node->vm_node.start;
-}
-static inline unsigned long drm_vma_node_size(struct drm_vma_offset_node *node)
-{
- return node->vm_node.size;
-}
-static inline _Bool drm_vma_node_has_offset(struct drm_vma_offset_node *node)
-{
- return drm_mm_node_allocated(&node->vm_node);
-}
-static inline __u64 drm_vma_node_offset_addr(struct drm_vma_offset_node *node)
-{
- return ((__u64)node->vm_node.start) << 13;
-}
-static inline void drm_vma_node_unmap(struct drm_vma_offset_node *node,
-          struct address_space *file_mapping)
-{
- if (file_mapping && drm_vma_node_has_offset(node))
-  ;
-}
-static inline int drm_vma_node_verify_access(struct drm_vma_offset_node *node,
-          struct file *filp)
-{
- return drm_vma_node_is_allowed(node, filp) ? 0 : -13;
-}
 enum hdmi_infoframe_type {
  HDMI_INFOFRAME_TYPE_VENDOR = 0x81,
  HDMI_INFOFRAME_TYPE_AVI = 0x82,
@@ -6367,129 +7376,6 @@ hdmi_infoframe_pack(union hdmi_infoframe *frame, void *buffer, size_t size);
 int hdmi_infoframe_unpack(union hdmi_infoframe *frame, void *buffer);
 void hdmi_infoframe_log(const char *level, struct device *dev,
    union hdmi_infoframe *frame);
-struct ww_class {
- volatile u_long stamp;
- const char *name;
-};
-struct ww_acquire_ctx {
- u_long stamp;
- struct ww_class *ww_class;
-};
-struct ww_mutex {
- struct mutex lock;
- volatile int acquired;
- volatile struct ww_acquire_ctx *ctx;
- volatile struct proc *owner;
-};
-static inline void
-ww_acquire_init(struct ww_acquire_ctx *ctx, struct ww_class *ww_class) {
- ctx->stamp = __sync_fetch_and_add(&ww_class->stamp, 1);
- ctx->ww_class = ww_class;
-}
-static inline void
-ww_acquire_done(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
-}
-static inline void
-ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
-}
-static inline void
-ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
- lock->acquired = 0;
- lock->ctx = ((void *)0);
- lock->owner = ((void *)0);
-}
-static inline _Bool
-ww_mutex_is_locked(struct ww_mutex *lock) {
- _Bool res = 0;
- __mtx_enter(&lock->lock );
- if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock );
- return res;
-}
-static inline int
-ww_mutex_trylock(struct ww_mutex *lock) {
- int res = 0;
- __mtx_enter(&lock->lock );
- if (lock->acquired == 0) {
-  ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
-  lock->acquired = 1;
-  lock->owner = (__curcpu->ci_self)->ci_curproc;
-  res = 1;
- }
- __mtx_leave(&lock->lock );
- return res;
-}
-static inline int
-__ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
- int err;
- __mtx_enter(&lock->lock );
- for (;;) {
-  if (lock->acquired == 0) {
-   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
-   lock->acquired = 1;
-   lock->ctx = ctx;
-   lock->owner = (__curcpu->ci_self)->ci_curproc;
-   err = 0;
-   break;
-  }
-  else if (lock->owner == (__curcpu->ci_self)->ci_curproc) {
-   err = -37;
-   break;
-  }
-  else {
-   if (slow || ctx == ((void *)0) ||
-       (lock->ctx && ctx->stamp < lock->ctx->stamp)) {
-    int s = msleep(lock, &lock->lock,
-            intr ? 0x100 : 0,
-            ctx ? ctx->ww_class->name : "ww_mutex_lock", 0);
-    if (intr && (s == 4 || s == -1)) {
-     err = -4;
-     break;
-    }
-   }
-   else {
-    err = -11;
-    break;
-   }
-  }
- }
- __mtx_leave(&lock->lock );
- return err;
-}
-static inline int
-ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 0, 0);
-}
-static inline void
-ww_mutex_lock_slow(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- (void)__ww_mutex_lock(lock, ctx, 1, 0);
-}
-static inline int
-ww_mutex_lock_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 0, 1);
-}
-static inline int
-ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 1, 1);
-}
-static inline void
-ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock );
- ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->owner == curproc"));
- ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 221, "lock->acquired == 1"));
- lock->acquired = 0;
- lock->ctx = ((void *)0);
- lock->owner = ((void *)0);
- __mtx_leave(&lock->lock );
- wakeup(lock);
-}
-static inline void
-ww_mutex_destroy(struct ww_mutex *lock) {
- ((lock->acquired == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 232, "lock->acquired == 0"));
- ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 233, "lock->ctx == NULL"));
- ((lock->owner == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 234, "lock->owner == NULL"));
-}
 struct drm_modeset_lock;
 struct drm_modeset_acquire_ctx {
  struct ww_acquire_ctx ww_ctx;
@@ -7953,426 +8839,6 @@ static inline int drm_dev_to_irq(struct drm_device *dev)
  return -1;
 }
 int drm_pcie_get_speed_cap_mask(struct drm_device *, u32 *);
-struct ttm_bo_device;
-struct drm_mm_node;
-struct ttm_placement {
- unsigned fpfn;
- unsigned lpfn;
- unsigned num_placement;
- const uint32_t *placement;
- unsigned num_busy_placement;
- const uint32_t *busy_placement;
-};
-struct ttm_bus_placement {
- void *addr;
- unsigned long base;
- unsigned long size;
- unsigned long offset;
- _Bool is_iomem;
- _Bool io_reserved_vm;
- uint64_t io_reserved_count;
- bus_space_handle_t bsh;
-};
-struct ttm_mem_reg {
- void *mm_node;
- unsigned long start;
- unsigned long size;
- unsigned long num_pages;
- uint32_t page_alignment;
- uint32_t mem_type;
- uint32_t placement;
- struct ttm_bus_placement bus;
-};
-enum ttm_bo_type {
- ttm_bo_type_device,
- ttm_bo_type_kernel,
- ttm_bo_type_sg
-};
-struct ttm_tt;
-struct ttm_buffer_object {
- struct uvm_object uobj;
- struct ttm_bo_global *glob;
- struct ttm_bo_device *bdev;
- enum ttm_bo_type type;
- void (*destroy) (struct ttm_buffer_object *);
- unsigned long num_pages;
- size_t acc_size;
- struct kref kref;
- struct kref list_kref;
- wait_queue_head_t event_queue;
- struct ttm_mem_reg mem;
- struct uvm_object *persistent_swap_storage;
- struct ttm_tt *ttm;
- _Bool evicted;
- atomic_t cpu_writers;
- struct list_head lru;
- struct list_head ddestroy;
- struct list_head swap;
- struct list_head io_reserve_lru;
- uint32_t val_seq;
- _Bool seq_valid;
- atomic_t reserved;
- void *sync_obj;
- unsigned long priv_flags;
- struct drm_vma_offset_node vma_node;
- unsigned long offset;
- uint32_t cur_placement;
- struct sg_table *sg;
-};
-struct ttm_bo_kmap_obj {
- void *virtual;
- struct vm_page *page;
- enum {
-  ttm_bo_map_iomap = 1 | 0x80,
-  ttm_bo_map_vmap = 2,
-  ttm_bo_map_kmap = 3,
-  ttm_bo_map_premapped = 4 | 0x80,
- } bo_kmap_type;
- struct ttm_buffer_object *bo;
-};
-static inline struct ttm_buffer_object *
-ttm_bo_reference(struct ttm_buffer_object *bo)
-{
- kref_get(&bo->kref);
- return bo;
-}
-extern int ttm_bo_wait(struct ttm_buffer_object *bo, _Bool lazy,
-         _Bool interruptible, _Bool no_wait);
-extern int ttm_bo_validate(struct ttm_buffer_object *bo,
-    struct ttm_placement *placement,
-    _Bool interruptible,
-    _Bool no_wait_gpu);
-extern void ttm_bo_unref(struct ttm_buffer_object **bo);
-extern void ttm_bo_list_ref_sub(struct ttm_buffer_object *bo, int count,
-    _Bool never_free);
-extern void ttm_bo_add_to_lru(struct ttm_buffer_object *bo);
-extern int ttm_bo_del_from_lru(struct ttm_buffer_object *bo);
-extern int ttm_bo_lock_delayed_workqueue(struct ttm_bo_device *bdev);
-extern void ttm_bo_unlock_delayed_workqueue(struct ttm_bo_device *bdev,
-         int resched);
-extern int
-ttm_bo_synccpu_write_grab(struct ttm_buffer_object *bo, _Bool no_wait);
-extern void ttm_bo_synccpu_write_release(struct ttm_buffer_object *bo);
-size_t ttm_bo_acc_size(struct ttm_bo_device *bdev,
-         unsigned long bo_size,
-         unsigned struct_size);
-size_t ttm_bo_dma_acc_size(struct ttm_bo_device *bdev,
-      unsigned long bo_size,
-      unsigned struct_size);
-extern int ttm_bo_init(struct ttm_bo_device *bdev,
-   struct ttm_buffer_object *bo,
-   unsigned long size,
-   enum ttm_bo_type type,
-   struct ttm_placement *placement,
-   uint32_t page_alignment,
-   _Bool interrubtible,
-   struct uvm_object *persistent_swap_storage,
-   size_t acc_size,
-   struct sg_table *sg,
-   void (*destroy) (struct ttm_buffer_object *));
-extern int ttm_bo_create(struct ttm_bo_device *bdev,
-    unsigned long size,
-    enum ttm_bo_type type,
-    struct ttm_placement *placement,
-    uint32_t page_alignment,
-    _Bool interruptible,
-    struct uvm_object *persistent_swap_storage,
-    struct ttm_buffer_object **p_bo);
-extern int ttm_bo_check_placement(struct ttm_buffer_object *bo,
-     struct ttm_placement *placement);
-extern int ttm_bo_init_mm(struct ttm_bo_device *bdev, unsigned type,
-    unsigned long p_size);
-extern int ttm_bo_clean_mm(struct ttm_bo_device *bdev, unsigned mem_type);
-extern int ttm_bo_evict_mm(struct ttm_bo_device *bdev, unsigned mem_type);
-static inline void *ttm_kmap_obj_virtual(struct ttm_bo_kmap_obj *map,
-      _Bool *is_iomem)
-{
- *is_iomem = !!(map->bo_kmap_type & 0x80);
- return map->virtual;
-}
-extern int ttm_bo_kmap(struct ttm_buffer_object *bo, unsigned long start_page,
-         unsigned long num_pages, struct ttm_bo_kmap_obj *map);
-extern void ttm_bo_kunmap(struct ttm_bo_kmap_obj *map);
-extern struct uvm_object *ttm_bo_mmap(voff_t, vsize_t,
-          struct ttm_bo_device *);
-extern ssize_t ttm_bo_io(struct ttm_bo_device *bdev, struct file *filp,
-    const char *wbuf, char *rbuf,
-    size_t count, off_t *f_pos, _Bool write);
-extern void ttm_bo_swapout_all(struct ttm_bo_device *bdev);
-static inline _Bool ttm_bo_is_reserved(struct ttm_buffer_object *bo)
-{
- return (*(&bo->reserved));
-}
-struct ttm_mem_shrink {
- int (*do_shrink) (struct ttm_mem_shrink *);
-};
-struct ttm_mem_zone;
-struct ttm_mem_global {
- struct kobject kobj;
- struct ttm_mem_shrink *shrink;
- struct taskq *swap_queue;
- struct task task;
- _Bool task_queued;
- spinlock_t lock;
- struct ttm_mem_zone *zones[2];
- unsigned int num_zones;
- struct ttm_mem_zone *zone_kernel;
- struct ttm_mem_zone *zone_dma32;
-};
-static inline void ttm_mem_init_shrink(struct ttm_mem_shrink *shrink,
-           int (*func) (struct ttm_mem_shrink *))
-{
- shrink->do_shrink = func;
-}
-static inline int ttm_mem_register_shrink(struct ttm_mem_global *glob,
-       struct ttm_mem_shrink *shrink)
-{
- __mtx_enter(&glob->lock );
- if (glob->shrink != ((void *)0)) {
-  __mtx_leave(&glob->lock );
-  return -16;
- }
- glob->shrink = shrink;
- __mtx_leave(&glob->lock );
- return 0;
-}
-static inline void ttm_mem_unregister_shrink(struct ttm_mem_global *glob,
-          struct ttm_mem_shrink *shrink)
-{
- __mtx_enter(&glob->lock );
- ((!(glob->shrink != shrink)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_memory.h", 137, "!(glob->shrink != shrink)"));
- glob->shrink = ((void *)0);
- __mtx_leave(&glob->lock );
-}
-extern int ttm_mem_global_init(struct ttm_mem_global *glob);
-extern void ttm_mem_global_release(struct ttm_mem_global *glob);
-extern int ttm_mem_global_alloc(struct ttm_mem_global *glob, uint64_t memory,
-    _Bool no_wait, _Bool interruptible);
-extern void ttm_mem_global_free(struct ttm_mem_global *glob,
-    uint64_t amount);
-extern int ttm_mem_global_alloc_page(struct ttm_mem_global *glob,
-         struct vm_page *page,
-         _Bool no_wait, _Bool interruptible);
-extern void ttm_mem_global_free_page(struct ttm_mem_global *glob,
-         struct vm_page *page);
-extern size_t ttm_round_pot(size_t size);
-struct kobject;
-extern struct kobject *ttm_get_kobj(void);
-enum drm_global_types {
- DRM_GLOBAL_TTM_MEM = 0,
- DRM_GLOBAL_TTM_BO,
- DRM_GLOBAL_TTM_OBJECT,
- DRM_GLOBAL_NUM
-};
-struct drm_global_reference {
- enum drm_global_types global_type;
- size_t size;
- void *object;
- int (*init) (struct drm_global_reference *);
- void (*release) (struct drm_global_reference *);
-};
-extern void drm_global_init(void);
-extern void drm_global_release(void);
-extern int drm_global_item_ref(struct drm_global_reference *ref);
-extern void drm_global_item_unref(struct drm_global_reference *ref);
-struct ttm_backend_func {
- int (*bind) (struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
- int (*unbind) (struct ttm_tt *ttm);
- void (*destroy) (struct ttm_tt *ttm);
-};
-enum ttm_caching_state {
- tt_uncached,
- tt_wc,
- tt_cached
-};
-struct ttm_tt {
- struct ttm_bo_device *bdev;
- struct ttm_backend_func *func;
- struct vm_page *dummy_read_page;
- struct vm_page **pages;
- uint32_t page_flags;
- unsigned long num_pages;
- struct sg_table *sg;
- struct ttm_bo_global *glob;
- struct uvm_object *swap_storage;
- enum ttm_caching_state caching_state;
- enum {
-  tt_bound,
-  tt_unbound,
-  tt_unpopulated,
- } state;
-};
-struct ttm_dma_tt {
- struct ttm_tt ttm;
- bus_addr_t *dma_address;
- struct list_head pages_list;
-};
-struct ttm_mem_type_manager;
-struct ttm_mem_type_manager_func {
- int (*init)(struct ttm_mem_type_manager *man, unsigned long p_size);
- int (*takedown)(struct ttm_mem_type_manager *man);
- int (*get_node)(struct ttm_mem_type_manager *man,
-    struct ttm_buffer_object *bo,
-    struct ttm_placement *placement,
-    struct ttm_mem_reg *mem);
- void (*put_node)(struct ttm_mem_type_manager *man,
-    struct ttm_mem_reg *mem);
- void (*debug)(struct ttm_mem_type_manager *man, const char *prefix);
-};
-struct ttm_mem_type_manager {
- struct ttm_bo_device *bdev;
- _Bool has_type;
- _Bool use_type;
- uint32_t flags;
- unsigned long gpu_offset;
- uint64_t size;
- uint32_t available_caching;
- uint32_t default_caching;
- const struct ttm_mem_type_manager_func *func;
- void *priv;
- struct rwlock io_reserve_mutex;
- _Bool use_io_reserve_lru;
- _Bool io_reserve_fastpath;
- struct list_head io_reserve_lru;
- struct list_head lru;
-};
-struct ttm_bo_driver {
- struct ttm_tt *(*ttm_tt_create)(struct ttm_bo_device *bdev,
-     unsigned long size,
-     uint32_t page_flags,
-     struct vm_page *dummy_read_page);
- int (*ttm_tt_populate)(struct ttm_tt *ttm);
- void (*ttm_tt_unpopulate)(struct ttm_tt *ttm);
- int (*invalidate_caches) (struct ttm_bo_device *bdev, uint32_t flags);
- int (*init_mem_type) (struct ttm_bo_device *bdev, uint32_t type,
-         struct ttm_mem_type_manager *man);
-  void(*evict_flags) (struct ttm_buffer_object *bo,
-    struct ttm_placement *placement);
- int (*move) (struct ttm_buffer_object *bo,
-       _Bool evict, _Bool interruptible,
-       _Bool no_wait_gpu,
-       struct ttm_mem_reg *new_mem);
- int (*verify_access) (struct ttm_buffer_object *bo,
-         struct file *filp);
- _Bool (*sync_obj_signaled) (void *sync_obj);
- int (*sync_obj_wait) (void *sync_obj,
-         _Bool lazy, _Bool interruptible);
- int (*sync_obj_flush) (void *sync_obj);
- void (*sync_obj_unref) (void **sync_obj);
- void *(*sync_obj_ref) (void *sync_obj);
- void (*move_notify)(struct ttm_buffer_object *bo,
-       struct ttm_mem_reg *new_mem);
- int (*fault_reserve_notify)(struct ttm_buffer_object *bo);
- void (*swap_notify) (struct ttm_buffer_object *bo);
- int (*io_mem_reserve)(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
- void (*io_mem_free)(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem);
-};
-struct ttm_bo_global_ref {
- struct drm_global_reference ref;
- struct ttm_mem_global *mem_glob;
-};
-struct ttm_bo_global {
- struct kobject kobj;
- struct ttm_mem_global *mem_glob;
- struct vm_page *dummy_read_page;
- struct ttm_mem_shrink shrink;
- struct rwlock device_list_mutex;
- spinlock_t lru_lock;
- struct list_head device_list;
- struct list_head swap_lru;
- atomic_t bo_count;
-};
-struct ttm_bo_device {
- struct list_head device_list;
- struct ttm_bo_global *glob;
- struct ttm_bo_driver *driver;
- struct ttm_mem_type_manager man[8];
- spinlock_t fence_lock;
- bus_space_tag_t iot;
- bus_space_tag_t memt;
- bus_dma_tag_t dmat;
- struct drm_vma_offset_manager vma_manager;
- struct list_head ddestroy;
- uint32_t val_seq;
- struct address_space *dev_mapping;
- struct delayed_work wq;
- _Bool need_dma32;
-};
-static inline uint32_t
-ttm_flag_masked(uint32_t *old, uint32_t new, uint32_t mask)
-{
- *old ^= (*old ^ new) & mask;
- return *old;
-}
-extern int ttm_tt_init(struct ttm_tt *ttm, struct ttm_bo_device *bdev,
-   unsigned long size, uint32_t page_flags,
-   struct vm_page *dummy_read_page);
-extern int ttm_dma_tt_init(struct ttm_dma_tt *ttm_dma, struct ttm_bo_device *bdev,
-      unsigned long size, uint32_t page_flags,
-      struct vm_page *dummy_read_page);
-extern void ttm_tt_fini(struct ttm_tt *ttm);
-extern void ttm_dma_tt_fini(struct ttm_dma_tt *ttm_dma);
-extern int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem);
-extern void ttm_tt_destroy(struct ttm_tt *ttm);
-extern void ttm_tt_unbind(struct ttm_tt *ttm);
-extern int ttm_tt_swapin(struct ttm_tt *ttm);
-extern void ttm_tt_cache_flush(struct vm_page *pages[], unsigned long num_pages);
-extern int ttm_tt_set_placement_caching(struct ttm_tt *ttm, uint32_t placement);
-extern int ttm_tt_swapout(struct ttm_tt *ttm,
-     struct uvm_object *persistent_swap_storage);
-extern _Bool ttm_mem_reg_is_pci(struct ttm_bo_device *bdev,
-       struct ttm_mem_reg *mem);
-extern int ttm_bo_mem_space(struct ttm_buffer_object *bo,
-    struct ttm_placement *placement,
-    struct ttm_mem_reg *mem,
-    _Bool interruptible,
-    _Bool no_wait_gpu);
-extern void ttm_bo_mem_put(struct ttm_buffer_object *bo,
-      struct ttm_mem_reg *mem);
-extern void ttm_bo_mem_put_locked(struct ttm_buffer_object *bo,
-      struct ttm_mem_reg *mem);
-extern void ttm_bo_global_release(struct drm_global_reference *ref);
-extern int ttm_bo_global_init(struct drm_global_reference *ref);
-extern int ttm_bo_device_release(struct ttm_bo_device *bdev);
-extern int ttm_bo_device_init(struct ttm_bo_device *bdev,
-         struct ttm_bo_global *glob,
-         struct ttm_bo_driver *driver,
-         uint64_t file_page_offset, _Bool need_dma32);
-extern void ttm_bo_unmap_virtual(struct ttm_buffer_object *bo);
-extern void ttm_bo_unmap_virtual_locked(struct ttm_buffer_object *bo);
-extern int ttm_mem_io_reserve_vm(struct ttm_buffer_object *bo);
-extern void ttm_mem_io_free_vm(struct ttm_buffer_object *bo);
-extern int ttm_mem_io_lock(struct ttm_mem_type_manager *man,
-      _Bool interruptible);
-extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
-extern int ttm_bo_reserve(struct ttm_buffer_object *bo,
-     _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence, uint32_t sequence);
-extern int ttm_bo_reserve_locked(struct ttm_buffer_object *bo,
-     _Bool interruptible,
-     _Bool no_wait, _Bool use_sequence,
-     uint32_t sequence);
-extern void ttm_bo_unreserve(struct ttm_buffer_object *bo);
-extern void ttm_bo_unreserve_locked(struct ttm_buffer_object *bo);
-extern int ttm_bo_wait_unreserved(struct ttm_buffer_object *bo,
-      _Bool interruptible);
-extern int ttm_bo_move_ttm(struct ttm_buffer_object *bo,
-      _Bool evict, _Bool no_wait_gpu,
-      struct ttm_mem_reg *new_mem);
-extern int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
-         _Bool evict, _Bool no_wait_gpu,
-         struct ttm_mem_reg *new_mem);
-extern void ttm_bo_free_old_node(struct ttm_buffer_object *bo);
-extern int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
-         void *sync_obj,
-         _Bool evict, _Bool no_wait_gpu,
-         struct ttm_mem_reg *new_mem);
-extern pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp);
-extern const struct ttm_mem_type_manager_func ttm_bo_manager_func;
-int ttm_mem_reg_ioremap(struct ttm_bo_device *, struct ttm_mem_reg *,
-      void **);
-void ttm_mem_reg_iounmap(struct ttm_bo_device *, struct ttm_mem_reg *,
-      void *);
 void ttm_bo_free_old_node(struct ttm_buffer_object *bo)
 {
  ttm_bo_mem_put(bo, &bo->mem);
@@ -8413,12 +8879,14 @@ int ttm_mem_io_lock(struct ttm_mem_type_manager *man, _Bool interruptible)
  _rw_enter_write(&man->io_reserve_mutex );
  return 0;
 }
+;
 void ttm_mem_io_unlock(struct ttm_mem_type_manager *man)
 {
  if (__builtin_expect(!!(man->io_reserve_fastpath), 1))
   return;
  _rw_exit_write(&man->io_reserve_mutex );
 }
+;
 static int ttm_mem_io_evict(struct ttm_mem_type_manager *man)
 {
  struct ttm_buffer_object *bo;
@@ -8429,7 +8897,7 @@ static int ttm_mem_io_evict(struct ttm_mem_type_manager *man)
  ttm_bo_unmap_virtual_locked(bo);
  return 0;
 }
-static int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
+int ttm_mem_io_reserve(struct ttm_bo_device *bdev,
          struct ttm_mem_reg *mem)
 {
  struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
@@ -8450,7 +8918,8 @@ retry:
  }
  return ret;
 }
-static void ttm_mem_io_free(struct ttm_bo_device *bdev,
+;
+void ttm_mem_io_free(struct ttm_bo_device *bdev,
        struct ttm_mem_reg *mem)
 {
  struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
@@ -8461,6 +8930,7 @@ static void ttm_mem_io_free(struct ttm_bo_device *bdev,
      bdev->driver->io_mem_free)
   bdev->driver->io_mem_free(bdev, mem);
 }
+;
 int ttm_mem_io_reserve_vm(struct ttm_buffer_object *bo)
 {
  struct ttm_mem_reg *mem = &bo->mem;
@@ -8487,7 +8957,7 @@ void ttm_mem_io_free_vm(struct ttm_buffer_object *bo)
   ttm_mem_io_free(bo->bdev, mem);
  }
 }
-int ttm_mem_reg_ioremap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
+static int ttm_mem_reg_ioremap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
    void **virtual)
 {
  struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
@@ -8508,7 +8978,8 @@ int ttm_mem_reg_ioremap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
   else
    flags = 0;
   if (bus_space_map(bdev->memt, mem->bus.base + mem->bus.offset,
-      mem->bus.size, 0x0002 | flags, &mem->bus.bsh)) {
+      mem->bus.size, 0x0002 | flags,
+      &mem->bus.bsh)) {
    printf("%s bus_space_map failed\n", __func__);
    return -12;
   }
@@ -8523,7 +8994,7 @@ int ttm_mem_reg_ioremap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
  *virtual = addr;
  return 0;
 }
-void ttm_mem_reg_iounmap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
+static void ttm_mem_reg_iounmap(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem,
     void *virtual)
 {
  struct ttm_mem_type_manager *man;
@@ -8569,7 +9040,7 @@ static int ttm_copy_io_ttm_page(struct ttm_tt *ttm, void *src,
 }
 static int ttm_copy_ttm_io_page(struct ttm_tt *ttm, void *dst,
     unsigned long page,
-    vm_prot_t prot)
+    pgprot_t prot)
 {
  struct vm_page *s = ttm->pages[page];
  void *src;
@@ -8613,8 +9084,12 @@ int ttm_bo_move_memcpy(struct ttm_buffer_object *bo,
   goto out;
  if (old_iomap == ((void *)0) && new_iomap == ((void *)0))
   goto out2;
- if (old_iomap == ((void *)0) && ttm == ((void *)0))
+ if (old_iomap == ((void *)0) &&
+     (ttm == ((void *)0) || (ttm->state == tt_unpopulated &&
+        !(ttm->page_flags & (1 << 4))))) {
+  __builtin_memset((new_iomap), (0), (new_mem->num_pages*(1 << 13)));
   goto out2;
+ }
  if (ttm && ttm->state == tt_unpopulated) {
   ret = ttm->bdev->driver->ttm_tt_populate(ttm);
   if (ret)
@@ -8671,29 +9146,25 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,
           struct ttm_buffer_object **new_obj)
 {
  struct ttm_buffer_object *fbo;
- struct ttm_bo_device *bdev = bo->bdev;
- struct ttm_bo_driver *driver = bdev->driver;
+ int ret;
  fbo = kmalloc(sizeof(*fbo), (0x0001 | 0x0004));
  if (!fbo)
   return -12;
  *fbo = *bo;
- init_waitqueue_head(&fbo->event_queue);
  INIT_LIST_HEAD(&fbo->ddestroy);
  INIT_LIST_HEAD(&fbo->lru);
  INIT_LIST_HEAD(&fbo->swap);
  INIT_LIST_HEAD(&fbo->io_reserve_lru);
  drm_vma_node_reset(&fbo->vma_node);
  (*(&fbo->cpu_writers) = (0));
- __mtx_enter(&bdev->fence_lock );
- if (bo->sync_obj)
-  fbo->sync_obj = driver->sync_obj_ref(bo->sync_obj);
- else
-  fbo->sync_obj = ((void *)0);
- __mtx_leave(&bdev->fence_lock );
  kref_init(&fbo->list_kref);
  kref_init(&fbo->kref);
  fbo->destroy = &ttm_transfered_destroy;
  fbo->acc_size = 0;
+ fbo->resv = &fbo->ttm_resv;
+ reservation_object_init(fbo->resv);
+ ret = ww_mutex_trylock(&fbo->resv->lock);
+ ({ int __ret = !!(!ret); if (__ret) printf("WARNING %s failed at %s:%d\n", "!ret", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 481); __builtin_expect(!!(__ret), 0); });
  *new_obj = fbo;
  return 0;
 }
@@ -8701,14 +9172,13 @@ pgprot_t ttm_io_prot(uint32_t caching_flags, pgprot_t tmp)
 {
   return 0x001;
 }
-;
 static int ttm_bo_ioremap(struct ttm_buffer_object *bo,
      unsigned long offset,
      unsigned long size,
      struct ttm_bo_kmap_obj *map)
 {
- struct ttm_mem_reg *mem = &bo->mem;
  int flags;
+ struct ttm_mem_reg *mem = &bo->mem;
  if (bo->mem.bus.addr) {
   map->bo_kmap_type = ttm_bo_map_premapped;
   map->virtual = (void *)(((u8 *)bo->mem.bus.addr) + offset);
@@ -8738,7 +9208,7 @@ static int ttm_bo_kmap_ttm(struct ttm_buffer_object *bo,
  struct ttm_mem_reg *mem = &bo->mem; pgprot_t prot;
  struct ttm_tt *ttm = bo->ttm;
  int ret;
- ((!(!ttm)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 520, "!(!ttm)"));
+ ((!(!ttm)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 565, "!(!ttm)"));
  if (ttm->state == tt_unpopulated) {
   ret = ttm->bdev->driver->ttm_tt_populate(ttm);
   if (ret)
@@ -8749,9 +9219,7 @@ static int ttm_bo_kmap_ttm(struct ttm_buffer_object *bo,
   map->page = ttm->pages[start_page];
   map->virtual = kmap(map->page);
  } else {
-  prot = (mem->placement & (1 << 16)) ?
-   0 :
-   ttm_io_prot(mem->placement, 0);
+  prot = ttm_io_prot(mem->placement, 0);
   map->bo_kmap_type = ttm_bo_map_vmap;
   map->virtual = vmap(ttm->pages + start_page, num_pages,
         0, prot);
@@ -8766,7 +9234,7 @@ int ttm_bo_kmap(struct ttm_buffer_object *bo,
   &bo->bdev->man[bo->mem.mem_type];
  unsigned long offset, size;
  int ret;
- ((!(!list_empty(&bo->swap))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 561, "!(!list_empty(&bo->swap))"));
+ ((!(!list_empty(&bo->swap))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 604, "!(!list_empty(&bo->swap))"));
  map->virtual = ((void *)0);
  map->bo = bo;
  if (num_pages > bo->num_pages)
@@ -8808,7 +9276,7 @@ void ttm_bo_kunmap(struct ttm_bo_kmap_obj *map)
  case ttm_bo_map_premapped:
   break;
  default:
-  do { panic("BUG at %s:%d", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 609); } while (0);
+  do { panic("BUG at %s:%d", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/ttm/ttm_bo_util.c", 652); } while (0);
  }
  (void) ttm_mem_io_lock(man, 0);
  ttm_mem_io_free(map->bo->bdev, &map->bo->mem);
@@ -8818,29 +9286,19 @@ void ttm_bo_kunmap(struct ttm_bo_kmap_obj *map)
 }
 ;
 int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
-         void *sync_obj,
+         struct fence *fence,
          _Bool evict,
          _Bool no_wait_gpu,
          struct ttm_mem_reg *new_mem)
 {
  struct ttm_bo_device *bdev = bo->bdev;
- struct ttm_bo_driver *driver = bdev->driver;
  struct ttm_mem_type_manager *man = &bdev->man[new_mem->mem_type];
  struct ttm_mem_reg *old_mem = &bo->mem;
  int ret;
  struct ttm_buffer_object *ghost_obj;
- void *tmp_obj = ((void *)0);
- __mtx_enter(&bdev->fence_lock );
- if (bo->sync_obj) {
-  tmp_obj = bo->sync_obj;
-  bo->sync_obj = ((void *)0);
- }
- bo->sync_obj = driver->sync_obj_ref(sync_obj);
+ reservation_object_add_excl_fence(bo->resv, fence);
  if (evict) {
   ret = ttm_bo_wait(bo, 0, 0, 0);
-  __mtx_leave(&bdev->fence_lock );
-  if (tmp_obj)
-   driver->sync_obj_unref(&tmp_obj);
   if (ret)
    return ret;
   if ((man->flags & (1 << 0)) &&
@@ -8852,12 +9310,10 @@ int ttm_bo_move_accel_cleanup(struct ttm_buffer_object *bo,
   ttm_bo_free_old_node(bo);
  } else {
   set_bit(0, &bo->priv_flags);
-  __mtx_leave(&bdev->fence_lock );
-  if (tmp_obj)
-   driver->sync_obj_unref(&tmp_obj);
   ret = ttm_buffer_object_transfer(bo, &ghost_obj);
   if (ret)
    return ret;
+  reservation_object_add_excl_fence(ghost_obj->resv, fence);
   if (!(man->flags & (1 << 0)))
    ghost_obj->ttm = ((void *)0);
   else

@@ -970,247 +970,67 @@ int ___mp_release_all_but_one(struct __mp_lock * );
 void ___mp_acquire_count(struct __mp_lock *, int );
 int __mp_lock_held(struct __mp_lock *, struct cpu_info *);
 extern struct __mp_lock kernel_lock;
-struct kmemstats {
- long ks_inuse;
- long ks_calls;
- long ks_memuse;
- u_short ks_limblocks;
- u_short ks_mapblocks;
- long ks_maxused;
- long ks_limit;
- long ks_size;
- long ks_spare;
-};
-struct kmemusage {
- short ku_indx;
- union {
-  u_short freecnt;
-  u_short pagecnt;
- } ku_un;
-};
-struct kmem_freelist;
-struct kmembuckets {
- struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
- u_int64_t kb_calls;
- u_int64_t kb_total;
- u_int64_t kb_totalfree;
- u_int64_t kb_elmpercl;
- u_int64_t kb_highwat;
- u_int64_t kb_couldfree;
-};
-extern struct kmemstats kmemstats[];
-extern struct kmemusage *kmemusage;
-extern char *kmembase;
-extern struct kmembuckets bucket[];
-void *malloc(size_t, int, int);
-void *mallocarray(size_t, size_t, int, int);
-void free(void *, int, size_t);
-int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
-     struct proc *);
-size_t malloc_roundup(size_t);
-void malloc_printit(int (*)(const char *, ...));
-void poison_mem(void *, size_t);
-int poison_check(void *, size_t, size_t *, uint32_t *);
-uint32_t poison_value(void *);
-struct kinfo_pool {
- unsigned int pr_size;
- unsigned int pr_pgsize;
- unsigned int pr_itemsperpage;
- unsigned int pr_minpages;
- unsigned int pr_maxpages;
- unsigned int pr_hardlimit;
- unsigned int pr_npages;
- unsigned int pr_nout;
- unsigned int pr_nitems;
- unsigned long pr_nget;
- unsigned long pr_nput;
- unsigned long pr_nfail;
- unsigned long pr_npagealloc;
- unsigned long pr_npagefree;
- unsigned int pr_hiwat;
- unsigned long pr_nidle;
-};
-struct kinfo_pool_cache {
- uint64_t pr_ngc;
- unsigned int pr_len;
- unsigned int pr_nitems;
- unsigned int pr_contention;
-};
-struct kinfo_pool_cache_cpu {
- unsigned int pr_cpu;
- uint64_t pr_nget;
- uint64_t pr_nfail;
- uint64_t pr_nput;
- uint64_t pr_nlget;
- uint64_t pr_nlfail;
- uint64_t pr_nlput;
-};
-struct rb_type {
- int (*t_compare)(const void *, const void *);
- void (*t_augment)(void *);
- unsigned int t_offset;
-};
-struct rb_tree {
- struct rb_entry *rbt_root;
-};
-struct rb_entry {
- struct rb_entry *rbt_parent;
- struct rb_entry *rbt_left;
- struct rb_entry *rbt_right;
- unsigned int rbt_color;
-};
-static inline void
-_rb_init(struct rb_tree *rbt)
+static inline unsigned int
+_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
 {
- rbt->rbt_root = ((void *)0);
+ __asm volatile("cas [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
 }
-static inline int
-_rb_empty(struct rb_tree *rbt)
+static inline unsigned long
+_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
 {
- return (rbt->rbt_root == ((void *)0));
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*p)
+     : "r" (p), "r" (e), "m" (*p));
+ return (n);
 }
-void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
-void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
-void *_rb_root(const struct rb_type *, struct rb_tree *);
-void *_rb_min(const struct rb_type *, struct rb_tree *);
-void *_rb_max(const struct rb_type *, struct rb_tree *);
-void *_rb_next(const struct rb_type *, void *);
-void *_rb_prev(const struct rb_type *, void *);
-void *_rb_left(const struct rb_type *, void *);
-void *_rb_right(const struct rb_type *, void *);
-void *_rb_parent(const struct rb_type *, void *);
-void _rb_set_left(const struct rb_type *, void *, void *);
-void _rb_set_right(const struct rb_type *, void *, void *);
-void _rb_set_parent(const struct rb_type *, void *, void *);
-void _rb_poison(const struct rb_type *, void *, unsigned long);
-int _rb_check(const struct rb_type *, void *, unsigned long);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
-struct pool;
-struct pool_request;
-struct pool_lock_ops;
-struct pool_requests { struct pool_request *tqh_first; struct pool_request **tqh_last; };
-struct pool_allocator {
- void *(*pa_alloc)(struct pool *, int, int *);
- void (*pa_free)(struct pool *, void *);
- size_t pa_pagesz;
-};
-struct pool_pagelist { struct pool_page_header *tqh_first; struct pool_page_header **tqh_last; };
-struct pool_cache_item;
-struct pool_cache_lists { struct pool_cache_item *tqh_first; struct pool_cache_item **tqh_last; };
-struct cpumem;
-union pool_lock {
- struct mutex prl_mtx;
- struct rwlock prl_rwlock;
-};
-struct pool {
- union pool_lock pr_lock;
- const struct pool_lock_ops *
-   pr_lock_ops;
- struct { struct pool *sqe_next; }
-   pr_poollist;
- struct pool_pagelist
-   pr_emptypages;
- struct pool_pagelist
-   pr_fullpages;
- struct pool_pagelist
-   pr_partpages;
- struct pool_page_header *
-   pr_curpage;
- unsigned int pr_size;
- unsigned int pr_minitems;
- unsigned int pr_minpages;
- unsigned int pr_maxpages;
- unsigned int pr_npages;
- unsigned int pr_itemsperpage;
- unsigned int pr_slack;
- unsigned int pr_nitems;
- unsigned int pr_nout;
- unsigned int pr_hardlimit;
- unsigned int pr_serial;
- unsigned int pr_pgsize;
- vaddr_t pr_pgmask;
- struct pool_allocator *
-   pr_alloc;
- const char * pr_wchan;
- int pr_flags;
- int pr_ipl;
- struct phtree { struct rb_tree rbh_root; }
-   pr_phtree;
- struct cpumem * pr_cache;
- unsigned long pr_cache_magic[2];
- union pool_lock pr_cache_lock;
- struct pool_cache_lists
-   pr_cache_lists;
- u_int pr_cache_nitems;
- u_int pr_cache_items;
- u_int pr_cache_contention;
- u_int pr_cache_contention_prev;
- int pr_cache_tick;
- int pr_cache_nout;
- uint64_t pr_cache_ngc;
- u_int pr_align;
- u_int pr_maxcolors;
- int pr_phoffset;
- const char *pr_hardlimit_warning;
- struct timeval pr_hardlimit_ratecap;
- struct timeval pr_hardlimit_warning_last;
- union pool_lock pr_requests_lock;
- struct pool_requests
-   pr_requests;
- unsigned int pr_requesting;
- unsigned long pr_nget;
- unsigned long pr_nfail;
- unsigned long pr_nput;
- unsigned long pr_npagealloc;
- unsigned long pr_npagefree;
- unsigned int pr_hiwat;
- unsigned long pr_nidle;
- const struct kmem_pa_mode *
-   pr_crange;
-};
-extern struct pool_allocator pool_allocator_single;
-extern struct pool_allocator pool_allocator_multi;
-struct pool_request {
- struct { struct pool_request *tqe_next; struct pool_request **tqe_prev; } pr_entry;
- void (*pr_handler)(struct pool *, void *, void *);
- void *pr_cookie;
- void *pr_item;
-};
-void pool_init(struct pool *, size_t, u_int, int, int,
-      const char *, struct pool_allocator *);
-void pool_cache_init(struct pool *);
-void pool_destroy(struct pool *);
-void pool_setlowat(struct pool *, int);
-void pool_sethiwat(struct pool *, int);
-int pool_sethardlimit(struct pool *, u_int, const char *, int);
-struct uvm_constraint_range;
-void pool_set_constraints(struct pool *,
-      const struct kmem_pa_mode *mode);
-void *pool_get(struct pool *, int) __attribute__((__malloc__));
-void pool_request_init(struct pool_request *,
-      void (*)(struct pool *, void *, void *), void *);
-void pool_request(struct pool *, struct pool_request *);
-void pool_put(struct pool *, void *);
-int pool_reclaim(struct pool *);
-void pool_reclaim_all(void);
-int pool_prime(struct pool *, int);
-void pool_printit(struct pool *, const char *,
-      int (*)(const char *, ...));
-void pool_walk(struct pool *, int, int (*)(const char *, ...),
-      void (*)(void *, int, int (*)(const char *, ...)));
-void dma_alloc_init(void);
-void *dma_alloc(size_t size, int flags);
-void dma_free(void *m, size_t size);
+static inline void *
+_atomic_cas_ptr(volatile void *p, void *e, void *n)
+{
+ __asm volatile("casx [%2], %3, %0"
+     : "+r" (n), "=m" (*(volatile unsigned long *)p)
+     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
+ return (n);
+}
+static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
+static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
+static inline void *
+_atomic_swap_ptr(volatile void *p, void *v)
+{
+ void *e, *r;
+ r = *(void **)p;
+ do {
+  e = r;
+  r = _atomic_cas_ptr((p), (e), (v));
+ } while (r != e);
+ return (r);
+}
+static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
+static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
+static __inline void
+atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e | v));
+ } while (r != e);
+}
+static __inline void
+atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
+{
+ unsigned int e, r;
+ r = *uip;
+ do {
+  e = r;
+  r = _atomic_cas_uint((uip), (e), (e & ~v));
+ } while (r != e);
+}
 extern long hostid;
 extern char hostname[256];
 extern int hostnamelen;
@@ -1231,6 +1051,62 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
+struct sigacts {
+ sig_t ps_sigact[33];
+ sigset_t ps_catchmask[33];
+ sigset_t ps_sigonstack;
+ sigset_t ps_sigintr;
+ sigset_t ps_sigreset;
+ sigset_t ps_siginfo;
+ sigset_t ps_sigignore;
+ sigset_t ps_sigcatch;
+ int ps_flags;
+ int ps_refcnt;
+};
+enum signal_type { SPROCESS, STHREAD, SPROPAGATED };
+int coredump(struct proc *p);
+void execsigs(struct proc *p);
+void gsignal(int pgid, int sig);
+void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
+int issignal(struct proc *p);
+void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
+void psignal(struct proc *p, int sig);
+void ptsignal(struct proc *p, int sig, enum signal_type type);
+void siginit(struct process *);
+void trapsignal(struct proc *p, int sig, u_long code, int type,
+     union sigval val);
+void sigexit(struct proc *, int);
+int sigonstack(size_t);
+void setsigvec(struct proc *, int, struct sigaction *);
+int killpg1(struct proc *, int, int, int);
+void signal_init(void);
+struct sigacts *sigactsinit(struct process *);
+struct sigacts *sigactsshare(struct process *);
+void sigstkinit(struct sigaltstack *);
+void sigactsunshare(struct process *);
+void sigactsfree(struct process *);
+void sendsig(sig_t action, int sig, int returnmask, u_long code,
+     int type, union sigval val);
+typedef __int_least8_t int_least8_t;
+typedef __uint_least8_t uint_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __int_least64_t int_least64_t;
+typedef __uint_least64_t uint_least64_t;
+typedef __int_fast8_t int_fast8_t;
+typedef __uint_fast8_t uint_fast8_t;
+typedef __int_fast16_t int_fast16_t;
+typedef __uint_fast16_t uint_fast16_t;
+typedef __int_fast32_t int_fast32_t;
+typedef __uint_fast32_t uint_fast32_t;
+typedef __int_fast64_t int_fast64_t;
+typedef __uint_fast64_t uint_fast64_t;
+typedef __intptr_t intptr_t;
+typedef __uintptr_t uintptr_t;
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int securelevel;
@@ -1483,7 +1359,8 @@ size_t strlcat(char *, const char *, size_t)
 int strcmp(const char *, const char *);
 int strncmp(const char *, const char *, size_t);
 int strncasecmp(const char *, const char *, size_t);
-int getsn(char *, int);
+size_t getsn(char *, size_t)
+  __attribute__ ((__bounded__(__string__,1,2)));
 char *strchr(const char *, int);
 char *strrchr(const char *, int);
 int timingsafe_bcmp(const void *, const void *, size_t);
@@ -1493,62 +1370,22 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
-struct mdproc {
- struct trapframe64 *md_tf;
- struct fpstate64 *md_fpstate;
- volatile int md_astpending;
+struct taskq;
+struct task {
+ struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
+ void (*t_func)(void *);
+ void *t_arg;
+ unsigned int t_flags;
 };
-struct kevent {
- __uintptr_t ident;
- short filter;
- unsigned short flags;
- unsigned int fflags;
- __int64_t data;
- void *udata;
-};
-struct knote;
-struct klist { struct knote *slh_first; };
-struct filterops {
- int f_isfd;
- int (*f_attach)(struct knote *kn);
- void (*f_detach)(struct knote *kn);
- int (*f_event)(struct knote *kn, long hint);
-};
-struct knote {
- struct { struct knote *sle_next; } kn_link;
- struct { struct knote *sle_next; } kn_selnext;
- struct { struct knote *tqe_next; struct knote **tqe_prev; } kn_tqe;
- struct kqueue *kn_kq;
- struct kevent kn_kevent;
- int kn_status;
- int kn_sfflags;
- __int64_t kn_sdata;
- union {
-  struct file *p_fp;
-  struct process *p_process;
- } kn_ptr;
- const struct filterops *kn_fop;
- void *kn_hook;
-};
-struct proc;
-extern void knote(struct klist *list, long hint);
-extern void knote_activate(struct knote *);
-extern void knote_remove(struct proc *p, struct klist *list);
-extern void knote_fdclose(struct proc *p, int fd);
-extern void knote_processexit(struct proc *);
-extern int kqueue_register(struct kqueue *kq,
-      struct kevent *kev, struct proc *p);
-extern int filt_seltrue(struct knote *kn, long hint);
-extern int seltrue_kqfilter(dev_t, struct knote *);
-extern void klist_invalidate(struct klist *);
-struct selinfo {
- struct klist si_note;
- pid_t si_seltid;
- short si_flags;
-};
-struct proc;
-void selrecord(struct proc *selector, struct selinfo *);
-void selwakeup(struct selinfo *);
+struct task_list { struct task *tqh_first; struct task **tqh_last; };
+extern struct taskq *const systq;
+extern struct taskq *const systqmp;
+struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
+void taskq_destroy(struct taskq *);
+void taskq_barrier(struct taskq *);
+void task_set(struct task *, void (*)(void *), void *);
+int task_add(struct taskq *, struct task *);
+int task_del(struct taskq *, struct task *);
 struct circq {
  struct circq *next;
  struct circq *prev;
@@ -1576,557 +1413,47 @@ void timeout_barrier(struct timeout *);
 void timeout_startup(void);
 void timeout_adjust_ticks(int);
 int timeout_hardclock_update(void);
-static inline unsigned int
-_atomic_cas_uint(volatile unsigned int *p, unsigned int e, unsigned int n)
-{
- __asm volatile("cas [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline unsigned long
-_atomic_cas_ulong(volatile unsigned long *p, unsigned long e, unsigned long n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*p)
-     : "r" (p), "r" (e), "m" (*p));
- return (n);
-}
-static inline void *
-_atomic_cas_ptr(volatile void *p, void *e, void *n)
-{
- __asm volatile("casx [%2], %3, %0"
-     : "+r" (n), "=m" (*(volatile unsigned long *)p)
-     : "r" (p), "r" (e), "m" (*(volatile unsigned long *)p));
- return (n);
-}
-static inline unsigned int _atomic_swap_uint(volatile unsigned int *p, unsigned int v) { unsigned int e; unsigned int r; r = (unsigned int)*p; do { e = r; r = _atomic_cas_uint((p), (e), (v)); } while (r != e); return (r); }
-static inline unsigned long _atomic_swap_ulong(volatile unsigned long *p, unsigned long v) { unsigned long e; unsigned long r; r = (unsigned long)*p; do { e = r; r = _atomic_cas_ulong((p), (e), (v)); } while (r != e); return (r); }
-static inline void *
-_atomic_swap_ptr(volatile void *p, void *v)
-{
- void *e, *r;
- r = *(void **)p;
- do {
-  e = r;
-  r = _atomic_cas_ptr((p), (e), (v));
- } while (r != e);
- return (r);
-}
-static inline unsigned int _atomic_add_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_add_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e + v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned int _atomic_sub_int_nv(volatile unsigned int *p, unsigned int v) { unsigned int e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_uint((p), (e), (f)); } while (r != e); return (f); }
-static inline unsigned long _atomic_sub_long_nv(volatile unsigned long *p, unsigned long v) { unsigned long e, r, f; r = *p; do { e = r; f = e - v; r = _atomic_cas_ulong((p), (e), (f)); } while (r != e); return (f); }
-static __inline void
-atomic_setbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e | v));
- } while (r != e);
-}
-static __inline void
-atomic_clearbits_int(volatile unsigned int *uip, unsigned int v)
-{
- unsigned int e, r;
- r = *uip;
- do {
-  e = r;
-  r = _atomic_cas_uint((uip), (e), (e & ~v));
- } while (r != e);
-}
-struct process;
-struct session {
- int s_count;
- struct process *s_leader;
- struct vnode *s_ttyvp;
- struct tty *s_ttyp;
- char s_login[32];
- pid_t s_verauthppid;
- uid_t s_verauthuid;
- struct timeout s_verauthto;
+struct rb_type {
+ int (*t_compare)(const void *, const void *);
+ void (*t_augment)(void *);
+ unsigned int t_offset;
 };
-void zapverauth( void *);
-struct pgrp {
- struct { struct pgrp *le_next; struct pgrp **le_prev; } pg_hash;
- struct { struct process *lh_first; } pg_members;
- struct session *pg_session;
- pid_t pg_id;
- int pg_jobc;
+struct rb_tree {
+ struct rb_entry *rbt_root;
 };
-struct exec_package;
-struct proc;
-struct ps_strings;
-struct uvm_object;
-union sigval;
-struct emul {
- char e_name[8];
- int *e_errno;
- void (*e_sendsig)(void (*)(int), int, int, u_long, int, union sigval);
- int e_nosys;
- int e_nsysent;
- struct sysent *e_sysent;
- char **e_syscallnames;
- int e_arglen;
- void *(*e_copyargs)(struct exec_package *, struct ps_strings *,
-        void *, void *);
- void (*e_setregs)(struct proc *, struct exec_package *,
-      u_long, register_t *);
- int (*e_fixup)(struct proc *, struct exec_package *);
- int (*e_coredump)(struct proc *, void *cookie);
- char *e_sigcode;
- char *e_esigcode;
- char *e_esigret;
- int e_flags;
- struct uvm_object *e_sigobject;
+struct rb_entry {
+ struct rb_entry *rbt_parent;
+ struct rb_entry *rbt_left;
+ struct rb_entry *rbt_right;
+ unsigned int rbt_color;
 };
-struct tusage {
- struct timespec tu_runtime;
- uint64_t tu_uticks;
- uint64_t tu_sticks;
- uint64_t tu_iticks;
-};
-struct process {
- struct proc *ps_mainproc;
- struct ucred *ps_ucred;
- struct { struct process *le_next; struct process **le_prev; } ps_list;
- struct { struct proc *tqh_first; struct proc **tqh_last; } ps_threads;
- struct { struct process *le_next; struct process **le_prev; } ps_pglist;
- struct process *ps_pptr;
- struct { struct process *le_next; struct process **le_prev; } ps_sibling;
- struct { struct process *lh_first; } ps_children;
- struct { struct process *le_next; struct process **le_prev; } ps_hash;
- struct sigacts *ps_sigacts;
- struct vnode *ps_textvp;
- struct filedesc *ps_fd;
- struct vmspace *ps_vmspace;
- pid_t ps_pid;
- struct klist ps_klist;
- int ps_flags;
- struct proc *ps_single;
- int ps_singlecount;
- int ps_traceflag;
- struct vnode *ps_tracevp;
- struct ucred *ps_tracecred;
- pid_t ps_oppid;
- int ps_ptmask;
- struct ptrace_state *ps_ptstat;
- struct rusage *ps_ru;
- struct tusage ps_tu;
- struct rusage ps_cru;
- struct itimerval ps_timer[3];
- u_int64_t ps_wxcounter;
- struct plimit *ps_limit;
- struct pgrp *ps_pgrp;
- struct emul *ps_emul;
- char ps_comm[16 +1];
- vaddr_t ps_strings;
- vaddr_t ps_sigcode;
- vaddr_t ps_sigcoderet;
- u_long ps_sigcookie;
- u_int ps_rtableid;
- char ps_nice;
- struct uprof {
-  caddr_t pr_base;
-  size_t pr_size;
-  u_long pr_off;
-  u_int pr_scale;
- } ps_prof;
- u_short ps_acflag;
- uint64_t ps_pledge;
- uint64_t ps_execpledge;
- int64_t ps_kbind_cookie;
- u_long ps_kbind_addr;
- int ps_refcnt;
- struct timespec ps_start;
- struct timeout ps_realit_to;
-};
-struct lock_list_entry;
-struct proc {
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_runq;
- struct { struct proc *le_next; struct proc **le_prev; } p_list;
- struct process *p_p;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_thr_link;
- struct { struct proc *tqe_next; struct proc **tqe_prev; } p_fut_link;
- struct futex *p_futex;
- struct filedesc *p_fd;
- struct vmspace *p_vmspace;
- int p_flag;
- u_char p_spare;
- char p_stat;
- char p_pad1[1];
- u_char p_descfd;
- pid_t p_tid;
- struct { struct proc *le_next; struct proc **le_prev; } p_hash;
- int p_dupfd;
- long p_thrslpid;
- u_int p_estcpu;
- int p_cpticks;
- const volatile void *p_wchan;
- struct timeout p_sleep_to;
- const char *p_wmesg;
- fixpt_t p_pctcpu;
- u_int p_slptime;
- u_int p_uticks;
- u_int p_sticks;
- u_int p_iticks;
- struct cpu_info * volatile p_cpu;
- struct rusage p_ru;
- struct tusage p_tu;
- struct timespec p_rtime;
- int p_siglist;
- sigset_t p_sigmask;
- u_int p_spserial;
- vaddr_t p_spstart;
- vaddr_t p_spend;
- u_char p_priority;
- u_char p_usrpri;
- int p_pledge_syscall;
- struct ucred *p_ucred;
- struct sigaltstack p_sigstk;
- u_long p_prof_addr;
- u_long p_prof_ticks;
- struct user *p_addr;
- struct mdproc p_md;
- sigset_t p_oldmask;
- int p_sisig;
- union sigval p_sigval;
- long p_sitrapno;
- int p_sicode;
- u_short p_xstat;
- struct lock_list_entry *p_sleeplocks;
-};
-struct uidinfo {
- struct { struct uidinfo *le_next; struct uidinfo **le_prev; } ui_hash;
- uid_t ui_uid;
- long ui_proccnt;
- long ui_lockcnt;
-};
-struct uidinfo *uid_find(uid_t);
-void uid_release(struct uidinfo *);
-extern struct tidhashhead { struct proc *lh_first; } *tidhashtbl;
-extern u_long tidhash;
-extern struct pidhashhead { struct process *lh_first; } *pidhashtbl;
-extern u_long pidhash;
-extern struct pgrphashhead { struct pgrp *lh_first; } *pgrphashtbl;
-extern u_long pgrphash;
-extern struct proc proc0;
-extern struct process process0;
-extern int nprocesses, maxprocess;
-extern int nthreads, maxthread;
-extern int randompid;
-struct proclist { struct proc *lh_first; };
-struct processlist { struct process *lh_first; };
-extern struct processlist allprocess;
-extern struct processlist zombprocess;
-extern struct proclist allproc;
-extern struct process *initprocess;
-extern struct proc *reaperproc;
-extern struct proc *syncerproc;
-extern struct pool process_pool;
-extern struct pool proc_pool;
-extern struct pool rusage_pool;
-extern struct pool ucred_pool;
-extern struct pool session_pool;
-extern struct pool pgrp_pool;
-void freepid(pid_t);
-struct process *prfind(pid_t);
-struct process *zombiefind(pid_t);
-struct proc *tfind(pid_t);
-struct pgrp *pgfind(pid_t);
-void proc_printit(struct proc *p, const char *modif,
-    int (*pr)(const char *, ...));
-int chgproccnt(uid_t uid, int diff);
-void enternewpgrp(struct process *, struct pgrp *, struct session *);
-void enterthispgrp(struct process *, struct pgrp *);
-int inferior(struct process *, struct process *);
-void leavepgrp(struct process *);
-void killjobc(struct process *);
-void preempt(void);
-void procinit(void);
-void resetpriority(struct proc *);
-void setrunnable(struct proc *);
-void endtsleep(void *);
-void unsleep(struct proc *);
-void reaper(void);
-void exit1(struct proc *, int, int);
-void exit2(struct proc *);
-int dowait4(struct proc *, pid_t, int *, int, struct rusage *,
-     register_t *);
-void cpu_fork(struct proc *_curp, struct proc *_child, void *_stack,
-     void *_tcb, void (*_func)(void *), void *_arg);
-void cpu_exit(struct proc *);
-void process_initialize(struct process *, struct proc *);
-int fork1(struct proc *_curp, int _flags, void (*_func)(void *),
-     void *_arg, register_t *_retval, struct proc **_newprocp);
-int thread_fork(struct proc *_curp, void *_stack, void *_tcb,
-     pid_t *_tidptr, register_t *_retval);
-int groupmember(gid_t, struct ucred *);
-void dorefreshcreds(struct process *, struct proc *);
-void dosigsuspend(struct proc *, sigset_t);
 static inline void
-refreshcreds(struct proc *p)
+_rb_init(struct rb_tree *rbt)
 {
- struct process *pr = p->p_p;
- if (pr->ps_ucred != p->p_ucred)
-  dorefreshcreds(pr, p);
+ rbt->rbt_root = ((void *)0);
 }
-enum single_thread_mode {
- SINGLE_SUSPEND,
- SINGLE_PTRACE,
- SINGLE_UNWIND,
- SINGLE_EXIT
-};
-int single_thread_set(struct proc *, enum single_thread_mode, int);
-void single_thread_wait(struct process *);
-void single_thread_clear(struct proc *, int);
-int single_thread_check(struct proc *, int);
-void child_return(void *);
-int proc_cansugid(struct proc *);
-struct sleep_state {
- int sls_s;
- int sls_catch;
- int sls_do_sleep;
- int sls_sig;
-};
-struct cond {
- int c_wait;
-};
-void proc_trampoline_mp(void);
-struct cpuset {
- int cs_set[(((256) - 1)/32 + 1)];
-};
-void cpuset_init_cpu(struct cpu_info *);
-void cpuset_clear(struct cpuset *);
-void cpuset_add(struct cpuset *, struct cpu_info *);
-void cpuset_del(struct cpuset *, struct cpu_info *);
-int cpuset_isset(struct cpuset *, struct cpu_info *);
-void cpuset_add_all(struct cpuset *);
-void cpuset_copy(struct cpuset *, struct cpuset *);
-void cpuset_union(struct cpuset *, struct cpuset *, struct cpuset *);
-void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
-void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
-struct cpu_info *cpuset_first(struct cpuset *);
-struct buf;
-struct proc;
-struct tty;
-struct uio;
-struct vnode;
-struct knote;
-struct bdevsw {
- int (*d_open)(dev_t dev, int oflags, int devtype,
-         struct proc *p);
- int (*d_close)(dev_t dev, int fflag, int devtype,
-         struct proc *p);
- void (*d_strategy)(struct buf *bp);
- int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
-         int fflag, struct proc *p);
- int (*d_dump)(dev_t dev, daddr_t blkno, caddr_t va,
-        size_t size);
- daddr_t (*d_psize)(dev_t dev);
- u_int d_type;
-};
-extern struct bdevsw bdevsw[];
-struct cdevsw {
- int (*d_open)(dev_t dev, int oflags, int devtype,
-         struct proc *p);
- int (*d_close)(dev_t dev, int fflag, int devtype,
-         struct proc *);
- int (*d_read)(dev_t dev, struct uio *uio, int ioflag);
- int (*d_write)(dev_t dev, struct uio *uio, int ioflag);
- int (*d_ioctl)(dev_t dev, u_long cmd, caddr_t data,
-         int fflag, struct proc *p);
- int (*d_stop)(struct tty *tp, int rw);
- struct tty *
-  (*d_tty)(dev_t dev);
- int (*d_poll)(dev_t dev, int events, struct proc *p);
- paddr_t (*d_mmap)(dev_t, off_t, int);
- u_int d_type;
- u_int d_flags;
- int (*d_kqfilter)(dev_t dev, struct knote *kn);
-};
-extern struct cdevsw cdevsw[];
-struct linesw {
- int (*l_open)(dev_t dev, struct tty *tp, struct proc *p);
- int (*l_close)(struct tty *tp, int flags, struct proc *p);
- int (*l_read)(struct tty *tp, struct uio *uio,
-         int flag);
- int (*l_write)(struct tty *tp, struct uio *uio,
-         int flag);
- int (*l_ioctl)(struct tty *tp, u_long cmd, caddr_t data,
-         int flag, struct proc *p);
- int (*l_rint)(int c, struct tty *tp);
- int (*l_start)(struct tty *tp);
- int (*l_modem)(struct tty *tp, int flag);
-};
-extern struct linesw linesw[];
-struct swdevt {
- dev_t sw_dev;
- int sw_flags;
-};
-extern struct swdevt swdevt[];
-extern int chrtoblktbl[];
-extern int nchrtoblktbl;
-struct bdevsw *bdevsw_lookup(dev_t);
-struct cdevsw *cdevsw_lookup(dev_t);
-dev_t chrtoblk(dev_t);
-dev_t blktochr(dev_t);
-int iskmemdev(dev_t);
-int iszerodev(dev_t);
-dev_t getnulldev(void);
-int filedescopen(dev_t, int, int, struct proc *); int filedescclose(dev_t, int, int, struct proc *); int filedescread(dev_t, struct uio *, int); int filedescwrite(dev_t, struct uio *, int); int filedescioctl(dev_t, u_long, caddr_t, int, struct proc *); int filedescstop(struct tty *, int); struct tty *filedesctty(dev_t); int filedescpoll(dev_t, int, struct proc *); paddr_t filedescmmap(dev_t, off_t, int); int filedesckqfilter(dev_t, struct knote *);
-int logopen(dev_t, int, int, struct proc *); int logclose(dev_t, int, int, struct proc *); int logread(dev_t, struct uio *, int); int logwrite(dev_t, struct uio *, int); int logioctl(dev_t, u_long, caddr_t, int, struct proc *); int logstop(struct tty *, int); struct tty *logtty(dev_t); int logpoll(dev_t, int, struct proc *); paddr_t logmmap(dev_t, off_t, int); int logkqfilter(dev_t, struct knote *);
-int ptsopen(dev_t, int, int, struct proc *); int ptsclose(dev_t, int, int, struct proc *); int ptsread(dev_t, struct uio *, int); int ptswrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptsstop(struct tty *, int); struct tty *ptytty(dev_t); int ptspoll(dev_t, int, struct proc *); paddr_t ptsmmap(dev_t, off_t, int); int ptskqfilter(dev_t, struct knote *);
-int ptcopen(dev_t, int, int, struct proc *); int ptcclose(dev_t, int, int, struct proc *); int ptcread(dev_t, struct uio *, int); int ptcwrite(dev_t, struct uio *, int); int ptyioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptcstop(struct tty *, int); struct tty *ptytty(dev_t); int ptcpoll(dev_t, int, struct proc *); paddr_t ptcmmap(dev_t, off_t, int); int ptckqfilter(dev_t, struct knote *);
-int ptmopen(dev_t, int, int, struct proc *); int ptmclose(dev_t, int, int, struct proc *); int ptmread(dev_t, struct uio *, int); int ptmwrite(dev_t, struct uio *, int); int ptmioctl(dev_t, u_long, caddr_t, int, struct proc *); int ptmstop(struct tty *, int); struct tty *ptmtty(dev_t); int ptmpoll(dev_t, int, struct proc *); paddr_t ptmmmap(dev_t, off_t, int); int ptmkqfilter(dev_t, struct knote *);
-int cttyopen(dev_t, int, int, struct proc *); int cttyclose(dev_t, int, int, struct proc *); int cttyread(dev_t, struct uio *, int); int cttywrite(dev_t, struct uio *, int); int cttyioctl(dev_t, u_long, caddr_t, int, struct proc *); int cttystop(struct tty *, int); struct tty *cttytty(dev_t); int cttypoll(dev_t, int, struct proc *); paddr_t cttymmap(dev_t, off_t, int); int cttykqfilter(dev_t, struct knote *);
-int audioopen(dev_t, int, int, struct proc *); int audioclose(dev_t, int, int, struct proc *); int audioread(dev_t, struct uio *, int); int audiowrite(dev_t, struct uio *, int); int audioioctl(dev_t, u_long, caddr_t, int, struct proc *); int audiostop(struct tty *, int); struct tty *audiotty(dev_t); int audiopoll(dev_t, int, struct proc *); paddr_t audiommap(dev_t, off_t, int); int audiokqfilter(dev_t, struct knote *);
-int drmopen(dev_t, int, int, struct proc *); int drmclose(dev_t, int, int, struct proc *); int drmread(dev_t, struct uio *, int); int drmwrite(dev_t, struct uio *, int); int drmioctl(dev_t, u_long, caddr_t, int, struct proc *); int drmstop(struct tty *, int); struct tty *drmtty(dev_t); int drmpoll(dev_t, int, struct proc *); paddr_t drmmmap(dev_t, off_t, int); int drmkqfilter(dev_t, struct knote *);
-int midiopen(dev_t, int, int, struct proc *); int midiclose(dev_t, int, int, struct proc *); int midiread(dev_t, struct uio *, int); int midiwrite(dev_t, struct uio *, int); int midiioctl(dev_t, u_long, caddr_t, int, struct proc *); int midistop(struct tty *, int); struct tty *miditty(dev_t); int midipoll(dev_t, int, struct proc *); paddr_t midimmap(dev_t, off_t, int); int midikqfilter(dev_t, struct knote *);
-int radioopen(dev_t, int, int, struct proc *); int radioclose(dev_t, int, int, struct proc *); int radioread(dev_t, struct uio *, int); int radiowrite(dev_t, struct uio *, int); int radioioctl(dev_t, u_long, caddr_t, int, struct proc *); int radiostop(struct tty *, int); struct tty *radiotty(dev_t); int radiopoll(dev_t, int, struct proc *); paddr_t radiommap(dev_t, off_t, int); int radiokqfilter(dev_t, struct knote *);
-int videoopen(dev_t, int, int, struct proc *); int videoclose(dev_t, int, int, struct proc *); int videoread(dev_t, struct uio *, int); int videowrite(dev_t, struct uio *, int); int videoioctl(dev_t, u_long, caddr_t, int, struct proc *); int videostop(struct tty *, int); struct tty *videotty(dev_t); int videopoll(dev_t, int, struct proc *); paddr_t videommap(dev_t, off_t, int); int videokqfilter(dev_t, struct knote *);
-int cnopen(dev_t, int, int, struct proc *); int cnclose(dev_t, int, int, struct proc *); int cnread(dev_t, struct uio *, int); int cnwrite(dev_t, struct uio *, int); int cnioctl(dev_t, u_long, caddr_t, int, struct proc *); int cnstop(struct tty *, int); struct tty *cntty(dev_t); int cnpoll(dev_t, int, struct proc *); paddr_t cnmmap(dev_t, off_t, int); int cnkqfilter(dev_t, struct knote *);
-int swopen(dev_t, int, int, struct proc *); int swclose(dev_t, int, int, struct proc *); void swstrategy(struct buf *); int swioctl(dev_t, u_long, caddr_t, int, struct proc *); int swdump(dev_t, daddr_t, caddr_t, size_t); daddr_t swsize(dev_t);
-int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); void vndstrategy(struct buf *); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vnddump(dev_t, daddr_t, caddr_t, size_t); daddr_t vndsize(dev_t);
-int vndopen(dev_t, int, int, struct proc *); int vndclose(dev_t, int, int, struct proc *); int vndread(dev_t, struct uio *, int); int vndwrite(dev_t, struct uio *, int); int vndioctl(dev_t, u_long, caddr_t, int, struct proc *); int vndstop(struct tty *, int); struct tty *vndtty(dev_t); int vndpoll(dev_t, int, struct proc *); paddr_t vndmmap(dev_t, off_t, int); int vndkqfilter(dev_t, struct knote *);
-int chopen(dev_t, int, int, struct proc *); int chclose(dev_t, int, int, struct proc *); int chread(dev_t, struct uio *, int); int chwrite(dev_t, struct uio *, int); int chioctl(dev_t, u_long, caddr_t, int, struct proc *); int chstop(struct tty *, int); struct tty *chtty(dev_t); int chpoll(dev_t, int, struct proc *); paddr_t chmmap(dev_t, off_t, int); int chkqfilter(dev_t, struct knote *);
-int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); void sdstrategy(struct buf *); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sddump(dev_t, daddr_t, caddr_t, size_t); daddr_t sdsize(dev_t);
-int sdopen(dev_t, int, int, struct proc *); int sdclose(dev_t, int, int, struct proc *); int sdread(dev_t, struct uio *, int); int sdwrite(dev_t, struct uio *, int); int sdioctl(dev_t, u_long, caddr_t, int, struct proc *); int sdstop(struct tty *, int); struct tty *sdtty(dev_t); int sdpoll(dev_t, int, struct proc *); paddr_t sdmmap(dev_t, off_t, int); int sdkqfilter(dev_t, struct knote *);
-int sesopen(dev_t, int, int, struct proc *); int sesclose(dev_t, int, int, struct proc *); int sesread(dev_t, struct uio *, int); int seswrite(dev_t, struct uio *, int); int sesioctl(dev_t, u_long, caddr_t, int, struct proc *); int sesstop(struct tty *, int); struct tty *sestty(dev_t); int sespoll(dev_t, int, struct proc *); paddr_t sesmmap(dev_t, off_t, int); int seskqfilter(dev_t, struct knote *);
-int stopen(dev_t, int, int, struct proc *); int stclose(dev_t, int, int, struct proc *); int stread(dev_t, struct uio *, int); int stwrite(dev_t, struct uio *, int); int stioctl(dev_t, u_long, caddr_t, int, struct proc *); int ststop(struct tty *, int); struct tty *sttty(dev_t); int stpoll(dev_t, int, struct proc *); paddr_t stmmap(dev_t, off_t, int); int stkqfilter(dev_t, struct knote *);
-int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); void cdstrategy(struct buf *); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cddump(dev_t, daddr_t, caddr_t, size_t); daddr_t cdsize(dev_t);
-int cdopen(dev_t, int, int, struct proc *); int cdclose(dev_t, int, int, struct proc *); int cdread(dev_t, struct uio *, int); int cdwrite(dev_t, struct uio *, int); int cdioctl(dev_t, u_long, caddr_t, int, struct proc *); int cdstop(struct tty *, int); struct tty *cdtty(dev_t); int cdpoll(dev_t, int, struct proc *); paddr_t cdmmap(dev_t, off_t, int); int cdkqfilter(dev_t, struct knote *);
-int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); void rdstrategy(struct buf *); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rddump(dev_t, daddr_t, caddr_t, size_t); daddr_t rdsize(dev_t);
-int rdopen(dev_t, int, int, struct proc *); int rdclose(dev_t, int, int, struct proc *); int rdread(dev_t, struct uio *, int); int rdwrite(dev_t, struct uio *, int); int rdioctl(dev_t, u_long, caddr_t, int, struct proc *); int rdstop(struct tty *, int); struct tty *rdtty(dev_t); int rdpoll(dev_t, int, struct proc *); paddr_t rdmmap(dev_t, off_t, int); int rdkqfilter(dev_t, struct knote *);
-int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); void ukstrategy(struct buf *); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukdump(dev_t, daddr_t, caddr_t, size_t); daddr_t uksize(dev_t);
-int ukopen(dev_t, int, int, struct proc *); int ukclose(dev_t, int, int, struct proc *); int ukread(dev_t, struct uio *, int); int ukwrite(dev_t, struct uio *, int); int ukioctl(dev_t, u_long, caddr_t, int, struct proc *); int ukstop(struct tty *, int); struct tty *uktty(dev_t); int ukpoll(dev_t, int, struct proc *); paddr_t ukmmap(dev_t, off_t, int); int ukkqfilter(dev_t, struct knote *);
-int diskmapopen(dev_t, int, int, struct proc *); int diskmapclose(dev_t, int, int, struct proc *); int diskmapread(dev_t, struct uio *, int); int diskmapwrite(dev_t, struct uio *, int); int diskmapioctl(dev_t, u_long, caddr_t, int, struct proc *); int diskmapstop(struct tty *, int); struct tty *diskmaptty(dev_t); int diskmappoll(dev_t, int, struct proc *); paddr_t diskmapmmap(dev_t, off_t, int); int diskmapkqfilter(dev_t, struct knote *);
-int bpfopen(dev_t, int, int, struct proc *); int bpfclose(dev_t, int, int, struct proc *); int bpfread(dev_t, struct uio *, int); int bpfwrite(dev_t, struct uio *, int); int bpfioctl(dev_t, u_long, caddr_t, int, struct proc *); int bpfstop(struct tty *, int); struct tty *bpftty(dev_t); int bpfpoll(dev_t, int, struct proc *); paddr_t bpfmmap(dev_t, off_t, int); int bpfkqfilter(dev_t, struct knote *);
-int pfopen(dev_t, int, int, struct proc *); int pfclose(dev_t, int, int, struct proc *); int pfread(dev_t, struct uio *, int); int pfwrite(dev_t, struct uio *, int); int pfioctl(dev_t, u_long, caddr_t, int, struct proc *); int pfstop(struct tty *, int); struct tty *pftty(dev_t); int pfpoll(dev_t, int, struct proc *); paddr_t pfmmap(dev_t, off_t, int); int pfkqfilter(dev_t, struct knote *);
-int tunopen(dev_t, int, int, struct proc *); int tunclose(dev_t, int, int, struct proc *); int tunread(dev_t, struct uio *, int); int tunwrite(dev_t, struct uio *, int); int tunioctl(dev_t, u_long, caddr_t, int, struct proc *); int tunstop(struct tty *, int); struct tty *tuntty(dev_t); int tunpoll(dev_t, int, struct proc *); paddr_t tunmmap(dev_t, off_t, int); int tunkqfilter(dev_t, struct knote *);
-int tapopen(dev_t, int, int, struct proc *); int tapclose(dev_t, int, int, struct proc *); int tapread(dev_t, struct uio *, int); int tapwrite(dev_t, struct uio *, int); int tapioctl(dev_t, u_long, caddr_t, int, struct proc *); int tapstop(struct tty *, int); struct tty *taptty(dev_t); int tappoll(dev_t, int, struct proc *); paddr_t tapmmap(dev_t, off_t, int); int tapkqfilter(dev_t, struct knote *);
-int switchopen(dev_t, int, int, struct proc *); int switchclose(dev_t, int, int, struct proc *); int switchread(dev_t, struct uio *, int); int switchwrite(dev_t, struct uio *, int); int switchioctl(dev_t, u_long, caddr_t, int, struct proc *); int switchstop(struct tty *, int); struct tty *switchtty(dev_t); int switchpoll(dev_t, int, struct proc *); paddr_t switchmmap(dev_t, off_t, int); int switchkqfilter(dev_t, struct knote *);
-int pppxopen(dev_t, int, int, struct proc *); int pppxclose(dev_t, int, int, struct proc *); int pppxread(dev_t, struct uio *, int); int pppxwrite(dev_t, struct uio *, int); int pppxioctl(dev_t, u_long, caddr_t, int, struct proc *); int pppxstop(struct tty *, int); struct tty *pppxtty(dev_t); int pppxpoll(dev_t, int, struct proc *); paddr_t pppxmmap(dev_t, off_t, int); int pppxkqfilter(dev_t, struct knote *);
-int randomopen(dev_t, int, int, struct proc *); int randomclose(dev_t, int, int, struct proc *); int randomread(dev_t, struct uio *, int); int randomwrite(dev_t, struct uio *, int); int randomioctl(dev_t, u_long, caddr_t, int, struct proc *); int randomstop(struct tty *, int); struct tty *randomtty(dev_t); int randompoll(dev_t, int, struct proc *); paddr_t randommmap(dev_t, off_t, int); int randomkqfilter(dev_t, struct knote *);
-int wsdisplayopen(dev_t, int, int, struct proc *); int wsdisplayclose(dev_t, int, int, struct proc *); int wsdisplayread(dev_t, struct uio *, int); int wsdisplaywrite(dev_t, struct uio *, int); int wsdisplayioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsdisplaystop(struct tty *, int); struct tty *wsdisplaytty(dev_t); int wsdisplaypoll(dev_t, int, struct proc *); paddr_t wsdisplaymmap(dev_t, off_t, int); int wsdisplaykqfilter(dev_t, struct knote *);
-int wskbdopen(dev_t, int, int, struct proc *); int wskbdclose(dev_t, int, int, struct proc *); int wskbdread(dev_t, struct uio *, int); int wskbdwrite(dev_t, struct uio *, int); int wskbdioctl(dev_t, u_long, caddr_t, int, struct proc *); int wskbdstop(struct tty *, int); struct tty *wskbdtty(dev_t); int wskbdpoll(dev_t, int, struct proc *); paddr_t wskbdmmap(dev_t, off_t, int); int wskbdkqfilter(dev_t, struct knote *);
-int wsmouseopen(dev_t, int, int, struct proc *); int wsmouseclose(dev_t, int, int, struct proc *); int wsmouseread(dev_t, struct uio *, int); int wsmousewrite(dev_t, struct uio *, int); int wsmouseioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmousestop(struct tty *, int); struct tty *wsmousetty(dev_t); int wsmousepoll(dev_t, int, struct proc *); paddr_t wsmousemmap(dev_t, off_t, int); int wsmousekqfilter(dev_t, struct knote *);
-int wsmuxopen(dev_t, int, int, struct proc *); int wsmuxclose(dev_t, int, int, struct proc *); int wsmuxread(dev_t, struct uio *, int); int wsmuxwrite(dev_t, struct uio *, int); int wsmuxioctl(dev_t, u_long, caddr_t, int, struct proc *); int wsmuxstop(struct tty *, int); struct tty *wsmuxtty(dev_t); int wsmuxpoll(dev_t, int, struct proc *); paddr_t wsmuxmmap(dev_t, off_t, int); int wsmuxkqfilter(dev_t, struct knote *);
-int ksymsopen(dev_t, int, int, struct proc *); int ksymsclose(dev_t, int, int, struct proc *); int ksymsread(dev_t, struct uio *, int); int ksymswrite(dev_t, struct uio *, int); int ksymsioctl(dev_t, u_long, caddr_t, int, struct proc *); int ksymsstop(struct tty *, int); struct tty *ksymstty(dev_t); int ksymspoll(dev_t, int, struct proc *); paddr_t ksymsmmap(dev_t, off_t, int); int ksymskqfilter(dev_t, struct knote *);
-int bioopen(dev_t, int, int, struct proc *); int bioclose(dev_t, int, int, struct proc *); int bioread(dev_t, struct uio *, int); int biowrite(dev_t, struct uio *, int); int bioioctl(dev_t, u_long, caddr_t, int, struct proc *); int biostop(struct tty *, int); struct tty *biotty(dev_t); int biopoll(dev_t, int, struct proc *); paddr_t biommap(dev_t, off_t, int); int biokqfilter(dev_t, struct knote *);
-int vscsiopen(dev_t, int, int, struct proc *); int vscsiclose(dev_t, int, int, struct proc *); int vscsiread(dev_t, struct uio *, int); int vscsiwrite(dev_t, struct uio *, int); int vscsiioctl(dev_t, u_long, caddr_t, int, struct proc *); int vscsistop(struct tty *, int); struct tty *vscsitty(dev_t); int vscsipoll(dev_t, int, struct proc *); paddr_t vscsimmap(dev_t, off_t, int); int vscsikqfilter(dev_t, struct knote *);
-int gpropen(dev_t, int, int, struct proc *); int gprclose(dev_t, int, int, struct proc *); int gprread(dev_t, struct uio *, int); int gprwrite(dev_t, struct uio *, int); int gprioctl(dev_t, u_long, caddr_t, int, struct proc *); int gprstop(struct tty *, int); struct tty *gprtty(dev_t); int gprpoll(dev_t, int, struct proc *); paddr_t gprmmap(dev_t, off_t, int); int gprkqfilter(dev_t, struct knote *);
-int bktropen(dev_t, int, int, struct proc *); int bktrclose(dev_t, int, int, struct proc *); int bktrread(dev_t, struct uio *, int); int bktrwrite(dev_t, struct uio *, int); int bktrioctl(dev_t, u_long, caddr_t, int, struct proc *); int bktrstop(struct tty *, int); struct tty *bktrtty(dev_t); int bktrpoll(dev_t, int, struct proc *); paddr_t bktrmmap(dev_t, off_t, int); int bktrkqfilter(dev_t, struct knote *);
-int usbopen(dev_t, int, int, struct proc *); int usbclose(dev_t, int, int, struct proc *); int usbread(dev_t, struct uio *, int); int usbwrite(dev_t, struct uio *, int); int usbioctl(dev_t, u_long, caddr_t, int, struct proc *); int usbstop(struct tty *, int); struct tty *usbtty(dev_t); int usbpoll(dev_t, int, struct proc *); paddr_t usbmmap(dev_t, off_t, int); int usbkqfilter(dev_t, struct knote *);
-int ugenopen(dev_t, int, int, struct proc *); int ugenclose(dev_t, int, int, struct proc *); int ugenread(dev_t, struct uio *, int); int ugenwrite(dev_t, struct uio *, int); int ugenioctl(dev_t, u_long, caddr_t, int, struct proc *); int ugenstop(struct tty *, int); struct tty *ugentty(dev_t); int ugenpoll(dev_t, int, struct proc *); paddr_t ugenmmap(dev_t, off_t, int); int ugenkqfilter(dev_t, struct knote *);
-int uhidopen(dev_t, int, int, struct proc *); int uhidclose(dev_t, int, int, struct proc *); int uhidread(dev_t, struct uio *, int); int uhidwrite(dev_t, struct uio *, int); int uhidioctl(dev_t, u_long, caddr_t, int, struct proc *); int uhidstop(struct tty *, int); struct tty *uhidtty(dev_t); int uhidpoll(dev_t, int, struct proc *); paddr_t uhidmmap(dev_t, off_t, int); int uhidkqfilter(dev_t, struct knote *);
-int ucomopen(dev_t, int, int, struct proc *); int ucomclose(dev_t, int, int, struct proc *); int ucomread(dev_t, struct uio *, int); int ucomwrite(dev_t, struct uio *, int); int ucomioctl(dev_t, u_long, caddr_t, int, struct proc *); int ucomstop(struct tty *, int); struct tty *ucomtty(dev_t); int ucompoll(dev_t, int, struct proc *); paddr_t ucommmap(dev_t, off_t, int); int ucomkqfilter(dev_t, struct knote *);
-int ulptopen(dev_t, int, int, struct proc *); int ulptclose(dev_t, int, int, struct proc *); int ulptread(dev_t, struct uio *, int); int ulptwrite(dev_t, struct uio *, int); int ulptioctl(dev_t, u_long, caddr_t, int, struct proc *); int ulptstop(struct tty *, int); struct tty *ulpttty(dev_t); int ulptpoll(dev_t, int, struct proc *); paddr_t ulptmmap(dev_t, off_t, int); int ulptkqfilter(dev_t, struct knote *);
-int urioopen(dev_t, int, int, struct proc *); int urioclose(dev_t, int, int, struct proc *); int urioread(dev_t, struct uio *, int); int uriowrite(dev_t, struct uio *, int); int urioioctl(dev_t, u_long, caddr_t, int, struct proc *); int uriostop(struct tty *, int); struct tty *uriotty(dev_t); int uriopoll(dev_t, int, struct proc *); paddr_t uriommap(dev_t, off_t, int); int uriokqfilter(dev_t, struct knote *);
-int hotplugopen(dev_t, int, int, struct proc *); int hotplugclose(dev_t, int, int, struct proc *); int hotplugread(dev_t, struct uio *, int); int hotplugwrite(dev_t, struct uio *, int); int hotplugioctl(dev_t, u_long, caddr_t, int, struct proc *); int hotplugstop(struct tty *, int); struct tty *hotplugtty(dev_t); int hotplugpoll(dev_t, int, struct proc *); paddr_t hotplugmmap(dev_t, off_t, int); int hotplugkqfilter(dev_t, struct knote *);
-int gpioopen(dev_t, int, int, struct proc *); int gpioclose(dev_t, int, int, struct proc *); int gpioread(dev_t, struct uio *, int); int gpiowrite(dev_t, struct uio *, int); int gpioioctl(dev_t, u_long, caddr_t, int, struct proc *); int gpiostop(struct tty *, int); struct tty *gpiotty(dev_t); int gpiopoll(dev_t, int, struct proc *); paddr_t gpiommap(dev_t, off_t, int); int gpiokqfilter(dev_t, struct knote *);
-int amdmsropen(dev_t, int, int, struct proc *); int amdmsrclose(dev_t, int, int, struct proc *); int amdmsrread(dev_t, struct uio *, int); int amdmsrwrite(dev_t, struct uio *, int); int amdmsrioctl(dev_t, u_long, caddr_t, int, struct proc *); int amdmsrstop(struct tty *, int); struct tty *amdmsrtty(dev_t); int amdmsrpoll(dev_t, int, struct proc *); paddr_t amdmsrmmap(dev_t, off_t, int); int amdmsrkqfilter(dev_t, struct knote *);
-int fuseopen(dev_t, int, int, struct proc *); int fuseclose(dev_t, int, int, struct proc *); int fuseread(dev_t, struct uio *, int); int fusewrite(dev_t, struct uio *, int); int fuseioctl(dev_t, u_long, caddr_t, int, struct proc *); int fusestop(struct tty *, int); struct tty *fusetty(dev_t); int fusepoll(dev_t, int, struct proc *); paddr_t fusemmap(dev_t, off_t, int); int fusekqfilter(dev_t, struct knote *);
-int pvbusopen(dev_t, int, int, struct proc *); int pvbusclose(dev_t, int, int, struct proc *); int pvbusread(dev_t, struct uio *, int); int pvbuswrite(dev_t, struct uio *, int); int pvbusioctl(dev_t, u_long, caddr_t, int, struct proc *); int pvbusstop(struct tty *, int); struct tty *pvbustty(dev_t); int pvbuspoll(dev_t, int, struct proc *); paddr_t pvbusmmap(dev_t, off_t, int); int pvbuskqfilter(dev_t, struct knote *);
-int ipmiopen(dev_t, int, int, struct proc *); int ipmiclose(dev_t, int, int, struct proc *); int ipmiread(dev_t, struct uio *, int); int ipmiwrite(dev_t, struct uio *, int); int ipmiioctl(dev_t, u_long, caddr_t, int, struct proc *); int ipmistop(struct tty *, int); struct tty *ipmitty(dev_t); int ipmipoll(dev_t, int, struct proc *); paddr_t ipmimmap(dev_t, off_t, int); int ipmikqfilter(dev_t, struct knote *);
-typedef __int_least8_t int_least8_t;
-typedef __uint_least8_t uint_least8_t;
-typedef __int_least16_t int_least16_t;
-typedef __uint_least16_t uint_least16_t;
-typedef __int_least32_t int_least32_t;
-typedef __uint_least32_t uint_least32_t;
-typedef __int_least64_t int_least64_t;
-typedef __uint_least64_t uint_least64_t;
-typedef __int_fast8_t int_fast8_t;
-typedef __uint_fast8_t uint_fast8_t;
-typedef __int_fast16_t int_fast16_t;
-typedef __uint_fast16_t uint_fast16_t;
-typedef __int_fast32_t int_fast32_t;
-typedef __uint_fast32_t uint_fast32_t;
-typedef __int_fast64_t int_fast64_t;
-typedef __uint_fast64_t uint_fast64_t;
-typedef __intptr_t intptr_t;
-typedef __uintptr_t uintptr_t;
-typedef __intmax_t intmax_t;
-typedef __uintmax_t uintmax_t;
-struct mem_range_desc {
- u_int64_t mr_base;
- u_int64_t mr_len;
- int mr_flags;
- char mr_owner[8];
-};
-struct mem_range_op {
- struct mem_range_desc *mo_desc;
- int mo_arg[2];
-};
-struct mem_range_softc;
-struct mem_range_ops {
- void (*init)(struct mem_range_softc *sc);
- int (*set)(struct mem_range_softc *sc,
-      struct mem_range_desc *mrd, int *arg);
- void (*initAP)(struct mem_range_softc *sc);
- void (*reload)(struct mem_range_softc *sc);
-};
-struct mem_range_softc {
- struct mem_range_ops *mr_op;
- int mr_cap;
- int mr_ndesc;
- struct mem_range_desc *mr_desc;
-};
-extern struct mem_range_softc mem_range_softc;
-
-extern void mem_range_attach(void);
-extern int mem_range_attr_get(struct mem_range_desc *mrd, int *arg);
-extern int mem_range_attr_set(struct mem_range_desc *mrd, int *arg);
-extern void mem_range_AP_init(void);
-extern void mem_range_reload(void);
-
-struct extent_region {
- struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
- u_long er_start;
- u_long er_end;
- int er_flags;
-};
-struct extent {
- char *ex_name;
- struct { struct extent_region *lh_first; } ex_regions;
- u_long ex_start;
- u_long ex_end;
- int ex_mtype;
- int ex_flags;
- struct { struct extent *le_next; struct extent **le_prev; } ex_link;
-};
-struct extent_fixed {
- struct extent fex_extent;
- struct { struct extent_region *lh_first; } fex_freelist;
- caddr_t fex_storage;
- size_t fex_storagesize;
-};
-void extent_print_all(void);
-struct extent *extent_create(char *, u_long, u_long, int,
-     caddr_t, size_t, int);
-void extent_destroy(struct extent *);
-int extent_alloc_subregion(struct extent *, u_long, u_long,
-     u_long, u_long, u_long, u_long, int, u_long *);
-int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
-     u_long, u_long, u_long, u_long, int, struct extent_region *,
-     u_long *);
-int extent_alloc_region(struct extent *, u_long, u_long, int);
-int extent_free(struct extent *, u_long, u_long, int);
-void extent_print(struct extent *);
-extern int db_radix;
-extern int db_max_width;
-extern int db_tab_stop_width;
-extern int db_max_line;
-extern int db_panic;
-extern int db_console;
-extern int db_log;
-extern int db_is_active;
-extern int db_profile;
-int ddb_sysctl(int *, u_int, void *, size_t *, void *, size_t,
-         struct proc *);
+static inline int
+_rb_empty(struct rb_tree *rbt)
+{
+ return (rbt->rbt_root == ((void *)0));
+}
+void *_rb_insert(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_remove(const struct rb_type *, struct rb_tree *, void *);
+void *_rb_find(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_nfind(const struct rb_type *, struct rb_tree *, const void *);
+void *_rb_root(const struct rb_type *, struct rb_tree *);
+void *_rb_min(const struct rb_type *, struct rb_tree *);
+void *_rb_max(const struct rb_type *, struct rb_tree *);
+void *_rb_next(const struct rb_type *, void *);
+void *_rb_prev(const struct rb_type *, void *);
+void *_rb_left(const struct rb_type *, void *);
+void *_rb_right(const struct rb_type *, void *);
+void *_rb_parent(const struct rb_type *, void *);
+void _rb_set_left(const struct rb_type *, void *, void *);
+void _rb_set_right(const struct rb_type *, void *, void *);
+void _rb_set_parent(const struct rb_type *, void *, void *);
+void _rb_poison(const struct rb_type *, void *, unsigned long);
+int _rb_check(const struct rb_type *, void *, unsigned long);
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
 typedef off_t voff_t;
@@ -2163,6 +1490,15 @@ extern void sp_tlb_flush_pte(vaddr_t addr, int ctx);
 extern void sp_tlb_flush_ctx(int ctx);
 void smp_tlb_flush_pte(vaddr_t, int);
 void smp_tlb_flush_ctx(int);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 struct page_size_map {
  u_int64_t mask;
  u_int64_t code;
@@ -2714,6 +2050,83 @@ struct process;
 struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
+extern int db_radix;
+extern int db_max_width;
+extern int db_tab_stop_width;
+extern int db_max_line;
+extern int db_panic;
+extern int db_console;
+extern int db_log;
+extern int db_is_active;
+extern int db_profile;
+int ddb_sysctl(int *, u_int, void *, size_t *, void *, size_t,
+         struct proc *);
+typedef uint16_t i2c_addr_t;
+typedef enum {
+ I2C_OP_READ = 0,
+ I2C_OP_READ_WITH_STOP = 1,
+ I2C_OP_WRITE = 2,
+ I2C_OP_WRITE_WITH_STOP = 3,
+} i2c_op_t;
+struct device;
+typedef struct i2c_controller {
+ void *ic_cookie;
+ int (*ic_acquire_bus)(void *, int);
+ void (*ic_release_bus)(void *, int);
+ int (*ic_exec)(void *, i2c_op_t, i2c_addr_t, const void *, size_t,
+      void *, size_t, int);
+ int (*ic_send_start)(void *, int);
+ int (*ic_send_stop)(void *, int);
+ int (*ic_initiate_xfer)(void *, i2c_addr_t, int);
+ int (*ic_read_byte)(void *, uint8_t *, int);
+ int (*ic_write_byte)(void *, uint8_t, int);
+ void *(*ic_intr_establish)(void *, void *, int, int (*)(void *),
+      void *, const char *);
+ const char *(*ic_intr_string)(void *, void *);
+} *i2c_tag_t;
+struct i2cbus_attach_args {
+ const char *iba_name;
+ i2c_tag_t iba_tag;
+ void (*iba_bus_scan)(struct device *, struct i2cbus_attach_args *,
+      void *);
+ void *iba_bus_scan_arg;
+};
+struct i2c_attach_args {
+ i2c_tag_t ia_tag;
+ i2c_addr_t ia_addr;
+ int ia_size;
+ char *ia_name;
+ void *ia_cookie;
+ void *ia_intr;
+};
+int iicbus_print(void *, const char *);
+int iic_exec(i2c_tag_t, i2c_op_t, i2c_addr_t, const void *,
+     size_t, void *, size_t, int);
+int iic_smbus_write_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t, int);
+int iic_smbus_read_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t *, int);
+int iic_smbus_receive_byte(i2c_tag_t, i2c_addr_t, uint8_t *, int);
+void iic_ignore_addr(u_int8_t addr);
+typedef u_int16_t pci_vendor_id_t;
+typedef u_int16_t pci_product_id_t;
+typedef u_int8_t pci_class_t;
+typedef u_int8_t pci_subclass_t;
+typedef u_int8_t pci_interface_t;
+typedef u_int8_t pci_revision_t;
+typedef u_int8_t pci_intr_pin_t;
+typedef u_int8_t pci_intr_line_t;
+struct pci_vpd_smallres {
+ uint8_t vpdres_byte0;
+} __attribute__((__packed__));
+struct pci_vpd_largeres {
+ uint8_t vpdres_byte0;
+ uint8_t vpdres_len_lsb;
+ uint8_t vpdres_len_msb;
+} __attribute__((__packed__));
+struct pci_vpd {
+ uint8_t vpd_key0;
+ uint8_t vpd_key1;
+ uint8_t vpd_len;
+} __attribute__((__packed__));
 enum devclass {
  DV_DULL,
  DV_CPU,
@@ -2805,6 +2218,81 @@ struct device *getdisk(char *str, int len, int defpart, dev_t *devp);
 struct device *parsedisk(char *str, int len, int defpart, dev_t *devp);
 void device_register(struct device *, void *);
 int loadfirmware(const char *name, u_char **bufp, size_t *buflen);
+struct kmemstats {
+ long ks_inuse;
+ long ks_calls;
+ long ks_memuse;
+ u_short ks_limblocks;
+ u_short ks_mapblocks;
+ long ks_maxused;
+ long ks_limit;
+ long ks_size;
+ long ks_spare;
+};
+struct kmemusage {
+ short ku_indx;
+ union {
+  u_short freecnt;
+  u_short pagecnt;
+ } ku_un;
+};
+struct kmem_freelist;
+struct kmembuckets {
+ struct { struct kmem_freelist *sqx_first; struct kmem_freelist **sqx_last; unsigned long sqx_cookie; } kb_freelist;
+ u_int64_t kb_calls;
+ u_int64_t kb_total;
+ u_int64_t kb_totalfree;
+ u_int64_t kb_elmpercl;
+ u_int64_t kb_highwat;
+ u_int64_t kb_couldfree;
+};
+extern struct kmemstats kmemstats[];
+extern struct kmemusage *kmemusage;
+extern char *kmembase;
+extern struct kmembuckets bucket[];
+void *malloc(size_t, int, int);
+void *mallocarray(size_t, size_t, int, int);
+void free(void *, int, size_t);
+int sysctl_malloc(int *, u_int, void *, size_t *, void *, size_t,
+     struct proc *);
+size_t malloc_roundup(size_t);
+void malloc_printit(int (*)(const char *, ...));
+void poison_mem(void *, size_t);
+int poison_check(void *, size_t, size_t *, uint32_t *);
+uint32_t poison_value(void *);
+struct extent_region {
+ struct { struct extent_region *le_next; struct extent_region **le_prev; } er_link;
+ u_long er_start;
+ u_long er_end;
+ int er_flags;
+};
+struct extent {
+ char *ex_name;
+ struct { struct extent_region *lh_first; } ex_regions;
+ u_long ex_start;
+ u_long ex_end;
+ int ex_mtype;
+ int ex_flags;
+ struct { struct extent *le_next; struct extent **le_prev; } ex_link;
+};
+struct extent_fixed {
+ struct extent fex_extent;
+ struct { struct extent_region *lh_first; } fex_freelist;
+ caddr_t fex_storage;
+ size_t fex_storagesize;
+};
+void extent_print_all(void);
+struct extent *extent_create(char *, u_long, u_long, int,
+     caddr_t, size_t, int);
+void extent_destroy(struct extent *);
+int extent_alloc_subregion(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, u_long *);
+int extent_alloc_subregion_with_descr(struct extent *, u_long, u_long,
+     u_long, u_long, u_long, u_long, int, struct extent_region *,
+     u_long *);
+int extent_alloc_region(struct extent *, u_long, u_long, int);
+int extent_free(struct extent *, u_long, u_long, int);
+void extent_print(struct extent *);
 extern int bus_space_debug;
 enum bus_type {
  UPA_BUS_SPACE,
@@ -3458,27 +2946,6 @@ struct sparc_bus_dmamap {
  int dm_nsegs;
  bus_dma_segment_t dm_segs[1];
 };
-typedef u_int16_t pci_vendor_id_t;
-typedef u_int16_t pci_product_id_t;
-typedef u_int8_t pci_class_t;
-typedef u_int8_t pci_subclass_t;
-typedef u_int8_t pci_interface_t;
-typedef u_int8_t pci_revision_t;
-typedef u_int8_t pci_intr_pin_t;
-typedef u_int8_t pci_intr_line_t;
-struct pci_vpd_smallres {
- uint8_t vpdres_byte0;
-} __attribute__((__packed__));
-struct pci_vpd_largeres {
- uint8_t vpdres_byte0;
- uint8_t vpdres_len_lsb;
- uint8_t vpdres_len_msb;
-} __attribute__((__packed__));
-struct pci_vpd {
- uint8_t vpd_key0;
- uint8_t vpd_key1;
- uint8_t vpd_len;
-} __attribute__((__packed__));
 typedef u_int32_t pcireg_t;
 struct pcibus_attach_args;
 struct pci_softc;
@@ -3620,219 +3087,6 @@ void pci_devinfo(pcireg_t, pcireg_t, int, char *, size_t);
 const struct pci_quirkdata *
  pci_lookup_quirkdata(pci_vendor_id_t, pci_product_id_t);
 void pciagp_set_pchb(struct pci_attach_args *);
-struct agp_attach_args {
- char *aa_busname;
- struct pci_attach_args *aa_pa;
-};
-struct agpbus_attach_args {
- char *aa_busname;
-        struct pci_attach_args *aa_pa;
- const struct agp_methods *aa_methods;
- bus_addr_t aa_apaddr;
- bus_size_t aa_apsize;
-};
-enum agp_acquire_state {
- AGP_ACQUIRE_FREE,
- AGP_ACQUIRE_USER,
- AGP_ACQUIRE_KERNEL
-};
-struct agp_info {
- u_int32_t ai_mode;
- bus_addr_t ai_aperture_base;
- bus_size_t ai_aperture_size;
- vsize_t ai_memory_allowed;
- vsize_t ai_memory_used;
- u_int32_t ai_devid;
-};
-struct agp_memory_info {
-        vsize_t ami_size;
-        bus_addr_t ami_physical;
-        off_t ami_offset;
-        int ami_is_bound;
-};
-struct agp_methods {
- void (*bind_page)(void *, bus_addr_t, paddr_t, int);
- void (*unbind_page)(void *, bus_addr_t);
- void (*flush_tlb)(void *);
- int (*enable)(void *, u_int32_t mode);
-};
-struct agp_softc {
- struct device sc_dev;
- const struct agp_methods *sc_methods;
- void *sc_chipc;
- bus_dma_tag_t sc_dmat;
- bus_space_tag_t sc_memt;
- pci_chipset_tag_t sc_pc;
- pcitag_t sc_pcitag;
- bus_addr_t sc_apaddr;
- bus_size_t sc_apsize;
- uint32_t sc_stolen_entries;
- pcireg_t sc_id;
- int sc_opened;
- int sc_capoff;
- int sc_nextid;
- enum agp_acquire_state sc_state;
- u_int32_t sc_maxmem;
- u_int32_t sc_allocated;
-};
-struct agp_gatt {
- u_int32_t ag_entries;
- u_int32_t *ag_virtual;
- bus_addr_t ag_physical;
- bus_dmamap_t ag_dmamap;
- bus_dma_segment_t ag_dmaseg;
- size_t ag_size;
-};
-struct agp_map;
-struct device *agp_attach_bus(struct pci_attach_args *,
-       const struct agp_methods *, bus_addr_t, bus_size_t,
-       struct device *);
-struct agp_gatt *
- agp_alloc_gatt(bus_dma_tag_t, u_int32_t);
-void agp_free_gatt(bus_dma_tag_t, struct agp_gatt *);
-void agp_flush_cache(void);
-void agp_flush_cache_range(vaddr_t, vsize_t);
-int agp_generic_enable(struct agp_softc *, u_int32_t);
-int agp_init_map(bus_space_tag_t, bus_addr_t, bus_size_t, int, struct
-     agp_map **);
-void agp_destroy_map(struct agp_map *);
-int agp_map_subregion(struct agp_map *, bus_size_t, bus_size_t,
-     bus_space_handle_t *);
-void agp_unmap_subregion(struct agp_map *, bus_space_handle_t,
-     bus_size_t);
-void agp_map_atomic(struct agp_map *, bus_size_t, bus_space_handle_t *);
-void agp_unmap_atomic(struct agp_map *, bus_space_handle_t);
-int agp_alloc_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t *,
-     bus_addr_t *, bus_dma_segment_t *);
-void agp_free_dmamem(bus_dma_tag_t, size_t, bus_dmamap_t,
-     bus_dma_segment_t *);
-int agpdev_print(void *, const char *);
-int agpbus_probe(struct agp_attach_args *aa);
-paddr_t agp_mmap(struct agp_softc *, off_t, int);
-void *agp_find_device(int);
-enum agp_acquire_state agp_state(void *);
-void agp_get_info(void *, struct agp_info *);
-int agp_acquire(void *);
-int agp_release(void *);
-int agp_enable(void *, u_int32_t);
-void agp_memory_info(void *, void *, struct agp_memory_info *);
-extern long hostid;
-extern char hostname[256];
-extern int hostnamelen;
-extern char domainname[256];
-extern int domainnamelen;
-extern struct timespec boottime;
-extern struct timezone tz;
-extern int tick;
-extern int tickfix;
-extern int tickfixinterval;
-extern int tickadj;
-extern int ticks;
-extern int hz;
-extern int stathz;
-extern int profhz;
-extern int lbolt;
-extern int tickdelta;
-extern long timedelta;
-extern int64_t adjtimedelta;
-extern struct bintime naptime;
-struct sigacts {
- sig_t ps_sigact[33];
- sigset_t ps_catchmask[33];
- sigset_t ps_sigonstack;
- sigset_t ps_sigintr;
- sigset_t ps_sigreset;
- sigset_t ps_siginfo;
- sigset_t ps_sigignore;
- sigset_t ps_sigcatch;
- int ps_flags;
- int ps_refcnt;
-};
-enum signal_type { SPROCESS, STHREAD, SPROPAGATED };
-int coredump(struct proc *p);
-void execsigs(struct proc *p);
-void gsignal(int pgid, int sig);
-void csignal(pid_t pgid, int signum, uid_t uid, uid_t euid);
-int issignal(struct proc *p);
-void pgsignal(struct pgrp *pgrp, int sig, int checkctty);
-void psignal(struct proc *p, int sig);
-void ptsignal(struct proc *p, int sig, enum signal_type type);
-void siginit(struct process *);
-void trapsignal(struct proc *p, int sig, u_long code, int type,
-     union sigval val);
-void sigexit(struct proc *, int);
-int sigonstack(size_t);
-void setsigvec(struct proc *, int, struct sigaction *);
-int killpg1(struct proc *, int, int, int);
-void signal_init(void);
-struct sigacts *sigactsinit(struct process *);
-struct sigacts *sigactsshare(struct process *);
-void sigstkinit(struct sigaltstack *);
-void sigactsunshare(struct process *);
-void sigactsfree(struct process *);
-void sendsig(sig_t action, int sig, int returnmask, u_long code,
-     int type, union sigval val);
-struct taskq;
-struct task {
- struct { struct task *tqe_next; struct task **tqe_prev; } t_entry;
- void (*t_func)(void *);
- void *t_arg;
- unsigned int t_flags;
-};
-struct task_list { struct task *tqh_first; struct task **tqh_last; };
-extern struct taskq *const systq;
-extern struct taskq *const systqmp;
-struct taskq *taskq_create(const char *, unsigned int, int, unsigned int);
-void taskq_destroy(struct taskq *);
-void taskq_barrier(struct taskq *);
-void task_set(struct task *, void (*)(void *), void *);
-int task_add(struct taskq *, struct task *);
-int task_del(struct taskq *, struct task *);
-typedef uint16_t i2c_addr_t;
-typedef enum {
- I2C_OP_READ = 0,
- I2C_OP_READ_WITH_STOP = 1,
- I2C_OP_WRITE = 2,
- I2C_OP_WRITE_WITH_STOP = 3,
-} i2c_op_t;
-struct device;
-typedef struct i2c_controller {
- void *ic_cookie;
- int (*ic_acquire_bus)(void *, int);
- void (*ic_release_bus)(void *, int);
- int (*ic_exec)(void *, i2c_op_t, i2c_addr_t, const void *, size_t,
-      void *, size_t, int);
- int (*ic_send_start)(void *, int);
- int (*ic_send_stop)(void *, int);
- int (*ic_initiate_xfer)(void *, i2c_addr_t, int);
- int (*ic_read_byte)(void *, uint8_t *, int);
- int (*ic_write_byte)(void *, uint8_t, int);
- void *(*ic_intr_establish)(void *, void *, int, int (*)(void *),
-      void *, const char *);
- const char *(*ic_intr_string)(void *, void *);
-} *i2c_tag_t;
-struct i2cbus_attach_args {
- const char *iba_name;
- i2c_tag_t iba_tag;
- void (*iba_bus_scan)(struct device *, struct i2cbus_attach_args *,
-      void *);
- void *iba_bus_scan_arg;
-};
-struct i2c_attach_args {
- i2c_tag_t ia_tag;
- i2c_addr_t ia_addr;
- int ia_size;
- char *ia_name;
- void *ia_cookie;
- void *ia_intr;
-};
-int iicbus_print(void *, const char *);
-int iic_exec(i2c_tag_t, i2c_op_t, i2c_addr_t, const void *,
-     size_t, void *, size_t, int);
-int iic_smbus_write_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t, int);
-int iic_smbus_read_byte(i2c_tag_t, i2c_addr_t, uint8_t, uint8_t *, int);
-int iic_smbus_receive_byte(i2c_tag_t, i2c_addr_t, uint8_t *, int);
-void iic_ignore_addr(u_int8_t addr);
 typedef int8_t __s8;
 typedef uint8_t __u8;
 typedef int16_t __s16;
@@ -4270,9 +3524,19 @@ _spin_unlock_irqrestore(struct mutex *mtxp, __attribute__((__unused__)) unsigned
 {
  __mtx_leave(mtxp );
 }
+typedef struct wait_queue wait_queue_t;
+struct wait_queue {
+ unsigned int flags;
+ void *private;
+ int (*func)(wait_queue_t *, unsigned, int, void *);
+};
+extern struct mutex sch_mtx;
+extern void *sch_ident;
+extern int sch_priority;
 struct wait_queue_head {
  struct mutex lock;
  unsigned int count;
+ struct wait_queue *_wq;
 };
 typedef struct wait_queue_head wait_queue_head_t;
 static inline void
@@ -4280,6 +3544,41 @@ init_waitqueue_head(wait_queue_head_t *wq)
 {
  do { (void)(((void *)0)); (void)(0); __mtx_init((&wq->lock), ((((6)) > 0 && ((6)) < 12) ? 12 : ((6)))); } while (0);
  wq->count = 0;
+ wq->_wq = ((void *)0);
+}
+static inline void
+__add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+{
+ head->_wq = new;
+}
+static inline void
+__remove_wait_queue(wait_queue_head_t *head, wait_queue_t *old)
+{
+ head->_wq = ((void *)0);
+}
+static inline void
+_wake_up(wait_queue_head_t *wq )
+{
+ __mtx_enter(&wq->lock );
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
+ __mtx_leave(&wq->lock );
+}
+static inline void
+wake_up_all_locked(wait_queue_head_t *wq)
+{
+ if (wq->_wq != ((void *)0) && wq->_wq->func != ((void *)0))
+  wq->_wq->func(wq->_wq, 0, wq->_wq->flags, ((void *)0));
+ else {
+  __mtx_enter(&sch_mtx );
+  wakeup(wq);
+  __mtx_leave(&sch_mtx );
+ }
 }
 struct completion {
  u_int done;
@@ -4691,24 +3990,244 @@ static inline void
 prepare_to_wait(wait_queue_head_t *wq, wait_queue_head_t **wait, int state)
 {
  if (*wait == ((void *)0)) {
-  __mtx_enter(&wq->lock );
+  __mtx_enter(&sch_mtx );
   *wait = wq;
  }
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = wq;
+ sch_priority = state;
 }
 static inline void
 finish_wait(wait_queue_head_t *wq, wait_queue_head_t **wait)
 {
- if (*wait)
-  __mtx_leave(&wq->lock );
+ if (*wait) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
+}
+static inline void
+set_current_state(int state)
+{
+ if (sch_ident != (__curcpu->ci_self)->ci_curproc)
+  __mtx_enter(&sch_mtx );
+ do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ sch_priority = state;
+}
+static inline void
+__set_current_state(int state)
+{
+ ((state == -1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1318, "state == TASK_RUNNING"));
+ if (sch_ident == (__curcpu->ci_self)->ci_curproc) {
+  do { if (((&sch_mtx)->mtx_owner != (__curcpu->ci_self)) && !(panicstr || db_active)) panic("mutex %p not held in %s", (&sch_mtx), __func__); } while (0);
+  sch_ident = ((void *)0);
+  __mtx_leave(&sch_mtx );
+ }
 }
 static inline long
-schedule_timeout(long timeout, wait_queue_head_t **wait)
+schedule_timeout(long timeout)
 {
+ int err;
+ long deadline;
  if (cold) {
   delay((timeout * 1000000) / hz);
-  return -60;
+  return 0;
  }
- return -msleep(*wait, &(*wait)->lock, 22, "schto", timeout);
+ if (timeout == (0x7fffffff)) {
+  err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", 0);
+  sch_ident = (__curcpu->ci_self)->ci_curproc;
+  return timeout;
+ }
+ deadline = ticks + timeout;
+ err = msleep(sch_ident, &sch_mtx, sch_priority, "schto", timeout);
+ timeout = deadline - ticks;
+ if (timeout < 0)
+  timeout = 0;
+ sch_ident = (__curcpu->ci_self)->ci_curproc;
+ return timeout;
+}
+struct seq_file;
+static inline void
+seq_printf(struct seq_file *m, const char *fmt, ...) {};
+struct fence {
+ struct kref refcount;
+ const struct fence_ops *ops;
+ unsigned long flags;
+ unsigned int context;
+ unsigned int seqno;
+ struct mutex *lock;
+ struct list_head cb_list;
+};
+enum fence_flag_bits {
+ FENCE_FLAG_SIGNALED_BIT,
+ FENCE_FLAG_ENABLE_SIGNAL_BIT,
+ FENCE_FLAG_USER_BITS,
+};
+struct fence_ops {
+ const char * (*get_driver_name)(struct fence *);
+ const char * (*get_timeline_name)(struct fence *);
+ _Bool (*enable_signaling)(struct fence *);
+ _Bool (*signaled)(struct fence *);
+ long (*wait)(struct fence *, _Bool, long);
+ void (*release)(struct fence *);
+};
+struct fence_cb;
+typedef void (*fence_func_t)(struct fence *fence, struct fence_cb *cb);
+struct fence_cb {
+ struct list_head node;
+ fence_func_t func;
+};
+unsigned int fence_context_alloc(unsigned int);
+static inline struct fence *
+fence_get(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline struct fence *
+fence_get_rcu(struct fence *fence)
+{
+ if (fence)
+  kref_get(&fence->refcount);
+ return fence;
+}
+static inline void
+fence_release(struct kref *ref)
+{
+ struct fence *fence = ({ const __typeof( ((struct fence *)0)->refcount ) *__mptr = (ref); (struct fence *)( (char *)__mptr - __builtin_offsetof(struct fence, refcount) );});
+ if (fence->ops && fence->ops->release)
+  fence->ops->release(fence);
+ else
+  free(fence, 145, 0);
+}
+static inline void
+fence_put(struct fence *fence)
+{
+ if (fence)
+  kref_put(&fence->refcount, fence_release);
+}
+static inline int
+fence_signal(struct fence *fence)
+{
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ if (test_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags)) {
+  struct fence_cb *cur, *tmp;
+  __mtx_enter(fence->lock );
+  for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+   list_del_init(&cur->node);
+   cur->func(fence, cur);
+  }
+  __mtx_leave(fence->lock );
+ }
+ return 0;
+}
+static inline int
+fence_signal_locked(struct fence *fence)
+{
+ struct fence_cb *cur, *tmp;
+ if (fence == ((void *)0))
+  return -22;
+ if (test_and_set_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return -22;
+ for (cur = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = ((&fence->cb_list)->next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}), tmp = ({ const __typeof( ((__typeof(*cur) *)0)->node ) *__mptr = (cur->node.next); (__typeof(*cur) *)( (char *)__mptr - __builtin_offsetof(__typeof(*cur), node) );}); &cur->node != (&fence->cb_list); cur = tmp, tmp = ({ const __typeof( ((__typeof(*tmp) *)0)->node ) *__mptr = (tmp->node.next); (__typeof(*tmp) *)( (char *)__mptr - __builtin_offsetof(__typeof(*tmp), node) );})) {
+  list_del_init(&cur->node);
+  cur->func(fence, cur);
+ }
+ return 0;
+}
+static inline _Bool
+fence_is_signaled(struct fence *fence)
+{
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  return 1;
+ if (fence->ops->signaled && fence->ops->signaled(fence)) {
+  fence_signal(fence);
+  return 1;
+ }
+ return 0;
+}
+static inline long
+fence_wait_timeout(struct fence *fence, _Bool intr, signed long timeout)
+{
+ if (timeout < 0)
+  return -22;
+ if (timeout == 0)
+  return fence_is_signaled(fence);
+ return fence->ops->wait(fence, intr, timeout);
+}
+static inline long
+fence_wait(struct fence *fence, _Bool intr)
+{
+ return fence_wait_timeout(fence, intr, (0x7fffffff));
+}
+static inline void
+fence_enable_sw_signaling(struct fence *fence)
+{
+ if (!test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags) &&
+     !test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  __mtx_enter(fence->lock );
+  if (!fence->ops->enable_signaling(fence))
+   fence_signal_locked(fence);
+  __mtx_leave(fence->lock );
+ }
+}
+static inline void
+fence_init(struct fence *fence, const struct fence_ops *ops,
+    struct mutex *lock, unsigned context, unsigned seqno)
+{
+ fence->ops = ops;
+ fence->lock = lock;
+ fence->context = context;
+ fence->seqno = seqno;
+ fence->flags = 0;
+ kref_init(&fence->refcount);
+ INIT_LIST_HEAD(&fence->cb_list);
+}
+static inline int
+fence_add_callback(struct fence *fence, struct fence_cb *cb,
+    fence_func_t func)
+{
+ int ret = 0;
+ _Bool was_set;
+ if (({ int __ret = !!(!fence || !func); if (__ret) printf("WARNING %s failed at %s:%d\n", "!fence || !func", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1536); __builtin_expect(!!(__ret), 0); }))
+  return -22;
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+  INIT_LIST_HEAD(&cb->node);
+  return -2;
+ }
+ __mtx_enter(fence->lock );
+ was_set = test_and_set_bit(FENCE_FLAG_ENABLE_SIGNAL_BIT, &fence->flags);
+ if (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+  ret = -2;
+ else if (!was_set) {
+  if (!fence->ops->enable_signaling(fence)) {
+   fence_signal_locked(fence);
+   ret = -2;
+  }
+ }
+ if (!ret) {
+  cb->func = func;
+  list_add_tail(&cb->node, &fence->cb_list);
+ } else
+  INIT_LIST_HEAD(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
+}
+static inline _Bool
+fence_remove_callback(struct fence *fence, struct fence_cb *cb)
+{
+ _Bool ret;
+ __mtx_enter(fence->lock );
+ ret = !list_empty(&cb->node);
+ if (ret)
+  list_del_init(&cb->node);
+ __mtx_leave(fence->lock );
+ return ret;
 }
 struct idr_entry {
  struct { struct idr_entry *spe_left; struct idr_entry *spe_right; } entry;
@@ -5019,7 +4538,7 @@ access_ok(int type, const void *addr, unsigned long size)
 static inline int
 capable(int cap)
 {
- ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 1775, "cap == CAP_SYS_ADMIN"));
+ ((cap == 0x1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_linux.h", 2114, "cap == CAP_SYS_ADMIN"));
  return suser((__curcpu->ci_self)->ci_curproc);
 }
 typedef int pgprot_t;
@@ -5074,6 +4593,48 @@ cpu_relax(void)
   delay(tick);
   jiffies++;
  }
+}
+struct lock_class_key {
+};
+typedef struct {
+ unsigned int sequence;
+} seqcount_t;
+static inline void
+__seqcount_init(seqcount_t *s, const char *name,
+    struct lock_class_key *key)
+{
+ s->sequence = 0;
+}
+static inline unsigned int
+read_seqcount_begin(const seqcount_t *s)
+{
+ unsigned int r;
+ for (;;) {
+  r = s->sequence;
+  if ((r & 1) == 0)
+   break;
+  cpu_relax();
+ }
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return r;
+}
+static inline int
+read_seqcount_retry(const seqcount_t *s, unsigned start)
+{
+ __asm volatile("membar " "#LoadLoad" ::: "memory");
+ return (s->sequence != start);
+}
+static inline void
+write_seqcount_begin(seqcount_t *s)
+{
+ s->sequence++;
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+}
+static inline void
+write_seqcount_end(seqcount_t *s)
+{
+ __asm volatile("membar " "#StoreStore" ::: "memory");
+ s->sequence++;
 }
 static inline uint32_t ror32(uint32_t word, unsigned int shift)
 {
@@ -5279,2675 +4840,6 @@ release_firmware(const struct firmware *fw)
  free(((struct firmware *)(__uintptr_t)(const void *)(fw)), 145, sizeof(*fw));
 }
 void *memchr_inv(const void *, int, size_t);
-typedef unsigned long drm_handle_t;
-typedef unsigned int drm_context_t;
-typedef unsigned int drm_drawable_t;
-typedef unsigned int drm_magic_t;
-struct drm_clip_rect {
- unsigned short x1;
- unsigned short y1;
- unsigned short x2;
- unsigned short y2;
-};
-struct drm_drawable_info {
- unsigned int num_rects;
- struct drm_clip_rect *rects;
-};
-struct drm_tex_region {
- unsigned char next;
- unsigned char prev;
- unsigned char in_use;
- unsigned char padding;
- unsigned int age;
-};
-struct drm_hw_lock {
- __volatile__ unsigned int lock;
- char padding[60];
-};
-struct drm_version {
- int version_major;
- int version_minor;
- int version_patchlevel;
- size_t name_len;
- char *name;
- size_t date_len;
- char *date;
- size_t desc_len;
- char *desc;
-};
-struct drm_unique {
- size_t unique_len;
- char *unique;
-};
-struct drm_list {
- int count;
- struct drm_version *version;
-};
-struct drm_block {
- int unused;
-};
-struct drm_control {
- enum {
-  DRM_ADD_COMMAND,
-  DRM_RM_COMMAND,
-  DRM_INST_HANDLER,
-  DRM_UNINST_HANDLER
- } func;
- int irq;
-};
-enum drm_map_type {
- _DRM_FRAME_BUFFER = 0,
- _DRM_REGISTERS = 1,
- _DRM_SHM = 2,
- _DRM_AGP = 3,
- _DRM_SCATTER_GATHER = 4,
- _DRM_CONSISTENT = 5,
- _DRM_GEM = 6
-};
-enum drm_map_flags {
- _DRM_RESTRICTED = 0x01,
- _DRM_READ_ONLY = 0x02,
- _DRM_LOCKED = 0x04,
- _DRM_KERNEL = 0x08,
- _DRM_WRITE_COMBINING = 0x10,
- _DRM_CONTAINS_LOCK = 0x20,
- _DRM_REMOVABLE = 0x40,
- _DRM_DRIVER = 0x80
-};
-struct drm_ctx_priv_map {
- unsigned int ctx_id;
- void *handle;
-};
-struct drm_map {
- unsigned long offset;
- unsigned long size;
- enum drm_map_type type;
- enum drm_map_flags flags;
- void *handle;
- int mtrr;
-};
-struct drm_client {
- int idx;
- int auth;
- unsigned long pid;
- unsigned long uid;
- unsigned long magic;
- unsigned long iocs;
-};
-enum drm_stat_type {
- _DRM_STAT_LOCK,
- _DRM_STAT_OPENS,
- _DRM_STAT_CLOSES,
- _DRM_STAT_IOCTLS,
- _DRM_STAT_LOCKS,
- _DRM_STAT_UNLOCKS,
- _DRM_STAT_VALUE,
- _DRM_STAT_BYTE,
- _DRM_STAT_COUNT,
- _DRM_STAT_IRQ,
- _DRM_STAT_PRIMARY,
- _DRM_STAT_SECONDARY,
- _DRM_STAT_DMA,
- _DRM_STAT_SPECIAL,
- _DRM_STAT_MISSED
-};
-struct drm_stats {
- unsigned long count;
- struct {
-  unsigned long value;
-  enum drm_stat_type type;
- } data[15];
-};
-enum drm_lock_flags {
- _DRM_LOCK_READY = 0x01,
- _DRM_LOCK_QUIESCENT = 0x02,
- _DRM_LOCK_FLUSH = 0x04,
- _DRM_LOCK_FLUSH_ALL = 0x08,
- _DRM_HALT_ALL_QUEUES = 0x10,
- _DRM_HALT_CUR_QUEUES = 0x20
-};
-struct drm_lock {
- int context;
- enum drm_lock_flags flags;
-};
-enum drm_dma_flags {
- _DRM_DMA_BLOCK = 0x01,
- _DRM_DMA_WHILE_LOCKED = 0x02,
- _DRM_DMA_PRIORITY = 0x04,
- _DRM_DMA_WAIT = 0x10,
- _DRM_DMA_SMALLER_OK = 0x20,
- _DRM_DMA_LARGER_OK = 0x40
-};
-struct drm_buf_desc {
- int count;
- int size;
- int low_mark;
- int high_mark;
- enum {
-  _DRM_PAGE_ALIGN = 0x01,
-  _DRM_AGP_BUFFER = 0x02,
-  _DRM_SG_BUFFER = 0x04,
-  _DRM_FB_BUFFER = 0x08,
-  _DRM_PCI_BUFFER_RO = 0x10
- } flags;
- unsigned long agp_start;
-};
-struct drm_buf_info {
- int count;
- struct drm_buf_desc *list;
-};
-struct drm_buf_free {
- int count;
- int *list;
-};
-struct drm_buf_pub {
- int idx;
- int total;
- int used;
- void *address;
-};
-struct drm_buf_map {
- int count;
- void *virtual;
- struct drm_buf_pub *list;
-};
-struct drm_dma {
- int context;
- int send_count;
- int *send_indices;
- int *send_sizes;
- enum drm_dma_flags flags;
- int request_count;
- int request_size;
- int *request_indices;
- int *request_sizes;
- int granted_count;
-};
-enum drm_ctx_flags {
- _DRM_CONTEXT_PRESERVED = 0x01,
- _DRM_CONTEXT_2DONLY = 0x02
-};
-struct drm_ctx {
- drm_context_t handle;
- enum drm_ctx_flags flags;
-};
-struct drm_ctx_res {
- int count;
- struct drm_ctx *contexts;
-};
-struct drm_draw {
- drm_drawable_t handle;
-};
-typedef enum {
- DRM_DRAWABLE_CLIPRECTS
-} drm_drawable_info_type_t;
-struct drm_update_draw {
- drm_drawable_t handle;
- unsigned int type;
- unsigned int num;
- unsigned long long data;
-};
-struct drm_auth {
- drm_magic_t magic;
-};
-struct drm_irq_busid {
- int irq;
- int busnum;
- int devnum;
- int funcnum;
-};
-enum drm_vblank_seq_type {
- _DRM_VBLANK_ABSOLUTE = 0x0,
- _DRM_VBLANK_RELATIVE = 0x1,
- _DRM_VBLANK_HIGH_CRTC_MASK = 0x0000003e,
- _DRM_VBLANK_EVENT = 0x4000000,
- _DRM_VBLANK_FLIP = 0x8000000,
- _DRM_VBLANK_NEXTONMISS = 0x10000000,
- _DRM_VBLANK_SECONDARY = 0x20000000,
- _DRM_VBLANK_SIGNAL = 0x40000000
-};
-struct drm_wait_vblank_request {
- enum drm_vblank_seq_type type;
- unsigned int sequence;
- unsigned long signal;
-};
-struct drm_wait_vblank_reply {
- enum drm_vblank_seq_type type;
- unsigned int sequence;
- long tval_sec;
- long tval_usec;
-};
-union drm_wait_vblank {
- struct drm_wait_vblank_request request;
- struct drm_wait_vblank_reply reply;
-};
-struct drm_modeset_ctl {
- uint32_t crtc;
- uint32_t cmd;
-};
-struct drm_agp_mode {
- unsigned long mode;
-};
-struct drm_agp_buffer {
- unsigned long size;
- unsigned long handle;
- unsigned long type;
- unsigned long physical;
-};
-struct drm_agp_binding {
- unsigned long handle;
- unsigned long offset;
-};
-struct drm_agp_info {
- int agp_version_major;
- int agp_version_minor;
- unsigned long mode;
- unsigned long aperture_base;
- unsigned long aperture_size;
- unsigned long memory_allowed;
- unsigned long memory_used;
- unsigned short id_vendor;
- unsigned short id_device;
-};
-struct drm_scatter_gather {
- unsigned long size;
- unsigned long handle;
-};
-struct drm_set_version {
- int drm_di_major;
- int drm_di_minor;
- int drm_dd_major;
- int drm_dd_minor;
-};
-struct drm_gem_close {
- uint32_t handle;
- uint32_t pad;
-};
-struct drm_gem_flink {
- uint32_t handle;
- uint32_t name;
-};
-struct drm_gem_open {
- uint32_t name;
- uint32_t handle;
- uint64_t size;
-};
-struct drm_get_cap {
- uint64_t capability;
- uint64_t value;
-};
-struct drm_set_client_cap {
- uint64_t capability;
- uint64_t value;
-};
-struct drm_prime_handle {
- uint32_t handle;
- uint32_t flags;
- int32_t fd;
-};
-struct drm_event {
- u_int32_t type;
- u_int32_t length;
-};
-struct drm_event_vblank {
- struct drm_event base;
- u_int64_t user_data;
- u_int32_t tv_sec;
- u_int32_t tv_usec;
- u_int32_t sequence;
- u_int32_t reserved;
-};
-struct drm_pciinfo {
- uint16_t domain;
- uint8_t bus;
- uint8_t dev;
- uint8_t func;
- uint16_t vendor_id;
- uint16_t device_id;
- uint16_t subvendor_id;
- uint16_t subdevice_id;
- uint8_t revision_id;
-};
-struct drm_mode_modeinfo {
- __u32 clock;
- __u16 hdisplay;
- __u16 hsync_start;
- __u16 hsync_end;
- __u16 htotal;
- __u16 hskew;
- __u16 vdisplay;
- __u16 vsync_start;
- __u16 vsync_end;
- __u16 vtotal;
- __u16 vscan;
- __u32 vrefresh;
- __u32 flags;
- __u32 type;
- char name[32];
-};
-struct drm_mode_card_res {
- __u64 fb_id_ptr;
- __u64 crtc_id_ptr;
- __u64 connector_id_ptr;
- __u64 encoder_id_ptr;
- __u32 count_fbs;
- __u32 count_crtcs;
- __u32 count_connectors;
- __u32 count_encoders;
- __u32 min_width;
- __u32 max_width;
- __u32 min_height;
- __u32 max_height;
-};
-struct drm_mode_crtc {
- __u64 set_connectors_ptr;
- __u32 count_connectors;
- __u32 crtc_id;
- __u32 fb_id;
- __u32 x;
- __u32 y;
- __u32 gamma_size;
- __u32 mode_valid;
- struct drm_mode_modeinfo mode;
-};
-struct drm_mode_set_plane {
- __u32 plane_id;
- __u32 crtc_id;
- __u32 fb_id;
- __u32 flags;
- __s32 crtc_x;
- __s32 crtc_y;
- __u32 crtc_w;
- __u32 crtc_h;
- __u32 src_x;
- __u32 src_y;
- __u32 src_h;
- __u32 src_w;
-};
-struct drm_mode_get_plane {
- __u32 plane_id;
- __u32 crtc_id;
- __u32 fb_id;
- __u32 possible_crtcs;
- __u32 gamma_size;
- __u32 count_format_types;
- __u64 format_type_ptr;
-};
-struct drm_mode_get_plane_res {
- __u64 plane_id_ptr;
- __u32 count_planes;
-};
-struct drm_mode_get_encoder {
- __u32 encoder_id;
- __u32 encoder_type;
- __u32 crtc_id;
- __u32 possible_crtcs;
- __u32 possible_clones;
-};
-struct drm_mode_get_connector {
- __u64 encoders_ptr;
- __u64 modes_ptr;
- __u64 props_ptr;
- __u64 prop_values_ptr;
- __u32 count_modes;
- __u32 count_props;
- __u32 count_encoders;
- __u32 encoder_id;
- __u32 connector_id;
- __u32 connector_type;
- __u32 connector_type_id;
- __u32 connection;
- __u32 mm_width;
- __u32 mm_height;
- __u32 subpixel;
- __u32 pad;
-};
-struct drm_mode_property_enum {
- __u64 value;
- char name[32];
-};
-struct drm_mode_get_property {
- __u64 values_ptr;
- __u64 enum_blob_ptr;
- __u32 prop_id;
- __u32 flags;
- char name[32];
- __u32 count_values;
- __u32 count_enum_blobs;
-};
-struct drm_mode_connector_set_property {
- __u64 value;
- __u32 prop_id;
- __u32 connector_id;
-};
-struct drm_mode_obj_get_properties {
- __u64 props_ptr;
- __u64 prop_values_ptr;
- __u32 count_props;
- __u32 obj_id;
- __u32 obj_type;
-};
-struct drm_mode_obj_set_property {
- __u64 value;
- __u32 prop_id;
- __u32 obj_id;
- __u32 obj_type;
-};
-struct drm_mode_get_blob {
- __u32 blob_id;
- __u32 length;
- __u64 data;
-};
-struct drm_mode_fb_cmd {
- __u32 fb_id;
- __u32 width;
- __u32 height;
- __u32 pitch;
- __u32 bpp;
- __u32 depth;
- __u32 handle;
-};
-struct drm_mode_fb_cmd2 {
- __u32 fb_id;
- __u32 width;
- __u32 height;
- __u32 pixel_format;
- __u32 flags;
- __u32 handles[4];
- __u32 pitches[4];
- __u32 offsets[4];
- __u64 modifier[4];
-};
-struct drm_mode_fb_dirty_cmd {
- __u32 fb_id;
- __u32 flags;
- __u32 color;
- __u32 num_clips;
- __u64 clips_ptr;
-};
-struct drm_mode_mode_cmd {
- __u32 connector_id;
- struct drm_mode_modeinfo mode;
-};
-struct drm_mode_cursor {
- __u32 flags;
- __u32 crtc_id;
- __s32 x;
- __s32 y;
- __u32 width;
- __u32 height;
- __u32 handle;
-};
-struct drm_mode_cursor2 {
- __u32 flags;
- __u32 crtc_id;
- __s32 x;
- __s32 y;
- __u32 width;
- __u32 height;
- __u32 handle;
- __s32 hot_x;
- __s32 hot_y;
-};
-struct drm_mode_crtc_lut {
- __u32 crtc_id;
- __u32 gamma_size;
- __u64 red;
- __u64 green;
- __u64 blue;
-};
-struct drm_mode_crtc_page_flip {
- __u32 crtc_id;
- __u32 fb_id;
- __u32 flags;
- __u32 reserved;
- __u64 user_data;
-};
-struct drm_mode_create_dumb {
- uint32_t height;
- uint32_t width;
- uint32_t bpp;
- uint32_t flags;
- uint32_t handle;
- uint32_t pitch;
- uint64_t size;
-};
-struct drm_mode_map_dumb {
- __u32 handle;
- __u32 pad;
- __u64 offset;
-};
-struct drm_mode_destroy_dumb {
- uint32_t handle;
-};
-struct drm_mode_atomic {
- __u32 flags;
- __u32 count_objs;
- __u64 objs_ptr;
- __u64 count_props_ptr;
- __u64 props_ptr;
- __u64 prop_values_ptr;
- __u64 reserved;
- __u64 user_data;
-};
-struct drm_mode_create_blob {
- __u64 data;
- __u32 length;
- __u32 blob_id;
-};
-struct drm_mode_destroy_blob {
- __u32 blob_id;
-};
-typedef struct drm_clip_rect drm_clip_rect_t;
-typedef struct drm_drawable_info drm_drawable_info_t;
-typedef struct drm_tex_region drm_tex_region_t;
-typedef struct drm_hw_lock drm_hw_lock_t;
-typedef struct drm_version drm_version_t;
-typedef struct drm_unique drm_unique_t;
-typedef struct drm_list drm_list_t;
-typedef struct drm_block drm_block_t;
-typedef struct drm_control drm_control_t;
-typedef enum drm_map_type drm_map_type_t;
-typedef enum drm_map_flags drm_map_flags_t;
-typedef struct drm_ctx_priv_map drm_ctx_priv_map_t;
-typedef struct drm_map drm_map_t;
-typedef struct drm_client drm_client_t;
-typedef enum drm_stat_type drm_stat_type_t;
-typedef struct drm_stats drm_stats_t;
-typedef enum drm_lock_flags drm_lock_flags_t;
-typedef struct drm_lock drm_lock_t;
-typedef enum drm_dma_flags drm_dma_flags_t;
-typedef struct drm_buf_desc drm_buf_desc_t;
-typedef struct drm_buf_info drm_buf_info_t;
-typedef struct drm_buf_free drm_buf_free_t;
-typedef struct drm_buf_pub drm_buf_pub_t;
-typedef struct drm_buf_map drm_buf_map_t;
-typedef struct drm_dma drm_dma_t;
-typedef union drm_wait_vblank drm_wait_vblank_t;
-typedef struct drm_agp_mode drm_agp_mode_t;
-typedef enum drm_ctx_flags drm_ctx_flags_t;
-typedef struct drm_ctx drm_ctx_t;
-typedef struct drm_ctx_res drm_ctx_res_t;
-typedef struct drm_draw drm_draw_t;
-typedef struct drm_update_draw drm_update_draw_t;
-typedef struct drm_auth drm_auth_t;
-typedef struct drm_irq_busid drm_irq_busid_t;
-typedef enum drm_vblank_seq_type drm_vblank_seq_type_t;
-typedef struct drm_agp_buffer drm_agp_buffer_t;
-typedef struct drm_agp_binding drm_agp_binding_t;
-typedef struct drm_agp_info drm_agp_info_t;
-typedef struct drm_scatter_gather drm_scatter_gather_t;
-typedef struct drm_set_version drm_set_version_t;
-enum drm_mm_search_flags {
- DRM_MM_SEARCH_DEFAULT = 0,
- DRM_MM_SEARCH_BEST = 1 << 0,
- DRM_MM_SEARCH_BELOW = 1 << 1,
-};
-enum drm_mm_allocator_flags {
- DRM_MM_CREATE_DEFAULT = 0,
- DRM_MM_CREATE_TOP = 1 << 0,
-};
-struct drm_mm_node {
- struct list_head node_list;
- struct list_head hole_stack;
- unsigned hole_follows : 1;
- unsigned scanned_block : 1;
- unsigned scanned_prev_free : 1;
- unsigned scanned_next_free : 1;
- unsigned scanned_preceeds_hole : 1;
- unsigned allocated : 1;
- unsigned long color;
- u64 start;
- u64 size;
- struct drm_mm *mm;
-};
-struct drm_mm {
- struct list_head hole_stack;
- struct drm_mm_node head_node;
- unsigned int scan_check_range : 1;
- unsigned scan_alignment;
- unsigned long scan_color;
- u64 scan_size;
- u64 scan_hit_start;
- u64 scan_hit_end;
- unsigned scanned_blocks;
- u64 scan_start;
- u64 scan_end;
- struct drm_mm_node *prev_scanned_node;
- void (*color_adjust)(struct drm_mm_node *node, unsigned long color,
-        u64 *start, u64 *end);
-};
-static inline _Bool drm_mm_node_allocated(struct drm_mm_node *node)
-{
- return node->allocated;
-}
-static inline _Bool drm_mm_initialized(struct drm_mm *mm)
-{
- return mm->hole_stack.next;
-}
-static inline u64 __drm_mm_hole_node_start(struct drm_mm_node *hole_node)
-{
- return hole_node->start + hole_node->size;
-}
-static inline u64 drm_mm_hole_node_start(struct drm_mm_node *hole_node)
-{
- ((!(!hole_node->hole_follows)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_mm.h", 149, "!(!hole_node->hole_follows)"));
- return __drm_mm_hole_node_start(hole_node);
-}
-static inline u64 __drm_mm_hole_node_end(struct drm_mm_node *hole_node)
-{
- return ({ const __typeof( ((typeof(*(hole_node)) *)0)->node_list ) *__mptr = (((hole_node)->node_list.next)); (typeof(*(hole_node)) *)( (char *)__mptr - __builtin_offsetof(typeof(*(hole_node)), node_list) );})->start;
-}
-static inline u64 drm_mm_hole_node_end(struct drm_mm_node *hole_node)
-{
- return __drm_mm_hole_node_end(hole_node);
-}
-int drm_mm_reserve_node(struct drm_mm *mm, struct drm_mm_node *node);
-int drm_mm_insert_node_generic(struct drm_mm *mm,
-          struct drm_mm_node *node,
-          u64 size,
-          unsigned alignment,
-          unsigned long color,
-          enum drm_mm_search_flags sflags,
-          enum drm_mm_allocator_flags aflags);
-static inline int drm_mm_insert_node(struct drm_mm *mm,
-         struct drm_mm_node *node,
-         u64 size,
-         unsigned alignment,
-         enum drm_mm_search_flags flags)
-{
- return drm_mm_insert_node_generic(mm, node, size, alignment, 0, flags,
-       DRM_MM_CREATE_DEFAULT);
-}
-int drm_mm_insert_node_in_range_generic(struct drm_mm *mm,
-     struct drm_mm_node *node,
-     u64 size,
-     unsigned alignment,
-     unsigned long color,
-     u64 start,
-     u64 end,
-     enum drm_mm_search_flags sflags,
-     enum drm_mm_allocator_flags aflags);
-static inline int drm_mm_insert_node_in_range(struct drm_mm *mm,
-           struct drm_mm_node *node,
-           u64 size,
-           unsigned alignment,
-           u64 start,
-           u64 end,
-           enum drm_mm_search_flags flags)
-{
- return drm_mm_insert_node_in_range_generic(mm, node, size, alignment,
-         0, start, end, flags,
-         DRM_MM_CREATE_DEFAULT);
-}
-void drm_mm_remove_node(struct drm_mm_node *node);
-void drm_mm_replace_node(struct drm_mm_node *old, struct drm_mm_node *new);
-void drm_mm_init(struct drm_mm *mm,
-   u64 start,
-   u64 size);
-void drm_mm_takedown(struct drm_mm *mm);
-_Bool drm_mm_clean(struct drm_mm *mm);
-void drm_mm_init_scan(struct drm_mm *mm,
-        u64 size,
-        unsigned alignment,
-        unsigned long color);
-void drm_mm_init_scan_with_range(struct drm_mm *mm,
-     u64 size,
-     unsigned alignment,
-     unsigned long color,
-     u64 start,
-     u64 end);
-_Bool drm_mm_scan_add_block(struct drm_mm_node *node);
-_Bool drm_mm_scan_remove_block(struct drm_mm_node *node);
-void drm_mm_debug_table(struct drm_mm *mm, const char *prefix);
-struct rb_node {
- struct { struct rb_node *rbe_left; struct rb_node *rbe_right; struct rb_node *rbe_parent; int rbe_color; } __entry;
-};
-struct rb_root {
- struct rb_node *rb_node;
-};
-int panic_cmp(struct rb_node *one, struct rb_node *two);
-struct linux_root { struct rb_node *rbh_root; };
- void linux_root_RB_INSERT_COLOR(struct linux_root *, struct rb_node *); void linux_root_RB_REMOVE_COLOR(struct linux_root *, struct rb_node *, struct rb_node *); struct rb_node *linux_root_RB_REMOVE(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_INSERT(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_FIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NFIND(struct linux_root *, struct rb_node *); struct rb_node *linux_root_RB_NEXT(struct rb_node *); struct rb_node *linux_root_RB_PREV(struct rb_node *); struct rb_node *linux_root_RB_MINMAX(struct linux_root *, int);;
-static inline void
-rb_link_node(struct rb_node *node, struct rb_node *parent,
-    struct rb_node **rb_link)
-{
- ((node))->__entry.rbe_parent = (parent);
- ((node))->__entry.rbe_color = (1);
- node->__entry.rbe_left = node->__entry.rbe_right = ((void *)0);
- *rb_link = node;
-}
-static inline void
-rb_replace_node(struct rb_node *victim, struct rb_node *new,
-    struct rb_root *root)
-{
- struct rb_node *p;
- p = (victim)->__entry.rbe_parent;
- if (p) {
-  if (p->__entry.rbe_left == victim)
-   p->__entry.rbe_left = new;
-  else
-   p->__entry.rbe_right = new;
- } else
-  root->rb_node = new;
- if (victim->__entry.rbe_left)
-  ((victim->__entry.rbe_left))->__entry.rbe_parent = (new);
- if (victim->__entry.rbe_right)
-  ((victim->__entry.rbe_right))->__entry.rbe_parent = (new);
- *new = *victim;
-}
-struct drm_vma_offset_file {
- struct rb_node vm_rb;
- struct file *vm_filp;
- unsigned long vm_count;
-};
-struct drm_vma_offset_node {
- rwlock_t vm_lock;
- struct drm_mm_node vm_node;
- struct rb_node vm_rb;
- struct rb_root vm_files;
-};
-struct drm_vma_offset_manager {
- rwlock_t vm_lock;
- struct rb_root vm_addr_space_rb;
- struct drm_mm vm_addr_space_mm;
-};
-void drm_vma_offset_manager_init(struct drm_vma_offset_manager *mgr,
-     unsigned long page_offset, unsigned long size);
-void drm_vma_offset_manager_destroy(struct drm_vma_offset_manager *mgr);
-struct drm_vma_offset_node *drm_vma_offset_lookup(struct drm_vma_offset_manager *mgr,
-        unsigned long start,
-        unsigned long pages);
-struct drm_vma_offset_node *drm_vma_offset_lookup_locked(struct drm_vma_offset_manager *mgr,
-          unsigned long start,
-          unsigned long pages);
-int drm_vma_offset_add(struct drm_vma_offset_manager *mgr,
-         struct drm_vma_offset_node *node, unsigned long pages);
-void drm_vma_offset_remove(struct drm_vma_offset_manager *mgr,
-      struct drm_vma_offset_node *node);
-int drm_vma_node_allow(struct drm_vma_offset_node *node, struct file *filp);
-void drm_vma_node_revoke(struct drm_vma_offset_node *node, struct file *filp);
-_Bool drm_vma_node_is_allowed(struct drm_vma_offset_node *node,
-        struct file *filp);
-static inline struct drm_vma_offset_node *
-drm_vma_offset_exact_lookup(struct drm_vma_offset_manager *mgr,
-       unsigned long start,
-       unsigned long pages)
-{
- struct drm_vma_offset_node *node;
- node = drm_vma_offset_lookup(mgr, start, pages);
- return (node && node->vm_node.start == start) ? node : ((void *)0);
-}
-static inline void drm_vma_offset_lock_lookup(struct drm_vma_offset_manager *mgr)
-{
- _rw_enter_read(&mgr->vm_lock );
-}
-static inline void drm_vma_offset_unlock_lookup(struct drm_vma_offset_manager *mgr)
-{
- _rw_exit_read(&mgr->vm_lock );
-}
-static inline void drm_vma_node_reset(struct drm_vma_offset_node *node)
-{
- __builtin_memset((node), (0), (sizeof(*node)));
- node->vm_files = (struct rb_root) { ((void *)0) };
- _rw_init_flags(&node->vm_lock, "drmvma", 0, ((void *)0));
-}
-static inline unsigned long drm_vma_node_start(struct drm_vma_offset_node *node)
-{
- return node->vm_node.start;
-}
-static inline unsigned long drm_vma_node_size(struct drm_vma_offset_node *node)
-{
- return node->vm_node.size;
-}
-static inline _Bool drm_vma_node_has_offset(struct drm_vma_offset_node *node)
-{
- return drm_mm_node_allocated(&node->vm_node);
-}
-static inline __u64 drm_vma_node_offset_addr(struct drm_vma_offset_node *node)
-{
- return ((__u64)node->vm_node.start) << 13;
-}
-static inline void drm_vma_node_unmap(struct drm_vma_offset_node *node,
-          struct address_space *file_mapping)
-{
- if (file_mapping && drm_vma_node_has_offset(node))
-  ;
-}
-static inline int drm_vma_node_verify_access(struct drm_vma_offset_node *node,
-          struct file *filp)
-{
- return drm_vma_node_is_allowed(node, filp) ? 0 : -13;
-}
-enum hdmi_infoframe_type {
- HDMI_INFOFRAME_TYPE_VENDOR = 0x81,
- HDMI_INFOFRAME_TYPE_AVI = 0x82,
- HDMI_INFOFRAME_TYPE_SPD = 0x83,
- HDMI_INFOFRAME_TYPE_AUDIO = 0x84,
-};
-struct hdmi_any_infoframe {
- enum hdmi_infoframe_type type;
- unsigned char version;
- unsigned char length;
-};
-enum hdmi_colorspace {
- HDMI_COLORSPACE_RGB,
- HDMI_COLORSPACE_YUV422,
- HDMI_COLORSPACE_YUV444,
- HDMI_COLORSPACE_YUV420,
- HDMI_COLORSPACE_RESERVED4,
- HDMI_COLORSPACE_RESERVED5,
- HDMI_COLORSPACE_RESERVED6,
- HDMI_COLORSPACE_IDO_DEFINED,
-};
-enum hdmi_scan_mode {
- HDMI_SCAN_MODE_NONE,
- HDMI_SCAN_MODE_OVERSCAN,
- HDMI_SCAN_MODE_UNDERSCAN,
- HDMI_SCAN_MODE_RESERVED,
-};
-enum hdmi_colorimetry {
- HDMI_COLORIMETRY_NONE,
- HDMI_COLORIMETRY_ITU_601,
- HDMI_COLORIMETRY_ITU_709,
- HDMI_COLORIMETRY_EXTENDED,
-};
-enum hdmi_picture_aspect {
- HDMI_PICTURE_ASPECT_NONE,
- HDMI_PICTURE_ASPECT_4_3,
- HDMI_PICTURE_ASPECT_16_9,
- HDMI_PICTURE_ASPECT_RESERVED,
-};
-enum hdmi_active_aspect {
- HDMI_ACTIVE_ASPECT_16_9_TOP = 2,
- HDMI_ACTIVE_ASPECT_14_9_TOP = 3,
- HDMI_ACTIVE_ASPECT_16_9_CENTER = 4,
- HDMI_ACTIVE_ASPECT_PICTURE = 8,
- HDMI_ACTIVE_ASPECT_4_3 = 9,
- HDMI_ACTIVE_ASPECT_16_9 = 10,
- HDMI_ACTIVE_ASPECT_14_9 = 11,
- HDMI_ACTIVE_ASPECT_4_3_SP_14_9 = 13,
- HDMI_ACTIVE_ASPECT_16_9_SP_14_9 = 14,
- HDMI_ACTIVE_ASPECT_16_9_SP_4_3 = 15,
-};
-enum hdmi_extended_colorimetry {
- HDMI_EXTENDED_COLORIMETRY_XV_YCC_601,
- HDMI_EXTENDED_COLORIMETRY_XV_YCC_709,
- HDMI_EXTENDED_COLORIMETRY_S_YCC_601,
- HDMI_EXTENDED_COLORIMETRY_ADOBE_YCC_601,
- HDMI_EXTENDED_COLORIMETRY_ADOBE_RGB,
- HDMI_EXTENDED_COLORIMETRY_BT2020_CONST_LUM,
- HDMI_EXTENDED_COLORIMETRY_BT2020,
- HDMI_EXTENDED_COLORIMETRY_RESERVED,
-};
-enum hdmi_quantization_range {
- HDMI_QUANTIZATION_RANGE_DEFAULT,
- HDMI_QUANTIZATION_RANGE_LIMITED,
- HDMI_QUANTIZATION_RANGE_FULL,
- HDMI_QUANTIZATION_RANGE_RESERVED,
-};
-enum hdmi_nups {
- HDMI_NUPS_UNKNOWN,
- HDMI_NUPS_HORIZONTAL,
- HDMI_NUPS_VERTICAL,
- HDMI_NUPS_BOTH,
-};
-enum hdmi_ycc_quantization_range {
- HDMI_YCC_QUANTIZATION_RANGE_LIMITED,
- HDMI_YCC_QUANTIZATION_RANGE_FULL,
-};
-enum hdmi_content_type {
- HDMI_CONTENT_TYPE_GRAPHICS,
- HDMI_CONTENT_TYPE_PHOTO,
- HDMI_CONTENT_TYPE_CINEMA,
- HDMI_CONTENT_TYPE_GAME,
-};
-struct hdmi_avi_infoframe {
- enum hdmi_infoframe_type type;
- unsigned char version;
- unsigned char length;
- enum hdmi_colorspace colorspace;
- enum hdmi_scan_mode scan_mode;
- enum hdmi_colorimetry colorimetry;
- enum hdmi_picture_aspect picture_aspect;
- enum hdmi_active_aspect active_aspect;
- _Bool itc;
- enum hdmi_extended_colorimetry extended_colorimetry;
- enum hdmi_quantization_range quantization_range;
- enum hdmi_nups nups;
- unsigned char video_code;
- enum hdmi_ycc_quantization_range ycc_quantization_range;
- enum hdmi_content_type content_type;
- unsigned char pixel_repeat;
- unsigned short top_bar;
- unsigned short bottom_bar;
- unsigned short left_bar;
- unsigned short right_bar;
-};
-int hdmi_avi_infoframe_init(struct hdmi_avi_infoframe *frame);
-ssize_t hdmi_avi_infoframe_pack(struct hdmi_avi_infoframe *frame, void *buffer,
-    size_t size);
-enum hdmi_spd_sdi {
- HDMI_SPD_SDI_UNKNOWN,
- HDMI_SPD_SDI_DSTB,
- HDMI_SPD_SDI_DVDP,
- HDMI_SPD_SDI_DVHS,
- HDMI_SPD_SDI_HDDVR,
- HDMI_SPD_SDI_DVC,
- HDMI_SPD_SDI_DSC,
- HDMI_SPD_SDI_VCD,
- HDMI_SPD_SDI_GAME,
- HDMI_SPD_SDI_PC,
- HDMI_SPD_SDI_BD,
- HDMI_SPD_SDI_SACD,
- HDMI_SPD_SDI_HDDVD,
- HDMI_SPD_SDI_PMP,
-};
-struct hdmi_spd_infoframe {
- enum hdmi_infoframe_type type;
- unsigned char version;
- unsigned char length;
- char vendor[8];
- char product[16];
- enum hdmi_spd_sdi sdi;
-};
-int hdmi_spd_infoframe_init(struct hdmi_spd_infoframe *frame,
-       const char *vendor, const char *product);
-ssize_t hdmi_spd_infoframe_pack(struct hdmi_spd_infoframe *frame, void *buffer,
-    size_t size);
-enum hdmi_audio_coding_type {
- HDMI_AUDIO_CODING_TYPE_STREAM,
- HDMI_AUDIO_CODING_TYPE_PCM,
- HDMI_AUDIO_CODING_TYPE_AC3,
- HDMI_AUDIO_CODING_TYPE_MPEG1,
- HDMI_AUDIO_CODING_TYPE_MP3,
- HDMI_AUDIO_CODING_TYPE_MPEG2,
- HDMI_AUDIO_CODING_TYPE_AAC_LC,
- HDMI_AUDIO_CODING_TYPE_DTS,
- HDMI_AUDIO_CODING_TYPE_ATRAC,
- HDMI_AUDIO_CODING_TYPE_DSD,
- HDMI_AUDIO_CODING_TYPE_EAC3,
- HDMI_AUDIO_CODING_TYPE_DTS_HD,
- HDMI_AUDIO_CODING_TYPE_MLP,
- HDMI_AUDIO_CODING_TYPE_DST,
- HDMI_AUDIO_CODING_TYPE_WMA_PRO,
- HDMI_AUDIO_CODING_TYPE_CXT,
-};
-enum hdmi_audio_sample_size {
- HDMI_AUDIO_SAMPLE_SIZE_STREAM,
- HDMI_AUDIO_SAMPLE_SIZE_16,
- HDMI_AUDIO_SAMPLE_SIZE_20,
- HDMI_AUDIO_SAMPLE_SIZE_24,
-};
-enum hdmi_audio_sample_frequency {
- HDMI_AUDIO_SAMPLE_FREQUENCY_STREAM,
- HDMI_AUDIO_SAMPLE_FREQUENCY_32000,
- HDMI_AUDIO_SAMPLE_FREQUENCY_44100,
- HDMI_AUDIO_SAMPLE_FREQUENCY_48000,
- HDMI_AUDIO_SAMPLE_FREQUENCY_88200,
- HDMI_AUDIO_SAMPLE_FREQUENCY_96000,
- HDMI_AUDIO_SAMPLE_FREQUENCY_176400,
- HDMI_AUDIO_SAMPLE_FREQUENCY_192000,
-};
-enum hdmi_audio_coding_type_ext {
- HDMI_AUDIO_CODING_TYPE_EXT_CT,
- HDMI_AUDIO_CODING_TYPE_EXT_HE_AAC,
- HDMI_AUDIO_CODING_TYPE_EXT_HE_AAC_V2,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG_SURROUND,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG4_HE_AAC,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG4_HE_AAC_V2,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG4_AAC_LC,
- HDMI_AUDIO_CODING_TYPE_EXT_DRA,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG4_HE_AAC_SURROUND,
- HDMI_AUDIO_CODING_TYPE_EXT_MPEG4_AAC_LC_SURROUND = 10,
-};
-struct hdmi_audio_infoframe {
- enum hdmi_infoframe_type type;
- unsigned char version;
- unsigned char length;
- unsigned char channels;
- enum hdmi_audio_coding_type coding_type;
- enum hdmi_audio_sample_size sample_size;
- enum hdmi_audio_sample_frequency sample_frequency;
- enum hdmi_audio_coding_type_ext coding_type_ext;
- unsigned char channel_allocation;
- unsigned char level_shift_value;
- _Bool downmix_inhibit;
-};
-int hdmi_audio_infoframe_init(struct hdmi_audio_infoframe *frame);
-ssize_t hdmi_audio_infoframe_pack(struct hdmi_audio_infoframe *frame,
-      void *buffer, size_t size);
-enum hdmi_3d_structure {
- HDMI_3D_STRUCTURE_INVALID = -1,
- HDMI_3D_STRUCTURE_FRAME_PACKING = 0,
- HDMI_3D_STRUCTURE_FIELD_ALTERNATIVE,
- HDMI_3D_STRUCTURE_LINE_ALTERNATIVE,
- HDMI_3D_STRUCTURE_SIDE_BY_SIDE_FULL,
- HDMI_3D_STRUCTURE_L_DEPTH,
- HDMI_3D_STRUCTURE_L_DEPTH_GFX_GFX_DEPTH,
- HDMI_3D_STRUCTURE_TOP_AND_BOTTOM,
- HDMI_3D_STRUCTURE_SIDE_BY_SIDE_HALF = 8,
-};
-struct hdmi_vendor_infoframe {
- enum hdmi_infoframe_type type;
- unsigned char version;
- unsigned char length;
- unsigned int oui;
- u8 vic;
- enum hdmi_3d_structure s3d_struct;
- unsigned int s3d_ext_data;
-};
-int hdmi_vendor_infoframe_init(struct hdmi_vendor_infoframe *frame);
-ssize_t hdmi_vendor_infoframe_pack(struct hdmi_vendor_infoframe *frame,
-       void *buffer, size_t size);
-union hdmi_vendor_any_infoframe {
- struct {
-  enum hdmi_infoframe_type type;
-  unsigned char version;
-  unsigned char length;
-  unsigned int oui;
- } any;
- struct hdmi_vendor_infoframe hdmi;
-};
-union hdmi_infoframe {
- struct hdmi_any_infoframe any;
- struct hdmi_avi_infoframe avi;
- struct hdmi_spd_infoframe spd;
- union hdmi_vendor_any_infoframe vendor;
- struct hdmi_audio_infoframe audio;
-};
-ssize_t
-hdmi_infoframe_pack(union hdmi_infoframe *frame, void *buffer, size_t size);
-int hdmi_infoframe_unpack(union hdmi_infoframe *frame, void *buffer);
-void hdmi_infoframe_log(const char *level, struct device *dev,
-   union hdmi_infoframe *frame);
-struct ww_class {
- volatile u_long stamp;
- const char *name;
-};
-struct ww_acquire_ctx {
- u_long stamp;
- struct ww_class *ww_class;
-};
-struct ww_mutex {
- struct mutex lock;
- volatile int acquired;
- volatile struct ww_acquire_ctx *ctx;
- volatile struct proc *owner;
-};
-static inline void
-ww_acquire_init(struct ww_acquire_ctx *ctx, struct ww_class *ww_class) {
- ctx->stamp = __sync_fetch_and_add(&ww_class->stamp, 1);
- ctx->ww_class = ww_class;
-}
-static inline void
-ww_acquire_done(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
-}
-static inline void
-ww_acquire_fini(__attribute__((__unused__)) struct ww_acquire_ctx *ctx) {
-}
-static inline void
-ww_mutex_init(struct ww_mutex *lock, struct ww_class *ww_class) {
- do { (void)(((void *)0)); (void)(0); __mtx_init((&lock->lock), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
- lock->acquired = 0;
- lock->ctx = ((void *)0);
- lock->owner = ((void *)0);
-}
-static inline _Bool
-ww_mutex_is_locked(struct ww_mutex *lock) {
- _Bool res = 0;
- __mtx_enter(&lock->lock );
- if (lock->acquired > 0) res = 1;
- __mtx_leave(&lock->lock );
- return res;
-}
-static inline int
-ww_mutex_trylock(struct ww_mutex *lock) {
- int res = 0;
- __mtx_enter(&lock->lock );
- if (lock->acquired == 0) {
-  ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 107, "lock->ctx == NULL"));
-  lock->acquired = 1;
-  lock->owner = (__curcpu->ci_self)->ci_curproc;
-  res = 1;
- }
- __mtx_leave(&lock->lock );
- return res;
-}
-static inline int
-__ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx, _Bool slow, _Bool intr) {
- int err;
- __mtx_enter(&lock->lock );
- for (;;) {
-  if (lock->acquired == 0) {
-   ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 133, "lock->ctx == NULL"));
-   lock->acquired = 1;
-   lock->ctx = ctx;
-   lock->owner = (__curcpu->ci_self)->ci_curproc;
-   err = 0;
-   break;
-  }
-  else if (lock->owner == (__curcpu->ci_self)->ci_curproc) {
-   err = -37;
-   break;
-  }
-  else {
-   if (slow || ctx == ((void *)0) ||
-       (lock->ctx && ctx->stamp < lock->ctx->stamp)) {
-    int s = msleep(lock, &lock->lock,
-            intr ? 0x100 : 0,
-            ctx ? ctx->ww_class->name : "ww_mutex_lock", 0);
-    if (intr && (s == 4 || s == -1)) {
-     err = -4;
-     break;
-    }
-   }
-   else {
-    err = -11;
-    break;
-   }
-  }
- }
- __mtx_leave(&lock->lock );
- return err;
-}
-static inline int
-ww_mutex_lock(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 0, 0);
-}
-static inline void
-ww_mutex_lock_slow(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- (void)__ww_mutex_lock(lock, ctx, 1, 0);
-}
-static inline int
-ww_mutex_lock_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 0, 1);
-}
-static inline int
-ww_mutex_lock_slow_interruptible(struct ww_mutex *lock, struct ww_acquire_ctx *ctx) {
- return __ww_mutex_lock(lock, ctx, 1, 1);
-}
-static inline void
-ww_mutex_unlock(struct ww_mutex *lock) {
- __mtx_enter(&lock->lock );
- ((lock->owner == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 220, "lock->owner == curproc"));
- ((lock->acquired == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 221, "lock->acquired == 1"));
- lock->acquired = 0;
- lock->ctx = ((void *)0);
- lock->owner = ((void *)0);
- __mtx_leave(&lock->lock );
- wakeup(lock);
-}
-static inline void
-ww_mutex_destroy(struct ww_mutex *lock) {
- ((lock->acquired == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 232, "lock->acquired == 0"));
- ((lock->ctx == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 233, "lock->ctx == NULL"));
- ((lock->owner == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/linux_ww_mutex.h", 234, "lock->owner == NULL"));
-}
-struct drm_modeset_lock;
-struct drm_modeset_acquire_ctx {
- struct ww_acquire_ctx ww_ctx;
- struct drm_modeset_lock *contended;
- struct list_head locked;
- _Bool trylock_only;
-};
-struct drm_modeset_lock {
- struct ww_mutex mutex;
- struct list_head head;
-};
-extern struct ww_class crtc_ww_class;
-void drm_modeset_acquire_init(struct drm_modeset_acquire_ctx *ctx,
-  uint32_t flags);
-void drm_modeset_acquire_fini(struct drm_modeset_acquire_ctx *ctx);
-void drm_modeset_drop_locks(struct drm_modeset_acquire_ctx *ctx);
-void drm_modeset_backoff(struct drm_modeset_acquire_ctx *ctx);
-int drm_modeset_backoff_interruptible(struct drm_modeset_acquire_ctx *ctx);
-static inline void drm_modeset_lock_init(struct drm_modeset_lock *lock)
-{
- ww_mutex_init(&lock->mutex, &crtc_ww_class);
- INIT_LIST_HEAD(&lock->head);
-}
-static inline void drm_modeset_lock_fini(struct drm_modeset_lock *lock)
-{
- ({ int __ret = !!(!list_empty(&lock->head)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!list_empty(&lock->head)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_modeset_lock.h", 110); __builtin_expect(!!(__ret), 0); });
-}
-static inline _Bool drm_modeset_is_locked(struct drm_modeset_lock *lock)
-{
- return ww_mutex_is_locked(&lock->mutex);
-}
-int drm_modeset_lock(struct drm_modeset_lock *lock,
-  struct drm_modeset_acquire_ctx *ctx);
-int drm_modeset_lock_interruptible(struct drm_modeset_lock *lock,
-  struct drm_modeset_acquire_ctx *ctx);
-void drm_modeset_unlock(struct drm_modeset_lock *lock);
-struct drm_device;
-struct drm_crtc;
-struct drm_plane;
-void drm_modeset_lock_all(struct drm_device *dev);
-void drm_modeset_unlock_all(struct drm_device *dev);
-void drm_modeset_lock_crtc(struct drm_crtc *crtc,
-      struct drm_plane *plane);
-void drm_modeset_unlock_crtc(struct drm_crtc *crtc);
-void drm_warn_on_modeset_not_all_locked(struct drm_device *dev);
-struct drm_modeset_acquire_ctx *
-drm_modeset_legacy_acquire_ctx(struct drm_crtc *crtc);
-int drm_modeset_lock_all_crtcs(struct drm_device *dev,
-  struct drm_modeset_acquire_ctx *ctx);
-struct drm_device;
-struct drm_mode_set;
-struct drm_framebuffer;
-struct drm_object_properties;
-struct drm_file;
-struct drm_clip_rect;
-struct device_node;
-struct fence;
-struct drm_mode_object {
- uint32_t id;
- uint32_t type;
- struct drm_object_properties *properties;
-};
-struct drm_object_properties {
- int count, atomic_count;
- struct drm_property *properties[24];
- uint64_t values[24];
-};
-static inline int64_t U642I64(uint64_t val)
-{
- return (int64_t)*((int64_t *)&val);
-}
-static inline uint64_t I642U64(int64_t val)
-{
- return (uint64_t)*((uint64_t *)&val);
-}
-enum drm_connector_force {
- DRM_FORCE_UNSPECIFIED,
- DRM_FORCE_OFF,
- DRM_FORCE_ON,
- DRM_FORCE_ON_DIGITAL,
-};
-struct videomode;
-enum drm_mode_status {
-    MODE_OK = 0,
-    MODE_HSYNC,
-    MODE_VSYNC,
-    MODE_H_ILLEGAL,
-    MODE_V_ILLEGAL,
-    MODE_BAD_WIDTH,
-    MODE_NOMODE,
-    MODE_NO_INTERLACE,
-    MODE_NO_DBLESCAN,
-    MODE_NO_VSCAN,
-    MODE_MEM,
-    MODE_VIRTUAL_X,
-    MODE_VIRTUAL_Y,
-    MODE_MEM_VIRT,
-    MODE_NOCLOCK,
-    MODE_CLOCK_HIGH,
-    MODE_CLOCK_LOW,
-    MODE_CLOCK_RANGE,
-    MODE_BAD_HVALUE,
-    MODE_BAD_VVALUE,
-    MODE_BAD_VSCAN,
-    MODE_HSYNC_NARROW,
-    MODE_HSYNC_WIDE,
-    MODE_HBLANK_NARROW,
-    MODE_HBLANK_WIDE,
-    MODE_VSYNC_NARROW,
-    MODE_VSYNC_WIDE,
-    MODE_VBLANK_NARROW,
-    MODE_VBLANK_WIDE,
-    MODE_PANEL,
-    MODE_INTERLACE_WIDTH,
-    MODE_ONE_WIDTH,
-    MODE_ONE_HEIGHT,
-    MODE_ONE_SIZE,
-    MODE_NO_REDUCED,
-    MODE_NO_STEREO,
-    MODE_UNVERIFIED = -3,
-    MODE_BAD = -2,
-    MODE_ERROR = -1
-};
-struct drm_display_mode {
- struct list_head head;
- struct drm_mode_object base;
- char name[32];
- enum drm_mode_status status;
- unsigned int type;
- int clock;
- int hdisplay;
- int hsync_start;
- int hsync_end;
- int htotal;
- int hskew;
- int vdisplay;
- int vsync_start;
- int vsync_end;
- int vtotal;
- int vscan;
- unsigned int flags;
- int width_mm;
- int height_mm;
- int crtc_clock;
- int crtc_hdisplay;
- int crtc_hblank_start;
- int crtc_hblank_end;
- int crtc_hsync_start;
- int crtc_hsync_end;
- int crtc_htotal;
- int crtc_hskew;
- int crtc_vdisplay;
- int crtc_vblank_start;
- int crtc_vblank_end;
- int crtc_vsync_start;
- int crtc_vsync_end;
- int crtc_vtotal;
- int *private;
- int private_flags;
- int vrefresh;
- int hsync;
- enum hdmi_picture_aspect picture_aspect_ratio;
-};
-struct drm_cmdline_mode {
- _Bool specified;
- _Bool refresh_specified;
- _Bool bpp_specified;
- int xres, yres;
- int bpp;
- int refresh;
- _Bool rb;
- _Bool interlace;
- _Bool cvt;
- _Bool margins;
- enum drm_connector_force force;
-};
-static inline _Bool drm_mode_is_stereo(const struct drm_display_mode *mode)
-{
- return mode->flags & (0x1f<<14);
-}
-struct drm_connector;
-struct drm_cmdline_mode;
-struct drm_display_mode *drm_mode_create(struct drm_device *dev);
-void drm_mode_destroy(struct drm_device *dev, struct drm_display_mode *mode);
-void drm_mode_convert_to_umode(struct drm_mode_modeinfo *out,
-                               const struct drm_display_mode *in);
-int drm_mode_convert_umode(struct drm_display_mode *out,
-      const struct drm_mode_modeinfo *in);
-void drm_mode_probed_add(struct drm_connector *connector, struct drm_display_mode *mode);
-void drm_mode_debug_printmodeline(const struct drm_display_mode *mode);
-struct drm_display_mode *drm_cvt_mode(struct drm_device *dev,
-          int hdisplay, int vdisplay, int vrefresh,
-          _Bool reduced, _Bool interlaced,
-          _Bool margins);
-struct drm_display_mode *drm_gtf_mode(struct drm_device *dev,
-          int hdisplay, int vdisplay, int vrefresh,
-          _Bool interlaced, int margins);
-struct drm_display_mode *drm_gtf_mode_complex(struct drm_device *dev,
-           int hdisplay, int vdisplay,
-           int vrefresh, _Bool interlaced,
-           int margins,
-           int GTF_M, int GTF_2C,
-           int GTF_K, int GTF_2J);
-void drm_display_mode_from_videomode(const struct videomode *vm,
-         struct drm_display_mode *dmode);
-void drm_display_mode_to_videomode(const struct drm_display_mode *dmode,
-       struct videomode *vm);
-int of_get_drm_display_mode(struct device_node *np,
-       struct drm_display_mode *dmode,
-       int index);
-void drm_mode_set_name(struct drm_display_mode *mode);
-int drm_mode_hsync(const struct drm_display_mode *mode);
-int drm_mode_vrefresh(const struct drm_display_mode *mode);
-void drm_mode_set_crtcinfo(struct drm_display_mode *p,
-      int adjust_flags);
-void drm_mode_copy(struct drm_display_mode *dst,
-     const struct drm_display_mode *src);
-struct drm_display_mode *drm_mode_duplicate(struct drm_device *dev,
-         const struct drm_display_mode *mode);
-_Bool drm_mode_equal(const struct drm_display_mode *mode1,
-      const struct drm_display_mode *mode2);
-_Bool drm_mode_equal_no_clocks_no_stereo(const struct drm_display_mode *mode1,
-     const struct drm_display_mode *mode2);
-enum drm_mode_status drm_mode_validate_basic(const struct drm_display_mode *mode);
-enum drm_mode_status drm_mode_validate_size(const struct drm_display_mode *mode,
-         int maxX, int maxY);
-void drm_mode_prune_invalid(struct drm_device *dev,
-       struct list_head *mode_list, _Bool verbose);
-void drm_mode_sort(struct list_head *mode_list);
-void drm_mode_connector_list_update(struct drm_connector *connector, _Bool merge_type_bits);
-_Bool
-drm_mode_parse_command_line_for_connector(const char *mode_option,
-       struct drm_connector *connector,
-       struct drm_cmdline_mode *mode);
-struct drm_display_mode *
-drm_mode_create_from_cmdline_mode(struct drm_device *dev,
-      struct drm_cmdline_mode *cmd);
-enum drm_connector_status {
- connector_status_connected = 1,
- connector_status_disconnected = 2,
- connector_status_unknown = 3,
-};
-enum subpixel_order {
- SubPixelUnknown = 0,
- SubPixelHorizontalRGB,
- SubPixelHorizontalBGR,
- SubPixelVerticalRGB,
- SubPixelVerticalBGR,
- SubPixelNone,
-};
-struct drm_display_info {
- char name[32];
-        unsigned int width_mm;
- unsigned int height_mm;
- unsigned int min_vfreq, max_vfreq;
- unsigned int min_hfreq, max_hfreq;
- unsigned int pixel_clock;
- unsigned int bpc;
- enum subpixel_order subpixel_order;
- u32 color_formats;
- const u32 *bus_formats;
- unsigned int num_bus_formats;
- u8 edid_hdmi_dc_modes;
- u8 cea_rev;
-};
-struct drm_tile_group {
- struct kref refcount;
- struct drm_device *dev;
- int id;
- u8 group_data[8];
-};
-struct drm_framebuffer_funcs {
- void (*destroy)(struct drm_framebuffer *framebuffer);
- int (*create_handle)(struct drm_framebuffer *fb,
-        struct drm_file *file_priv,
-        unsigned int *handle);
- int (*dirty)(struct drm_framebuffer *framebuffer,
-       struct drm_file *file_priv, unsigned flags,
-       unsigned color, struct drm_clip_rect *clips,
-       unsigned num_clips);
-};
-struct drm_framebuffer {
- struct drm_device *dev;
- struct kref refcount;
- struct list_head head;
- struct drm_mode_object base;
- const struct drm_framebuffer_funcs *funcs;
- unsigned int pitches[4];
- unsigned int offsets[4];
- uint64_t modifier[4];
- unsigned int width;
- unsigned int height;
- unsigned int depth;
- int bits_per_pixel;
- int flags;
- uint32_t pixel_format;
- struct list_head filp_head;
-};
-struct drm_property_blob {
- struct drm_mode_object base;
- struct drm_device *dev;
- struct kref refcount;
- struct list_head head_global;
- struct list_head head_file;
- size_t length;
- unsigned char data[];
-};
-struct drm_property_enum {
- uint64_t value;
- struct list_head head;
- char name[32];
-};
-struct drm_property {
- struct list_head head;
- struct drm_mode_object base;
- uint32_t flags;
- char name[32];
- uint32_t num_values;
- uint64_t *values;
- struct drm_device *dev;
- struct list_head enum_list;
-};
-struct drm_crtc;
-struct drm_connector;
-struct drm_encoder;
-struct drm_pending_vblank_event;
-struct drm_plane;
-struct drm_bridge;
-struct drm_atomic_state;
-struct drm_crtc_state {
- struct drm_crtc *crtc;
- _Bool enable;
- _Bool active;
- _Bool planes_changed : 1;
- _Bool mode_changed : 1;
- _Bool active_changed : 1;
- _Bool connectors_changed : 1;
- u32 plane_mask;
- u32 last_vblank_count;
- struct drm_display_mode adjusted_mode;
- struct drm_display_mode mode;
- struct drm_property_blob *mode_blob;
- struct drm_pending_vblank_event *event;
- struct drm_atomic_state *state;
-};
-struct drm_crtc_funcs {
- void (*save)(struct drm_crtc *crtc);
- void (*restore)(struct drm_crtc *crtc);
- void (*reset)(struct drm_crtc *crtc);
- int (*cursor_set)(struct drm_crtc *crtc, struct drm_file *file_priv,
-     uint32_t handle, uint32_t width, uint32_t height);
- int (*cursor_set2)(struct drm_crtc *crtc, struct drm_file *file_priv,
-      uint32_t handle, uint32_t width, uint32_t height,
-      int32_t hot_x, int32_t hot_y);
- int (*cursor_move)(struct drm_crtc *crtc, int x, int y);
- void (*gamma_set)(struct drm_crtc *crtc, u16 *r, u16 *g, u16 *b,
-     uint32_t start, uint32_t size);
- void (*destroy)(struct drm_crtc *crtc);
- int (*set_config)(struct drm_mode_set *set);
- int (*page_flip)(struct drm_crtc *crtc,
-    struct drm_framebuffer *fb,
-    struct drm_pending_vblank_event *event,
-    uint32_t flags);
- int (*set_property)(struct drm_crtc *crtc,
-       struct drm_property *property, uint64_t val);
- struct drm_crtc_state *(*atomic_duplicate_state)(struct drm_crtc *crtc);
- void (*atomic_destroy_state)(struct drm_crtc *crtc,
-         struct drm_crtc_state *state);
- int (*atomic_set_property)(struct drm_crtc *crtc,
-       struct drm_crtc_state *state,
-       struct drm_property *property,
-       uint64_t val);
- int (*atomic_get_property)(struct drm_crtc *crtc,
-       const struct drm_crtc_state *state,
-       struct drm_property *property,
-       uint64_t *val);
-};
-struct drm_crtc {
- struct drm_device *dev;
- struct device_node *port;
- struct list_head head;
- struct drm_modeset_lock mutex;
- struct drm_mode_object base;
- struct drm_plane *primary;
- struct drm_plane *cursor;
- int cursor_x;
- int cursor_y;
- _Bool enabled;
- struct drm_display_mode mode;
- struct drm_display_mode hwmode;
- int x, y;
- const struct drm_crtc_funcs *funcs;
- uint32_t gamma_size;
- uint16_t *gamma_store;
- const void *helper_private;
- struct drm_object_properties properties;
- struct drm_crtc_state *state;
- struct drm_modeset_acquire_ctx *acquire_ctx;
-};
-struct drm_connector_state {
- struct drm_connector *connector;
- struct drm_crtc *crtc;
- struct drm_encoder *best_encoder;
- struct drm_atomic_state *state;
-};
-struct drm_connector_funcs {
- int (*dpms)(struct drm_connector *connector, int mode);
- void (*save)(struct drm_connector *connector);
- void (*restore)(struct drm_connector *connector);
- void (*reset)(struct drm_connector *connector);
- enum drm_connector_status (*detect)(struct drm_connector *connector,
-         _Bool force);
- int (*fill_modes)(struct drm_connector *connector, uint32_t max_width, uint32_t max_height);
- int (*set_property)(struct drm_connector *connector, struct drm_property *property,
-        uint64_t val);
- void (*destroy)(struct drm_connector *connector);
- void (*force)(struct drm_connector *connector);
- struct drm_connector_state *(*atomic_duplicate_state)(struct drm_connector *connector);
- void (*atomic_destroy_state)(struct drm_connector *connector,
-         struct drm_connector_state *state);
- int (*atomic_set_property)(struct drm_connector *connector,
-       struct drm_connector_state *state,
-       struct drm_property *property,
-       uint64_t val);
- int (*atomic_get_property)(struct drm_connector *connector,
-       const struct drm_connector_state *state,
-       struct drm_property *property,
-       uint64_t *val);
-};
-struct drm_encoder_funcs {
- void (*reset)(struct drm_encoder *encoder);
- void (*destroy)(struct drm_encoder *encoder);
-};
-struct drm_encoder {
- struct drm_device *dev;
- struct list_head head;
- struct drm_mode_object base;
- char *name;
- int encoder_type;
- uint32_t possible_crtcs;
- uint32_t possible_clones;
- struct drm_crtc *crtc;
- struct drm_bridge *bridge;
- const struct drm_encoder_funcs *funcs;
- const void *helper_private;
-};
-struct drm_connector {
- struct drm_device *dev;
- struct device *kdev;
- struct device_attribute *attr;
- struct list_head head;
- struct drm_mode_object base;
- char *name;
- int connector_type;
- int connector_type_id;
- _Bool interlace_allowed;
- _Bool doublescan_allowed;
- _Bool stereo_allowed;
- struct list_head modes;
- enum drm_connector_status status;
- struct list_head probed_modes;
- struct drm_display_info display_info;
- const struct drm_connector_funcs *funcs;
- struct drm_property_blob *edid_blob_ptr;
- struct drm_object_properties properties;
- struct drm_property_blob *path_blob_ptr;
- struct drm_property_blob *tile_blob_ptr;
- uint8_t polled;
- int dpms;
- const void *helper_private;
- struct drm_cmdline_mode cmdline_mode;
- enum drm_connector_force force;
- _Bool override_edid;
- uint32_t encoder_ids[3];
- struct drm_encoder *encoder;
- uint8_t eld[128];
- _Bool dvi_dual;
- int max_tmds_clock;
- _Bool latency_present[2];
- int video_latency[2];
- int audio_latency[2];
- int null_edid_counter;
- unsigned bad_edid_counter;
- _Bool edid_corrupt;
- struct dentry *debugfs_entry;
- struct drm_connector_state *state;
- _Bool has_tile;
- struct drm_tile_group *tile_group;
- _Bool tile_is_single_monitor;
- uint8_t num_h_tile, num_v_tile;
- uint8_t tile_h_loc, tile_v_loc;
- uint16_t tile_h_size, tile_v_size;
- struct backlight_device *backlight_device;
- struct drm_property *backlight_property;
-};
-struct drm_plane_state {
- struct drm_plane *plane;
- struct drm_crtc *crtc;
- struct drm_framebuffer *fb;
- struct fence *fence;
- int32_t crtc_x, crtc_y;
- uint32_t crtc_w, crtc_h;
- uint32_t src_x, src_y;
- uint32_t src_h, src_w;
- unsigned int rotation;
- struct drm_atomic_state *state;
-};
-struct drm_plane_funcs {
- int (*update_plane)(struct drm_plane *plane,
-       struct drm_crtc *crtc, struct drm_framebuffer *fb,
-       int crtc_x, int crtc_y,
-       unsigned int crtc_w, unsigned int crtc_h,
-       uint32_t src_x, uint32_t src_y,
-       uint32_t src_w, uint32_t src_h);
- int (*disable_plane)(struct drm_plane *plane);
- void (*destroy)(struct drm_plane *plane);
- void (*reset)(struct drm_plane *plane);
- int (*set_property)(struct drm_plane *plane,
-       struct drm_property *property, uint64_t val);
- struct drm_plane_state *(*atomic_duplicate_state)(struct drm_plane *plane);
- void (*atomic_destroy_state)(struct drm_plane *plane,
-         struct drm_plane_state *state);
- int (*atomic_set_property)(struct drm_plane *plane,
-       struct drm_plane_state *state,
-       struct drm_property *property,
-       uint64_t val);
- int (*atomic_get_property)(struct drm_plane *plane,
-       const struct drm_plane_state *state,
-       struct drm_property *property,
-       uint64_t *val);
-};
-enum drm_plane_type {
- DRM_PLANE_TYPE_OVERLAY,
- DRM_PLANE_TYPE_PRIMARY,
- DRM_PLANE_TYPE_CURSOR,
-};
-struct drm_plane {
- struct drm_device *dev;
- struct list_head head;
- struct drm_modeset_lock mutex;
- struct drm_mode_object base;
- uint32_t possible_crtcs;
- uint32_t *format_types;
- unsigned int format_count;
- _Bool format_default;
- struct drm_crtc *crtc;
- struct drm_framebuffer *fb;
- struct drm_framebuffer *old_fb;
- const struct drm_plane_funcs *funcs;
- struct drm_object_properties properties;
- enum drm_plane_type type;
- const void *helper_private;
- struct drm_plane_state *state;
-};
-struct drm_bridge_funcs {
- int (*attach)(struct drm_bridge *bridge);
- _Bool (*mode_fixup)(struct drm_bridge *bridge,
-      const struct drm_display_mode *mode,
-      struct drm_display_mode *adjusted_mode);
- void (*disable)(struct drm_bridge *bridge);
- void (*post_disable)(struct drm_bridge *bridge);
- void (*mode_set)(struct drm_bridge *bridge,
-    struct drm_display_mode *mode,
-    struct drm_display_mode *adjusted_mode);
- void (*pre_enable)(struct drm_bridge *bridge);
- void (*enable)(struct drm_bridge *bridge);
-};
-struct drm_bridge {
- struct drm_device *dev;
- struct drm_encoder *encoder;
- struct drm_bridge *next;
- struct list_head list;
- const struct drm_bridge_funcs *funcs;
- void *driver_private;
-};
-struct drm_atomic_state {
- struct drm_device *dev;
- _Bool allow_modeset : 1;
- _Bool legacy_cursor_update : 1;
- struct drm_plane **planes;
- struct drm_plane_state **plane_states;
- struct drm_crtc **crtcs;
- struct drm_crtc_state **crtc_states;
- int num_connector;
- struct drm_connector **connectors;
- struct drm_connector_state **connector_states;
- struct drm_modeset_acquire_ctx *acquire_ctx;
-};
-struct drm_mode_set {
- struct drm_framebuffer *fb;
- struct drm_crtc *crtc;
- struct drm_display_mode *mode;
- uint32_t x;
- uint32_t y;
- struct drm_connector **connectors;
- size_t num_connectors;
-};
-struct drm_mode_config_funcs {
- struct drm_framebuffer *(*fb_create)(struct drm_device *dev,
-          struct drm_file *file_priv,
-          struct drm_mode_fb_cmd2 *mode_cmd);
- void (*output_poll_changed)(struct drm_device *dev);
- int (*atomic_check)(struct drm_device *dev,
-       struct drm_atomic_state *a);
- int (*atomic_commit)(struct drm_device *dev,
-        struct drm_atomic_state *a,
-        _Bool async);
- struct drm_atomic_state *(*atomic_state_alloc)(struct drm_device *dev);
- void (*atomic_state_clear)(struct drm_atomic_state *state);
- void (*atomic_state_free)(struct drm_atomic_state *state);
-};
-struct drm_mode_config {
- struct rwlock mutex;
- struct drm_modeset_lock connection_mutex;
- struct drm_modeset_acquire_ctx *acquire_ctx;
- struct rwlock idr_mutex;
- struct idr crtc_idr;
- struct idr tile_idr;
- struct rwlock fb_lock;
- int num_fb;
- struct list_head fb_list;
- int num_connector;
- struct list_head connector_list;
- int num_encoder;
- struct list_head encoder_list;
- int num_overlay_plane;
- int num_total_plane;
- struct list_head plane_list;
- int num_crtc;
- struct list_head crtc_list;
- struct list_head property_list;
- int min_width, min_height;
- int max_width, max_height;
- const struct drm_mode_config_funcs *funcs;
- resource_size_t fb_base;
- _Bool poll_enabled;
- _Bool poll_running;
- _Bool delayed_event;
- struct delayed_work output_poll_work;
- struct rwlock blob_lock;
- struct list_head property_blob_list;
- struct drm_property *edid_property;
- struct drm_property *dpms_property;
- struct drm_property *path_property;
- struct drm_property *tile_property;
- struct drm_property *plane_type_property;
- struct drm_property *rotation_property;
- struct drm_property *prop_src_x;
- struct drm_property *prop_src_y;
- struct drm_property *prop_src_w;
- struct drm_property *prop_src_h;
- struct drm_property *prop_crtc_x;
- struct drm_property *prop_crtc_y;
- struct drm_property *prop_crtc_w;
- struct drm_property *prop_crtc_h;
- struct drm_property *prop_fb_id;
- struct drm_property *prop_crtc_id;
- struct drm_property *prop_active;
- struct drm_property *prop_mode_id;
- struct drm_property *dvi_i_subconnector_property;
- struct drm_property *dvi_i_select_subconnector_property;
- struct drm_property *tv_subconnector_property;
- struct drm_property *tv_select_subconnector_property;
- struct drm_property *tv_mode_property;
- struct drm_property *tv_left_margin_property;
- struct drm_property *tv_right_margin_property;
- struct drm_property *tv_top_margin_property;
- struct drm_property *tv_bottom_margin_property;
- struct drm_property *tv_brightness_property;
- struct drm_property *tv_contrast_property;
- struct drm_property *tv_flicker_reduction_property;
- struct drm_property *tv_overscan_property;
- struct drm_property *tv_saturation_property;
- struct drm_property *tv_hue_property;
- struct drm_property *scaling_mode_property;
- struct drm_property *aspect_ratio_property;
- struct drm_property *dirty_info_property;
- struct drm_property *suggested_x_property;
- struct drm_property *suggested_y_property;
- uint32_t preferred_depth, prefer_shadow;
- _Bool async_page_flip;
- _Bool allow_fb_modifiers;
- uint32_t cursor_width, cursor_height;
-};
-struct drm_prop_enum_list {
- int type;
- char *name;
-};
-extern int drm_crtc_init_with_planes(struct drm_device *dev,
-         struct drm_crtc *crtc,
-         struct drm_plane *primary,
-         struct drm_plane *cursor,
-         const struct drm_crtc_funcs *funcs);
-extern void drm_crtc_cleanup(struct drm_crtc *crtc);
-extern unsigned int drm_crtc_index(struct drm_crtc *crtc);
-static inline uint32_t drm_crtc_mask(struct drm_crtc *crtc)
-{
- return 1 << drm_crtc_index(crtc);
-}
-extern void drm_connector_ida_init(void);
-extern void drm_connector_ida_destroy(void);
-extern int drm_connector_init(struct drm_device *dev,
-         struct drm_connector *connector,
-         const struct drm_connector_funcs *funcs,
-         int connector_type);
-int drm_connector_register(struct drm_connector *connector);
-void drm_connector_unregister(struct drm_connector *connector);
-extern void drm_connector_cleanup(struct drm_connector *connector);
-extern unsigned int drm_connector_index(struct drm_connector *connector);
-extern void drm_connector_unplug_all(struct drm_device *dev);
-extern int drm_bridge_add(struct drm_bridge *bridge);
-extern void drm_bridge_remove(struct drm_bridge *bridge);
-extern struct drm_bridge *of_drm_find_bridge(struct device_node *np);
-extern int drm_bridge_attach(struct drm_device *dev, struct drm_bridge *bridge);
-_Bool drm_bridge_mode_fixup(struct drm_bridge *bridge,
-   const struct drm_display_mode *mode,
-   struct drm_display_mode *adjusted_mode);
-void drm_bridge_disable(struct drm_bridge *bridge);
-void drm_bridge_post_disable(struct drm_bridge *bridge);
-void drm_bridge_mode_set(struct drm_bridge *bridge,
-   struct drm_display_mode *mode,
-   struct drm_display_mode *adjusted_mode);
-void drm_bridge_pre_enable(struct drm_bridge *bridge);
-void drm_bridge_enable(struct drm_bridge *bridge);
-extern int drm_encoder_init(struct drm_device *dev,
-       struct drm_encoder *encoder,
-       const struct drm_encoder_funcs *funcs,
-       int encoder_type);
-static inline _Bool drm_encoder_crtc_ok(struct drm_encoder *encoder,
-           struct drm_crtc *crtc)
-{
- return !!(encoder->possible_crtcs & drm_crtc_mask(crtc));
-}
-extern int drm_universal_plane_init(struct drm_device *dev,
-        struct drm_plane *plane,
-        unsigned long possible_crtcs,
-        const struct drm_plane_funcs *funcs,
-        const uint32_t *formats,
-        unsigned int format_count,
-        enum drm_plane_type type);
-extern int drm_plane_init(struct drm_device *dev,
-     struct drm_plane *plane,
-     unsigned long possible_crtcs,
-     const struct drm_plane_funcs *funcs,
-     const uint32_t *formats, unsigned int format_count,
-     _Bool is_primary);
-extern void drm_plane_cleanup(struct drm_plane *plane);
-extern unsigned int drm_plane_index(struct drm_plane *plane);
-extern struct drm_plane * drm_plane_from_index(struct drm_device *dev, int idx);
-extern void drm_plane_force_disable(struct drm_plane *plane);
-extern int drm_plane_check_pixel_format(const struct drm_plane *plane,
-     u32 format);
-extern void drm_crtc_get_hv_timing(const struct drm_display_mode *mode,
-       int *hdisplay, int *vdisplay);
-extern int drm_crtc_check_viewport(const struct drm_crtc *crtc,
-       int x, int y,
-       const struct drm_display_mode *mode,
-       const struct drm_framebuffer *fb);
-extern void drm_encoder_cleanup(struct drm_encoder *encoder);
-extern const char *drm_get_connector_status_name(enum drm_connector_status status);
-extern const char *drm_get_subpixel_order_name(enum subpixel_order order);
-extern const char *drm_get_dpms_name(int val);
-extern const char *drm_get_dvi_i_subconnector_name(int val);
-extern const char *drm_get_dvi_i_select_name(int val);
-extern const char *drm_get_tv_subconnector_name(int val);
-extern const char *drm_get_tv_select_name(int val);
-extern void drm_fb_release(struct drm_file *file_priv);
-extern void drm_property_destroy_user_blobs(struct drm_device *dev,
-                                            struct drm_file *file_priv);
-extern _Bool drm_probe_ddc(struct i2c_adapter *adapter);
-extern struct edid *drm_get_edid(struct drm_connector *connector,
-     struct i2c_adapter *adapter);
-extern struct edid *drm_edid_duplicate(const struct edid *edid);
-extern int drm_add_edid_modes(struct drm_connector *connector, struct edid *edid);
-extern void drm_mode_config_init(struct drm_device *dev);
-extern void drm_mode_config_reset(struct drm_device *dev);
-extern void drm_mode_config_cleanup(struct drm_device *dev);
-extern int drm_mode_connector_set_path_property(struct drm_connector *connector,
-      const char *path);
-int drm_mode_connector_set_tile_property(struct drm_connector *connector);
-extern int drm_mode_connector_update_edid_property(struct drm_connector *connector,
-         const struct edid *edid);
-extern int drm_display_info_set_bus_formats(struct drm_display_info *info,
-         const u32 *formats,
-         unsigned int num_formats);
-static inline _Bool drm_property_type_is(struct drm_property *property,
-  uint32_t type)
-{
- if (property->flags & 0x0000ffc0)
-  return (property->flags & 0x0000ffc0) == type;
- return property->flags & type;
-}
-static inline _Bool drm_property_type_valid(struct drm_property *property)
-{
- if (property->flags & 0x0000ffc0)
-  return !(property->flags & ( (1<<1) | (1<<3) | (1<<4) | (1<<5)));
- return !!(property->flags & ( (1<<1) | (1<<3) | (1<<4) | (1<<5)));
-}
-extern int drm_object_property_set_value(struct drm_mode_object *obj,
-      struct drm_property *property,
-      uint64_t val);
-extern int drm_object_property_get_value(struct drm_mode_object *obj,
-      struct drm_property *property,
-      uint64_t *value);
-extern int drm_framebuffer_init(struct drm_device *dev,
-    struct drm_framebuffer *fb,
-    const struct drm_framebuffer_funcs *funcs);
-extern struct drm_framebuffer *drm_framebuffer_lookup(struct drm_device *dev,
-            uint32_t id);
-extern void drm_framebuffer_unreference(struct drm_framebuffer *fb);
-extern void drm_framebuffer_reference(struct drm_framebuffer *fb);
-extern void drm_framebuffer_remove(struct drm_framebuffer *fb);
-extern void drm_framebuffer_cleanup(struct drm_framebuffer *fb);
-extern void drm_framebuffer_unregister_private(struct drm_framebuffer *fb);
-extern void drm_object_attach_property(struct drm_mode_object *obj,
-           struct drm_property *property,
-           uint64_t init_val);
-extern struct drm_property *drm_property_create(struct drm_device *dev, int flags,
-      const char *name, int num_values);
-extern struct drm_property *drm_property_create_enum(struct drm_device *dev, int flags,
-      const char *name,
-      const struct drm_prop_enum_list *props,
-      int num_values);
-struct drm_property *drm_property_create_bitmask(struct drm_device *dev,
-      int flags, const char *name,
-      const struct drm_prop_enum_list *props,
-      int num_props,
-      uint64_t supported_bits);
-struct drm_property *drm_property_create_range(struct drm_device *dev, int flags,
-      const char *name,
-      uint64_t min, uint64_t max);
-struct drm_property *drm_property_create_signed_range(struct drm_device *dev,
-      int flags, const char *name,
-      int64_t min, int64_t max);
-struct drm_property *drm_property_create_object(struct drm_device *dev,
-      int flags, const char *name, uint32_t type);
-struct drm_property *drm_property_create_bool(struct drm_device *dev, int flags,
-      const char *name);
-struct drm_property_blob *drm_property_create_blob(struct drm_device *dev,
-                                                   size_t length,
-                                                   const void *data);
-struct drm_property_blob *drm_property_lookup_blob(struct drm_device *dev,
-                                                   uint32_t id);
-struct drm_property_blob *drm_property_reference_blob(struct drm_property_blob *blob);
-void drm_property_unreference_blob(struct drm_property_blob *blob);
-extern void drm_property_destroy(struct drm_device *dev, struct drm_property *property);
-extern int drm_property_add_enum(struct drm_property *property, int index,
-     uint64_t value, const char *name);
-extern int drm_mode_create_dvi_i_properties(struct drm_device *dev);
-extern int drm_mode_create_tv_properties(struct drm_device *dev,
-      unsigned int num_modes,
-      const char * const modes[]);
-extern int drm_mode_create_scaling_mode_property(struct drm_device *dev);
-extern int drm_mode_create_aspect_ratio_property(struct drm_device *dev);
-extern int drm_mode_create_dirty_info_property(struct drm_device *dev);
-extern int drm_mode_create_suggested_offset_properties(struct drm_device *dev);
-extern _Bool drm_property_change_valid_get(struct drm_property *property,
-      uint64_t value, struct drm_mode_object **ref);
-extern void drm_property_change_valid_put(struct drm_property *property,
-  struct drm_mode_object *ref);
-extern int drm_mode_connector_attach_encoder(struct drm_connector *connector,
-          struct drm_encoder *encoder);
-extern int drm_mode_crtc_set_gamma_size(struct drm_crtc *crtc,
-      int gamma_size);
-extern struct drm_mode_object *drm_mode_object_find(struct drm_device *dev,
-  uint32_t id, uint32_t type);
-extern int drm_mode_getresources(struct drm_device *dev,
-     void *data, struct drm_file *file_priv);
-extern int drm_mode_getplane_res(struct drm_device *dev, void *data,
-       struct drm_file *file_priv);
-extern int drm_mode_getcrtc(struct drm_device *dev,
-       void *data, struct drm_file *file_priv);
-extern int drm_mode_getconnector(struct drm_device *dev,
-         void *data, struct drm_file *file_priv);
-extern int drm_mode_set_config_internal(struct drm_mode_set *set);
-extern int drm_mode_setcrtc(struct drm_device *dev,
-       void *data, struct drm_file *file_priv);
-extern int drm_mode_getplane(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_setplane(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_cursor_ioctl(struct drm_device *dev,
-    void *data, struct drm_file *file_priv);
-extern int drm_mode_cursor2_ioctl(struct drm_device *dev,
-    void *data, struct drm_file *file_priv);
-extern int drm_mode_addfb(struct drm_device *dev,
-     void *data, struct drm_file *file_priv);
-extern int drm_mode_addfb2(struct drm_device *dev,
-      void *data, struct drm_file *file_priv);
-extern uint32_t drm_mode_legacy_fb_format(uint32_t bpp, uint32_t depth);
-extern int drm_mode_rmfb(struct drm_device *dev,
-    void *data, struct drm_file *file_priv);
-extern int drm_mode_getfb(struct drm_device *dev,
-     void *data, struct drm_file *file_priv);
-extern int drm_mode_dirtyfb_ioctl(struct drm_device *dev,
-      void *data, struct drm_file *file_priv);
-extern int drm_mode_getproperty_ioctl(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_getblob_ioctl(struct drm_device *dev,
-      void *data, struct drm_file *file_priv);
-extern int drm_mode_createblob_ioctl(struct drm_device *dev,
-         void *data, struct drm_file *file_priv);
-extern int drm_mode_destroyblob_ioctl(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_connector_property_set_ioctl(struct drm_device *dev,
-           void *data, struct drm_file *file_priv);
-extern int drm_mode_getencoder(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_gamma_get_ioctl(struct drm_device *dev,
-        void *data, struct drm_file *file_priv);
-extern int drm_mode_gamma_set_ioctl(struct drm_device *dev,
-        void *data, struct drm_file *file_priv);
-extern u8 drm_match_cea_mode(const struct drm_display_mode *to_match);
-extern enum hdmi_picture_aspect drm_get_cea_aspect_ratio(const u8 video_code);
-extern _Bool drm_detect_hdmi_monitor(struct edid *edid);
-extern _Bool drm_detect_monitor_audio(struct edid *edid);
-extern _Bool drm_rgb_quant_range_selectable(struct edid *edid);
-extern int drm_mode_page_flip_ioctl(struct drm_device *dev,
-        void *data, struct drm_file *file_priv);
-extern int drm_add_modes_noedid(struct drm_connector *connector,
-    int hdisplay, int vdisplay);
-extern void drm_set_preferred_mode(struct drm_connector *connector,
-       int hpref, int vpref);
-extern int drm_edid_header_is_valid(const u8 *raw_edid);
-extern _Bool drm_edid_block_valid(u8 *raw_edid, int block, _Bool print_bad_edid,
-     _Bool *edid_corrupt);
-extern _Bool drm_edid_is_valid(struct edid *edid);
-extern struct drm_tile_group *drm_mode_create_tile_group(struct drm_device *dev,
-        char topology[8]);
-extern struct drm_tile_group *drm_mode_get_tile_group(struct drm_device *dev,
-            char topology[8]);
-extern void drm_mode_put_tile_group(struct drm_device *dev,
-       struct drm_tile_group *tg);
-struct drm_display_mode *drm_mode_find_dmt(struct drm_device *dev,
-        int hsize, int vsize, int fresh,
-        _Bool rb);
-extern int drm_mode_create_dumb_ioctl(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_mmap_dumb_ioctl(struct drm_device *dev,
-        void *data, struct drm_file *file_priv);
-extern int drm_mode_destroy_dumb_ioctl(struct drm_device *dev,
-          void *data, struct drm_file *file_priv);
-extern int drm_mode_obj_get_properties_ioctl(struct drm_device *dev, void *data,
-          struct drm_file *file_priv);
-extern int drm_mode_obj_set_property_ioctl(struct drm_device *dev, void *data,
-        struct drm_file *file_priv);
-extern int drm_mode_plane_set_obj_prop(struct drm_plane *plane,
-           struct drm_property *property,
-           uint64_t value);
-extern int drm_mode_atomic_ioctl(struct drm_device *dev,
-     void *data, struct drm_file *file_priv);
-extern void drm_fb_get_bpp_depth(uint32_t format, unsigned int *depth,
-     int *bpp);
-extern int drm_format_num_planes(uint32_t format);
-extern int drm_format_plane_cpp(uint32_t format, int plane);
-extern int drm_format_horz_chroma_subsampling(uint32_t format);
-extern int drm_format_vert_chroma_subsampling(uint32_t format);
-extern const char *drm_get_format_name(uint32_t format);
-extern struct drm_property *drm_mode_create_rotation_property(struct drm_device *dev,
-             unsigned int supported_rotations);
-extern unsigned int drm_rotation_simplify(unsigned int rotation,
-       unsigned int supported_rotations);
-static inline struct drm_plane *drm_plane_find(struct drm_device *dev,
-  uint32_t id)
-{
- struct drm_mode_object *mo;
- mo = drm_mode_object_find(dev, id, 0xeeeeeeee);
- return mo ? ({ const __typeof( ((struct drm_plane *)0)->base ) *__mptr = (mo); (struct drm_plane *)( (char *)__mptr - __builtin_offsetof(struct drm_plane, base) );}) : ((void *)0);
-}
-static inline struct drm_crtc *drm_crtc_find(struct drm_device *dev,
- uint32_t id)
-{
- struct drm_mode_object *mo;
- mo = drm_mode_object_find(dev, id, 0xcccccccc);
- return mo ? ({ const __typeof( ((struct drm_crtc *)0)->base ) *__mptr = (mo); (struct drm_crtc *)( (char *)__mptr - __builtin_offsetof(struct drm_crtc, base) );}) : ((void *)0);
-}
-static inline struct drm_encoder *drm_encoder_find(struct drm_device *dev,
- uint32_t id)
-{
- struct drm_mode_object *mo;
- mo = drm_mode_object_find(dev, id, 0xe0e0e0e0);
- return mo ? ({ const __typeof( ((struct drm_encoder *)0)->base ) *__mptr = (mo); (struct drm_encoder *)( (char *)__mptr - __builtin_offsetof(struct drm_encoder, base) );}) : ((void *)0);
-}
-static inline struct drm_connector *drm_connector_find(struct drm_device *dev,
-  uint32_t id)
-{
- struct drm_mode_object *mo;
- mo = drm_mode_object_find(dev, id, 0xc0c0c0c0);
- return mo ? ({ const __typeof( ((struct drm_connector *)0)->base ) *__mptr = (mo); (struct drm_connector *)( (char *)__mptr - __builtin_offsetof(struct drm_connector, base) );}) : ((void *)0);
-}
-static inline struct drm_property *drm_property_find(struct drm_device *dev,
-  uint32_t id)
-{
- struct drm_mode_object *mo;
- mo = drm_mode_object_find(dev, id, 0xb0b0b0b0);
- return mo ? ({ const __typeof( ((struct drm_property *)0)->base ) *__mptr = (mo); (struct drm_property *)( (char *)__mptr - __builtin_offsetof(struct drm_property, base) );}) : ((void *)0);
-}
-static inline void
-assert_drm_connector_list_read_locked(struct drm_mode_config *mode_config)
-{
- ({ int __ret = !!(!(rw_status(&mode_config->mutex) == 0x0001UL) && !drm_modeset_is_locked(&mode_config->connection_mutex)); if (__ret) printf("WARNING %s failed at %s:%d\n", "!(rw_status(&mode_config->mutex) == 0x0001UL) && !drm_modeset_is_locked(&mode_config->connection_mutex)", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/drm/drm_crtc.h", 1577); __builtin_expect(!!(__ret), 0); });
-}
-struct fb_cmap;
-struct fb_fillrect;
-struct fb_copyarea;
-struct fb_image;
-extern struct cfdriver drm_cd;
-static inline _Bool
-drm_can_sleep(void)
-{
- if (in_dbg_master() || irqs_disabled())
-  return 0;
- return 1;
-}
-struct drm_pcidev {
- uint16_t vendor;
- uint16_t device;
- uint16_t subvendor;
- uint16_t subdevice;
- uint32_t class;
- uint32_t class_mask;
- unsigned long driver_data;
-};
-struct drm_file;
-struct drm_device;
-typedef int drm_ioctl_t(struct drm_device *dev, void *data,
-   struct drm_file *file_priv);
-typedef int drm_ioctl_compat_t(struct file *filp, unsigned int cmd,
-          unsigned long arg);
-struct drm_ioctl_desc {
- unsigned int cmd;
- int flags;
- drm_ioctl_t *func;
- unsigned int cmd_drv;
-};
-struct drm_dmamem {
- bus_dmamap_t map;
- caddr_t kva;
- bus_size_t size;
- int nsegs;
- bus_dma_segment_t segs[1];
-};
-typedef struct drm_dma_handle {
- struct drm_dmamem *mem;
- dma_addr_t busaddr;
- void *vaddr;
- size_t size;
-} drm_dma_handle_t;
-struct drm_pending_event {
- struct drm_event *event;
- struct list_head link;
- struct drm_file *file_priv;
- pid_t pid;
- void (*destroy)(struct drm_pending_event *event);
-};
-struct drm_file {
- unsigned always_authenticated :1;
- unsigned authenticated :1;
- unsigned is_master :1;
- unsigned stereo_allowed :1;
- unsigned universal_planes:1;
- unsigned atomic:1;
- drm_magic_t magic;
- int minor;
- struct idr object_idr;
- spinlock_t table_lock;
- struct file *filp;
- void *driver_priv;
- struct list_head fbs;
- struct rwlock fbs_lock;
- struct list_head blobs;
- wait_queue_head_t event_wait;
- struct list_head event_list;
- int event_space;
- struct selinfo rsel;
- struct { struct drm_file *spe_left; struct drm_file *spe_right; } link;
-};
-struct drm_agp_head {
- struct agp_softc *agpdev;
- const char *chipset;
- struct agp_memlist { struct drm_agp_mem *tqh_first; struct drm_agp_mem **tqh_last; } memory;
- struct agp_info info;
- unsigned long base;
- unsigned long mode;
- unsigned long page_mask;
- int acquired;
- int cant_use_aperture;
- int enabled;
-    int mtrr;
-};
-struct drm_gem_object {
- struct kref refcount;
- unsigned handle_count;
- struct drm_device *dev;
- struct file *filp;
- struct drm_vma_offset_node vma_node;
- size_t size;
- int name;
- uint32_t read_domains;
- uint32_t write_domain;
- uint32_t pending_read_domains;
- uint32_t pending_write_domain;
- struct uvm_object uobj;
- struct { struct drm_gem_object *spe_left; struct drm_gem_object *spe_right; } entry;
- struct uvm_object *uao;
-};
-struct drm_driver {
- int (*firstopen)(struct drm_device *);
- int (*open)(struct drm_device *, struct drm_file *);
- void (*close)(struct drm_device *, struct drm_file *);
- void (*preclose)(struct drm_device *, struct drm_file *);
- void (*postclose)(struct drm_device *, struct drm_file *);
- void (*lastclose)(struct drm_device *);
- struct uvm_object *(*mmap)(struct drm_device *, voff_t, vsize_t);
- int (*dma_ioctl)(struct drm_device *, struct drm_dma *,
-      struct drm_file *);
- int (*irq_handler)(int, void *);
- void (*irq_preinstall) (struct drm_device *);
- int (*irq_install)(struct drm_device *);
- int (*irq_postinstall) (struct drm_device *);
- void (*irq_uninstall)(struct drm_device *);
- int vblank_pipes;
- u32 (*get_vblank_counter) (struct drm_device *dev, unsigned int pipe);
- int (*enable_vblank) (struct drm_device *dev, unsigned int pipe);
- void (*disable_vblank) (struct drm_device *dev, unsigned int pipe);
- int (*get_scanout_position) (struct drm_device *dev, unsigned int pipe,
-         unsigned int flags, int *vpos, int *hpos,
-         ktime_t *stime, ktime_t *etime,
-         const struct drm_display_mode *mode);
- int (*get_vblank_timestamp) (struct drm_device *dev, unsigned int pipe,
-         int *max_error,
-         struct timeval *vblank_time,
-         unsigned flags);
- void (*gem_free_object) (struct drm_gem_object *obj);
- int (*gem_open_object) (struct drm_gem_object *, struct drm_file *);
- void (*gem_close_object) (struct drm_gem_object *, struct drm_file *);
- int (*gem_fault)(struct drm_gem_object *, struct uvm_faultinfo *,
-      off_t, vaddr_t, vm_page_t *, int, int, vm_prot_t, int);
- int (*dumb_create)(struct drm_file *file_priv,
-      struct drm_device *dev, struct drm_mode_create_dumb *args);
- int (*dumb_map_offset)(struct drm_file *file_priv,
-      struct drm_device *dev, uint32_t handle, uint64_t *offset);
- int (*dumb_destroy)(struct drm_file *file_priv,
-      struct drm_device *dev, uint32_t handle);
- size_t gem_size;
- size_t buf_priv_size;
- size_t file_priv_size;
- int major;
- int minor;
- int patchlevel;
- const char *name;
- const char *desc;
- const char *date;
- u32 driver_features;
- const struct drm_ioctl_desc *ioctls;
- int num_ioctls;
-};
-enum drm_minor_type {
- DRM_MINOR_LEGACY,
- DRM_MINOR_CONTROL,
- DRM_MINOR_RENDER,
- DRM_MINOR_CNT,
-};
-struct drm_minor;
-struct drm_pending_vblank_event {
- struct drm_pending_event base;
- int pipe;
- struct drm_event_vblank event;
-};
-struct drm_vblank_crtc {
- struct drm_device *dev;
- wait_queue_head_t queue;
- struct timeout disable_timer;
- u32 count;
- struct timeval time[2];
- atomic_t refcount;
- u32 last;
- u32 last_wait;
- unsigned int inmodeset;
- unsigned int pipe;
- int framedur_ns;
- int linedur_ns;
- _Bool enabled;
-};
-struct drm_device {
- struct device device;
- struct device *dev;
- struct drm_driver *driver;
- struct klist note;
- struct pci_dev _pdev;
- struct pci_dev *pdev;
- u_int16_t pci_device;
- u_int16_t pci_vendor;
- pci_chipset_tag_t pc;
- pcitag_t *bridgetag;
- bus_dma_tag_t dmat;
- bus_space_tag_t bst;
- struct mutex quiesce_mtx;
- int quiesce;
- int quiesce_count;
- char *unique;
- int unique_len;
- int if_version;
- struct rwlock struct_mutex;
- int open_count;
- struct drm_file_tree { struct drm_file *sph_root; } files;
- drm_magic_t magicid;
- _Bool irq_enabled;
- int irq;
- _Bool vblank_disable_allowed;
- _Bool vblank_disable_immediate;
- struct drm_vblank_crtc *vblank;
- struct mutex vblank_time_lock;
- struct mutex vbl_lock;
- u32 max_vblank_count;
- struct list_head vblank_event_list;
- spinlock_t event_lock;
- int *vblank_enabled;
- int *vblank_inmodeset;
- u32 *last_vblank_wait;
- int num_crtcs;
- pid_t buf_pgid;
- struct drm_agp_head *agp;
- void *dev_private;
- struct address_space *dev_mapping;
- struct drm_local_map *agp_buffer_map;
- struct drm_mode_config mode_config;
- atomic_t obj_count;
- u_int obj_name;
- atomic_t obj_memory;
- struct pool objpl;
- struct rwlock object_name_lock;
- struct idr object_name_idr;
- struct drm_vma_offset_manager *vma_offset_manager;
-};
-struct drm_attach_args {
- struct drm_driver *driver;
- char *busid;
- bus_dma_tag_t dmat;
- bus_space_tag_t bst;
- size_t busid_len;
- int is_agp;
- u_int16_t pci_vendor;
- u_int16_t pci_device;
- u_int16_t pci_subvendor;
- u_int16_t pci_subdevice;
- u_int8_t pci_revision;
- struct pci_attach_args *pa;
- pci_chipset_tag_t pc;
- pcitag_t tag;
- pcitag_t *bridgetag;
- int console;
-};
-extern int drm_debug_flag;
-int drm_pciprobe(struct pci_attach_args *, const struct drm_pcidev * );
-struct device *drm_attach_pci(struct drm_driver *,
-       struct pci_attach_args *, int, int, struct device *);
-int drmioctl(dev_t, u_long, caddr_t, int, struct proc *);
-int drmread(dev_t, struct uio *, int);
-int drmpoll(dev_t, int, struct proc *);
-int drmopen(dev_t, int, int, struct proc *);
-int drmclose(dev_t, int, int, struct proc *);
-paddr_t drmmmap(dev_t, off_t, int);
-struct drm_local_map *drm_getsarea(struct drm_device *);
-struct drm_dmamem *drm_dmamem_alloc(bus_dma_tag_t, bus_size_t, bus_size_t,
-        int, bus_size_t, int, int);
-void drm_dmamem_free(bus_dma_tag_t, struct drm_dmamem *);
-extern struct drm_dma_handle *drm_pci_alloc(struct drm_device *dev, size_t size,
-         size_t align);
-extern void drm_pci_free(struct drm_device *dev, struct drm_dma_handle * dmah);
-const struct drm_pcidev *drm_find_description(int , int ,
-        const struct drm_pcidev *);
-int drm_order(unsigned long);
-struct drm_file *drm_find_file_by_minor(struct drm_device *, int);
-struct drm_device *drm_get_device_from_kdev(dev_t);
-void *drm_alloc(size_t);
-void *drm_calloc(size_t, size_t);
-void *drm_realloc(void *, size_t, size_t);
-void drm_free(void *);
-static __inline__ void *drm_calloc_large(size_t nmemb, size_t size)
-{
- return drm_calloc(nmemb, size);
-}
-static __inline__ void *drm_malloc_ab(size_t nmemb, size_t size)
-{
- return (mallocarray(nmemb, size, 145, 0x0001 | 0x0004));
-}
-static __inline void drm_free_large(void *ptr)
-{
- free(ptr, 145, 0);
-}
-void drm_core_ioremap(struct drm_local_map *, struct drm_device *);
-void drm_core_ioremapfree(struct drm_local_map *, struct drm_device *);
-int drm_mtrr_add(unsigned long, size_t, int);
-int drm_mtrr_del(int, unsigned long, size_t, int);
-int drm_noop(struct drm_device *dev, void *data,
-      struct drm_file *file_priv);
-int drm_invalid_op(struct drm_device *dev, void *data,
-     struct drm_file *file_priv);
-void drm_clflush_pages(struct vm_page *pages[], unsigned long num_pages);
-void drm_clflush_sg(struct sg_table *st);
-void drm_clflush_virt_range(void *addr, unsigned long length);
-extern int drm_irq_install(struct drm_device *dev, int irq);
-extern int drm_irq_uninstall(struct drm_device *dev);
-extern int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs);
-extern int drm_wait_vblank(struct drm_device *dev, void *data,
-      struct drm_file *filp);
-extern u32 drm_vblank_count(struct drm_device *dev, unsigned int pipe);
-extern u32 drm_crtc_vblank_count(struct drm_crtc *crtc);
-extern u32 drm_vblank_count_and_time(struct drm_device *dev, unsigned int pipe,
-         struct timeval *vblanktime);
-extern u32 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
-       struct timeval *vblanktime);
-extern void drm_send_vblank_event(struct drm_device *dev, unsigned int pipe,
-      struct drm_pending_vblank_event *e);
-extern void drm_crtc_send_vblank_event(struct drm_crtc *crtc,
-           struct drm_pending_vblank_event *e);
-extern void drm_arm_vblank_event(struct drm_device *dev, unsigned int pipe,
-     struct drm_pending_vblank_event *e);
-extern void drm_crtc_arm_vblank_event(struct drm_crtc *crtc,
-          struct drm_pending_vblank_event *e);
-extern _Bool drm_handle_vblank(struct drm_device *dev, unsigned int pipe);
-extern _Bool drm_crtc_handle_vblank(struct drm_crtc *crtc);
-extern int drm_vblank_get(struct drm_device *dev, unsigned int pipe);
-extern void drm_vblank_put(struct drm_device *dev, unsigned int pipe);
-extern int drm_crtc_vblank_get(struct drm_crtc *crtc);
-extern void drm_crtc_vblank_put(struct drm_crtc *crtc);
-extern void drm_wait_one_vblank(struct drm_device *dev, unsigned int pipe);
-extern void drm_crtc_wait_one_vblank(struct drm_crtc *crtc);
-extern void drm_vblank_off(struct drm_device *dev, unsigned int pipe);
-extern void drm_vblank_on(struct drm_device *dev, unsigned int pipe);
-extern void drm_crtc_vblank_off(struct drm_crtc *crtc);
-extern void drm_crtc_vblank_reset(struct drm_crtc *crtc);
-extern void drm_crtc_vblank_on(struct drm_crtc *crtc);
-extern void drm_vblank_cleanup(struct drm_device *dev);
-extern u32 drm_vblank_no_hw_counter(struct drm_device *dev, unsigned int pipe);
-extern int drm_calc_vbltimestamp_from_scanoutpos(struct drm_device *dev,
-       unsigned int pipe, int *max_error,
-       struct timeval *vblank_time,
-       unsigned flags,
-       const struct drm_display_mode *mode);
-extern void drm_calc_timestamping_constants(struct drm_crtc *crtc,
-         const struct drm_display_mode *mode);
-static inline wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc)
-{
- return &crtc->dev->vblank[drm_crtc_index(crtc)].queue;
-}
-extern void drm_vblank_pre_modeset(struct drm_device *dev, unsigned int pipe);
-extern void drm_vblank_post_modeset(struct drm_device *dev, unsigned int pipe);
-_Bool drm_mode_parse_command_line_for_connector(const char *,
-     struct drm_connector *, struct drm_cmdline_mode *);
-struct drm_display_mode *
-  drm_mode_create_from_cmdline_mode(struct drm_device *,
-      struct drm_cmdline_mode *);
-extern unsigned int drm_timestamp_monotonic;
-struct drm_agp_head *drm_agp_init(void);
-void drm_agp_takedown(struct drm_device *);
-int drm_agp_acquire(struct drm_device *);
-int drm_agp_release(struct drm_device *);
-int drm_agp_info(struct drm_device *, struct drm_agp_info *);
-int drm_agp_enable(struct drm_device *, struct drm_agp_mode);
-void *drm_agp_allocate_memory(size_t, u32);
-int drm_agp_free_memory(void *);
-int drm_agp_bind_memory(void *, off_t);
-int drm_agp_unbind_memory(void *);
-int drm_agp_alloc(struct drm_device *, struct drm_agp_buffer *);
-int drm_agp_free(struct drm_device *, struct drm_agp_buffer *);
-int drm_agp_bind(struct drm_device *, struct drm_agp_binding *);
-int drm_agp_unbind(struct drm_device *, struct drm_agp_binding *);
-int drm_agp_acquire_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_release_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_enable_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_info_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_alloc_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_free_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_unbind_ioctl(struct drm_device *, void *, struct drm_file *);
-int drm_agp_bind_ioctl(struct drm_device *, void *, struct drm_file *);
-void drm_sysfs_hotplug_event(struct drm_device *);
-static inline int
-drm_sysfs_connector_add(struct drm_connector *connector)
-{
- return 0;
-}
-static inline void
-drm_sysfs_connector_remove(struct drm_connector *connector)
-{
-}
-int drm_gem_init(struct drm_device *dev);
-void drm_gem_destroy(struct drm_device *dev);
-void drm_gem_object_release(struct drm_gem_object *obj);
-void drm_gem_object_free(struct kref *kref);
-int drm_gem_object_init(struct drm_device *dev,
-   struct drm_gem_object *obj, size_t size);
-void drm_gem_private_object_init(struct drm_device *dev,
-     struct drm_gem_object *obj, size_t size);
-int drm_gem_handle_create_tail(struct drm_file *file_priv,
-          struct drm_gem_object *obj,
-          u32 *handlep);
-int drm_gem_handle_create(struct drm_file *file_priv,
-     struct drm_gem_object *obj,
-     u32 *handlep);
-int drm_gem_handle_delete(struct drm_file *filp, u32 handle);
-void drm_gem_free_mmap_offset(struct drm_gem_object *obj);
-int drm_gem_create_mmap_offset(struct drm_gem_object *obj);
-struct drm_gem_object *drm_gem_object_lookup(struct drm_device *dev,
-          struct drm_file *filp,
-          u32 handle);
-struct drm_gem_object *drm_gem_object_find(struct drm_file *, u32);
-int drm_gem_close_ioctl(struct drm_device *dev, void *data,
-   struct drm_file *file_priv);
-int drm_gem_flink_ioctl(struct drm_device *dev, void *data,
-   struct drm_file *file_priv);
-int drm_gem_open_ioctl(struct drm_device *dev, void *data,
-         struct drm_file *file_priv);
-void drm_gem_open(struct drm_device *dev, struct drm_file *file_private);
-void drm_gem_release(struct drm_device *dev,struct drm_file *file_private);
-static __inline void
-drm_gem_object_reference(struct drm_gem_object *obj)
-{
- kref_get(&obj->refcount);
-}
-static __inline void
-drm_gem_object_unreference(struct drm_gem_object *obj)
-{
- if (obj != ((void *)0))
-  kref_put(&obj->refcount, drm_gem_object_free);
-}
-static __inline void
-drm_gem_object_unreference_unlocked(struct drm_gem_object *obj)
-{
- if (obj && !atomic_add_unless(&obj->refcount.refcount, -1, 1)) {
-  struct drm_device *dev = obj->dev;
-  _rw_enter_write(&dev->struct_mutex );
-  if (__builtin_expect(!!((__sync_sub_and_fetch((&obj->refcount.refcount), 1) == 0)), 1))
-   drm_gem_object_free(&obj->refcount);
-  _rw_exit_write(&dev->struct_mutex );
- }
-}
-int drm_gem_dumb_destroy(struct drm_file *file,
-    struct drm_device *dev,
-    uint32_t handle);
-static __inline__ int drm_core_check_feature(struct drm_device *dev,
-          int feature)
-{
- return ((dev->driver->driver_features & feature) ? 1 : 0);
-}
-static inline _Bool drm_is_render_client(const struct drm_file *file_priv)
-{
- return 0;
-}
-static inline _Bool drm_is_control_client(const struct drm_file *file_priv)
-{
- return 0;
-}
-static inline _Bool drm_is_primary_client(const struct drm_file *file_priv)
-{
- return 1;
-}
-static inline int drm_dev_to_irq(struct drm_device *dev)
-{
- return -1;
-}
-int drm_pcie_get_speed_cap_mask(struct drm_device *, u32 *);
 const u32 si_default_state[] =
 {
  0xc0066900,
