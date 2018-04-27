@@ -5609,7 +5609,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;
@@ -5882,9 +5881,6 @@ void
 ieee80211_begin_scan(struct ifnet *ifp)
 {
  struct ieee80211com *ic = (void *)ifp;
- if (ic->ic_scan_lock & 0x1)
-  return;
- ic->ic_scan_lock |= 0x1;
  if (ic->ic_opmode != IEEE80211_M_HOSTAP)
  {
   ic->ic_flags |= 0x00000001;
@@ -6221,7 +6217,7 @@ ieee80211_end_scan(struct ifnet *ifp)
      break;
   }
   ieee80211_create_ibss(ic, &ic->ic_channels[i]);
-  goto wakeup;
+  return;
  }
  if (ni == ((void *)0)) {
   ;
@@ -6230,17 +6226,12 @@ ieee80211_end_scan(struct ifnet *ifp)
       (ic->ic_flags & 0x00000200) &&
       ic->ic_des_esslen != 0) {
    ieee80211_create_ibss(ic, ic->ic_ibss_chan);
-   goto wakeup;
+   return;
   }
   if (ieee80211_next_mode(ifp) == IEEE80211_MODE_AUTO ||
       (ic->ic_caps & 0x00008000)) {
-   if (ic->ic_scan_lock & 0x2 &&
-       ic->ic_scan_lock & 0x4) {
-    ic->ic_scan_lock = 0x1;
-    wakeup(&ic->ic_scan_lock);
-   } else if (ic->ic_scan_lock & 0x2)
-    goto wakeup;
    ic->ic_scan_count++;
+   return;
   }
   ieee80211_next_scan(ifp);
   return;
@@ -6288,17 +6279,17 @@ ieee80211_end_scan(struct ifnet *ifp)
    if (ic->ic_bgscan_fail < 360)
     ic->ic_bgscan_fail++;
    ic->ic_flags &= ~0x08000000;
-   goto wakeup;
+   return;
   }
   arg = malloc(sizeof(*arg), 2, 0x0002 | 0x0008);
   if (arg == ((void *)0)) {
    ic->ic_flags &= ~0x08000000;
-   goto wakeup;
+   return;
   }
   ic->ic_bgscan_fail = 0;
   if (((*(ic)->ic_send_mgmt)(ic, ic->ic_bss, 0xc0, IEEE80211_REASON_AUTH_LEAVE, 0)) != 0) {
    ic->ic_flags &= ~0x08000000;
-   goto wakeup;
+   return;
   }
   ic->ic_xflags |= 0x00000001;
   __builtin_memcpy((arg->cur_macaddr), (curbs->ni_macaddr), (6));
@@ -6306,15 +6297,10 @@ ieee80211_end_scan(struct ifnet *ifp)
   ic->ic_bss->ni_unref_arg = arg;
   ic->ic_bss->ni_unref_arg_size = sizeof(*arg);
   ic->ic_bss->ni_unref_cb = ieee80211_node_switch_bss;
-  goto wakeup;
+  return;
  } else if (selbs == ((void *)0))
   goto notfound;
  ieee80211_node_join_bss(ic, selbs);
- wakeup:
- if (ic->ic_scan_lock & 0x2) {
-  wakeup(&ic->ic_scan_lock);
- }
- ic->ic_scan_lock = 0x0;
 }
 void
 ieee80211_choose_rsnparams(struct ieee80211com *ic)
@@ -7202,7 +7188,7 @@ ieee80211_notify_dtim(struct ieee80211com *ic)
  struct ifnet *ifp = &ic->ic_ac.ac_if;
  struct ieee80211_frame *wh;
  struct mbuf *m;
- ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2191, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
+ ((ic->ic_opmode == IEEE80211_M_HOSTAP) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_node.c", 2173, "ic->ic_opmode == IEEE80211_M_HOSTAP"));
  while ((m = mq_dequeue(&ni->ni_savedq)) != ((void *)0)) {
   if (!((&(&ni->ni_savedq)->mq_list)->ml_len == 0)) {
    wh = ((struct ieee80211_frame *)((m)->m_hdr.mh_data));

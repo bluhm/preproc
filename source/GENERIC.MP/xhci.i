@@ -3785,15 +3785,46 @@ xhci_get_txinfo(struct xhci_softc *sc, struct usbd_pipe *pipe)
  }
  return ((((mep) & 0xffff) << 16) | ((atl) & 0xffff));
 }
-static inline int
-xhci_get_pollrate(int interval)
+static inline uint32_t
+xhci_linear_interval(usb_endpoint_descriptor_t *ed)
 {
- int ival;
- for (ival = 15 + 1; ival > 1; ival--) {
-  if (((1 << (ival - 1)) / 8) <= interval)
+ uint32_t ival = min(max(1, ed->bInterval), 255);
+ return (fls(ival) - 1);
+}
+static inline uint32_t
+xhci_exponential_interval(usb_endpoint_descriptor_t *ed)
+{
+ uint32_t ival = min(max(1, ed->bInterval), 16);
+ return (ival - 1);
+}
+uint32_t
+xhci_pipe_interval(struct usbd_pipe *pipe)
+{
+ usb_endpoint_descriptor_t *ed = pipe->endpoint->edesc;
+ uint8_t speed = pipe->device->speed;
+ uint8_t xfertype = ((ed->bmAttributes) & 0x03);
+ uint32_t ival;
+ if (xfertype == 0x00 || xfertype == 0x02) {
+  ival = 0;
+ } else {
+  switch (speed) {
+  case 2:
+   if (xfertype == 0x01) {
+    ival = xhci_exponential_interval(ed) + 3;
+    break;
+   }
+  case 1:
+   ival = xhci_linear_interval(ed) + 3;
    break;
+  case 3:
+  case 4:
+  default:
+   ival = xhci_exponential_interval(ed);
+   break;
+  }
  }
- return ival;
+ ((ival >= 0 && ival <= 15) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1146, "ival >= 0 && ival <= 15"));
+ return ((((ival) & 0xff) << 16));
 }
 int
 xhci_context_setup(struct xhci_softc *sc, struct usbd_pipe *pipe)
@@ -3801,10 +3832,9 @@ xhci_context_setup(struct xhci_softc *sc, struct usbd_pipe *pipe)
  struct xhci_pipe *xp = (struct xhci_pipe *)pipe;
  struct xhci_soft_dev *sdev = &sc->sc_sdevs[xp->slot];
  usb_endpoint_descriptor_t *ed = pipe->endpoint->edesc;
- uint32_t mps = ((((ed->wMaxPacketSize)[0] | ((ed->wMaxPacketSize)[1] << 8))) & 0x7ff);
+ uint32_t mps = ((ed->wMaxPacketSize)[0] | ((ed->wMaxPacketSize)[1] << 8));
  uint8_t xfertype = ((ed->bmAttributes) & 0x03);
  uint8_t speed, cerr = 0, maxb = 0;
- int ival = 0;
  uint32_t route = 0, rhport = 0;
  struct usbd_device *hub;
  for (hub = pipe->device; hub->myhub->depth; hub = hub->myhub) {
@@ -3822,32 +3852,22 @@ xhci_context_setup(struct xhci_softc *sc, struct usbd_pipe *pipe)
   break;
  case 3:
   speed = 3;
+  if (xfertype == 0x01 || xfertype == 0x03)
+   maxb = (((mps) >> 11) & 0x3);
   break;
  case 4:
   speed = 4;
+  maxb = 0;
   break;
  default:
   return (USBD_INVAL);
  }
  if (xfertype != 0x01)
   cerr = 3;
- if (xfertype == 0x01 && speed == 3)
-  maxb = (((((ed->wMaxPacketSize)[0] | ((ed->wMaxPacketSize)[1] << 8))) >> 11) & 0x3);
- if (xfertype == 0x01 || xfertype == 0x03) {
-  if (speed == 3 || speed == 4) {
-   if (pipe->interval != (-1))
-    ival = xhci_get_pollrate(pipe->interval - 1);
-   else
-    ival = ed->bInterval - 1;
-   if (ival < 0 || ival > 15)
-    return (USBD_INVAL);
-  } else
-   ival = 3;
- }
  if ((ed->bEndpointAddress & 0x80) || (xfertype == 0x00))
   xfertype |= 0x4;
- sdev->ep_ctx[xp->dci-1]->info_lo = (__uint32_t)(__builtin_constant_p((((ival) & 0xff) << 16)) ? (__uint32_t)(((__uint32_t)((((ival) & 0xff) << 16)) & 0xff) << 24 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff00) << 8 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff0000) >> 8 | ((__uint32_t)((((ival) & 0xff) << 16)) & 0xff000000) >> 24) : __swap32md((((ival) & 0xff) << 16)));
- sdev->ep_ctx[xp->dci-1]->info_hi = (__uint32_t)(__builtin_constant_p((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) ? (__uint32_t)(((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff) << 24 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff00) << 8 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff0000) >> 8 | ((__uint32_t)((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)) & 0xff000000) >> 24) : __swap32md((((mps) & 0xffff) << 16) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1) | (((maxb) & 0xff) << 8)));
+ sdev->ep_ctx[xp->dci-1]->info_lo = (__uint32_t)(__builtin_constant_p(xhci_pipe_interval(pipe)) ? (__uint32_t)(((__uint32_t)(xhci_pipe_interval(pipe)) & 0xff) << 24 | ((__uint32_t)(xhci_pipe_interval(pipe)) & 0xff00) << 8 | ((__uint32_t)(xhci_pipe_interval(pipe)) & 0xff0000) >> 8 | ((__uint32_t)(xhci_pipe_interval(pipe)) & 0xff000000) >> 24) : __swap32md(xhci_pipe_interval(pipe)));
+ sdev->ep_ctx[xp->dci-1]->info_hi = (__uint32_t)(__builtin_constant_p((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)) ? (__uint32_t)(((__uint32_t)((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)) & 0xff) << 24 | ((__uint32_t)((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)) & 0xff00) << 8 | ((__uint32_t)((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)) & 0xff0000) >> 8 | ((__uint32_t)((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)) & 0xff000000) >> 24) : __swap32md((((((mps) & 0x7ff)) & 0xffff) << 16) | (((maxb) & 0xff) << 8) | (((xfertype) & 0x7) << 3) | (((cerr) & 0x3) << 1)));
  sdev->ep_ctx[xp->dci-1]->txinfo = (__uint32_t)(__builtin_constant_p(xhci_get_txinfo(sc, pipe)) ? (__uint32_t)(((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff) << 24 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff00) << 8 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff0000) >> 8 | ((__uint32_t)(xhci_get_txinfo(sc, pipe)) & 0xff000000) >> 24) : __swap32md(xhci_get_txinfo(sc, pipe)));
  sdev->ep_ctx[xp->dci-1]->deqp = (__uint64_t)(__builtin_constant_p(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) ? (__uint64_t)((((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff) << 56) | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00ULL) << 40 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff0000ULL) << 24 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff000000ULL) << 8 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00000000ULL) >> 8 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle) & 0xff00000000000000ULL) >> 56) : __swap64md(((xp->ring).dma.paddr + (sizeof(struct xhci_trb) * (xp->ring).index)) | xp->ring.toggle));
  sdev->input_ctx->drop_flags = 0;
@@ -3941,7 +3961,7 @@ xhci_setaddr(struct usbd_device *dev, int addr)
  int error;
  if (dev->depth == 0)
   return (0);
- ((xp->dci == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1364, "xp->dci == 1"));
+ ((xp->dci == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1390, "xp->dci == 1"));
  error = xhci_context_setup(sc, dev->default_pipe);
  if (error)
   return (error);
@@ -4037,7 +4057,7 @@ struct xhci_trb*
 xhci_ring_consume(struct xhci_softc *sc, struct xhci_ring *ring)
 {
  struct xhci_trb *trb = &ring->trbs[ring->index];
- ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1516, "ring->index < ring->ntrb"));
+ ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1542, "ring->index < ring->ntrb"));
  bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(trb) - (char *)((ring)->trbs)),
      sizeof(struct xhci_trb), 0x02);
  if (ring->toggle != ((__uint32_t)(__builtin_constant_p(trb->trb_flags) ? (__uint32_t)(((__uint32_t)(trb->trb_flags) & 0xff) << 24 | ((__uint32_t)(trb->trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb->trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_flags) & 0xff000000) >> 24) : __swap32md(trb->trb_flags)) & (1 << 0)))
@@ -4053,7 +4073,7 @@ struct xhci_trb*
 xhci_ring_produce(struct xhci_softc *sc, struct xhci_ring *ring)
 {
  struct xhci_trb *trb = &ring->trbs[ring->index];
- ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1540, "ring->index < ring->ntrb"));
+ ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1566, "ring->index < ring->ntrb"));
  bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(trb) - (char *)((ring)->trbs)),
      sizeof(struct xhci_trb), 0x02 |
      0x08);
@@ -4077,7 +4097,7 @@ xhci_xfer_get_trb(struct xhci_softc *sc, struct usbd_xfer *xfer,
 {
  struct xhci_pipe *xp = (struct xhci_pipe *)xfer->pipe;
  struct xhci_xfer *xx = (struct xhci_xfer *)xfer;
- ((xp->free_trbs >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1575, "xp->free_trbs >= 1"));
+ ((xp->free_trbs >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1601, "xp->free_trbs >= 1"));
  xp->pending_xfers[xp->ring.index] = xfer;
  xp->free_trbs--;
  xx->index = (last) ? xp->ring.index : -2;
@@ -4090,7 +4110,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
 {
  struct xhci_trb *trb;
  int s, error = 0;
- ((timeout == 0 || sc->sc_cmd_trb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1594, "timeout == 0 || sc->sc_cmd_trb == NULL"));
+ ((timeout == 0 || sc->sc_cmd_trb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1620, "timeout == 0 || sc->sc_cmd_trb == NULL"));
  trb0->trb_flags |= (__uint32_t)(__builtin_constant_p(sc->sc_cmd_ring.toggle) ? (__uint32_t)(((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff) << 24 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff00) << 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff000000) >> 24) : __swap32md(sc->sc_cmd_ring.toggle));
  trb = xhci_ring_produce(sc, &sc->sc_cmd_ring);
  if (trb == ((void *)0))
@@ -4110,7 +4130,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
  error = tsleep(&sc->sc_cmd_trb, 22, "xhcicmd",
      (timeout*hz+999)/ 1000 + 1);
  if (error) {
-  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1625, "sc->sc_cmd_trb == trb"));
+  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1651, "sc->sc_cmd_trb == trb"));
   sc->sc_cmd_trb = ((void *)0);
   _splx(s);
   return (error);
@@ -4402,7 +4422,7 @@ xhci_root_ctrl_start(struct usbd_xfer *xfer)
  int l, totlen = 0;
  int port, i;
  uint32_t v;
- ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2059, "xfer->rqflags & URQ_REQUEST"));
+ ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2085, "xfer->rqflags & URQ_REQUEST"));
  if (sc->sc_bus.dying)
   return (USBD_IOERROR);
  req = &xfer->request;
@@ -4784,7 +4804,7 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
  uint32_t flags, len = ((xfer->request.wLength)[0] | ((xfer->request.wLength)[1] << 8));
  uint8_t toggle0, toggle;
  int s;
- ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2494, "xfer->rqflags & URQ_REQUEST"));
+ ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2520, "xfer->rqflags & URQ_REQUEST"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  if (xp->free_trbs < 3)
@@ -4857,11 +4877,11 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
  struct xhci_pipe *xp = (struct xhci_pipe *)xfer->pipe;
  struct xhci_trb *trb0, *trb;
  uint32_t len, remain, flags;
- uint32_t len0, mps;
+ uint32_t len0, mps = ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[0] | ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[1] << 8));
  uint64_t paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0));
  uint8_t toggle0, toggle;
  int s, i, ntrb;
- ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2601, "!(xfer->rqflags & URQ_REQUEST)"));
+ ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2627, "!(xfer->rqflags & URQ_REQUEST)"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  ntrb = (xfer->length + (64 * 1024) - 1) / (64 * 1024);
@@ -4870,7 +4890,6 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
   ntrb++;
  else
   len0 = xfer->length;
- mps = ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[0] | ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[1] << 8));
  if ((xfer->flags & 0x08 || xfer->length == 0) &&
      (xfer->length % mps == 0))
   ntrb++;
@@ -4879,8 +4898,8 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
  trb0 = xhci_xfer_get_trb(sc, xfer, &toggle0, (ntrb == 1));
  remain = xfer->length - len0;
  paddr += len0;
- len = min(remain, (64 * 1024));
  for (i = ntrb - 1; i > 0; i--) {
+  len = min(remain, (64 * 1024));
   trb = xhci_xfer_get_trb(sc, xfer, &toggle, (i == 1));
   flags = (1 << 10) | toggle;
   if (usbd_xfer_isread(xfer))
@@ -4894,7 +4913,6 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
       0x04);
   remain -= len;
   paddr += len;
-  len = min(remain, (64 * 1024));
  }
  flags = (1 << 10) | toggle0;
  if (usbd_xfer_isread(xfer))
@@ -4928,7 +4946,7 @@ xhci_device_generic_done(struct usbd_xfer *xfer)
 void
 xhci_device_generic_abort(struct usbd_xfer *xfer)
 {
- ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2701, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
+ ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2726, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
  xhci_abort_xfer(xfer, USBD_CANCELLED);
 }
 usbd_status
@@ -4950,28 +4968,26 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
  struct xhci_trb *trb0, *trb;
  uint32_t len, remain, flags;
  uint64_t paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0));
- uint32_t len0, offs = 0;
+ uint32_t len0, mps = ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[0] | ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[1] << 8));
  uint8_t toggle0, toggle;
  int s, i, ntrb = xfer->nframes, maxb;
- int mps = ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[0] | ((xfer->pipe->endpoint->edesc->wMaxPacketSize)[1] << 8));
  int npkt = xfer->length / mps;
- ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2734, "!(xfer->rqflags & URQ_REQUEST)"));
- if (xx->ntrb > 0)
-  return (USBD_IN_PROGRESS);
+ ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2758, "!(xfer->rqflags & URQ_REQUEST)"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  if (sc->sc_bus.use_polling)
   return (USBD_INVAL);
- if (xp->free_trbs < xfer->nframes)
+ if (xx->ntrb > 0)
+  return (USBD_IN_PROGRESS);
+ if (xp->free_trbs < ntrb)
   return (USBD_NOMEM);
  len0 = xfer->frlengths[0];
  trb0 = xhci_xfer_get_trb(sc, xfer, &toggle0, (ntrb == 1));
  remain = xfer->length;
- offs = len0;
- paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (offs));
+ paddr += len0;
  for (i = ntrb - 1; i > 0; i--) {
   len = xfer->frlengths[ntrb - i];
-  ((len <= ((ed->wMaxPacketSize)[0] | ((ed->wMaxPacketSize)[1] << 8))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2769, "len <= UGETW(ed->wMaxPacketSize)"));
+  ((len <= ((ed->wMaxPacketSize)[0] | ((ed->wMaxPacketSize)[1] << 8))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2791, "len <= UGETW(ed->wMaxPacketSize)"));
   trb = xhci_xfer_get_trb(sc, xfer, &toggle, (i == 1));
   flags = (1 << 10) | toggle;
   if (usbd_xfer_isread(xfer))
@@ -4980,9 +4996,11 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
   trb->trb_paddr = (__uint64_t)(__builtin_constant_p(paddr) ? (__uint64_t)((((__uint64_t)(paddr) & 0xff) << 56) | ((__uint64_t)(paddr) & 0xff00ULL) << 40 | ((__uint64_t)(paddr) & 0xff0000ULL) << 24 | ((__uint64_t)(paddr) & 0xff000000ULL) << 8 | ((__uint64_t)(paddr) & 0xff00000000ULL) >> 8 | ((__uint64_t)(paddr) & 0xff0000000000ULL) >> 24 | ((__uint64_t)(paddr) & 0xff000000000000ULL) >> 40 | ((__uint64_t)(paddr) & 0xff00000000000000ULL) >> 56) : __swap64md(paddr));
   trb->trb_status = (__uint32_t)(__builtin_constant_p((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len) & 0x1ffff) | xhci_xfer_tdsize(xfer, remain, len)));
   trb->trb_flags = (__uint32_t)(__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
+  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
+      ((char *)(trb) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
+      0x04);
   remain -= len;
-  offs += len;
-  paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (offs));
+  paddr += len;
  }
  flags = (5 << 10) | (1U << 31) | toggle0;
  if (usbd_xfer_isread(xfer))
@@ -4998,7 +5016,7 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
  trb0->trb_status = (__uint32_t)(__builtin_constant_p((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) ? (__uint32_t)(((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff) << 24 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff00) << 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff0000) >> 8 | ((__uint32_t)((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)) & 0xff000000) >> 24) : __swap32md((((0) & 0x3ff) << 22) | ((len0) & 0x1ffff) | xhci_xfer_tdsize(xfer, xfer->length, len0)));
  trb0->trb_flags = (__uint32_t)(__builtin_constant_p(flags) ? (__uint32_t)(((__uint32_t)(flags) & 0xff) << 24 | ((__uint32_t)(flags) & 0xff00) << 8 | ((__uint32_t)(flags) & 0xff0000) >> 8 | ((__uint32_t)(flags) & 0xff000000) >> 24) : __swap32md(flags));
  bus_dmamap_sync(xp->ring.dma.tag, xp->ring.dma.map,
-     ((char *)(trb0) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb) * ntrb,
+     ((char *)(trb0) - (char *)((&xp->ring)->trbs)), sizeof(struct xhci_trb),
      0x04);
  s = splraise(2);
  bus_space_write_4((sc)->iot, (sc)->ioh, (sc)->sc_door_off + ((0x0000 + (4 * (xp->slot)))), (xp->dci));

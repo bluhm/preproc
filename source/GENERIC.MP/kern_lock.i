@@ -1367,8 +1367,9 @@ ___mp_lock_init(struct __mp_lock *mpl, struct lock_type *type)
 static __inline void
 __mp_lock_spin(struct __mp_lock *mpl, u_int me)
 {
- while (mpl->mpl_ticket != me)
+ while (mpl->mpl_ticket != me) {
   do { __asm volatile( "999:	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	rd	%%ccr, %%g0			\n" "	.section .sun4v_pause_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0xb7802080	! pause	128	\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" "	.section .sun4u_mtp_patch, \"ax\"	\n" "	.word	999b				\n" "	.word	0x81b01060	! sleep		\n" "	.word	999b + 4			\n" "	nop					\n" "	.word	999b + 8			\n" "	nop					\n" "	.previous				\n" : : : "memory"); } while (0);
+ }
 }
 void
 ___mp_lock(struct __mp_lock *mpl )

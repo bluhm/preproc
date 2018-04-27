@@ -3755,7 +3755,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;
@@ -6285,7 +6284,6 @@ rsu_stop(struct ifnet *ifp)
  ifp->if_timer = 0;
  ifp->if_flags &= ~0x40;
  ifq_clr_oactive(&ifp->if_snd);
- ic->ic_scan_lock = 0x0;
  s = splraise(2);
  (((ic)->ic_newstate)((ic), (IEEE80211_S_INIT), (-1)));
  rsu_wait_async(sc);

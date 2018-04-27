@@ -3462,7 +3462,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;
@@ -4122,33 +4121,6 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
    ifp->if_data.ifi_mtu = ifr->ifr_ifru.ifru_metric;
   break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((210))):
-  if ((error = suser((__curcpu->ci_self)->ci_curproc)) != 0)
-   break;
-  if (ic->ic_opmode == IEEE80211_M_HOSTAP)
-   break;
-  if ((ifp->if_flags & (0x1 | 0x40)) !=
-      (0x1 | 0x40)) {
-   error = 50;
-   break;
-  }
-  if ((ic->ic_scan_lock & 0x2) == 0) {
-   if (ic->ic_scan_lock & 0x1)
-    ic->ic_scan_lock |= 0x4;
-   ic->ic_scan_lock |= 0x2;
-   if (ic->ic_state != IEEE80211_S_SCAN) {
-    ieee80211_clean_cached(ic);
-    if (ic->ic_opmode == IEEE80211_M_STA &&
-        ic->ic_state == IEEE80211_S_RUN &&
-        ((ic->ic_media.ifm_cur->ifm_media) & 0x000000ff00000000ULL)
-        == 0ULL) {
-     ieee80211_setmode(ic,
-         IEEE80211_MODE_AUTO);
-    }
-    (((ic)->ic_newstate)((ic), (IEEE80211_S_SCAN), (-1)));
-   }
-  }
-  error = tsleep(&ic->ic_scan_lock, 0x100, "80211scan",
-      hz * 30);
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_nodereq) & 0x1fff) << 16) | ((('i')) << 8) | ((211))):
   nr = (struct ieee80211_nodereq *)data;
@@ -4197,6 +4169,11 @@ ieee80211_ioctl(struct ifnet *ifp, u_long cmd, caddr_t data)
   }
   break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ieee80211_nodereq_all) & 0x1fff) << 16) | ((('i')) << 8) | ((214))):
+  if ((ifp->if_flags & (0x1 | 0x40)) !=
+      (0x1 | 0x40)) {
+   error = 50;
+   break;
+  }
   na = (struct ieee80211_nodereq_all *)data;
   na->na_nodes = i = 0;
   ni = ieee80211_tree_RBT_MIN(&ic->ic_tree);

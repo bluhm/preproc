@@ -4469,7 +4469,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;

@@ -2778,10 +2778,8 @@ soo_ioctl(struct file *fp, u_long cmd, caddr_t data, struct proc *p)
   }
   if ((((cmd) >> 8) & 0xff) == 'r')
    return (45);
-  s = solock(so);
   error = ((*so->so_proto->pr_usrreq)(so, 11,
       (struct mbuf *)cmd, (struct mbuf *)data, ((void *)0), p));
-  sounlock(s);
   break;
  }
  return (error);

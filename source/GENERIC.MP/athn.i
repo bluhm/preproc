@@ -4489,7 +4489,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;
@@ -7050,7 +7049,6 @@ athn_stop(struct ifnet *ifp, int disable)
  ifp->if_flags &= ~0x40;
  ifq_clr_oactive(&ifp->if_snd);
  timeout_del(&sc->scan_to);
- ic->ic_scan_lock = 0x0;
  (((ic)->ic_newstate)((ic), (IEEE80211_S_INIT), (-1)));
  athn_disable_interrupts(sc);
  (sc)->ops.write((sc), (0x4028), (0xffffffff));

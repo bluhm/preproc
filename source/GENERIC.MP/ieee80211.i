@@ -3866,7 +3866,6 @@ struct ieee80211com {
  u_char ic_chan_scan[(((255) + ((8) - 1)) / (8))];
  struct mbuf_queue ic_mgtq;
  struct mbuf_queue ic_pwrsaveq;
- u_int ic_scan_lock;
  u_int8_t ic_scan_count;
  u_int32_t ic_flags;
  u_int32_t ic_xflags;
@@ -4052,7 +4051,6 @@ ieee80211_channel_init(struct ifnet *ifp)
  if ((ic->ic_modecaps & (1<<ic->ic_curmode)) == 0)
   ic->ic_curmode = IEEE80211_MODE_AUTO;
  ic->ic_des_chan = ((struct ieee80211_channel *) ((void *)0));
- ic->ic_scan_lock = 0x0;
 }
 void
 ieee80211_ifattach(struct ifnet *ifp)

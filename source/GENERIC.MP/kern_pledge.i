@@ -7795,7 +7795,7 @@ static struct {
  { 0x0000000000001000ULL, "proc" },
  { 0x0000000000002000ULL, "settime" },
  { 0x0000000000004000ULL, "fattr" },
- { 0x0000000000008000ULL, "protexec" },
+ { 0x0000000000008000ULL, "prot_exec" },
  { 0x0000000000010000ULL, "tty" },
  { 0x0000000000020000ULL, "sendfd" },
  { 0x0000000000040000ULL, "recvfd" },

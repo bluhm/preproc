@@ -5064,63 +5064,48 @@ struct filedesc *
 fdcopy(struct process *pr)
 {
  struct filedesc *newfdp, *fdp = pr->ps_fd;
- struct file **fpp;
  int i;
+ newfdp = fdinit();
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
- newfdp = pool_get(&fdesc_pool, 0x0001);
- __builtin_memcpy((newfdp), (fdp), (sizeof(struct filedesc)));
- if (newfdp->fd_cdir)
-  vref(newfdp->fd_cdir);
- if (newfdp->fd_rdir)
-  vref(newfdp->fd_rdir);
- newfdp->fd_refcnt = 1;
- _rw_init_flags(&newfdp->fd_lock, "fdlock", 0, ((void *)0));
- if (newfdp->fd_lastfile < 20) {
-  newfdp->fd_ofiles = ((struct filedesc0 *) newfdp)->fd_dfiles;
-  newfdp->fd_ofileflags =
-      ((struct filedesc0 *) newfdp)->fd_dfileflags;
-  i = 20;
- } else {
-  i = newfdp->fd_nfiles;
-  while (i >= 2 * 50 && i > newfdp->fd_lastfile * 2)
+ if (fdp->fd_cdir) {
+  vref(fdp->fd_cdir);
+  newfdp->fd_cdir = fdp->fd_cdir;
+ }
+ if (fdp->fd_rdir) {
+  vref(fdp->fd_rdir);
+  newfdp->fd_rdir = fdp->fd_rdir;
+ }
+ if (fdp->fd_lastfile >= 20) {
+  i = fdp->fd_nfiles;
+  while (i >= 2 * 50 && i > fdp->fd_lastfile * 2)
    i /= 2;
-  newfdp->fd_ofiles = mallocarray(i, (sizeof(struct file *) + sizeof(char)), 39, 0x0001);
+  newfdp->fd_ofiles = mallocarray(i, (sizeof(struct file *) + sizeof(char)), 39,
+      0x0001 | 0x0008);
   newfdp->fd_ofileflags = (char *) &newfdp->fd_ofiles[i];
+  newfdp->fd_nfiles = i;
  }
- if ((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) <= (((((((20) + 32 - 1) >> 5)) + 32 - 1) >> 5))) {
-  newfdp->fd_himap =
-   ((struct filedesc0 *) newfdp)->fd_dhimap;
-  newfdp->fd_lomap =
-   ((struct filedesc0 *) newfdp)->fd_dlomap;
- } else {
-  newfdp->fd_himap = mallocarray((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)), sizeof(u_int),
-      39, 0x0001);
-  newfdp->fd_lomap = mallocarray(((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) << 5), sizeof(u_int),
-      39, 0x0001);
+ if ((((((((newfdp->fd_nfiles) + 32 - 1) >> 5)) + 32 - 1) >> 5)) > (((((((20) + 32 - 1) >> 5)) + 32 - 1) >> 5))) {
+  newfdp->fd_himap = mallocarray((((((((newfdp->fd_nfiles) + 32 - 1) >> 5)) + 32 - 1) >> 5)),
+      sizeof(u_int), 39, 0x0001 | 0x0008);
+  newfdp->fd_lomap = mallocarray(((((((((newfdp->fd_nfiles) + 32 - 1) >> 5)) + 32 - 1) >> 5)) << 5),
+      sizeof(u_int), 39, 0x0001 | 0x0008);
  }
- newfdp->fd_nfiles = i;
- __builtin_memcpy((newfdp->fd_ofiles), (fdp->fd_ofiles), (i * sizeof(struct file *)));
- __builtin_memcpy((newfdp->fd_ofileflags), (fdp->fd_ofileflags), (i * sizeof(char)));
- __builtin_memcpy((newfdp->fd_himap), (fdp->fd_himap), ((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) * sizeof(u_int)));
- __builtin_memcpy((newfdp->fd_lomap), (fdp->fd_lomap), (((((((((i) + 32 - 1) >> 5)) + 32 - 1) >> 5)) << 5) * sizeof(u_int)));
- _rw_exit_write(&(fdp)->fd_lock );
- do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(newfdp)->fd_lock ); } while (0);
- fpp = newfdp->fd_ofiles;
- for (i = 0; i <= newfdp->fd_lastfile; i++, fpp++)
-  if (*fpp != ((void *)0)) {
-   if ((*fpp)->f_count == 0x7fffffffffffffffL -2 ||
-       (*fpp)->f_type == 4)
-    fdremove(newfdp, i);
-   else
-    (*fpp)->f_count++;
+ newfdp->fd_freefile = fdp->fd_freefile;
+ newfdp->fd_flags = fdp->fd_flags;
+ newfdp->fd_cmask = fdp->fd_cmask;
+ for (i = 0; i <= fdp->fd_lastfile; i++) {
+  struct file *fp = fdp->fd_ofiles[i];
+  if (fp != ((void *)0)) {
+   if (fp->f_count == 0x7fffffffffffffffL -2 ||
+       fp->f_type == 4)
+    continue;
+   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+   newfdp->fd_ofiles[i] = fp;
+   newfdp->fd_ofileflags[i] = fdp->fd_ofileflags[i];
+   fd_used(newfdp, i);
   }
- if (newfdp->fd_knlistsize != -1) {
-  newfdp->fd_knlist = ((void *)0);
-  newfdp->fd_knlistsize = -1;
-  newfdp->fd_knhash = ((void *)0);
-  newfdp->fd_knhashmask = 0;
  }
- _rw_exit_write(&(newfdp)->fd_lock );
+ _rw_exit_write(&(fdp)->fd_lock );
  return (newfdp);
 }
 void
