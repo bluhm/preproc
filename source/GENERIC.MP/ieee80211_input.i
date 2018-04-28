@@ -4186,7 +4186,7 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
   ni->ni_rssi = rxi->rxi_rssi;
   ni->ni_rstamp = rxi->rxi_tstamp;
   ni->ni_inact = 0;
-  if (ic->ic_state == IEEE80211_S_RUN) {
+  if (ic->ic_state == IEEE80211_S_RUN && ic->ic_bgscan_start) {
    if ((*ic->ic_node_checkrssi)(ic, ni))
     timeout_del(&ic->ic_bgscan_timeout);
    else if (!((&ic->ic_bgscan_timeout)->to_flags & 2) &&

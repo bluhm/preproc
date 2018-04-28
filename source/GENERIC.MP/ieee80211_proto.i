@@ -4547,7 +4547,8 @@ justcleanup:
    break;
   }
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
-  ieee80211_crypto_clear_groupkeys(ic);
+  if (ic->ic_flags & 0x00200000)
+   ieee80211_crypto_clear_groupkeys(ic);
   break;
  case IEEE80211_S_SCAN:
   ic->ic_flags &= ~0x00000002;
@@ -4558,7 +4559,8 @@ justcleanup:
   ni->ni_associd = 0;
   ni->ni_rstamp = 0;
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
-  ieee80211_crypto_clear_groupkeys(ic);
+  if (ic->ic_flags & 0x00200000)
+   ieee80211_crypto_clear_groupkeys(ic);
   switch (ostate) {
   case IEEE80211_S_INIT:
    if (ic->ic_opmode == IEEE80211_M_HOSTAP &&
@@ -4592,7 +4594,8 @@ justcleanup:
   break;
  case IEEE80211_S_AUTH:
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
-  ieee80211_crypto_clear_groupkeys(ic);
+  if (ic->ic_flags & 0x00200000)
+   ieee80211_crypto_clear_groupkeys(ic);
   switch (ostate) {
   case IEEE80211_S_INIT:
    if (ifp->if_flags & 0x4)

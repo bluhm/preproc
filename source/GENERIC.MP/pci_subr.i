@@ -20958,6 +20958,10 @@ static const struct pci_known_product pci_known_products[] = {
      "Libertas 88W8300",
  },
  {
+     0x11ab, 0x2b38,
+     "88W8897 802.11ac Wireless",
+ },
+ {
      0x11ab, 0x4320,
      "Yukon 88E8001/8003/8010",
  },

@@ -3753,7 +3753,6 @@ fusefs_mount(struct mount *mp, const char *path, void *data,
   return (45);
  if ((fp = fd_getfile(p->p_fd, args->fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 1) {
   error = 22;
   goto bad;

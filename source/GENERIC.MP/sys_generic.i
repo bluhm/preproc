@@ -4218,7 +4218,6 @@ sys_read(struct proc *p, void *v, register_t *retval)
   return (9);
  iov.iov_base = ((uap)->buf.be.datum);
  iov.iov_len = ((uap)->nbyte.be.datum);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, &iov, 1, 0, &fp->f_offset, retval));
 }
 int
@@ -4230,7 +4229,6 @@ sys_readv(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilereadv(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &fp->f_offset, retval));
 }
@@ -4319,7 +4317,6 @@ sys_write(struct proc *p, void *v, register_t *retval)
   return (9);
  iov.iov_base = (void *)((uap)->buf.be.datum);
  iov.iov_len = ((uap)->nbyte.be.datum);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, &iov, 1, 0, &fp->f_offset, retval));
 }
 int
@@ -4331,7 +4328,6 @@ sys_writev(struct proc *p, void *v, register_t *retval)
  struct filedesc *fdp = p->p_fd;
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (dofilewritev(p, fd, fp, ((uap)->iovp.be.datum), ((uap)->iovcnt.be.datum), 1,
      &fp->f_offset, retval));
 }
@@ -4426,7 +4422,6 @@ sys_ioctl(struct proc *p, void *v, register_t *retval)
  fdp = p->p_fd;
  if ((fp = fd_getfile_mode(fdp, ((uap)->fd.be.datum), 0x0001|0x0002)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type == 2) {
   struct socket *so = fp->f_data;
   if (so->so_state & 0x4000) {
@@ -4689,7 +4684,6 @@ selscan(struct proc *p, fd_set *ibits, fd_set *obits, int nfd, int ni,
     bits &= ~(1 << j);
     if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
      return (9);
-    do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
     if ((*fp->f_ops->fo_poll)(fp, flag[msk], p)) {
      __fd_set((fd), (pobits));
      n++;
@@ -4769,7 +4763,6 @@ pollscan(struct proc *p, struct pollfd *pl, u_int nfd, register_t *retval)
    n++;
    continue;
   }
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   pl->revents = (*fp->f_ops->fo_poll)(fp, pl->events, p);
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   if (pl->revents != 0)

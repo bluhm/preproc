@@ -5400,6 +5400,8 @@ sys_execve(struct proc *p, void *v, register_t *retval)
     fp->f_ops = &vnops;
     fp->f_data = (caddr_t)vp;
     do { (fp)->f_iflags &= ~0x02; (--(fp)->f_count == 0 ? fdrop(fp, p) : 0); } while (0);
+   } else {
+    (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
    }
   }
   _rw_exit_write(&(p->p_fd)->fd_lock );

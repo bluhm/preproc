@@ -5102,7 +5102,6 @@ getsock(struct proc *p, int fdes, struct file **fpp)
  struct file *fp;
  if ((fp = fd_getfile(p->p_fd, fdes)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 2) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (38);

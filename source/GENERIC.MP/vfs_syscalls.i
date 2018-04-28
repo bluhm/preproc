@@ -5289,7 +5289,6 @@ sys_fchdir(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type != VDIR) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
@@ -5940,7 +5939,6 @@ sys_lseek(struct proc *p, void *v, register_t *retval)
  int error, special;
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO) {
   error = 29;
@@ -6880,7 +6878,6 @@ getvnode(struct proc *p, int fd, struct file **fpp)
  struct vnode *vp;
  if ((fp = fd_getfile(p->p_fd, fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 1) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
   return (22);
@@ -6907,7 +6904,6 @@ sys_pread(struct proc *p, void *v, register_t *retval)
  iov.iov_len = ((uap)->nbyte.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
@@ -6932,7 +6928,6 @@ sys_preadv(struct proc *p, void *v, register_t *retval)
  int fd = ((uap)->fd.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0001)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
@@ -6961,7 +6956,6 @@ sys_pwrite(struct proc *p, void *v, register_t *retval)
  iov.iov_len = ((uap)->nbyte.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {
@@ -6986,7 +6980,6 @@ sys_pwritev(struct proc *p, void *v, register_t *retval)
  int fd = ((uap)->fd.be.datum);
  if ((fp = fd_getfile_mode(fdp, fd, 0x0002)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  vp = fp->f_data;
  if (fp->f_type != 1 || vp->v_type == VFIFO ||
      (vp->v_flag & 0x0008)) {

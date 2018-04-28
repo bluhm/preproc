@@ -4032,7 +4032,6 @@ sys_kevent(struct proc *p, void *v, register_t *retval)
  struct kevent kev[8];
  if ((fp = fd_getfile(fdp, ((uap)->fd.be.datum))) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 4) {
   error = 9;
   goto done;
@@ -4114,7 +4113,6 @@ kqueue_register(struct kqueue *kq, struct kevent *kev, struct proc *p)
    return (9);
   if ((fp = fd_getfile(fdp, kev->ident)) == ((void *)0))
    return (9);
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   if (kev->ident < fdp->fd_knlistsize) {
    for((kn) = ((&fdp->fd_knlist[kev->ident])->slh_first); (kn) != ((void *)0); (kn) = ((kn)->kn_link.sle_next)) {
     if (kq == kn->kn_kq &&
@@ -4516,7 +4514,7 @@ knote_enqueue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1091, "(kn->kn_status & KN_QUEUED) == 0"));
+ (((kn->kn_status & 0x0002) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1089, "(kn->kn_status & KN_QUEUED) == 0"));
  do { (kn)->kn_tqe.tqe_next = ((void *)0); (kn)->kn_tqe.tqe_prev = (&kq->kq_head)->tqh_last; *(&kq->kq_head)->tqh_last = (kn); (&kq->kq_head)->tqh_last = &(kn)->kn_tqe.tqe_next; } while (0);
  kn->kn_status |= 0x0002;
  kq->kq_count++;
@@ -4528,7 +4526,7 @@ knote_dequeue(struct knote *kn)
 {
  struct kqueue *kq = kn->kn_kq;
  int s = _splraise(15);
- ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1106, "kn->kn_status & KN_QUEUED"));
+ ((kn->kn_status & 0x0002) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_event.c", 1104, "kn->kn_status & KN_QUEUED"));
  do { if (((kn)->kn_tqe.tqe_next) != ((void *)0)) (kn)->kn_tqe.tqe_next->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_prev; else (&kq->kq_head)->tqh_last = (kn)->kn_tqe.tqe_prev; *(kn)->kn_tqe.tqe_prev = (kn)->kn_tqe.tqe_next; ((kn)->kn_tqe.tqe_prev) = ((void *)-1); ((kn)->kn_tqe.tqe_next) = ((void *)-1); } while (0);
  kn->kn_status &= ~0x0002;
  kq->kq_count--;

@@ -4467,16 +4467,21 @@ fd_getfile(struct filedesc *fdp, int fd)
   return (((void *)0));
  if (!(((fp)->f_iflags & 0x02) == 0))
   return (((void *)0));
+ do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  return (fp);
 }
 struct file *
 fd_getfile_mode(struct filedesc *fdp, int fd, int mode)
 {
  struct file *fp;
- ((mode != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 223, "mode != 0"));
+ ((mode != 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 224, "mode != 0"));
  fp = fd_getfile(fdp, fd);
- if (fp == ((void *)0) || (fp->f_flag & mode) == 0)
+ if (fp == ((void *)0))
   return (((void *)0));
+ if ((fp->f_flag & mode) == 0) {
+  (--(fp)->f_count == 0 ? fdrop(fp, (__curcpu->ci_self)->ci_curproc) : 0);
+  return (((void *)0));
+ }
  return (fp);
 }
 int
@@ -4491,7 +4496,6 @@ sys_dup(struct proc *p, void *v, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, old)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  if ((error = fdalloc(p, 0, &new)) != 0) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
@@ -4533,7 +4537,6 @@ dodup3(struct proc *p, int old, int new, int flags, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, old)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if ((u_int)new >= p->p_p->ps_limit->pl_rlimit[8].rlim_cur ||
      (u_int)new >= maxfiles) {
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
@@ -4583,7 +4586,6 @@ sys_fcntl(struct proc *p, void *v, register_t *retval)
 restart:
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  switch (((uap)->cmd.be.datum)) {
  case 0:
  case 10:
@@ -4733,8 +4735,6 @@ restart:
    goto out;
   }
   fp2 = fd_getfile(fdp, fd);
-  if (fp2 != ((void *)0))
-   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp2)->f_count++; } while (0);
   if (fp != fp2) {
    fl.l_whence = 0;
    fl.l_start = 0;
@@ -4843,8 +4843,11 @@ sys_close(struct proc *p, void *v, register_t *retval)
  struct sys_close_args *uap = v;
  int fd = ((uap)->fd.be.datum), error;
  struct filedesc *fdp = p->p_fd;
- if (fd_getfile(fdp, fd) == ((void *)0))
+ struct file *fp;
+ fp = fd_getfile(fdp, fd);
+ if (fp == ((void *)0))
   return (9);
+ (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  error = fdrelease(p, fd);
  _rw_exit_write(&(fdp)->fd_lock );
@@ -4861,7 +4864,6 @@ sys_fstat(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  error = (*fp->f_ops->fo_stat)(fp, &ub, p);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  if (error == 0) {
@@ -4885,7 +4887,6 @@ sys_fpathconf(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  switch (fp->f_type) {
  case 3:
  case 2:
@@ -5002,8 +5003,8 @@ falloc(struct proc *p, int flags, struct file **resultfp, int *resultfd)
 {
  struct file *fp, *fq;
  int error, i;
- ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 933, "resultfp != NULL"));
- ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 934, "resultfd != NULL"));
+ ((resultfp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 935, "resultfp != NULL"));
+ ((resultfd != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_descrip.c", 936, "resultfd != NULL"));
  rw_assert_wrlock(&(p->p_fd)->fd_lock);
 restart:
  if ((error = fdalloc(p, 0, &i)) != 0) {
@@ -5193,7 +5194,6 @@ sys_flock(struct proc *p, void *v, register_t *retval)
  int error;
  if ((fp = fd_getfile(fdp, fd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
  if (fp->f_type != 1) {
   error = 45;
   goto out;
@@ -5246,7 +5246,6 @@ dupfdopen(struct proc *p, int indx, int mode)
  }
  if ((wfp = fd_getfile(fdp, dupfd)) == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (wfp)->f_count++; } while (0);
  if (((mode & (0x0001|0x0002)) | wfp->f_flag) != wfp->f_flag) {
   (--(wfp)->f_count == 0 ? fdrop(wfp, p) : 0);
   return (13);

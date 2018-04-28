@@ -3584,7 +3584,6 @@ morespace:
    error = 9;
    goto fail;
   }
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
   if (fp->f_count == 0x7fffffffffffffffL -2) {
    error = 11;
    goto fail;
