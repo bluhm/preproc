@@ -2222,14 +2222,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3865,7 +3863,7 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
        (flags & 0x080) ? 0x40 : 0,
        (__curcpu->ci_self)->ci_curproc->p_ucred);
   if ((uvn->u_flags & 0x040) == 0)
-   VOP_UNLOCK(vn, (__curcpu->ci_self)->ci_curproc);
+   VOP_UNLOCK(vn);
  }
  if (netunlocked)
   do { _rw_enter_write(&netlock ); } while (0);
@@ -3904,7 +3902,7 @@ uvm_vnp_uncache(struct vnode *vp)
  }
  vref(vp);
  uvn->u_obj.uo_refs++;
- VOP_UNLOCK(vp, (__curcpu->ci_self)->ci_curproc);
+ VOP_UNLOCK(vp);
  uvn_detach(&uvn->u_obj);
  vn_lock(vp, 0x0001UL | 0x2000UL, (__curcpu->ci_self)->ci_curproc);
  return(1);

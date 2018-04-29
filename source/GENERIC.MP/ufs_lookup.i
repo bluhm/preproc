@@ -2620,14 +2620,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3338,7 +3336,7 @@ notfound:
   dp->i_endoff = ((((enduseful)+(((1 << 9))-1))/((1 << 9)))*((1 << 9)));
   cnp->cn_flags |= 0x000800;
   if (!lockparent) {
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
    cnp->cn_flags |= 0x200000;
   }
   return (-2);
@@ -3383,7 +3381,7 @@ found:
   }
   *vpp = tdp;
   if (!lockparent) {
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
    cnp->cn_flags |= 0x200000;
   }
   return (0);
@@ -3401,14 +3399,14 @@ found:
   *vpp = tdp;
   cnp->cn_flags |= 0x000800;
   if (!lockparent) {
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
    cnp->cn_flags |= 0x200000;
   }
   return (0);
  }
  pdp = vdp;
  if (flags & 0x002000) {
-  VOP_UNLOCK(pdp, p);
+  VOP_UNLOCK(pdp);
   cnp->cn_flags |= 0x200000;
   error = (*(vdp->v_mount)->mnt_op->vfs_vget)(vdp->v_mount, dp->i_ino, &tdp);
   if (error) {
@@ -3432,7 +3430,7 @@ found:
   if (error)
    return (error);
   if (!lockparent || !(flags & 0x008000)) {
-   VOP_UNLOCK(pdp, p);
+   VOP_UNLOCK(pdp);
    cnp->cn_flags |= 0x200000;
   }
   *vpp = tdp;
@@ -3549,7 +3547,7 @@ ufs_direnter(struct vnode *dvp, struct vnode *tvp, struct direct *dirp,
    if ((error = VOP_BWRITE(bp)))
     return (error);
    if (tvp != ((void *)0))
-    VOP_UNLOCK(tvp, p);
+    VOP_UNLOCK(tvp);
    error = VOP_FSYNC(dvp, p->p_ucred, 1, p);
    if (tvp != ((void *)0))
     vn_lock(tvp, 0x0001UL | 0x2000UL, p);
@@ -3625,7 +3623,7 @@ ufs_direnter(struct vnode *dvp, struct vnode *tvp, struct direct *dirp,
  dp->i_flag |= 0x0002 | 0x0004;
  if (error == 0 && dp->i_endoff && dp->i_endoff < (((dp)->i_ump->um_fstype == 1) ? (dp)->dinode_u.ffs1_din->di_size : (dp)->dinode_u.ffs2_din->di_size)) {
   if (tvp != ((void *)0))
-   VOP_UNLOCK(tvp, p);
+   VOP_UNLOCK(tvp);
   error = ((dp)->i_vtbl->iv_truncate)((dp), ((off_t)dp->i_endoff), (0x04), (cr));
   if (error == 0 && dp->inode_ext.dirhash != ((void *)0))
    ufsdirhash_dirtrunc(dp, dp->i_endoff);

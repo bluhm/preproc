@@ -1880,14 +1880,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3110,7 +3108,7 @@ fail:
    return(0);
   }
   if ((cnp->cn_flags & 0x0008) && (cnp->cn_flags & 0x008000))
-   VOP_UNLOCK(ndp->ni_dvp, p);
+   VOP_UNLOCK(ndp->ni_dvp);
   if (ndp->ni_loopcnt++ >= 32) {
    error = 62;
    break;
@@ -3306,7 +3304,7 @@ dirloop:
      (cnp->cn_flags & 0x000100) == 0) {
   if (vfs_busy(mp, 0x01|0x08))
    continue;
-  VOP_UNLOCK(dp, p);
+  VOP_UNLOCK(dp);
   error = (*(mp)->mnt_op->vfs_root)(mp, &tdp);
   vfs_unbusy(mp);
   if (error) {
@@ -3350,12 +3348,12 @@ terminal:
    vrele(ndp->ni_dvp);
  }
  if ((cnp->cn_flags & 0x0004) == 0)
-  VOP_UNLOCK(dp, p);
+  VOP_UNLOCK(dp);
  return (0);
 bad2:
  if ((cnp->cn_flags & 0x0008) && (cnp->cn_flags & 0x008000) &&
      ((cnp->cn_flags & 0x200000) == 0))
-  VOP_UNLOCK(ndp->ni_dvp, p);
+  VOP_UNLOCK(ndp->ni_dvp);
  vrele(ndp->ni_dvp);
 bad:
  if (dpunlocked)
@@ -3411,11 +3409,11 @@ vfs_relookup(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp)
  if (!wantparent)
   vrele(dvp);
  if ((cnp->cn_flags & 0x0004) == 0)
-  VOP_UNLOCK(dp, p);
+  VOP_UNLOCK(dp);
  return (0);
 bad2:
  if ((cnp->cn_flags & 0x0008) && (cnp->cn_flags & 0x008000))
-  VOP_UNLOCK(dvp, p);
+  VOP_UNLOCK(dvp);
  vrele(dvp);
 bad:
  vput(dp);

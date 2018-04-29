@@ -2496,14 +2496,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3831,7 +3829,7 @@ void cnbell(u_int, u_int, u_int);
 void cnrint(void);
 void nullcnpollc(dev_t, int);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 static int ttnread(struct tty *);
@@ -3923,7 +3921,7 @@ ttyinput(int c, struct tty *tp)
  u_char *cc;
  int i, error;
  int s;
- enqueue_randomness(3, (int)(tp->t_dev << 8 | c));
+ enqueue_randomness(tp->t_dev << 8 | c);
  if (!((tp->t_termios.c_cflag) & (0x00000800)))
   return (0);
  lflag = tp->t_termios.c_lflag;
@@ -4355,7 +4353,7 @@ ttioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
     return (error);
    vn_lock(nid.ni_vp, 0x0001UL | 0x2000UL, p);
    error = VOP_ACCESS(nid.ni_vp, 00400, p->p_ucred, p);
-   VOP_UNLOCK(nid.ni_vp, p);
+   VOP_UNLOCK(nid.ni_vp);
    vrele(nid.ni_vp);
    if (error)
     return (error);

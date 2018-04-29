@@ -3523,8 +3523,10 @@ xhci_event_xfer(struct xhci_softc *sc, uint64_t paddr, uint32_t status,
   return;
  }
  xp = sc->sc_sdevs[slot].pipes[dci - 1];
- if (xp == ((void *)0))
+ if (xp == ((void *)0)) {
+  ;
   return;
+ }
  code = (((status) >> 24) & 0xff);
  remain = ((status) & 0xffffff);
  switch (code) {
@@ -3559,8 +3561,10 @@ xhci_event_xfer(struct xhci_softc *sc, uint64_t paddr, uint32_t status,
  case 13:
   xfer->actlen = xfer->length - remain;
   xx = (struct xhci_xfer *)xfer;
-  if (xx->index != trb_idx)
+  if (xx->index != trb_idx) {
+   ;
    return;
+  }
   xfer->status = USBD_NORMAL_COMPLETION;
   break;
  case 4:
@@ -3642,7 +3646,7 @@ xhci_event_command(struct xhci_softc *sc, uint64_t paddr)
  case (11 << 10):
  case (13 << 10):
  case (23 << 10):
-  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 878, "sc->sc_cmd_trb == trb"));
+  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 883, "sc->sc_cmd_trb == trb"));
   sc->sc_cmd_trb = ((void *)0);
   wakeup(&sc->sc_cmd_trb);
   break;
@@ -3711,7 +3715,7 @@ xhci_pipe_open(struct usbd_pipe *pipe)
  usb_endpoint_descriptor_t *ed = pipe->endpoint->edesc;
  uint8_t slot = 0, xfertype = ((ed->bmAttributes) & 0x03);
  int error;
- ((xp->slot == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 976, "xp->slot == 0"));
+ ((xp->slot == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 981, "xp->slot == 0"));
  if (sc->sc_bus.dying)
   return (USBD_IOERROR);
  if (pipe->device->depth == 0) {
@@ -3823,7 +3827,7 @@ xhci_pipe_interval(struct usbd_pipe *pipe)
    break;
   }
  }
- ((ival >= 0 && ival <= 15) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1147, "ival >= 0 && ival <= 15"));
+ ((ival >= 0 && ival <= 15) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1152, "ival >= 0 && ival <= 15"));
  return ((((ival) & 0xff) << 16));
 }
 uint32_t
@@ -3976,7 +3980,7 @@ xhci_setaddr(struct usbd_device *dev, int addr)
  int error;
  if (dev->depth == 0)
   return (0);
- ((xp->dci == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1411, "xp->dci == 1"));
+ ((xp->dci == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1416, "xp->dci == 1"));
  error = xhci_context_setup(sc, dev->default_pipe);
  if (error)
   return (error);
@@ -4072,7 +4076,7 @@ struct xhci_trb*
 xhci_ring_consume(struct xhci_softc *sc, struct xhci_ring *ring)
 {
  struct xhci_trb *trb = &ring->trbs[ring->index];
- ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1563, "ring->index < ring->ntrb"));
+ ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1568, "ring->index < ring->ntrb"));
  bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(trb) - (char *)((ring)->trbs)),
      sizeof(struct xhci_trb), 0x02);
  if (ring->toggle != ((__uint32_t)(__builtin_constant_p(trb->trb_flags) ? (__uint32_t)(((__uint32_t)(trb->trb_flags) & 0xff) << 24 | ((__uint32_t)(trb->trb_flags) & 0xff00) << 8 | ((__uint32_t)(trb->trb_flags) & 0xff0000) >> 8 | ((__uint32_t)(trb->trb_flags) & 0xff000000) >> 24) : __swap32md(trb->trb_flags)) & (1 << 0)))
@@ -4088,7 +4092,7 @@ struct xhci_trb*
 xhci_ring_produce(struct xhci_softc *sc, struct xhci_ring *ring)
 {
  struct xhci_trb *trb = &ring->trbs[ring->index];
- ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1587, "ring->index < ring->ntrb"));
+ ((ring->index < ring->ntrb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1592, "ring->index < ring->ntrb"));
  bus_dmamap_sync(ring->dma.tag, ring->dma.map, ((char *)(trb) - (char *)((ring)->trbs)),
      sizeof(struct xhci_trb), 0x02 |
      0x08);
@@ -4112,7 +4116,7 @@ xhci_xfer_get_trb(struct xhci_softc *sc, struct usbd_xfer *xfer,
 {
  struct xhci_pipe *xp = (struct xhci_pipe *)xfer->pipe;
  struct xhci_xfer *xx = (struct xhci_xfer *)xfer;
- ((xp->free_trbs >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1622, "xp->free_trbs >= 1"));
+ ((xp->free_trbs >= 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1627, "xp->free_trbs >= 1"));
  xp->pending_xfers[xp->ring.index] = xfer;
  xp->free_trbs--;
  xx->index = (last) ? xp->ring.index : -2;
@@ -4125,7 +4129,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
 {
  struct xhci_trb *trb;
  int s, error = 0;
- ((timeout == 0 || sc->sc_cmd_trb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1641, "timeout == 0 || sc->sc_cmd_trb == NULL"));
+ ((timeout == 0 || sc->sc_cmd_trb == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1646, "timeout == 0 || sc->sc_cmd_trb == NULL"));
  trb0->trb_flags |= (__uint32_t)(__builtin_constant_p(sc->sc_cmd_ring.toggle) ? (__uint32_t)(((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff) << 24 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff00) << 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff0000) >> 8 | ((__uint32_t)(sc->sc_cmd_ring.toggle) & 0xff000000) >> 24) : __swap32md(sc->sc_cmd_ring.toggle));
  trb = xhci_ring_produce(sc, &sc->sc_cmd_ring);
  if (trb == ((void *)0))
@@ -4145,7 +4149,7 @@ xhci_command_submit(struct xhci_softc *sc, struct xhci_trb *trb0, int timeout)
  error = tsleep(&sc->sc_cmd_trb, 22, "xhcicmd",
      (timeout*hz+999)/ 1000 + 1);
  if (error) {
-  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1672, "sc->sc_cmd_trb == trb"));
+  ((sc->sc_cmd_trb == trb) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1677, "sc->sc_cmd_trb == trb"));
   sc->sc_cmd_trb = ((void *)0);
   _splx(s);
   return (error);
@@ -4437,7 +4441,7 @@ xhci_root_ctrl_start(struct usbd_xfer *xfer)
  int l, totlen = 0;
  int port, i;
  uint32_t v;
- ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2106, "xfer->rqflags & URQ_REQUEST"));
+ ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2111, "xfer->rqflags & URQ_REQUEST"));
  if (sc->sc_bus.dying)
   return (USBD_IOERROR);
  req = &xfer->request;
@@ -4840,7 +4844,7 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
  uint32_t flags, len = ((xfer->request.wLength)[0] | ((xfer->request.wLength)[1] << 8));
  uint8_t toggle0, toggle;
  int s;
- ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2579, "xfer->rqflags & URQ_REQUEST"));
+ ((xfer->rqflags & 0x01) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2584, "xfer->rqflags & URQ_REQUEST"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  if (xp->free_trbs < 3)
@@ -4917,7 +4921,7 @@ xhci_device_generic_start(struct usbd_xfer *xfer)
  uint64_t paddr = ((&xfer->dmabuf)->block->map->dm_segs[0].ds_addr + (&xfer->dmabuf)->offs + (0));
  uint8_t toggle0, toggle;
  int s, i, ntrb;
- ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2686, "!(xfer->rqflags & URQ_REQUEST)"));
+ ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2691, "!(xfer->rqflags & URQ_REQUEST)"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  ntrb = (((xfer->length) + (((64 * 1024)) - 1)) / ((64 * 1024)));
@@ -4982,7 +4986,7 @@ xhci_device_generic_done(struct usbd_xfer *xfer)
 void
 xhci_device_generic_abort(struct usbd_xfer *xfer)
 {
- ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2785, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
+ ((!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2790, "!xfer->pipe->repeat || xfer->pipe->intrxfer == xfer"));
  xhci_abort_xfer(xfer, USBD_CANCELLED);
 }
 usbd_status
@@ -5006,7 +5010,7 @@ xhci_device_isoc_start(struct usbd_xfer *xfer)
  uint32_t len0, tbc, tlbpc;
  uint8_t toggle0, toggle;
  int s, i, ntrb = xfer->nframes;
- ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2815, "!(xfer->rqflags & URQ_REQUEST)"));
+ ((!(xfer->rqflags & 0x01)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 2820, "!(xfer->rqflags & URQ_REQUEST)"));
  if (sc->sc_bus.dying || xp->halted)
   return (USBD_IOERROR);
  if (sc->sc_bus.use_polling)

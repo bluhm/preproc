@@ -2724,14 +2724,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3793,7 +3791,7 @@ spec_open(void *v)
    vp->v_flag |= 0x0008;
   if (cdevsw[maj].d_flags & 0x0001)
    return (spec_open_clone(ap));
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   error = (*cdevsw[maj].d_open)(dev, ap->a_mode, 0020000, p);
   vn_lock(vp, 0x0001UL | 0x2000UL, p);
   return (error);
@@ -3840,7 +3838,7 @@ spec_read(void *v)
   return (0);
  switch (vp->v_type) {
  case VCHR:
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   error = (*cdevsw[((int32_t)(((u_int32_t)(vp->v_un.vu_specinfo->si_rdev) >> 8) & 0xff))].d_read)
    (vp->v_un.vu_specinfo->si_rdev, uio, ap->a_ioflag);
   vn_lock(vp, 0x0001UL | 0x2000UL, p);
@@ -3889,7 +3887,7 @@ int
 spec_inactive(void *v)
 {
  struct vop_inactive_args *ap = v;
- VOP_UNLOCK(ap->a_vp, ap->a_p);
+ VOP_UNLOCK(ap->a_vp);
  return (0);
 }
 int
@@ -3913,7 +3911,7 @@ spec_write(void *v)
   panic("spec_write proc");
  switch (vp->v_type) {
  case VCHR:
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   error = (*cdevsw[((int32_t)(((u_int32_t)(vp->v_un.vu_specinfo->si_rdev) >> 8) & 0xff))].d_write)
    (vp->v_un.vu_specinfo->si_rdev, uio, ap->a_ioflag);
   vn_lock(vp, 0x0001UL | 0x2000UL, p);
@@ -4072,7 +4070,7 @@ spec_close(void *v)
    vn_lock(vp, 0x0001UL | 0x2000UL, p);
   error = vinvalbuf(vp, 0x0001, ap->a_cred, p, 0, 0);
   if (!(vp->v_flag & 0x0100))
-   VOP_UNLOCK(vp, p);
+   VOP_UNLOCK(vp);
   if (error)
    return (error);
   if (vcount(vp) > 1 && (vp->v_flag & 0x0100) == 0)
@@ -4085,7 +4083,7 @@ spec_close(void *v)
  }
  relock = VOP_ISLOCKED(vp) && !(vp->v_flag & 0x0100);
  if (relock)
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
  error = (*devclose)(dev, ap->a_fflag, mode, p);
  if (relock)
   vn_lock(vp, 0x0001UL | 0x2000UL, p);
@@ -4111,7 +4109,7 @@ spec_setattr(void *v)
   return (9);
  vn_lock(vp->v_un.vu_specinfo->si_ci.ci_parent, 0x0001UL|0x2000UL, p);
  error = VOP_SETATTR(vp->v_un.vu_specinfo->si_ci.ci_parent, ap->a_vap, ap->a_cred, p);
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  return (error);
 }
 int
@@ -4195,7 +4193,7 @@ spec_open_clone(struct vop_open_args *ap)
   ((vp->v_un.vu_specinfo->si_ci.ci_bitmap)[(i)>>3] &= ~(1<<((i)&(8 -1))));
   return (error);
  }
- VOP_UNLOCK(vp, ap->a_p);
+ VOP_UNLOCK(vp);
  error = cdevsw[((int32_t)(((u_int32_t)(vp->v_un.vu_specinfo->si_rdev) >> 8) & 0xff))].d_open(cvp->v_un.vu_specinfo->si_rdev, ap->a_mode,
      0020000, ap->a_p);
  vn_lock(vp, 0x0001UL | 0x2000UL, ap->a_p);

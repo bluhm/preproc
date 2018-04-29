@@ -2630,14 +2630,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3186,7 +3184,7 @@ void wstpad_reset(struct wsmouseinput *);
 int wstpad_get_param(struct wsmouseinput *, int, int *);
 int wstpad_set_param(struct wsmouseinput *, int, int);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct wsevsrc {
@@ -3948,7 +3946,10 @@ wsmouse_input_sync(struct device *sc)
  evq.put = evq.evar->put;
  evq.result = 0;
  getnanotime(&evq.ts);
- enqueue_randomness(2, (int)(input->btn.buttons ^ input->motion.dx ^ input->motion.dy ^ input->motion.pos.x ^ input->motion.pos.y ^ input->motion.dz ^ input->motion.dw));
+ enqueue_randomness(input->btn.buttons
+     ^ input->motion.dx ^ input->motion.dy
+     ^ input->motion.pos.x ^ input->motion.pos.y
+     ^ input->motion.dz ^ input->motion.dw);
  if (input->mt.frame) {
   wsmouse_mt_update(input);
   wsmouse_mt_convert(sc);

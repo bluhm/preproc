@@ -2330,14 +2330,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2938,7 +2936,7 @@ __attribute__((__noreturn__)) void unhandled_af(int);
 int if_setlladdr(struct ifnet *, const uint8_t *);
 struct taskq * net_tq(unsigned int);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct consdev {
@@ -3805,7 +3803,7 @@ disk_attach_callback(void *xdat)
  if (dk->dk_flags & (0x0002 | 0x0004))
   goto done;
  if (disk_readlabel(&dl, dk->dk_devno, errbuf, sizeof(errbuf)) == ((void *)0)) {
-  enqueue_randomness(1, (int)(dl.d_checksum));
+  enqueue_randomness(dl.d_checksum);
   dk->dk_flags |= 0x0008;
  }
 done:
@@ -3899,7 +3897,8 @@ disk_unbusy(struct disk *diskp, long bcount, daddr_t blkno, int read)
  } else
   diskp->dk_seek++;
  __mtx_leave(&diskp->dk_mtx );
- enqueue_randomness(4, (int)(bcount ^ diff_time.tv_usec ^ (blkno >> 32) ^ (blkno & 0xffffffff)));
+ enqueue_randomness(bcount ^ diff_time.tv_usec ^
+     (blkno >> 32) ^ (blkno & 0xffffffff));
 }
 int
 disk_lock(struct disk *dk)

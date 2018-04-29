@@ -2669,14 +2669,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -8068,7 +8066,7 @@ parsepledges(struct proc *p, const char *kname, const char *promises, u_int64_t 
  }
  if (((p)->p_p->ps_traceflag & (1<<(8)) && ((p)->p_flag & 0x00000001) == 0))
   ktrstruct(p, kname, rbuf, rbuflen-1);
- for (rp = rbuf; rp && *rp && error == 0; rp = pn) {
+ for (rp = rbuf; rp && *rp; rp = pn) {
   pn = strchr(rp, ' ');
   if (pn) {
    while (*pn == ' ')

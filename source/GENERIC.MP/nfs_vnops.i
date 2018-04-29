@@ -3087,14 +3087,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5088,7 +5086,7 @@ nfs_lookup(void *v)
     cnp->cn_flags |= 0x000800;
    if ((!lockparent || !(flags & 0x008000)) &&
         newvp != dvp) {
-    VOP_UNLOCK(dvp, p);
+    VOP_UNLOCK(dvp);
     cnp->cn_flags |= 0x200000;
    }
    return (0);
@@ -5140,7 +5138,7 @@ dorpc:
   m_freem(info.nmi_mrep);
   cnp->cn_flags |= 0x000800;
   if (!lockparent) {
-   VOP_UNLOCK(dvp, p);
+   VOP_UNLOCK(dvp);
    cnp->cn_flags |= 0x200000;
   }
   return (0);
@@ -5154,7 +5152,7 @@ dorpc:
   } else
    { struct vnode *ttvp = (newvp); if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, (((void *)0)))) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ttvp; };
  } else if (flags & 0x002000) {
-  VOP_UNLOCK(dvp, p);
+  VOP_UNLOCK(dvp);
   cnp->cn_flags |= 0x200000;
   error = nfs_nget(dvp->v_mount, fhp, fhsize, &np);
   if (error) {
@@ -5190,7 +5188,7 @@ dorpc:
   } else
    { struct vnode *ttvp = (newvp); if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, (((void *)0)))) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ttvp; };
   if (!lockparent || !(flags & 0x008000)) {
-   VOP_UNLOCK(dvp, p);
+   VOP_UNLOCK(dvp);
    cnp->cn_flags |= 0x200000;
   }
  }

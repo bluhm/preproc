@@ -1727,7 +1727,7 @@ struct usb_attach_arg {
  int nifaces;
 };
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct urng_chip {
@@ -1880,7 +1880,7 @@ urng_task(void *arg)
  }
  len /= sizeof(int);
  for (i = 0; i < len; i++) {
-  enqueue_randomness(0, (int)(sc->sc_buf[i]));
+  enqueue_randomness(sc->sc_buf[i]);
  }
 bail:
  timeout_add_msec(&sc->sc_timeout, sc->sc_chip.msecs);

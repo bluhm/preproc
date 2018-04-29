@@ -2314,14 +2314,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3517,7 +3515,7 @@ quotaon(struct proc *p, struct mount *mp, int type, caddr_t fname)
  if ((error = vn_open(&nd, 0x0001|0x0002, 0)) != 0)
   return (error);
  vp = nd.ni_vp;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  if (vp->v_type != VREG) {
   (void) vn_close(vp, 0x0001|0x0002, p->p_ucred, p);
   return (13);
@@ -3824,7 +3822,7 @@ dqget(struct vnode *vp, u_long id, struct ufsmount *ump, int type,
  if (auio.uio_resid == sizeof(struct dqblk) && error == 0)
   __builtin_memset((&dq->dq_dqb), (0), (sizeof(struct dqblk)));
  if (vp != dqvp)
-  VOP_UNLOCK(dqvp, p);
+  VOP_UNLOCK(dqvp);
  if (dq->dq_flags & 0x02)
   wakeup(dq);
  dq->dq_flags = 0;
@@ -3882,7 +3880,7 @@ dqsync(struct vnode *vp, struct dquot *dq)
   (void) tsleep(dq, 8 +2, "dqsync", 0);
   if ((dq->dq_flags & 0x04) == 0) {
    if (vp != dqvp)
-    VOP_UNLOCK(dqvp, p);
+    VOP_UNLOCK(dqvp);
    return (0);
   }
  }
@@ -3903,7 +3901,7 @@ dqsync(struct vnode *vp, struct dquot *dq)
   wakeup(dq);
  dq->dq_flags &= ~(0x04|0x01|0x02);
  if (vp != dqvp)
-  VOP_UNLOCK(dqvp, p);
+  VOP_UNLOCK(dqvp);
  return (error);
 }
 int

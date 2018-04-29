@@ -2265,14 +2265,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3606,7 +3604,7 @@ iso_mountfs(devvp, mp, p, argp)
   return (16);
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  error = vinvalbuf(devvp, 0x0001, p->p_ucred, p, 0, 0);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (error)
   return (error);
  error = VOP_OPEN(devvp, ronly ? 0x0001 : 0x0001|0x0002, ((struct ucred *)-2), p);
@@ -3758,7 +3756,7 @@ out:
   brelse(supbp);
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  VOP_CLOSE(devvp, ronly ? 0x0001 : 0x0001|0x0002, ((struct ucred *)-1), p);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (isomp) {
   free((caddr_t)isomp, 57, 0);
   mp->mnt_data = ((void *)0);

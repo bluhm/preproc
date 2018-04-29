@@ -2765,14 +2765,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -4701,7 +4699,7 @@ ext2fs_link(void *v)
  pool_put(&namei_pool, cnp->cn_pnbuf);
 out1:
  if (dvp != vp)
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
 out2:
  vput(dvp);
  return (error);
@@ -4769,13 +4767,13 @@ abortit:
  dp = ((struct inode *)(fdvp)->v_data);
  ip = ((struct inode *)(fvp)->v_data);
  if ((nlink_t)ip->dinode_u.e2fs_din->e2di_nlink >= 32767) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   error = 31;
   goto abortit;
  }
  if ((ip->dinode_u.e2fs_din->e2di_flags & (0x00000010 | 0x00000020)) ||
   (dp->dinode_u.e2fs_din->e2di_flags & 0x00000020)) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   error = 1;
   goto abortit;
  }
@@ -4785,7 +4783,7 @@ abortit:
                  error = VOP_ACCESS(tvp, 00200, tcnp->cn_cred,
        tcnp->cn_proc);
          if (error) {
-                 VOP_UNLOCK(fvp, p);
+                 VOP_UNLOCK(fvp);
                  error = 13;
                  goto abortit;
          }
@@ -4794,7 +4792,7 @@ abortit:
    (fcnp->cn_flags&0x002000) ||
    (tcnp->cn_flags & 0x002000) ||
       (ip->i_flag & 0x0010)) {
-   VOP_UNLOCK(fvp, p);
+   VOP_UNLOCK(fvp);
    error = 22;
    goto abortit;
   }
@@ -4810,11 +4808,11 @@ abortit:
  ip->dinode_u.e2fs_din->e2di_nlink++;
  ip->i_flag |= 0x0002;
  if ((error = ext2fs_update(ip, 1)) != 0) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   goto bad;
  }
  error = VOP_ACCESS(fvp, 00200, tcnp->cn_cred, tcnp->cn_proc);
- VOP_UNLOCK(fvp, p);
+ VOP_UNLOCK(fvp);
  if (oldparent != dp->i_number)
   newparent = dp->i_number;
  if (doingdirectory && newparent) {

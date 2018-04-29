@@ -2762,7 +2762,7 @@ struct usb_cdc_connection_speed {
  uDWord dwDSBitRate;
 } __attribute__((__packed__));
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct uonerng_softc {
@@ -3013,7 +3013,7 @@ uonerng_task(void *arg)
  }
  int_count = len / sizeof(int);
  for (i = 0; i < int_count; i++) {
-  enqueue_randomness(0, (int)(sc->sc_buf[i]));
+  enqueue_randomness(sc->sc_buf[i]);
  }
 bail:
  if (sc->sc_first_run) {

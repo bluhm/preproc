@@ -2896,14 +2896,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -4357,7 +4355,7 @@ retry:
   cfp->f_type = 1;
   cfp->f_ops = &vnops;
   cfp->f_data = (caddr_t) cnd.ni_vp;
-  VOP_UNLOCK(cnd.ni_vp, p);
+  VOP_UNLOCK(cnd.ni_vp);
   ndinitat(&snd, 0, 0x0000|0x0004, UIO_SYSSPACE, -100, pti->pty_sn, p);
   snd.ni_pledge = 0x0000000000000001ULL | 0x0000000000000002ULL;
   if ((error = namei(&snd)) != 0)
@@ -4377,7 +4375,7 @@ retry:
     goto bad;
    }
   }
-  VOP_UNLOCK(snd.ni_vp, p);
+  VOP_UNLOCK(snd.ni_vp);
   if (snd.ni_vp->v_usecount > 1 ||
       (snd.ni_vp->v_flag & (0x0800)))
    VOP_REVOKE(snd.ni_vp, 0x0001);
@@ -4390,7 +4388,7 @@ retry:
   sfp->f_type = 1;
   sfp->f_ops = &vnops;
   sfp->f_data = (caddr_t) snd.ni_vp;
-  VOP_UNLOCK(snd.ni_vp, p);
+  VOP_UNLOCK(snd.ni_vp);
   ptm->cfd = cindx;
   ptm->sfd = sindx;
   __builtin_memcpy((ptm->cn), (pti->pty_pn), (sizeof(pti->pty_pn)));

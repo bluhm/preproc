@@ -2590,14 +2590,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3191,14 +3189,14 @@ vndioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   else {
    error = VOP_GETATTR(nd.ni_vp, &vattr, p->p_ucred, p);
    if (error) {
-    VOP_UNLOCK(nd.ni_vp, p);
+    VOP_UNLOCK(nd.ni_vp);
     vn_close(nd.ni_vp, ((sc)->sc_flags & 0x0004 ? 0x0001 : 0x0001|0x0002), p->p_ucred, p);
     disk_unlock(&sc->sc_dk);
     return (error);
    }
    sc->sc_size = vattr.va_size / sc->sc_secsize;
   }
-  VOP_UNLOCK(nd.ni_vp, p);
+  VOP_UNLOCK(nd.ni_vp);
   sc->sc_vp = nd.ni_vp;
   if ((error = vndsetcred(sc, p->p_ucred)) != 0) {
    (void) vn_close(nd.ni_vp, ((sc)->sc_flags & 0x0004 ? 0x0001 : 0x0001|0x0002), p->p_ucred, p);

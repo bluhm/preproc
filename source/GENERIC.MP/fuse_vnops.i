@@ -2778,14 +2778,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3764,7 +3762,7 @@ fusefs_link(void *v)
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
 out1:
  if (dvp != vp)
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
 out2:
  vput(dvp);
  return (error);
@@ -3896,7 +3894,7 @@ fusefs_inactive(void *v)
        (vp->v_type == VDIR), ap->a_p);
  }
  error = VOP_GETATTR(vp, &vattr, cred, p);
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  if (error)
   vrecycle(vp, p);
  return (0);
@@ -4224,7 +4222,7 @@ abortit:
       dp == ip ||
       (fcnp->cn_flags & 0x002000) ||
       (tcnp->cn_flags & 0x002000)) {
-   VOP_UNLOCK(fvp, p);
+   VOP_UNLOCK(fvp);
    error = 22;
    goto abortit;
   }
@@ -4232,12 +4230,12 @@ abortit:
  do { struct klist *list = (&fdvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
  if (!fmp->sess_init) {
   error = 6;
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   goto abortit;
  }
  if (fmp->undef_op & 1<<8) {
   error = 78;
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   goto abortit;
  }
  fbuf = fb_setup(fcnp->cn_namelen + tcnp->cn_namelen + 2,
@@ -4253,12 +4251,12 @@ abortit:
    fmp->undef_op |= 1<<8;
   }
   fb_delete(fbuf);
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   goto abortit;
  }
  fb_delete(fbuf);
  do { struct klist *list = (&fvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0020))); } while (0);
- VOP_UNLOCK(fvp, p);
+ VOP_UNLOCK(fvp);
  if (tdvp == tvp)
   vrele(tdvp);
  else

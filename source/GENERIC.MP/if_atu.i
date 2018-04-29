@@ -4671,7 +4671,7 @@ struct ieee80211_node *
   const char *, u_int8_t);
 void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_free_allnodes(struct ieee80211com *, int);
 void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
 void ieee80211_clean_cached(struct ieee80211com *);
@@ -5968,13 +5968,14 @@ atu_newstate(struct ieee80211com *ic, enum ieee80211_state nstate, int arg)
  switch (nstate) {
  case IEEE80211_S_SCAN:
   __builtin_memcpy((ic->ic_chan_scan), (ic->ic_chan_active), (sizeof(ic->ic_chan_active)));
-  ieee80211_free_allnodes(ic);
+  ieee80211_free_allnodes(ic, 1);
   sc->sc_cmd = 1;
   usb_add_task(sc->atu_udev, &sc->sc_task);
   if (ifp->if_flags & 0x4)
    printf("%s: %s -> %s\n", ifp->if_xname,
        ieee80211_state_name[ic->ic_state],
        ieee80211_state_name[nstate]);
+  ieee80211_set_link_state(ic, 2);
   ic->ic_state = nstate;
   return (0);
  case IEEE80211_S_AUTH:

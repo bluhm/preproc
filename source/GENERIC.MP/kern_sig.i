@@ -1731,14 +1731,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5822,7 +5820,7 @@ coredump(struct proc *p)
   goto out;
  vp = nd.ni_vp;
  if ((error = VOP_GETATTR(vp, &vattr, cred, p)) != 0) {
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   vn_close(vp, 0x0002, cred, p);
   goto out;
  }
@@ -5830,7 +5828,7 @@ coredump(struct proc *p)
      vattr.va_mode & ((00400 | 00200) >> 3 | (00400 | 00200) >> 6) ||
      vattr.va_uid != cred->cr_uid) {
   error = 13;
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   vn_close(vp, 0x0002, cred, p);
   goto out;
  }
@@ -5842,7 +5840,7 @@ coredump(struct proc *p)
  io.io_vp = vp;
  io.io_cred = cred;
  io.io_offset = 0;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  vref(vp);
  error = vn_close(vp, 0x0002, cred, p);
  if (error == 0)

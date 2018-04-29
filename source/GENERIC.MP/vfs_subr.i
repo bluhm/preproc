@@ -2990,14 +2990,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5662,7 +5660,7 @@ loop:
   }
   return (((struct vnode *)((void *)0)));
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  vclean(vp, 0, p);
  vp->v_op = nvp->v_op;
  vp->v_tag = nvp->v_tag;
@@ -5747,7 +5745,7 @@ vput(struct vnode *vp)
  }
  vp->v_usecount--;
  if (vp->v_usecount > 0) {
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   return;
  }
  if (vp->v_writecount != 0) {
@@ -5883,7 +5881,7 @@ vclean(struct vnode *vp, int flags, struct proc *p)
  if (vp->v_flag & 0x0100)
   panic("vclean: deadlock");
  vp->v_flag |= 0x0100;
- VOP_LOCK(vp, 0x1000UL | 0x0001UL, p);
+ VOP_LOCK(vp, 0x1000UL | 0x0001UL);
  uvm_vnp_terminate(vp);
  if (flags & 0x0008)
   vinvalbuf(vp, 0x0001, ((struct ucred *)-1), p, 0, 0);
@@ -5892,7 +5890,7 @@ vclean(struct vnode *vp, int flags, struct proc *p)
    VOP_CLOSE(vp, 0x0004, ((struct ucred *)-1), p);
   VOP_INACTIVE(vp, p);
  } else {
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
  }
  if (VOP_RECLAIM(vp, p))
   panic("vclean: cannot reclaim");

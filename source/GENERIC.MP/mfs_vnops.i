@@ -2200,14 +2200,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2882,7 +2880,7 @@ mfs_inactive(void *v)
  struct mfsnode *mfsp = ((struct mfsnode *)(ap->a_vp)->v_data);
  if (mfsp->mfs_shutdown && bufq_peek(&mfsp->mfs_bufq))
   panic("mfs_inactive: not inactive");
- VOP_UNLOCK(ap->a_vp, ap->a_p);
+ VOP_UNLOCK(ap->a_vp);
  return (0);
 }
 int

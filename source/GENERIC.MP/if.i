@@ -2158,7 +2158,7 @@ void cpuset_intersection(struct cpuset *t, struct cpuset *, struct cpuset *);
 void cpuset_complement(struct cpuset *, struct cpuset *, struct cpuset *);
 struct cpu_info *cpuset_first(struct cpuset *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct if_nameindex {
@@ -5987,7 +5987,7 @@ if_input_process(struct ifnet *ifp, struct mbuf_list *ml)
  if (((ml)->ml_len == 0))
   return;
  if (!((ifp->if_xflags) & (0x2)))
-  enqueue_randomness(5, (int)(((ml)->ml_len)));
+  enqueue_randomness(((ml)->ml_len));
  do { _rw_enter_read(&netlock ); } while (0);
  s = _splraise(6);
  while ((m = ml_dequeue(ml)) != ((void *)0)) {

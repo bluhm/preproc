@@ -1880,14 +1880,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2773,7 +2771,7 @@ notfound:;
   dp->de_fndcnt = wincnt - 1;
   cnp->cn_flags |= 0x000800;
   if (!lockparent) {
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
    cnp->cn_flags |= 0x200000;
   }
   return (-2);
@@ -2818,7 +2816,7 @@ foundroot:;
    return (error);
   *vpp = ((tdp)->de_vnode);
   if (!lockparent) {
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
    cnp->cn_flags |= 0x200000;
   }
   return (0);
@@ -2837,12 +2835,12 @@ foundroot:;
   *vpp = ((tdp)->de_vnode);
   cnp->cn_flags |= 0x000800;
   if (!lockparent)
-   VOP_UNLOCK(vdp, p);
+   VOP_UNLOCK(vdp);
   return (0);
  }
  pdp = vdp;
  if (flags & 0x002000) {
-  VOP_UNLOCK(pdp, p);
+  VOP_UNLOCK(pdp);
   cnp->cn_flags |= 0x200000;
   if ((error = deget(pmp, cluster, blkoff, &tdp)) != 0) {
    if (vn_lock(pdp, 0x0001UL | 0x2000UL, p) == 0)
@@ -2865,7 +2863,7 @@ foundroot:;
   if ((error = deget(pmp, cluster, blkoff, &tdp)) != 0)
    return (error);
   if (!lockparent || !(flags & 0x008000)) {
-   VOP_UNLOCK(pdp, p);
+   VOP_UNLOCK(pdp);
    cnp->cn_flags |= 0x200000;
   }
   *vpp = ((tdp)->de_vnode);

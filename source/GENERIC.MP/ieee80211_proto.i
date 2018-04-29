@@ -3610,7 +3610,7 @@ struct ieee80211_node *
   const char *, u_int8_t);
 void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_free_allnodes(struct ieee80211com *, int);
 void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
 void ieee80211_clean_cached(struct ieee80211com *);
@@ -4543,7 +4543,7 @@ justcleanup:
    ic->ic_mgt_timer = 0;
    mq_purge(&ic->ic_mgtq);
    mq_purge(&ic->ic_pwrsaveq);
-   ieee80211_free_allnodes(ic);
+   ieee80211_free_allnodes(ic, 1);
    break;
   }
   ni->ni_rsn_supp_state = RSNA_SUPP_INITIALIZE;
@@ -4582,7 +4582,7 @@ justcleanup:
    }
    timeout_del(&ic->ic_bgscan_timeout);
    ic->ic_bgscan_fail = 0;
-   ieee80211_free_allnodes(ic);
+   ieee80211_free_allnodes(ic, 1);
   case IEEE80211_S_AUTH:
   case IEEE80211_S_ASSOC:
    ni = ieee80211_find_node(ic, ic->ic_bss->ni_macaddr);

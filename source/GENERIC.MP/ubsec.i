@@ -1684,7 +1684,7 @@ int swcr_newsession(u_int32_t *, struct cryptoini *);
 int swcr_freesession(u_int64_t);
 void swcr_init(void);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 typedef struct MD5Context {
@@ -3888,7 +3888,7 @@ ubsec_callback2(struct ubsec_softc *sc, struct ubsec_q2 *q)
       rng->rng_buf.dma_map->dm_mapsize, 0x02);
   p = (u_int32_t *)rng->rng_buf.dma_vaddr;
   for (i = 0; i < 16; p++, i++)
-   enqueue_randomness(0, (int)(*p));
+   enqueue_randomness(*p);
   rng->rng_used = 0;
   timeout_add(&sc->sc_rngto, sc->sc_rnghz);
   break;

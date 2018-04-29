@@ -2809,14 +2809,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3711,7 +3709,7 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   return (16);
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  error = vinvalbuf(devvp, 0x0001, p->p_ucred, p, 0, 0);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (error)
   return (error);
  error = VOP_OPEN(devvp, 0x0001, ((struct ucred *)-2), p);
@@ -3869,7 +3867,7 @@ bail:
   brelse(bp);
  vn_lock(devvp, 0x0001UL|0x2000UL, p);
  VOP_CLOSE(devvp, 0x0001, ((struct ucred *)-2), p);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  return (error);
 }
 int
@@ -3887,7 +3885,7 @@ udf_unmount(struct mount *mp, int mntflags, struct proc *p)
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  vinvalbuf(devvp, 0x0001, ((struct ucred *)-1), p, 0, 0);
  (void)VOP_CLOSE(devvp, 0x0001, ((struct ucred *)-1), p);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
  vrele(devvp);
  if (ump->um_flags & 0x02)

@@ -1435,7 +1435,7 @@ void mq_delist(struct mbuf_queue *, struct mbuf_list *);
 struct mbuf * mq_dechain(struct mbuf_queue *);
 unsigned int mq_purge(struct mbuf_queue *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 typedef struct MD5Context {

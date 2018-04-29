@@ -5347,7 +5347,7 @@ struct elf_args {
 struct exec_package;
 int exec_elf_makecmds(struct proc *, struct exec_package *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 extern int bus_space_debug;

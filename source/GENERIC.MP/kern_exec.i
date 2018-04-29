@@ -2837,14 +2837,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5136,7 +5134,7 @@ check_exec(struct proc *p, struct exec_package *epp)
  }
  if ((error = VOP_OPEN(vp, 0x0001, p->p_ucred, p)) != 0)
   goto bad1;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  error = vn_rdwr(UIO_READ, vp, epp->ep_hdr, epp->ep_hdrlen, 0,
      UIO_SYSSPACE, 0, p->p_ucred, &resid, p);
  if (error)

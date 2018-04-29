@@ -2172,14 +2172,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5210,7 +5208,6 @@ nfsrv_fhtovp(fhandle_t *fhp, int lockflag, struct vnode **vpp,
     struct ucred *cred, struct nfssvc_sock *slp, struct mbuf *nam,
     int *rdonlyp)
 {
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  struct mount *mp;
  int i;
  struct ucred *credanon;
@@ -5245,7 +5242,7 @@ nfsrv_fhtovp(fhandle_t *fhp, int lockflag, struct vnode **vpp,
  else
   *rdonlyp = 0;
  if (!lockflag)
-  VOP_UNLOCK(*vpp, p);
+  VOP_UNLOCK(*vpp);
  return (0);
 }
 int

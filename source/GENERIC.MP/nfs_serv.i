@@ -2245,14 +2245,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5468,7 +5466,7 @@ nfsrv_readdir(struct nfsrv_descript *nfsd, struct nfssvc_sock *slp,
   error = 0;
   goto nfsmout;
  }
- VOP_UNLOCK(vp, procp);
+ VOP_UNLOCK(vp);
  rbuf = malloc(fullsiz, 127, 0x0001);
 again:
  iv.iov_base = rbuf;
@@ -5489,7 +5487,7 @@ again:
   if (!error)
    error = getret;
  }
- VOP_UNLOCK(vp, procp);
+ VOP_UNLOCK(vp);
  if (error) {
   vrele(vp);
   free(rbuf, 127, fullsiz);
@@ -5638,7 +5636,7 @@ nfsrv_readdirplus(struct nfsrv_descript *nfsd, struct nfssvc_sock *slp,
   error = 0;
   goto nfsmout;
  }
- VOP_UNLOCK(vp, procp);
+ VOP_UNLOCK(vp);
  rbuf = malloc(fullsiz, 127, 0x0001);
 again:
  iv.iov_base = rbuf;
@@ -5655,7 +5653,7 @@ again:
  error = VOP_READDIR(vp, &io, cred, &eofflag);
  off = (u_quad_t)io.uio_offset;
  getret = VOP_GETATTR(vp, &at, cred, procp);
- VOP_UNLOCK(vp, procp);
+ VOP_UNLOCK(vp);
  if (!error)
   error = getret;
  if (error) {

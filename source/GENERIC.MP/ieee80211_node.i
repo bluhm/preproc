@@ -5374,7 +5374,7 @@ struct ieee80211_node *
   const char *, u_int8_t);
 void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_free_allnodes(struct ieee80211com *, int);
 void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
 void ieee80211_clean_cached(struct ieee80211com *);
@@ -5860,7 +5860,7 @@ ieee80211_node_detach(struct ifnet *ifp)
   (*ic->ic_node_free)(ic, ic->ic_bss);
   ic->ic_bss = ((void *)0);
  }
- ieee80211_free_allnodes(ic);
+ ieee80211_free_allnodes(ic, 1);
  free(ic->ic_aid_bitmap, 2,
      (((ic->ic_max_aid) + ((32) - 1)) / (32)) * sizeof(u_int32_t));
  free(ic->ic_tim_bitmap, 2, ic->ic_tim_len);
@@ -5892,7 +5892,7 @@ ieee80211_begin_scan(struct ifnet *ifp)
   printf("%s: begin %s scan\n", ifp->if_xname,
    (ic->ic_flags & 0x00000001) ?
     "active" : "passive");
- ieee80211_free_allnodes(ic);
+ ieee80211_free_allnodes(ic, 1);
  if (((ic->ic_media.ifm_cur->ifm_media) & 0x000000ff00000000ULL) == 0ULL ||
      (ic->ic_caps & 0x00008000))
   ic->ic_curmode = IEEE80211_MODE_AUTO;
@@ -6646,7 +6646,7 @@ ieee80211_release_node(struct ieee80211com *ic, struct ieee80211_node *ni)
  _splx(s);
 }
 void
-ieee80211_free_allnodes(struct ieee80211com *ic)
+ieee80211_free_allnodes(struct ieee80211com *ic, int clear_ic_bss)
 {
  struct ieee80211_node *ni;
  int s;
@@ -6655,7 +6655,7 @@ ieee80211_free_allnodes(struct ieee80211com *ic)
  while ((ni = ieee80211_tree_RBT_MIN(&ic->ic_tree)) != ((void *)0))
   ieee80211_free_node(ic, ni);
  _splx(s);
- if (ic->ic_bss != ((void *)0))
+ if (clear_ic_bss && ic->ic_bss != ((void *)0))
   ieee80211_node_cleanup(ic, ic->ic_bss);
 }
 void

@@ -2454,14 +2454,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -4980,7 +4978,7 @@ update:
   do { (mp)->mnt_list.tqe_next = ((void *)0); (mp)->mnt_list.tqe_prev = (&mountlist)->tqh_last; *(&mountlist)->tqh_last = (mp); (&mountlist)->tqh_last = &(mp)->mnt_list.tqe_next; } while (0);
   checkdirs(vp);
   vfs_unbusy(vp->v_mount);
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   if ((mp->mnt_flag & 0x00000001) == 0)
    error = vfs_allocate_syncvnode(mp);
   vfs_unbusy(mp);
@@ -5312,7 +5310,7 @@ sys_fchdir(struct proc *p, void *v, register_t *retval)
   vput(vp);
   return (error);
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  old_cdir = fdp->fd_cdir;
  fdp->fd_cdir = vp;
  vrele(old_cdir);
@@ -5374,7 +5372,7 @@ change_dir(struct nameidata *ndp, struct proc *p)
  if (error)
   vput(vp);
  else
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
  return (error);
 }
 int
@@ -5462,7 +5460,7 @@ doopenat(struct proc *p, int fd, const char *path, int oflags, mode_t mode,
   type = 0x020;
   if ((flags & 0x0004) == 0)
    type |= 0x010;
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   error = VOP_ADVLOCK(vp, (caddr_t)fp, 8, &lf, type);
   if (error) {
    fdremove(fdp, indx);
@@ -5485,13 +5483,13 @@ doopenat(struct proc *p, int fd, const char *path, int oflags, mode_t mode,
    error = VOP_SETATTR(vp, &vattr, fp->f_cred, p);
   }
   if (error) {
-   VOP_UNLOCK(vp, p);
+   VOP_UNLOCK(vp);
    fdremove(fdp, indx);
    closef(fp, p);
    goto out;
   }
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  *retval = indx;
  do { (fp)->f_iflags &= ~0x02; (--(fp)->f_count == 0 ? fdrop(fp, p) : 0); } while (0);
 out:
@@ -5606,7 +5604,7 @@ sys_fhopen(struct proc *p, void *v, register_t *retval)
   type = 0x020;
   if ((flags & 0x0004) == 0)
    type |= 0x010;
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   error = VOP_ADVLOCK(vp, (caddr_t)fp, 8, &lf, type);
   if (error) {
    vp = ((void *)0);
@@ -5615,7 +5613,7 @@ sys_fhopen(struct proc *p, void *v, register_t *retval)
   vn_lock(vp, 0x0001UL | 0x2000UL, p);
   fp->f_iflags |= 0x01;
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  *retval = indx;
  do { (fp)->f_iflags &= ~0x02; (--(fp)->f_count == 0 ? fdrop(fp, p) : 0); } while (0);
  _rw_exit_write(&(fdp)->fd_lock );
@@ -6289,7 +6287,7 @@ sys_fchmod(struct proc *p, void *v, register_t *retval)
   vattr.va_mode = mode & (0004000|0002000|0001000|0000700|0000070|0000007);
   error = VOP_SETATTR(vp, &vattr, p->p_ucred, p);
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  return (error);
 }
@@ -6432,7 +6430,7 @@ sys_fchown(struct proc *p, void *v, register_t *retval)
   error = VOP_SETATTR(vp, &vattr, p->p_ucred, p);
  }
 out:
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  return (error);
 }
@@ -6631,7 +6629,7 @@ sys_ftruncate(struct proc *p, void *v, register_t *retval)
   vattr.va_size = len;
   error = VOP_SETATTR(vp, &vattr, fp->f_cred, p);
  }
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
 bad:
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  return (error);
@@ -6650,7 +6648,7 @@ sys_fsync(struct proc *p, void *v, register_t *retval)
  error = VOP_FSYNC(vp, fp->f_cred, 1, p);
  if (error == 0 && vp->v_mount && (vp->v_mount->mnt_flag & 0x04000000))
   error = softdep_fsync(vp);
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  return (error);
 }
@@ -6824,7 +6822,7 @@ sys_getdents(struct proc *p, void *v, register_t *retval)
  auio.uio_offset = fp->f_offset;
  error = VOP_READDIR(vp, &auio, fp->f_cred, &eofflag);
  fp->f_offset = auio.uio_offset;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  if (error)
   goto bad;
  *retval = buflen - auio.uio_resid;

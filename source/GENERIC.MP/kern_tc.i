@@ -1682,7 +1682,7 @@ void poison_mem(void *, size_t);
 int poison_check(void *, size_t, size_t *, uint32_t *);
 uint32_t poison_value(void *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 u_int dummy_get_timecount(struct timecounter *);
@@ -1862,7 +1862,7 @@ tc_init(struct timecounter *tc)
      tc->tc_frequency < timecounter->tc_frequency)
   return;
  (void)tc->tc_get_timecount(tc);
- enqueue_randomness(1, (int)(tc->tc_get_timecount(tc)));
+ enqueue_randomness(tc->tc_get_timecount(tc));
  timecounter = tc;
 }
 u_int64_t
@@ -1881,7 +1881,7 @@ tc_setrealtimeclock(struct timespec *ts)
  bintime_add(&bt2, &boottimebin);
  boottimebin = bt;
  bintime2timespec(&bt, &boottime);
- enqueue_randomness(1, (int)(ts->tv_sec));
+ enqueue_randomness(ts->tv_sec);
  tc_windup();
  if (timestepwarnings) {
   bintime2timespec(&bt2, &ts2);
@@ -1899,7 +1899,7 @@ tc_setclock(struct timespec *ts)
   tc_setrealtimeclock(ts);
   return;
  }
- enqueue_randomness(1, (int)(ts->tv_sec));
+ enqueue_randomness(ts->tv_sec);
  timespec2bintime(ts, &bt);
  bintime_sub(&bt, &boottimebin);
  bt2 = timehands->th_offset;

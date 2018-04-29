@@ -2662,14 +2662,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3929,7 +3927,7 @@ abortit:
       (fcnp->cn_flags & 0x002000) ||
       (tcnp->cn_flags & 0x002000) ||
       (ip->de_flag & 0x0040)) {
-   VOP_UNLOCK(fvp, p);
+   VOP_UNLOCK(fvp);
    error = 22;
    goto abortit;
   }
@@ -3942,7 +3940,7 @@ abortit:
  to_diroffset = dp->de_fndoffset;
  to_count = dp->de_fndcnt;
  error = VOP_ACCESS(fvp, 00200, tcnp->cn_cred, tcnp->cn_proc);
- VOP_UNLOCK(fvp, p);
+ VOP_UNLOCK(fvp);
  if (((struct denode *)(fdvp)->v_data)->de_StartCluster != ((struct denode *)(tdvp)->v_data)->de_StartCluster)
   newparent = 1;
  vrele(fdvp);
@@ -3989,14 +3987,14 @@ abortit:
  if ((fcnp->cn_flags & 0x001000) == 0)
   panic("msdosfs_rename: lost from startdir");
  if (!newparent)
-  VOP_UNLOCK(tdvp, p);
+  VOP_UNLOCK(tdvp);
  (void) vfs_relookup(fdvp, &fvp, fcnp);
  if (fvp == ((void *)0)) {
   if (doingdirectory)
    panic("rename: lost dir entry");
   vrele(ap->a_fvp);
   if (newparent)
-   VOP_UNLOCK(tdvp, p);
+   VOP_UNLOCK(tdvp);
   vrele(tdvp);
   return 0;
  }
@@ -4008,7 +4006,7 @@ abortit:
    panic("rename: lost dir entry");
   vrele(ap->a_fvp);
   if (newparent)
-   VOP_UNLOCK(fdvp, p);
+   VOP_UNLOCK(fdvp);
   xp = ((void *)0);
  } else {
   vrele(fvp);
@@ -4021,14 +4019,14 @@ abortit:
   if (error) {
    __builtin_bcopy((oldname), (ip->de_Name), (11));
    if (newparent)
-    VOP_UNLOCK(fdvp, p);
+    VOP_UNLOCK(fdvp);
    goto bad;
   }
   ip->de_refcnt++;
   zp->de_fndoffset = from_diroffset;
   if ((error = removede(zp, ip)) != 0) {
    if (newparent)
-    VOP_UNLOCK(fdvp, p);
+    VOP_UNLOCK(fdvp);
    goto bad;
   }
   cache_purge(fvp);
@@ -4037,7 +4035,7 @@ abortit:
            &ip->de_dirclust, 0);
    if (error) {
     if (newparent)
-     VOP_UNLOCK(fdvp, p);
+     VOP_UNLOCK(fdvp);
     goto bad;
    }
    ip->de_diroffset = to_diroffset;
@@ -4046,7 +4044,7 @@ abortit:
   }
   reinsert(ip);
   if (newparent)
-   VOP_UNLOCK(fdvp, p);
+   VOP_UNLOCK(fdvp);
  }
  if (doingdirectory && newparent) {
   cn = ip->de_StartCluster;
@@ -4075,7 +4073,7 @@ abortit:
  }
  do { struct klist *list = (&fvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0020))); } while (0);
 bad:
- VOP_UNLOCK(fvp, p);
+ VOP_UNLOCK(fvp);
  vrele(fdvp);
 bad1:
  if (xp)

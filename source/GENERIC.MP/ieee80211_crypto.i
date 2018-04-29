@@ -3571,7 +3571,7 @@ struct ieee80211_node *
   const char *, u_int8_t);
 void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_free_allnodes(struct ieee80211com *, int);
 void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
 void ieee80211_clean_cached(struct ieee80211com *);
@@ -4189,7 +4189,8 @@ ieee80211_get_txkey(struct ieee80211com *ic, const struct ieee80211_frame *wh,
      !(*(wh->i_addr1) & 0x01) &&
      ni->ni_rsncipher != IEEE80211_CIPHER_USEGROUP)
   return &ni->ni_pairwise_key;
- if (!(*(wh->i_addr1) & 0x01) ||
+ if ((ic->ic_flags & 0x00000100) ||
+     !(*(wh->i_addr1) & 0x01) ||
      (wh->i_fc[0] & 0x0c) !=
      0x00)
   kid = ic->ic_def_txkey;
@@ -4216,8 +4217,7 @@ ieee80211_encrypt(struct ieee80211com *ic, struct mbuf *m0,
   m0 = ieee80211_bip_encap(ic, m0, k);
   break;
  default:
-  m_freem(m0);
-  m0 = ((void *)0);
+  panic("invalid key cipher 0x%x", k->k_cipher);
  }
  return m0;
 }

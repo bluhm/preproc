@@ -2265,14 +2265,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3590,7 +3588,7 @@ msdosfs_mountfs(struct vnode *devvp, struct mount *mp, struct proc *p,
   return (16);
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  error = vinvalbuf(devvp, 0x0001, p->p_ucred, p, 0, 0);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (error)
   return (error);
  ronly = (mp->mnt_flag & 0x00000001) != 0;
@@ -3759,7 +3757,7 @@ error_exit:
   brelse(bp);
  vn_lock(devvp, 0x0001UL|0x2000UL, p);
  (void) VOP_CLOSE(devvp, ronly ? 0x0001 : 0x0001|0x0002, ((struct ucred *)-1), p);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (pmp) {
   if (pmp->pm_inusemap)
    free(pmp->pm_inusemap, 60, 0);
@@ -3846,7 +3844,7 @@ msdosfs_sync_vnode(struct vnode *vp, void *arg)
   return (0);
  if ((error = VOP_FSYNC(vp, msa->cred, msa->waitfor, msa->p)) != 0)
   msa->allerror = error;
- VOP_UNLOCK(vp, msa->p);
+ VOP_UNLOCK(vp);
  vrele(vp);
  return (0);
 }
@@ -3872,7 +3870,7 @@ msdosfs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred,
   vn_lock(pmp->pm_devvp, 0x0001UL | 0x2000UL, p);
   if ((error = VOP_FSYNC(pmp->pm_devvp, cred, waitfor, p)) != 0)
    msa.allerror = error;
-  VOP_UNLOCK(pmp->pm_devvp, p);
+  VOP_UNLOCK(pmp->pm_devvp);
  }
  return (msa.allerror);
 }

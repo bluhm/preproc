@@ -2265,14 +2265,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5071,7 +5069,7 @@ ffs_reload(struct mount *mountp, struct ucred *cred, struct proc *p)
  devvp = ((struct ufsmount *)((mountp)->mnt_data))->um_devvp;
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  error = vinvalbuf(devvp, 0, cred, p, 0, 0);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (error)
   panic("ffs_reload: dirty1");
  fs = ((struct ufsmount *)((mountp)->mnt_data))->ufsmount_u.fs;
@@ -5166,7 +5164,7 @@ ffs_mountfs(struct vnode *devvp, struct mount *mp, struct proc *p)
   return (16);
  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
  error = vinvalbuf(devvp, 0x0001, cred, p, 0, 0);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (error)
   return (error);
  ronly = (mp->mnt_flag & 0x00000001) != 0;
@@ -5314,7 +5312,7 @@ out:
   brelse(bp);
  vn_lock(devvp, 0x0001UL|0x2000UL, p);
  (void)VOP_CLOSE(devvp, ronly ? 0x0001 : 0x0001|0x0002, cred, p);
- VOP_UNLOCK(devvp, p);
+ VOP_UNLOCK(devvp);
  if (ump) {
   free(ump->ufsmount_u.fs, 28, ump->ufsmount_u.fs->fs_sbsize);
   free(ump, 28, sizeof(*ump));
@@ -5434,7 +5432,7 @@ ffs_flushfiles(struct mount *mp, int flags, struct proc *p)
   return (error);
  vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);
  error = VOP_FSYNC(ump->um_devvp, p->p_ucred, 1, p);
- VOP_UNLOCK(ump->um_devvp, p);
+ VOP_UNLOCK(ump->um_devvp);
  return (error);
 }
 int
@@ -5495,7 +5493,7 @@ ffs_sync_vnode(struct vnode *vp, void *arg)
  }
  if ((error = VOP_FSYNC(vp, fsa->cred, fsa->waitfor, fsa->p)))
   fsa->allerror = error;
- VOP_UNLOCK(vp, fsa->p);
+ VOP_UNLOCK(vp);
  vrele(vp);
 end:
  fsa->nlink0 = (((fsa->nlink0 + nlink0)<(65536))?(fsa->nlink0 + nlink0):(65536));
@@ -5534,7 +5532,7 @@ ffs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred, struct pr
   vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);
   if ((error = VOP_FSYNC(ump->um_devvp, cred, waitfor, p)) != 0)
    allerror = error;
-  VOP_UNLOCK(ump->um_devvp, p);
+  VOP_UNLOCK(ump->um_devvp);
  }
  qsync(mp);
  clean = fs->fs_clean;

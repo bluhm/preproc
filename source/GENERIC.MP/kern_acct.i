@@ -2517,14 +2517,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -4050,7 +4048,7 @@ sys_acct(struct proc *p, void *v, register_t *retval)
   ndinitat(&nd, 0, 0x0000, UIO_USERSPACE, -100, ((uap)->path.be.datum), p);
   if ((error = vn_open(&nd, 0x0002|0x0008, 0)) != 0)
    return (error);
-  VOP_UNLOCK(nd.ni_vp, p);
+  VOP_UNLOCK(nd.ni_vp);
   if (nd.ni_vp->v_type != VREG) {
    vn_close(nd.ni_vp, 0x0002, p->p_ucred, p);
    return (13);

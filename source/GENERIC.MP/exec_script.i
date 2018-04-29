@@ -2371,14 +2371,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2785,7 +2783,7 @@ check_shell:
  }
  vn_lock(scriptvp, 0x0001UL|0x2000UL, p);
  error = VOP_ACCESS(scriptvp, 00400, p->p_ucred, p);
- VOP_UNLOCK(scriptvp, p);
+ VOP_UNLOCK(scriptvp);
  if (error == 13 || script_sbits) {
   struct file *fp;
   if (epp->ep_flags & 0x0002)

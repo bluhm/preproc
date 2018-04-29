@@ -2682,14 +2682,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -4642,7 +4640,7 @@ ufs_link(void *v)
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
 out1:
  if (dvp != vp)
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
 out2:
  vput(dvp);
  return (error);
@@ -4710,13 +4708,13 @@ abortit:
  dp = ((struct inode *)(fdvp)->v_data);
  ip = ((struct inode *)(fvp)->v_data);
  if ((nlink_t) (((ip)->i_ump->um_fstype == 1) ? (ip)->dinode_u.ffs1_din->di_nlink : (ip)->dinode_u.ffs2_din->di_nlink) >= 32767) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   error = 31;
   goto abortit;
  }
  if (((((ip)->i_ump->um_fstype == 1) ? (ip)->dinode_u.ffs1_din->di_flags : (ip)->dinode_u.ffs2_din->di_flags) & ((0x00000002 | 0x00020000) | (0x00000004 | 0x00040000))) ||
      ((((dp)->i_ump->um_fstype == 1) ? (dp)->dinode_u.ffs1_din->di_flags : (dp)->dinode_u.ffs2_din->di_flags) & (0x00000004 | 0x00040000))) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   error = 1;
   goto abortit;
  }
@@ -4725,7 +4723,7 @@ abortit:
   if (!error && tvp)
    error = VOP_ACCESS(tvp, 00200, tcnp->cn_cred, tcnp->cn_proc);
   if (error) {
-   VOP_UNLOCK(fvp, p);
+   VOP_UNLOCK(fvp);
    error = 13;
    goto abortit;
   }
@@ -4734,7 +4732,7 @@ abortit:
       (fcnp->cn_flags & 0x002000) ||
       (tcnp->cn_flags & 0x002000) ||
       (ip->i_flag & 0x0010)) {
-   VOP_UNLOCK(fvp, p);
+   VOP_UNLOCK(fvp);
    error = 22;
    goto abortit;
   }
@@ -4753,11 +4751,11 @@ abortit:
  if (((fvp)->v_mount->mnt_flag & 0x04000000))
   softdep_change_linkcnt(ip, 0);
  if ((error = ((ip)->i_vtbl->iv_update)((ip), (!((fvp)->v_mount->mnt_flag & 0x04000000)))) != 0) {
-  VOP_UNLOCK(fvp, p);
+  VOP_UNLOCK(fvp);
   goto bad;
  }
  error = VOP_ACCESS(fvp, 00200, tcnp->cn_cred, tcnp->cn_proc);
- VOP_UNLOCK(fvp, p);
+ VOP_UNLOCK(fvp);
  if (oldparent != dp->i_number)
   newparent = dp->i_number;
  if (doingdirectory && newparent) {

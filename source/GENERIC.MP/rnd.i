@@ -3153,7 +3153,7 @@ chacha_encrypt_bytes(chacha_ctx *x,const u8 *m,u8 *c,u32 bytes)
   }
 }
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct vm_map;
@@ -3833,16 +3833,13 @@ rnd_qlen(void)
  return rnd_event_prod - rnd_event_cons;
 }
 void
-enqueue_randomness(u_int state, u_int val)
+enqueue_randomness(u_int val)
 {
  struct rand_event *rep;
  struct timespec ts;
  u_int qlen;
- if (state >= 8)
-  return;
  if (((&rnd_timeout)->to_flags & 4))
   nanotime(&ts);
- val += state << 13;
  __mtx_enter(&rnd_enqlck );
  rep = rnd_put();
  rep->re_time += ts.tv_nsec ^ (ts.tv_sec << 20);
@@ -3904,7 +3901,7 @@ extract_entropy(u_int8_t *buf)
  SHA512Update(&shactx, (u_int8_t *)extract_pool, sizeof(extract_pool));
  SHA512Final(digest, &shactx);
  __builtin_memcpy((buf), (digest), (32 + 8));
- enqueue_randomness(1, (int)(32 + 8));
+ enqueue_randomness(32 + 8);
  dequeue_randomness(((void *)0));
  explicit_bzero(extract_pool, sizeof(extract_pool));
  explicit_bzero(digest, sizeof(digest));
@@ -3924,8 +3921,8 @@ suspend_randomness(void)
 {
  struct timespec ts;
  getnanotime(&ts);
- enqueue_randomness(0, (int)(ts.tv_sec));
- enqueue_randomness(0, (int)(ts.tv_nsec));
+ enqueue_randomness(ts.tv_sec);
+ enqueue_randomness(ts.tv_nsec);
  dequeue_randomness(((void *)0));
  rs_count = 0;
  arc4random_buf(entropy_pool, sizeof(entropy_pool));
@@ -3937,8 +3934,8 @@ resume_randomness(char *buf, size_t buflen)
  if (buf && buflen)
   _rs_seed(buf, buflen);
  getnanotime(&ts);
- enqueue_randomness(0, (int)(ts.tv_sec));
- enqueue_randomness(0, (int)(ts.tv_nsec));
+ enqueue_randomness(ts.tv_sec);
+ enqueue_randomness(ts.tv_nsec);
  dequeue_randomness(((void *)0));
  rs_count = 0;
 }
@@ -3946,7 +3943,7 @@ static inline void _rs_rekey(u_char *dat, size_t datlen);
 static inline void
 _rs_init(u_char *buf, size_t n)
 {
- ((n >= 32 + 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rnd.c", 478, "n >= KEYSZ + IVSZ"));
+ ((n >= 32 + 8) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/rnd.c", 471, "n >= KEYSZ + IVSZ"));
  chacha_keysetup(&rs, buf, 32 * 8);
  chacha_ivsetup(&rs, buf + 32, ((void *)0));
 }

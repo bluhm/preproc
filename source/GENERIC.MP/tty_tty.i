@@ -2342,14 +2342,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2473,7 +2471,7 @@ cttyopen(dev_t dev, int flag, int mode, struct proc *p)
   return (6);
  vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
  error = VOP_OPEN(ttyvp, flag, ((struct ucred *)-1), p);
- VOP_UNLOCK(ttyvp, p);
+ VOP_UNLOCK(ttyvp);
  return (error);
 }
 int
@@ -2486,7 +2484,7 @@ cttyread(dev_t dev, struct uio *uio, int flag)
   return (5);
  vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
  error = VOP_READ(ttyvp, uio, flag, ((struct ucred *)-1));
- VOP_UNLOCK(ttyvp, p);
+ VOP_UNLOCK(ttyvp);
  return (error);
 }
 int
@@ -2499,7 +2497,7 @@ cttywrite(dev_t dev, struct uio *uio, int flag)
   return (5);
  vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
  error = VOP_WRITE(ttyvp, uio, flag, ((struct ucred *)-1));
- VOP_UNLOCK(ttyvp, p);
+ VOP_UNLOCK(ttyvp);
  return (error);
 }
 int

@@ -2789,14 +2789,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2981,7 +2979,7 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  fp->f_seek = 0;
  fp->f_rbytes = 0;
  fp->f_wbytes = 0;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  _rw_exit_write(&(fdp)->fd_lock );
  free(devname, 2, 1024);

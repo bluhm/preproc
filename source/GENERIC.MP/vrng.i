@@ -3196,7 +3196,7 @@ uint64_t prom_set_sun4v_api_version(uint64_t, uint64_t, uint64_t, uint64_t *);
 void prom_sun4v_soft_state_supported(void);
 void prom_printf(const char *, ...);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct vbus_attach_args {
@@ -3295,8 +3295,8 @@ vrng_rnd(void *v)
   panic("vrng_rnd: pmap_extract failed");
  err = hv_rng_data_read(addr, &delta);
  if (err == 0) {
-  enqueue_randomness(0, (int)(rnd));
-  enqueue_randomness(0, (int)(rnd >> 32));
+  enqueue_randomness(rnd);
+  enqueue_randomness(rnd >> 32);
  }
  if (err != 0 && err != 9)
   printf("vrng_rnd: err = %d\n", err);

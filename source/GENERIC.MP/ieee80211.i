@@ -3631,7 +3631,7 @@ struct ieee80211_node *
   const char *, u_int8_t);
 void ieee80211_release_node(struct ieee80211com *,
   struct ieee80211_node *);
-void ieee80211_free_allnodes(struct ieee80211com *);
+void ieee80211_free_allnodes(struct ieee80211com *, int);
 void ieee80211_iterate_nodes(struct ieee80211com *,
   ieee80211_iter_func *, void *);
 void ieee80211_clean_cached(struct ieee80211com *);
@@ -4007,6 +4007,7 @@ ieee80211_begin_bgscan(struct ifnet *ifp)
      ic->ic_state != IEEE80211_S_RUN)
   return;
  if (ic->ic_bgscan_start != ((void *)0) && ic->ic_bgscan_start(ic) == 0) {
+  ieee80211_free_allnodes(ic, 0 );
   ic->ic_flags |= 0x08000000;
   if (ifp->if_flags & 0x4)
    printf("%s: begin background scan\n", ifp->if_xname);

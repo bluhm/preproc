@@ -2760,14 +2760,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3464,7 +3462,7 @@ vn_open(struct nameidata *ndp, int fmode, int cmode)
   vp->v_flag &= ~0x0400;
   ndp->ni_vp = cip->ci_vp;
   vp->v_data = cip->ci_data;
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
   vp = ndp->ni_vp;
   free(cip, 127, sizeof(*cip));
  }
@@ -3556,7 +3554,7 @@ vn_rdwr(enum uio_rw rw, struct vnode *vp, caddr_t base, int len, off_t offset,
   error = VOP_WRITE(vp, &auio, ioflg, cred);
  }
  if ((ioflg & 0x08) == 0)
-  VOP_UNLOCK(vp, p);
+  VOP_UNLOCK(vp);
  if (aresid)
   *aresid = auio.uio_resid;
  else
@@ -3580,7 +3578,7 @@ vn_read(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
  error = VOP_READ(vp, uio, (fp->f_flag & 0x0004) ? 0x10 : 0,
      cred);
  *poff += count - uio->uio_resid;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  return (error);
 }
 int
@@ -3606,7 +3604,7 @@ vn_write(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
   *poff = uio->uio_offset;
  else
   *poff += count - uio->uio_resid;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  return (error);
 }
 int
@@ -3721,7 +3719,7 @@ vn_lock(struct vnode *vp, int flags, struct proc *p)
    tsleep(vp, 8, "vn_lock", 0);
    error = 2;
   } else {
-   error = VOP_LOCK(vp, flags, p);
+   error = VOP_LOCK(vp, flags);
    if (error == 0)
     return (error);
   }

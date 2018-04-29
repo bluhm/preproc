@@ -1880,14 +1880,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2542,7 +2540,7 @@ fifo_open(void *v)
  sounlock(s);
  if ((ap->a_mode & 0x0004) == 0) {
   if ((ap->a_mode & 0x0001) && fip->fi_writers == 0) {
-   VOP_UNLOCK(vp, p);
+   VOP_UNLOCK(vp);
    error = tsleep(&fip->fi_readers,
        0x100 | 24, "fifor", 0);
    vn_lock(vp, 0x0001UL | 0x2000UL, p);
@@ -2550,7 +2548,7 @@ fifo_open(void *v)
     goto bad;
   }
   if ((ap->a_mode & 0x0002) && fip->fi_readers == 0) {
-   VOP_UNLOCK(vp, p);
+   VOP_UNLOCK(vp);
    error = tsleep(&fip->fi_writers,
        0x100 | 24, "fifow", 0);
    vn_lock(vp, 0x0001UL | 0x2000UL, p);
@@ -2577,7 +2575,7 @@ fifo_read(void *v)
   return (0);
  if (ap->a_ioflag & 0x10)
   rso->so_state |= 0x100;
- VOP_UNLOCK(ap->a_vp, p);
+ VOP_UNLOCK(ap->a_vp);
  error = soreceive(rso, ((void *)0), uio, ((void *)0), ((void *)0), ((void *)0), 0);
  vn_lock(ap->a_vp, 0x0001UL | 0x2000UL, p);
  if (ap->a_ioflag & 0x10) {
@@ -2599,7 +2597,7 @@ fifo_write(void *v)
   panic("fifo_write mode");
  if (ap->a_ioflag & 0x10)
   wso->so_state |= 0x100;
- VOP_UNLOCK(ap->a_vp, p);
+ VOP_UNLOCK(ap->a_vp);
  error = sosend(wso, ((void *)0), ap->a_uio, ((void *)0), ((void *)0), 0);
  vn_lock(ap->a_vp, 0x0001UL | 0x2000UL, p);
  if (ap->a_ioflag & 0x10)
@@ -2671,7 +2669,7 @@ int
 fifo_inactive(void *v)
 {
  struct vop_inactive_args *ap = v;
- VOP_UNLOCK(ap->a_vp, ap->a_p);
+ VOP_UNLOCK(ap->a_vp);
  return (0);
 }
 int

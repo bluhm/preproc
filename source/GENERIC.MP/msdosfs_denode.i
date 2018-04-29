@@ -2194,14 +2194,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3034,7 +3032,7 @@ msdosfs_inactive(void *v)
  }
  deupdat(dep, 0);
 out:
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  if (dep->de_Name[0] == 0xe5)
   vrecycle(vp, p);
  return (error);

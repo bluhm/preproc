@@ -2426,14 +2426,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -3980,7 +3978,7 @@ lookloop:
     nchstats.ncs_pass2++;
    if (!(flags & 0x0008) || !(flags & 0x008000)) {
     ap->a_cnp->cn_flags |= 0x200000;
-    VOP_UNLOCK(dvp, p);
+    VOP_UNLOCK(dvp);
    }
    *vpp = tdp;
   }
@@ -4012,8 +4010,7 @@ udf_inactive(void *v)
 {
  struct vop_inactive_args *ap = v;
  struct vnode *vp = ap->a_vp;
- struct proc *p = ap->a_p;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  return (0);
 }
 int

@@ -2152,14 +2152,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2783,7 +2781,7 @@ cd9660_inactive(v)
  if (prtactive && vp->v_usecount != 0)
   vprint("cd9660_inactive: pushing active", vp);
  ip->i_flag = 0;
- VOP_UNLOCK(vp, p);
+ VOP_UNLOCK(vp);
  if (ip->inode.iso_mode == 0)
   vrecycle(vp, p);
  return (error);

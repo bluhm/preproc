@@ -2647,14 +2647,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -6252,7 +6250,7 @@ vdsp_open(void *arg1)
    sc->sc_vdisk_block_size = (1 << 9);
    sc->sc_vdisk_size = va.va_size / (1 << 9);
   }
-  VOP_UNLOCK(nd.ni_vp, p);
+  VOP_UNLOCK(nd.ni_vp);
   sc->sc_vp = nd.ni_vp;
   vdsp_readlabel(sc);
  }
@@ -6314,7 +6312,7 @@ vdsp_readlabel(struct vdsp_softc *sc)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  err = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
  if (err) {
   free(sc->sc_label, 2, 0);
   sc->sc_label = ((void *)0);
@@ -6340,7 +6338,7 @@ vdsp_writelabel(struct vdsp_softc *sc)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  err = VOP_WRITE(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
  return (err);
 }
 int
@@ -6365,7 +6363,7 @@ vdsp_is_iso(struct vdsp_softc *sc)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  err = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
  if (err == 0 && __builtin_memcmp((vdp->id), ("CD001"), (sizeof(vdp->id))))
   err = 2;
  free(vdp, 2, 0);
@@ -6432,7 +6430,7 @@ vdsp_read_desc(struct vdsp_softc *sc, struct vdsk_desc_msg *dm)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  dm->status = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
  _kernel_unlock();
  if (dm->status == 0) {
   i = 0;
@@ -6497,7 +6495,7 @@ vdsp_read_dring(void *arg1, void *arg2)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  vd->status = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
  _kernel_unlock();
  if (vd->status == 0) {
   i = 0;
@@ -6586,7 +6584,7 @@ vdsp_write_dring(void *arg1, void *arg2)
  uio.uio_procp = p;
  vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
  vd->status = VOP_WRITE(sc->sc_vp, &uio, 0, p->p_ucred);
- VOP_UNLOCK(sc->sc_vp, p);
+ VOP_UNLOCK(sc->sc_vp);
 fail:
  free(buf, 2, 0);
  vd->hdr.dstate = 0x04;

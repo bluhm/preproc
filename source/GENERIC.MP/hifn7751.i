@@ -1653,7 +1653,7 @@ int cuio_apply(struct uio *, int, int,
 struct cryptop *crypto_getreq(int);
 void crypto_freereq(struct cryptop *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 typedef u_int16_t pci_vendor_id_t;
@@ -2970,8 +2970,8 @@ hifn_rng(void *vsc)
    if (sc->sc_rngfirst)
     sc->sc_rngfirst = 0;
    else {
-    enqueue_randomness(0, (int)(num1));
-    enqueue_randomness(0, (int)(num2));
+    enqueue_randomness(num1);
+    enqueue_randomness(num2);
    }
   }
  } else {
@@ -2979,7 +2979,7 @@ hifn_rng(void *vsc)
   if (sc->sc_rngfirst)
    sc->sc_rngfirst = 0;
   else
-   enqueue_randomness(0, (int)(num1));
+   enqueue_randomness(num1);
  }
  timeout_add(&sc->sc_rngto, sc->sc_rnghz);
 }

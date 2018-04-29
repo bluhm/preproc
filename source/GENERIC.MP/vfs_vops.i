@@ -1552,14 +1552,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2365,23 +2363,21 @@ VOP_RECLAIM(struct vnode *vp, struct proc *p)
  return r;
 }
 int
-VOP_LOCK(struct vnode *vp, int flags, struct proc *p)
+VOP_LOCK(struct vnode *vp, int flags)
 {
  struct vop_lock_args a;
  a.a_vp = vp;
  a.a_flags = flags;
- a.a_p = p;
  if (vp->v_op->vop_lock == ((void *)0))
   return (45);
  return ((vp->v_op->vop_lock)(&a));
 }
 int
-VOP_UNLOCK(struct vnode *vp, struct proc *p)
+VOP_UNLOCK(struct vnode *vp)
 {
  int r;
  struct vop_unlock_args a;
  a.a_vp = vp;
- a.a_p = p;
  if (vp->v_op->vop_unlock == ((void *)0))
   return (45);
  vp->v_inflight++;

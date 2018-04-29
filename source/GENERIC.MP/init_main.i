@@ -2827,14 +2827,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -5678,7 +5676,7 @@ struct kinfo_vmentry;
 int fill_vmmap(struct process *, struct kinfo_vmentry *,
        size_t *);
 void random_start(void);
-void enqueue_randomness(unsigned int, unsigned int);
+void enqueue_randomness(unsigned int);
 void suspend_randomness(void);
 void resume_randomness(char *, size_t);
 struct dqblk {
@@ -6277,7 +6275,7 @@ main(void *framep)
   panic("cannot find root vnode");
  p->p_fd->fd_cdir = rootvnode;
  vref(p->p_fd->fd_cdir);
- VOP_UNLOCK(rootvnode, p);
+ VOP_UNLOCK(rootvnode);
  p->p_fd->fd_rdir = ((void *)0);
  initprocess->ps_fd->fd_cdir = rootvnode;
  vref(initprocess->ps_fd->fd_cdir);

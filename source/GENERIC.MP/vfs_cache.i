@@ -2152,14 +2152,12 @@ int VOP_RECLAIM(struct vnode *, struct proc *);
 struct vop_lock_args {
  struct vnode *a_vp;
  int a_flags;
- struct proc *a_p;
 };
-int VOP_LOCK(struct vnode *, int, struct proc *);
+int VOP_LOCK(struct vnode *, int);
 struct vop_unlock_args {
  struct vnode *a_vp;
- struct proc *a_p;
 };
-int VOP_UNLOCK(struct vnode *, struct proc *);
+int VOP_UNLOCK(struct vnode *);
 struct vop_bmap_args {
  struct vnode *a_vp;
  daddr_t a_bn;
@@ -2593,7 +2591,7 @@ cache_lookup(struct vnode *dvp, struct vnode **vpp,
   vref(dvp);
   error = 0;
  } else if (cnp->cn_flags & 0x002000) {
-  VOP_UNLOCK(dvp, p);
+  VOP_UNLOCK(dvp);
   cnp->cn_flags |= 0x200000;
   error = vget(vp, 0x0001UL, p);
   if (!error && (~cnp->cn_flags & (0x0008|0x008000)) == 0) {
@@ -2606,7 +2604,7 @@ cache_lookup(struct vnode *dvp, struct vnode **vpp,
  } else {
   error = vget(vp, 0x0001UL, p);
   if (error || (~cnp->cn_flags & (0x0008|0x008000)) != 0) {
-   VOP_UNLOCK(dvp, p);
+   VOP_UNLOCK(dvp);
    cnp->cn_flags |= 0x200000;
   }
  }
