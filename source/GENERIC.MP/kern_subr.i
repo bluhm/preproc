@@ -1806,8 +1806,11 @@ hashinit(int elements, int type, int flags, u_long *hashmask)
  struct generic { struct generic *lh_first; } *hashtbl;
  if (elements <= 0)
   panic("hashinit: bad cnt");
- for (hashsize = 1; hashsize < elements; hashsize <<= 1)
-  continue;
+ if ((elements & (elements - 1)) == 0)
+  hashsize = elements;
+ else
+  for (hashsize = 1; hashsize < elements; hashsize <<= 1)
+   continue;
  hashtbl = mallocarray(hashsize, sizeof(*hashtbl), type, flags);
  if (hashtbl == ((void *)0))
   return ((void *)0);
@@ -1823,8 +1826,11 @@ hashfree(void *hash, int elements, int type)
  struct generic { struct generic *lh_first; } *hashtbl = hash;
  if (elements <= 0)
   panic("hashfree: bad cnt");
- for (hashsize = 1; hashsize < elements; hashsize <<= 1)
-  continue;
+ if ((elements & (elements - 1)) == 0)
+  hashsize = elements;
+ else
+  for (hashsize = 1; hashsize < elements; hashsize <<= 1)
+   continue;
  free(hashtbl, type, sizeof(*hashtbl) * hashsize);
 }
 struct hook_desc_head startuphook_list =

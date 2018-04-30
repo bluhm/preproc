@@ -4652,6 +4652,8 @@ justcleanup:
  case IEEE80211_S_RUN:
   switch (ostate) {
   case IEEE80211_S_INIT:
+   if (ic->ic_opmode == IEEE80211_M_MONITOR)
+    break;
   case IEEE80211_S_AUTH:
   case IEEE80211_S_RUN:
    if (ifp->if_flags & 0x4)

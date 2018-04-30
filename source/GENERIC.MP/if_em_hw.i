@@ -4551,6 +4551,7 @@ struct em_hw {
     uint8_t bus_func;
     uint16_t swfw;
     boolean_t eee_enable;
+    int sw_flag;
 };
 typedef enum {
     em_mng_mode_none = 0,
@@ -5355,6 +5356,7 @@ em_reset_hw(struct em_hw *hw)
   }
   em_get_software_flag(hw);
   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00000 : 0x00000), (ctrl | 0x04000000));
+  hw->sw_flag = 0;
   delay(1000*(20));
   if (hw->mac_type == em_pch2lan && !hw->phy_reset_disable &&
       !(bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54)) & 0x00008000)) {
@@ -5718,6 +5720,7 @@ em_init_hw(struct em_hw *hw)
   return ret_val;
  }
  em_set_media_type(hw);
+ delay(1000*(1));
  em_initialize_hardware_bits(hw);
  ;
  if (!(hw->mac_type == em_ich8lan || hw->mac_type == em_ich9lan || hw->mac_type == em_ich10lan || hw->mac_type == em_pchlan || hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)) {
@@ -10914,10 +10917,26 @@ em_get_software_flag(struct em_hw *hw)
  uint32_t extcnf_ctrl;
  ;;
  if ((hw->mac_type == em_ich8lan || hw->mac_type == em_ich9lan || hw->mac_type == em_ich10lan || hw->mac_type == em_pchlan || hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)) {
+  if (hw->sw_flag) {
+   hw->sw_flag++;
+   return 0;
+  }
   while (timeout) {
    extcnf_ctrl = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00));
-   extcnf_ctrl |= 0x00000020;
-   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00), extcnf_ctrl);
+   if (!(extcnf_ctrl & 0x00000020))
+    break;
+   delay(1000*(1));
+   timeout--;
+  }
+  if (!timeout) {
+   printf("%s: SW has already locked the resource?\n",
+       __func__);
+   return -3;
+  }
+  timeout = 1000;
+  extcnf_ctrl |= 0x00000020;
+  bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00), extcnf_ctrl);
+  while (timeout) {
    extcnf_ctrl = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00));
    if (extcnf_ctrl & 0x00000020)
     break;
@@ -10925,10 +10944,15 @@ em_get_software_flag(struct em_hw *hw)
    timeout--;
   }
   if (!timeout) {
-   ;
+   printf("Failed to acquire the semaphore, FW or HW "
+       "has it: FWSM=0x%8.8x EXTCNF_CTRL=0x%8.8x)\n",
+       bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x05B54 : 0x05B54)), extcnf_ctrl);
+   extcnf_ctrl &= ~0x00000020;
+   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00), extcnf_ctrl);
    return -3;
   }
  }
+ hw->sw_flag++;
  return 0;
 }
  void
@@ -10937,6 +10961,9 @@ em_release_software_flag(struct em_hw *hw)
  uint32_t extcnf_ctrl;
  ;;
  if ((hw->mac_type == em_ich8lan || hw->mac_type == em_ich9lan || hw->mac_type == em_ich10lan || hw->mac_type == em_pchlan || hw->mac_type == em_pch2lan || hw->mac_type == em_pch_lpt || hw->mac_type == em_pch_spt)) {
+  ((hw->sw_flag > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_em_hw.c", 9675, "hw->sw_flag > 0"));
+  if (--hw->sw_flag > 0)
+   return;
   extcnf_ctrl = bus_space_read_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00));
   extcnf_ctrl &= ~0x00000020;
   bus_space_write_4(((struct em_osdep *)(hw)->back)->mem_bus_space_tag, ((struct em_osdep *)(hw)->back)->mem_bus_space_handle, ((hw)->mac_type >= em_82543 ? 0x00F00 : 0x00F00), extcnf_ctrl);

@@ -3827,7 +3827,7 @@ xhci_pipe_interval(struct usbd_pipe *pipe)
    break;
   }
  }
- ((ival >= 0 && ival <= 15) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1152, "ival >= 0 && ival <= 15"));
+ ((ival <= 15) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/xhci.c", 1152, "ival <= 15"));
  return ((((ival) & 0xff) << 16));
 }
 uint32_t

@@ -4190,7 +4190,8 @@ ieee80211_input(struct ifnet *ifp, struct mbuf *m, struct ieee80211_node *ni,
    if ((*ic->ic_node_checkrssi)(ic, ni))
     timeout_del(&ic->ic_bgscan_timeout);
    else if (!((&ic->ic_bgscan_timeout)->to_flags & 2) &&
-       (ic->ic_flags & 0x08000000) == 0)
+       (ic->ic_flags & 0x08000000) == 0 &&
+       (ic->ic_flags & 0x00000800) == 0)
     timeout_add_msec(&ic->ic_bgscan_timeout,
         500 * (ic->ic_bgscan_fail + 1));
   }
@@ -4514,7 +4515,7 @@ ieee80211_input_ba_seq(struct ieee80211com *ic, struct ieee80211_node *ni,
  while (i++ < ba->ba_winsize) {
   if (ba->ba_buf[ba->ba_head].m != ((void *)0)) {
    wh = ((struct ieee80211_frame *)((ba->ba_buf[ba->ba_head].m)->m_hdr.mh_data));
-   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 729, "ieee80211_has_seq(wh)"));
+   ((ieee80211_has_seq(wh)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net80211/ieee80211_input.c", 730, "ieee80211_has_seq(wh)"));
    seq = (__uint16_t)(__builtin_constant_p(*(u_int16_t *)wh->i_seq) ? (__uint16_t)(((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xffU) << 8 | ((__uint16_t)(*(u_int16_t *)wh->i_seq) & 0xff00U) >> 8) : __swap16md(*(u_int16_t *)wh->i_seq)) >>
        4;
    if (!((((u_int16_t)(seq) - (u_int16_t)(max_seq)) & 0xfff) > 2048))

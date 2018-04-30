@@ -3262,11 +3262,9 @@ usb_transfer_complete(struct usbd_xfer *xfer)
   }
  }
  if (!pipe->repeat) {
-  if (xfer != ((&pipe->queue)->sqh_first))
-   printf("usb_transfer_complete: bad dequeue %p != %p\n",
-       xfer, ((&pipe->queue)->sqh_first));
-  xfer->busy_free = 0x42555359;
+  ((xfer == ((&pipe->queue)->sqh_first)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/usb/usbdi.c", 772, "xfer == SIMPLEQ_FIRST(&pipe->queue)"));
   do { if (((&pipe->queue)->sqh_first = (&pipe->queue)->sqh_first->next.sqe_next) == ((void *)0)) (&pipe->queue)->sqh_last = &(&pipe->queue)->sqh_first; } while (0);
+  xfer->busy_free = 0x42555359;
  }
  ;
  ++bus->stats.uds_requests

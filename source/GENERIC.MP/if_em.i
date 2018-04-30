@@ -4036,6 +4036,7 @@ struct em_hw {
     uint8_t bus_func;
     uint16_t swfw;
     boolean_t eee_enable;
+    int sw_flag;
 };
 typedef enum {
     em_mng_mode_none = 0,
