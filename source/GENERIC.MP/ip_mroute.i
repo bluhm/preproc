@@ -4230,12 +4230,16 @@ mrt_ioctl(struct socket *so, u_long cmd, caddr_t data)
  else
   switch (cmd) {
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_vif_req) & 0x1fff) << 16) | ((('u')) << 8) | ((51))):
+   do { _rw_enter_read(&netlock ); } while (0);
    error = get_vif_cnt(inp->inp_rtableid,
        (struct sioc_vif_req *)data);
+   do { _rw_exit_read(&netlock ); } while (0);
    break;
   case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_sg_req) & 0x1fff) << 16) | ((('u')) << 8) | ((52))):
+   do { _rw_enter_read(&netlock ); } while (0);
    error = get_sg_cnt(inp->inp_rtableid,
        (struct sioc_sg_req *)data);
+   do { _rw_exit_read(&netlock ); } while (0);
    break;
   default:
    error = 25;
