@@ -2050,7 +2050,7 @@ usb_config_descriptor_t *usbd_get_config_descriptor(struct usbd_device *dev);
 usb_device_descriptor_t *usbd_get_device_descriptor(struct usbd_device *dev);
 usbd_status usbd_set_interface(struct usbd_interface *, int);
 int usbd_get_no_alts(usb_config_descriptor_t *, int);
-void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *, int);
+void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *);
 usb_config_descriptor_t *usbd_get_cdesc(struct usbd_device *, int, u_int *);
 int usbd_get_interface_altindex(struct usbd_interface *iface);
 usb_interface_descriptor_t *usbd_find_idesc(usb_config_descriptor_t *cd,
@@ -3805,7 +3805,7 @@ umass_scsi_probe(struct scsi_link *link)
  size_t len;
  if (sc->maxlun > 0)
   return (0);
- usbd_fill_deviceinfo(sc->sc_udev, &udi, 1);
+ usbd_fill_deviceinfo(sc->sc_udev, &udi);
  len = strlen(udi.udi_serial);
  if (len >= 12) {
   char buf[21];

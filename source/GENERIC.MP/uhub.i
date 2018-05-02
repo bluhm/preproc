@@ -2414,7 +2414,7 @@ usb_config_descriptor_t *usbd_get_config_descriptor(struct usbd_device *dev);
 usb_device_descriptor_t *usbd_get_device_descriptor(struct usbd_device *dev);
 usbd_status usbd_set_interface(struct usbd_interface *, int);
 int usbd_get_no_alts(usb_config_descriptor_t *, int);
-void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *, int);
+void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *);
 usb_config_descriptor_t *usbd_get_cdesc(struct usbd_device *, int, u_int *);
 int usbd_get_interface_altindex(struct usbd_interface *iface);
 usb_interface_descriptor_t *usbd_find_idesc(usb_config_descriptor_t *cd,
@@ -2753,8 +2753,6 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
-void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
-      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);

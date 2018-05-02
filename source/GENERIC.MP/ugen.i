@@ -2709,7 +2709,7 @@ usb_config_descriptor_t *usbd_get_config_descriptor(struct usbd_device *dev);
 usb_device_descriptor_t *usbd_get_device_descriptor(struct usbd_device *dev);
 usbd_status usbd_set_interface(struct usbd_interface *, int);
 int usbd_get_no_alts(usb_config_descriptor_t *, int);
-void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *, int);
+void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *);
 usb_config_descriptor_t *usbd_get_cdesc(struct usbd_device *, int, u_int *);
 int usbd_get_interface_altindex(struct usbd_interface *iface);
 usb_interface_descriptor_t *usbd_find_idesc(usb_config_descriptor_t *cd,
@@ -3762,7 +3762,7 @@ ugen_do_ioctl(struct ugen_softc *sc, int endpt, u_long cmd, caddr_t addr,
  }
  case ((unsigned long)0x40000000 | ((sizeof(struct usb_device_info) & 0x1fff) << 16) | ((('U')) << 8) | ((112))):
   usbd_fill_deviceinfo(sc->sc_udev,
-         (struct usb_device_info *)addr, 1);
+         (struct usb_device_info *)addr);
   break;
  default:
   return (22);

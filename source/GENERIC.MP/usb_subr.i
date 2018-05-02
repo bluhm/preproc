@@ -2465,7 +2465,7 @@ usb_config_descriptor_t *usbd_get_config_descriptor(struct usbd_device *dev);
 usb_device_descriptor_t *usbd_get_device_descriptor(struct usbd_device *dev);
 usbd_status usbd_set_interface(struct usbd_interface *, int);
 int usbd_get_no_alts(usb_config_descriptor_t *, int);
-void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *, int);
+void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *);
 usb_config_descriptor_t *usbd_get_cdesc(struct usbd_device *, int, u_int *);
 int usbd_get_interface_altindex(struct usbd_interface *iface);
 usb_interface_descriptor_t *usbd_find_idesc(usb_config_descriptor_t *cd,
@@ -2804,8 +2804,6 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
-void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
-      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
@@ -2829,6 +2827,7 @@ char *usbd_get_string(struct usbd_device *, int, char *, size_t);
 int usbd_getnewaddr(struct usbd_bus *);
 int usbd_print(void *, const char *);
 void usbd_free_iface_data(struct usbd_device *, int);
+int usbd_cache_devinfo(struct usbd_device *);
 usbd_status usbd_probe_and_attach(struct device *,
       struct usbd_device *, int, int);
 int usbd_printBCD(char *cp, size_t len, int bcd);
@@ -17025,62 +17024,57 @@ usbd_get_device_string(struct usbd_device *dev, uByte index)
  }
  return (buf);
 }
-void
-usbd_devinfo_vp(struct usbd_device *dev, char *v, size_t vl,
-    char *p, size_t pl, int usedev)
+int
+usbd_cache_devinfo(struct usbd_device *dev)
 {
  usb_device_descriptor_t *udd = &dev->ddesc;
- char *vendor = ((void *)0), *product = ((void *)0);
- const struct usb_known_vendor *ukv;
- const struct usb_known_product *ukp;
- if (dev == ((void *)0)) {
-  v[0] = p[0] = '\0';
-  return;
- }
- if (usedev) {
-  vendor = usbd_get_string(dev, udd->iManufacturer, v, vl);
-  usbd_trim_spaces(vendor);
-  product = usbd_get_string(dev, udd->iProduct, p, pl);
-  usbd_trim_spaces(product);
+ dev->serial = malloc(127, 101, 0x0002);
+ if (dev->serial == ((void *)0))
+  return (12);
+ if (usbd_get_string(dev, udd->iSerialNumber, dev->serial, 127) != ((void *)0)) {
+  usbd_trim_spaces(dev->serial);
  } else {
-  if (dev->vendor != ((void *)0))
-   vendor = dev->vendor;
-  if (dev->product != ((void *)0))
-   product = dev->product;
+  free(dev->serial, 101, 127);
+  dev->serial = ((void *)0);
  }
- if (vendor == ((void *)0) || product == ((void *)0)) {
-  for (ukv = usb_known_vendors;
-      ukv->vendorname != ((void *)0);
-      ukv++) {
+ dev->vendor = malloc(127, 101, 0x0002);
+ if (dev->vendor == ((void *)0))
+  return (12);
+ if (usbd_get_string(dev, udd->iManufacturer, dev->vendor, 127) != ((void *)0)) {
+  usbd_trim_spaces(dev->vendor);
+ } else {
+  const struct usb_known_vendor *ukv;
+  for (ukv = usb_known_vendors; ukv->vendorname != ((void *)0); ukv++) {
    if (ukv->vendor == ((udd->idVendor)[0] | ((udd->idVendor)[1] << 8))) {
-    vendor = ukv->vendorname;
+    strlcpy(dev->vendor, ukv->vendorname,
+        127);
     break;
    }
   }
-  if (vendor != ((void *)0)) {
-   for (ukp = usb_known_products;
-       ukp->productname != ((void *)0);
-       ukp++) {
-    if (ukp->vendor == ((udd->idVendor)[0] | ((udd->idVendor)[1] << 8)) &&
-        (ukp->product == ((udd->idProduct)[0] | ((udd->idProduct)[1] << 8)))) {
-     product = ukp->productname;
-     break;
-    }
+  if (ukv->vendorname == ((void *)0))
+   snprintf(dev->vendor, 127, "vendor 0x%04x",
+       ((udd->idVendor)[0] | ((udd->idVendor)[1] << 8)));
+ }
+ dev->product = malloc(127, 101, 0x0002);
+ if (dev->product == ((void *)0))
+  return (12);
+ if (usbd_get_string(dev, udd->iProduct, dev->product, 127) != ((void *)0)) {
+  usbd_trim_spaces(dev->product);
+ } else {
+  const struct usb_known_product *ukp;
+  for (ukp = usb_known_products; ukp->productname != ((void *)0); ukp++) {
+   if (ukp->vendor == ((udd->idVendor)[0] | ((udd->idVendor)[1] << 8)) &&
+       (ukp->product == ((udd->idProduct)[0] | ((udd->idProduct)[1] << 8)))) {
+    strlcpy(dev->product, ukp->productname,
+        127);
+    break;
    }
   }
+  if (ukp->productname == ((void *)0))
+   snprintf(dev->product, 127, "product 0x%04x",
+       ((udd->idProduct)[0] | ((udd->idProduct)[1] << 8)));
  }
- if (v == vendor)
-  ;
- else if (vendor != ((void *)0) && *vendor)
-  strlcpy(v, vendor, vl);
- else
-  snprintf(v, vl, "vendor 0x%04x", ((udd->idVendor)[0] | ((udd->idVendor)[1] << 8)));
- if (p == product)
-  ;
- else if (product != ((void *)0) && *product)
-  strlcpy(p, product, pl);
- else
-  snprintf(p, pl, "product 0x%04x", ((udd->idProduct)[0] | ((udd->idProduct)[1] << 8)));
+ return (0);
 }
 int
 usbd_printBCD(char *cp, size_t len, int bcd)
@@ -17097,12 +17091,9 @@ void
 usbd_devinfo(struct usbd_device *dev, int showclass, char *base, size_t len)
 {
  usb_device_descriptor_t *udd = &dev->ddesc;
- char vendor[127];
- char product[127];
  char *cp = base;
  int bcdDevice, bcdUSB;
- usbd_devinfo_vp(dev, vendor, sizeof vendor, product, sizeof product, 0);
- snprintf(cp, len, "\"%s %s\"", vendor, product);
+ snprintf(cp, len, "\"%s %s\"", dev->vendor, dev->product);
  cp += strlen(cp);
  if (showclass) {
   snprintf(cp, base + len - cp, ", class %d/%d",
@@ -17794,9 +17785,12 @@ usbd_new_device(struct device *parent, struct usbd_bus *bus, int depth,
  dev->power = 100;
  dev->self_powered = 0;
  ;
- dev->vendor = usbd_get_device_string(dev, dev->ddesc.iManufacturer);
- dev->product = usbd_get_device_string(dev, dev->ddesc.iProduct);
- dev->serial = usbd_get_device_string(dev, dev->ddesc.iSerialNumber);
+ err = usbd_cache_devinfo(dev);
+ if (err) {
+  usb_free_device(dev);
+  up->device = ((void *)0);
+  return (err);
+   }
  err = usbd_probe_and_attach(parent, dev, port, addr);
  if (err) {
   usb_free_device(dev);
@@ -17843,15 +17837,14 @@ usbd_print(void *aux, const char *pnp)
  return (1);
 }
 void
-usbd_fill_deviceinfo(struct usbd_device *dev, struct usb_device_info *di,
-    int usedev)
+usbd_fill_deviceinfo(struct usbd_device *dev, struct usb_device_info *di)
 {
  struct usbd_port *p;
  int i, err, s;
  di->udi_bus = dev->bus->usbctl->dv_unit;
  di->udi_addr = dev->address;
- usbd_devinfo_vp(dev, di->udi_vendor, sizeof(di->udi_vendor),
-     di->udi_product, sizeof(di->udi_product), usedev);
+ strlcpy(di->udi_vendor, dev->vendor, sizeof(di->udi_vendor));
+ strlcpy(di->udi_product, dev->product, sizeof(di->udi_product));
  usbd_printBCD(di->udi_release, sizeof di->udi_release,
      ((dev->ddesc.bcdDevice)[0] | ((dev->ddesc.bcdDevice)[1] << 8)));
  di->udi_vendorNo = ((dev->ddesc.idVendor)[0] | ((dev->ddesc.idVendor)[1] << 8));
@@ -17896,13 +17889,9 @@ usbd_fill_deviceinfo(struct usbd_device *dev, struct usb_device_info *di,
  } else
   di->udi_nports = 0;
  __builtin_bzero((di->udi_serial), (sizeof(di->udi_serial)));
- if (!usedev && dev->serial != ((void *)0)) {
+ if (dev->serial != ((void *)0))
   strlcpy(di->udi_serial, dev->serial,
       sizeof(di->udi_serial));
- } else {
-  usbd_get_string(dev, dev->ddesc.iSerialNumber,
-      di->udi_serial, sizeof(di->udi_serial));
- }
 }
 usb_config_descriptor_t *
 usbd_get_cdesc(struct usbd_device *dev, int index, u_int *lenp)

@@ -3287,6 +3287,11 @@ sdmmc_mem_mmc_init(struct sdmmc_softc *sc, struct sdmmc_function *sf)
  int speed = 20000;
  int timing = 0;
  u_int32_t sectors = 0;
+ error = ((sc->sct)->bus_clock((sc->sch), (speed), (timing)));
+ if (error) {
+  printf("%s: can't change bus clock\n", ((sc)->sc_dev.dv_xname));
+  return error;
+ }
  if (sf->csd.mmcver >= 4) {
   error = sdmmc_mem_send_cxd_data(sc,
       8, ext_csd, sizeof(ext_csd));

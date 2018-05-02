@@ -3614,7 +3614,7 @@ usb_config_descriptor_t *usbd_get_config_descriptor(struct usbd_device *dev);
 usb_device_descriptor_t *usbd_get_device_descriptor(struct usbd_device *dev);
 usbd_status usbd_set_interface(struct usbd_interface *, int);
 int usbd_get_no_alts(usb_config_descriptor_t *, int);
-void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *, int);
+void usbd_fill_deviceinfo(struct usbd_device *, struct usb_device_info *);
 usb_config_descriptor_t *usbd_get_cdesc(struct usbd_device *, int, u_int *);
 int usbd_get_interface_altindex(struct usbd_interface *iface);
 usb_interface_descriptor_t *usbd_find_idesc(usb_config_descriptor_t *cd,
@@ -3897,8 +3897,6 @@ usbd_status usbd_fill_iface_data(struct usbd_device *, int, int);
 usbd_status usb_insert_transfer(struct usbd_xfer *);
 void usb_transfer_complete(struct usbd_xfer *);
 int usbd_detach(struct usbd_device *, struct device *);
-void usbd_devinfo_vp(struct usbd_device *, char *, size_t,
-      char *, size_t, int);
 void usb_needs_explore(struct usbd_device *, int);
 void usb_needs_reattach(struct usbd_device *);
 void usb_schedsoftintr(struct usbd_bus *);
@@ -7100,13 +7098,9 @@ int
 uvideo_querycap(void *v, struct v4l2_capability *caps)
 {
  struct uvideo_softc *sc = v;
- char vendor[127];
- char product[127];
  __builtin_bzero((caps), (sizeof(*caps)));
  strlcpy(caps->driver, ((sc)->sc_dev.dv_xname), sizeof(caps->driver));
- usbd_devinfo_vp(sc->sc_udev, vendor, sizeof (vendor), product,
-     sizeof (product), 0);
- strlcpy(caps->card, product, sizeof(caps->card));
+ strlcpy(caps->card, sc->sc_udev->product, sizeof(caps->card));
  strlcpy(caps->bus_info, "usb", sizeof(caps->bus_info));
  caps->version = 1;
  caps->capabilities = 0x00000001
