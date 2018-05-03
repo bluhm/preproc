@@ -1978,7 +1978,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -2481,7 +2481,6 @@ fifo_open(void *v)
  struct vop_open_args *ap = v;
  struct vnode *vp = ap->a_vp;
  struct fifoinfo *fip;
- struct proc *p = ap->a_p;
  struct socket *rso, *wso;
  int s, error;
  if ((fip = vp->v_un.vu_fifoinfo) == ((void *)0)) {
@@ -2543,7 +2542,7 @@ fifo_open(void *v)
    VOP_UNLOCK(vp);
    error = tsleep(&fip->fi_readers,
        0x100 | 24, "fifor", 0);
-   vn_lock(vp, 0x0001UL | 0x2000UL, p);
+   vn_lock(vp, 0x0001UL | 0x2000UL);
    if (error)
     goto bad;
   }
@@ -2551,7 +2550,7 @@ fifo_open(void *v)
    VOP_UNLOCK(vp);
    error = tsleep(&fip->fi_writers,
        0x100 | 24, "fifow", 0);
-   vn_lock(vp, 0x0001UL | 0x2000UL, p);
+   vn_lock(vp, 0x0001UL | 0x2000UL);
    if (error)
     goto bad;
   }
@@ -2567,7 +2566,6 @@ fifo_read(void *v)
  struct vop_read_args *ap = v;
  struct uio *uio = ap->a_uio;
  struct socket *rso = ap->a_vp->v_un.vu_fifoinfo->fi_readsock;
- struct proc *p = uio->uio_procp;
  int error;
  if (uio->uio_rw != UIO_READ)
   panic("fifo_read mode");
@@ -2577,7 +2575,7 @@ fifo_read(void *v)
   rso->so_state |= 0x100;
  VOP_UNLOCK(ap->a_vp);
  error = soreceive(rso, ((void *)0), uio, ((void *)0), ((void *)0), ((void *)0), 0);
- vn_lock(ap->a_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ap->a_vp, 0x0001UL | 0x2000UL);
  if (ap->a_ioflag & 0x10) {
   rso->so_state &= ~0x100;
   if (error == 35 &&
@@ -2591,7 +2589,6 @@ fifo_write(void *v)
 {
  struct vop_write_args *ap = v;
  struct socket *wso = ap->a_vp->v_un.vu_fifoinfo->fi_writesock;
- struct proc *p = ap->a_uio->uio_procp;
  int error;
  if (ap->a_uio->uio_rw != UIO_WRITE)
   panic("fifo_write mode");
@@ -2599,7 +2596,7 @@ fifo_write(void *v)
   wso->so_state |= 0x100;
  VOP_UNLOCK(ap->a_vp);
  error = sosend(wso, ((void *)0), ap->a_uio, ((void *)0), ((void *)0), 0);
- vn_lock(ap->a_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ap->a_vp, 0x0001UL | 0x2000UL);
  if (ap->a_ioflag & 0x10)
   wso->so_state &= ~0x100;
  return (error);

@@ -5399,21 +5399,23 @@ ah_input_cb(struct cryptop *crp)
  }
  if (roff == 0) {
   m_adj(m1, rplen + ahx->authsize);
-  if (!(m1->m_hdr.mh_flags & 0x0002))
+  if (m1 != m)
    m->M_dat.MH.MH_pkthdr.len -= rplen + ahx->authsize;
  } else
   if (roff + rplen + ahx->authsize >= m1->m_hdr.mh_len) {
+   int adjlen;
    if (roff + rplen + ahx->authsize > m1->m_hdr.mh_len) {
-    m_adj(m1->m_hdr.mh_next, roff + rplen +
-        ahx->authsize - m1->m_hdr.mh_len);
-    m->M_dat.MH.MH_pkthdr.len -=
-        (roff + rplen + ahx->authsize - m1->m_hdr.mh_len);
+    adjlen = roff + rplen + ahx->authsize -
+        m1->m_hdr.mh_len;
+    m_adj(m1->m_hdr.mh_next, adjlen);
+    m->M_dat.MH.MH_pkthdr.len -= adjlen;
    }
    m0 = m1->m_hdr.mh_next;
    m1->m_hdr.mh_next = ((void *)0);
-   m_adj(m1, -(m1->m_hdr.mh_len - roff));
-   if (!(m1->m_hdr.mh_flags & 0x0002))
-    m->M_dat.MH.MH_pkthdr.len -= (m1->m_hdr.mh_len - roff);
+   adjlen = m1->m_hdr.mh_len - roff;
+   m_adj(m1, -adjlen);
+   if (m1 != m)
+    m->M_dat.MH.MH_pkthdr.len -= adjlen;
    m1->m_hdr.mh_next = m0;
   } else {
    __builtin_bcopy((((u_char *)((m1)->m_hdr.mh_data)) + roff + rplen + ahx->authsize), (((u_char *)((m1)->m_hdr.mh_data)) + roff), (m1->m_hdr.mh_len - (roff + rplen + ahx->authsize)));

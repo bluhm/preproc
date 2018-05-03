@@ -5309,18 +5309,21 @@ esp_input_cb(struct cryptop *crp)
  }
  if (roff == 0) {
   m_adj(m1, hlen);
-  if (!(m1->m_hdr.mh_flags & 0x0002))
+  if (m1 != m)
    m->M_dat.MH.MH_pkthdr.len -= hlen;
  } else if (roff + hlen >= m1->m_hdr.mh_len) {
+  int adjlen;
   if (roff + hlen > m1->m_hdr.mh_len) {
-   m_adj(m1->m_hdr.mh_next, roff + hlen - m1->m_hdr.mh_len);
-   m->M_dat.MH.MH_pkthdr.len -= (roff + hlen - m1->m_hdr.mh_len);
+   adjlen = roff + hlen - m1->m_hdr.mh_len;
+   m_adj(m1->m_hdr.mh_next, adjlen);
+   m->M_dat.MH.MH_pkthdr.len -= adjlen;
   }
   mo = m1->m_hdr.mh_next;
   m1->m_hdr.mh_next = ((void *)0);
-  m_adj(m1, -(m1->m_hdr.mh_len - roff));
-  if (!(m1->m_hdr.mh_flags & 0x0002))
-   m->M_dat.MH.MH_pkthdr.len -= (m1->m_hdr.mh_len - roff);
+  adjlen = m1->m_hdr.mh_len - roff;
+  m_adj(m1, -adjlen);
+  if (m1 != m)
+   m->M_dat.MH.MH_pkthdr.len -= adjlen;
   m1->m_hdr.mh_next = mo;
  } else {
   __builtin_memmove((((u_char *)((m1)->m_hdr.mh_data)) + roff), (((u_char *)((m1)->m_hdr.mh_data)) + roff + hlen), (m1->m_hdr.mh_len - (roff + hlen)));

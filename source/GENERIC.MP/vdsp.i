@@ -2745,7 +2745,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -6310,7 +6310,7 @@ vdsp_readlabel(struct vdsp_softc *sc)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_READ;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  err = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
  if (err) {
@@ -6336,7 +6336,7 @@ vdsp_writelabel(struct vdsp_softc *sc)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_WRITE;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  err = VOP_WRITE(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
  return (err);
@@ -6361,7 +6361,7 @@ vdsp_is_iso(struct vdsp_softc *sc)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_READ;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  err = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
  if (err == 0 && __builtin_memcmp((vdp->id), ("CD001"), (sizeof(vdp->id))))
@@ -6428,7 +6428,7 @@ vdsp_read_desc(struct vdsp_softc *sc, struct vdsk_desc_msg *dm)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_READ;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  dm->status = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
  _kernel_unlock();
@@ -6493,7 +6493,7 @@ vdsp_read_dring(void *arg1, void *arg2)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_READ;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  vd->status = VOP_READ(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
  _kernel_unlock();
@@ -6582,7 +6582,7 @@ vdsp_write_dring(void *arg1, void *arg2)
  uio.uio_segflg = UIO_SYSSPACE;
  uio.uio_rw = UIO_WRITE;
  uio.uio_procp = p;
- vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(sc->sc_vp, 0x0001UL | 0x2000UL);
  vd->status = VOP_WRITE(sc->sc_vp, &uio, 0, p->p_ucred);
  VOP_UNLOCK(sc->sc_vp);
 fail:

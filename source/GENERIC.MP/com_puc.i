@@ -2460,7 +2460,6 @@ static const struct puc_port_type puc_port_types[] = {
  { PUC_PORT_COM_MUL8, 1843200 * 8 },
  { PUC_PORT_COM_MUL10, 1843200 * 10 },
  { PUC_PORT_COM_MUL128, 1843200 * 128 },
- { PUC_PORT_COM_125MHZ, 125000000 },
 };
 struct puc_attach_args {
  int port;
@@ -2488,10 +2487,7 @@ struct puc_softc {
  struct {
   struct device *dev;
   void *intrhand;
-  int (*real_intrhand)(void *);
-  void *real_intrhand_arg;
  } sc_ports[16];
- int sc_xr17v35x;
 };
 const struct puc_device_description *
     puc_find_description(u_int16_t, u_int16_t, u_int16_t, u_int16_t);

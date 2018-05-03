@@ -2363,7 +2363,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -5067,7 +5067,7 @@ ffs_reload(struct mount *mountp, struct ucred *cred, struct proc *p)
  if ((mountp->mnt_flag & 0x00000001) == 0)
   return (22);
  devvp = ((struct ufsmount *)((mountp)->mnt_data))->um_devvp;
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  error = vinvalbuf(devvp, 0, cred, p, 0, 0);
  VOP_UNLOCK(devvp);
  if (error)
@@ -5162,7 +5162,7 @@ ffs_mountfs(struct vnode *devvp, struct mount *mp, struct proc *p)
   return (error);
  if (vcount(devvp) > 1 && devvp != rootvp)
   return (16);
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  error = vinvalbuf(devvp, 0x0001, cred, p, 0, 0);
  VOP_UNLOCK(devvp);
  if (error)
@@ -5310,7 +5310,7 @@ out:
   devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
  if (bp)
   brelse(bp);
- vn_lock(devvp, 0x0001UL|0x2000UL, p);
+ vn_lock(devvp, 0x0001UL|0x2000UL);
  (void)VOP_CLOSE(devvp, ronly ? 0x0001 : 0x0001|0x0002, cred, p);
  VOP_UNLOCK(devvp);
  if (ump) {
@@ -5400,7 +5400,7 @@ ffs_unmount(struct mount *mp, int mntflags, struct proc *p)
   free(fs->fs_contigdirs, 28, fs->fs_ncg);
  }
  ump->um_devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
- vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL);
  vinvalbuf(ump->um_devvp, 0x0001, ((struct ucred *)-1), p, 0, 0);
  (void)VOP_CLOSE(ump->um_devvp, fs->fs_ronly ? 0x0001 : 0x0001|0x0002,
      ((struct ucred *)-1), p);
@@ -5430,7 +5430,7 @@ ffs_flushfiles(struct mount *mp, int flags, struct proc *p)
  }
  if ((error = vflush(mp, ((void *)0), flags)) != 0)
   return (error);
- vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL);
  error = VOP_FSYNC(ump->um_devvp, p->p_ucred, 1, p);
  VOP_UNLOCK(ump->um_devvp);
  return (error);
@@ -5529,7 +5529,7 @@ ffs_sync(struct mount *mp, int waitfor, int stall, struct ucred *cred, struct pr
    goto loop;
  }
  if (waitfor != 3) {
-  vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL, p);
+  vn_lock(ump->um_devvp, 0x0001UL | 0x2000UL);
   if ((error = VOP_FSYNC(ump->um_devvp, cred, waitfor, p)) != 0)
    allerror = error;
   VOP_UNLOCK(ump->um_devvp);

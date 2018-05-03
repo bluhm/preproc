@@ -1978,7 +1978,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3177,7 +3177,6 @@ vfs_lookup(struct nameidata *ndp)
  int dpunlocked = 0;
  int slashes;
  struct componentname *cnp = &ndp->ni_cnd;
- struct proc *p = cnp->cn_proc;
  wantparent = cnp->cn_flags & (0x0008 | 0x0010);
  docache = (cnp->cn_flags & 0x0020) ^ 0x0020;
  if (cnp->cn_nameiop == 2 ||
@@ -3188,7 +3187,7 @@ vfs_lookup(struct nameidata *ndp)
  cnp->cn_flags &= ~0x010000;
  dp = ndp->ni_startdir;
  ndp->ni_startdir = ((struct vnode *)((void *)0));
- vn_lock(dp, 0x0001UL | 0x2000UL, p);
+ vn_lock(dp, 0x0001UL | 0x2000UL);
  cp = cnp->cn_nameptr;
  if (*cp == '/') {
   do {
@@ -3264,7 +3263,7 @@ dirloop:
    dp = dp->v_mount->mnt_vnodecovered;
    vput(tdp);
    vref(dp);
-   vn_lock(dp, 0x0001UL | 0x2000UL, p);
+   vn_lock(dp, 0x0001UL | 0x2000UL);
   }
  }
  ndp->ni_dvp = dp;
@@ -3366,7 +3365,6 @@ bad:
 int
 vfs_relookup(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp)
 {
- struct proc *p = cnp->cn_proc;
  struct vnode *dp = 0;
  int wantparent;
  int rdonly;
@@ -3375,7 +3373,7 @@ vfs_relookup(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp)
  rdonly = cnp->cn_flags & 0x000200;
  cnp->cn_flags &= ~0x010000;
  dp = dvp;
- vn_lock(dp, 0x0001UL | 0x2000UL, p);
+ vn_lock(dp, 0x0001UL | 0x2000UL);
  if (cnp->cn_nameptr[0] == '\0')
   panic("relookup: null name");
  if (cnp->cn_flags & 0x002000)

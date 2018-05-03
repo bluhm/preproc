@@ -2250,7 +2250,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -2595,7 +2595,7 @@ cache_lookup(struct vnode *dvp, struct vnode **vpp,
   cnp->cn_flags |= 0x200000;
   error = vget(vp, 0x0001UL, p);
   if (!error && (~cnp->cn_flags & (0x0008|0x008000)) == 0) {
-   if ((error = vn_lock(dvp, 0x0001UL, p)) != 0) {
+   if ((error = vn_lock(dvp, 0x0001UL)) != 0) {
     vput(vp);
     return (error);
    }
@@ -2616,7 +2616,7 @@ cache_lookup(struct vnode *dvp, struct vnode **vpp,
    nchstats.ncs_badhits++;
   if (vp == dvp || error ||
       (~cnp->cn_flags & (0x0008|0x008000)) != 0) {
-   if ((error = vn_lock(dvp, 0x0001UL, p)) != 0)
+   if ((error = vn_lock(dvp, 0x0001UL)) != 0)
     return (error);
    cnp->cn_flags &= ~0x200000;
   }

@@ -2320,7 +2320,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3854,7 +3854,7 @@ uvn_io(struct uvm_vnode *uvn, vm_page_t *pps, int npages, int flags, int rw)
  }
  result = 0;
  if ((uvn->u_flags & 0x040) == 0)
-  result = vn_lock(vn, 0x0001UL | 0x0080UL, (__curcpu->ci_self)->ci_curproc);
+  result = vn_lock(vn, 0x0001UL | 0x0080UL);
  if (result == 0) {
   if (rw == UIO_READ)
    result = VOP_READ(vn, &uio, 0, (__curcpu->ci_self)->ci_curproc->p_ucred);
@@ -3904,7 +3904,7 @@ uvm_vnp_uncache(struct vnode *vp)
  uvn->u_obj.uo_refs++;
  VOP_UNLOCK(vp);
  uvn_detach(&uvn->u_obj);
- vn_lock(vp, 0x0001UL | 0x2000UL, (__curcpu->ci_self)->ci_curproc);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  return(1);
 }
 void

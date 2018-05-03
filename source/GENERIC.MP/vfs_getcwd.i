@@ -2060,7 +2060,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -4092,7 +4092,7 @@ vfs_getcwd_getcache(struct vnode **lvpp, struct vnode **uvpp, char **bpp,
   if (!error)
    vput(uvp);
   *uvpp = ((void *)0);
-  error = vn_lock(lvp, 0x0001UL | 0x2000UL, p);
+  error = vn_lock(lvp, 0x0001UL | 0x2000UL);
   if (!error) {
    *bpp = obp;
    return (-1);
@@ -4117,7 +4117,7 @@ vfs_getcwd_common(struct vnode *lvp, struct vnode *rvp, char **bpp, char *bufp,
  }
  vref(rvp);
  vref(lvp);
- error = vn_lock(lvp, 0x0001UL | 0x2000UL, p);
+ error = vn_lock(lvp, 0x0001UL | 0x2000UL);
  if (error) {
   vrele(lvp);
   lvp = ((void *)0);
@@ -4153,7 +4153,7 @@ vfs_getcwd_common(struct vnode *lvp, struct vnode *rvp, char **bpp, char *bufp,
     goto out;
    }
    vref(lvp);
-   error = vn_lock(lvp, 0x0001UL | 0x2000UL, p);
+   error = vn_lock(lvp, 0x0001UL | 0x2000UL);
    if (error) {
     vrele(lvp);
     lvp = ((void *)0);

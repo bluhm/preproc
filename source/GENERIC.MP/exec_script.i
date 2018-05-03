@@ -2469,7 +2469,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -2781,7 +2781,7 @@ check_shell:
   script_uid = epp->ep_vap->va_uid;
   script_gid = epp->ep_vap->va_gid;
  }
- vn_lock(scriptvp, 0x0001UL|0x2000UL, p);
+ vn_lock(scriptvp, 0x0001UL|0x2000UL);
  error = VOP_ACCESS(scriptvp, 00400, p->p_ucred, p);
  VOP_UNLOCK(scriptvp);
  if (error == 13 || script_sbits) {

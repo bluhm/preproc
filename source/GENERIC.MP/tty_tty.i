@@ -2440,7 +2440,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -2469,7 +2469,7 @@ cttyopen(dev_t dev, int flag, int mode, struct proc *p)
  int error;
  if (ttyvp == ((void *)0))
   return (6);
- vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ttyvp, 0x0001UL | 0x2000UL);
  error = VOP_OPEN(ttyvp, flag, ((struct ucred *)-1), p);
  VOP_UNLOCK(ttyvp);
  return (error);
@@ -2477,12 +2477,11 @@ cttyopen(dev_t dev, int flag, int mode, struct proc *p)
 int
 cttyread(dev_t dev, struct uio *uio, int flag)
 {
- struct proc *p = uio->uio_procp;
  struct vnode *ttyvp = ((uio->uio_procp)->p_p->ps_flags & 0x00000001 ? (uio->uio_procp)->p_p->ps_pgrp->pg_session->s_ttyvp : ((void *)0));
  int error;
  if (ttyvp == ((void *)0))
   return (5);
- vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ttyvp, 0x0001UL | 0x2000UL);
  error = VOP_READ(ttyvp, uio, flag, ((struct ucred *)-1));
  VOP_UNLOCK(ttyvp);
  return (error);
@@ -2490,12 +2489,11 @@ cttyread(dev_t dev, struct uio *uio, int flag)
 int
 cttywrite(dev_t dev, struct uio *uio, int flag)
 {
- struct proc *p = uio->uio_procp;
  struct vnode *ttyvp = ((uio->uio_procp)->p_p->ps_flags & 0x00000001 ? (uio->uio_procp)->p_p->ps_pgrp->pg_session->s_ttyvp : ((void *)0));
  int error;
  if (ttyvp == ((void *)0))
   return (5);
- vn_lock(ttyvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(ttyvp, 0x0001UL | 0x2000UL);
  error = VOP_WRITE(ttyvp, uio, flag, ((struct ucred *)-1));
  VOP_UNLOCK(ttyvp);
  return (error);

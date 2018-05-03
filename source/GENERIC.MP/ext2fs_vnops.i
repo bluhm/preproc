@@ -2863,7 +2863,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -4657,7 +4657,6 @@ ext2fs_link(void *v)
  struct vnode *dvp = ap->a_dvp;
  struct vnode *vp = ap->a_vp;
  struct componentname *cnp = ap->a_cnp;
- struct proc *p = cnp->cn_proc;
  struct inode *ip;
  int error;
  if ((cnp->cn_flags & 0x000400) == 0)
@@ -4672,7 +4671,7 @@ ext2fs_link(void *v)
   error = 18;
   goto out2;
  }
- if (dvp != vp && (error = vn_lock(vp, 0x0001UL, p))) {
+ if (dvp != vp && (error = vn_lock(vp, 0x0001UL))) {
   VOP_ABORTOP(dvp, cnp);
   goto out2;
  }
@@ -4715,7 +4714,6 @@ ext2fs_rename(void *v)
  struct componentname *tcnp = ap->a_tcnp;
  struct componentname *fcnp = ap->a_fcnp;
  struct inode *ip, *xp, *dp;
- struct proc *p = fcnp->cn_proc;
  struct ext2fs_dirtemplate dirbuf;
  int doingdirectory = 0, oldparent = 0, newparent = 0;
  int error = 0;
@@ -4762,7 +4760,7 @@ abortit:
   (void) vfs_relookup(fdvp, &fvp, fcnp);
   return (VOP_REMOVE(fdvp, fvp, fcnp));
  }
- if ((error = vn_lock(fvp, 0x0001UL, p)) != 0)
+ if ((error = vn_lock(fvp, 0x0001UL)) != 0)
   goto abortit;
  dp = ((struct inode *)(fdvp)->v_data);
  ip = ((struct inode *)(fvp)->v_data);
@@ -4964,7 +4962,7 @@ bad:
 out:
  if (doingdirectory)
   ip->i_flag &= ~0x0010;
- if (vn_lock(fvp, 0x0001UL, p) == 0) {
+ if (vn_lock(fvp, 0x0001UL) == 0) {
   ip->dinode_u.e2fs_din->e2di_nlink--;
   ip->i_flag |= 0x0002;
   vput(fvp);

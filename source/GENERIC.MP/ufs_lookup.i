@@ -2718,7 +2718,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3170,7 +3170,6 @@ ufs_lookup(void *v)
  struct ucred *cred = cnp->cn_cred;
  int flags;
  int nameiop = cnp->cn_nameiop;
- struct proc *p = cnp->cn_proc;
  cnp->cn_flags &= ~0x200000;
  flags = cnp->cn_flags;
  bp = ((void *)0);
@@ -3410,12 +3409,12 @@ found:
   cnp->cn_flags |= 0x200000;
   error = (*(vdp->v_mount)->mnt_op->vfs_vget)(vdp->v_mount, dp->i_ino, &tdp);
   if (error) {
-   if (vn_lock(pdp, 0x0001UL | 0x2000UL, p) == 0)
+   if (vn_lock(pdp, 0x0001UL | 0x2000UL) == 0)
     cnp->cn_flags &= ~0x200000;
    return (error);
   }
   if (lockparent && (flags & 0x008000)) {
-   if ((error = vn_lock(pdp, 0x0001UL, p))) {
+   if ((error = vn_lock(pdp, 0x0001UL))) {
     vput(tdp);
     return (error);
    }
@@ -3550,7 +3549,7 @@ ufs_direnter(struct vnode *dvp, struct vnode *tvp, struct direct *dirp,
     VOP_UNLOCK(tvp);
    error = VOP_FSYNC(dvp, p->p_ucred, 1, p);
    if (tvp != ((void *)0))
-    vn_lock(tvp, 0x0001UL | 0x2000UL, p);
+    vn_lock(tvp, 0x0001UL | 0x2000UL);
    return (error);
   }
   error = VOP_BWRITE(bp);
@@ -3628,7 +3627,7 @@ ufs_direnter(struct vnode *dvp, struct vnode *tvp, struct direct *dirp,
   if (error == 0 && dp->inode_ext.dirhash != ((void *)0))
    ufsdirhash_dirtrunc(dp, dp->i_endoff);
   if (tvp != ((void *)0))
-   vn_lock(tvp, 0x0001UL | 0x2000UL, p);
+   vn_lock(tvp, 0x0001UL | 0x2000UL);
  }
  return (error);
 }

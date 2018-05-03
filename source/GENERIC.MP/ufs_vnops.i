@@ -2780,7 +2780,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -4588,7 +4588,6 @@ ufs_link(void *v)
  struct vnode *dvp = ap->a_dvp;
  struct vnode *vp = ap->a_vp;
  struct componentname *cnp = ap->a_cnp;
- struct proc *p = cnp->cn_proc;
  struct inode *ip;
  struct direct newdir;
  int error;
@@ -4604,7 +4603,7 @@ ufs_link(void *v)
   error = 18;
   goto out2;
  }
- if (dvp != vp && (error = vn_lock(vp, 0x0001UL, p))) {
+ if (dvp != vp && (error = vn_lock(vp, 0x0001UL))) {
   VOP_ABORTOP(dvp, cnp);
   goto out2;
  }
@@ -4655,7 +4654,6 @@ ufs_rename(void *v)
  struct vnode *fdvp = ap->a_fdvp;
  struct componentname *tcnp = ap->a_tcnp;
  struct componentname *fcnp = ap->a_fcnp;
- struct proc *p = fcnp->cn_proc;
  struct inode *ip, *xp, *dp;
  struct direct newdir;
  int doingdirectory = 0, oldparent = 0, newparent = 0;
@@ -4703,7 +4701,7 @@ abortit:
   vrele(fdvp);
   return (VOP_REMOVE(fdvp, fvp, fcnp));
  }
- if ((error = vn_lock(fvp, 0x0001UL, p)) != 0)
+ if ((error = vn_lock(fvp, 0x0001UL)) != 0)
   goto abortit;
  dp = ((struct inode *)(fdvp)->v_data);
  ip = ((struct inode *)(fvp)->v_data);
@@ -4916,7 +4914,7 @@ out:
  vrele(fdvp);
  if (doingdirectory)
   ip->i_flag &= ~0x0010;
- if (vn_lock(fvp, 0x0001UL, p) == 0) {
+ if (vn_lock(fvp, 0x0001UL) == 0) {
   ip->i_effnlink--;
   do { if ((ip)->i_ump->um_fstype == 1) (ip)->dinode_u.ffs1_din->di_nlink += (-1); else (ip)->dinode_u.ffs2_din->di_nlink += (-1); } while (0);
   ip->i_flag |= 0x0002;

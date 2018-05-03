@@ -2363,7 +2363,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3602,7 +3602,7 @@ iso_mountfs(devvp, mp, p, argp)
   return (error);
  if (vcount(devvp) > 1 && devvp != rootvp)
   return (16);
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  error = vinvalbuf(devvp, 0x0001, p->p_ucred, p, 0, 0);
  VOP_UNLOCK(devvp);
  if (error)
@@ -3754,7 +3754,7 @@ out:
   brelse(bp);
  if (supbp)
   brelse(supbp);
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  VOP_CLOSE(devvp, ronly ? 0x0001 : 0x0001|0x0002, ((struct ucred *)-1), p);
  VOP_UNLOCK(devvp);
  if (isomp) {
@@ -3847,7 +3847,7 @@ cd9660_unmount(mp, mntflags, p)
   return (error);
  isomp = ((struct iso_mnt *)((mp)->mnt_data));
  isomp->im_devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
- vn_lock(isomp->im_devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(isomp->im_devvp, 0x0001UL | 0x2000UL);
  (void)VOP_CLOSE(isomp->im_devvp, 0x0001, ((struct ucred *)-1), p);
  vput(isomp->im_devvp);
  free((caddr_t)isomp, 57, 0);

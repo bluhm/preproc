@@ -2887,7 +2887,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -2966,7 +2966,7 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
  if (fp->f_flag & 0x0002)
   ovp->v_writecount--;
  if (ovp->v_writecount == 0) {
-  vn_lock(ovp, 0x0001UL | 0x2000UL, p);
+  vn_lock(ovp, 0x0001UL | 0x2000UL);
   VOP_CLOSE(ovp, fp->f_flag, p->p_ucred, p);
   vput(ovp);
  }

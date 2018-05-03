@@ -2343,7 +2343,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -5479,7 +5479,7 @@ again:
  io.uio_rw = UIO_READ;
  io.uio_procp = ((void *)0);
  eofflag = 0;
- vn_lock(vp, 0x0001UL | 0x2000UL, procp);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  error = VOP_READDIR(vp, &io, cred, &eofflag);
  off = (off_t)io.uio_offset;
  if (info.nmi_v3) {
@@ -5649,7 +5649,7 @@ again:
  io.uio_rw = UIO_READ;
  io.uio_procp = ((void *)0);
  eofflag = 0;
- vn_lock(vp, 0x0001UL | 0x2000UL, procp);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  error = VOP_READDIR(vp, &io, cred, &eofflag);
  off = (u_quad_t)io.uio_offset;
  getret = VOP_GETATTR(vp, &at, cred, procp);

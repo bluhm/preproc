@@ -2838,7 +2838,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -4091,7 +4091,7 @@ softdep_flushworklist(struct mount *oldmnt, int *countp, struct proc *p)
  devvp = ((struct ufsmount *)((oldmnt)->mnt_data))->um_devvp;
  while ((count = softdep_process_worklist(oldmnt)) > 0) {
   *countp += count;
-  vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+  vn_lock(devvp, 0x0001UL | 0x2000UL);
   error = VOP_FSYNC(devvp, p->p_ucred, 1, p);
   VOP_UNLOCK(devvp);
   if (error)
@@ -6299,7 +6299,7 @@ softdep_fsync(struct vnode *vp)
   _splx((&lk)->lkt_spl);
   VOP_UNLOCK(vp);
   error = (*(mnt)->mnt_op->vfs_vget)(mnt, parentino, &pvp);
-  vn_lock(vp, 0x0001UL | 0x2000UL, p);
+  vn_lock(vp, 0x0001UL | 0x2000UL);
   if (error != 0)
    return (error);
   pip = ((struct inode *)(pvp)->v_data);

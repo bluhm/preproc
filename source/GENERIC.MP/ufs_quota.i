@@ -2412,7 +2412,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3754,7 +3754,6 @@ dqget(struct vnode *vp, u_long id, struct ufsmount *ump, int type,
     struct dquot **dqp)
 {
  SIPHASH_CTX ctx;
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  struct dquot *dq;
  struct dqhash *dqh;
  struct vnode *dqvp;
@@ -3800,7 +3799,7 @@ dqget(struct vnode *vp, u_long id, struct ufsmount *ump, int type,
   dq->dq_cred = ((struct ucred *)-1);
  }
  if (vp != dqvp)
-  vn_lock(dqvp, 0x0001UL | 0x2000UL, p);
+  vn_lock(dqvp, 0x0001UL | 0x2000UL);
  do { if (((dq)->dq_hash.le_next = (dqh)->lh_first) != ((void *)0)) (dqh)->lh_first->dq_hash.le_prev = &(dq)->dq_hash.le_next; (dqh)->lh_first = (dq); (dq)->dq_hash.le_prev = &(dqh)->lh_first; } while (0);
  dqref(dq);
  dq->dq_flags = 0x01;
@@ -3862,7 +3861,6 @@ dqrele(struct vnode *vp, struct dquot *dq)
 int
 dqsync(struct vnode *vp, struct dquot *dq)
 {
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  struct vnode *dqvp;
  struct iovec aiov;
  struct uio auio;
@@ -3874,7 +3872,7 @@ dqsync(struct vnode *vp, struct dquot *dq)
  if ((dqvp = dq->dq_vp) == ((struct vnode *)((void *)0)))
   panic("dqsync: file");
  if (vp != dqvp)
-  vn_lock(dqvp, 0x0001UL | 0x2000UL, p);
+  vn_lock(dqvp, 0x0001UL | 0x2000UL);
  while (dq->dq_flags & 0x01) {
   dq->dq_flags |= 0x02;
   (void) tsleep(dq, 8 +2, "dqsync", 0);

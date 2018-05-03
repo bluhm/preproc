@@ -3185,7 +3185,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -5016,7 +5016,6 @@ nfs_lookup(void *v)
  struct componentname *cnp = ap->a_cnp;
  struct vnode *dvp = ap->a_dvp;
  struct vnode **vpp = ap->a_vpp;
- struct proc *p = cnp->cn_proc;
  struct nfsm_info info;
  int flags;
  struct vnode *newvp;
@@ -5050,7 +5049,7 @@ nfs_lookup(void *v)
    return (error);
   }
   if (cnp->cn_flags & 0x200000) {
-   err2 = vn_lock(dvp, 0x0001UL | 0x2000UL, p);
+   err2 = vn_lock(dvp, 0x0001UL | 0x2000UL);
    if (err2 != 0) {
     *vpp = ((struct vnode *)((void *)0));
     return (err2);
@@ -5156,7 +5155,7 @@ dorpc:
   cnp->cn_flags |= 0x200000;
   error = nfs_nget(dvp->v_mount, fhp, fhsize, &np);
   if (error) {
-   if (vn_lock(dvp, 0x0001UL | 0x2000UL, p) == 0)
+   if (vn_lock(dvp, 0x0001UL | 0x2000UL) == 0)
     cnp->cn_flags &= ~0x200000;
    m_freem(info.nmi_mrep);
    return (error);
@@ -5168,7 +5167,7 @@ dorpc:
   } else
    { struct vnode *ttvp = (newvp); if ((t1 = nfs_loadattrcache(&ttvp, &info.nmi_md, &info.nmi_dpos, (((void *)0)))) != 0) { error = t1; m_freem(info.nmi_mrep); goto nfsmout; } (newvp) = ttvp; };
   if (lockparent && (flags & 0x008000)) {
-   if ((error = vn_lock(dvp, 0x0001UL, p))) {
+   if ((error = vn_lock(dvp, 0x0001UL))) {
     m_freem(info.nmi_mrep);
     vput(newvp);
     return error;
@@ -5468,7 +5467,7 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1317, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1316, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 11, &info);
@@ -5561,7 +5560,7 @@ again:
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1428, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1427, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 8, &info);

@@ -4582,17 +4582,18 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
  struct in6_ndireq *ndi = (struct in6_ndireq *)data;
  struct in6_nbrinfo *nbi = (struct in6_nbrinfo *)data;
  struct rtentry *rt;
- int error = 0;
- do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_ndireq) & 0x1fff) << 16) | ((('i')) << 8) | ((108))):
+  do { _rw_enter_read(&netlock ); } while (0);
   ndi->ndi = *(((struct in6_ifextra *)(ifp)->if_afdata[24])->nd_ifinfo);
-  break;
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (0);
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct in6_nbrinfo) & 0x1fff) << 16) | ((('i')) << 8) | ((78))):
  {
   struct llinfo_nd6 *ln;
   struct in6_addr nb_addr = nbi->addr;
   time_t expire;
+  do { _rw_enter_read(&netlock ); } while (0);
   if ((((&nbi->addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&nbi->addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80)) ||
       (((&nbi->addr)->__u6_addr.__u6_addr8[0] == 0xff) && (((&nbi->addr)->__u6_addr.__u6_addr8[1] & 0x0f) == 0x02))) {
    u_int16_t *idp = (u_int16_t *)&nb_addr.__u6_addr.__u6_addr8[2];
@@ -4602,9 +4603,9 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
   rt = nd6_lookup(&nb_addr, 0, ifp, ifp->if_data.ifi_rdomain);
   if (rt == ((void *)0) ||
       (ln = (struct llinfo_nd6 *)rt->rt_llinfo) == ((void *)0)) {
-   error = 22;
    rtfree(rt);
-   break;
+   do { _rw_exit_read(&netlock ); } while (0);
+   return (22);
   }
   expire = ln->ln_rt->rt_rmx.rmx_expire;
   if (expire != 0) {
@@ -4616,10 +4617,11 @@ nd6_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp)
   nbi->isrouter = ln->ln_router;
   nbi->expire = expire;
   rtfree(rt);
-  break;
+  do { _rw_exit_read(&netlock ); } while (0);
+  return (0);
  }
  }
- return (error);
+ return (0);
 }
 void
 nd6_cache_lladdr(struct ifnet *ifp, struct in6_addr *from, char *lladdr,
@@ -4786,7 +4788,7 @@ nd6_resolve(struct ifnet *ifp, struct rtentry *rt0, struct mbuf *m,
   return (22);
  }
  ln = (struct llinfo_nd6 *)rt->rt_llinfo;
- ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1366, "ln != NULL"));
+ ((ln != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../netinet6/nd6.c", 1367, "ln != NULL"));
  do { if (((ln)->ln_list.tqe_next) != ((void *)0)) (ln)->ln_list.tqe_next->ln_list.tqe_prev = (ln)->ln_list.tqe_prev; else (&nd6_list)->tqh_last = (ln)->ln_list.tqe_prev; *(ln)->ln_list.tqe_prev = (ln)->ln_list.tqe_next; ((ln)->ln_list.tqe_prev) = ((void *)-1); ((ln)->ln_list.tqe_next) = ((void *)-1); } while (0);
  do { if (((ln)->ln_list.tqe_next = (&nd6_list)->tqh_first) != ((void *)0)) (&nd6_list)->tqh_first->ln_list.tqe_prev = &(ln)->ln_list.tqe_next; else (&nd6_list)->tqh_last = &(ln)->ln_list.tqe_next; (&nd6_list)->tqh_first = (ln); (ln)->ln_list.tqe_prev = &(&nd6_list)->tqh_first; } while (0);
  if (ln->ln_state == 2) {

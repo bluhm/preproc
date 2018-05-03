@@ -2760,7 +2760,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3881,7 +3881,6 @@ msdosfs_rename(void *v)
  struct vnode *fdvp = ap->a_fdvp;
  struct componentname *tcnp = ap->a_tcnp;
  struct componentname *fcnp = ap->a_fcnp;
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  struct denode *ip, *xp, *dp, *zp;
  u_char toname[11], oldname[11];
  uint32_t from_diroffset, to_diroffset;
@@ -3917,7 +3916,7 @@ abortit:
   error = 0;
   goto abortit;
  }
- if ((error = vn_lock(fvp, 0x0001UL | 0x2000UL, p)) != 0)
+ if ((error = vn_lock(fvp, 0x0001UL | 0x2000UL)) != 0)
   goto abortit;
  dp = ((struct denode *)(fdvp)->v_data);
  ip = ((struct denode *)(fvp)->v_data);

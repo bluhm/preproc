@@ -2524,7 +2524,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3281,9 +3281,8 @@ udf_hashins(struct unode *up)
 {
  struct umount *ump;
  struct udf_hash_lh *lh;
- struct proc *p = (__curcpu->ci_self)->ci_curproc;
  ump = up->u_ump;
- vn_lock(up->u_vnode, 0x0001UL | 0x2000UL, p);
+ vn_lock(up->u_vnode, 0x0001UL | 0x2000UL);
  __mtx_enter(&ump->um_hashmtx );
  lh = &ump->um_hashtbl[SipHash((&ump->um_hashkey), 2, 4, (&up->u_ino), (sizeof(up->u_ino))) & ump->um_hashsz];
  if (lh == ((void *)0))

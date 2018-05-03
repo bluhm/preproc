@@ -2938,6 +2938,7 @@ int mrt_sysctl_mfc(void *, size_t *);
 int ip_mrouter_done(struct socket *);
 void vif_delete(struct ifnet *);
 void in_socktrim(struct sockaddr_in *);
+int in_ioctl_get(u_long, caddr_t, struct ifnet *);
 void in_purgeaddr(struct ifaddr *);
 int in_addhost(struct in_ifaddr *, struct sockaddr_in *);
 int in_scrubhost(struct in_ifaddr *, struct sockaddr_in *);
@@ -3046,6 +3047,13 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  int newifaddr;
  if (ifp == ((void *)0))
   return (6);
+ switch (cmd) {
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((35))):
+  return in_ioctl_get(cmd, data, ifp);
+ }
  do { _rw_enter_write(&netlock ); } while (0);
  for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
   if (ifa->ifa_addr->sa_family == 2) {
@@ -3098,10 +3106,6 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
    error = 1;
    goto err;
   }
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((35))):
   if (ia && satosin(&ifr->ifr_ifru.ifru_addr)->sin_addr.s_addr) {
    for (; ifa != ((void *)0); ifa = ((ifa)->ifa_list.tqe_next)) {
     if ((ifa->ifa_addr->sa_family == 2) &&
@@ -3119,26 +3123,6 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
   break;
  }
  switch (cmd) {
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
-  *satosin(&ifr->ifr_ifru.ifru_addr) = ia->ia_addr;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((35))):
-  if ((ifp->if_flags & 0x2) == 0) {
-   error = 22;
-   break;
-  }
-  *satosin(&ifr->ifr_ifru.ifru_dstaddr) = ia->ia_dstaddr;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
-  if ((ifp->if_flags & 0x10) == 0) {
-   error = 22;
-   break;
-  }
-  *satosin(&ifr->ifr_ifru.ifru_dstaddr) = ia->ia_dstaddr;
-  break;
- case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
-  *satosin(&ifr->ifr_ifru.ifru_addr) = ia->ia_sockmask;
-  break;
  case ((unsigned long)0x80000000 | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((14))):
   if ((ifp->if_flags & 0x10) == 0) {
    error = 22;
@@ -3219,6 +3203,62 @@ in_ioctl(u_long cmd, caddr_t data, struct ifnet *ifp, int privileged)
  }
 err:
  do { _rw_exit_write(&netlock ); } while (0);
+ return (error);
+}
+int
+in_ioctl_get(u_long cmd, caddr_t data, struct ifnet *ifp)
+{
+ struct ifreq *ifr = (struct ifreq *)data;
+ struct ifaddr *ifa;
+ struct in_ifaddr *ia = ((void *)0);
+ int error = 0;
+ do { _rw_enter_read(&netlock ); } while (0);
+ for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
+  if (ifa->ifa_addr->sa_family == 2) {
+   ia = ifatoia(ifa);
+   break;
+  }
+ }
+ if (ia && satosin(&ifr->ifr_ifru.ifru_addr)->sin_addr.s_addr) {
+  for (; ifa != ((void *)0); ifa = ((ifa)->ifa_list.tqe_next)) {
+   if ((ifa->ifa_addr->sa_family == 2) &&
+       ifatoia(ifa)->ia_addr.sin_addr.s_addr ==
+       satosin(&ifr->ifr_ifru.ifru_addr)->sin_addr.s_addr) {
+    ia = ifatoia(ifa);
+    break;
+   }
+  }
+ }
+ if (ia == ((void *)0)) {
+  error = 49;
+  goto err;
+ }
+ switch(cmd) {
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((33))):
+  *satosin(&ifr->ifr_ifru.ifru_addr) = ia->ia_addr;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((35))):
+  if ((ifp->if_flags & 0x2) == 0) {
+   error = 22;
+   break;
+  }
+  *satosin(&ifr->ifr_ifru.ifru_dstaddr) = ia->ia_dstaddr;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((34))):
+  if ((ifp->if_flags & 0x10) == 0) {
+   error = 22;
+   break;
+  }
+  *satosin(&ifr->ifr_ifru.ifru_dstaddr) = ia->ia_dstaddr;
+  break;
+ case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct ifreq) & 0x1fff) << 16) | ((('i')) << 8) | ((37))):
+  *satosin(&ifr->ifr_ifru.ifru_addr) = ia->ia_sockmask;
+  break;
+ default:
+  panic("invalid ioctl %lu", cmd);
+ }
+err:
+ do { _rw_exit_read(&netlock ); } while (0);
  return (error);
 }
 void

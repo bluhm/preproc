@@ -2416,7 +2416,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -7403,8 +7403,7 @@ sr_chunks_unwind(struct sr_softc *sc, struct sr_chunk_head *cl)
   ch_next = ((ch_entry)->src_link.sle_next);
   ;
   if (ch_entry->src_vn) {
-   vn_lock(ch_entry->src_vn, 0x0001UL |
-       0x2000UL, (__curcpu->ci_self)->ci_curproc);
+   vn_lock(ch_entry->src_vn, 0x0001UL | 0x2000UL);
    VOP_CLOSE(ch_entry->src_vn, 0x0001 | 0x0002, ((struct ucred *)-1),
        (__curcpu->ci_self)->ci_curproc);
    vput(ch_entry->src_vn);
@@ -7436,7 +7435,7 @@ sr_discipline_free(struct sr_discipline *sd)
   free(omi, 2, 0);
  }
  if (sd->sd_target != 0) {
-  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3876, "sc->sc_targets[sd->sd_target] == sd"));
+  ((sc->sc_targets[sd->sd_target] == sd) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 3875, "sc->sc_targets[sd->sd_target] == sd"));
   sc->sc_targets[sd->sd_target] = ((void *)0);
  }
  for((sdtmp1) = ((&sc->sc_dis_list)->tqh_first); (sdtmp1) != ((void *)0); (sdtmp1) = ((sdtmp1)->sd_link.tqe_next)) {
@@ -7681,7 +7680,7 @@ sr_schedule_wu(struct sr_workunit *wu)
  struct sr_workunit *wup;
  int s;
  ;
- ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4203, "wu->swu_io_count > 0"));
+ ((wu->swu_io_count > 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/softraid.c", 4202, "wu->swu_io_count > 0"));
  s = _splraise(5);
  if (wu->swu_state == 9)
   goto queued;

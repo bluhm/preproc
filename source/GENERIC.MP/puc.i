@@ -2543,7 +2543,6 @@ static const struct puc_port_type puc_port_types[] = {
  { PUC_PORT_COM_MUL8, 1843200 * 8 },
  { PUC_PORT_COM_MUL10, 1843200 * 10 },
  { PUC_PORT_COM_MUL128, 1843200 * 128 },
- { PUC_PORT_COM_125MHZ, 125000000 },
 };
 struct puc_attach_args {
  int port;
@@ -2571,10 +2570,7 @@ struct puc_softc {
  struct {
   struct device *dev;
   void *intrhand;
-  int (*real_intrhand)(void *);
-  void *real_intrhand_arg;
  } sc_ports[16];
- int sc_xr17v35x;
 };
 const struct puc_device_description *
     puc_find_description(u_int16_t, u_int16_t, u_int16_t, u_int16_t);
@@ -2666,7 +2662,6 @@ int puc_pci_detach(struct device *, int);
 const char *puc_pci_intr_string(struct puc_attach_args *);
 void *puc_pci_intr_establish(struct puc_attach_args *, int,
     int (*)(void *), void *, char *);
-int puc_pci_xr17v35x_intr(void *arg);
 struct cfattach puc_pci_ca = {
  sizeof(struct puc_pci_softc), puc_pci_match,
  puc_pci_attach, puc_pci_detach
@@ -2703,19 +2698,8 @@ puc_pci_intr_establish(struct puc_attach_args *paa, int type,
 {
  struct puc_pci_softc *sc = paa->puc;
  struct puc_softc *psc = &sc->sc_psc;
- if (psc->sc_xr17v35x) {
-  psc->sc_ports[paa->port].real_intrhand = func;
-  psc->sc_ports[paa->port].real_intrhand_arg = arg;
-  if (paa->port == 0)
-   psc->sc_ports[paa->port].intrhand =
-       pci_intr_establish(sc->pc, sc->ih, type,
-       puc_pci_xr17v35x_intr, sc, name);
-  return (psc->sc_ports[paa->port].real_intrhand);
- } else {
-  psc->sc_ports[paa->port].intrhand =
-      pci_intr_establish(sc->pc, sc->ih, type, func, arg, name);
-  return (psc->sc_ports[paa->port].intrhand);
- }
+ psc->sc_ports[paa->port].intrhand =
+     pci_intr_establish(sc->pc, sc->ih, type, func, arg, name);
  return (psc->sc_ports[paa->port].intrhand);
 }
 void
@@ -2730,9 +2714,6 @@ puc_pci_attach(struct device *parent, struct device *self, void *aux)
  subsys = pci_conf_read(pa->pa_pc, pa->pa_tag, 0x2c);
  sc->sc_desc = puc_find_description((((pa->pa_id) >> 0) & 0xffff),
      (((pa->pa_id) >> 16) & 0xffff), (((subsys) >> 0) & 0xffff), (((subsys) >> 16) & 0xffff));
- if ((((pa->pa_id) >> 0) & 0xffff) == 0x13a8 &&
-     (((pa->pa_id) >> 16) & 0xffff) == 0x0354)
-  sc->sc_xr17v35x = 1;
  puc_print_ports(sc->sc_desc);
  for (i = 0; i < 6; i++) {
   pcireg_t type;
@@ -2883,19 +2864,4 @@ puc_print_ports(const struct puc_device_description *desc)
   printf("%d lpt", nlpt);
  }
  printf("\n");
-}
-int
-puc_pci_xr17v35x_intr(void *arg)
-{
- struct puc_pci_softc *sc = arg;
- struct puc_softc *psc = &sc->sc_psc;
- int ports, i;
- ports = bus_space_read_1(psc->sc_bar_mappings[0].t,
-     psc->sc_bar_mappings[0].h, 0x80);
- for (i = 0; i < 8; i++) {
-  if ((ports & (1 << i)) && psc->sc_ports[i].real_intrhand)
-   (*(psc->sc_ports[i].real_intrhand))(
-       psc->sc_ports[i].real_intrhand_arg);
- }
- return (1);
 }

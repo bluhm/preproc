@@ -2552,7 +2552,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -5294,7 +5294,7 @@ sys_fchdir(struct proc *p, void *v, register_t *retval)
  }
  vref(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  error = VOP_ACCESS(vp, 00100, p->p_ucred, p);
  while (!error && (mp = vp->v_un.vu_mountedhere) != ((void *)0)) {
   if (vfs_busy(mp, 0x01|0x08))
@@ -5467,7 +5467,7 @@ doopenat(struct proc *p, int fd, const char *path, int oflags, mode_t mode,
    closef(fp, p);
    goto out;
   }
-  vn_lock(vp, 0x0001UL | 0x2000UL, p);
+  vn_lock(vp, 0x0001UL | 0x2000UL);
   fp->f_iflags |= 0x01;
  }
  if (localtrunc) {
@@ -5610,7 +5610,7 @@ sys_fhopen(struct proc *p, void *v, register_t *retval)
    vp = ((void *)0);
    goto bad;
   }
-  vn_lock(vp, 0x0001UL | 0x2000UL, p);
+  vn_lock(vp, 0x0001UL | 0x2000UL);
   fp->f_iflags |= 0x01;
  }
  VOP_UNLOCK(vp);
@@ -6197,7 +6197,7 @@ dovchflags(struct proc *p, struct vnode *vp, u_int flags)
 {
  struct vattr vattr;
  int error;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount && vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else if (flags == (-1))
@@ -6252,7 +6252,7 @@ dofchmodat(struct proc *p, int fd, const char *path, mode_t mode, int flag)
  if ((error = namei(&nd)) != 0)
   return (error);
  vp = nd.ni_vp;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else {
@@ -6279,7 +6279,7 @@ sys_fchmod(struct proc *p, void *v, register_t *retval)
  if ((error = getvnode(p, ((uap)->fd.be.datum), &fp)) != 0)
   return (error);
  vp = fp->f_data;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount && vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else {
@@ -6322,7 +6322,7 @@ dofchownat(struct proc *p, int fd, const char *path, uid_t uid, gid_t gid,
  if ((error = namei(&nd)) != 0)
   return (error);
  vp = nd.ni_vp;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else {
@@ -6365,7 +6365,7 @@ sys_lchown(struct proc *p, void *v, register_t *retval)
  if ((error = namei(&nd)) != 0)
   return (error);
  vp = nd.ni_vp;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else {
@@ -6406,7 +6406,7 @@ sys_fchown(struct proc *p, void *v, register_t *retval)
  if ((error = getvnode(p, ((uap)->fd.be.datum), &fp)) != 0)
   return (error);
  vp = fp->f_data;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else {
@@ -6523,7 +6523,7 @@ dovutimens(struct proc *p, struct vnode *vp, struct timespec ts[2])
   }
   vattr.va_mtime = ts[1];
  }
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_mount->mnt_flag & 0x00000001)
   error = 30;
  else
@@ -6592,7 +6592,7 @@ sys_truncate(struct proc *p, void *v, register_t *retval)
  if ((error = namei(&nd)) != 0)
   return (error);
  vp = nd.ni_vp;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_type == VDIR)
   error = 21;
  else if ((error = VOP_ACCESS(vp, 00200, p->p_ucred, p)) == 0 &&
@@ -6621,7 +6621,7 @@ sys_ftruncate(struct proc *p, void *v, register_t *retval)
   goto bad;
  }
  vp = fp->f_data;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  if (vp->v_type == VDIR)
   error = 21;
  else if ((error = vn_writechk(vp)) == 0) {
@@ -6644,7 +6644,7 @@ sys_fsync(struct proc *p, void *v, register_t *retval)
  if ((error = getvnode(p, ((uap)->fd.be.datum), &fp)) != 0)
   return (error);
  vp = fp->f_data;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  error = VOP_FSYNC(vp, fp->f_cred, 1, p);
  if (error == 0 && vp->v_mount && (vp->v_mount->mnt_flag & 0x04000000))
   error = softdep_fsync(vp);
@@ -6818,7 +6818,7 @@ sys_getdents(struct proc *p, void *v, register_t *retval)
  auio.uio_segflg = UIO_USERSPACE;
  auio.uio_procp = p;
  auio.uio_resid = buflen;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  auio.uio_offset = fp->f_offset;
  error = VOP_READDIR(vp, &auio, fp->f_cred, &eofflag);
  fp->f_offset = auio.uio_offset;

@@ -2907,7 +2907,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3707,7 +3707,7 @@ udf_mountfs(struct vnode *devvp, struct mount *mp, uint32_t lb, struct proc *p)
   return (error);
  if (vcount(devvp) > 1 && devvp != rootvp)
   return (16);
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  error = vinvalbuf(devvp, 0x0001, p->p_ucred, p, 0, 0);
  VOP_UNLOCK(devvp);
  if (error)
@@ -3865,7 +3865,7 @@ bail:
   devvp->v_un.vu_specinfo->si_mountpoint = ((void *)0);
  if (bp != ((void *)0))
   brelse(bp);
- vn_lock(devvp, 0x0001UL|0x2000UL, p);
+ vn_lock(devvp, 0x0001UL|0x2000UL);
  VOP_CLOSE(devvp, 0x0001, ((struct ucred *)-2), p);
  VOP_UNLOCK(devvp);
  return (error);
@@ -3882,7 +3882,7 @@ udf_unmount(struct mount *mp, int mntflags, struct proc *p)
   flags |= 0x0002;
  if ((error = vflush(mp, ((void *)0), flags)))
   return (error);
- vn_lock(devvp, 0x0001UL | 0x2000UL, p);
+ vn_lock(devvp, 0x0001UL | 0x2000UL);
  vinvalbuf(devvp, 0x0001, ((struct ucred *)-1), p, 0, 0);
  (void)VOP_CLOSE(devvp, 0x0001, ((struct ucred *)-1), p);
  VOP_UNLOCK(devvp);

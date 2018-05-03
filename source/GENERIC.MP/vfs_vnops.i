@@ -2858,7 +2858,7 @@ int vn_rdwr(enum uio_rw, struct vnode *, caddr_t, int, off_t,
      enum uio_seg, int, struct ucred *, size_t *, struct proc *);
 int vn_stat(struct vnode *, struct stat *, struct proc *);
 int vn_statfile(struct file *, struct stat *, struct proc *);
-int vn_lock(struct vnode *, int, struct proc *);
+int vn_lock(struct vnode *, int);
 int vn_writechk(struct vnode *);
 int vn_fsizechk(struct vnode *, struct uio *, int, ssize_t *);
 int vn_ioctl(struct file *, u_long, caddr_t, struct proc *);
@@ -3524,7 +3524,7 @@ vn_close(struct vnode *vp, int flags, struct ucred *cred, struct proc *p)
  int error;
  if (flags & 0x0002)
   vp->v_writecount--;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  error = VOP_CLOSE(vp, flags, cred, p);
  vput(vp);
  return (error);
@@ -3547,7 +3547,7 @@ vn_rdwr(enum uio_rw rw, struct vnode *vp, caddr_t base, int len, off_t offset,
  auio.uio_rw = rw;
  auio.uio_procp = p;
  if ((ioflg & 0x08) == 0)
-  vn_lock(vp, 0x0001UL | 0x2000UL, p);
+  vn_lock(vp, 0x0001UL | 0x2000UL);
  if (rw == UIO_READ) {
   error = VOP_READ(vp, &auio, ioflg, cred);
  } else {
@@ -3568,12 +3568,11 @@ vn_read(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
  struct vnode *vp = fp->f_data;
  int error;
  size_t count = uio->uio_resid;
- struct proc *p = uio->uio_procp;
  if (vp->v_type != VCHR && count > 0x7fffffffffffffffLL - *poff)
   return (22);
  if (vp->v_type == VDIR)
   return (21);
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  uio->uio_offset = *poff;
  error = VOP_READ(vp, uio, (fp->f_flag & 0x0004) ? 0x10 : 0,
      cred);
@@ -3585,7 +3584,6 @@ int
 vn_write(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
 {
  struct vnode *vp = fp->f_data;
- struct proc *p = uio->uio_procp;
  int error, ioflag = 0x01;
  size_t count;
  if (vp->v_type == VREG && (fp->f_flag & 0x0008) &&
@@ -3596,7 +3594,7 @@ vn_write(struct file *fp, off_t *poff, struct uio *uio, struct ucred *cred)
  if ((fp->f_flag & 0x0080) ||
      (vp->v_mount && (vp->v_mount->mnt_flag & 0x00000002)))
   ioflag |= 0x04;
- vn_lock(vp, 0x0001UL | 0x2000UL, p);
+ vn_lock(vp, 0x0001UL | 0x2000UL);
  uio->uio_offset = *poff;
  count = uio->uio_resid;
  error = VOP_WRITE(vp, uio, ioflag, cred);
@@ -3710,7 +3708,7 @@ vn_poll(struct file *fp, int events, struct proc *p)
  return (VOP_POLL(fp->f_data, fp->f_flag, events, p));
 }
 int
-vn_lock(struct vnode *vp, int flags, struct proc *p)
+vn_lock(struct vnode *vp, int flags)
 {
  int error;
  do {

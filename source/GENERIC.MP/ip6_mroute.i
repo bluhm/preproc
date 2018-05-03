@@ -4470,16 +4470,25 @@ int
 mrt6_ioctl(struct socket *so, u_long cmd, caddr_t data)
 {
  struct inpcb *inp = ((struct inpcb *)(so)->so_pcb);
+ int error;
  switch (cmd) {
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_sg_req6) & 0x1fff) << 16) | ((('u')) << 8) | ((106))):
-  return (get_sg6_cnt((struct sioc_sg_req6 *)data,
-      inp->inp_rtableid));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = get_sg6_cnt((struct sioc_sg_req6 *)data,
+      inp->inp_rtableid);
+  do { _rw_exit_read(&netlock ); } while (0);
+  break;
  case (((unsigned long)0x80000000|(unsigned long)0x40000000) | ((sizeof(struct sioc_mif_req6) & 0x1fff) << 16) | ((('u')) << 8) | ((107))):
-  return (get_mif6_cnt((struct sioc_mif_req6 *)data,
-      inp->inp_rtableid));
+  do { _rw_enter_read(&netlock ); } while (0);
+  error = get_mif6_cnt((struct sioc_mif_req6 *)data,
+      inp->inp_rtableid);
+  do { _rw_exit_read(&netlock ); } while (0);
+  break;
  default:
-  return (25);
+  error = 25;
+  break;
  }
+ return error;
 }
 int
 get_sg6_cnt(struct sioc_sg_req6 *req, unsigned int rtableid)
