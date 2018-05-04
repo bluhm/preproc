@@ -14341,6 +14341,7 @@ struct wsdisplay_accessops radeondrm_accessops = {
  .getchar = rasops_getchar,
  .load_font = rasops_load_font,
  .list_font = rasops_list_font,
+ .scrollback = rasops_scrollback,
  .burn_screen = radeondrm_burner
 };
 int
@@ -14717,7 +14718,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   break;
  case 0x04:
   if (copy_from_user(value, value_ptr, sizeof(uint32_t))) {
-   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 892);
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 893);
    return -14;
   }
   for (i = 0, found = 0; i < rdev->num_crtc; i++) {
@@ -14768,7 +14769,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   break;
  case 0x07:
   if (copy_from_user(value, value_ptr, sizeof(uint32_t))) {
-   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 949);
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 950);
    return -14;
   }
   if (*value >= 2) {
@@ -14779,7 +14780,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   break;
  case 0x08:
   if (copy_from_user(value, value_ptr, sizeof(uint32_t))) {
-   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 961);
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 962);
    return -14;
   }
   if (*value >= 2) {
@@ -14912,7 +14913,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   break;
  case 0x15:
   if (copy_from_user(value, value_ptr, sizeof(uint32_t))) {
-   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1097);
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1098);
    return -14;
   }
   switch (*value) {
@@ -15031,7 +15032,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   break;
  case 0x24:
   if (copy_from_user(value, value_ptr, sizeof(uint32_t))) {
-   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1219);
+   printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_from_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1220);
    return -14;
   }
   if ((rdev)->asic->get_allowed_info_register((rdev), (*value), (value)))
@@ -15048,7 +15049,7 @@ static int radeon_info_ioctl(struct drm_device *dev, void *data, struct drm_file
   return -22;
  }
  if (copy_to_user(value_ptr, (char*)value, value_size)) {
-  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1236);
+  printf("error: [" "drm" ":pid%d:%s] *ERROR* " "copy_to_user %s:%u\n", (__curcpu->ci_self)->ci_curproc->p_p->ps_pid, __func__ , __func__, 1237);
   return -14;
  }
  return 0;
