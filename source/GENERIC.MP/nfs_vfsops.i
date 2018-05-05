@@ -4207,6 +4207,7 @@ int nfs_start(struct mount *, int, struct proc *);
 int nfs_statfs(struct mount *, struct statfs *, struct proc *);
 int nfs_sync(struct mount *, int, int, struct ucred *, struct proc *);
 int nfs_unmount(struct mount *, int, struct proc *);
+void nfs_reaper(void *);
 int nfs_vget(struct mount *, ino_t, struct vnode **);
 int nfs_vptofh(struct vnode *, struct fid *);
 int nfs_mountroot(void);
@@ -4675,9 +4676,16 @@ nfs_unmount(struct mount *mp, int mntflags, struct proc *p)
  nfs_disconnect(nmp);
  m_freem(nmp->nm_nam);
  timeout_del(&nmp->nm_rtimeout);
- free(nmp, 23, sizeof(*nmp));
+ timeout_set_proc(&nmp->nm_rtimeout, nfs_reaper, nmp);
+ timeout_add(&nmp->nm_rtimeout, 0);
  mp->mnt_data = ((void *)0);
  return (0);
+}
+void
+nfs_reaper(void *arg)
+{
+ struct nfsmount *nmp = arg;
+ free(nmp, 23, sizeof(*nmp));
 }
 int
 nfs_root(struct mount *mp, struct vnode **vpp)
