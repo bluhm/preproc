@@ -3554,6 +3554,7 @@ struct nfsnode {
  nfsfh_t *n_fhp;
  struct vnode *n_vnode;
  struct lockf *n_lockf;
+ struct rrwlock n_lock;
  int n_error;
  union {
   struct timespec nf_atim;
@@ -4520,7 +4521,9 @@ int nfs_flush(struct vnode *, struct ucred *, int, struct proc *, int);
 int nfs_fsync(void *);
 int nfs_getattr(void *);
 int nfs_getreq(struct nfsrv_descript *, struct nfsd *, int);
+int nfs_islocked(void *);
 int nfs_link(void *);
+int nfs_lock(void *);
 int nfs_lookitup(struct vnode *, char *, int, struct ucred *, struct proc *,
  struct nfsnode **);
 int nfs_lookup(void *);
@@ -4552,6 +4555,7 @@ int nfs_sillyrename(struct vnode *, struct vnode *,
     struct componentname *);
 int nfs_strategy(void *);
 int nfs_symlink(void *);
+int nfs_unlock(void *);
 void nfs_cache_enter(struct vnode *, struct vnode *, struct componentname *);
 int nfsfifo_close(void *);
 int nfsfifo_read(void *);
@@ -4588,12 +4592,12 @@ struct vops nfs_vops = {
  .vop_abortop = vop_generic_abortop,
  .vop_inactive = nfs_inactive,
  .vop_reclaim = nfs_reclaim,
- .vop_lock = vop_generic_lock,
- .vop_unlock = vop_generic_unlock,
+ .vop_lock = nfs_lock,
+ .vop_unlock = nfs_unlock,
  .vop_bmap = nfs_bmap,
  .vop_strategy = nfs_strategy,
  .vop_print = nfs_print,
- .vop_islocked = vop_generic_islocked,
+ .vop_islocked = nfs_islocked,
  .vop_pathconf = nfs_pathconf,
  .vop_advlock = nfs_advlock,
  .vop_bwrite = nfs_bwrite
@@ -4608,10 +4612,10 @@ struct vops nfs_specvops = {
  .vop_fsync = nfs_fsync,
  .vop_inactive = nfs_inactive,
  .vop_reclaim = nfs_reclaim,
- .vop_lock = vop_generic_lock,
- .vop_unlock = vop_generic_unlock,
+ .vop_lock = nfs_lock,
+ .vop_unlock = nfs_unlock,
  .vop_print = nfs_print,
- .vop_islocked = vop_generic_islocked,
+ .vop_islocked = nfs_islocked,
  .vop_lookup = vop_generic_lookup,
  .vop_create = spec_badop,
  .vop_mknod = spec_badop,
@@ -4645,10 +4649,10 @@ struct vops nfs_fifovops = {
  .vop_fsync = nfs_fsync,
  .vop_inactive = nfs_inactive,
  .vop_reclaim = nfsfifo_reclaim,
- .vop_lock = vop_generic_lock,
- .vop_unlock = vop_generic_unlock,
+ .vop_lock = nfs_lock,
+ .vop_unlock = nfs_unlock,
  .vop_print = nfs_print,
- .vop_islocked = vop_generic_islocked,
+ .vop_islocked = nfs_islocked,
  .vop_bwrite = vop_generic_bwrite,
  .vop_lookup = vop_generic_lookup,
  .vop_create = fifo_badop,
@@ -5243,6 +5247,27 @@ nfs_readlink(void *v)
  return (nfs_bioread(vp, ap->a_uio, 0, ap->a_cred));
 }
 int
+nfs_lock(void *v)
+{
+ struct vop_lock_args *ap = v;
+ struct vnode *vp = ap->a_vp;
+ return _rrw_enter(&((struct nfsnode *)(vp)->v_data)->n_lock, ap->a_flags & (0x0001UL|0x0002UL|0x0040UL|0x0080UL|0x0100UL) );
+}
+int
+nfs_unlock(void *v)
+{
+ struct vop_unlock_args *ap = v;
+ struct vnode *vp = ap->a_vp;
+ _rrw_exit(&((struct nfsnode *)(vp)->v_data)->n_lock );
+ return 0;
+}
+int
+nfs_islocked(void *v)
+{
+ struct vop_islocked_args *ap = v;
+ return rrw_status(&((struct nfsnode *)(ap->a_vp)->v_data)->n_lock);
+}
+int
 nfs_readlinkrpc(struct vnode *vp, struct uio *uiop, struct ucred *cred)
 {
  struct nfsm_info info;
@@ -5467,7 +5492,7 @@ nfs_mknodrpc(struct vnode *dvp, struct vnode **vpp, struct componentname *cnp,
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1316, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1355, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 11, &info);
@@ -5560,7 +5585,7 @@ again:
   txdr_nfsv2time(&vap->va_atime, &sp->sa_atime);
   txdr_nfsv2time(&vap->va_mtime, &sp->sa_mtime);
  }
- ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1427, "cnp->cn_proc == curproc"));
+ ((cnp->cn_proc == (__curcpu->ci_self)->ci_curproc) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1466, "cnp->cn_proc == curproc"));
  info.nmi_procp = cnp->cn_proc;
  info.nmi_cred = cnp->cn_cred;
  error = nfs_request(dvp, 8, &info);
@@ -5643,6 +5668,7 @@ nfs_remove(void *v)
 int
 nfs_removeit(struct sillyrename *sp)
 {
+ ((VOP_ISLOCKED(sp->s_dvp)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_vnops.c", 1587, "VOP_ISLOCKED(sp->s_dvp)"));
  if (sp->s_dvp->v_type == VBAD)
   return (0);
  return (nfs_removerpc(sp->s_dvp, sp->s_name, sp->s_namlen, sp->s_cred,
@@ -5783,6 +5809,12 @@ nfs_link(void *v)
   vput(dvp);
   return (18);
  }
+ error = vn_lock(vp, 0x0001UL);
+ if (error != 0) {
+  VOP_ABORTOP(dvp, cnp);
+  vput(dvp);
+  return (error);
+ }
  VOP_FSYNC(vp, cnp->cn_cred, 1, cnp->cn_proc);
  nfsstats.rpccnt[15]++;
  info.nmi_mb = info.nmi_mreq = nfsm_reqhead(2 * ((info.nmi_v3) ? (64 + 4) : 32) +
@@ -5807,6 +5839,7 @@ nfsmout:
   ((((struct nfsnode *)(dvp)->v_data))->n_attrstamp = 0);
  do { struct klist *list = (&vp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0010))); } while (0);
  do { struct klist *list = (&dvp->v_selectinfo.si_note); if ((list) != ((void *)0)) knote((list), ((0x0002))); } while (0);
+ VOP_UNLOCK(vp);
  vput(dvp);
  return (error);
 }

@@ -2820,6 +2820,7 @@ struct nfsnode {
  nfsfh_t *n_fhp;
  struct vnode *n_vnode;
  struct lockf *n_lockf;
+ struct rrwlock n_lock;
  int n_error;
  union {
   struct timespec nf_atim;
@@ -3071,6 +3072,7 @@ loop:
   goto loop;
  }
  vp = nvp;
+ _rrw_init_flags(&np->n_lock, "nfsnode", 0, ((void *)0));
  vp->v_data = np;
  vp->v_flag &= ~0x1000;
  np->n_vnode = vp;
@@ -3078,8 +3080,9 @@ loop:
  np->n_fhp = &np->n_fh;
  __builtin_bcopy((fh), (np->n_fhp), (fhsize));
  np->n_fhsize = fhsize;
+ _rrw_enter(&np->n_lock, 0x0001UL );
  np2 = nfs_nodetree_RBT_INSERT(&nmp->nm_ntree, np);
- ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 146, "np2 == NULL"));
+ ((np2 == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../nfs/nfs_node.c", 152, "np2 == NULL"));
  np->n_accstamp = -1;
  *npp = np;
  return (0);
@@ -3105,9 +3108,10 @@ nfs_inactive(void *v)
   sp = ((void *)0);
  if (sp) {
   nfs_vinvalbuf(ap->a_vp, 0, sp->s_cred, (__curcpu->ci_self)->ci_curproc);
+  vn_lock(sp->s_dvp, 0x0001UL | 0x2000UL);
   nfs_removeit(sp);
   crfree(sp->s_cred);
-  vrele(sp->s_dvp);
+  vput(sp->s_dvp);
   free(sp, 22, sizeof(*sp));
  }
  np->n_flag &= (0x0004 | 0x0002 | 0x0001);

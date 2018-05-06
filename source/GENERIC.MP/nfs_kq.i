@@ -2997,6 +2997,7 @@ struct nfsnode {
  nfsfh_t *n_fhp;
  struct vnode *n_vnode;
  struct lockf *n_lockf;
+ struct rrwlock n_lock;
  int n_error;
  union {
   struct timespec nf_atim;

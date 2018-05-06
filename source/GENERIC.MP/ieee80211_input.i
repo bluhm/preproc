@@ -5210,12 +5210,19 @@ ieee80211_recv_probe_resp(struct ieee80211com *ic, struct mbuf *m,
   __builtin_memcpy((ni->ni_essid), (&ssid[2]), (ssid[1]));
  }
  __builtin_memcpy((ni->ni_bssid), (wh->i_addr3), (6));
- ni->ni_rssi = rxi->rxi_rssi;
+ ni->ni_chan = &ic->ic_channels[chan];
+ if (ic->ic_state == IEEE80211_S_SCAN &&
+     (((ni->ni_chan)->ic_flags & 0x0100) != 0)) {
+   if (isprobe)
+   ni->ni_rssi = rxi->rxi_rssi;
+  else if (ni->ni_rssi < rxi->rxi_rssi)
+   ni->ni_rssi = rxi->rxi_rssi;
+ } else
+  ni->ni_rssi = rxi->rxi_rssi;
  ni->ni_rstamp = rxi->rxi_tstamp;
  __builtin_memcpy((ni->ni_tstamp), (tstamp), (sizeof(ni->ni_tstamp)));
  ni->ni_intval = bintval;
  ni->ni_capinfo = capinfo;
- ni->ni_chan = &ic->ic_channels[chan];
  ni->ni_erp = erp;
  ieee80211_setup_rates(ic, ni, rates, xrates, 0x00000001);
  if (ic->ic_opmode == IEEE80211_M_IBSS && is_new && isprobe) {
