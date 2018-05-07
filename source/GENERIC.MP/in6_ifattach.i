@@ -2623,7 +2623,6 @@ struct in6_ifaddr {
  struct { struct in6_ifaddr *tqe_next; struct in6_ifaddr **tqe_prev; } ia_list;
  int ia6_flags;
  struct in6_addrlifetime ia6_lifetime;
- time_t ia6_createtime;
  time_t ia6_updatetime;
  struct { struct in6_multi_mship *lh_first; } ia6_memberships;
 };
