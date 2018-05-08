@@ -2910,6 +2910,8 @@ enum wsmousecfg {
  WSMOUSECFG_TAP_MAXTIME,
  WSMOUSECFG_TAP_CLICKTIME,
  WSMOUSECFG_TAP_LOCKTIME,
+ WSMOUSECFG_LOG_INPUT = 256,
+ WSMOUSECFG_LOG_EVENTS,
 };
 struct wsmouse_param {
  enum wsmousecfg key;
@@ -3174,6 +3176,7 @@ struct evq_access {
  int result;
 };
 void wsmouse_evq_put(struct evq_access *, int, int);
+void wsmouse_log_events(struct wsmouseinput *, struct evq_access *);
 int wsmouse_hysteresis(struct wsmouseinput *, struct position *);
 void wsmouse_input_reset(struct wsmouseinput *);
 void wsmouse_input_cleanup(struct wsmouseinput *);
@@ -3430,7 +3433,7 @@ wsmouse_param_ioctl(struct wsmouse_softc *sc,
 {
  struct wsmouse_param *buf;
  int error, s, size;
- if (params == ((void *)0) || nparams > 36)
+ if (params == ((void *)0) || nparams > 38)
   return (22);
  size = nparams * sizeof(struct wsmouse_param);
  buf = malloc(size, 2, 0x0001);
@@ -3920,6 +3923,47 @@ wsmouse_touch_sync(struct wsmouseinput *input, struct evq_access *evq)
      && (input->flags & (1 << 1)))
   wsmouse_evq_put(evq, 24, touch->width);
 }
+void
+wsmouse_log_input(struct wsmouseinput *input, struct timespec *ts)
+{
+ struct motion_state *motion = &input->motion;
+ int t_sync, mt_sync;
+ t_sync = (input->touch.sync & (1 << 1));
+ mt_sync = (input->mt.frame && (input->mt.sync[0]
+     || input->mt.ptr != input->mt.prev_ptr));
+ if (motion->sync || mt_sync || t_sync || input->btn.sync)
+  printf("[%s-in][%04d]", ((char *) (input) - __builtin_offsetof(struct wsmouse_softc, sc_input) + __builtin_offsetof(struct device, dv_xname)), ((int) (((ts)->tv_sec % 10) * 1000 + ((ts)->tv_nsec / 1000000))));
+ else
+  return;
+ if (motion->sync & ((1 << 1) | (1 << 2)))
+  printf(" abs:%d,%d", motion->pos.x, motion->pos.y);
+ if (motion->sync & (1 << 0))
+  printf(" rel:%d,%d,%d,%d", motion->dx, motion->dy,
+      motion->dz, motion->dw);
+ if (mt_sync)
+  printf(" mt:0x%02x:%d", input->mt.touches,
+      ffs(input->mt.ptr) - 1);
+ else if (t_sync)
+  printf(" t:%d", input->touch.contacts);
+ if (input->btn.sync)
+  printf(" btn:0x%02x", input->btn.buttons);
+ printf("\n");
+}
+void
+wsmouse_log_events(struct wsmouseinput *input, struct evq_access *evq)
+{
+ struct wscons_event *ev;
+ int n = evq->evar->put;
+ if (n != evq->put) {
+  printf("[%s-ev][%04d]", ((char *) (input) - __builtin_offsetof(struct wsmouse_softc, sc_input) + __builtin_offsetof(struct device, dv_xname)), ((int) (((&evq->ts)->tv_sec % 10) * 1000 + ((&evq->ts)->tv_nsec / 1000000))));
+  while (n != evq->put) {
+   ev = &evq->evar->q[n++];
+   n %= 256;
+   printf(" %d:%d", ev->type, ev->value);
+  }
+  printf("\n");
+ }
+}
 static inline void
 clear_sync_flags(struct wsmouseinput *input)
 {
@@ -3956,6 +4000,8 @@ wsmouse_input_sync(struct device *sc)
  }
  if (input->touch.sync)
   wsmouse_touch_update(input);
+ if (input->flags & (1 << 19))
+  wsmouse_log_input(input, &evq.ts);
  if (input->flags & (1 << 0))
   wstpad_compat_convert(input, &evq);
  if (input->flags & (1 << 16)) {
@@ -3973,6 +4019,9 @@ wsmouse_input_sync(struct device *sc)
  if (evq.result == 1) {
   wsmouse_evq_put(&evq, 18, 0);
   if (evq.result == 1) {
+   if (input->flags & (1 << 20)) {
+    wsmouse_log_events(input, &evq);
+   }
    evq.evar->put = evq.put;
    { selwakeup(&(evq.evar)->sel); if ((evq.evar)->wanted) { (evq.evar)->wanted = 0; wakeup((caddr_t)(evq.evar)); } if ((evq.evar)->async) pgsignal((evq.evar)->io->ps_pgrp, 23, 0); };
   }
@@ -4226,6 +4275,12 @@ wsmouse_get_params(struct device *sc,
    params[i].value =
        input->filter.mode & 7;
    break;
+  case WSMOUSECFG_LOG_INPUT:
+   params[i].value = !!(input->flags & (1 << 19));
+   break;
+  case WSMOUSECFG_LOG_EVENTS:
+   params[i].value = !!(input->flags & (1 << 20));
+   break;
   default:
    error = wstpad_get_param(input, key, &params[i].value);
    if (error != 0)
@@ -4300,6 +4355,18 @@ wsmouse_set_params(struct device *sc,
   case WSMOUSECFG_SMOOTHING:
    input->filter.mode &= ~7;
    input->filter.mode |= (val & 7);
+   break;
+  case WSMOUSECFG_LOG_INPUT:
+   if (val)
+    input->flags |= (1 << 19);
+   else
+    input->flags &= ~(1 << 19);
+   break;
+  case WSMOUSECFG_LOG_EVENTS:
+   if (val)
+    input->flags |= (1 << 20);
+   else
+    input->flags &= ~(1 << 20);
    break;
   default:
    needreset = 1;

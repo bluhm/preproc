@@ -3238,7 +3238,6 @@ struct denode {
  struct vnode *de_devvp;
  uint32_t de_flag;
  dev_t de_dev;
- daddr_t de_lastr;
  uint32_t de_dirclust;
  uint32_t de_diroffset;
  uint32_t de_fndoffset;
@@ -3363,6 +3362,7 @@ void fc_lookup(struct denode *, uint32_t, uint32_t *, uint32_t *);
 int fillinusemap(struct msdosfsmount *);
 int freeclusterchain(struct msdosfsmount *, uint32_t);
 static uint32_t fileidhash(uint64_t);
+int msdosfs_bmaparray(struct vnode *, uint32_t, daddr_t *, int *);
 int msdosfs_kqfilter(void *);
 int filt_msdosfsread(struct knote *, long);
 int filt_msdosfswrite(struct knote *, long);
@@ -3642,18 +3642,15 @@ int
 msdosfs_read(void *v)
 {
  struct vop_read_args *ap = v;
- int error = 0;
- uint32_t diff;
- int blsize;
- int isadir;
- uint32_t n;
- long on;
- daddr_t lbn, rablock, rablkno;
- struct buf *bp;
  struct vnode *vp = ap->a_vp;
  struct denode *dep = ((struct denode *)(vp)->v_data);
  struct msdosfsmount *pmp = dep->de_pmp;
  struct uio *uio = ap->a_uio;
+ int isadir, error = 0;
+ uint32_t n, diff, size, on;
+ struct buf *bp;
+ uint32_t cn;
+ daddr_t bn;
  if (uio->uio_resid == 0)
   return (0);
  if (uio->uio_offset < 0)
@@ -3662,31 +3659,23 @@ msdosfs_read(void *v)
  do {
   if (uio->uio_offset >= dep->de_FileSize)
    return (0);
-  lbn = ((uio->uio_offset) >> (pmp)->pm_cnshift);
+  cn = ((uio->uio_offset) >> (pmp)->pm_cnshift);
+  size = pmp->pm_bpcluster;
   on = uio->uio_offset & pmp->pm_crbomask;
   n = ulmin(pmp->pm_bpcluster - on, uio->uio_resid);
   diff = dep->de_FileSize - (uint32_t)uio->uio_offset;
   if (diff < n)
    n = diff;
   if (isadir) {
-   error = pcbmap(dep, lbn, &lbn, 0, &blsize);
+   error = pcbmap(dep, cn, &bn, 0, &size);
    if (error)
     return (error);
-  }
-  if (isadir) {
-   error = bread(pmp->pm_devvp, lbn, blsize, &bp);
+   error = bread(pmp->pm_devvp, bn, size, &bp);
   } else {
-   rablock = lbn + 1;
-   rablkno = ((rablock) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift));
-   if (dep->de_lastr + 1 == lbn &&
-       ((rablock) << (pmp)->pm_cnshift) < dep->de_FileSize)
-    error = breadn(vp, ((lbn) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift)),
-        pmp->pm_bpcluster, &rablkno,
-        &pmp->pm_bpcluster, 1, &bp);
+   if (((cn + 1) << (pmp)->pm_cnshift) >= dep->de_FileSize)
+    error = bread(vp, cn, size, &bp);
    else
-    error = bread(vp, ((lbn) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift)),
-        pmp->pm_bpcluster, &bp);
-   dep->de_lastr = lbn;
+    error = bread_cluster(vp, cn, size, &bp);
   }
   n = min(n, pmp->pm_bpcluster - bp->b_resid);
   if (error) {
@@ -3710,8 +3699,7 @@ msdosfs_write(void *v)
  int extended = 0;
  uint32_t osize;
  int error = 0;
- uint32_t count, lastcn;
- daddr_t bn;
+ uint32_t count, lastcn, cn;
  struct buf *bp;
  int ioflag = ap->a_ioflag;
  struct uio *uio = ap->a_uio;
@@ -3757,20 +3745,19 @@ msdosfs_write(void *v)
  } else
   lastcn = (((osize) + (pmp)->pm_bpcluster - 1) >> (pmp)->pm_cnshift) - 1;
  do {
-  if (((uio->uio_offset) >> (pmp)->pm_cnshift) > lastcn) {
+  croffset = uio->uio_offset & pmp->pm_crbomask;
+  cn = ((uio->uio_offset) >> (pmp)->pm_cnshift);
+  if (cn > lastcn) {
    error = 28;
    break;
   }
-  bn = ((((((uio->uio_offset)) >> ((pmp))->pm_cnshift)) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift)));
-  if ((uio->uio_offset & pmp->pm_crbomask) == 0
-      && (((((((uio->uio_offset + uio->uio_resid)) >> ((pmp))->pm_cnshift)) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift))) > ((((((uio->uio_offset)) >> ((pmp))->pm_cnshift)) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift)))
-   || uio->uio_offset + uio->uio_resid >= dep->de_FileSize)) {
-   bp = getblk(thisvp, bn, pmp->pm_bpcluster, 0, 0);
+  if (croffset == 0 &&
+      (((uio->uio_offset + uio->uio_resid) >> (pmp)->pm_cnshift) > cn ||
+       (uio->uio_offset + uio->uio_resid) >= dep->de_FileSize)) {
+   bp = getblk(thisvp, cn, pmp->pm_bpcluster, 0, 0);
    { __builtin_bzero(((bp)->b_data), ((u_int)(bp)->b_bcount)); (bp)->b_resid = 0; };
    if (bp->b_blkno == bp->b_lblkno) {
-    error = pcbmap(dep,
-            ((bp->b_lblkno) >> ((pmp)->pm_cnshift - (pmp)->pm_bnshift)),
-            &bp->b_blkno, 0, 0);
+    error = pcbmap(dep, bp->b_lblkno, &bp->b_blkno, 0, 0);
     if (error)
      bp->b_blkno = -1;
    }
@@ -3781,13 +3768,12 @@ msdosfs_write(void *v)
     break;
    }
   } else {
-   error = bread(thisvp, bn, pmp->pm_bpcluster, &bp);
+   error = bread(thisvp, cn, pmp->pm_bpcluster, &bp);
    if (error) {
     brelse(bp);
     break;
    }
   }
-  croffset = uio->uio_offset & pmp->pm_crbomask;
   n = ulmin(uio->uio_resid, pmp->pm_bpcluster - croffset);
   if (uio->uio_offset + n > dep->de_FileSize) {
    dep->de_FileSize = uio->uio_offset + n;
@@ -4434,15 +4420,40 @@ msdosfs_bmap(void *v)
 {
  struct vop_bmap_args *ap = v;
  struct denode *dep = ((struct denode *)(ap->a_vp)->v_data);
- struct msdosfsmount *pmp = dep->de_pmp;
+ uint32_t cn;
  if (ap->a_vpp != ((void *)0))
   *ap->a_vpp = dep->de_devvp;
  if (ap->a_bnp == ((void *)0))
   return (0);
- if (ap->a_runp) {
-  *ap->a_runp = 0;
+ cn = ap->a_bn;
+ if (cn != ap->a_bn)
+  return (27);
+ return (msdosfs_bmaparray(ap->a_vp, cn, ap->a_bnp, ap->a_runp));
+}
+int
+msdosfs_bmaparray(struct vnode *vp, uint32_t cn, daddr_t *bnp, int *runp)
+{
+ struct denode *dep = ((struct denode *)(vp)->v_data);
+ struct msdosfsmount *pmp = dep->de_pmp;
+ struct mount *mp;
+ int error, maxrun = 0, run;
+ daddr_t runbn;
+ mp = vp->v_mount;
+ if (runp) {
+  *runp = 0;
+  maxrun = min((64 * 1024) / mp->mnt_stat.f_iosize - 1,
+      pmp->pm_maxcluster - cn);
  }
- return (pcbmap(dep, ((ap->a_bn) >> ((pmp)->pm_cnshift - (pmp)->pm_bnshift)), ap->a_bnp, 0, 0));
+ if ((error = pcbmap(dep, cn, bnp, 0, 0)) != 0)
+  return (error);
+ for (run = 1; run <= maxrun; run++) {
+  error = pcbmap(dep, cn + run, &runbn, 0, 0);
+  if (error != 0 || (runbn != *bnp + ((run) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift))))
+   break;
+ }
+ if (runp)
+  *runp = run - 1;
+ return (0);
 }
 int
 msdosfs_strategy(void *v)
@@ -4456,8 +4467,7 @@ msdosfs_strategy(void *v)
  if (bp->b_vp->v_type == VBLK || bp->b_vp->v_type == VCHR)
   panic("msdosfs_strategy: spec");
  if (bp->b_blkno == bp->b_lblkno) {
-  error = pcbmap(dep, ((bp->b_lblkno) >> ((dep->de_pmp)->pm_cnshift - (dep->de_pmp)->pm_bnshift)),
-          &bp->b_blkno, 0, 0);
+  error = pcbmap(dep, bp->b_lblkno, &bp->b_blkno, 0, 0);
   if (error)
    bp->b_blkno = -1;
   if (bp->b_blkno == -1)

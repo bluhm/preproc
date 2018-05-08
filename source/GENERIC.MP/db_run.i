@@ -1952,7 +1952,7 @@ struct db_stack_trace {
  unsigned int st_count;
  db_addr_t st_pc[19];
 };
-void db_print_stack_trace(struct db_stack_trace *);
+void db_print_stack_trace(struct db_stack_trace *, int (*)(const char *, ...));
 void db_save_stack_trace(struct db_stack_trace *);
 db_breakpoint_t db_not_taken_bkpt = 0;
 db_breakpoint_t db_taken_bkpt = 0;

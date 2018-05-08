@@ -6491,7 +6491,7 @@ vinvalbuf(struct vnode *vp, int flags, struct ucred *cred, struct proc *p,
    s = _splraise(5);
    if (vp->v_numoutput > 0 ||
        !(((&vp->v_dirtyblkhd)->lh_first) == ((void *)0)))
-    panic("vinvalbuf: dirty bufs");
+    panic("%s: dirty bufs, vp %p", __func__, vp);
   }
   _splx(s);
  }
@@ -6537,7 +6537,7 @@ loop:
  }
  if (!(flags & 0x0002) &&
      (!(((&vp->v_dirtyblkhd)->lh_first) == ((void *)0)) || !(((&vp->v_cleanblkhd)->lh_first) == ((void *)0))))
-  panic("vinvalbuf: flush failed");
+  panic("%s: flush failed, vp %p", __func__, vp);
  _splx(s);
  return (0);
 }

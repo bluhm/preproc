@@ -2533,7 +2533,6 @@ struct denode {
  struct vnode *de_devvp;
  uint32_t de_flag;
  dev_t de_dev;
- daddr_t de_lastr;
  uint32_t de_dirclust;
  uint32_t de_diroffset;
  uint32_t de_fndoffset;
@@ -3201,11 +3200,9 @@ extendfile(struct denode *dep, uint32_t count, struct buf **bpp, uint32_t *ncp,
      bp = getblk(pmp->pm_devvp, ((((cn++)-2) << (((pmp))->pm_cnshift - ((pmp))->pm_bnshift)) + (pmp)->pm_firstcluster),
           pmp->pm_bpcluster, 0, 0);
     else {
-     bp = getblk(((dep)->de_vnode), ((frcn++) << ((pmp)->pm_cnshift - (pmp)->pm_bnshift)),
+     bp = getblk(((dep)->de_vnode), frcn++,
          pmp->pm_bpcluster, 0, 0);
-     if (pcbmap(dep,
-         ((bp->b_lblkno) >> ((pmp)->pm_cnshift - (pmp)->pm_bnshift)),
-         &bp->b_blkno, 0, 0))
+     if (pcbmap(dep, bp->b_lblkno, &bp->b_blkno, 0, 0))
       bp->b_blkno = -1;
      if (bp->b_blkno == -1)
       panic("extendfile: pcbmap");

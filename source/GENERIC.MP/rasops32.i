@@ -1446,6 +1446,8 @@ enum wsmousecfg {
  WSMOUSECFG_TAP_MAXTIME,
  WSMOUSECFG_TAP_CLICKTIME,
  WSMOUSECFG_TAP_LOCKTIME,
+ WSMOUSECFG_LOG_INPUT = 256,
+ WSMOUSECFG_LOG_EVENTS,
 };
 struct wsmouse_param {
  enum wsmousecfg key;

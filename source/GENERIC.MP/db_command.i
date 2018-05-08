@@ -2919,7 +2919,7 @@ struct db_stack_trace {
  unsigned int st_count;
  db_addr_t st_pc[19];
 };
-void db_print_stack_trace(struct db_stack_trace *);
+void db_print_stack_trace(struct db_stack_trace *, int (*)(const char *, ...));
 void db_save_stack_trace(struct db_stack_trace *);
 int db_read_line(void);
 void db_unread_token(int);

@@ -2002,7 +2002,6 @@ struct denode {
  struct vnode *de_devvp;
  uint32_t de_flag;
  dev_t de_dev;
- daddr_t de_lastr;
  uint32_t de_dirclust;
  uint32_t de_diroffset;
  uint32_t de_fndoffset;

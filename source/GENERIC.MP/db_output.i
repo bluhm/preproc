@@ -1976,7 +1976,7 @@ struct db_stack_trace {
  unsigned int st_count;
  db_addr_t st_pc[19];
 };
-void db_print_stack_trace(struct db_stack_trace *);
+void db_print_stack_trace(struct db_stack_trace *, int (*)(const char *, ...));
 void db_save_stack_trace(struct db_stack_trace *);
 void db_stack_trace_print(db_expr_t, int, db_expr_t, char *,
     int (*)(const char *, ...));
@@ -2391,12 +2391,14 @@ db_stack_dump(void)
  intrace = 0;
 }
 void
-db_print_stack_trace(struct db_stack_trace *st)
+db_print_stack_trace(struct db_stack_trace *st, int (*pr)(const char *, ...))
 {
  unsigned int i;
  for (i = 0; i < st->st_count; i++) {
-  printf("#%-2u ", i);
-  db_printsym(st->st_pc[i], 2, printf);
-  printf("\n");
+  (*pr)("#%-2u ", i);
+  db_printsym(st->st_pc[i], 2, pr);
+  (*pr)("\n");
  }
+ if (st->st_count == 0)
+  (*pr)("<empty stack trace>\n");
 }

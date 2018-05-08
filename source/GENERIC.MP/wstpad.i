@@ -1875,6 +1875,8 @@ enum wsmousecfg {
  WSMOUSECFG_TAP_MAXTIME,
  WSMOUSECFG_TAP_CLICKTIME,
  WSMOUSECFG_TAP_LOCKTIME,
+ WSMOUSECFG_LOG_INPUT = 256,
+ WSMOUSECFG_LOG_EVENTS,
 };
 struct wsmouse_param {
  enum wsmousecfg key;
@@ -2139,6 +2141,7 @@ struct evq_access {
  int result;
 };
 void wsmouse_evq_put(struct evq_access *, int, int);
+void wsmouse_log_events(struct wsmouseinput *, struct evq_access *);
 int wsmouse_hysteresis(struct wsmouseinput *, struct position *);
 void wsmouse_input_reset(struct wsmouseinput *);
 void wsmouse_input_cleanup(struct wsmouseinput *);
@@ -2658,9 +2661,13 @@ wstpad_tap_timeout(void *p)
   btn = ffs(tp->tap.button) - 1;
   evq.put = evq.evar->put;
   evq.result = 0;
+  getnanotime(&evq.ts);
   wsmouse_evq_put(&evq, 4, btn);
   wsmouse_evq_put(&evq, 18, 0);
   if (evq.result == 1) {
+   if (input->flags & (1 << 20)) {
+    wsmouse_log_events(input, &evq);
+   }
    evq.evar->put = evq.put;
    { selwakeup(&(evq.evar)->sel); if ((evq.evar)->wanted) { (evq.evar)->wanted = 0; wakeup((caddr_t)(evq.evar)); } if ((evq.evar)->async) pgsignal((evq.evar)->io->ps_pgrp, 23, 0); };
   } else {
