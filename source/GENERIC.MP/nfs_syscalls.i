@@ -1253,6 +1253,15 @@ extern int tickdelta;
 extern long timedelta;
 extern int64_t adjtimedelta;
 extern struct bintime naptime;
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 struct proc;
 struct uio;
 struct knote;
@@ -1273,6 +1282,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -1281,11 +1291,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -1351,15 +1361,6 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
 struct buf;
 struct vnode;
 struct bufhead { struct buf *lh_first; };
@@ -2330,6 +2331,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -5322,7 +5324,7 @@ nfssvc_addsock(struct file *fp, struct mbuf *mynam)
  }
  slp->ns_so = so;
  slp->ns_nam = mynam;
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
  slp->ns_fp = fp;
  so->so_upcallarg = (caddr_t)slp;
  so->so_upcall = nfsrv_rcv;
@@ -5475,7 +5477,7 @@ nfsrv_zapsock(struct nfssvc_sock *slp)
  slp->ns_flag &= ~0xff;
  fp = slp->ns_fp;
  if (fp) {
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+  do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
   slp->ns_fp = ((void *)0);
   so = slp->ns_so;
   so->so_upcall = ((void *)0);

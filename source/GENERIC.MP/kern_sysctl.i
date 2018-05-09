@@ -1989,6 +1989,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -1997,11 +1998,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -4568,6 +4569,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -7713,7 +7715,7 @@ struct tcphdr {
  u_int16_t th_urp;
 };
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern const tcp_timer_func_t tcp_timer_funcs[6];
 extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
@@ -7742,7 +7744,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[5];
+ struct timeout t_timer[6];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -7752,7 +7754,6 @@ struct tcpcb {
  u_int t_flags;
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
- struct timeout t_delack_to;
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -7806,7 +7807,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;
@@ -9144,11 +9144,13 @@ fill_file(struct kinfo_file *kf, struct file *fp, struct filedesc *fdp,
   kf->f_usecount = 0;
   if (suser(p) == 0 || p->p_ucred->cr_uid == fp->f_cred->cr_uid) {
    kf->f_offset = fp->f_offset;
+   __mtx_enter(&fp->f_mtx );
    kf->f_rxfer = fp->f_rxfer;
    kf->f_rwfer = fp->f_wxfer;
    kf->f_seek = fp->f_seek;
    kf->f_rbytes = fp->f_rbytes;
    kf->f_wbytes = fp->f_wbytes;
+   __mtx_leave(&fp->f_mtx );
   } else
    kf->f_offset = -1;
  } else if (vp != ((void *)0)) {
@@ -9342,9 +9344,7 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
   }
   fp = ((void *)0);
   while ((fp = fd_iterfile(fp, p)) != ((void *)0)) {
-   if (fp->f_count > 1 &&
-       (((fp)->f_iflags & 0x02) == 0) &&
-       (arg == 0 || fp->f_type == arg)) {
+   if ((arg == 0 || fp->f_type == arg)) {
     int af, skip = 0;
     if (arg == 2 && fp->f_type == arg) {
      af = ((struct socket *)fp->f_data)->
@@ -9380,11 +9380,10 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
    if (pr->ps_tracevp)
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), -4, pr->ps_tracevp, pr, p, ((void *)0), show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for (i = 0; i < fdp->fd_nfiles; i++) {
-    if ((fp = fdp->fd_ofiles[i]) == ((void *)0))
-     continue;
-    if (!(((fp)->f_iflags & 0x02) == 0))
+    if ((fp = fd_getfile(fdp, i)) == ((void *)0))
      continue;
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, fp, fdp, i, ((void *)0), pr, p, ((void *)0), show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
+    (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
    }
   }
   if (!matched)
@@ -9405,11 +9404,10 @@ sysctl_file(int *name, u_int namelen, char *where, size_t *sizep,
    if (pr->ps_tracevp)
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, ((void *)0), ((void *)0), -4, pr->ps_tracevp, pr, p, ((void *)0), show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
    for (i = 0; i < fdp->fd_nfiles; i++) {
-    if ((fp = fdp->fd_ofiles[i]) == ((void *)0))
-     continue;
-    if (!(((fp)->f_iflags & 0x02) == 0))
+    if ((fp = fd_getfile(fdp, i)) == ((void *)0))
      continue;
     do { if (buflen >= elem_size && elem_count > 0) { fill_file(kf, fp, fdp, i, ((void *)0), pr, p, ((void *)0), show_pointers); error = copyout(kf, dp, outsize); if (error) break; dp += elem_size; buflen -= elem_size; elem_count--; } needed += elem_size; } while (0);
+    (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
    }
   }
   break;
@@ -9882,8 +9880,8 @@ sysctl_proc_vmmap(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   goto done;
  if (len == 0)
   goto done;
- ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2054, "len <= oldlen"));
- (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2055, "(len % sizeof(struct kinfo_vmentry)) == 0"));
+ ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2052, "len <= oldlen"));
+ (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2053, "(len % sizeof(struct kinfo_vmentry)) == 0"));
  error = copyout(kve, oldp, len);
 done:
  *oldlenp = len;

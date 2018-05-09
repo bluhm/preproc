@@ -3872,7 +3872,8 @@ int route_usrreq(struct socket *, int, struct mbuf *, struct mbuf *,
 void route_input(struct mbuf *m0, struct socket *, sa_family_t);
 int route_arp_conflict(struct rtentry *, struct rt_addrinfo *);
 int route_cleargateway(struct rtentry *, void *, unsigned int);
-void route_senddesync(void *);
+void rtm_senddesync(void *);
+int rtm_sendup(struct socket *, struct mbuf *, int);
 int rtm_getifa(struct rt_addrinfo *, unsigned int);
 int rtm_output(struct rt_msghdr *, struct rtentry **, struct rt_addrinfo *,
      uint8_t, unsigned int);
@@ -3959,7 +3960,7 @@ route_attach(struct socket *so, int proto)
  rop = malloc(sizeof(struct routecb), 4, 0x0001|0x0008);
  rp = &rop->rcb;
  so->so_pcb = rop;
- timeout_set(&rop->timeout, route_senddesync, rop);
+ timeout_set(&rop->timeout, rtm_senddesync, rop);
  refcnt_init(&rop->refcnt);
  if ((__curcpu->ci_self)->ci_curproc == ((void *)0))
   error = 13;
@@ -4068,7 +4069,7 @@ route_ctloutput(int op, struct socket *so, int level, int optname,
  return (error);
 }
 void
-route_senddesync(void *data)
+rtm_senddesync(void *data)
 {
  struct routecb *rop;
  struct mbuf *desync_mbuf;
@@ -4097,7 +4098,7 @@ route_input(struct mbuf *m0, struct socket *so, sa_family_t sa_family)
  struct mbuf *m = m0;
  struct socket *last = ((void *)0);
  struct srp_ref sr;
- ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 416, "_kernel_lock_held()"));
+ ((_kernel_lock_held()) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 417, "_kernel_lock_held()"));
  if (m->m_hdr.mh_len < __builtin_offsetof(struct rt_msghdr, rtm_type) + 1) {
   m_freem(m);
   return;
@@ -4141,40 +4142,39 @@ route_input(struct mbuf *m0, struct socket *so, sa_family_t sa_family)
   if ((rop->flags & 0x2) != 0)
    continue;
   if (last) {
-   struct mbuf *n;
-   if ((n = m_copym(m, 0, 1000000000, 0x0002)) != ((void *)0)) {
-    if (sbspace(last, &last->so_rcv) < (2*256) ||
-        sbappendaddr(last, &last->so_rcv,
-        &route_src, n, (struct mbuf *)((void *)0)) == 0) {
-     ((struct routecb *)(last)->so_pcb)->flags |=
-         0x1 |
-         0x2;
-     route_senddesync(((struct routecb *)(last)->so_pcb));
-     m_freem(n);
-    } else {
-     sorwakeup(last);
-    }
-   }
+   rtm_sendup(last, m, 1);
    refcnt_rele_wake(&((struct routecb *)(last)->so_pcb)->refcnt);
   }
   refcnt_take(&rop->refcnt);
   last = rop->rcb.rcb_socket;
  }
  if (last) {
-  if (sbspace(last, &last->so_rcv) < (2 * 256) ||
-      sbappendaddr(last, &last->so_rcv, &route_src,
-      m, (struct mbuf *)((void *)0)) == 0) {
-   ((struct routecb *)(last)->so_pcb)->flags |=
-       0x1 | 0x2;
-   route_senddesync(((struct routecb *)(last)->so_pcb));
-   m_freem(m);
-  } else {
-   sorwakeup(last);
-  }
+  rtm_sendup(last, m, 0);
   refcnt_rele_wake(&((struct routecb *)(last)->so_pcb)->refcnt);
  } else
   m_freem(m);
  srp_leave((&sr));
+}
+int
+rtm_sendup(struct socket *so, struct mbuf *m0, int more)
+{
+ struct routecb *rop = ((struct routecb *)(so)->so_pcb);
+ struct mbuf *m;
+ if (more) {
+  m = m_copym(m0, 0, 1000000000, 0x0002);
+  if (m == ((void *)0))
+   return (12);
+ } else
+  m = m0;
+ if (sbspace(so, &so->so_rcv) < (2 * 256) ||
+     sbappendaddr(so, &so->so_rcv, &route_src, m, ((void *)0)) == 0) {
+  rop->flags |= 0x1 | 0x2;
+  rtm_senddesync(rop);
+  m_freem(m);
+  return (55);
+ }
+ sorwakeup(so);
+ return (0);
 }
 struct rt_msghdr *
 rtm_report(struct rtentry *rt, u_char type, int seq, int tableid)
@@ -4425,7 +4425,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
    break;
   }
   ifp = if_get(rt->rt_ifidx);
-  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 842, "ifp != NULL"));
+  ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 843, "ifp != NULL"));
   if ((((rt->rt_flags) & (0x20000)))) {
    ifp->if_rtrequest(ifp, 0x11, rt);
    rtable_walk(tableid, ((rt)->rt_dest)->sa_family,
@@ -4490,7 +4490,7 @@ rtm_output(struct rt_msghdr *rtm, struct rtentry **prt,
     ifa = info->rti_ifa;
     if (rt->rt_ifa != ifa) {
      ifp = if_get(rt->rt_ifidx);
-     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 949, "ifp != NULL"));
+     ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 950, "ifp != NULL"));
      ifp->if_rtrequest(ifp, 0x2, rt);
      ifafree(rt->rt_ifa);
      if_put(ifp);
@@ -4547,7 +4547,7 @@ change:
    rtm_setmetrics(rtm->rtm_inits, &rtm->rtm_rmx,
        &rt->rt_rmx);
    ifp = if_get(rt->rt_ifidx);
-   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1038, "ifp != NULL"));
+   ((ifp != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1039, "ifp != NULL"));
    ifp->if_rtrequest(ifp, 0x1, rt);
    if_put(ifp);
    if (info->rti_info[10] != ((void *)0)) {
@@ -5040,7 +5040,7 @@ sysctl_iflist(int af, struct walkarg *w)
   }
   info.rti_info[4] = ((void *)0);
   for((ifa) = ((&ifp->if_addrlist)->tqh_first); (ifa) != ((void *)0); (ifa) = ((ifa)->ifa_list.tqe_next)) {
-   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1713, "ifa->ifa_addr->sa_family != AF_LINK"));
+   ((ifa->ifa_addr->sa_family != 18) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/rtsock.c", 1714, "ifa->ifa_addr->sa_family != AF_LINK"));
    if (af && af != ifa->ifa_addr->sa_family)
     continue;
    info.rti_info[5] = ifa->ifa_addr;

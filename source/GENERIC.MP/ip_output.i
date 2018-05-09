@@ -4400,7 +4400,7 @@ struct udphdr {
  u_int16_t uh_sum;
 };
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern const tcp_timer_func_t tcp_timer_funcs[6];
 extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
@@ -4429,7 +4429,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[5];
+ struct timeout t_timer[6];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -4439,7 +4439,6 @@ struct tcpcb {
  u_int t_flags;
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
- struct timeout t_delack_to;
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -4493,7 +4492,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;

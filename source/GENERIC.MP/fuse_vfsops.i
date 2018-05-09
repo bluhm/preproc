@@ -1233,6 +1233,15 @@ void _kernel_lock_init(void);
 void _kernel_lock(const char *, int);
 void _kernel_unlock(void);
 int _kernel_lock_held(void);
+struct mutex {
+ volatile void *mtx_owner;
+ int mtx_wantipl;
+ int mtx_oldipl;
+};
+void __mtx_init(struct mutex *, int);
+void __mtx_enter(struct mutex *);
+int __mtx_enter_try(struct mutex *);
+void __mtx_leave(struct mutex *);
 struct proc;
 struct uio;
 struct knote;
@@ -1253,6 +1262,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -1261,11 +1271,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -1683,6 +1693,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -1769,15 +1780,6 @@ void _rb_set_right(const struct rb_type *, void *, void *);
 void _rb_set_parent(const struct rb_type *, void *, void *);
 void _rb_poison(const struct rb_type *, void *, unsigned long);
 int _rb_check(const struct rb_type *, void *, unsigned long);
-struct mutex {
- volatile void *mtx_owner;
- int mtx_wantipl;
- int mtx_oldipl;
-};
-void __mtx_init(struct mutex *, int);
-void __mtx_enter(struct mutex *);
-int __mtx_enter_try(struct mutex *);
-void __mtx_leave(struct mutex *);
 struct pool;
 struct pool_request;
 struct pool_lock_ops;

@@ -3674,7 +3674,7 @@ struct tcphdr {
  u_int16_t th_urp;
 };
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern const tcp_timer_func_t tcp_timer_funcs[6];
 extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
@@ -3703,7 +3703,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[5];
+ struct timeout t_timer[6];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -3713,7 +3713,6 @@ struct tcpcb {
  u_int t_flags;
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
- struct timeout t_delack_to;
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -3767,7 +3766,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;
@@ -4202,12 +4200,14 @@ void tcp_timer_persist(void *);
 void tcp_timer_keep(void *);
 void tcp_timer_2msl(void *);
 void tcp_timer_reaper(void *);
-const tcp_timer_func_t tcp_timer_funcs[5] = {
+void tcp_timer_delack(void *);
+const tcp_timer_func_t tcp_timer_funcs[6] = {
  tcp_timer_rexmt,
  tcp_timer_persist,
  tcp_timer_keep,
  tcp_timer_2msl,
  tcp_timer_reaper,
+ tcp_timer_delack,
 };
 void
 tcp_timer_init(void)
@@ -4222,12 +4222,14 @@ tcp_timer_init(void)
   tcp_delack_msecs = 200;
 }
 void
-tcp_delack(void *arg)
+tcp_timer_delack(void *arg)
 {
  struct tcpcb *tp = arg;
  do { _rw_enter_write(&netlock ); } while (0);
- if (tp->t_flags & 0x00200000)
+ if (!(((tp)->t_flags) & (0x80000000)) ||
+     ((&tp->t_timer[5])->to_flags & 2))
   goto out;
+ (((tp)->t_flags) &= ~(0x80000000));
  tp->t_flags |= 0x0001;
  (void) tcp_output(tp);
  out:
@@ -4246,7 +4248,7 @@ void
 tcp_canceltimers(struct tcpcb *tp)
 {
  int i;
- for (i = 0; i < 5; i++)
+ for (i = 0; i < 6; i++)
   do { (((tp)->t_flags) &= ~(0x04000000 << (i))); timeout_del(&(tp)->t_timer[(i)]); } while (0);
 }
 int tcp_backoff[12 + 1] =

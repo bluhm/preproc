@@ -2738,6 +2738,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -2746,11 +2747,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -3634,7 +3635,7 @@ unp_gc(void *arg __attribute__((__unused__)))
    fp = defer->ud_fp[i].fp;
    if (fp == ((void *)0))
     continue;
-   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+   do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
    if ((unp = fptounp(fp)) != ((void *)0))
     unp->unp_msgcount--;
    unp_rights--;

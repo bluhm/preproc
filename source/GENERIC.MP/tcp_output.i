@@ -3531,7 +3531,7 @@ u_char tcp_outflags[11] = {
 };
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern const tcp_timer_func_t tcp_timer_funcs[6];
 extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
@@ -3560,7 +3560,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[5];
+ struct timeout t_timer[6];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -3570,7 +3570,6 @@ struct tcpcb {
  u_int t_flags;
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
- struct timeout t_delack_to;
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -3624,7 +3623,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;
@@ -4551,20 +4549,20 @@ out:
    tp->t_softerror = error;
    return (0);
   }
-  if (tp->t_flags & 0x0002)
-   timeout_add_msec(&(tp)->t_delack_to, tcp_delack_msecs);
+  if ((((tp)->t_flags) & (0x04000000 << (5))))
+   do { (((tp)->t_flags) |= (0x04000000 << (5))); timeout_add_msec(&(tp)->t_timer[(5)], (tcp_delack_msecs)); } while (0);
   return (error);
  }
  if (packetlen > tp->t_pmtud_mtu_sent)
   tp->t_pmtud_mtu_sent = packetlen;
  tcpstat_inc(tcps_sndtotal);
- if (tp->t_flags & 0x0002)
+ if ((((tp)->t_flags) & (0x04000000 << (5))))
   tcpstat_inc(tcps_delack);
  if (win > 0 && ((int)((tp->rcv_nxt+win)-(tp->rcv_adv)) > 0))
   tp->rcv_adv = tp->rcv_nxt + win;
  tp->last_ack_sent = tp->rcv_nxt;
  tp->t_flags &= ~0x0001;
- do { if ((tp)->t_flags & 0x0002) { (tp)->t_flags &= ~0x0002; timeout_del(&(tp)->t_delack_to); } } while ( 0);
+ do { (((tp)->t_flags) &= ~(0x04000000 << (5))); timeout_del(&(tp)->t_timer[(5)]); } while (0);
  if (sendalot && --maxburst)
   goto again;
  return (0);

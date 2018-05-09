@@ -2307,6 +2307,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -6305,11 +6306,11 @@ struct rwlock vfs_stall_lock = { 0, "vfs_stall" };
 int
 vfs_stall(struct proc *p, int stall)
 {
- struct mount *mp, *nmp;
+ struct mount *mp;
  int allerror = 0, error;
  if (stall)
   _rw_enter_write(&vfs_stall_lock );
- for ((mp) = (*(((struct mntlist *)((&mountlist)->tqh_last))->tqh_last)); (mp) != ((void *)0) && ((nmp) = (*(((struct mntlist *)((mp)->mnt_list.tqe_prev))->tqh_last)), 1); (mp) = (nmp)) {
+ for((mp) = (*(((struct mntlist *)((&mountlist)->tqh_last))->tqh_last)); (mp) != ((void *)0); (mp) = (*(((struct mntlist *)((mp)->mnt_list.tqe_prev))->tqh_last))) {
   if (stall) {
    error = vfs_busy(mp, 0x02|0x08);
    if (error) {
@@ -6336,6 +6337,12 @@ vfs_stall(struct proc *p, int stall)
  if (!stall)
   _rw_exit_write(&vfs_stall_lock );
  return (allerror);
+}
+void
+vfs_stall_barrier(void)
+{
+ _rw_enter_read(&vfs_stall_lock );
+ _rw_exit_read(&vfs_stall_lock );
 }
 void
 vfs_unmountall(void)

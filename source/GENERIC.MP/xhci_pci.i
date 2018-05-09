@@ -3024,6 +3024,7 @@ struct xhci_softc {
  bus_size_t sc_oper_off;
  bus_size_t sc_runt_off;
  bus_size_t sc_door_off;
+ uint16_t sc_version;
  uint32_t sc_pagesize;
  uint32_t sc_ctxsize;
  int sc_noport;
@@ -3129,7 +3130,7 @@ xhci_pci_attach(struct device *parent, struct device *self, void *aux)
   printf("\n");
   goto unmap_ret;
  }
- printf(": %s\n", intrstr);
+ printf(": %s", intrstr);
  vendor = pci_findvendor(pa->pa_id);
  psc->sc.sc_id_vendor = (((pa->pa_id) >> 0) & 0xffff);
  if (vendor)

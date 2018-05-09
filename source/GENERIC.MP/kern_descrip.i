@@ -2377,6 +2377,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -2385,11 +2386,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -3011,6 +3012,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4449,10 +4451,10 @@ fd_iterfile(struct file *fp, struct proc *p)
   nfp = ((&filehead)->lh_first);
  else
   nfp = ((fp)->f_list.le_next);
- while (nfp != ((void *)0) && nfp->f_count == 0)
+ while (nfp != ((void *)0) && (nfp->f_count == 0 || !(((nfp)->f_iflags & 0x02) == 0)))
   nfp = ((nfp)->f_list.le_next);
  if (nfp != ((void *)0))
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (nfp)->f_count++; } while (0);
+  do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (nfp)->f_count++; } while (0);
  if (fp != ((void *)0))
   (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  return nfp;
@@ -4465,7 +4467,7 @@ fd_getfile(struct filedesc *fdp, int fd)
   return (((void *)0));
  if (!(((fp)->f_iflags & 0x02) == 0))
   return (((void *)0));
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
  return (fp);
 }
 struct file *
@@ -4797,7 +4799,7 @@ finishdup(struct proc *p, struct file *fp, int old, int new,
  }
  oldfp = fdp->fd_ofiles[new];
  if (oldfp != ((void *)0))
-  do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (oldfp)->f_count++; } while (0);
+  do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (oldfp)->f_count++; } while (0);
  fdp->fd_ofiles[new] = fp;
  fdp->fd_ofileflags[new] = fdp->fd_ofileflags[old] & ~0x01;
  if (dup2 && oldfp == ((void *)0))
@@ -4828,7 +4830,7 @@ fdrelease(struct proc *p, int fd)
  fp = *fpp;
  if (fp == ((void *)0))
   return (9);
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
  *fpp = ((void *)0);
  fd_unused(fdp, fd);
  if (fd < fdp->fd_knlistsize)
@@ -5019,6 +5021,7 @@ restart:
  }
  numfiles++;
  fp = pool_get(&file_pool, 0x0001|0x0008);
+ do { (void)(((void *)0)); (void)(0); __mtx_init((&fp->f_mtx), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0)))); } while (0);
  fp->f_iflags = 0x02;
  if ((fq = p->p_fd->fd_ofiles[0]) != ((void *)0)) {
   do { if (((fp)->f_list.le_next = (fq)->f_list.le_next) != ((void *)0)) (fq)->f_list.le_next->f_list.le_prev = &(fp)->f_list.le_next; (fq)->f_list.le_next = (fp); (fp)->f_list.le_prev = &(fq)->f_list.le_next; } while (0);
@@ -5032,7 +5035,7 @@ restart:
  (fp->f_cred)->cr_ref++;
  *resultfp = fp;
  *resultfd = i;
- do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+ do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
  return (0);
 }
 struct filedesc *
@@ -5098,7 +5101,7 @@ fdcopy(struct process *pr)
    if (fp->f_count == 0x7fffffffffffffffL -2 ||
        fp->f_type == 4)
     continue;
-   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+   do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
    newfdp->fd_ofiles[i] = fp;
    newfdp->fd_ofileflags[i] = fdp->fd_ofileflags[i];
    fd_used(newfdp, i);
@@ -5119,7 +5122,7 @@ fdfree(struct proc *p)
  for (i = fdp->fd_lastfile; i >= 0; i--, fpp++) {
   fp = *fpp;
   if (fp != ((void *)0)) {
-   do { extern struct rwlock vfs_stall_lock; _rw_enter_read(&vfs_stall_lock ); _rw_exit_read(&vfs_stall_lock ); (fp)->f_count++; } while (0);
+   do { extern void vfs_stall_barrier(void); vfs_stall_barrier(); (fp)->f_count++; } while (0);
    *fpp = ((void *)0);
    (void) closef(fp, p);
   }

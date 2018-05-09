@@ -4986,18 +4986,18 @@ ret:
  return (error);
 }
 int
-pfkey_sendup(struct keycb *kp, struct mbuf *packet, int more)
+pfkey_sendup(struct keycb *kp, struct mbuf *m0, int more)
 {
  struct socket *so = kp->rcb.rcb_socket;
- struct mbuf *packet2;
+ struct mbuf *m;
  do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (more) {
-  if (!(packet2 = m_dup_pkt(packet, 0, 0x0002)))
+  if (!(m = m_dup_pkt(m0, 0, 0x0002)))
    return (12);
  } else
-  packet2 = packet;
- if (!sbappendaddr(so, &so->so_rcv, &pfkey_addr, packet2, ((void *)0))) {
-  m_freem(packet2);
+  m = m0;
+ if (!sbappendaddr(so, &so->so_rcv, &pfkey_addr, m, ((void *)0))) {
+  m_freem(m);
   return (55);
  }
  sorwakeup(so);

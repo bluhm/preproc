@@ -3740,7 +3740,7 @@ struct tcphdr {
 };
 extern tcp_seq tcp_iss;
 typedef void (*tcp_timer_func_t)(void *);
-extern const tcp_timer_func_t tcp_timer_funcs[5];
+extern const tcp_timer_func_t tcp_timer_funcs[6];
 extern int tcp_delack_msecs;
 extern int tcptv_keep_init;
 extern int tcp_always_keepalive;
@@ -3769,7 +3769,7 @@ struct tcpqent {
 };
 struct tcpcb {
  struct tcpqehead t_segq;
- struct timeout t_timer[5];
+ struct timeout t_timer[6];
  short t_state;
  short t_rxtshift;
  short t_rxtcur;
@@ -3779,7 +3779,6 @@ struct tcpcb {
  u_int t_flags;
  struct mbuf *t_template;
  struct inpcb *t_inpcb;
- struct timeout t_delack_to;
  tcp_seq snd_una;
  tcp_seq snd_nxt;
  tcp_seq snd_up;
@@ -3833,7 +3832,6 @@ struct tcpcb {
  u_short t_pmtud_ip_hl;
  int pf;
 };
-void tcp_delack(void *);
 struct tcp_opt_info {
  int ts_present;
  u_int32_t ts_val;
@@ -4479,8 +4477,7 @@ tcp_newtcpcb(struct inpcb *inp)
  do { (&tp->t_segq)->tqh_first = ((void *)0); (&tp->t_segq)->tqh_last = &(&tp->t_segq)->tqh_first; } while (0);
  tp->t_maxseg = tcp_mssdflt;
  tp->t_maxopd = 0;
- timeout_set_proc(&(tp)->t_delack_to, tcp_delack, tp);
- for (i = 0; i < 5; i++)
+ for (i = 0; i < 6; i++)
   timeout_set_proc(&(tp)->t_timer[(i)], tcp_timer_funcs[(i)], tp);
  tp->sack_enable = tcp_do_sack;
  tp->t_flags = tcp_do_rfc1323 ? (0x0020|0x0080) : 0;
@@ -4528,7 +4525,6 @@ tcp_close(struct tcpcb *tp)
  struct sackhole *p, *q;
  tcp_freeq(tp);
  tcp_canceltimers(tp);
- do { if ((tp)->t_flags & 0x0002) { (tp)->t_flags &= ~0x0002; timeout_del(&(tp)->t_delack_to); } } while ( 0);
  syn_cache_cleanup(tp);
  q = p = tp->snd_holes;
  while (p != 0) {
@@ -4537,7 +4533,6 @@ tcp_close(struct tcpcb *tp)
   p = q;
  }
  m_free(tp->t_template);
- tp->t_flags |= 0x00200000;
  do { (((tp)->t_flags) |= (0x04000000 << (4))); timeout_add_msec(&(tp)->t_timer[(4)], (0) * 500); } while (0);
  inp->inp_ppcb = ((void *)0);
  soisdisconnected(so);

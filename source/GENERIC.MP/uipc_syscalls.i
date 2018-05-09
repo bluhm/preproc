@@ -1729,6 +1729,7 @@ struct fileops {
 };
 struct file {
  struct { struct file *le_next; struct file **le_prev; } f_list;
+ struct mutex f_mtx;
  short f_flag;
  short f_type;
  long f_count;
@@ -1737,11 +1738,11 @@ struct file {
  off_t f_offset;
  void *f_data;
  int f_iflags;
- u_int64_t f_rxfer;
- u_int64_t f_wxfer;
- u_int64_t f_seek;
- u_int64_t f_rbytes;
- u_int64_t f_wbytes;
+ uint64_t f_rxfer;
+ uint64_t f_wxfer;
+ uint64_t f_seek;
+ uint64_t f_rbytes;
+ uint64_t f_wbytes;
 };
 int fdrop(struct file *, struct proc *);
 struct filelist { struct file *lh_first; };
@@ -2625,6 +2626,7 @@ int vfs_rootmountalloc(char *, char *, struct mount **);
 void vfs_unbusy(struct mount *);
 extern struct mntlist { struct mount *tqh_first; struct mount **tqh_last; } mountlist;
 int vfs_stall(struct proc *, int);
+void vfs_stall_barrier(void);
 struct mount *getvfs(fsid_t *);
 int vfs_export(struct mount *, struct netexport *, struct export_args *);
 struct netcred *vfs_export_lookup(struct mount *, struct netexport *,
@@ -4718,8 +4720,10 @@ sendit(struct proc *p, int s, struct msghdr *mp, int flags, register_t *retsize)
  }
  if (error == 0) {
   *retsize = len - auio.uio_resid;
+  __mtx_enter(&fp->f_mtx );
   fp->f_wxfer++;
   fp->f_wbytes += *retsize;
+  __mtx_leave(&fp->f_mtx );
  }
  if (ktriov != ((void *)0)) {
   if (error == 0)
@@ -4896,8 +4900,10 @@ recvit(struct proc *p, int s, struct msghdr *mp, caddr_t namelenp,
   mp->msg_controllen = len;
  }
  if (!error) {
+  __mtx_enter(&fp->f_mtx );
   fp->f_rxfer++;
   fp->f_rbytes += *retsize;
+  __mtx_leave(&fp->f_mtx );
  }
 out:
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
