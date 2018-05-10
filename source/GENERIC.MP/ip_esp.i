@@ -5085,9 +5085,9 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  struct auth_hash *esph = (struct auth_hash *) tdb->tdb_authalgxform;
  struct enc_xform *espx = (struct enc_xform *) tdb->tdb_encalgxform;
  struct cryptodesc *crde = ((void *)0), *crda = ((void *)0);
- struct cryptop *crp;
- struct tdb_crypto *tc;
- int plen, alen, hlen;
+ struct cryptop *crp = ((void *)0);
+ struct tdb_crypto *tc = ((void *)0);
+ int plen, alen, hlen, error;
  u_int32_t btsx, esn;
  hlen = 2 * sizeof(u_int32_t) + tdb->tdb_ivlen;
  alen = esph ? esph->authsize : 0;
@@ -5095,15 +5095,15 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  if (plen <= 0) {
   ;
   espstat_inc(esps_badilen);
-  m_freem(m);
-  return 22;
+  error = 22;
+  goto drop;
  }
  if (espx) {
   if (plen & (espx->blocksize - 1)) {
    ;
    espstat_inc(esps_badilen);
-   m_freem(m);
-   return 22;
+   error = 22;
+   goto drop;
   }
  }
  if (tdb->tdb_wnd > 0) {
@@ -5114,25 +5114,25 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
   case 0:
    break;
   case 1:
-   m_freem(m);
    ;
    espstat_inc(esps_wrap);
-   return 13;
+   error = 13;
+   goto drop;
   case 2:
-   m_freem(m);
    ;
    espstat_inc(esps_replay);
-   return 13;
+   error = 13;
+   goto drop;
   case 3:
-   m_freem(m);
    ;
    espstat_inc(esps_replay);
-   return 13;
+   error = 13;
+   goto drop;
   default:
-   m_freem(m);
    ;
    espstat_inc(esps_replay);
-   return 13;
+   error = 13;
+   goto drop;
   }
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip - hlen - alen;
@@ -5141,8 +5141,8 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
      (tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes)) {
   pfkeyv2_expire(tdb, 3);
   tdb_delete(tdb);
-  m_freem(m);
-  return 6;
+  error = 6;
+  goto drop;
  }
  if ((tdb->tdb_flags & 0x00100) &&
      (tdb->tdb_cur_bytes >= tdb->tdb_soft_bytes)) {
@@ -5151,21 +5151,20 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
  }
  crp = crypto_getreq(esph && espx ? 2 : 1);
  if (crp == ((void *)0)) {
-  m_freem(m);
   ;
   espstat_inc(esps_crypto);
-  return 55;
+  error = 55;
+  goto drop;
  }
  if (esph == ((void *)0))
   tc = malloc(sizeof(*tc), 76, 0x0002 | 0x0008);
  else
   tc = malloc(sizeof(*tc) + alen, 76, 0x0002 | 0x0008);
  if (tc == ((void *)0)) {
-  m_freem(m);
-  crypto_freereq(crp);
   ;
   espstat_inc(esps_crypto);
-  return 55;
+  error = 55;
+  goto drop;
  }
  if (esph) {
   crda = &crp->crp_desc[0];
@@ -5213,6 +5212,11 @@ esp_input(struct mbuf *m, struct tdb *tdb, int skip, int protoff)
    crde->crd_len = m->M_dat.MH.MH_pkthdr.len - (skip + hlen + alen);
  }
  return crypto_dispatch(crp);
+ drop:
+ m_freem(m);
+ crypto_freereq(crp);
+ free(tc, 76, 0);
+ return error;
 }
 void
 esp_input_cb(struct cryptop *crp)
@@ -5230,18 +5234,15 @@ esp_input_cb(struct cryptop *crp)
  protoff = tc->tc_protoff;
  m = (struct mbuf *) crp->crp_buf;
  if (m == ((void *)0)) {
-  free(tc, 76, 0);
-  crypto_freereq(crp);
-  espstat_inc(esps_crypto);
   ;
-  return;
+  espstat_inc(esps_crypto);
+  goto droponly;
  }
  do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
-  free(tc, 76, 0);
-  espstat_inc(esps_notdb);
   ;
+  espstat_inc(esps_notdb);
   goto baddone;
  }
  esph = (struct auth_hash *) tdb->tdb_authalgxform;
@@ -5253,9 +5254,8 @@ esp_input_cb(struct cryptop *crp)
    crypto_dispatch(crp);
    return;
   }
-  free(tc, 76, 0);
-  espstat_inc(esps_noxform);
   ;
+  espstat_inc(esps_noxform);
   goto baddone;
  }
  if (esph != ((void *)0)) {
@@ -5263,14 +5263,12 @@ esp_input_cb(struct cryptop *crp)
       esph->authsize, aalg);
   ptr = (caddr_t) (tc + 1);
   if (timingsafe_bcmp(ptr, aalg, esph->authsize)) {
-   free(tc, 76, 0);
    ;
    espstat_inc(esps_badauth);
    goto baddone;
   }
   m_adj(m, -(esph->authsize));
  }
- free(tc, 76, 0);
  if (tdb->tdb_wnd > 0) {
   m_copydata(m, skip + sizeof(u_int32_t), sizeof(u_int32_t),
       (unsigned char *) &btsx);
@@ -5297,15 +5295,12 @@ esp_input_cb(struct cryptop *crp)
    goto baddone;
   }
  }
- crypto_freereq(crp);
  hlen = 2 * sizeof(u_int32_t) + tdb->tdb_ivlen;
  m1 = m_getptr(m, skip, &roff);
  if (m1 == ((void *)0)) {
-  espstat_inc(esps_hdrops);
-  do { _rw_exit_write(&netlock ); } while (0);
   ;
-  m_freem(m);
-  return;
+  espstat_inc(esps_hdrops);
+  goto baddone;
  }
  if (roff == 0) {
   m_adj(m1, hlen);
@@ -5332,28 +5327,28 @@ esp_input_cb(struct cryptop *crp)
  }
  m_copydata(m, m->M_dat.MH.MH_pkthdr.len - 3, 3, lastthree);
  if (lastthree[1] + 2 > m->M_dat.MH.MH_pkthdr.len - skip) {
-  espstat_inc(esps_badilen);
-  do { _rw_exit_write(&netlock ); } while (0);
   ;
-  m_freem(m);
-  return;
+  espstat_inc(esps_badilen);
+  goto baddone;
  }
  if ((lastthree[1] != lastthree[0]) && (lastthree[1] != 0)) {
-  espstat_inc(esps_badenc);
-  do { _rw_exit_write(&netlock ); } while (0);
   ;
-  m_freem(m);
-  return;
+  espstat_inc(esps_badenc);
+  goto baddone;
  }
  m_adj(m, -(lastthree[1] + 2));
  m_copyback(m, protoff, sizeof(u_int8_t), lastthree + 2, 0x0002);
+ crypto_freereq(crp);
+ free(tc, 76, 0);
  ipsec_common_input_cb(m, tdb, skip, protoff);
  do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
  do { _rw_exit_write(&netlock ); } while (0);
+ droponly:
  m_freem(m);
  crypto_freereq(crp);
+ free(tc, 76, 0);
 }
 int
 esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
@@ -5361,14 +5356,14 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
 {
  struct enc_xform *espx = (struct enc_xform *) tdb->tdb_encalgxform;
  struct auth_hash *esph = (struct auth_hash *) tdb->tdb_authalgxform;
- int ilen, hlen, rlen, padding, blks, alen, roff;
+ int ilen, hlen, rlen, padding, blks, alen, roff, error;
  u_int32_t replay;
  struct mbuf *mi, *mo = (struct mbuf *) ((void *)0);
- struct tdb_crypto *tc;
+ struct tdb_crypto *tc = ((void *)0);
  unsigned char *pad;
  u_int8_t prot;
  struct cryptodesc *crde = ((void *)0), *crda = ((void *)0);
- struct cryptop *crp;
+ struct cryptop *crp = ((void *)0);
  struct ifnet *encif;
  if ((encif = enc_getif(tdb->tdb_rdomain, tdb->tdb_tap)) != ((void *)0)) {
   encif->if_data.ifi_opackets++;
@@ -5399,24 +5394,24 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  case 2:
   if (skip + hlen + rlen + padding + alen > 65535) {
    ;
-   m_freem(m);
    espstat_inc(esps_toobig);
-   return 40;
+   error = 40;
+   goto drop;
   }
   break;
  case 24:
   if (skip + hlen + rlen + padding + alen > 65535) {
    ;
-   m_freem(m);
    espstat_inc(esps_toobig);
-   return 40;
+   error = 40;
+   goto drop;
   }
   break;
  default:
   ;
-  m_freem(m);
   espstat_inc(esps_nopf);
-  return 46;
+  error = 46;
+  goto drop;
  }
  tdb->tdb_cur_bytes += m->M_dat.MH.MH_pkthdr.len - skip;
  espstat_add(esps_obytes, m->M_dat.MH.MH_pkthdr.len - skip);
@@ -5424,8 +5419,8 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
      tdb->tdb_cur_bytes >= tdb->tdb_exp_bytes) {
   pfkeyv2_expire(tdb, 3);
   tdb_delete(tdb);
-  m_freem(m);
-  return 22;
+  error = 22;
+  goto drop;
  }
  if (tdb->tdb_flags & 0x00100 &&
      tdb->tdb_cur_bytes >= tdb->tdb_soft_bytes) {
@@ -5440,8 +5435,8 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   if (n == ((void *)0)) {
    ;
    espstat_inc(esps_hdrops);
-   m_freem(m);
-   return 55;
+   error = 55;
+   goto drop;
   }
   m_freem(m);
   m = n;
@@ -5449,9 +5444,9 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  mo = m_makespace(m, skip, hlen, &roff);
  if (mo == ((void *)0)) {
   ;
-  m_freem(m);
   espstat_inc(esps_hdrops);
-  return 55;
+  error = 55;
+  goto drop;
  }
  __builtin_memcpy((((caddr_t)((mo)->m_hdr.mh_data)) + roff), ((caddr_t) &tdb->tdb_spi), (sizeof(u_int32_t)));
  tdb->tdb_rpl++;
@@ -5461,8 +5456,9 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  mo = m_makespace(m, m->M_dat.MH.MH_pkthdr.len, padding + alen, &roff);
  if (mo == ((void *)0)) {
   ;
-  m_freem(m);
-  return 55;
+  espstat_inc(esps_hdrops);
+  error = 55;
+  goto drop;
  }
  pad = ((caddr_t)((mo)->m_hdr.mh_data)) + roff;
  for (ilen = 0; ilen < padding - 2; ilen++)
@@ -5473,10 +5469,10 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
  m_copyback(m, protoff, sizeof(u_int8_t), &prot, 0x0002);
  crp = crypto_getreq(esph && espx ? 2 : 1);
  if (crp == ((void *)0)) {
-  m_freem(m);
   ;
   espstat_inc(esps_crypto);
-  return 55;
+  error = 55;
+  goto drop;
  }
  if (espx) {
   crde = &crp->crp_desc[0];
@@ -5495,11 +5491,10 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
   crda = &crp->crp_desc[0];
  tc = malloc(sizeof(*tc), 76, 0x0002 | 0x0008);
  if (tc == ((void *)0)) {
-  m_freem(m);
-  crypto_freereq(crp);
   ;
   espstat_inc(esps_crypto);
-  return 55;
+  error = 55;
+  goto drop;
  }
  tc->tc_spi = tdb->tdb_spi;
  tc->tc_proto = tdb->tdb_sproto;
@@ -5531,6 +5526,11 @@ esp_output(struct mbuf *m, struct tdb *tdb, struct mbuf **mp, int skip,
    crda->crd_len = m->M_dat.MH.MH_pkthdr.len - (skip + alen);
  }
  return crypto_dispatch(crp);
+ drop:
+ m_freem(m);
+ crypto_freereq(crp);
+ free(tc, 76, 0);
+ return error;
 }
 void
 esp_output_cb(struct cryptop *crp)
@@ -5541,18 +5541,15 @@ esp_output_cb(struct cryptop *crp)
  tc = (struct tdb_crypto *) crp->crp_opaque;
  m = (struct mbuf *) crp->crp_buf;
  if (m == ((void *)0)) {
-  free(tc, 76, 0);
-  crypto_freereq(crp);
-  espstat_inc(esps_crypto);
   ;
-  return;
+  espstat_inc(esps_crypto);
+  goto droponly;
  }
  do { _rw_enter_write(&netlock ); } while (0);
  tdb = gettdb(tc->tc_rdomain, tc->tc_spi, &tc->tc_dst, tc->tc_proto);
  if (tdb == ((void *)0)) {
-  free(tc, 76, 0);
-  espstat_inc(esps_notdb);
   ;
+  espstat_inc(esps_notdb);
   goto baddone;
  }
  if (crp->crp_etype) {
@@ -5563,21 +5560,22 @@ esp_output_cb(struct cryptop *crp)
    crypto_dispatch(crp);
    return;
   }
-  free(tc, 76, 0);
-  espstat_inc(esps_noxform);
   ;
+  espstat_inc(esps_noxform);
   goto baddone;
  }
- free(tc, 76, 0);
  crypto_freereq(crp);
+ free(tc, 76, 0);
  if (ipsp_process_done(m, tdb))
   espstat_inc(esps_outfail);
  do { _rw_exit_write(&netlock ); } while (0);
  return;
  baddone:
  do { _rw_exit_write(&netlock ); } while (0);
+ droponly:
  m_freem(m);
  crypto_freereq(crp);
+ free(tc, 76, 0);
 }
 int
 checkreplaywindow(struct tdb *tdb, u_int32_t seq, u_int32_t *seqh, int commit)

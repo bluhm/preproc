@@ -2939,7 +2939,7 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
 {
  struct dk_diskmap *dm;
  struct nameidata ndp;
- struct filedesc *fdp;
+ struct filedesc *fdp = p->p_fd;
  struct file *fp = ((void *)0);
  struct vnode *vp = ((void *)0), *ovp;
  char *devname;
@@ -2956,7 +2956,8 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
    goto invalid;
  if ((error = getvnode(p, fd, &fp)) != 0)
   goto invalid;
- fdp = p->p_fd;
+ ((fp->f_type == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/diskmap.c", 86, "fp->f_type == DTYPE_VNODE"));
+ ((fp->f_ops == &vnops) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/diskmap.c", 87, "fp->f_ops == &vnops"));
  do { do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s == 0x0001UL)) splassert_fail(0, 0x0001UL, __func__); } while (0); _rw_enter_write(&(fdp)->fd_lock ); } while (0);
  ndinitat(&ndp, 0, 0, UIO_SYSSPACE, -100, devname, p);
  ndp.ni_pledge = 0x0000000000000001ULL;
@@ -2971,15 +2972,15 @@ diskmapioctl(dev_t dev, u_long cmd, caddr_t addr, int flag, struct proc *p)
   VOP_CLOSE(ovp, fp->f_flag, p->p_ucred, p);
   vput(ovp);
  }
- fp->f_type = 1;
- fp->f_ops = &vnops;
  fp->f_data = (caddr_t)vp;
  fp->f_offset = 0;
+ __mtx_enter(&fp->f_mtx );
  fp->f_rxfer = 0;
  fp->f_wxfer = 0;
  fp->f_seek = 0;
  fp->f_rbytes = 0;
  fp->f_wbytes = 0;
+ __mtx_leave(&fp->f_mtx );
  VOP_UNLOCK(vp);
  (--(fp)->f_count == 0 ? fdrop(fp, p) : 0);
  _rw_exit_write(&(fdp)->fd_lock );
