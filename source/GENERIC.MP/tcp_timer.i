@@ -4123,6 +4123,26 @@ void syn_cache_unreach(struct sockaddr *, struct sockaddr *,
     struct tcphdr *, u_int);
 void syn_cache_init(void);
 void syn_cache_cleanup(struct tcpcb *);
+struct tcpiphdr {
+ struct ipovly ti_i;
+ struct tcphdr ti_t;
+};
+struct tcpipv6hdr {
+ struct ip6_hdr ti6_i;
+ struct tcphdr ti6_t;
+};
+struct tcp_debug {
+ uint32_t td_time;
+ short td_act;
+ short td_ostate;
+ caddr_t td_tcb;
+ struct tcpiphdr td_ti;
+ struct tcpipv6hdr td_ti6;
+ short td_req;
+ struct tcpcb td_cb;
+};
+extern struct tcp_debug tcp_debug[];
+extern int tcp_debx;
 struct icmp_ra_addr {
  u_int32_t ira_addr;
  u_int32_t ira_preference;
@@ -4225,13 +4245,17 @@ void
 tcp_timer_delack(void *arg)
 {
  struct tcpcb *tp = arg;
+ short ostate;
  do { _rw_enter_write(&netlock ); } while (0);
  if (!(((tp)->t_flags) & (0x80000000)) ||
      ((&tp->t_timer[5])->to_flags & 2))
   goto out;
  (((tp)->t_flags) &= ~(0x80000000));
+ ostate = tp->t_state;
  tp->t_flags |= 0x0001;
  (void) tcp_output(tp);
+ if (tp->t_inpcb->inp_socket->so_options & 0x0001)
+  tcp_trace(5, ostate, tp, (caddr_t)0, 5, 0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
 }
@@ -4272,6 +4296,7 @@ tcp_timer_rexmt(void *arg)
 {
  struct tcpcb *tp = arg;
  uint32_t rto;
+ short ostate;
  do { _rw_enter_write(&netlock ); } while (0);
  if (!(((tp)->t_flags) & (0x04000000)) ||
      ((&tp->t_timer[0])->to_flags & 2))
@@ -4304,6 +4329,7 @@ tcp_timer_rexmt(void *arg)
       tp->t_softerror : 60);
   goto out;
  }
+ ostate = tp->t_state;
  tcpstat_inc(tcps_rexmttimeo);
  rto = ((((tp)->t_srtt >> 3) + (tp)->t_rttvar) >> 2);
  if (rto < tp->t_rttmin)
@@ -4363,6 +4389,8 @@ tcp_timer_rexmt(void *arg)
   tcpstat_inc(tcps_cwr_timeout);
  }
  (void) tcp_output(tp);
+ if (tp->t_inpcb->inp_socket->so_options & 0x0001)
+  tcp_trace(5, ostate, tp, (caddr_t)0, 0, 0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
 }
@@ -4371,6 +4399,7 @@ tcp_timer_persist(void *arg)
 {
  struct tcpcb *tp = arg;
  uint32_t rto;
+ short ostate;
  do { _rw_enter_write(&netlock ); } while (0);
  if (!(((tp)->t_flags) & (0x08000000)) ||
      ((&tp->t_timer[1])->to_flags & 2))
@@ -4378,6 +4407,7 @@ tcp_timer_persist(void *arg)
  (((tp)->t_flags) &= ~(0x08000000));
  if ((((tp)->t_flags) & (0x04000000 << (0))))
   goto out;
+ ostate = tp->t_state;
  tcpstat_inc(tcps_persisttimeo);
  rto = ((((tp)->t_srtt >> 3) + (tp)->t_rttvar) >> 2);
  if (rto < tp->t_rttmin)
@@ -4393,6 +4423,8 @@ tcp_timer_persist(void *arg)
  tp->t_force = 1;
  (void) tcp_output(tp);
  tp->t_force = 0;
+ if (tp->t_inpcb->inp_socket->so_options & 0x0001)
+  tcp_trace(5, ostate, tp, (caddr_t)0, 1, 0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
 }
@@ -4400,11 +4432,13 @@ void
 tcp_timer_keep(void *arg)
 {
  struct tcpcb *tp = arg;
+ short ostate;
  do { _rw_enter_write(&netlock ); } while (0);
  if (!(((tp)->t_flags) & (0x10000000)) ||
      ((&tp->t_timer[2])->to_flags & 2))
   goto out;
  (((tp)->t_flags) &= ~(0x10000000));
+ ostate = tp->t_state;
  tcpstat_inc(tcps_keeptimeo);
  if (((tp->t_state) >= 4) == 0)
   goto dropit;
@@ -4420,6 +4454,8 @@ tcp_timer_keep(void *arg)
   do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepintvl) * 500); } while (0);
  } else
   do { (((tp)->t_flags) |= (0x04000000 << (2))); timeout_add_msec(&(tp)->t_timer[(2)], (tcp_keepidle) * 500); } while (0);
+ if (tp->t_inpcb->inp_socket->so_options & 0x0001)
+  tcp_trace(5, ostate, tp, (caddr_t)0, 2, 0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
  return;
@@ -4432,17 +4468,21 @@ void
 tcp_timer_2msl(void *arg)
 {
  struct tcpcb *tp = arg;
+ short ostate;
  do { _rw_enter_write(&netlock ); } while (0);
  if (!(((tp)->t_flags) & (0x20000000)) ||
      ((&tp->t_timer[3])->to_flags & 2))
   goto out;
  (((tp)->t_flags) &= ~(0x20000000));
+ ostate = tp->t_state;
  tcp_timer_freesack(tp);
  if (tp->t_state != 10 &&
      ((tcp_maxidle == 0) || ((tcp_now - tp->t_rcvtime) <= tcp_maxidle)))
   do { (((tp)->t_flags) |= (0x04000000 << (3))); timeout_add_msec(&(tp)->t_timer[(3)], (tcp_keepintvl) * 500); } while (0);
  else
   tp = tcp_close(tp);
+ if (tp && (tp->t_inpcb->inp_socket->so_options & 0x0001))
+  tcp_trace(5, ostate, tp, (caddr_t)0, 3, 0);
  out:
  do { _rw_exit_write(&netlock ); } while (0);
 }
