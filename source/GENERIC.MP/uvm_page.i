@@ -3783,11 +3783,14 @@ uvm_pagerealloc_multi(struct uvm_object *obj, voff_t off, vsize_t size,
   while((pg = ((&plist)->tqh_first)) != ((void *)0)) {
    offset = off + ((paddr_t)(i++) << 13);
    tpg = uvm_pagelookup(obj, offset);
+   ((tpg != ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 856, "tpg != NULL"));
    pg->wire_count = 1;
    atomic_setbits_int(&pg->pg_flags, 0x00000008 | 0x00000040);
-   (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 858, "(pg->pg_flags & PG_DEV) == 0"));
+   (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 859, "(pg->pg_flags & PG_DEV) == 0"));
    do { if (((pg)->pageq.tqe_next) != ((void *)0)) (pg)->pageq.tqe_next->pageq.tqe_prev = (pg)->pageq.tqe_prev; else (&plist)->tqh_last = (pg)->pageq.tqe_prev; *(pg)->pageq.tqe_prev = (pg)->pageq.tqe_next; ((pg)->pageq.tqe_prev) = ((void *)-1); ((pg)->pageq.tqe_next) = ((void *)-1); } while (0);
    uvm_pagecopy(tpg, pg);
+   ((tpg->wire_count == 1) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 862, "tpg->wire_count == 1"));
+   tpg->wire_count = 0;
    uvm_pagefree(tpg);
    uvm_pagealloc_pg(pg, obj, offset, ((void *)0));
   }
@@ -3802,8 +3805,8 @@ uvm_pagealloc(struct uvm_object *obj, voff_t off, struct vm_anon *anon,
  struct pglist pgl;
  int pmr_flags;
  boolean_t use_reserve;
- ((obj == ((void *)0) || anon == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 886, "obj == NULL || anon == NULL"));
- ((off == ((off) & ~((1 << 13) - 1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 887, "off == trunc_page(off)"));
+ ((obj == ((void *)0) || anon == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 889, "obj == NULL || anon == NULL"));
+ ((off == ((off) & ~((1 << 13) - 1))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 890, "off == trunc_page(off)"));
  if ((uvmexp.free - (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages)) < uvmexp.freemin ||
      ((uvmexp.free - (((buflowpages - bcstats.numbufpages) < 0) ? 0 : buflowpages - bcstats.numbufpages)) < uvmexp.freetarg &&
      (uvmexp.inactive + (((bcstats.numcleanpages - buflowpages) < 0) ? 0 : bcstats.numcleanpages - buflowpages)) < uvmexp.inactarg))
@@ -3822,9 +3825,9 @@ uvm_pagealloc(struct uvm_object *obj, voff_t off, struct vm_anon *anon,
  if (uvm_pmr_getpages(1, 0, 0, 1, 0, 1, pmr_flags, &pgl) != 0)
   goto fail;
  pg = ((&pgl)->tqh_first);
- ((pg != ((void *)0) && ((pg)->pageq.tqe_next) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 922, "pg != NULL && TAILQ_NEXT(pg, pageq) == NULL"));
+ ((pg != ((void *)0) && ((pg)->pageq.tqe_next) == ((void *)0)) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 925, "pg != NULL && TAILQ_NEXT(pg, pageq) == NULL"));
  uvm_pagealloc_pg(pg, obj, off, anon);
- (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 925, "(pg->pg_flags & PG_DEV) == 0"));
+ (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 928, "(pg->pg_flags & PG_DEV) == 0"));
  if (flags & 0x0002)
   atomic_clearbits_int(&pg->pg_flags, 0x00000008);
  else
@@ -3850,7 +3853,7 @@ void
 uvm_pagefree(struct vm_page *pg)
 {
  u_int flags_to_clear = 0;
- (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 980, "(pg->pg_flags & PG_DEV) == 0"));
+ (((pg->pg_flags & 0x00000200) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 983, "(pg->pg_flags & PG_DEV) == 0"));
  if (pg->pg_flags & 0x00000004)
   uvm_pageremove(pg);
  if (pg->pg_flags & 0x00040000) {
@@ -3992,7 +3995,7 @@ uvm_pagedeactivate(struct vm_page *pg)
   uvmexp.active--;
  }
  if ((pg->pg_flags & 0x00020000) == 0) {
-  ((pg->wire_count == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 1270, "pg->wire_count == 0"));
+  ((pg->wire_count == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../uvm/uvm_page.c", 1273, "pg->wire_count == 0"));
   if (pg->pg_flags & (0x00100000|0x00200000))
    do { (pg)->pageq.tqe_next = ((void *)0); (pg)->pageq.tqe_prev = (&uvm.page_inactive_swp)->tqh_last; *(&uvm.page_inactive_swp)->tqh_last = (pg); (&uvm.page_inactive_swp)->tqh_last = &(pg)->pageq.tqe_next; } while (0);
   else

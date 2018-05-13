@@ -3603,6 +3603,8 @@ const struct in6_addr in6mask128 = {{{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 int in6_ioctl(u_long, caddr_t, struct ifnet *, int);
 int in6_ioctl_change_ifaddr(u_long, caddr_t, struct ifnet *);
 int in6_ioctl_get(u_long, caddr_t, struct ifnet *);
+int in6_check_embed_scope(struct sockaddr_in6 *, unsigned int);
+int in6_clear_scope_id(struct sockaddr_in6 *, unsigned int);
 int in6_ifinit(struct ifnet *, struct in6_ifaddr *, int);
 void in6_unlink_ifa(struct in6_ifaddr *, struct ifnet *);
 const struct sockaddr_in6 sa6_any = {
@@ -3717,24 +3719,12 @@ in6_ioctl_change_ifaddr(u_long cmd, caddr_t data, struct ifnet *ifp)
  }
  do { _rw_enter_write(&netlock ); } while (0);
  if (sa6 && sa6->sin6_family == 24) {
-  if ((((&sa6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&sa6->sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
-   if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] == 0) {
-    sa6->sin6_addr.__u6_addr.__u6_addr16[1] =
-        ((__uint16_t)(ifp->if_index));
-   } else if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] !=
-       ((__uint16_t)(ifp->if_index))) {
-    error = 22;
-    goto err;
-   }
-   if (sa6->sin6_scope_id) {
-    if (sa6->sin6_scope_id !=
-        (u_int32_t)ifp->if_index) {
-     error = 22;
-     goto err;
-    }
-    sa6->sin6_scope_id = 0;
-   }
-  }
+  error = in6_check_embed_scope(sa6, ifp->if_index);
+  if (error)
+   goto err;
+  error = in6_clear_scope_id(sa6, ifp->if_index);
+  if (error)
+   goto err;
   ia6 = in6ifa_ifpwithaddr(ifp, &sa6->sin6_addr);
  }
  switch (cmd) {
@@ -3811,24 +3801,12 @@ in6_ioctl_get(u_long cmd, caddr_t data, struct ifnet *ifp)
  sa6 = &ifr->ifr_ifru.ifru_addr;
  do { _rw_enter_read(&netlock ); } while (0);
  if (sa6 && sa6->sin6_family == 24) {
-  if ((((&sa6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&sa6->sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
-   if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] == 0) {
-    sa6->sin6_addr.__u6_addr.__u6_addr16[1] =
-        ((__uint16_t)(ifp->if_index));
-   } else if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] !=
-       ((__uint16_t)(ifp->if_index))) {
-    error = 22;
-    goto err;
-   }
-   if (sa6->sin6_scope_id) {
-    if (sa6->sin6_scope_id !=
-        (u_int32_t)ifp->if_index) {
-     error = 22;
-     goto err;
-    }
-    sa6->sin6_scope_id = 0;
-   }
-  }
+  error = in6_check_embed_scope(sa6, ifp->if_index);
+  if (error)
+   goto err;
+  error = in6_clear_scope_id(sa6, ifp->if_index);
+  if (error)
+   goto err;
   ia6 = in6ifa_ifpwithaddr(ifp, &sa6->sin6_addr);
  }
  if (ia6 == ((void *)0)) {
@@ -3896,6 +3874,29 @@ err:
  return (error);
 }
 int
+in6_check_embed_scope(struct sockaddr_in6 *sa6, unsigned int ifidx)
+{
+ if ((((&sa6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&sa6->sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
+  if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] == 0) {
+   sa6->sin6_addr.__u6_addr.__u6_addr16[1] = ((__uint16_t)(ifidx));
+  } else if (sa6->sin6_addr.__u6_addr.__u6_addr16[1] != ((__uint16_t)(ifidx)))
+   return 22;
+ }
+ return 0;
+}
+int
+in6_clear_scope_id(struct sockaddr_in6 *sa6, unsigned int ifidx)
+{
+ if ((((&sa6->sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&sa6->sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
+  if (sa6->sin6_scope_id) {
+   if (sa6->sin6_scope_id != (u_int32_t)ifidx)
+    return 22;
+   sa6->sin6_scope_id = 0;
+  }
+ }
+ return 0;
+}
+int
 in6_update_ifa(struct ifnet *ifp, struct in6_aliasreq *ifra,
     struct in6_ifaddr *ia6)
 {
@@ -3928,15 +3929,9 @@ in6_update_ifa(struct ifnet *ifp, struct in6_aliasreq *ifra,
  dst6 = ifra->ifra_dstaddr;
  if ((ifp->if_flags & (0x10|0x8)) != 0 &&
      (dst6.sin6_family == 24)) {
-  if ((((&dst6.sin6_addr)->__u6_addr.__u6_addr8[0] == 0xfe) && (((&dst6.sin6_addr)->__u6_addr.__u6_addr8[1] & 0xc0) == 0x80))) {
-   if (dst6.sin6_addr.__u6_addr.__u6_addr16[1] == 0) {
-    dst6.sin6_addr.__u6_addr.__u6_addr16[1] =
-        ((__uint16_t)(ifp->if_index));
-   } else if (dst6.sin6_addr.__u6_addr.__u6_addr16[1] !=
-       ((__uint16_t)(ifp->if_index))) {
-    return (22);
-   }
-  }
+  error = in6_check_embed_scope(&dst6, ifp->if_index);
+  if (error)
+   return error;
  }
  if (ifra->ifra_dstaddr.sin6_family == 24) {
   if ((ifp->if_flags & (0x10|0x8)) == 0)

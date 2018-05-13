@@ -5425,23 +5425,23 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
    break;
   default:
    ;
-   m_freem(m);
    do { if (sproto == 50) espstat_inc(esps_nopf); else if (sproto == 51) ahstat_inc(ahs_nopf); else ipcompstat_inc(ipcomps_nopf); } while (0);
-   return 46;
+   error = 46;
+   goto drop;
   }
   return 0;
  }
  if ((sproto == 108) && (m->m_hdr.mh_flags & 0x4000)) {
-  m_freem(m);
-  ipcompstat_inc(ipcomps_pdrops);
   ;
-  return 22;
+  ipcompstat_inc(ipcomps_pdrops);
+  error = 22;
+  goto drop;
  }
  if (m->M_dat.MH.MH_pkthdr.len - skip < 2 * sizeof(u_int32_t)) {
-  m_freem(m);
-  do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
   ;
-  return 22;
+  do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
+  error = 22;
+  goto drop;
  }
  switch (sproto) {
  case 50:
@@ -5479,49 +5479,49 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
   break;
  default:
   ;
-  m_freem(m);
   do { if (sproto == 50) espstat_inc(esps_nopf); else if (sproto == 51) ahstat_inc(ahs_nopf); else ipcompstat_inc(ipcomps_nopf); } while (0);
-  return 46;
+  error = 46;
+  goto drop;
  }
  tdbp = gettdb(rtable_l2(m->M_dat.MH.MH_pkthdr.ph_rtableid),
      spi, &dst_address, sproto);
  if (tdbp == ((void *)0)) {
   ;
-  m_freem(m);
   do { if (sproto == 50) espstat_inc(esps_notdb); else if (sproto == 51) ahstat_inc(ahs_notdb); else ipcompstat_inc(ipcomps_notdb); } while (0);
-  return 2;
+  error = 2;
+  goto drop;
  }
  if (tdbp->tdb_flags & 0x00010) {
   ;
-  m_freem(m);
   do { if (sproto == 50) espstat_inc(esps_invalid); else if (sproto == 51) ahstat_inc(ahs_invalid); else ipcompstat_inc(ipcomps_invalid); } while (0);
-  return 22;
+  error = 22;
+  goto drop;
  }
  if (udpencap && !(tdbp->tdb_flags & 0x20000)) {
   ;
-  m_freem(m);
   espstat_inc(esps_udpinval);
-  return 22;
+  error = 22;
+  goto drop;
  }
  if (!udpencap && (tdbp->tdb_flags & 0x20000)) {
   ;
-  m_freem(m);
   espstat_inc(esps_udpneeded);
-  return 22;
+  error = 22;
+  goto drop;
  }
  if (tdbp->tdb_xform == ((void *)0)) {
   ;
-  m_freem(m);
   do { if (sproto == 50) espstat_inc(esps_noxform); else if (sproto == 51) ahstat_inc(ahs_noxform); else ipcompstat_inc(ipcomps_noxform); } while (0);
-  return 6;
+  error = 6;
+  goto drop;
  }
  if (sproto != 108) {
   if ((encif = enc_getif(tdbp->tdb_rdomain,
       tdbp->tdb_tap)) == ((void *)0)) {
    ;
-   m_freem(m);
    do { if (sproto == 50) espstat_inc(esps_pdrops); else if (sproto == 51) ahstat_inc(ahs_pdrops); else ipcompstat_inc(ipcomps_pdrops); } while (0);
-   return 13;
+   error = 13;
+   goto drop;
   }
   m->M_dat.MH.MH_pkthdr.ph_ifidx = encif->if_index;
  }
@@ -5535,6 +5535,9 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
        tdbp->tdb_soft_first_use);
  }
  error = (*(tdbp->tdb_xform->xf_input))(m, tdbp, skip, protoff);
+ return error;
+ drop:
+ m_freem(m);
  return error;
 }
 void
