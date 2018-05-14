@@ -3899,8 +3899,9 @@ elantech_get_hwinfo_v4(struct pms_softc *sc)
  u_char resp[3];
  if (synaptics_query(sc, 1, &fw_version))
   return (-1);
- if (((fw_version & 0x0f0000) >> 16) != 6 &&
-     (fw_version & 0x0f0000) >> 16 != 8)
+ if ((fw_version & 0x0f0000) >> 16 != 6
+     && (fw_version & 0x0f0000) >> 16 != 8
+     && (fw_version & 0x0f0000) >> 16 != 15)
   return (-1);
  elantech->fw_version = fw_version;
  elantech->flags |= 0x01;
@@ -3917,6 +3918,8 @@ elantech_get_hwinfo_v4(struct pms_softc *sc)
  hw->y_max = (resp[0] & 0xf0) << 4 | resp[2];
  if ((capabilities[1] < 2) || (capabilities[1] > hw->x_max))
   return (-1);
+ if (capabilities[0] & 0x80)
+  elantech->flags |= 0x20;
  hw->type = 18;
  hw->hw_type = WSMOUSEHW_CLICKPAD;
  hw->mt_slots = 5;
@@ -4061,6 +4064,7 @@ int
 pms_enable_elantech_v4(struct pms_softc *sc)
 {
  struct elantech_softc *elantech = sc->elantech;
+ struct wsmousedev_attach_args a;
  if (elantech_knock(sc))
   goto err;
  if (sc->elantech == ((void *)0)) {
@@ -4086,6 +4090,11 @@ pms_enable_elantech_v4(struct pms_softc *sc)
   }
   printf("%s: Elantech Clickpad, version %d, firmware 0x%x\n",
       ((sc)->sc_dev.dv_xname), 4, sc->elantech->fw_version);
+  if (sc->elantech->flags & 0x20) {
+   a.accessops = &pms_sec_accessops;
+   a.accesscookie = sc;
+   sc->sc_sec_wsmousedev = config_found_sm(((void *) sc), (&a), (wsmousedevprint), ((void *)0));
+  }
  } else if (elantech_set_absolute_mode_v4(sc))
   goto err;
  return (1);
@@ -4225,13 +4234,38 @@ pms_sync_elantech_v3(struct pms_softc *sc, int data)
  }
  return (0);
 }
+static inline int
+elantech_packet_type(u_char b)
+{
+ return ((b & 4) ? (b & 0xcf) : (b & 0x1f));
+}
 int
 pms_sync_elantech_v4(struct pms_softc *sc, int data)
 {
- if (sc->inputstate == 0 && (data & 0x0c) != 0x04)
+ if (sc->inputstate == 0) {
+  if ((data & 0x0c) == 0x04)
+   return (0);
+  if ((sc->elantech->flags & 0x20)
+      && (data & 0xc8) == 0)
+   return (0);
   return (-1);
- else
-  return (0);
+ }
+ if (sc->inputstate == 3) {
+  switch (elantech_packet_type(data)) {
+  case 0x10:
+  case 0x11:
+  case 0x12:
+   return ((sc->packet[0] & 4) ? 0 : -1);
+  case 0x06:
+   return ((sc->packet[0] & 0xc8) == 0
+       && sc->packet[1] == ((data & 0x10) << 3)
+       && sc->packet[2] == ((data & 0x20) << 2)
+       && (data ^ (sc->packet[0] & 0x30)) == 0x36
+       ? 0 : -1);
+  }
+  return (-1);
+ }
+ return (0);
 }
 void
 pms_proc_elantech_v1(struct pms_softc *sc)
@@ -4338,7 +4372,7 @@ pms_proc_elantech_v4(struct pms_softc *sc)
  struct device *sc_wsmousedev = sc->sc_wsmousedev;
  int id, weight, n, x, y, z;
  u_int buttons, slots;
- switch (sc->packet[3] & 0x1f) {
+ switch (elantech_packet_type(sc->packet[3])) {
  case 0x10:
   slots = elantech->mt_slots;
   elantech->mt_slots = sc->packet[1] & 0x1f;
@@ -4372,6 +4406,14 @@ pms_proc_elantech_v4(struct pms_softc *sc)
    wsmouse_set(sc_wsmousedev, WSMOUSE_MT_PRESSURE, z, id);
   }
   break;
+ case 0x06:
+  if (sc->sc_dev_enable & 0x02) {
+   x = sc->packet[4] - 0x100 + (sc->packet[1] << 1);
+   y = sc->packet[5] - 0x100 + (sc->packet[2] << 1);
+   buttons = butmap[sc->packet[0] & 7];
+   do { wsmouse_buttons((sc->sc_sec_wsmousedev), (buttons)); wsmouse_motion((sc->sc_sec_wsmousedev), (x), (y), (0), (0)); wsmouse_input_sync(sc->sc_sec_wsmousedev); } while (0);
+  }
+  return;
  default:
   printf("%s: unknown packet type 0x%x\n", ((sc)->sc_dev.dv_xname),
       sc->packet[3] & 0x1f);
