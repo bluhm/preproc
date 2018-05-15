@@ -776,20 +776,21 @@ void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
 struct schedstate_percpu {
+ struct proc *spc_idleproc;
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ struct { struct proc *lh_first; } spc_deadproc;
  struct timespec spc_runtime;
  volatile int spc_schedflags;
  u_int spc_schedticks;
- u_int64_t spc_cp_time[5];
+ u_int64_t spc_cp_time[6];
  u_char spc_curpriority;
  int spc_rrticks;
  int spc_pscnt;
  int spc_psdiv;
- struct proc *spc_idleproc;
  u_int spc_nrun;
  fixpt_t spc_ldavg;
- struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
- struct { struct proc *lh_first; } spc_deadproc;
+ volatile u_int spc_spinning;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -5100,6 +5101,10 @@ ipsp_process_packet(struct mbuf *m, struct tdb *tdb, int af, int tunalready)
     } else if (nxt == 43) {
      dstopt = 2;
     }
+    if (m->M_dat.MH.MH_pkthdr.len < hlen + sizeof(ip6e)) {
+     m_freem(m);
+     return 22;
+    }
     m_copydata(m, hlen, sizeof(ip6e),
         (caddr_t)&ip6e);
     nxt = ip6e.ip6e_nxt;
@@ -5112,6 +5117,10 @@ ipsp_process_packet(struct mbuf *m, struct tdb *tdb, int af, int tunalready)
   } while (hlen < m->M_dat.MH.MH_pkthdr.len);
  exitip6loop:;
   break;
+ }
+ if (m->M_dat.MH.MH_pkthdr.len < hlen) {
+  m_freem(m);
+  return 22;
  }
  if (tdb->tdb_sproto == 108) {
   if ((m->M_dat.MH.MH_pkthdr.len - hlen) < tdb->tdb_compalgxform->minlen) {

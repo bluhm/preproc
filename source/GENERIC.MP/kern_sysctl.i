@@ -776,20 +776,21 @@ void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
 struct schedstate_percpu {
+ struct proc *spc_idleproc;
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ struct { struct proc *lh_first; } spc_deadproc;
  struct timespec spc_runtime;
  volatile int spc_schedflags;
  u_int spc_schedticks;
- u_int64_t spc_cp_time[5];
+ u_int64_t spc_cp_time[6];
  u_char spc_curpriority;
  int spc_rrticks;
  int spc_pscnt;
  int spc_psdiv;
- struct proc *spc_idleproc;
  u_int spc_nrun;
  fixpt_t spc_ldavg;
- struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
- struct { struct proc *lh_first; } spc_deadproc;
+ volatile u_int spc_spinning;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -8720,14 +8721,14 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp,
  {
   int cii;
   struct cpu_info *ci;
-  long cp_time[5];
+  long cp_time[6];
   int i;
   __builtin_memset((cp_time), (0), (sizeof(cp_time)));
   for (cii = 0, ci = cpus; ci != ((void *)0); ci = ci->ci_next) {
-   for (i = 0; i < 5; i++)
+   for (i = 0; i < 6; i++)
     cp_time[i] += ci->ci_schedstate.spc_cp_time[i];
   }
-  for (i = 0; i < 5; i++)
+  for (i = 0; i < 6; i++)
    cp_time[i] /= ncpus;
   return (sysctl_rdstruct(oldp, oldlenp, newp, &cp_time,
       sizeof(cp_time)));

@@ -776,20 +776,21 @@ void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
 struct schedstate_percpu {
+ struct proc *spc_idleproc;
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ struct { struct proc *lh_first; } spc_deadproc;
  struct timespec spc_runtime;
  volatile int spc_schedflags;
  u_int spc_schedticks;
- u_int64_t spc_cp_time[5];
+ u_int64_t spc_cp_time[6];
  u_char spc_curpriority;
  int spc_rrticks;
  int spc_pscnt;
  int spc_psdiv;
- struct proc *spc_idleproc;
  u_int spc_nrun;
  fixpt_t spc_ldavg;
- struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
- struct { struct proc *lh_first; } spc_deadproc;
+ volatile u_int spc_spinning;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -4846,17 +4847,23 @@ struct sockaddr pfkey_addr = { 2, 30, };
 struct domain pfkeydomain;
 struct keycb {
  struct rawcb rcb;
- struct { struct keycb *le_next; struct keycb **le_prev; } kcb_list;
+ struct { struct srp se_next; } kcb_list;
+ struct refcnt refcnt;
  int flags;
  uint32_t pid;
  uint32_t registration;
- uint rdomain;
+ unsigned int rdomain;
 };
 struct dump_state {
  struct sadb_msg *sadb_msg;
  struct socket *socket;
 };
-static struct { struct keycb *lh_first; } pfkeyv2_sockets = { ((void *)0) };
+struct pfkey_cb {
+ struct srpl kcb;
+ struct srpl_rc kcb_rc;
+ struct rwlock kcb_lk;
+};
+struct pfkey_cb pfkey_cb;
 struct mutex pfkeyv2_mtx = { ((void *)0), ((((0)) > 0 && ((0)) < 12) ? 12 : ((0))), 0 };
 static uint32_t pfkeyv2_seq = 1;
 static int nregistered = 0;
@@ -4872,6 +4879,8 @@ int pfkey_sendup(struct keycb *, struct mbuf *, int);
 int pfkeyv2_sa_flush(struct tdb *, void *, int);
 int pfkeyv2_policy_flush(struct ipsec_policy *, void *, unsigned int);
 int pfkeyv2_sysctl_policydumper(struct ipsec_policy *, void *, unsigned int);
+void keycb_ref(void *, void *);
+void keycb_unref(void *, void *);
 int
 pfdatatopacket(void *data, int len, struct mbuf **packet)
 {
@@ -4901,9 +4910,24 @@ struct domain pfkeydomain = {
   .dom_protoswNPROTOSW = &pfkeysw[(sizeof((pfkeysw)) / sizeof((pfkeysw)[0]))],
 };
 void
+keycb_ref(void *null, void *v)
+{
+ struct keycb *kp = v;
+ refcnt_take(&kp->refcnt);
+}
+void
+keycb_unref(void *null, void *v)
+{
+ struct keycb *kp = v;
+ refcnt_rele_wake(&kp->refcnt);
+}
+void
 pfkey_init(void)
 {
  rn_init(sizeof(struct sockaddr_encap));
+ srpl_rc_init(&pfkey_cb.kcb_rc, keycb_ref, keycb_unref, ((void *)0));
+ _rw_init_flags(&pfkey_cb.kcb_lk, "pfkey", 0, ((void *)0));
+ srp_init(&(&pfkey_cb.kcb)->sl_head);
 }
 int
 pfkeyv2_attach(struct socket *so, int proto)
@@ -4916,6 +4940,7 @@ pfkeyv2_attach(struct socket *so, int proto)
  kp = malloc(sizeof(struct keycb), 4, 0x0001 | 0x0008);
  rp = &kp->rcb;
  so->so_pcb = rp;
+ refcnt_init(&kp->refcnt);
  error = soreserve(so, 8192, 8192);
  if (error) {
   free(kp, 4, sizeof(struct keycb));
@@ -4929,17 +4954,19 @@ pfkeyv2_attach(struct socket *so, int proto)
  rp->rcb_faddr = &pfkey_addr;
  kp->pid = (__curcpu->ci_self)->ci_curproc->p_p->ps_pid;
  kp->rdomain = rtable_l2((__curcpu->ci_self)->ci_curproc->p_p->ps_rtableid);
- do { if (((kp)->kcb_list.le_next = (&pfkeyv2_sockets)->lh_first) != ((void *)0)) (&pfkeyv2_sockets)->lh_first->kcb_list.le_prev = &(kp)->kcb_list.le_next; (&pfkeyv2_sockets)->lh_first = (kp); (kp)->kcb_list.le_prev = &(&pfkeyv2_sockets)->lh_first; } while (0);
+ _rw_enter(&pfkey_cb.kcb_lk, 0x0001UL );
+ do { void *head; srp_init(&(kp)->kcb_list.se_next); head = srp_get_locked(&(&pfkey_cb.kcb)->sl_head); if (head != ((void *)0)) { (&pfkey_cb.kcb_rc)->srpl_ref(&(&pfkey_cb.kcb_rc)->srpl_gc.srp_gc_cookie, head); srp_update_locked(&(&pfkey_cb.kcb_rc)->srpl_gc, &(kp)->kcb_list.se_next, head); } (&pfkey_cb.kcb_rc)->srpl_ref(&(&pfkey_cb.kcb_rc)->srpl_gc.srp_gc_cookie, kp); srp_update_locked(&(&pfkey_cb.kcb_rc)->srpl_gc, &(&pfkey_cb.kcb)->sl_head, (kp)); } while (0);
+ _rw_exit(&pfkey_cb.kcb_lk );
  return (0);
 }
 int
 pfkeyv2_detach(struct socket *so)
 {
  struct keycb *kp;
+ soassertlocked(so);
  kp = ((struct keycb *)(so)->so_pcb);
  if (kp == ((void *)0))
   return 57;
- do { if ((kp)->kcb_list.le_next != ((void *)0)) (kp)->kcb_list.le_next->kcb_list.le_prev = (kp)->kcb_list.le_prev; *(kp)->kcb_list.le_prev = (kp)->kcb_list.le_next; ((kp)->kcb_list.le_prev) = ((void *)-1); ((kp)->kcb_list.le_next) = ((void *)-1); } while (0);
  if (kp->flags &
      (1|2)) {
   __mtx_enter(&pfkeyv2_mtx );
@@ -4949,6 +4976,10 @@ pfkeyv2_detach(struct socket *so)
    npromisc--;
   __mtx_leave(&pfkeyv2_mtx );
  }
+ _rw_enter(&pfkey_cb.kcb_lk, 0x0001UL );
+ do { struct srp *ref; struct keycb *c, *n; ref = &(&pfkey_cb.kcb)->sl_head; while ((c = srp_get_locked(ref)) != (kp)) ref = &c->kcb_list.se_next; n = srp_get_locked(&(c)->kcb_list.se_next); if (n != ((void *)0)) (&pfkey_cb.kcb_rc)->srpl_ref(&(&pfkey_cb.kcb_rc)->srpl_gc.srp_gc_cookie, n); srp_update_locked(&(&pfkey_cb.kcb_rc)->srpl_gc, ref, n); srp_update_locked(&(&pfkey_cb.kcb_rc)->srpl_gc, &c->kcb_list.se_next, ((void *)0)); } while (0);
+ _rw_exit(&pfkey_cb.kcb_lk );
+ refcnt_finalize(&kp->refcnt, "pfkeyrefs");
  so->so_pcb = ((void *)0);
  sofree(so);
  free(kp, 4, sizeof(struct keycb));
@@ -4990,7 +5021,6 @@ pfkey_sendup(struct keycb *kp, struct mbuf *m0, int more)
 {
  struct socket *so = kp->rcb.rcb_socket;
  struct mbuf *m;
- do { int _s = rw_status(&netlock); if ((splassert_ctl > 0) && (_s != 0x0001UL && _s != 0x0002UL)) splassert_fail(0x0002UL, _s, __func__); } while (0);
  if (more) {
   if (!(m = m_dup_pkt(m0, 0, 0x0002)))
    return (12);
@@ -5012,6 +5042,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
  struct mbuf *packet;
  struct keycb *s;
  struct sadb_msg *smsg;
+ struct srp_ref sr;
  j = sizeof(struct sadb_msg);
  for (i = 1; i <= 35; i++)
   if (headers[i])
@@ -5048,19 +5079,17 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 433);
-  for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
+  for ((s) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (s) != ((void *)0); (s) = srp_follow((&sr), &(s)->kcb_list.se_next)) {
    if ((s->flags & 2) &&
        (s->rcb.rcb_socket != so) &&
        (s->rdomain == rdomain))
     pfkey_sendup(s, packet, 1);
   }
-  _kernel_unlock();
+  srp_leave((&sr));
   m_freem(packet);
   break;
  case 2:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 449);
-  for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
+  for ((s) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (s) != ((void *)0); (s) = srp_follow((&sr), &(s)->kcb_list.se_next)) {
    if ((s->flags & 1) &&
        (s->rdomain == rdomain)) {
     if (!satype)
@@ -5071,7 +5100,7 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
     }
    }
   }
-  _kernel_unlock();
+  srp_leave((&sr));
   m_freem(packet);
   __builtin_bzero((buffer), (sizeof(struct sadb_msg)));
   smsg = (struct sadb_msg *) buffer;
@@ -5083,23 +5112,21 @@ pfkeyv2_sendmessage(void **headers, int mode, struct socket *so,
   if ((rval = pfdatatopacket(buffer, sizeof(struct sadb_msg) + j,
       &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 481);
-  for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
+  for ((s) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (s) != ((void *)0); (s) = srp_follow((&sr), &(s)->kcb_list.se_next)) {
    if ((s->flags & 2) &&
        !(s->flags & 1) &&
        (s->rdomain == rdomain))
     pfkey_sendup(s, packet, 1);
   }
-  _kernel_unlock();
+  srp_leave((&sr));
   m_freem(packet);
   break;
  case 3:
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 494);
-  for((s) = ((&pfkeyv2_sockets)->lh_first); (s)!= ((void *)0); (s) = ((s)->kcb_list.le_next)) {
+  for ((s) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (s) != ((void *)0); (s) = srp_follow((&sr), &(s)->kcb_list.se_next)) {
    if (s->rdomain == rdomain)
     pfkey_sendup(s, packet, 1);
   }
-  _kernel_unlock();
+  srp_leave((&sr));
   m_freem(packet);
   break;
  }
@@ -5433,6 +5460,7 @@ pfkeyv2_send(struct socket *so, void *message, int len)
  struct sadb_sa *ssa;
  struct sadb_supported *ssup;
  struct sadb_ident *sid, *did;
+ struct srp_ref sr;
  u_int rdomain;
  int promisc;
  __mtx_enter(&pfkeyv2_mtx );
@@ -5464,13 +5492,12 @@ pfkeyv2_send(struct socket *so, void *message, int len)
   if ((rval = pfdatatopacket(freeme,
       sizeof(struct sadb_msg) + len, &packet)) != 0)
    goto ret;
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1023);
-  for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
+  for ((bkp) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (bkp) != ((void *)0); (bkp) = srp_follow((&sr), &(bkp)->kcb_list.se_next)) {
    if ((bkp->flags & 2) &&
        (bkp->rdomain == rdomain))
     pfkey_sendup(bkp, packet, 1);
   }
-  _kernel_unlock();
+  srp_leave((&sr));
   m_freem(packet);
   explicit_bzero(freeme, sizeof(struct sadb_msg) + len);
   free(freeme, 74, 0);
@@ -6036,15 +6063,14 @@ pfkeyv2_send(struct socket *so, void *message, int len)
    struct mbuf *packet;
    if ((rval = pfdatatopacket(message, len, &packet)) != 0)
     goto ret;
-   _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/pfkeyv2.c", 1798);
-   for((bkp) = ((&pfkeyv2_sockets)->lh_first); (bkp)!= ((void *)0); (bkp) = ((bkp)->kcb_list.le_next)) {
+   for ((bkp) = srp_enter((&sr), &(&pfkey_cb.kcb)->sl_head); (bkp) != ((void *)0); (bkp) = srp_follow((&sr), &(bkp)->kcb_list.se_next)) {
     if ((bkp != kp) &&
         (bkp->rdomain == rdomain) &&
         (!smsg->sadb_msg_seq ||
         (smsg->sadb_msg_seq == kp->pid)))
      pfkey_sendup(bkp, packet, 1);
    }
-   _kernel_unlock();
+   srp_leave((&sr));
    m_freem(packet);
   } else {
    if (len != sizeof(struct sadb_msg)) {

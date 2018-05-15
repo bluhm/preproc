@@ -776,20 +776,21 @@ void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
 struct schedstate_percpu {
+ struct proc *spc_idleproc;
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ struct { struct proc *lh_first; } spc_deadproc;
  struct timespec spc_runtime;
  volatile int spc_schedflags;
  u_int spc_schedticks;
- u_int64_t spc_cp_time[5];
+ u_int64_t spc_cp_time[6];
  u_char spc_curpriority;
  int spc_rrticks;
  int spc_pscnt;
  int spc_psdiv;
- struct proc *spc_idleproc;
  u_int spc_nrun;
  fixpt_t spc_ldavg;
- struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
- struct { struct proc *lh_first; } spc_deadproc;
+ volatile u_int spc_spinning;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -5412,25 +5413,6 @@ ipsec_common_input(struct mbuf *m, int skip, int protoff, int af, int sproto,
   do { if (sproto == 50) espstat_inc(esps_hdrops); else if (sproto == 51) ahstat_inc(ahs_hdrops); else ipcompstat_inc(ipcomps_hdrops); } while (0);
   return 22;
  }
- if ((sproto == 50 && !esp_enable) ||
-     (sproto == 51 && !ah_enable) ||
-     (m->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
-     (sproto == 108 && !ipcomp_enable)) {
-  switch (af) {
-  case 2:
-   rip_input(&m, &skip, sproto, af);
-   break;
-  case 24:
-   rip6_input(&m, &skip, sproto, af);
-   break;
-  default:
-   ;
-   do { if (sproto == 50) espstat_inc(esps_nopf); else if (sproto == 51) ahstat_inc(ahs_nopf); else ipcompstat_inc(ipcomps_nopf); } while (0);
-   error = 46;
-   goto drop;
-  }
-  return 0;
- }
  if ((sproto == 108) && (m->m_hdr.mh_flags & 0x4000)) {
   ;
   ipcompstat_inc(ipcomps_pdrops);
@@ -5853,6 +5835,10 @@ ipcomp_sysctl_ipcompstat(void *oldp, size_t *oldlenp, void *newp)
 int
 ah4_input(struct mbuf **mp, int *offp, int proto, int af)
 {
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !ah_enable)
+  return rip_input(mp, offp, proto, af);
  ipsec_common_input(*mp, *offp, __builtin_offsetof(struct ip, ip_p), 2,
      proto, 0);
  return 257;
@@ -5868,6 +5854,10 @@ ah4_ctlinput(int cmd, struct sockaddr *sa, u_int rdomain, void *v)
 int
 esp4_input(struct mbuf **mp, int *offp, int proto, int af)
 {
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !esp_enable)
+  return rip_input(mp, offp, proto, af);
  ipsec_common_input(*mp, *offp, __builtin_offsetof(struct ip, ip_p), 2,
      proto, 0);
  return 257;
@@ -5875,6 +5865,10 @@ esp4_input(struct mbuf **mp, int *offp, int proto, int af)
 int
 ipcomp4_input(struct mbuf **mp, int *offp, int proto, int af)
 {
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !ipcomp_enable)
+  return rip_input(mp, offp, proto, af);
  ipsec_common_input(*mp, *offp, __builtin_offsetof(struct ip, ip_p), 2,
      proto, 0);
  return 257;
@@ -5973,6 +5967,10 @@ ah6_input(struct mbuf **mp, int *offp, int proto, int af)
  int l = 0;
  int protoff, nxt;
  struct ip6_ext ip6e;
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !ah_enable)
+  return rip6_input(mp, offp, proto, af);
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
   ahstat_inc(ahs_hdrops);
@@ -6012,6 +6010,10 @@ esp6_input(struct mbuf **mp, int *offp, int proto, int af)
  int l = 0;
  int protoff, nxt;
  struct ip6_ext ip6e;
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !esp_enable)
+  return rip6_input(mp, offp, proto, af);
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
   espstat_inc(esps_hdrops);
@@ -6051,6 +6053,10 @@ ipcomp6_input(struct mbuf **mp, int *offp, int proto, int af)
  int l = 0;
  int protoff, nxt;
  struct ip6_ext ip6e;
+ if (
+     ((*mp)->M_dat.MH.MH_pkthdr.pf.flags & 0x08) ||
+     !ipcomp_enable)
+  return rip6_input(mp, offp, proto, af);
  if (*offp < sizeof(struct ip6_hdr)) {
   ;
   ipcompstat_inc(ipcomps_hdrops);

@@ -776,20 +776,21 @@ void *softintr_establish(int, void (*)(void *), void *);
 void softintr_disestablish(void *);
 void softintr_schedule(void *);
 struct schedstate_percpu {
+ struct proc *spc_idleproc;
+ struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
+ struct { struct proc *lh_first; } spc_deadproc;
  struct timespec spc_runtime;
  volatile int spc_schedflags;
  u_int spc_schedticks;
- u_int64_t spc_cp_time[5];
+ u_int64_t spc_cp_time[6];
  u_char spc_curpriority;
  int spc_rrticks;
  int spc_pscnt;
  int spc_psdiv;
- struct proc *spc_idleproc;
  u_int spc_nrun;
  fixpt_t spc_ldavg;
- struct prochead { struct proc *tqh_first; struct proc **tqh_last; } spc_qs[32];
  volatile uint32_t spc_whichqs;
- struct { struct proc *lh_first; } spc_deadproc;
+ volatile u_int spc_spinning;
 };
 extern int schedhz;
 extern int rrticks_init;
@@ -3175,6 +3176,8 @@ u_char com_cflag2lcr(tcflag_t);
 int comparam(struct tty *, struct termios *);
 void comstart(struct tty *);
 void comsoft(void *);
+uint8_t comcn_read_reg(bus_size_t);
+void comcn_write_reg(bus_size_t, uint8_t);
 struct consdev;
 int comcnattach(bus_space_tag_t, bus_addr_t, int, int, tcflag_t);
 void comcnprobe(struct consdev *);
@@ -3182,8 +3185,6 @@ void comcninit(struct consdev *);
 int comcngetc(dev_t);
 void comcnputc(dev_t, int);
 void comcnpollc(dev_t, int);
-int com_common_getc(bus_space_tag_t, bus_space_handle_t);
-void com_common_putc(bus_space_tag_t, bus_space_handle_t, int);
 void com_raisedtr(void *);
 void com_attach_subr(struct com_softc *);
 extern int comdefaultrate;
@@ -3196,6 +3197,8 @@ extern bus_space_tag_t comconsiot;
 extern bus_space_handle_t comconsioh;
 extern int comconsunit;
 extern tcflag_t comconscflag;
+extern u_char comcons_reg_width;
+extern u_char comcons_reg_shift;
 int comopen(dev_t, int, int, struct proc *); int comclose(dev_t, int, int, struct proc *); int comread(dev_t, struct uio *, int); int comwrite(dev_t, struct uio *, int); int comioctl(dev_t, u_long, caddr_t, int, struct proc *); int comstop(struct tty *, int); struct tty *comtty(dev_t); int compoll(dev_t, int, struct proc *); paddr_t commmap(dev_t, off_t, int); int comkqfilter(dev_t, struct knote *);
 static u_char tiocm_xxx2mcr(int);
 void compwroff(struct com_softc *);
@@ -4003,34 +4006,6 @@ comintr(void *arg)
    return (1);
  }
 }
-int
-com_common_getc(bus_space_tag_t iot, bus_space_handle_t ioh)
-{
- int s = _splraise(15);
- u_char stat, c;
- while (!((stat = bus_space_read_1(iot, ioh, 5)) & (0x01)))
-  continue;
- c = bus_space_read_1(iot, ioh, 0);
- stat = bus_space_read_1(iot, ioh, 2);
- _splx(s);
- return (c);
-}
-void
-com_common_putc(bus_space_tag_t iot, bus_space_handle_t ioh, int c)
-{
- int s = _splraise(6);
- int timo;
- timo = 2000;
- while (!((bus_space_read_1(iot, ioh, 5)) & (0x20)) && --timo)
-  delay(1);
- bus_space_write_1(iot, ioh, 0, (u_int8_t)(c & 0xff));
- bus_space_barrier(iot, ioh, 0, 8,
-     (0x01|0x02));
- timo = 2000;
- while (!((bus_space_read_1(iot, ioh, 5)) & (0x20)) && --timo)
-  delay(1);
- _splx(s);
-}
 void
 cominit(bus_space_tag_t iot, bus_space_handle_t ioh, int rate, int frequency)
 {
@@ -4096,12 +4071,31 @@ comcnattach(bus_space_tag_t iot, bus_addr_t iobase, int rate,
 int
 comcngetc(dev_t dev)
 {
- return (com_common_getc(comconsiot, comconsioh));
+ int s = _splraise(15);
+ u_char stat, c;
+ while (!((stat = comcn_read_reg(5)) & (0x01)))
+  continue;
+ c = comcn_read_reg(0);
+ stat = comcn_read_reg(2);
+ _splx(s);
+ return (c);
 }
 void
 comcnputc(dev_t dev, int c)
 {
- com_common_putc(comconsiot, comconsioh, c);
+ int s = _splraise(6);
+ int timo;
+ timo = 2000;
+ while (!((comcn_read_reg(5)) & (0x20)) && --timo)
+  delay(1);
+ comcn_write_reg(0, (u_int8_t)(c & 0xff));
+ bus_space_barrier(comconsiot, comconsioh, 0,
+     8 << comcons_reg_shift,
+     (0x01|0x02));
+ timo = 2000;
+ while (!((comcn_read_reg(5)) & (0x20)) && --timo)
+  delay(1);
+ _splx(s);
 }
 void
 comcnpollc(dev_t dev, int on)
@@ -4318,4 +4312,24 @@ com_write_reg(struct com_softc *sc, bus_size_t reg64, uint8_t value)
   return bus_space_write_4(sc->sc_iot, sc->sc_ioh, reg64, value);
  else
   return bus_space_write_1(sc->sc_iot, sc->sc_ioh, reg64, value);
+}
+u_char comcons_reg_width;
+u_char comcons_reg_shift;
+uint8_t
+comcn_read_reg(bus_size_t reg64)
+{
+ reg64 <<= comcons_reg_shift;
+ if (comcons_reg_width == 4)
+  return bus_space_read_4(comconsiot, comconsioh, reg64);
+ else
+  return bus_space_read_1(comconsiot, comconsioh, reg64);
+}
+void
+comcn_write_reg(bus_size_t reg64, uint8_t value)
+{
+ reg64 <<= comcons_reg_shift;
+ if (comcons_reg_width == 4)
+  return bus_space_write_4(comconsiot, comconsioh, reg64, value);
+ else
+  return bus_space_write_1(comconsiot, comconsioh, reg64, value);
 }
