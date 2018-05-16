@@ -3774,11 +3774,11 @@ fusefs_mount(struct mount *mp, const char *path, void *data,
  mp->mnt_data = fmp;
  mp->mnt_flag |= 0x00001000;
  vfs_getnewfsid(mp);
- __builtin_bzero((mp->mnt_stat.f_mntonname), (90));
+ __builtin_memset((mp->mnt_stat.f_mntonname), (0), (90));
  strlcpy(mp->mnt_stat.f_mntonname, path, 90);
- __builtin_bzero((mp->mnt_stat.f_mntfromname), (90));
+ __builtin_memset((mp->mnt_stat.f_mntfromname), (0), (90));
  strlcpy(mp->mnt_stat.f_mntfromname, "fusefs", 90);
- __builtin_bzero((mp->mnt_stat.f_mntfromspec), (90));
+ __builtin_memset((mp->mnt_stat.f_mntfromspec), (0), (90));
  strlcpy(mp->mnt_stat.f_mntfromspec, "fusefs", 90);
  fuse_device_set_fmp(fmp, 1);
  fbuf = fb_setup(0, 0, 19, p);

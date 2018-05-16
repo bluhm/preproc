@@ -3985,6 +3985,7 @@ void
 pppasyncrelinq(struct ppp_softc *sc)
 {
     int s;
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ppp_tty.c", 258);
     s = _splraise(6);
     m_freem(sc->sc_outm);
     sc->sc_outm = ((void *)0);
@@ -3997,6 +3998,7 @@ pppasyncrelinq(struct ppp_softc *sc)
  sc->sc_flags &= ~0x00000400;
     }
     _splx(s);
+    _kernel_unlock();
 }
 int
 pppread(struct tty *tp, struct uio *uio, int flag)
@@ -4121,7 +4123,9 @@ ppptioctl(struct tty *tp, u_long cmd, caddr_t data, int flag, struct proc *p)
  __builtin_bcopy((sc->sc_asyncmap), (data), (sizeof(sc->sc_asyncmap)));
  break;
     default:
+ do { _rw_enter_write(&netlock ); } while (0);
  error = pppioctl(sc, cmd, data, flag, p);
+ do { _rw_exit_write(&netlock ); } while (0);
  if (error == 0 && cmd == ((unsigned long)0x80000000 | ((sizeof(int) & 0x1fff) << 16) | ((('t')) << 8) | ((82))))
      ppppkt(sc);
     }
@@ -4178,6 +4182,7 @@ pppasyncstart(struct ppp_softc *sc)
     int n, ndone, done, idle;
     struct mbuf *m2;
     int s;
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ppp_tty.c", 503);
     idle = 0;
     while (((&tp->t_outq)->c_cc) < tp->t_hiwat) {
  m = sc->sc_outm;
@@ -4281,17 +4286,20 @@ pppasyncstart(struct ppp_softc *sc)
  sc->sc_flags |= 0x00000400;
     }
     _splx(s);
+    _kernel_unlock();
 }
 void
 pppasyncctlp(struct ppp_softc *sc)
 {
     struct tty *tp;
     int s;
+    _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../net/ppp_tty.c", 683);
     s = _splraise(6);
     tp = (struct tty *) sc->sc_devp;
     putc(0, &tp->t_canq);
     ttwakeup(tp);
     _splx(s);
+    _kernel_unlock();
 }
 int
 pppstart_internal(struct tty *tp, int force)

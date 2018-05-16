@@ -3043,7 +3043,7 @@ fuseread(dev_t dev, struct uio *uio, int ioflag)
  if (uio->uio_resid != (sizeof(struct fusebuf)))
   return (22);
  __builtin_memcpy((&hdr.fh_next), (&fbuf->fb_hdr.fh_next), (sizeof(fbuf->fb_hdr.fh_next)));
- __builtin_bzero((&fbuf->fb_hdr.fh_next), (sizeof(fbuf->fb_hdr.fh_next)));
+ __builtin_memset((&fbuf->fb_hdr.fh_next), (0), (sizeof(fbuf->fb_hdr.fh_next)));
  tmpaddr = fbuf->fb_dat;
  fbuf->fb_dat = ((void *)0);
  error = uiomove(fbuf, (sizeof(struct fusebuf)), uio);
