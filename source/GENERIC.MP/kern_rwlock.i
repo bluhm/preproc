@@ -1679,6 +1679,7 @@ void witness_norelease(struct lock_object *);
 void witness_releaseok(struct lock_object *);
 const char *witness_file(struct lock_object *);
 void witness_thread_exit(struct proc *);
+int witness_sysctl_watch(void *, size_t *, void *, size_t);
 static const struct rwlock_op {
  unsigned long inc;
  unsigned long check;

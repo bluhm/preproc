@@ -20171,6 +20171,62 @@ static const struct pci_known_product pci_known_products[] = {
      "100 Series HD Audio",
  },
  {
+     0x8086, 0xa182,
+     "C620 AHCI",
+ },
+ {
+     0x8086, 0xa190,
+     "C620 PCIE",
+ },
+ {
+     0x8086, 0xa194,
+     "C620 PCIE",
+ },
+ {
+     0x8086, 0xa1a1,
+     "C620 Power",
+ },
+ {
+     0x8086, 0xa1a3,
+     "C620 SMBus",
+ },
+ {
+     0x8086, 0xa1a4,
+     "C620 SPI",
+ },
+ {
+     0x8086, 0xa1af,
+     "C620 xHCI",
+ },
+ {
+     0x8086, 0xa1b1,
+     "C620 Thermal",
+ },
+ {
+     0x8086, 0xa1ba,
+     "C620 MEI",
+ },
+ {
+     0x8086, 0xa1bb,
+     "C620 MEI",
+ },
+ {
+     0x8086, 0xa1be,
+     "C620 MEI",
+ },
+ {
+     0x8086, 0xa1c1,
+     "C621 LPC",
+ },
+ {
+     0x8086, 0xa1d2,
+     "C620 AHCI",
+ },
+ {
+     0x8086, 0xa1ec,
+     "C620 MROM",
+ },
+ {
      0x8086, 0xa282,
      "200 Series AHCI",
  },
@@ -25573,6 +25629,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x10b5, 0x9080,
      "I/O 9080",
+ },
+ {
+     0x10b5, 0x9733,
+     "PEX 9733",
  },
  {
      0x10b5, 0xc001,

@@ -5676,6 +5676,27 @@ int sys_symlinkat(struct proc *, void *, register_t *);
 int sys_unlinkat(struct proc *, void *, register_t *);
 int sys___set_tcb(struct proc *, void *, register_t *);
 int sys___get_tcb(struct proc *, void *, register_t *);
+void witness_initialize(void);
+void witness_init(struct lock_object *, struct lock_type *);
+int witness_defineorder(struct lock_object *, struct lock_object *);
+void witness_checkorder(struct lock_object *, int, const char *, int,
+     struct lock_object *);
+void witness_lock(struct lock_object *, int, const char *, int);
+void witness_upgrade(struct lock_object *, int, const char *, int);
+void witness_downgrade(struct lock_object *, int, const char *, int);
+void witness_unlock(struct lock_object *, int, const char *, int);
+void witness_save(struct lock_object *, const char **, int *);
+void witness_restore(struct lock_object *, const char *, int);
+int witness_warn(int, struct lock_object *, const char *, ...);
+void witness_assert(const struct lock_object *, int, const char *, int);
+void witness_display_spinlock(struct lock_object *, struct proc *,
+     int (*)(const char *, ...));
+int witness_line(struct lock_object *);
+void witness_norelease(struct lock_object *);
+void witness_releaseok(struct lock_object *);
+const char *witness_file(struct lock_object *);
+void witness_thread_exit(struct proc *);
+int witness_sysctl_watch(void *, size_t *, void *, size_t);
 typedef int vm_fault_t;
 typedef int vm_inherit_t;
 typedef off_t voff_t;
@@ -9881,8 +9902,8 @@ sysctl_proc_vmmap(int *name, u_int namelen, void *oldp, size_t *oldlenp,
   goto done;
  if (len == 0)
   goto done;
- ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2052, "len <= oldlen"));
- (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2053, "(len % sizeof(struct kinfo_vmentry)) == 0"));
+ ((len <= oldlen) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2057, "len <= oldlen"));
+ (((len % sizeof(struct kinfo_vmentry)) == 0) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../kern/kern_sysctl.c", 2058, "(len % sizeof(struct kinfo_vmentry)) == 0"));
  error = copyout(kve, oldp, len);
 done:
  *oldlenp = len;

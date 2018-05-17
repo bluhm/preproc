@@ -3003,7 +3003,8 @@ uaddr_stack_brk_select(struct vm_map *map, struct uvm_addr_state *uaddr,
  before_gap = ((arc4random() & 0x3) + 1) << 13;
  after_gap = ((arc4random() & 0x3) + 1) << 13;
  dir = 1;
- if (end - start >= sz + before_gap + after_gap) {
+ if (end - start >= before_gap + after_gap &&
+     end - start - before_gap - after_gap >= sz) {
   if (uvm_addr_linsearch(map, uaddr, entry_out, addr_out,
       0, sz, align, offset, dir, start, end - sz,
       before_gap, after_gap) == 0)

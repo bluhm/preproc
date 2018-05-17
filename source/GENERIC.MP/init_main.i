@@ -3998,6 +3998,7 @@ void witness_norelease(struct lock_object *);
 void witness_releaseok(struct lock_object *);
 const char *witness_file(struct lock_object *);
 void witness_thread_exit(struct proc *);
+int witness_sysctl_watch(void *, size_t *, void *, size_t);
 struct sys_exit_args {
  union { register_t pad; struct { int datum; } le; struct { int8_t pad[ (sizeof (register_t) < sizeof (int)) ? 0 : sizeof (register_t) - sizeof (int)]; int datum; } be; } rval;
 };

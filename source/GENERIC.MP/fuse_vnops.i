@@ -3854,7 +3854,7 @@ fusefs_readdir(void *v)
   fbuf->FD.FD_io.fi_len = (((uio->uio_resid)<(fmp->max_read))?(uio->uio_resid):(fmp->max_read));
   error = fb_queue(fmp->dev, fbuf);
   if (error) {
-   if (error == 55 && fbuf->fb_hdr.fh_len == 0)
+   if (error == 55)
     error = 0;
    fb_delete(fbuf);
    break;
