@@ -5892,10 +5892,10 @@ bge_attach(struct device *parent, struct device *self, void *aux)
  ;
  intrstr = pci_intr_string(pc, ih);
  ;
- bge_sig_pre_reset(sc, 1);
+ bge_sig_pre_reset(sc, 0);
  bge_reset(sc);
- bge_sig_legacy(sc, 1);
- bge_sig_post_reset(sc, 1);
+ bge_sig_legacy(sc, 0);
+ bge_sig_post_reset(sc, 0);
  bge_chipinit(sc);
  if (!gotenaddr) {
   if (OF_getprop((int)(((pa->pa_tag)>>32)&0xffffffff), "local-mac-address",
@@ -6146,6 +6146,19 @@ bge_reset(struct bge_softc *sc)
    write_op = bge_writemem_ind;
  } else
   write_op = bge_writereg_ind;
+ if (((sc->bge_chipid) >> 12) != 0x07 &&
+     ((sc->bge_chipid) >> 12) != 0x00) {
+  bus_space_write_4(sc->bge_btag, sc->bge_bhandle, 0x7020, 0x00000002);
+  for (i = 0; i < 8000; i++) {
+   if (bus_space_read_4(sc->bge_btag, sc->bge_bhandle, 0x7020) &
+       0x00000200)
+    break;
+   delay(20);
+  }
+  if (i == 8000)
+   printf("%s: nvram lock timed out\n",
+       sc->bge_dev.dv_xname);
+ }
  bge_ape_lock(sc, 1);
  cachesize = pci_conf_read(pa->pa_pc, pa->pa_tag, 0x0C);
  command = pci_conf_read(pa->pa_pc, pa->pa_tag, 0x04);
@@ -6482,7 +6495,7 @@ bge_intr(void *xsc)
  if (((sc->bge_chipid) >> 12) == 0x07 ||
      statusword & 0x00000002 ||
      ((sc)->bge_sts & (0x00000002))) {
-  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_bge.c", 3720);
+  _kernel_lock("/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_bge.c", 3733);
   bge_link_upd(sc);
   _kernel_unlock();
  }
@@ -6601,7 +6614,7 @@ bge_compact_dma_runt(struct mbuf *pkt)
    n = m_get((0x0002), (1));
    if (n == ((void *)0))
     return (55);
-   ((m->m_hdr.mh_len + shortfall < (256 - sizeof(struct m_hdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_bge.c", 3938, "m->m_len + shortfall < MLEN"));
+   ((m->m_hdr.mh_len + shortfall < (256 - sizeof(struct m_hdr))) ? (void)0 : __assert("diagnostic ", "/home/bluhm/github/preproc/openbsd/src/sys/arch/sparc64/compile/GENERIC.MP/obj/../../../../../dev/pci/if_bge.c", 3951, "m->m_len + shortfall < MLEN"));
    __builtin_bcopy((prev->m_hdr.mh_data + newprevlen), (n->m_hdr.mh_data), (shortfall));
    prev->m_hdr.mh_len -= shortfall;
    __builtin_bcopy((m->m_hdr.mh_data), (n->m_hdr.mh_data + shortfall), (m->m_hdr.mh_len));

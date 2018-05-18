@@ -3814,7 +3814,7 @@ fusefs_unmount(struct mount *mp, int mntflags, struct proc *p)
  }
  fuse_device_cleanup(fmp->dev, ((void *)0));
  fuse_device_set_fmp(fmp, 0);
- free(fmp, 65, 0);
+ free(fmp, 65, sizeof(*fmp));
  mp->mnt_data = ((void *)0);
  return (0);
 }

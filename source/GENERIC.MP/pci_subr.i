@@ -6443,6 +6443,10 @@ static const struct pci_known_product pci_known_products[] = {
      "Tahiti",
  },
  {
+     0x1002, 0x67e8,
+     "Radeon Pro WX 4130/4150",
+ },
+ {
      0x1002, 0x6800,
      "Radeon HD 7970M",
  },
@@ -8077,6 +8081,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x1002, 0xaa98,
      "Radeon HD 6400 Audio",
+ },
+ {
+     0x1002, 0xaae0,
+     "Radeon Pro Audio",
  },
  {
      0x1002, 0xcab0,
@@ -13719,6 +13727,18 @@ static const struct pci_known_product pci_known_products[] = {
      "I219-V",
  },
  {
+     0x8086, 0x15d9,
+     "JHL6340 Thunderbolt 3",
+ },
+ {
+     0x8086, 0x15da,
+     "JHL6340 Thunderbolt 3",
+ },
+ {
+     0x8086, 0x15db,
+     "JHL6340 Thunderbolt 3",
+ },
+ {
      0x8086, 0x15df,
      "I219-LM",
  },
@@ -18319,6 +18339,10 @@ static const struct pci_known_product pci_known_products[] = {
      "UHD Graphics 620",
  },
  {
+     0x8086, 0x5918,
+     "Xeon E3-1200 v6/7 Host",
+ },
+ {
      0x8086, 0x591a,
      "HD Graphics P630",
  },
@@ -20143,6 +20167,10 @@ static const struct pci_known_product pci_known_products[] = {
      "CM236 LPC",
  },
  {
+     0x8086, 0xa154,
+     "Sunrise Point-H LPC",
+ },
+ {
      0x8086, 0xa160,
      "100 Series I2C",
  },
@@ -20169,6 +20197,10 @@ static const struct pci_known_product pci_known_products[] = {
  {
      0x8086, 0xa170,
      "100 Series HD Audio",
+ },
+ {
+     0x8086, 0xa171,
+     "CM238 HD Audio Controller",
  },
  {
      0x8086, 0xa182,

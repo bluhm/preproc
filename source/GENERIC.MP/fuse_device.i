@@ -2840,7 +2840,7 @@ fuse_destroy(dev_t dev, struct fuse_d *fd)
 {
  do { if ((fd)->fd_list.le_next != ((void *)0)) (fd)->fd_list.le_next->fd_list.le_prev = (fd)->fd_list.le_prev; *(fd)->fd_list.le_prev = (fd)->fd_list.le_next; ((fd)->fd_list.le_prev) = ((void *)-1); ((fd)->fd_list.le_next) = ((void *)-1); } while (0);
  fuse_device_cleanup(dev, ((void *)0));
- free(fd, 2, sizeof *fd);
+ free(fd, 2, sizeof(*fd));
 }
 void
 fuse_device_cleanup(dev_t dev, struct fusebuf *fbuf)
@@ -2980,7 +2980,7 @@ fuseioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
    printf("fuse: cannot copyout\n");
    return (error);
   }
-  free(fbuf->fb_dat, 65, 0);
+  free(fbuf->fb_dat, 65, fbuf->fb_hdr.fh_len);
   fbuf->fb_dat = ((void *)0);
   do { (fbuf)->fb_hdr.fh_next.sqe_next = ((void *)0); *(&fd->fd_fbufs_wait)->sqh_last = (fbuf); (&fd->fd_fbufs_wait)->sqh_last = &(fbuf)->fb_hdr.fh_next.sqe_next; } while (0);
   stat_fbufs_wait++;
@@ -3007,7 +3007,7 @@ fuseioctl(dev_t dev, u_long cmd, caddr_t addr, int flags, struct proc *p)
       ioexch->fbxch_len);
   if (error) {
    printf("fuse: Cannot copyin\n");
-   free(fbuf->fb_dat, 65, 0);
+   free(fbuf->fb_dat, 65, fbuf->fb_hdr.fh_len);
    fbuf->fb_dat = ((void *)0);
    return (error);
   }

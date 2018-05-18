@@ -3959,7 +3959,7 @@ fusefs_reclaim(void *v)
   fb_delete(fbuf);
  }
  ufs_ihashrem(&ip->ufs_ino);
- free(ip, 65, 0);
+ free(ip, 65, sizeof(*ip));
  vp->v_data = ((void *)0);
  return (0);
 }

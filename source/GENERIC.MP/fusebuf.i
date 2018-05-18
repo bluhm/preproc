@@ -2615,7 +2615,7 @@ void
 fb_delete(struct fusebuf *fbuf)
 {
  if (fbuf != ((void *)0)) {
-  free(fbuf->fb_dat, 65, 0);
+  free(fbuf->fb_dat, 65, fbuf->fb_hdr.fh_len);
   pool_put(&fusefs_fbuf_pool, fbuf);
  }
 }
