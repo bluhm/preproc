@@ -20168,7 +20168,7 @@ static const struct pci_known_product pci_known_products[] = {
  },
  {
      0x8086, 0xa154,
-     "Sunrise Point-H LPC",
+     "CM238 LPC",
  },
  {
      0x8086, 0xa160,
